@@ -121,7 +121,7 @@ test('实际浏览器构建保持完整知识目录、诊断来源与型号隔�
     const health = await (await previewFetch('/api/health')).json();
     assert.equal(health.knowledge.archivedEntries, catalog.totals.archivedEntries);
     assert.equal(health.knowledge.learningEntries, 6000);
-    assert.equal(health.knowledge.totalEntries, 10853);
+    assert.equal(health.knowledge.totalEntries, catalog.totals.entries);
     assert.equal(health.llm.configured, false);
   } finally { rmSync(directory, { recursive: true, force: true }); }
 });

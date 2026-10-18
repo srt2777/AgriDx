@@ -139,7 +139,7 @@ test('unified library HTTP serves both original learning batches and archive evi
     const response = await requestCatalog(new URLSearchParams({ collection: 'all', q }));
     assert.equal(response.status, 200);
     const result = await response.json() as KnowledgeCatalog;
-    assert.equal(result.totals.entries, 10853);
+    assert.equal(result.totals.entries, archive.length + 6000);
     assert.equal(result.library!.total, 1);
     assert.equal(result.library!.entries[0].entryId, q);
     assert.equal(result.library!.entries[0].collection, collection);

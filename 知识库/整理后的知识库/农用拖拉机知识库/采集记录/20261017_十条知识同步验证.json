@@ -1,0 +1,58 @@
+{
+  "date": "2026-10-17",
+  "batch_id": "ten-verified-sync-20261017",
+  "project_version": "3.5.7",
+  "stage": "初始十条验证阶段；最终二十条合并数量见20261018_两批故障知识20条.json",
+  "integration_base_commit": "a06736d8d6058e838571476de2c5594879034877",
+  "learning_entries": 6000,
+  "total_library_entries": 10863,
+  "base_commit": "c6e8f6eb2f8363cf62c49cf522768afa7d68a965",
+  "base_entries": 4853,
+  "added_entries": 10,
+  "total_entries": 4863,
+  "retrieval_chunks": 4872,
+  "sources": 28,
+  "knowledge_documents": 66,
+  "entry_ids": [
+    "KB-MH-SYNC10-20261017-001",
+    "KB-MH-SYNC10-20261017-002",
+    "KB-MH-SYNC10-20261017-003",
+    "KB-MH-SYNC10-20261017-004",
+    "KB-MH-SYNC10-20261017-005",
+    "KB-MH-SYNC10-20261017-006",
+    "KB-MH-SYNC10-20261017-007",
+    "KB-MH-SYNC10-20261017-008",
+    "KB-MH-SYNC10-20261017-009",
+    "KB-MH-SYNC10-20261017-010"
+  ],
+  "source_id": "SRC-MH-6065-6075-CAB-REV01",
+  "models": [
+    "6065",
+    "6075"
+  ],
+  "configuration": "CAB",
+  "drive_configuration": "4WD",
+  "manual": {
+    "sha256": "e297a67b7a411bedeb95f0211bd2260ee46e2f2ea6504dd0996738288b9b2ea5",
+    "bytes": 7467401,
+    "pdf_pages": 127,
+    "reviewed_pdf_pages": [
+      1,
+      2,
+      114,
+      115
+    ],
+    "full_pdf_committed": false
+  },
+  "baseline_integrity": {
+    "entries_bytes": 4127187,
+    "entries_sha256": "715c07c39442607fa582257dadc87fa2e3375cad80f3ddaf7d34f7c18cffd870",
+    "knowledge_documents": 65,
+    "knowledge_sha256": "a6b5ea24885999668d67b578a4c03955ddd0de447ef2b648e92aefdcd91bc20a",
+    "sources_sha256": "8daa05ebeb2b9aef48cb293fd233a7aaed69dbd6dabffa18f447486c06b70297",
+    "hierarchy_sha256": "376c877a97480d91ca96e5ec148af0c83ebead8c9a3b076df0fd7212f57f0cac",
+    "components_sha256": "ae84d2265f0abc33cfde648359e43c0b769c11b5139a63b2d559b7e84ea9ec6f"
+  },
+  "delivery_status": "local_validation_then_pr_ci_and_automatic_deploy",
+  "browser_auto_reload_observed": false
+}
