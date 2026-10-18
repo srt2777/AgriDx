@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-18",
+  "updated_at": "2026-10-19",
   "purpose": "仅为已有知识条目的分层导航；零件关联不是故障确诊，不新增维修事实、型号或兼容性。",
   "components": [
     {
@@ -48783,6 +48783,74 @@
         },
         {
           "component_id": "cooling",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-MH-REMAIN-20261019-001",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": []
+        },
+        {
+          "component_id": "lubrication",
+          "part_ids": []
+        },
+        {
+          "component_id": "fuel",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-MH-REMAIN-20261019-002",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": []
+        },
+        {
+          "component_id": "fuel",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-MH-REMAIN-20261019-003",
+      "components": [
+        {
+          "component_id": "fuel",
+          "part_ids": []
+        },
+        {
+          "component_id": "engine",
+          "part_ids": []
+        },
+        {
+          "component_id": "cooling",
+          "part_ids": []
+        },
+        {
+          "component_id": "lubrication",
+          "part_ids": []
+        },
+        {
+          "component_id": "chassis",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-MH-REMAIN-20261019-004",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        },
+        {
+          "component_id": "brakes",
           "part_ids": []
         }
       ]

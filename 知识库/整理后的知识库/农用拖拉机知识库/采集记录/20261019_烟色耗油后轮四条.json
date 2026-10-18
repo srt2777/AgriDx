@@ -1,0 +1,16 @@
+{
+  "date_shanghai": "2026-10-19",
+  "version_batch": "mahindra-four-remaining-20261019",
+  "project_version": "3.5.8",
+  "integration_base_commit": "9c9c44ed37ab71430da3ad7f14f8ff16626654ee",
+  "baseline": {"archive_entries": 4873, "learning_entries": 6000, "library_entries": 10873, "sources": 28, "knowledge_documents": 67},
+  "baseline_integrity": {"entries_bytes":4145108,"entries_sha256":"845c358e9197ae72d5030a915ff1378550bc1be1ce902d724d8e4c6cf587cf17","knowledge_documents":67,"knowledge_sha256":"75843fa6e5f679f02fd589905536ccd15861d188a8ea004a4362e3e1d4234e3c","hierarchy_sha256":"b47e17b536e16eae8f0d11a3fe99fd3c264bff71e9427027fddce7e1eef91c85","components_sha256":"ae84d2265f0abc33cfde648359e43c0b769c11b5139a63b2d559b7e84ea9ec6f","other_sources_sha256":"8daa05ebeb2b9aef48cb293fd233a7aaed69dbd6dabffa18f447486c06b70297"},
+  "added_entries": 4,
+  "entry_ids": ["KB-MH-REMAIN-20261019-001", "KB-MH-REMAIN-20261019-002", "KB-MH-REMAIN-20261019-003", "KB-MH-REMAIN-20261019-004"],
+  "totals": {"archive_entries": 4877, "learning_entries": 6000, "library_entries": 10877, "retrieval_chunks": 10886, "sources": 28, "knowledge_documents": 68},
+  "source_id": "SRC-MH-6065-6075-CAB-REV01",
+  "manual": {"sha256": "e297a67b7a411bedeb95f0211bd2260ee46e2f2ea6504dd0996738288b9b2ea5", "bytes": 7467401, "pages": 127, "rereviewed_pdf_pages": [113, 115], "printed_pages": [112, 114], "full_pdf_committed": false},
+  "release_targets": ["https://agridx-dev-preview.z3464715478.chatgpt.site", "https://agridx.xyz"],
+  "release_status": "pending_pr_ci_merge_and_live_verification",
+  "browser_auto_reload_observed": false
+}
