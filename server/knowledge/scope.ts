@@ -11,6 +11,7 @@ export interface RetrievalContext {
 const BRAND_ALIASES: Record<string, string[]> = {
   久保田: ['久保田', 'kubota'],
   纽荷兰: ['纽荷兰', 'new holland', 'newholland'],
+  Mahindra: ['mahindra'],
   中联: ['中联', 'zoomlion'],
   雷沃: ['雷沃', 'lovol', '福田雷沃', '雷沃欧豹', '雷沃阿波斯'],
   东风: ['东风', 'dongfeng', 'dong feng'],

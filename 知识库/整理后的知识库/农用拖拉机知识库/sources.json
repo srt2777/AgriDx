@@ -2535,5 +2535,46 @@
     "manual_bytes": 111341,
     "manual_pdf_pages": 5,
     "source_level": "厂家官方技术出版物5页预览；不是完整维修手册"
+  },
+  {
+    "source_id": "SRC-MH-6065-6075-CAB-REV01",
+    "brand": "Mahindra",
+    "model": "6065/6075 4WD CABIN",
+    "models": [
+      "6065",
+      "6075"
+    ],
+    "title": "Mahindra 6065/6075 4WD CABIN TIER-4 FINAL Operator's Manual（Rev 01）",
+    "path": "知识库/原始农机说明书/Mahindra/6065-6075_4WD_CABIN/来源记录_Rev01.md",
+    "url": "https://www.mahindrausa.com/wp-content/uploads/2024/03/6000-Series-Operator-Manual.pdf",
+    "download_url": "https://www.mahindrausa.com/wp-content/uploads/2024/03/6000-Series-Operator-Manual.pdf",
+    "document_type": "整机操作/维护说明书",
+    "role": "美国版拖拉机故障表选页依据",
+    "version": "6065 / 6075 4WD CABIN Rev 01；独立出版日期未确认",
+    "version_date": null,
+    "pdf_metadata_date": "创建2024-03-04；修改2024-03-06；不是出版日期",
+    "scope_boundary": "仅Mahindra 6065/6075 4WD CABIN TIER-4 FINAL、Rev 01美国英语版；核对实车版次、序列号和配置。不用于其他6000系列、2WD或ROPS，不将Tier-4 Final换算为中国国四。出版日期未知。",
+    "status": "2026-10-17人工目视核对封面、内封面及PDF114/115；2026-10-18续核PDF110—113并补充发动机十条，共二十条独立概述；未全书审校、厂家复核或实车验证",
+    "source_level": "厂家Mahindra USA公开整机操作手册",
+    "storage_type": "link_and_source_record",
+    "sha256": "c5726d23e5a89c5c3871eec93980d82f0d200282e4f4b27ac88bbc4b53515b71",
+    "bytes": 1877,
+    "manual_sha256": "e297a67b7a411bedeb95f0211bd2260ee46e2f2ea6504dd0996738288b9b2ea5",
+    "manual_bytes": 7467401,
+    "manual_pdf_pages": 127,
+    "collected_at": "2026-10-17",
+    "configuration": "CAB",
+    "drive_configuration": "4WD",
+    "emission_stage_unknown": true,
+    "verified_pdf_pages": {
+      "1": "人工目视核对封面：6065/6075 4WD CABIN TIER-4，Mahindra USA；无印刷页码",
+      "2": "人工目视核对内封面：TIER-4 FINAL及页脚6065 / 6075 4WD CABIN Rev 01；无印刷页码",
+      "110": "2026-10-18人工目视核对发动机转动不能起动与动力不足首段；印刷109",
+      "111": "2026-10-18人工目视核对动力不足续表、失火、怠速、振动、敲击及机油消耗首段；印刷110",
+      "112": "2026-10-18人工目视核对机油消耗续表、过热及润滑压力合列表，保留重复节温器行差异；印刷111",
+      "113": "2026-10-18人工目视核对完整表页，本批引用冒白烟分组；印刷112；蓝烟、黑灰烟与耗油分组未抽取",
+      "114": "人工目视核对完整故障表、星号与页脚：TURBOCHARGER及HYDRAULICS；印刷113",
+      "115": "人工目视核对完整故障表、星号与页脚：BRAKES、TRANSMISSION、REAR WHEELS、ELECTRICALS；印刷114；本批不抽取REAR WHEELS"
+    }
   }
 ]

@@ -8,16 +8,20 @@ import { LEARNING_INDEXES } from '../server/knowledge/learning';
 import { retrieve, stats } from '../server/knowledge/retriever';
 import { parseKnowledgeCatalog } from '../src/features/knowledge/catalog-api';
 
+const archiveCount = fs.readFileSync('知识库/整理后的知识库/农用拖拉机知识库/entries.jsonl', 'utf8').trim().split(/\r?\n/).length;
+const learningCount = LEARNING_INDEXES.reduce((count, file) => count + fs.readFileSync(file, 'utf8').trim().split(/\r?\n/).length, 0);
+const totalCount = archiveCount + learningCount;
+
 function verifyLibraryRecords() {
   const archiveIndex = '知识库/整理后的知识库/农用拖拉机知识库/entries.jsonl';
   const rows = [archiveIndex, ...LEARNING_INDEXES].flatMap(file => fs.readFileSync(file, 'utf8').trim().split(/\r?\n/).map(line => JSON.parse(line)));
   const expected = new Map(rows.map(row => [row.entry_id, row]));
-  assert.equal(expected.size, 10853);
+  assert.equal(expected.size, totalCount);
   const ids = new Set<string>();
   const collections = { archive: 0, learning: 0 };
   const documents = new Map<string, string>();
   const first = getKnowledgeCatalog({ collection: 'all' });
-  assert.equal(first.totals.entries, 10853);
+  assert.equal(first.totals.entries, totalCount);
   assert.equal(first.library!.total, first.totals.entries);
   assert.deepEqual(new Set(first.library!.entries.map(entry => entry.collection)), new Set(['archive', 'learning']));
   for (let page = 1; page <= Math.ceil(first.library!.total / first.library!.pageSize); page++) {
@@ -39,10 +43,10 @@ function verifyLibraryRecords() {
     }
   }
   assert.deepEqual(ids, new Set(expected.keys()));
-  assert.deepEqual(collections, { archive: 4853, learning: 6000 });
+  assert.deepEqual(collections, { archive: archiveCount, learning: learningCount });
 }
 
-test('统一目录在原始换行及强制CRLF加载下逐页覆盖10853个原编号、唯一正文和类别', t => {
+test('统一目录在原始换行及强制CRLF加载下逐页覆盖全部原编号、唯一正文和类别', t => {
   verifyLibraryRecords();
   const read = fs.readFileSync;
   const mock = t.mock.method(fs, 'readFileSync', (...args: Parameters<typeof fs.readFileSync>) => {
@@ -76,7 +80,7 @@ test('共同正文搜索保留类别隔离、中文关键词、大小写不敏�
 
 test('累计统计包含通识检索，保留维修证据集合与具体机型优先级', () => {
   const snapshot = loadKnowledgeSnapshot();
-  assert.deepEqual(stats(), { chunks: 10862, archivedEntries: 4853, learningEntries: 6000, totalEntries: 10853 });
+  assert.deepEqual(stats(), { chunks: totalCount + 9, archivedEntries: archiveCount, learningEntries: learningCount, totalEntries: totalCount });
   assert.equal(snapshot.chunks.filter(chunk => chunk.entryType === '通识学习').length, 6000);
   const reply = retrieve('东方红 LF804S 启动机不转');
   assert.ok(reply.some(chunk => chunk.entryId === 'KB-YTO-LF-MANUAL-007'));
@@ -85,7 +89,7 @@ test('累计统计包含通识检索，保留维修证据集合与具体机型�
   assert.throws(() => { entry.content = 'corrupted'; }, TypeError);
 });
 
-test('通识索引用途或正文损坏时原子重载失败，继续提供上一份完整10853条目录', t => {
+test('通识索引用途或正文损坏时原子重载失败，继续提供上一份完整目录', t => {
   const previous = loadKnowledgeSnapshot();
   const previousStats = stats();
   const read = fs.readFileSync;
@@ -106,7 +110,7 @@ test('通识索引用途或正文损坏时原子重载失败，继续提供上�
   assert.throws(() => reloadKnowledgeSnapshot(), /正文缺失/);
   assert.equal(loadKnowledgeSnapshot(), previous);
   assert.deepEqual(stats(), previousStats);
-  assert.equal(getKnowledgeCatalog({ collection: 'all' }).library!.total, 10853);
+  assert.equal(getKnowledgeCatalog({ collection: 'all' }).library!.total, totalCount);
 });
 
 test('前端拒绝累计数字不符、学习用途升级、混入其他类别及错误分页的目录', () => {

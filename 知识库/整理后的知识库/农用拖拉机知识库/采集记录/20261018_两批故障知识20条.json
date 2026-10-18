@@ -1,0 +1,79 @@
+{
+  "date_shanghai": "2026-10-18",
+  "version_batch": "ten-verified-sync-20261017",
+  "project_version": "3.5.7",
+  "integration_base_commit": "ba4672bdcd9fd78a685030c3a2db8c2fbbb2e84d",
+  "baseline": {
+    "archive_entries": 4853,
+    "learning_entries": 6000,
+    "library_entries": 10853,
+    "sources": 27,
+    "knowledge_documents": 65
+  },
+  "added_entries": 20,
+  "stages": [
+    {
+      "date": "2026-10-17",
+      "count": 10,
+      "entry_ids": [
+        "KB-MH-SYNC10-20261017-001",
+        "KB-MH-SYNC10-20261017-002",
+        "KB-MH-SYNC10-20261017-003",
+        "KB-MH-SYNC10-20261017-004",
+        "KB-MH-SYNC10-20261017-005",
+        "KB-MH-SYNC10-20261017-006",
+        "KB-MH-SYNC10-20261017-007",
+        "KB-MH-SYNC10-20261017-008",
+        "KB-MH-SYNC10-20261017-009",
+        "KB-MH-SYNC10-20261017-010"
+      ]
+    },
+    {
+      "date": "2026-10-18",
+      "count": 10,
+      "entry_ids": [
+        "KB-MH-ENGINE-20261018-001",
+        "KB-MH-ENGINE-20261018-002",
+        "KB-MH-ENGINE-20261018-003",
+        "KB-MH-ENGINE-20261018-004",
+        "KB-MH-ENGINE-20261018-005",
+        "KB-MH-ENGINE-20261018-006",
+        "KB-MH-ENGINE-20261018-007",
+        "KB-MH-ENGINE-20261018-008",
+        "KB-MH-ENGINE-20261018-009",
+        "KB-MH-ENGINE-20261018-010"
+      ]
+    }
+  ],
+  "totals": {
+    "archive_entries": 4873,
+    "learning_entries": 6000,
+    "library_entries": 10873,
+    "retrieval_chunks": 10882,
+    "sources": 28,
+    "knowledge_documents": 67
+  },
+  "source_id": "SRC-MH-6065-6075-CAB-REV01",
+  "manual": {
+    "sha256": "e297a67b7a411bedeb95f0211bd2260ee46e2f2ea6504dd0996738288b9b2ea5",
+    "bytes": 7467401,
+    "pages": 127,
+    "reviewed_pdf_pages": [
+      1,
+      2,
+      110,
+      111,
+      112,
+      113,
+      114,
+      115
+    ],
+    "full_pdf_committed": false
+  },
+  "release_targets": [
+    "https://agridx-dev-preview.z3464715478.chatgpt.site",
+    "https://agridx.xyz"
+  ],
+  "release_status": "pending_pr_ci_merge_and_live_verification",
+  "browser_auto_reload_observed": false
+}

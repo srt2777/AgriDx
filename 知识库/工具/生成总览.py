@@ -77,10 +77,18 @@ def generate(date, visuals):
             continue
         text = file.read_text('utf8')
         generic_count += sum(bool(part.strip()) for part in re.split(r'^##\s+.*$', text, flags=re.M))
+    learning_paths = [REPO / 'docs/tractor-knowledge/index.jsonl',
+                      REPO / 'docs/tractor-knowledge/expansion-5000/index.jsonl']
+    learning_entries = [json.loads(line) for file in learning_paths
+                        for line in file.read_text('utf8').splitlines() if line.strip()]
+    assert len({entry['entry_id'] for entry in learning_entries}) == len(learning_entries)
+    assert not ({entry['entry_id'] for entry in learning_entries} & {entry['entry_id'] for entry in entries})
     totals = {'sources': len(sources), 'archived_entries': len(entries),
+              'learning_entries': len(learning_entries),
+              'total_library_entries': len(entries) + len(learning_entries),
               'knowledge_documents': len({e['knowledge_path'] for e in entries}),
               'brand_labels': len(by_brand), 'generic_chunks': generic_count,
-              'retrieval_chunks': len(entries) + generic_count,
+              'retrieval_chunks': len(entries) + len(learning_entries) + generic_count,
               'information_or_scope_entries': sum(by_type[t] for t in INFO_TYPES)}
     catalog = []
     for source in sources:
@@ -93,7 +101,8 @@ def generate(date, visuals):
     payload = {'schema_version': 1, 'snapshot_date_shanghai': date,
                'repository_version': json.loads((REPO / 'package.json').read_text('utf8'))['version'],
                'scope': '仅由现有索引派生的统计与导航，不是新增维修事实，不加入检索',
-               'input_sha256': {p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in [sources_path, entries_path]},
+               'input_sha256': {p.relative_to(REPO).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest()
+                                for p in [sources_path, entries_path, *learning_paths]},
                'totals': totals, 'brands': [{'label': b, 'sources': source_brands[b], 'entries': n}
                                          for b, n in sorted(by_brand.items(), key=lambda x: (-x[1], x[0]))],
                'entry_types': dict(by_type), 'source_purposes': dict(purposes),
@@ -117,7 +126,7 @@ def generate(date, visuals):
 
 ## 一眼看懂
 
-**{totals['sources']}个来源 → {totals['knowledge_documents']}个人读知识正文文件 → {totals['archived_entries']}条归档索引。** 服务另有{generic_count}个通用信息收集片段（不是原厂维修依据），当前预期加载{totals['retrieval_chunks']}个片段。来源、正文文件、条目和片段是不同单位。
+**{totals['sources']}个来源 → {totals['knowledge_documents']}个人读归档知识正文文件 → {totals['archived_entries']}条归档索引。** 另有{totals['learning_entries']}条通识学习资料，共{totals['total_library_entries']}条统一知识目录记录；加{generic_count}个通用信息收集片段，当前预期加载{totals['retrieval_chunks']}个片段。通识保留原核验状态与diagnostic_evidence=false，不作为本机维修操作或参数依据；来源、正文文件、条目和片段是不同单位。
 
 存放形式为**{storage['仓库PDF原件']}份PDF原件＋{storage['PDF链接＋来源记录']}份外链PDF来源记录＋{storage['仓库网页快照']}份网页快照**；{storage['仓库PDF原件'] + storage['PDF链接＋来源记录']}个PDF资料来源包含{storage['PDF链接＋来源记录']}个仅链接记录，不能将PDF资料来源数当作仓库PDF全文数。
 
