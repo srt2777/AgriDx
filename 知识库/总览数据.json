@@ -1,23 +1,23 @@
 {
   "schema_version": 1,
-  "snapshot_date_shanghai": "2026-10-18",
-  "repository_version": "3.5.7",
+  "snapshot_date_shanghai": "2026-10-19",
+  "repository_version": "3.5.8",
   "scope": "仅由现有索引派生的统计与导航，不是新增维修事实，不加入检索",
   "input_sha256": {
-    "知识库/整理后的知识库/农用拖拉机知识库/sources.json": "b41b613f91a3c05747ed914841a8baff7bd93678d4377346a6cce074842a2cc8",
-    "知识库/整理后的知识库/农用拖拉机知识库/entries.jsonl": "845c358e9197ae72d5030a915ff1378550bc1be1ce902d724d8e4c6cf587cf17",
+    "知识库/整理后的知识库/农用拖拉机知识库/sources.json": "f7316d035d84409030ecb158af945a1de300174675e5e10b2b781db52380a2ba",
+    "知识库/整理后的知识库/农用拖拉机知识库/entries.jsonl": "2bf45e3a7abe7a84afc48bf8ee129c00786558e2d3b0b97c7a4cdf26ec493385",
     "docs/tractor-knowledge/index.jsonl": "1eac29d4f33681de65628b95b992b248f35c62578fb2f9e45ac5b1fdda8b414f",
     "docs/tractor-knowledge/expansion-5000/index.jsonl": "f498bd5dce2b3f96730ab5d508936d5852d0173416e2636878e35aabcda3fbfc"
   },
   "totals": {
     "sources": 28,
-    "archived_entries": 4873,
+    "archived_entries": 4877,
     "learning_entries": 6000,
-    "total_library_entries": 10873,
-    "knowledge_documents": 67,
+    "total_library_entries": 10877,
+    "knowledge_documents": 68,
     "brand_labels": 16,
     "generic_chunks": 9,
-    "retrieval_chunks": 10882,
+    "retrieval_chunks": 10886,
     "information_or_scope_entries": 534
   },
   "brands": [
@@ -69,7 +69,7 @@
     {
       "label": "Mahindra",
       "sources": 1,
-      "entries": 20
+      "entries": 24
     },
     {
       "label": "千寻位置 / 千耘",
@@ -105,7 +105,7 @@
   "entry_types": {
     "安全操作": 663,
     "操作/维护知识": 1883,
-    "维护/故障知识": 1741,
+    "维护/故障知识": 1745,
     "机型资料": 5,
     "资料缺口": 3,
     "资料索引": 513,
@@ -121,7 +121,7 @@
     "配套导航PDF": 2
   },
   "entries_by_source_purpose": {
-    "整机／维保PDF": 4622,
+    "整机／维保PDF": 4626,
     "维护网页": 9,
     "报道背景": 2,
     "交机培训PDF": 222,
@@ -135,7 +135,7 @@
   "entries_by_storage": {
     "仓库PDF原件": 2956,
     "仓库网页快照": 11,
-    "PDF链接＋来源记录": 1906
+    "PDF链接＋来源记录": 1910
   },
   "verification_status_raw": {
     "沿用既有原文核对条目": 24,
@@ -169,7 +169,7 @@
     "已核对引用页原文文字及本条所引表格／配置页图像；未全书审校、厂家复核或实车验证。": 134,
     "证据页150dpi完整渲染目视核对；文本定位已复核；未全书审校/厂家复核/实车验证": 1,
     "已核对引用页原文文字及本条所引表格／配置图像；未全书审校、厂家复核或实车验证。": 144,
-    "原文文本及页面图像已核验；仅本条所引页；未全书审校、厂家复核或实车验证": 1020,
+    "原文文本及页面图像已核验；仅本条所引页；未全书审校、厂家复核或实车验证": 1024,
     "原页图文提取并二次自动图像复核；未全书人工审校、厂家复核或实车验证": 1858,
     "已目视核对本条扫描正文/故障表或维护图及实际页脚；PyMuPDF文本仅水印；仅选页，未全书、厂家或实车验证。": 47,
     "原始PDF文字层编码异常；所列证据页已渲染并目视核对，原创事实概述；未全书审校、未实车或厂家复核": 45,
@@ -5632,12 +5632,12 @@
       "version_date": null,
       "pdf_metadata_date": "创建2024-03-04；修改2024-03-06；不是出版日期",
       "scope_boundary": "仅Mahindra 6065/6075 4WD CABIN TIER-4 FINAL、Rev 01美国英语版；核对实车版次、序列号和配置。不用于其他6000系列、2WD或ROPS，不将Tier-4 Final换算为中国国四。出版日期未知。",
-      "status": "2026-10-17人工目视核对封面、内封面及PDF114/115；2026-10-18续核PDF110—113并补充发动机十条，共二十条独立概述；未全书审校、厂家复核或实车验证",
+      "status": "2026-10-17人工目视核对封面、内封面及PDF114/115；2026-10-18续核PDF110—113并补充发动机十条，共二十条独立概述；未全书审校、厂家复核或实车验证；2026-10-19重读PDF113/115，新增蓝烟、黑灰烟、燃油消耗与后轮问题四条，共24条",
       "content_group": "整机／维保PDF",
       "storage_group": "PDF链接＋来源记录",
       "source_path": "知识库/原始农机说明书/Mahindra/6065-6075_4WD_CABIN/来源记录_Rev01.md",
       "source_url": "https://www.mahindrausa.com/wp-content/uploads/2024/03/6000-Series-Operator-Manual.pdf",
-      "entry_count": 20,
+      "entry_count": 24,
       "entry_ids": [
         "KB-MH-SYNC10-20261017-001",
         "KB-MH-SYNC10-20261017-002",
@@ -5658,11 +5658,16 @@
         "KB-MH-ENGINE-20261018-007",
         "KB-MH-ENGINE-20261018-008",
         "KB-MH-ENGINE-20261018-009",
-        "KB-MH-ENGINE-20261018-010"
+        "KB-MH-ENGINE-20261018-010",
+        "KB-MH-REMAIN-20261019-001",
+        "KB-MH-REMAIN-20261019-002",
+        "KB-MH-REMAIN-20261019-003",
+        "KB-MH-REMAIN-20261019-004"
       ],
       "knowledge_paths": [
         "知识库/整理后的知识库/农用拖拉机知识库/机型知识卡/Mahindra_6065-6075_十条故障知识_20261017.md",
-        "知识库/整理后的知识库/农用拖拉机知识库/机型知识卡/Mahindra_6065-6075_发动机续补_20261018.md"
+        "知识库/整理后的知识库/农用拖拉机知识库/机型知识卡/Mahindra_6065-6075_发动机续补_20261018.md",
+        "知识库/整理后的知识库/农用拖拉机知识库/机型知识卡/Mahindra_6065-6075_烟色耗油后轮_20261019.md"
       ]
     }
   ]
