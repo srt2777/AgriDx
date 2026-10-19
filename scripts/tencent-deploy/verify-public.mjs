@@ -35,6 +35,30 @@ export async function verifyPublicSite({ commit, version, entries, baseUrl,
     if (!response.ok) throw new Error(`公网资源请求失败：${path} HTTP ${response.status}`);
     return Buffer.from(await response.arrayBuffer());
   }
+  const staleCache = path => Object.assign(new Error(
+    `普通访问 ${path} 与目标发布不一致，CDN 可能仍缓存旧首页或接口；源站就绪不等于访问已同步，请刷新对应缓存并检查节点缓存规则。`,
+  ), { code: 'cdn_cache_stale' });
+  // Cache-busted reads establish origin readiness, not what a first-time visitor
+  // receives. Deliberately omit freshness query/header overrides for this check.
+  async function ordinaryResource(path) {
+    const response = await fetchImpl(new URL(path, origin), {
+      cache: 'default', headers: {}, redirect: 'error', signal: AbortSignal.timeout(15000),
+    });
+    if (!response.ok || response.redirected ||
+        (response.url && new URL(response.url).origin !== origin.origin)) throw staleCache(path);
+    return Buffer.from(await response.arrayBuffer());
+  }
+  async function ordinaryJson(path) {
+    try {
+      const value = JSON.parse((await ordinaryResource(path)).toString());
+      if (!value || typeof value !== 'object' || Array.isArray(value)) throw staleCache(path);
+      return value;
+    }
+    catch (error) {
+      if (error?.code === 'cdn_cache_stale') throw error;
+      throw staleCache(path);
+    }
+  }
   let failure;
   for (let attempt = 0; attempt < attempts; attempt++) {
     if (!await isCurrent()) return { obsolete: true, commit };
@@ -64,8 +88,29 @@ export async function verifyPublicSite({ commit, version, entries, baseUrl,
         const contents = await resource(file.path === '/index.html' ? '/' : file.path);
         if (digest(contents) !== file.sha256) throw new Error(`公网文件仍为旧版或内容不一致：${file.path}`);
       }));
+      const ordinaryHtml = await ordinaryResource('/');
+      if (digest(ordinaryHtml) !== manifest.files.find(file => file.path === '/index.html').sha256) throw staleCache('/');
+      const ordinaryManifest = await ordinaryJson('/deployment.json');
+      if (ordinaryManifest.commit !== commit || ordinaryManifest.version !== version ||
+          !Array.isArray(ordinaryManifest.files) || ordinaryManifest.files.length !== manifest.files.length ||
+          manifest.files.some(file => !ordinaryManifest.files.some(candidate =>
+            candidate.path === file.path && candidate.sha256 === file.sha256))) throw staleCache('/deployment.json');
+      const ordinaryHealth = await ordinaryJson('/api/health');
+      if (ordinaryHealth.ok !== true || ordinaryHealth.version !== version ||
+          ordinaryHealth.knowledge?.archivedEntries !== entries ||
+          ordinaryHealth.knowledge?.chunks !== health.knowledge.chunks ||
+          ordinaryHealth.knowledge?.totalEntries !== health.knowledge.totalEntries ||
+          ordinaryHealth.knowledge?.learningEntries !== health.knowledge.learningEntries) throw staleCache('/api/health');
+      const ordinaryCatalog = await ordinaryJson('/api/knowledge/catalog');
+      if (ordinaryCatalog.totals?.archivedEntries !== entries ||
+          !Number.isSafeInteger(ordinaryCatalog.totals?.entries) || ordinaryCatalog.totals.entries < entries ||
+          (Number.isSafeInteger(health.knowledge.totalEntries) &&
+            ordinaryCatalog.totals.entries !== health.knowledge.totalEntries)) throw staleCache('/api/knowledge/catalog');
       return { commit, version, entries, files: manifest.files.length };
     } catch (error) {
+      // A known edge-cache mismatch needs a purge/rule correction. Repeated
+      // successful origin reads must never turn it into a green deployment.
+      if (error?.code === 'cdn_cache_stale') throw error;
       failure = error;
       if (attempt + 1 < attempts) await delay(retryMs);
     }
