@@ -195,15 +195,17 @@ function publicFixture() {
   const files = [...bodies].map(([resource, body]) => ({ path: resource === '/' ? '/index.html' : resource,
     sha256: createHash('sha256').update(body).digest('hex') }));
   const health = { ok: true, version: '3.4.8', knowledge: { archivedEntries: 2, chunks: 3 } };
+  const catalog = { totals: { archivedEntries: 2, entries: 2 } };
   const manifest = { commit, version: '3.4.8', files };
   const options = { commit, version: '3.4.8', entries: 2, baseUrl: 'https://fixture.example/', attempts: 1, retryMs: 0,
     fetchImpl: async url => {
       const resource = url.pathname;
       const body = resource === '/api/health' ? JSON.stringify(health)
-        : resource === '/deployment.json' ? JSON.stringify(manifest) : bodies.get(resource);
+        : resource === '/deployment.json' ? JSON.stringify(manifest)
+          : resource === '/api/knowledge/catalog' ? JSON.stringify(catalog) : bodies.get(resource);
       return new Response(body || 'missing', { status: body ? 200 : 404 });
     } };
-  return { options, bodies, health, manifest };
+  return { options, bodies, health, catalog, manifest };
 }
 
 test('公网验收核对后端版本、完整提交及所有首页资源摘要', async () => {
@@ -211,7 +213,7 @@ test('公网验收核对后端版本、完整提交及所有首页资源摘要',
   assert.deepEqual(await verifyPublicSite(fixture.options), { commit, version: '3.4.8', entries: 2, files: 3 });
 });
 
-test('公网验收逐项绕过旧缓存，取得目标健康版本、提交及网页资源摘要', async () => {
+test('防缓存资源全为新版但普通首页仍旧时，不得把源站就绪判作全站同步完成', async () => {
   const fixture = publicFixture();
   const healthyFetch = fixture.options.fetchImpl;
   const requests = [];
@@ -229,7 +231,7 @@ test('公网验收逐项绕过旧缓存，取得目标健康版本、提交及�
   const barePage = await fixture.options.fetchImpl(new URL('/', fixture.options.baseUrl), {});
   assert.equal(await barePage.text(), 'cached old webpage');
 
-  assert.deepEqual(await verifyPublicSite(fixture.options), { commit, version: '3.4.8', entries: 2, files: 3 });
+  await assert.rejects(verifyPublicSite(fixture.options), /普通访问|CDN|缓存/);
   assert.deepEqual(requests.map(({ url }) => url.pathname).sort(),
     ['/', '/api/health', '/assets/app.js', '/deployment.json', '/theme-init.js'].sort());
   for (const { url, options } of requests) {
@@ -240,6 +242,49 @@ test('公网验收逐项绕过旧缓存，取得目标健康版本、提交及�
     assert.equal(options.redirect, 'error');
     assert.ok(options.signal instanceof AbortSignal);
   }
+});
+
+test('普通首页、发布清单、健康或目录缓存各自落后时均拒绝验收并提示CDN修复', async () => {
+  for (const stalePath of ['/', '/deployment.json', '/api/health', '/api/knowledge/catalog']) {
+    const fixture = publicFixture();
+    const fetchGood = fixture.options.fetchImpl;
+    let staleReads = 0;
+    fixture.options.attempts = 3;
+    fixture.options.fetchImpl = async (url, options) => {
+      if (!url.searchParams.size && url.pathname === stalePath) {
+        staleReads++;
+        assert.equal(options.cache, 'default');
+        assert.equal(options.headers['Cache-Control'], undefined, '普通入口验收不能用强制回源头伪装用户访问');
+        if (stalePath === '/') return new Response('old cached homepage');
+        if (stalePath === '/deployment.json') return Response.json({ ...fixture.manifest, commit: other });
+        if (stalePath === '/api/health') return Response.json({ ...fixture.health, version: '3.2.0' });
+        return Response.json({ totals: { archivedEntries: 212, entries: 212 } });
+      }
+      return fetchGood(url, options);
+    };
+    await assert.rejects(verifyPublicSite(fixture.options), error =>
+      error.code === 'cdn_cache_stale' && /普通访问.*CDN/.test(error.message), stalePath);
+    assert.equal(staleReads, 1, '已证实的CDN旧缓存立即报告，不用60次源站重试掩盖');
+  }
+});
+
+test('普通入口请求无查询参数、无防缓存头，验收保留同源与禁止重定向边界', async () => {
+  const fixture = publicFixture();
+  const fetchGood = fixture.options.fetchImpl;
+  const seen = [];
+  fixture.options.fetchImpl = (url, options) => {
+    if (!url.searchParams.size) {
+      seen.push(url.pathname);
+      assert.equal(url.origin, 'https://fixture.example');
+      assert.equal(options.cache, 'default');
+      assert.deepEqual(options.headers, {});
+      assert.equal(options.redirect, 'error');
+      assert.ok(options.signal instanceof AbortSignal);
+    }
+    return fetchGood(url, options);
+  };
+  assert.equal((await verifyPublicSite(fixture.options)).commit, commit);
+  assert.deepEqual(seen.sort(), ['/', '/deployment.json', '/api/health', '/api/knowledge/catalog'].sort());
 });
 
 test('公网200但旧后端、旧提交、旧首页或旧JS均不能判定同步完成', async () => {
