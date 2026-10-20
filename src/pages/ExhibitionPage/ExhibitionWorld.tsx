@@ -1,15 +1,19 @@
-import { Suspense, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { Html, MeshReflectorMaterial, OrbitControls, RoundedBox } from '@react-three/drei';
-import { Bloom, EffectComposer, Vignette } from '@react-three/postprocessing';
 import { ErrorBoundary } from 'react-error-boundary';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
 import * as THREE from 'three';
-import { ArrowUpRight, Loader2, Tractor } from 'lucide-react';
+import { ArrowUpRight, Loader2 } from 'lucide-react';
 import TractorModel from '@/components/TractorModel';
+import SceneFallback from '@/components/SceneFallback';
 import { useLang } from '@/hooks/useLang';
 import { useTheme } from '@/hooks/useTheme';
+import { frameEase, MOTION, rateFor } from '@/lib/motion-tokens';
+import { bindContextLoss, probeWebGL } from '@/lib/webgl';
+
+const CampusGlow = lazy(() => import('@/components/SceneGlow').then((mod) => ({ default: mod.CampusGlow })));
 import {
   initialDriveState,
   nearbyZone,
@@ -40,6 +44,8 @@ interface WorldProps {
   onSelect: (id: ZoneId) => void;
   onPosition: (state: DriveState) => void;
   onNearby: (id: ZoneId | null) => void;
+  onLive?: () => void;
+  onLost?: () => void;
 }
 
 const GL_OPTIONS = { alpha: true, antialias: true } as const;
@@ -354,7 +360,7 @@ function Pavilion({
       pulse.current = Math.max(0, pulse.current - delta * 1.8);
       scale.current = 1 + Math.sin((1 - pulse.current / 0.28) * Math.PI) * 0.045;
     } else {
-      const step = reducedMotion ? 1 : 1 - Math.exp(-8 * Math.min(delta, 0.05));
+      const step = frameEase(rateFor(MOTION.ms.hover), delta, reducedMotion, 0.05);
       scale.current += (goal - scale.current) * step;
     }
     rig.current.scale.setScalar(scale.current);
@@ -842,19 +848,19 @@ function WorldScene({
         const scale = Math.max(1, 1.25 / aspect);
         viewPosition.set(23 * scale, 25 * scale, 29 * scale);
         if (!reducedMotion && !userOrbit.current && !steered.current) {
-          const follow = 1 - Math.exp(-3.2 * Math.min(elapsed, 0.05));
+          const follow = frameEase(rateFor(MOTION.ms.parallax), elapsed, false, 0.05);
           parallax.current.lerp(parallaxGoal.current, follow);
           viewPosition.x += parallax.current.x * 1.15;
           viewPosition.y += parallax.current.y * -0.38;
           viewTarget.x += parallax.current.x * 0.28;
         }
       }
-      const ease = reducedMotion ? 1 : 1 - Math.exp((cinematicOn.current ? -1.45 : -5) * Math.min(elapsed, 0.2));
+      const ease = frameEase(rateFor(cinematicOn.current ? MOTION.ms.cinematic : MOTION.ms.enter), elapsed, reducedMotion);
       if (mode === 'drive' && !reducedMotion) {
         const dt = Math.min(elapsed, 0.05);
         springDelta.subVectors(viewPosition, springPos.current);
-        springVel.current.addScaledVector(springDelta, 9 * dt);
-        springVel.current.multiplyScalar(Math.exp(-7 * dt));
+        springVel.current.addScaledVector(springDelta, MOTION.spring.drive * dt);
+        springVel.current.multiplyScalar(Math.exp(-MOTION.spring.damp * dt));
         springPos.current.addScaledVector(springVel.current, dt);
         if (springDelta.lengthSq() < 0.0015 && springVel.current.lengthSq() < 0.0008) {
           springPos.current.copy(viewPosition);
@@ -950,6 +956,7 @@ function WorldScene({
         maxDistance={100}
         minPolarAngle={0.15}
         maxPolarAngle={Math.PI / 2.4}
+        touches={{ ONE: THREE.TOUCH.ROTATE, TWO: THREE.TOUCH.DOLLY_PAN }}
         onStart={() => {
           steered.current = true;
           userOrbit.current = true;
@@ -960,46 +967,36 @@ function WorldScene({
         }}
       />
       {mode === 'overview' && !reducedMotion && size.width >= 900 && (
-        <EffectComposer multisampling={0} enableNormalPass={false}>
-          <Bloom luminanceThreshold={0.85} luminanceSmoothing={0.25} intensity={0.28} mipmapBlur radius={0.35} levels={4} />
-          <Vignette eskil={false} offset={0.25} darkness={0.28} />
-        </EffectComposer>
+        <Suspense fallback={null}>
+          <CampusGlow />
+        </Suspense>
       )}
     </>
   );
 }
 
-function WorldFallback() {
-  const lang = useLang();
-  return (
-    <div className="world-fallback">
-      <Tractor size={70} strokeWidth={1} />
-      <h2>{lang === 'zh' ? '三维空间暂不可用' : '3D space is unavailable'}</h2>
-      <p>
-        {lang === 'zh'
-          ? '通过展区导航，仍可进入知识库、诊断和模型工坊。'
-          : 'Use the zone navigation to open knowledge, diagnosis and the model studio.'}
-      </p>
-    </div>
-  );
+function WorldLost() {
+  return null;
 }
 
-export default function ExhibitionWorld(props: WorldProps) {
+export default function ExhibitionWorld({ onLive, onLost, ...props }: WorldProps) {
   const lang = useLang();
   const [ready, setReady] = useState(false);
-  const [supported] = useState(() => {
-    try {
-      const context = document.createElement('canvas').getContext('webgl2');
-      context?.getExtension('WEBGL_lose_context')?.loseContext();
-      return !!context;
-    } catch {
-      return false;
-    }
-  });
+  const [supported] = useState(probeWebGL);
+  const reported = useRef(false);
+  useEffect(() => {
+    if (!supported) onLost?.();
+  }, [supported, onLost]);
   const loaded = useCallback(() => setReady(true), []);
-  if (!supported) return <WorldFallback />;
+  const markLive = useCallback((canvas: HTMLCanvasElement) => {
+    if (reported.current) return;
+    reported.current = true;
+    onLive?.();
+    bindContextLoss(canvas, () => onLost?.());
+  }, [onLive, onLost]);
+  if (!supported) return <SceneFallback kind="campus" reason="unsupported" />;
   return (
-    <ErrorBoundary FallbackComponent={WorldFallback}>
+    <ErrorBoundary FallbackComponent={WorldLost} onError={() => onLost?.()}>
       <Canvas
         shadows={SHADOW_OPTIONS}
         camera={CAMERA}
@@ -1007,10 +1004,14 @@ export default function ExhibitionWorld(props: WorldProps) {
         dpr={[1, 1.25]}
         frameloop="demand"
         role="group"
+        onCreated={({ gl }) => {
+          gl.domElement.style.touchAction = 'none';
+          markLive(gl.domElement);
+        }}
         aria-label={
           lang === 'zh'
-            ? '农机三维园区，四个展区围绕中央广场'
-            : '3D machinery campus with four pavilions around a central plaza'
+            ? '农机三维园区，四个展区围绕中央广场。单指拖动环视，双指缩放。'
+            : '3D machinery campus with four pavilions around a central plaza. Drag to orbit and pinch to zoom.'
         }
       >
         <WorldScene {...props} onLoaded={loaded} />

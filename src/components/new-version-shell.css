@@ -22,18 +22,18 @@
 .new-version-wordmark strong { display: block; font-size: 17px; font-weight: 600; letter-spacing: 2px; white-space: nowrap; }
 .new-version-wordmark small { display: block; margin-top: 4px; color: var(--muted-foreground); font-size: 8px; letter-spacing: 1.4px; white-space: nowrap; }
 .new-version-navigation { display: flex; justify-content: center; align-items: center; gap: 4px; min-width: 0; }
-.new-version-nav-item { display: inline-flex; align-items: center; justify-content: center; min-height: 34px; padding: 0 13px; border: 1px solid transparent; border-radius: 5px; color: var(--muted-foreground); font-size: 12px; transition: color .2s, background .2s, border-color .2s; white-space: nowrap; }
+.new-version-nav-item { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 0 13px; border: 1px solid transparent; border-radius: 5px; color: var(--muted-foreground); font-size: 12px; transition: color var(--motion-color, 180ms), background var(--motion-color, 180ms), border-color var(--motion-color, 180ms); white-space: nowrap; }
 .new-version-nav-item:hover { color: var(--muted-foreground); background: var(--accent); }
 .new-version-nav-item.is-active { border-color: var(--border); background: var(--accent); color: var(--foreground); box-shadow: inset 0 0 18px rgb(50 155 214 / 12%); }
 .new-version-tools { display: flex; align-items: center; justify-content: flex-end; gap: 9px; }
-.new-version-language { display: inline-flex; align-items: center; justify-content: center; gap: 4px; min-width: 36px; height: 36px; border: 0; background: transparent; color: var(--muted-foreground); font-size: 10px; cursor: pointer; }
+.new-version-language { display: inline-flex; align-items: center; justify-content: center; gap: 4px; min-width: 44px; height: 44px; border: 0; background: transparent; color: var(--muted-foreground); font-size: 10px; cursor: pointer; }
 .new-version-language:hover { color: var(--foreground); }
 .new-version-subheader { width: min(100% - 56px, 1744px); margin-inline: auto; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 13px 0 15px; color: var(--muted-foreground); font-size: 10px; letter-spacing: 1px; min-width: 0; }
 .new-version-shell h1 { text-wrap: balance; overflow-wrap: break-word; }
 .new-version-subheader > span:first-child { display: flex; align-items: center; gap: 8px; }
 .new-version-subheader i { width: 5px; height: 5px; border-radius: 50%; background: var(--muted); box-shadow: 0 0 8px rgb(106 221 185 / 38%); }
 .new-version-route-label { color: var(--muted-foreground); }
-.new-version-main { min-width: 0; }
+.new-version-main { min-width: 0; min-height: calc(100dvh - 148px); }
 
 /* Existing feature pages consume the shared CSS variables; these rules only adapt their viewport chrome. */
 .new-version-shell .knowledge-page { min-height: calc(100dvh - 140px); }

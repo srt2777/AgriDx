@@ -8,17 +8,17 @@
 .agri-liquid-glass[data-glass-pressed] > .liquid-glass-shine::after { opacity: .5; }
 .agri-liquid-glass[data-glass-pressed] > .liquid-glass-shine { box-shadow: inset 0 1px 0 rgb(255 255 255 / 90%), inset 0 -1px 0 rgb(255 255 255 / 45%); }
 .site-mobile-menu { --ui-panel-origin: calc(100% - 24px) 0%; }
-.route-content-reveal { animation: route-content-enter 260ms cubic-bezier(.16, 1, .3, 1) backwards; }
-.route-home-reveal { animation: route-home-enter 220ms ease-out backwards; }
-.route-shell-reveal { animation: route-shell-enter 520ms cubic-bezier(.16, 1, .3, 1) both; }
+.route-content-reveal { animation: route-content-enter var(--motion-hover, 220ms) var(--motion-ease-out, cubic-bezier(.16, 1, .3, 1)) backwards; }
+.route-home-reveal { animation: route-home-enter var(--motion-hover, 220ms) var(--motion-ease-out, cubic-bezier(.16, 1, .3, 1)) backwards; }
+.route-shell-reveal { animation: route-shell-enter var(--motion-enter, 520ms) var(--motion-ease-out, cubic-bezier(.16, 1, .3, 1)) both; }
 @keyframes route-content-enter { from { opacity: .72; transform: translateY(7px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes route-home-enter { from { opacity: .86; } to { opacity: 1; } }
 @keyframes route-shell-enter { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
 .expo-page :is(.expo-icon-button, .expo-start-button, .expo-zone-nav button, .expo-zone-actions button, .expo-catalog-trigger, .expo-direct-links button, .expo-direct-links a) {
-  transition: transform 360ms cubic-bezier(.2, .8, .2, 1.15), background-color 160ms ease, color 160ms ease, border-color 160ms ease;
+  transition: transform var(--motion-enter, 520ms) var(--motion-ease-press, cubic-bezier(.2, .8, .2, 1.15)), background-color var(--motion-press, 160ms) ease, color var(--motion-press, 160ms) ease, border-color var(--motion-press, 160ms) ease;
 }
 .expo-page :is(.expo-icon-button, .expo-start-button, .expo-zone-nav button, .expo-zone-actions button, .expo-catalog-trigger, .expo-direct-links button, .expo-direct-links a):active { transform: scale(.965); }
-.expo-zone-nav > button > svg:last-child { transition: transform 300ms cubic-bezier(.2, .8, .2, 1.15); }
+.expo-zone-nav > button > svg:last-child { transition: transform var(--motion-hover, 220ms) var(--motion-ease-press, cubic-bezier(.2, .8, .2, 1.15)); }
 .expo-zone-nav > button:is(:hover, :focus-visible, [aria-pressed='true']) > svg:last-child { transform: translate(2px, -2px); }
 @media (max-width: 639px) { .expo-zone-card { --ui-panel-origin: 100% 100%; } }
 @media (prefers-reduced-motion: reduce) {

@@ -1,4 +1,4 @@
-import { lazy, memo, useEffect, useState, type CSSProperties } from 'react';
+import { lazy, memo, useCallback, useEffect, useState, type CSSProperties } from 'react';
 import { Link } from 'react-router-dom';
 import {
   BookOpen,
@@ -7,16 +7,18 @@ import {
   Cpu,
   Gauge,
   LayoutGrid,
-  Loader2,
   Radar,
   Sprout,
   Tractor,
   Wheat,
 } from 'lucide-react';
 import DeferredScene from '@/components/DeferredScene';
+import SceneFallback from '@/components/SceneFallback';
 import { useKnowledgeCatalog } from '@/hooks/useKnowledgeCatalog';
 import { useLang } from '@/hooks/useLang';
 import { preloadPage } from '@/lib/page-loaders';
+import { easeOutCubic, MOTION } from '@/lib/motion-tokens';
+import { probeWebGL, type GraphicsReason } from '@/lib/webgl';
 import {
   HALL_EXAMPLE_DEVICES,
   HALL_EXAMPLE_LABEL,
@@ -36,29 +38,23 @@ const HallStage = memo(function HallStage({
   reducedMotion,
   onSelect,
   onHover,
+  onLive,
+  onLost,
 }: {
   selected: HallZoneId;
   hovered: HallZoneId | null;
   reducedMotion: boolean;
   onSelect: (id: HallZoneId) => void;
   onHover: (id: HallZoneId | null) => void;
+  onLive: () => void;
+  onLost: () => void;
 }) {
   return (
-    <DeferredScene priority fallback={<HallSceneLoading />}>
-      <HallScene selected={selected} hovered={hovered} reducedMotion={reducedMotion} onSelect={onSelect} onHover={onHover} />
+    <DeferredScene priority fallback={null}>
+      <HallScene selected={selected} hovered={hovered} reducedMotion={reducedMotion} onSelect={onSelect} onHover={onHover} onLive={onLive} onLost={onLost} />
     </DeferredScene>
   );
 });
-
-function HallSceneLoading() {
-  const lang = useLang();
-  return (
-    <div className="hall-fallback" role="status">
-      <Loader2 size={20} className="motion-safe:animate-spin" />
-      <p>{lang === 'zh' ? '正在打开展示大厅…' : 'Opening the hall…'}</p>
-    </div>
-  );
-}
 const ZONE_ICONS = { A: Gauge, B: Wheat, C: Sprout, D: Radar };
 
 function shanghaiStamp(date: Date): string {
@@ -98,8 +94,8 @@ function useCountUps(targets: readonly number[], reduced: boolean): number[] {
     const start = performance.now();
     let frame = 0;
     const tick = (now: number) => {
-      const t = Math.min(1, (now - start) / 900);
-      const eased = 1 - (1 - t) ** 3;
+      const t = Math.min(1, (now - start) / MOTION.ms.count);
+      const eased = easeOutCubic(t);
       setValues(targets.map((goal, index) => origin[index] + (goal - origin[index]) * eased));
       if (t < 1) frame = requestAnimationFrame(tick);
     };
@@ -165,6 +161,9 @@ export default function HallPage() {
   const [selected, setSelected] = useState<HallZoneId>('A');
   const [hovered, setHovered] = useState<HallZoneId | null>(null);
   const [reducedMotion, setReducedMotion] = useState(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const [graphics, setGraphics] = useState<GraphicsReason | 'live'>(() => (probeWebGL() ? 'loading' : 'unsupported'));
+  const onLive = useCallback(() => setGraphics('live'), []);
+  const onLost = useCallback(() => setGraphics((current) => (current === 'unsupported' ? current : 'lost')), []);
   useEffect(() => {
     const media = window.matchMedia('(prefers-reduced-motion: reduce)');
     const apply = () => setReducedMotion(media.matches);
@@ -226,18 +225,30 @@ export default function HallPage() {
             })}
             <p className="hall-zone-note">{t(zone.blurbZh, zone.blurbEn)}</p>
           </nav>
-          <div className="hall-stage">
+          <div className={`hall-stage${graphics === 'live' ? ' is-live' : ''}`}>
+            <SceneFallback kind="hall" reason={graphics === 'live' ? 'loading' : graphics} hidden={graphics === 'live'} />
             <div className="hall-stage-caption">
-              <span>{selected} {t('展区', 'ZONE')} · {t('左右方向键切换', 'Arrow keys switch zones')}</span>
+              <span>{selected} {t('展区', 'ZONE')} · {t('点按机具或方向键切换', 'Tap a machine or use arrow keys')}</span>
               <strong>{t(zone.zh, zone.en)}</strong>
+              <ul className="hall-stage-devices">
+                {HALL_EXAMPLE_DEVICES.filter((device) => device.zone === selected).map((device) => (
+                  <li key={device.id}><strong>{device.name}</strong><span>{statusLabel(device.status)}</span></li>
+                ))}
+              </ul>
             </div>
-            <HallStage
-              selected={selected}
-              hovered={hovered}
-              reducedMotion={reducedMotion}
-              onSelect={setSelected}
-              onHover={setHovered}
-            />
+            {(graphics === 'loading' || graphics === 'live') && (
+              <div className="hall-stage-view">
+                <HallStage
+                  selected={selected}
+                  hovered={hovered}
+                  reducedMotion={reducedMotion}
+                  onSelect={setSelected}
+                  onHover={setHovered}
+                  onLive={onLive}
+                  onLost={onLost}
+                />
+              </div>
+            )}
             <div className="hall-scan" aria-hidden="true" />
           </div>
           <aside className="hall-side">
@@ -301,9 +312,10 @@ export default function HallPage() {
             <div>
               <h2>{t('展厅概况', 'Hall overview')}</h2>
               <p>
-                {t(
-                  `资料目录 ${number(catalog?.totals.entries)} 条 · ${number(catalog?.totals.brands)} 个品牌 · ${number(catalog?.totals.models)} 个型号或系列。运行环中的 12 台是示例，不是在线机队。`,
-                  `${number(catalog?.totals.entries)} catalog entries · ${number(catalog?.totals.brands)} brands · ${number(catalog?.totals.models)} models or series. The ring’s 12 units are an example, not a live fleet.`,
+                {lang === 'zh' ? (
+                  <>资料目录 <span className="hall-stat">{number(catalog?.totals.entries)}</span> 条 · <span className="hall-stat">{number(catalog?.totals.brands)}</span> 个品牌 · <span className="hall-stat">{number(catalog?.totals.models)}</span> 个型号或系列。运行环中的 12 台是示例，不是在线机队。</>
+                ) : (
+                  <><span className="hall-stat">{number(catalog?.totals.entries)}</span> catalog entries · <span className="hall-stat">{number(catalog?.totals.brands)}</span> brands · <span className="hall-stat">{number(catalog?.totals.models)}</span> models or series. The ring’s 12 units are an example, not a live fleet.</>
                 )}
               </p>
             </div>

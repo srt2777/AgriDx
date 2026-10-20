@@ -140,7 +140,25 @@
   box-shadow: inset 0 0 0 1px rgb(255 255 255 / 35%);
 }
 
-.hall-stage canvas { display: block; width: 100% !important; height: 100% !important; }
+.hall-stage-view { position: absolute; inset: 0; z-index: 1; }
+.hall-stage canvas { display: block; width: 100% !important; height: 100% !important; touch-action: none; }
+.hall-stage-devices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  margin: 6px 0 0;
+  padding: 0;
+  list-style: none;
+  max-width: 280px;
+}
+.hall-stage-devices li { font-size: 11px; line-height: 1.35; }
+.hall-stage-devices span { margin-left: 4px; opacity: 0.78; }
+.hall-stat {
+  display: inline-block;
+  min-width: 4.2em;
+  font-variant-numeric: tabular-nums;
+  text-align: end;
+}
 
 .hall-stage-caption {
   position: absolute;
@@ -176,10 +194,15 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 1px;
+  width: max-content;
+  min-width: 44px;
+  min-height: 44px;
+  white-space: nowrap;
   border: 1px solid color-mix(in srgb, var(--zone-color) 80%, white);
   border-radius: 12px;
-  padding: 4px 10px 5px;
+  padding: 6px 12px;
   background: rgb(8 24 40 / 82%);
   color: white;
   letter-spacing: 0.04em;
@@ -322,7 +345,7 @@
 .hall-legend.is-online i { background: var(--success); }
 .hall-legend.is-standby i { background: var(--chart-4); }
 .hall-legend.is-maintenance i { background: var(--warning); }
-.hall-legend strong { margin-left: auto; color: var(--hub-foreground); font-variant-numeric: tabular-nums; }
+.hall-legend strong { display: inline-block; min-width: 1.4em; margin-left: auto; color: var(--hub-foreground); font-variant-numeric: tabular-nums; text-align: end; }
 
 .hall-devices { flex: 1; }
 .hall-table-wrap { margin-top: 4px; overflow: auto; min-height: 0; max-height: 100%; }
@@ -418,7 +441,7 @@ a.hall-card:hover,
 .hall-page :focus-visible { outline: 2px solid var(--hub-primary); outline-offset: 3px; }
 
 @media (prefers-reduced-motion: no-preference) {
-  .hall-board { animation: hall-rise 520ms cubic-bezier(.16, 1, .3, 1); }
+  .hall-board { animation: hall-rise var(--motion-enter, 520ms) var(--motion-ease-out, cubic-bezier(.16, 1, .3, 1)); }
   .hall-board::after {
     content: '';
     position: absolute;
@@ -435,7 +458,7 @@ a.hall-card:hover,
   }
   .hall-zone,
   .hall-panel,
-  .hall-card { animation: hall-enter 680ms cubic-bezier(.16, 1, .3, 1) backwards; }
+  .hall-card { animation: hall-enter var(--motion-rise, 640ms) var(--motion-ease-out, cubic-bezier(.16, 1, .3, 1)) backwards; }
   .hall-zone:nth-child(1) { animation-delay: 50ms; }
   .hall-zone:nth-child(2) { animation-delay: 110ms; }
   .hall-zone:nth-child(3) { animation-delay: 170ms; }
@@ -451,7 +474,7 @@ a.hall-card:hover,
   .hall-cards > :nth-child(7) { animation-delay: 380ms; }
   .hall-zone,
   .hall-card,
-  .hall-marker { transition: border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease; }
+  .hall-marker { transition: border-color var(--motion-color, 180ms) ease, box-shadow var(--motion-hover, 220ms) ease, transform var(--motion-hover, 220ms) var(--motion-ease-standard, cubic-bezier(.2, .8, .2, 1)); }
   .hall-marker.is-on { animation: hall-marker-pulse 2.4s ease-in-out infinite; }
   .hall-zone:active,
   .hall-card:active { transform: scale(0.985); }

@@ -233,7 +233,7 @@
 }
 .expo-intro button {
   pointer-events: auto;
-  min-height: 36px;
+  min-height: 44px;
   margin-top: 4px;
   padding: 0 14px;
   border: 0;
@@ -400,9 +400,10 @@
   background: linear-gradient(135deg, color-mix(in srgb, var(--card) 93%, transparent), color-mix(in srgb, var(--card) 94%, transparent));
   box-shadow: 0 12px 28px var(--surface-shadow),
     inset 0 1px 0 var(--glass-control-edge);
+  min-height: 44px;
   transition:
-    border-color 0.2s,
-    transform 0.2s;
+    border-color var(--motion-color, 180ms),
+    transform var(--motion-hover, 220ms) var(--motion-ease-standard, cubic-bezier(.2, .8, .2, 1));
   position: relative;
 }
 .world-zone-label::after {
@@ -592,31 +593,35 @@
 }
 .expo-map-grid > button {
   position: absolute;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--foreground);
+  transform: translate(-50%, -50%);
+}
+.expo-map-grid > button span {
+  display: grid;
+  place-items: center;
   width: 22px;
   height: 22px;
-  min-width: 22px;
-  overflow: hidden;
-  line-height: 20px;
   border: 1px solid color-mix(in srgb, var(--zone-color) 70%, white);
   border-radius: 50%;
   background: color-mix(in srgb, var(--card) 80%, var(--zone-color));
-  color: var(--foreground);
-  transform: translate(-50%, -50%);
   font-size: 8px;
   font-weight: 650;
-  padding: 0;
   box-shadow: 0 0 0 4px color-mix(in srgb, var(--zone-color) 22%, transparent);
 }
-.expo-map-grid > button::before {
-  content: '';
-  position: absolute;
-  inset: -8px;
-}
-.expo-map-grid > button:hover,
-.expo-map-grid > button.is-nearby {
+.expo-map-grid > button:hover span,
+.expo-map-grid > button.is-nearby span {
   border-color: var(--zone-color);
   background: color-mix(in srgb, var(--zone-color) 35%, var(--card));
-  transform: translate(-50%, -50%) scale(1.12);
+  transform: scale(1.12);
 }
 .expo-map-player {
   color: var(--muted-foreground);

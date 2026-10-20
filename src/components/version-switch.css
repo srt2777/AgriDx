@@ -13,7 +13,7 @@
 .ui-version-switch.is-exhibition button { min-width: 68px; letter-spacing: 0.12em; font-size: 12px; }
 .ui-version-switch.is-exhibition button[aria-pressed="true"] { color: var(--wheat-foreground); }
 @media (prefers-reduced-motion: no-preference) {
-  .ui-version-switch button { transition: transform 160ms ease, color 160ms ease; }
+  .ui-version-switch button { transition: transform var(--motion-press, 160ms) var(--motion-ease-standard, cubic-bezier(.2, .8, .2, 1)), color var(--motion-press, 160ms) ease; }
   .ui-version-switch button:active { transform: scale(0.96); }
 }
 .site-header .ui-version-switch {

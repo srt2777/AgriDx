@@ -1,7 +1,9 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { HashRouter } from 'react-router-dom';
+import { installMotionTokens } from './lib/motion-tokens';
 import App from './app';
+installMotionTokens();
 import './index.css';
 import './tailwind-theme.css';
 import './typography.css';

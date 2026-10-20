@@ -41,7 +41,9 @@ import { LiquidSelection } from '@/components/ui/liquid-selection';
 import { LiquidGlass } from '@/components/ui/liquid-glass';
 import DeferredScene from '@/components/DeferredScene';
 import MagneticPointer from '@/components/MagneticPointer';
+import SceneFallback from '@/components/SceneFallback';
 import { preloadPage } from '@/lib/page-loaders';
+import { probeWebGL, type GraphicsReason } from '@/lib/webgl';
 import { useLang, setLang } from '@/hooks/useLang';
 import { setUiVersion } from '@/hooks/useUiVersion';
 import { useKnowledgeCatalog } from '@/hooks/useKnowledgeCatalog';
@@ -123,6 +125,16 @@ export default function ExhibitionPage() {
       window.removeEventListener('keydown', onKey);
     };
   }, [cinematic, endCinematic]);
+  const [graphics, setGraphics] = useState<GraphicsReason | 'live'>(() => (probeWebGL() ? 'loading' : 'unsupported'));
+  const [coarse, setCoarse] = useState(() => window.matchMedia?.('(pointer: coarse)').matches ?? false);
+  const onLive = useCallback(() => setGraphics('live'), []);
+  const onLost = useCallback(() => setGraphics((current) => (current === 'unsupported' ? current : 'lost')), []);
+  useEffect(() => {
+    const media = window.matchMedia('(pointer: coarse)');
+    const apply = () => setCoarse(media.matches);
+    media.addEventListener('change', apply);
+    return () => media.removeEventListener('change', apply);
+  }, []);
   const { catalog, loading, failed, retry } = useKnowledgeCatalog();
   const [mode, setMode] = useState<WorldMode>('overview');
   const [selected, setSelected] = useState<ZoneId | null>(null);
@@ -417,14 +429,11 @@ export default function ExhibitionPage() {
               </button>
             </div>
           )}
-          <div className="expo-world-canvas">
-            <DeferredScene
-              priority={mode === 'drive' || focus !== null || destination !== null || reset > 0}
-              fallback={
-                <div className="world-loading" role="status">
-                  {t('正在打开三维园区…', 'Opening the 3D campus…')}
-                </div>
-              }
+          <div className={`expo-world-canvas${graphics === 'live' ? ' is-live' : ''}`}>
+            <SceneFallback kind="campus" reason={graphics === 'live' ? 'loading' : graphics} hidden={graphics === 'live'} />
+            {(graphics === 'loading' || graphics === 'live') && <DeferredScene
+              priority
+              fallback={null}
             >
               <ExhibitionWorld
                 mode={mode}
@@ -436,11 +445,13 @@ export default function ExhibitionPage() {
                 reducedMotion={reducedMotion}
                 cinematic={cinematic}
                 onCinematicEnd={endCinematic}
+                onLive={onLive}
+                onLost={onLost}
                 onSelect={selectZone}
                 onPosition={setPosition}
                 onNearby={onNearby}
               />
-            </DeferredScene>
+            </DeferredScene>}
           </div>
           <div className="expo-world-vignette" aria-hidden="true" />
           <aside className="expo-world-guide">
@@ -674,7 +685,7 @@ export default function ExhibitionPage() {
                     aria-label={t(`驶向${zone.zh}`, `Drive to ${zone.en}`)}
                     className={nearby === zone.id ? 'is-nearby' : ''}
                   >
-                    {zone.number}
+                    <span>{zone.number}</span>
                   </button>
                 ))}
                 <span
@@ -722,7 +733,7 @@ export default function ExhibitionPage() {
                 </>
               ) : (
                 <>
-                  <span>{t('拖动环视 · 滚轮缩放', 'DRAG TO ORBIT · SCROLL TO ZOOM')}</span>
+                  <span>{coarse ? t('单指拖动环视 · 双指缩放', 'DRAG TO ORBIT · PINCH TO ZOOM') : t('拖动环视 · 滚轮缩放', 'DRAG TO ORBIT · SCROLL TO ZOOM')}</span>
                   <small>{t('点击展区，发现更多', 'SELECT A ZONE TO DISCOVER MORE')}</small>
                 </>
               )}

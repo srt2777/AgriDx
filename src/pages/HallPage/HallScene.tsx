@@ -1,12 +1,13 @@
-import { useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 import { ContactShadows, Html, RoundedBox } from '@react-three/drei';
-import { Bloom, EffectComposer, Vignette } from '@react-three/postprocessing';
+import { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
 import { ErrorBoundary } from 'react-error-boundary';
-import { Tractor } from 'lucide-react';
 import * as THREE from 'three';
 import { useLang } from '@/hooks/useLang';
+import { frameEase, MOTION, rateFor } from '@/lib/motion-tokens';
+import { bindContextLoss, probeWebGL } from '@/lib/webgl';
 import {
   HALL_EXAMPLE_DEVICES,
   HALL_EXAMPLE_LABEL,
@@ -15,12 +16,16 @@ import {
   type HallZoneId,
 } from './hall-example-data';
 
+const HallGlow = lazy(() => import('@/components/SceneGlow').then((mod) => ({ default: mod.HallGlow })));
+
 export interface HallSceneProps {
   selected: HallZoneId;
   hovered: HallZoneId | null;
   reducedMotion: boolean;
   onSelect: (id: HallZoneId) => void;
   onHover: (id: HallZoneId | null) => void;
+  onLive?: () => void;
+  onLost?: () => void;
 }
 
 const HOME = new THREE.Vector3(16.2, 13.2, 16.2);
@@ -54,16 +59,6 @@ const EXHIBITS: readonly {
   { id: 'd1', kind: 'drone', position: [4.35, 0, 2.55], rotation: 0.3, scale: 1 },
   { id: 'd3', kind: 'rover', position: [6.6, 0, 4.05], rotation: 2.55, scale: 1 },
 ];
-
-function supportsWebGL(): boolean {
-  try {
-    const context = document.createElement('canvas').getContext('webgl2');
-    context?.getExtension('WEBGL_lose_context')?.loseContext();
-    return !!context;
-  } catch {
-    return false;
-  }
-}
 
 function useFloorTexture() {
   return useMemo(() => {
@@ -99,23 +94,34 @@ function useFloorTexture() {
   }, []);
 }
 
-function FocusCamera({ selected, reducedMotion }: { selected: HallZoneId; reducedMotion: boolean }) {
+function FocusCamera({
+  selected,
+  reducedMotion,
+  onSettled,
+  onRelease,
+}: {
+  selected: HallZoneId;
+  reducedMotion: boolean;
+  onSettled: () => void;
+  onRelease: () => void;
+}) {
   const { camera, invalidate, size } = useThree();
   const look = useRef(HOME_LOOK.clone());
   const goal = useRef(HOME.clone());
   const goalLook = useRef(HOME_LOOK.clone());
   const settled = useRef(false);
-  useEffect(() => {
+  useLayoutEffect(() => {
     settled.current = false;
+    onRelease();
     invalidate();
-  }, [selected, size.width, reducedMotion, invalidate]);
+  }, [selected, size.width, reducedMotion, onRelease, invalidate]);
   useFrame((_, delta) => {
     if (settled.current) return;
     const zone = HALL_ZONES.find((item) => item.id === selected)!;
     const offset = size.width < 720 ? WIDE : CLOSE;
     goal.current.set(zone.position[0] + offset.x, offset.y, zone.position[2] + offset.z);
     goalLook.current.set(zone.position[0], 0.55, zone.position[2]);
-    const ease = reducedMotion ? 1 : 1 - Math.exp(-5 * Math.min(delta, 0.2));
+    const ease = frameEase(rateFor(MOTION.ms.enter), delta, reducedMotion);
     camera.position.lerp(goal.current, ease);
     look.current.lerp(goalLook.current, ease);
     const left = camera.position.distanceToSquared(goal.current) + look.current.distanceToSquared(goalLook.current);
@@ -128,6 +134,7 @@ function FocusCamera({ selected, reducedMotion }: { selected: HallZoneId; reduce
     look.current.copy(goalLook.current);
     camera.lookAt(look.current);
     settled.current = true;
+    onSettled();
   });
   return null;
 }
@@ -531,13 +538,15 @@ function Exhibit({
   const { gl } = useThree();
   const device = HALL_EXAMPLE_DEVICES.find((item) => item.id === id)!;
   const zone = HALL_ZONES.find((item) => item.id === device.zone)!;
-  const enter = (event: { stopPropagation: () => void }) => {
+  const enter = (event: { stopPropagation: () => void; pointerType?: string }) => {
     event.stopPropagation();
+    if (event.pointerType === 'touch') return;
     onTip(id);
     onHover(device.zone);
     gl.domElement.style.cursor = 'pointer';
   };
-  const leave = () => {
+  const leave = (event?: { pointerType?: string }) => {
+    if (event?.pointerType === 'touch') return;
     onTip(null);
     onHover(null);
     gl.domElement.style.cursor = '';
@@ -557,7 +566,12 @@ function Exhibit({
           roughness={0.72}
         />
       </mesh>
-      <mesh position={[0, 0.95, 0]} onClick={(event) => { event.stopPropagation(); onSelect(device.zone); }} onPointerOver={enter} onPointerOut={leave}>
+      <mesh
+        position={[0, 0.95, 0]}
+        onClick={(event) => { event.stopPropagation(); onSelect(device.zone); onTip(id); }}
+        onPointerOver={enter}
+        onPointerOut={leave}
+      >
         <boxGeometry args={[2.1, 1.7, 1.45]} />
         <meshBasicMaterial transparent opacity={0} depthWrite={false} />
       </mesh>
@@ -580,6 +594,9 @@ function HallWorld({ selected, hovered, reducedMotion, onSelect, onHover }: Hall
   const floor = useFloorTexture();
   const { invalidate, size, gl } = useThree();
   const [tip, setTip] = useState<string | null>(null);
+  const [orbit, setOrbit] = useState(false);
+  const settle = useCallback(() => setOrbit(true), []);
+  const release = useCallback(() => setOrbit(false), []);
   const zone = HALL_ZONES.find((item) => item.id === selected)!;
   useEffect(() => () => { floor?.dispose(); }, [floor]);
   useEffect(() => () => { gl.domElement.style.cursor = ''; }, [gl]);
@@ -606,7 +623,8 @@ function HallWorld({ selected, hovered, reducedMotion, onSelect, onHover }: Hall
       />
       <directionalLight position={[-10, 7, -4]} intensity={0.85} color="#9fd4ff" />
       <pointLight position={[zone.position[0], 3.6, zone.position[2]]} color={zone.color} intensity={26} distance={11} decay={2} />
-      <FocusCamera selected={selected} reducedMotion={reducedMotion} />
+      <FocusCamera selected={selected} reducedMotion={reducedMotion} onSettled={settle} onRelease={release} />
+      <HallLook enabled={orbit} target={[zone.position[0], 0.55, zone.position[2]]} />
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0.1]} receiveShadow>
         <planeGeometry args={[24, 16]} />
         <meshStandardMaterial map={floor ?? undefined} color="#eef5fb" roughness={0.9} metalness={0.02} />
@@ -675,47 +693,76 @@ function HallWorld({ selected, hovered, reducedMotion, onSelect, onHover }: Hall
       {!reducedMotion && size.width >= 720 && (
         <ContactShadows frames={1} position={[0, 0.012, 0.1]} opacity={0.32} scale={22} blur={2.2} far={3.2} resolution={192} />
       )}
-      <StageGlow reducedMotion={reducedMotion} />
+      {!reducedMotion && size.width >= 720 && (
+        <Suspense fallback={null}>
+          <HallGlow />
+        </Suspense>
+      )}
     </>
   );
 }
 
-/** Desktop glow only. Narrow screens and reduced motion keep the plain framebuffer. */
-function StageGlow({ reducedMotion }: { reducedMotion: boolean }) {
-  const width = useThree((state) => state.size.width);
-  if (reducedMotion || width < 720) return null;
-  return (
-    <EffectComposer multisampling={0} enableNormalPass={false} resolutionScale={0.7}>
-      <Bloom luminanceThreshold={0.58} luminanceSmoothing={0.22} intensity={0.4} mipmapBlur radius={0.42} levels={3} />
-      <Vignette eskil={false} offset={0.18} darkness={0.42} />
-    </EffectComposer>
-  );
+function HallLook({ enabled, target }: { enabled: boolean; target: readonly [number, number, number] }) {
+  const { camera, gl, invalidate } = useThree();
+  const spot = `${target[0]},${target[1]},${target[2]}`;
+  useEffect(() => {
+    if (!enabled) return;
+    const controls = new OrbitControlsImpl(camera, gl.domElement);
+    controls.enablePan = false;
+    controls.enableDamping = false;
+    controls.rotateSpeed = 0.65;
+    controls.zoomSpeed = 0.7;
+    controls.minDistance = 6;
+    controls.maxDistance = 28;
+    controls.minPolarAngle = 0.35;
+    controls.maxPolarAngle = 1.2;
+    controls.touches.ONE = THREE.TOUCH.ROTATE;
+    controls.touches.TWO = THREE.TOUCH.DOLLY_PAN;
+    const [x, y, z] = spot.split(',').map(Number);
+    controls.target.set(x, y, z);
+    controls.update();
+    const onChange = () => invalidate();
+    controls.addEventListener('change', onChange);
+    return () => {
+      controls.removeEventListener('change', onChange);
+      controls.dispose();
+    };
+  }, [enabled, camera, gl, invalidate, spot]);
+  return null;
 }
 
-function HallFallback() {
-  const lang = useLang();
-  return (
-    <div className="hall-fallback" role="status">
-      <Tractor size={42} strokeWidth={1.2} />
-      <p>{lang === 'zh' ? '三维展厅暂不可用，展区导航和示例清单仍可使用。' : 'The 3D hall is unavailable. Zone navigation and the example list still work.'}</p>
-    </div>
-  );
+function HallLost() {
+  return null;
 }
 
-export default function HallScene(props: HallSceneProps) {
+export default function HallScene({ onLive, onLost, ...props }: HallSceneProps) {
   const lang = useLang();
-  const [supported] = useState(supportsWebGL);
-  if (!supported) return <HallFallback />;
+  const [supported] = useState(probeWebGL);
+  const reported = useRef(false);
+  useEffect(() => {
+    if (!supported) onLost?.();
+  }, [supported, onLost]);
+  const markLive = useCallback((canvas: HTMLCanvasElement) => {
+    if (reported.current) return;
+    reported.current = true;
+    onLive?.();
+    bindContextLoss(canvas, () => onLost?.());
+  }, [onLive, onLost]);
+  if (!supported) return null;
   return (
-    <ErrorBoundary FallbackComponent={HallFallback}>
+    <ErrorBoundary FallbackComponent={HallLost} onError={() => onLost?.()}>
       <Canvas
         shadows
         camera={{ position: [HOME.x, HOME.y, HOME.z], fov: 32, near: 0.1, far: 80 }}
         gl={{ antialias: true, alpha: false, powerPreference: 'high-performance' }}
         dpr={[1, 1.25]}
         frameloop="demand"
-        onCreated={({ camera }) => camera.lookAt(HOME_LOOK)}
-        aria-label={lang === 'zh' ? '农机数字孪生展示大厅的等轴示意' : 'Isometric schematic of the machinery hall'}
+        onCreated={({ camera, gl }) => {
+          camera.lookAt(HOME_LOOK);
+          gl.domElement.style.touchAction = 'none';
+          markLive(gl.domElement);
+        }}
+        aria-label={lang === 'zh' ? '农机数字孪生展示大厅的等轴示意。单指拖动环视，双指缩放。点按机具可查看示例状态。' : 'Isometric hall. Drag to look around, pinch to zoom, and tap a machine for its example status.'}
       >
         <HallWorld {...props} />
       </Canvas>

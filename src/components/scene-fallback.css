@@ -1,0 +1,35 @@
+.scene-fallback {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 28px 18px;
+  pointer-events: none;
+  background:
+    radial-gradient(90% 70% at 50% 42%, color-mix(in srgb, var(--hub-primary) 24%, transparent), transparent 62%),
+    var(--hub-background);
+}
+
+.scene-fallback-art {
+  width: min(100%, 760px);
+  height: auto;
+  max-height: 78%;
+}
+
+.scene-fallback-note {
+  margin: 0;
+  max-width: 360px;
+  color: var(--hub-muted);
+  font-size: 13px;
+  line-height: 1.6;
+  text-align: center;
+}
+
+.hall-stage.is-live .scene-fallback,
+.expo-world-canvas.is-live .scene-fallback {
+  visibility: hidden;
+}

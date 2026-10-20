@@ -26,6 +26,18 @@ export default defineConfig({
       '@shared': path.resolve(__dirname, './shared/'),
     },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (!id.includes('node_modules')) return;
+          if (id.includes('postprocessing') || id.includes('@react-three/postprocessing')) return 'postfx';
+          if (id.includes('node_modules/three/') || id.includes('three-stdlib')) return 'three';
+          if (id.includes('@react-three/')) return 'r3f';
+        },
+      },
+    },
+  },
   server: {
     port: 3000,
     strictPort: true,
