@@ -941,6 +941,10 @@
 .expo-direct-links :is(button, a):hover {
   color: var(--primary);
 }
+.expo-direct-links .expo-hall-link {
+  color: var(--primary);
+  font-weight: 600;
+}
 .expo-footer {
   display: flex;
   justify-content: space-between;
