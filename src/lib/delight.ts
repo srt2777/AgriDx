@@ -3,6 +3,16 @@ import { easeOutCubic } from './motion-tokens';
 /** Hover delay before the shared glass tooltip appears. */
 export const TOOLTIP_DELAY_MS = 320;
 
+/** Status ring eases in once. Longer than the page counters so the draw reads. */
+export const RING_DRAW_MS = 1600;
+
+export const PRESS_SCALE = 0.98;
+
+/** A scan plays only when the hall zone actually changes. */
+export function zoneSweep(previous: string, next: string): boolean {
+  return previous !== next;
+}
+
 export function openShortcuts(): void {
   if (typeof window === 'undefined') return;
   window.dispatchEvent(new CustomEvent('agridx-shortcuts-open'));

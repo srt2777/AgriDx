@@ -4,13 +4,21 @@
   .new-version-nav-item { transition: color var(--motion-color, 180ms) ease; }
   .new-version-shell .knowledge-page .library-collections button,
   .new-version-shell .knowledge-page .catalog-brand-pills button,
-  .new-version-shell .rounded-3xl {
-    transition: border-color var(--motion-color, 180ms) ease, background-color var(--motion-color, 180ms) ease;
+  .new-version-shell .rounded-3xl,
+  .new-version-shell .chat-context {
+    transition: transform var(--motion-hover, 220ms) var(--motion-ease-out, cubic-bezier(.16, 1, .3, 1)), border-color var(--motion-color, 180ms) ease, box-shadow var(--motion-hover, 220ms) ease, background-color var(--motion-color, 180ms) ease;
   }
+}
+@media (prefers-reduced-motion: no-preference) {
   .new-version-shell .knowledge-page .library-collections button:hover,
   .new-version-shell .knowledge-page .catalog-brand-pills button:hover,
-  .new-version-shell .rounded-3xl:hover {
-    border-color: color-mix(in srgb, var(--hub-primary) 55%, var(--border));
+  .new-version-shell .rounded-3xl:hover,
+  .new-version-shell .chat-context:hover {
+    transform: translateY(-2px);
+    border-color: color-mix(in srgb, var(--hub-primary) 62%, var(--border));
+    box-shadow:
+      0 10px 22px color-mix(in srgb, var(--hub-primary) 16%, transparent),
+      0 0 0 1px color-mix(in srgb, var(--hub-primary) 42%, transparent);
   }
 }
 

@@ -191,6 +191,41 @@ html.theme-dark .hall-page {
 }
 
 .hall-stage-view { position: absolute; inset: 0; z-index: 1; }
+
+.hall-stage-light {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(240px circle at var(--hall-x, 50%) var(--hall-y, 40%), color-mix(in srgb, white 28%, var(--hub-primary)) 0%, transparent 68%);
+  transition: opacity var(--motion-color, 180ms) linear;
+}
+
+.hall-scan {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  overflow: hidden;
+  pointer-events: none;
+}
+.hall-scan::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -24%;
+  height: 22%;
+  background: linear-gradient(to bottom, transparent, color-mix(in srgb, white 55%, var(--hub-primary)) 46%, transparent);
+  opacity: 0;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .hall-scan::before { animation: hall-scan-once 1100ms var(--motion-ease-out, cubic-bezier(.16, 1, .3, 1)) 1 forwards; }
+}
+@keyframes hall-scan-once {
+  0% { transform: translateY(0); opacity: 0.72; }
+  100% { transform: translateY(560%); opacity: 0; }
+}
 .hall-stage canvas { display: block; width: 100% !important; height: 100% !important; touch-action: none; }
 .hall-stage-devices {
   display: flex;
@@ -212,7 +247,7 @@ html.theme-dark .hall-page {
 
 .hall-stage-caption {
   position: absolute;
-  z-index: 2;
+  z-index: 3;
   top: 12px;
   left: 12px;
   display: flex;
@@ -448,8 +483,21 @@ a.hall-card:hover,
   .hall-board { animation: hall-rise var(--motion-enter, 520ms) var(--motion-ease-out, cubic-bezier(.16, 1, .3, 1)); }
   .hall-zone,
   .hall-card,
-  .hall-marker { transition: border-color var(--motion-color, 180ms) ease, background-color var(--motion-color, 180ms) ease; }
+  .hall-marker { transition: border-color var(--motion-color, 180ms) ease, background-color var(--motion-color, 180ms) ease, transform var(--motion-hover, 220ms) var(--motion-ease-out, cubic-bezier(.16, 1, .3, 1)), box-shadow var(--motion-hover, 220ms) ease; }
   .hall-drawer { animation: hall-drawer-in var(--motion-enter, 520ms) var(--motion-ease-out, cubic-bezier(.16, 1, .3, 1)); }
+  .hall-ring svg { animation: hall-ring-in 1600ms var(--motion-ease-out, cubic-bezier(.16, 1, .3, 1)) 1 both; }
+}
+@keyframes hall-ring-in { from { opacity: 0.2; } to { opacity: 1; } }
+
+@media (prefers-reduced-motion: no-preference) {
+  a.hall-card:hover,
+  .hall-zone:hover {
+    transform: translateY(-2px);
+    border-color: color-mix(in srgb, var(--hub-primary) 72%, white);
+    box-shadow:
+      0 10px 22px color-mix(in srgb, var(--hub-primary) 16%, transparent),
+      0 0 0 1px color-mix(in srgb, var(--hub-primary) 46%, transparent);
+  }
 }
 
 @keyframes hall-drawer-in { from { opacity: 0; } to { opacity: 1; } }
@@ -544,6 +592,8 @@ a.hall-card:hover,
   .hall-drawer { animation: none; }
   .hall-top h1 { text-shadow: none; }
   .hall-title-plate { filter: none; }
+  .hall-stage-light,
+  .hall-scan { display: none; }
 }
 
 @media (max-width: 860px) {

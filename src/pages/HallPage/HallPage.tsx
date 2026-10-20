@@ -1,4 +1,4 @@
-import { lazy, memo, useCallback, useEffect, useState, type CSSProperties } from 'react';
+import { lazy, memo, useCallback, useEffect, useRef, useState, type CSSProperties } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   BookOpen,
@@ -21,6 +21,7 @@ import { useLang } from '@/hooks/useLang';
 import { preloadPage } from '@/lib/page-loaders';
 import { beginSharedTransition, sharedTransitionName } from '@/lib/shared-transition';
 import { StatTicker } from '@/components/StatTicker';
+import { RING_DRAW_MS, zoneSweep } from '@/lib/delight';
 import { easeOutCubic, MOTION } from '@/lib/motion-tokens';
 import { probeWebGL, type GraphicsReason } from '@/lib/webgl';
 import {
@@ -91,7 +92,7 @@ function useShanghaiClock(): string {
 
 const STATUS_TARGETS = HALL_STATUS_EXAMPLE.map((item) => item.count);
 
-function useCountUps(targets: readonly number[], reduced: boolean): number[] {
+function useCountUps(targets: readonly number[], reduced: boolean, duration: number = MOTION.ms.count): number[] {
   const [values, setValues] = useState<number[]>(() => (reduced ? [...targets] : targets.map(() => 0)));
   useEffect(() => {
     if (reduced) {
@@ -102,20 +103,20 @@ function useCountUps(targets: readonly number[], reduced: boolean): number[] {
     const start = performance.now();
     let frame = 0;
     const tick = (now: number) => {
-      const t = Math.min(1, (now - start) / MOTION.ms.count);
+      const t = Math.min(1, (now - start) / duration);
       const eased = easeOutCubic(t);
       setValues(targets.map((goal, index) => origin[index] + (goal - origin[index]) * eased));
       if (t < 1) frame = requestAnimationFrame(tick);
     };
     frame = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(frame);
-  }, [reduced, targets]);
+  }, [reduced, targets, duration]);
   return values;
 }
 
 function StatusRing({ label, reducedMotion }: { label: string; reducedMotion: boolean }) {
   const lang = useLang();
-  const counts = useCountUps(STATUS_TARGETS, reducedMotion);
+  const counts = useCountUps(STATUS_TARGETS, reducedMotion, RING_DRAW_MS);
   const shown = counts.map((value) => Math.round(value));
   const radius = 42;
   const circumference = 2 * Math.PI * radius;
@@ -160,6 +161,45 @@ function StatusRing({ label, reducedMotion }: { label: string; reducedMotion: bo
   );
 }
 
+function HallStageLight() {
+  const node = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const light = node.current;
+    const stage = light?.parentElement;
+    if (!light || !stage) return;
+    let frame = 0;
+    let point: PointerEvent | null = null;
+    const paint = () => {
+      frame = 0;
+      const event = point;
+      if (!event) return;
+      const rect = stage.getBoundingClientRect();
+      light.style.setProperty('--hall-x', `${event.clientX - rect.left}px`);
+      light.style.setProperty('--hall-y', `${event.clientY - rect.top}px`);
+      light.style.opacity = '1';
+    };
+    const move = (event: PointerEvent) => {
+      if (event.pointerType !== 'mouse') return;
+      point = event;
+      if (!frame) frame = requestAnimationFrame(paint);
+    };
+    const leave = () => {
+      point = null;
+      cancelAnimationFrame(frame);
+      frame = 0;
+      light.style.opacity = '0';
+    };
+    stage.addEventListener('pointermove', move);
+    stage.addEventListener('pointerleave', leave);
+    return () => {
+      stage.removeEventListener('pointermove', move);
+      stage.removeEventListener('pointerleave', leave);
+      cancelAnimationFrame(frame);
+    };
+  }, []);
+  return <div ref={node} className="hall-stage-light" aria-hidden="true" />;
+}
+
 export default function HallPage() {
   const lang = useLang();
   const navigate = useNavigate();
@@ -168,7 +208,11 @@ export default function HallPage() {
   const { catalog, loading, failed } = useKnowledgeCatalog();
   const [selected, setSelected] = useState<HallZoneId>('A');
   const [detail, setDetail] = useState(false);
+  const [scan, setScan] = useState(0);
+  const zoneRef = useRef(selected);
   const choose = useCallback((id: HallZoneId) => {
+    if (zoneSweep(zoneRef.current, id)) setScan((value) => value + 1);
+    zoneRef.current = id;
     setSelected(id);
     setDetail(true);
   }, []);
@@ -270,6 +314,8 @@ export default function HallPage() {
                 ))}
               </ul>
             </div>
+            {scan > 0 && !reducedMotion && <div key={scan} className="hall-scan" aria-hidden="true" />}
+            {!reducedMotion && <HallStageLight />}
             {(graphics === 'loading' || graphics === 'live') && (
               <div className="hall-stage-view">
                 <HallStage

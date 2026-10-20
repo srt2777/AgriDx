@@ -4,6 +4,8 @@ import path from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import {
+  PRESS_SCALE,
+  RING_DRAW_MS,
   TOOLTIP_DELAY_MS,
   countFrame,
   isTypingTarget,
@@ -12,6 +14,7 @@ import {
   shortcutToggleKey,
   typingElement,
   tooltipPlacement,
+  zoneSweep,
 } from '../src/lib/delight';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -27,11 +30,24 @@ test('克制后不再保留跟手倾斜、扫描线和磁吸光标', () => {
     'src/pages/ExhibitionPage/ExhibitionPage.tsx',
   ].map((file) => readFileSync(path.join(root, file), 'utf8')).join('\n');
   assert.equal(files.includes('is-tilting'), false);
-  assert.equal(files.includes('hall-scan'), false);
   assert.equal(files.includes('pointer-glow'), false);
   assert.equal(files.includes('MagneticPointer'), false);
   assert.equal(files.includes('hall-marker-pulse'), false);
   assert.equal(files.includes('class="magnetic"') || files.includes(' magnetic'), false);
+});
+
+test('展厅交互跟一次动作走，不循环', () => {
+  assert.equal(RING_DRAW_MS, 1600);
+  assert.equal(PRESS_SCALE, 0.98);
+  assert.equal(zoneSweep('A', 'A'), false);
+  assert.equal(zoneSweep('A', 'B'), true);
+  const hall = readFileSync(path.join(root, 'src/pages/HallPage/hall.css'), 'utf8');
+  const delight = readFileSync(path.join(root, 'src/components/delight.css'), 'utf8');
+  assert.match(hall, /animation: hall-scan-once 1100ms[^;]* 1 forwards/);
+  assert.equal(hall.includes('infinite'), false);
+  assert.match(hall, /translateY\(-2px\)/);
+  assert.match(hall, /\.hall-stage-light/);
+  assert.match(delight, /scale\(0\.98\)/);
 });
 
 test('阅读进度、数字跳动、提示和问号快捷键', () => {
