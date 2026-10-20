@@ -63,22 +63,24 @@ export interface HallExampleDevice {
   name: string;
   manager: string;
   status: HallDeviceStatus;
+  specZh: string;
+  specEn: string;
 }
 
 /** 十二台演示机具，状态计数与运行环一致。名称只用于界面样例。 */
 export const HALL_EXAMPLE_DEVICES: readonly HallExampleDevice[] = [
-  { id: 'a1', zone: 'A', name: '东方红 LX2204', manager: '周宁', status: 'online' },
-  { id: 'a2', zone: 'A', name: '约翰迪尔 6M-2104', manager: '陈可', status: 'online' },
-  { id: 'a3', zone: 'A', name: '雷沃 P7000', manager: '林夏', status: 'online' },
-  { id: 'b1', zone: 'B', name: '沃得 2BF-24', manager: '赵敏', status: 'online' },
-  { id: 'b2', zone: 'B', name: '雷沃 M2004', manager: '李航', status: 'standby' },
-  { id: 'b3', zone: 'B', name: '气吸播种机 24 行', manager: '马超', status: 'online' },
-  { id: 'c1', zone: 'C', name: '久保田 PRO688Q', manager: '孙磊', status: 'maintenance' },
-  { id: 'c2', zone: 'C', name: '约翰迪尔 S760', manager: '吴迪', status: 'online' },
-  { id: 'c3', zone: 'C', name: '雷沃谷神 GE80', manager: '韩雪', status: 'online' },
-  { id: 'd1', zone: 'D', name: '植保无人机 T60', manager: '郑洁', status: 'offline' },
-  { id: 'd2', zone: 'D', name: '导航示范终端', manager: '何川', status: 'online' },
-  { id: 'd3', zone: 'D', name: '田间监测小车', manager: '周倩', status: 'standby' },
+  { id: 'a1', zone: 'A', name: '东方红 LX2204', manager: '周宁', status: 'online', specZh: '示例 · 220 马力', specEn: 'Example · 220 hp' },
+  { id: 'a2', zone: 'A', name: '约翰迪尔 6M-2104', manager: '陈可', status: 'online', specZh: '示例 · 210 马力', specEn: 'Example · 210 hp' },
+  { id: 'a3', zone: 'A', name: '雷沃 P7000', manager: '林夏', status: 'online', specZh: '示例 · 200 马力', specEn: 'Example · 200 hp' },
+  { id: 'b1', zone: 'B', name: '沃得 2BF-24', manager: '赵敏', status: 'online', specZh: '示例 · 24 行', specEn: 'Example · 24 rows' },
+  { id: 'b2', zone: 'B', name: '雷沃 M2004', manager: '李航', status: 'standby', specZh: '示例 · 200 马力', specEn: 'Example · 200 hp' },
+  { id: 'b3', zone: 'B', name: '气吸播种机 24 行', manager: '马超', status: 'online', specZh: '示例 · 24 行', specEn: 'Example · 24 rows' },
+  { id: 'c1', zone: 'C', name: '久保田 PRO688Q', manager: '孙磊', status: 'maintenance', specZh: '示例 · 收获示意', specEn: 'Example · harvest schematic' },
+  { id: 'c2', zone: 'C', name: '约翰迪尔 S760', manager: '吴迪', status: 'online', specZh: '示例 · 收获示意', specEn: 'Example · harvest schematic' },
+  { id: 'c3', zone: 'C', name: '雷沃谷神 GE80', manager: '韩雪', status: 'online', specZh: '示例 · 收获示意', specEn: 'Example · harvest schematic' },
+  { id: 'd1', zone: 'D', name: '植保无人机 T60', manager: '郑洁', status: 'offline', specZh: '示例 · 植保示意', specEn: 'Example · crop-care schematic' },
+  { id: 'd2', zone: 'D', name: '导航示范终端', manager: '何川', status: 'online', specZh: '示例 · 导航示意', specEn: 'Example · guidance schematic' },
+  { id: 'd3', zone: 'D', name: '田间监测小车', manager: '周倩', status: 'standby', specZh: '示例 · 监测示意', specEn: 'Example · monitor schematic' },
 ];
 
 export function hallStatusCount(status: HallDeviceStatus): number {

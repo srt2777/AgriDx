@@ -11,6 +11,7 @@ import {
   Sprout,
   Tractor,
   Wheat,
+  X,
 } from 'lucide-react';
 import DeferredScene from '@/components/DeferredScene';
 import DemoNote from '@/components/DemoNote';
@@ -160,6 +161,11 @@ export default function HallPage() {
   const stamp = useShanghaiClock();
   const { catalog, loading, failed } = useKnowledgeCatalog();
   const [selected, setSelected] = useState<HallZoneId>('A');
+  const [detail, setDetail] = useState(false);
+  const choose = useCallback((id: HallZoneId) => {
+    setSelected(id);
+    setDetail(true);
+  }, []);
   const [hovered, setHovered] = useState<HallZoneId | null>(null);
   const [reducedMotion, setReducedMotion] = useState(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches);
   const [graphics, setGraphics] = useState<GraphicsReason | 'live'>(() => (probeWebGL() ? 'loading' : 'unsupported'));
@@ -177,14 +183,18 @@ export default function HallPage() {
       const target = event.target;
       if (target instanceof HTMLElement && (target.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName))) return;
       const index = HALL_ZONES.findIndex((item) => item.id === selected);
+      if (event.key === 'Escape') {
+        setDetail(false);
+        return;
+      }
       if (event.key !== 'ArrowRight' && event.key !== 'ArrowLeft') return;
       event.preventDefault();
       const next = event.key === 'ArrowRight' ? (index + 1) % HALL_ZONES.length : (index + HALL_ZONES.length - 1) % HALL_ZONES.length;
-      setSelected(HALL_ZONES[next].id);
+      choose(HALL_ZONES[next].id);
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [selected]);
+  }, [selected, choose]);
   const number = (value: number | undefined) => (loading || failed || value === undefined ? '—' : value.toLocaleString());
   const statusLabel = (status: HallDeviceStatus) => {
     const item = HALL_STATUS_EXAMPLE.find((entry) => entry.id === status)!;
@@ -199,7 +209,9 @@ export default function HallPage() {
             <p>{t('结构示意 · 不是实车监测', 'Schematic · not live monitoring')}</p>
             <DemoNote />
           </div>
-          <h1 id="hall-title">{t('农机装备数字孪生展示大厅', 'Agricultural equipment digital-twin hall')}</h1>
+          <div className="hall-title-plate">
+            <h1 id="hall-title">{t('农机装备数字孪生展示大厅', 'Agricultural equipment digital-twin hall')}</h1>
+          </div>
           <span className="wheat-line" aria-hidden="true" />
           <time dateTime={stamp}>{stamp}</time>
         </header>
@@ -215,7 +227,7 @@ export default function HallPage() {
                   className={`hall-zone${active ? ' is-on' : ''}${hovered === item.id ? ' is-hover' : ''}`}
                   aria-pressed={active}
                   style={{ '--zone-color': item.color } as CSSProperties}
-                  onClick={() => setSelected(item.id)}
+                  onClick={() => choose(item.id)}
                   onPointerEnter={() => setHovered(item.id)}
                   onPointerLeave={() => setHovered(null)}
                 >
@@ -230,7 +242,7 @@ export default function HallPage() {
             })}
             <p className="hall-zone-note">{t(zone.blurbZh, zone.blurbEn)}</p>
           </nav>
-          <div className={`hall-stage${graphics === 'live' ? ' is-live' : ''}`}>
+          <div className={`hall-stage${graphics === 'live' ? ' is-live' : ''}${detail ? ' is-detail' : ''}`}>
             <SceneFallback kind="hall" reason={graphics === 'live' ? 'loading' : graphics} hidden={graphics === 'live'} />
             <div className="hall-stage-caption">
               <span>{selected} {t('展区', 'ZONE')} · {t('点按机具或方向键切换', 'Tap a machine or use arrow keys')}</span>
@@ -247,7 +259,7 @@ export default function HallPage() {
                   selected={selected}
                   hovered={hovered}
                   reducedMotion={reducedMotion}
-                  onSelect={setSelected}
+                  onSelect={choose}
                   onHover={setHovered}
                   onLive={onLive}
                   onLost={onLost}
@@ -255,6 +267,34 @@ export default function HallPage() {
               </div>
             )}
             <div className="hall-scan" aria-hidden="true" />
+            {detail && (
+              <aside className="hall-drawer" key={selected} aria-labelledby="hall-drawer-title">
+                <header>
+                  <div>
+                    <span>{selected} {t('展区', 'ZONE')}</span>
+                    <h2 id="hall-drawer-title">{t(zone.zh, zone.en)}</h2>
+                  </div>
+                  <button type="button" className="hall-drawer-close" onClick={() => setDetail(false)} aria-label={t('关闭展区详情', 'Close zone detail')}>
+                    <X size={16} />
+                  </button>
+                </header>
+                <p>{t(zone.blurbZh, zone.blurbEn)}</p>
+                <span className="hall-example-tag">{exampleDataLabel(lang === 'zh' ? 'zh' : 'en')}</span>
+                <ul>
+                  {HALL_EXAMPLE_DEVICES.filter((device) => device.zone === selected).map((device) => (
+                    <li key={device.id}>
+                      <strong>{device.name}</strong>
+                      <em className={`is-${device.status}`}>{statusLabel(device.status)}</em>
+                      <small>{lang === 'zh' ? device.specZh : device.specEn}</small>
+                    </li>
+                  ))}
+                </ul>
+                <p className="hall-drawer-note">{t('规格是示例数据，不是铭牌或实测。', 'Specs are example data, not a plate or a measurement.')}</p>
+                <Link to="/knowledge" onPointerEnter={() => preloadPage('/knowledge')} onFocus={() => preloadPage('/knowledge')}>
+                  {t('查看该展区资料', 'Open this zone’s evidence')}
+                </Link>
+              </aside>
+            )}
           </div>
           <aside className="hall-side">
             <section className="hall-panel" aria-labelledby="hall-status-title">
@@ -287,13 +327,13 @@ export default function HallPage() {
                         tabIndex={0}
                         role="button"
                         aria-pressed={device.zone === selected}
-                        onClick={() => setSelected(device.zone)}
+                        onClick={() => choose(device.zone)}
                         onPointerEnter={() => setHovered(device.zone)}
                         onPointerLeave={() => setHovered(null)}
                         onKeyDown={(event) => {
                           if (event.key === 'Enter' || event.key === ' ') {
                             event.preventDefault();
-                            setSelected(device.zone);
+                            choose(device.zone);
                           }
                         }}
                       >

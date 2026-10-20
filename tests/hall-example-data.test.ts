@@ -18,5 +18,10 @@ test('展厅示例环的四段状态合计为 12，并与设备表逐项一致',
   const zones = new Set(HALL_ZONES.map((zone) => zone.id));
   for (const device of HALL_EXAMPLE_DEVICES) {
     assert.equal(zones.has(device.zone), true);
+    assert.match(device.specZh, /示例/);
+    assert.match(device.specEn, /Example/);
+  }
+  for (const zone of HALL_ZONES) {
+    assert.equal(HALL_EXAMPLE_DEVICES.filter((device) => device.zone === zone.id).length, 3);
   }
 });

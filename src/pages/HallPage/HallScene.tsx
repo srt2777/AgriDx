@@ -240,7 +240,7 @@ function CeilingTruss() {
       {[-5.1, -1.5, 2.1, 5.5].map((z) => (
         <mesh key={`strip-${z}`} position={[0, 3.48, z]}>
           <boxGeometry args={[16.2, 0.035, 0.18]} />
-          <meshStandardMaterial color="#e9f8ff" emissive="#b9e7ff" emissiveIntensity={0.85} toneMapped={false} />
+          <meshStandardMaterial color="#e9f8ff" emissive="#9adfff" emissiveIntensity={1.45} toneMapped={false} />
         </mesh>
       ))}
     </group>
@@ -604,14 +604,14 @@ function HallWorld({ selected, hovered, reducedMotion, onSelect, onHover }: Hall
   return (
     <>
       <HallEnvironment />
-      <color attach="background" args={['#c5ddf0']} />
-      <fog attach="fog" args={['#c5ddf0', 26, 52]} />
-      <hemisphereLight args={['#f5fbff', '#7fa4be', 0.72]} />
-      <ambientLight intensity={0.55} color="#f7fbff" />
+      <color attach="background" args={['#b7d6ee']} />
+      <fog attach="fog" args={['#b7d6ee', 28, 54]} />
+      <hemisphereLight args={['#f4fbff', '#6d9ec4', 0.78]} />
+      <ambientLight intensity={0.48} color="#e7f6ff" />
       <directionalLight
         position={[9, 18, 7]}
-        intensity={2.7}
-        color="#fff6ea"
+        intensity={2.55}
+        color="#e7f4ff"
         castShadow
         shadow-mapSize={[512, 512]}
         shadow-camera-left={-16}
@@ -621,8 +621,8 @@ function HallWorld({ selected, hovered, reducedMotion, onSelect, onHover }: Hall
         shadow-camera-far={42}
         shadow-bias={-0.0002}
       />
-      <directionalLight position={[-10, 7, -4]} intensity={0.85} color="#9fd4ff" />
-      <pointLight position={[zone.position[0], 3.6, zone.position[2]]} color={zone.color} intensity={26} distance={11} decay={2} />
+      <directionalLight position={[-10, 7, -4]} intensity={1.15} color="#b7e7ff" />
+      <pointLight position={[zone.position[0], 3.6, zone.position[2]]} color={zone.color} intensity={36} distance={12} decay={2} />
       <FocusCamera selected={selected} reducedMotion={reducedMotion} onSettled={settle} onRelease={release} />
       <HallLook enabled={orbit} target={[zone.position[0], 0.55, zone.position[2]]} />
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0.1]} receiveShadow>
