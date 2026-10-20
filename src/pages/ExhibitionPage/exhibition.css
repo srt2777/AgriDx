@@ -928,7 +928,7 @@
   letter-spacing: 1px;
   margin-right: auto;
 }
-.expo-direct-links button {
+.expo-direct-links :is(button, a) {
   display: flex;
   align-items: center;
   gap: 9px;
@@ -938,7 +938,7 @@
   background: transparent;
   font-size: 11px;
 }
-.expo-direct-links button:hover {
+.expo-direct-links :is(button, a):hover {
   color: var(--primary);
 }
 .expo-footer {
@@ -1416,7 +1416,7 @@
     padding-inline: 5px;
     gap: 8px 22px;
   }
-  .expo-direct-links button {
+  .expo-direct-links :is(button, a) {
     font-size: 10px;
   }
   .expo-footer {

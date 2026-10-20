@@ -11,6 +11,7 @@ const ModelPage = lazy(pageLoaders.models);
 import NotFoundPage from '@/pages/NotFoundPage/NotFoundPage';
 import { useUiVersion } from '@/hooks/useUiVersion';
 const ExhibitionPage = lazy(pageLoaders.exhibition);
+const HallPage = lazy(pageLoaders.hall);
 const PreviewStatus = typeof __AGRIDX_DEV_PREVIEW__ !== 'undefined' && __AGRIDX_DEV_PREVIEW__
   ? lazy(() => import('./dev-preview/PreviewStatus')) : null;
 const DeveloperPage = typeof __AGRIDX_DEV_PREVIEW__ !== 'undefined' && __AGRIDX_DEV_PREVIEW__
@@ -39,6 +40,7 @@ export default function App() {
         <Route path="chat" element={<PageContent><ChatPage /></PageContent>} />
         <Route path="knowledge" element={<PageContent><KnowledgePage /></PageContent>} />
         <Route path="models" element={<PageContent><ModelPage /></PageContent>} />
+        <Route path="hall" element={<PageContent><HallPage /></PageContent>} />
       </Route>
       {DeveloperPage && <Route path="developer" element={<PageContent><DeveloperPage /></PageContent>} />}
       <Route path="*" element={<NotFoundPage />} />

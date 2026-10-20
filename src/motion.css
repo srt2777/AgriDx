@@ -12,10 +12,10 @@
 .route-home-reveal { animation: route-home-enter 220ms ease-out backwards; }
 @keyframes route-content-enter { from { opacity: .72; transform: translateY(7px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes route-home-enter { from { opacity: .86; } to { opacity: 1; } }
-.expo-page :is(.expo-icon-button, .expo-start-button, .expo-zone-nav button, .expo-zone-actions button, .expo-catalog-trigger, .expo-direct-links button) {
+.expo-page :is(.expo-icon-button, .expo-start-button, .expo-zone-nav button, .expo-zone-actions button, .expo-catalog-trigger, .expo-direct-links button, .expo-direct-links a) {
   transition: transform 360ms cubic-bezier(.2, .8, .2, 1.15), background-color 160ms ease, color 160ms ease, border-color 160ms ease;
 }
-.expo-page :is(.expo-icon-button, .expo-start-button, .expo-zone-nav button, .expo-zone-actions button, .expo-catalog-trigger, .expo-direct-links button):active { transform: scale(.965); }
+.expo-page :is(.expo-icon-button, .expo-start-button, .expo-zone-nav button, .expo-zone-actions button, .expo-catalog-trigger, .expo-direct-links button, .expo-direct-links a):active { transform: scale(.965); }
 .expo-zone-nav > button > svg:last-child { transition: transform 300ms cubic-bezier(.2, .8, .2, 1.15); }
 .expo-zone-nav > button:is(:hover, :focus-visible, [aria-pressed='true']) > svg:last-child { transform: translate(2px, -2px); }
 @media (max-width: 639px) { .expo-zone-card { --ui-panel-origin: 100% 100%; } }

@@ -177,7 +177,7 @@ test('四级目录拒绝畸形嵌套数组与选择结果，不让成功HTTP造�
 });
 
 test('新版二级路由统一进入蓝色展厅 shell，并标记为新版', () => {
-  for (const route of ['/knowledge', '/chat', '/models']) {
+  for (const route of ['/knowledge', '/chat', '/models', '/hall']) {
     assert.match(appSource, new RegExp(`path="${route.slice(1)}"`), `missing secondary route ${route}`);
     assert.match(newShellSource, new RegExp(`path: ['"]${route.replace('/', '\\/')}['"]`), `new shell does not link ${route}`);
   }

@@ -773,6 +773,10 @@ export default function ExhibitionPage() {
               <ChevronRight size={14} />
             </button>
           ))}
+          <Link to="/hall" onPointerEnter={() => preloadPage('/hall')} onFocus={() => preloadPage('/hall')}>
+            {t('数字展厅', 'Digital hall')}
+            <ChevronRight size={14} />
+          </Link>
         </nav>
       </main>
       <footer className="expo-footer">
