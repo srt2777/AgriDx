@@ -13,6 +13,15 @@ const manifest = JSON.parse(fs.readFileSync(`${index}/采集记录/20261017_十�
   baseline_integrity: { entries_bytes: number; entries_sha256: string; knowledge_documents: number;
     knowledge_sha256: string; sources_sha256: string; hierarchy_sha256: string; components_sha256: string };
 };
+// 3.5.10仅追加书名、子品牌和规范型号字段并统一主品牌；基线比较还原到追加前的来源形状。
+const ADDED_3510 = ['sub_brand', 'product_line', 'brand_label', 'title_status', 'title_evidence', 'model_ids'];
+const before3510 = <T extends Record<string, unknown>>(source: T): T => {
+  const copy: Record<string, unknown> = { ...source };
+  if (typeof copy.brand_label === 'string') copy.brand = copy.brand_label;
+  if (copy.title_status !== undefined) delete copy.title;
+  for (const field of ADDED_3510) delete copy[field];
+  return copy as T;
+};
 const hash = (value: string | Buffer) => createHash('sha256').update(value).digest('hex');
 const batch = loadArchive().chunks.filter(c => manifest.entry_ids.includes(c.entryId ?? ''));
 loadKnowledgeBase();
@@ -29,7 +38,7 @@ test('十条同步批次保留4853行索引、65份正文、旧来源和旧导�
   assert.equal(hash(paths.map(p => `${p}\0${hash(fs.readFileSync(p, 'utf8').replace(/\r\n/g, '\n'))}`).join('\n')), base.knowledge_sha256);
   const sources = JSON.parse(fs.readFileSync(`${index}/sources.json`, 'utf8'));
   const hierarchy = JSON.parse(fs.readFileSync(`${index}/hierarchy.json`, 'utf8'));
-  assert.equal(hash(JSON.stringify(sources.slice(0, 27))), base.sources_sha256);
+  assert.equal(hash(JSON.stringify(sources.slice(0, 27).map(before3510))), base.sources_sha256);
   assert.equal(hash(JSON.stringify(hierarchy.entries.slice(0, 4853))), base.hierarchy_sha256);
   assert.equal(hash(JSON.stringify(hierarchy.components)), base.components_sha256);
 });

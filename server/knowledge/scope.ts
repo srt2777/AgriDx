@@ -23,7 +23,7 @@ const BRAND_ALIASES: Record<string, string[]> = {
   时风: ['时风', 'shifeng'],
   潍泰: ['潍泰', 'weitai'],
   约翰迪尔: ['约翰迪尔', 'john deere', 'johndeere'],
-  '千寻位置 / 千耘': ['千寻位置', '千耘', 'qianxun'],
+  千寻位置: ['千寻位置', '千耘', 'qianxun', '千寻位置 / 千耘'],
   华测: ['华测', 'chcnav', '华测导航', 'huace'],
 };
 
@@ -242,7 +242,7 @@ export function resolveScope(query: string, context: RetrievalContext): Resolved
 export function archiveApplicability(chunk: KnowledgeChunk, scope: ResolvedScope): 'matched' | 'pending' | undefined {
   const brand = canonicalBrand(chunk.brand);
   if (!scope.tractorArchive || scope.ambiguous || scope.identityConflict || (scope.brand && scope.brand !== brand)) return undefined;
-  if (scope.electric && brand !== '鸿鹄' && brand !== '千寻位置 / 千耘') return undefined;
+  if (scope.electric && brand !== '鸿鹄' && brand !== '千寻位置') return undefined;
   if (chunk.configuration && scope.configurations.some((configuration) => configuration !== chunk.configuration)) return undefined;
   if (chunk.driveConfiguration && scope.driveConfigurations.some((configuration) => configuration !== chunk.driveConfiguration)) return undefined;
   const allowed = declaredModels(chunk);

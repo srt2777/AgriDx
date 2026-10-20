@@ -27,6 +27,13 @@ interface ArchiveEntry {
 }
 
 export interface ArchiveSource {
+  brand?: string;
+  sub_brand?: string;
+  product_line?: string;
+  brand_label?: string;
+  title?: string;
+  title_status?: '已核对' | '待核实';
+  model_ids?: string[];
   model?: string;
   document_type?: string;
   source_id: string;
@@ -96,6 +103,9 @@ export function loadArchive(archiveRoot = ARCHIVE_ROOT, options: { configureMode
     ids.add(entry.entry_id);
     const source = sourceMap.get(entry.source_id);
     if (!source) throw new Error(`知识条目来源不存在：${entry.entry_id}`);
+    if (source.brand !== undefined && entry.brand !== source.brand && entry.brand !== source.brand_label) {
+      throw new Error(`知识条目品牌须与来源主品牌或原标签一致：${entry.entry_id}`);
+    }
     if (entry.models !== undefined && (!Array.isArray(entry.models) || !entry.models.length ||
       entry.models.some((model) => typeof model !== 'string' || !model.trim() || !source.models?.includes(model)) ||
       new Set(entry.models).size !== entry.models.length)) {
@@ -140,7 +150,8 @@ export function loadArchive(archiveRoot = ARCHIVE_ROOT, options: { configureMode
       entryId: entry.entry_id,
       sourceId: entry.source_id,
       indexedReference: Object.freeze({ entryId: entry.entry_id, sourceId: entry.source_id }),
-      brand: entry.brand,
+      // 条目保留历史品牌标签以维持既有批次字节基线；检索与目录统一使用来源主品牌。
+      brand: source.brand ?? entry.brand,
       model: entry.model,
       models: entry.models ? [...entry.models] : source.models ? [...source.models] : undefined,
       requiresExactModel: entry.models !== undefined,

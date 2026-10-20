@@ -25,6 +25,8 @@ ENTRY_TYPES = {'维护/故障知识', '操作/维护知识', '安全操作', '�
 REPO = Path(__file__).resolve().parents[2]
 INDEX_PATH = Path('知识库/整理后的知识库/农用拖拉机知识库')
 IDENTIFIER = re.compile(r'[A-Z0-9]+(?:-[A-Z0-9]+)*')
+LEGACY_BRAND_LABELS = {'雷沃欧豹': '雷沃', '雷沃阿波斯': '雷沃', '千寻位置 / 千耘': '千寻位置'}
+MODEL_ID = re.compile(r'[0-9A-Z\u4e00-\u9fff()][0-9A-Z\u4e00-\u9fff()\-]*')
 SOURCE_FIELDS = ['source_id', 'brand', 'model', 'path', 'url', 'version', 'scope_boundary', 'sha256']
 ENTRY_FIELDS = ['entry_id', 'source_id', 'brand', 'model', 'title', 'knowledge_path', 'locator', 'status', 'entry_type']
 
@@ -212,6 +214,20 @@ class ArchiveAudit:
             url = urlparse(source['url'])
             require(url.scheme in ['http', 'https'] and bool(url.netloc), 'source.url', '来源网址须为完整HTTP(S)链接', 'url')
             check_conditions(source)
+            title_status = source.get('title_status')
+            require(title_status in [None, '已核对', '待核实'], 'source.title', 'title_status只能为已核对或待核实', 'title_status')
+            require((isinstance(source.get('title'), str) and bool(source['title'].strip())) or title_status == '待核实',
+                    'source.title', '来源须登记书名/标题，未核实时须标明title_status=待核实', 'title')
+            require(title_status != '已核对' or (isinstance(source.get('title_evidence'), str) and bool(source['title_evidence'].strip())),
+                    'source.title', '已核对书名须记录title_evidence（封面页或网页标题位置）', 'title_evidence')
+            for field in ['sub_brand', 'product_line', 'brand_label']:
+                require(field not in source or (isinstance(source[field], str) and bool(source[field].strip())),
+                        'source.brand', f'{field}须为非空字符串', field)
+            require(source.get('brand') not in LEGACY_BRAND_LABELS, 'source.brand', '品牌须用统一主品牌，子品牌写入sub_brand/product_line', 'brand')
+            ids = source.get('model_ids')
+            require(ids is None or isinstance(ids, list) and bool(ids) and len(set(ids)) == len(ids) and
+                    all(isinstance(x, str) and bool(MODEL_ID.fullmatch(x)) for x in ids),
+                    'source.model_ids', 'model_ids须为非空、无重复的规范型号编号列表', 'model_ids')
             if 'models' in source:
                 require(check_models(source['models']), 'scope.models', '精确型号列表无效或重复', 'models')
             path = self.resolved(source['path'], '知识库/原始农机说明书')
@@ -291,7 +307,7 @@ class ArchiveAudit:
             require(bool(IDENTIFIER.fullmatch(entry['source_id'])), 'source.id', '条目来源编号格式无效', 'source_id')
             require('summary' not in entry, 'entry.summary', '事实正文仅在Markdown知识卡维护，条目索引不得保留summary副本', 'summary')
             require(entry['entry_type'] in ENTRY_TYPES, 'entry.type', '条目类别无效', 'entry_type')
-            require(source and entry['brand'] == source.get('brand'), 'entry.source', '来源不存在或品牌不一致', 'source_id')
+            require(source and entry['brand'] in [source.get('brand'), source.get('brand_label')], 'entry.source', '来源不存在或品牌不一致', 'source_id')
             if 'models' in entry:
                 models = entry['models']
                 require(check_models(models) and isinstance(source.get('models'), list) and all(model in source['models'] for model in models),
