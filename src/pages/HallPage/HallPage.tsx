@@ -125,6 +125,19 @@ export default function HallPage() {
     return () => media.removeEventListener('change', apply);
   }, []);
   const zone = HALL_ZONES.find((item) => item.id === selected)!;
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      const target = event.target;
+      if (target instanceof HTMLElement && (target.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName))) return;
+      const index = HALL_ZONES.findIndex((item) => item.id === selected);
+      if (event.key !== 'ArrowRight' && event.key !== 'ArrowLeft') return;
+      event.preventDefault();
+      const next = event.key === 'ArrowRight' ? (index + 1) % HALL_ZONES.length : (index + HALL_ZONES.length - 1) % HALL_ZONES.length;
+      setSelected(HALL_ZONES[next].id);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [selected]);
   const number = (value: number | undefined) => (loading || failed || value === undefined ? '—' : value.toLocaleString());
   const statusLabel = (status: HallDeviceStatus) => {
     const item = HALL_STATUS_EXAMPLE.find((entry) => entry.id === status)!;
@@ -168,7 +181,7 @@ export default function HallPage() {
           </nav>
           <div className="hall-stage">
             <div className="hall-stage-caption">
-              <span>{selected} {t('展区', 'ZONE')}</span>
+              <span>{selected} {t('展区', 'ZONE')} · {t('左右方向键切换', 'Arrow keys switch zones')}</span>
               <strong>{t(zone.zh, zone.en)}</strong>
             </div>
             <DeferredScene priority fallback={<HallSceneLoading />}>
