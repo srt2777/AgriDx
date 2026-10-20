@@ -1,7 +1,7 @@
 import { lazy, Suspense, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
-import { ContactShadows, Html, RoundedBox } from '@react-three/drei';
+import { ContactShadows, Html } from '@react-three/drei';
 import { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
 import { ErrorBoundary } from 'react-error-boundary';
 import * as THREE from 'three';
@@ -15,6 +15,8 @@ import {
   HALL_ZONES,
   type HallZoneId,
 } from './hall-example-data';
+import { EXHIBITS, HALL_FLOOR, exhibitStatus, floorAoUv } from './hall-machines';
+import { ExhibitModel, HallIdle, StatusHalo } from './hall-exhibits';
 
 const HallGlow = lazy(() => import('@/components/SceneGlow').then((mod) => ({ default: mod.HallGlow })));
 
@@ -22,6 +24,7 @@ export interface HallSceneProps {
   selected: HallZoneId;
   hovered: HallZoneId | null;
   reducedMotion: boolean;
+  idle: boolean;
   onSelect: (id: HallZoneId) => void;
   onHover: (id: HallZoneId | null) => void;
   onLive?: () => void;
@@ -40,25 +43,33 @@ const SHORT: Record<HallZoneId, { zh: string; en: string }> = {
   D: { zh: '智慧农业', en: 'Smart' },
 };
 
-type ExhibitKind = 'rig' | 'seeder' | 'harvester' | 'combine' | 'drone' | 'rover';
-
-const EXHIBITS: readonly {
-  id: string;
-  kind: ExhibitKind;
-  position: [number, number, number];
-  rotation: number;
-  scale: number;
-  accent?: string;
-}[] = [
-  { id: 'a1', kind: 'rig', position: [-6.55, 0, -3.9], rotation: 0.5, scale: 1.08, accent: '#d94a3a' },
-  { id: 'a2', kind: 'rig', position: [-4.05, 0, -2.2], rotation: -0.72, scale: 0.92, accent: '#2f7d46' },
-  { id: 'b2', kind: 'rig', position: [4.05, 0, -3.75], rotation: 2.4, scale: 1, accent: '#e07a2f' },
-  { id: 'b3', kind: 'seeder', position: [6.55, 0, -2.15], rotation: 2.05, scale: 1 },
-  { id: 'c3', kind: 'harvester', position: [-6.55, 0, 3.95], rotation: 0.42, scale: 1 },
-  { id: 'c1', kind: 'combine', position: [-3.95, 0, 2.4], rotation: -0.5, scale: 1 },
-  { id: 'd1', kind: 'drone', position: [4.35, 0, 2.55], rotation: 0.3, scale: 1 },
-  { id: 'd3', kind: 'rover', position: [6.6, 0, 4.05], rotation: 2.55, scale: 1 },
-];
+function useFloorAoTexture() {
+  return useMemo(() => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 512;
+    canvas.height = 342;
+    const context = canvas.getContext('2d');
+    if (!context) return null;
+    context.fillStyle = '#ffffff';
+    context.fillRect(0, 0, canvas.width, canvas.height);
+    for (const exhibit of EXHIBITS) {
+      const { u, v } = floorAoUv(exhibit.position[0], exhibit.position[2]);
+      const x = u * canvas.width;
+      const y = (1 - v) * canvas.height;
+      const gradient = context.createRadialGradient(x, y, 4, x, y, 54);
+      gradient.addColorStop(0, 'rgba(18, 28, 38, 0.55)');
+      gradient.addColorStop(1, 'rgba(18, 28, 38, 0)');
+      context.fillStyle = gradient;
+      context.beginPath();
+      context.arc(x, y, 54, 0, Math.PI * 2);
+      context.fill();
+    }
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.colorSpace = THREE.NoColorSpace;
+    texture.anisotropy = 2;
+    return texture;
+  }, []);
+}
 
 function useFloorTexture() {
   return useMemo(() => {
@@ -342,161 +353,6 @@ function ZoneStand({
   );
 }
 
-function Metal({ color, glow = 0, metal = 0.45, rough = 0.32 }: { color: string; glow?: number; metal?: number; rough?: number }) {
-  return (
-    <meshStandardMaterial
-      color={color}
-      metalness={metal}
-      roughness={rough}
-      envMapIntensity={1.15}
-      emissive={glow > 0 ? color : '#000000'}
-      emissiveIntensity={glow}
-      toneMapped={glow < 0.9}
-    />
-  );
-}
-
-function Axle({ spots }: { spots: readonly (readonly [number, number])[] }) {
-  return spots.map(([x, z]) => (
-    <mesh key={`${x}-${z}`} position={[x, 0.24, z]} rotation={[0, 0, Math.PI / 2]} castShadow>
-      <cylinderGeometry args={[0.22, 0.22, 0.16, 14]} />
-      <meshStandardMaterial color="#1b2631" roughness={0.65} metalness={0.25} />
-    </mesh>
-  ));
-}
-
-function Rig({ accent = '#d94a3a' }: { accent?: string }) {
-  return (
-    <group>
-      <RoundedBox args={[1.15, 0.42, 0.78]} position={[0.28, 0.62, 0]} radius={0.06} smoothness={2} castShadow>
-        <Metal color="#e7eef4" metal={0.28} rough={0.42} />
-      </RoundedBox>
-      <mesh position={[-0.48, 0.96, 0]} castShadow>
-        <boxGeometry args={[0.62, 0.52, 0.72]} />
-        <Metal color="#d5e7f5" metal={0.12} rough={0.18} />
-      </mesh>
-      <mesh position={[0.72, 0.78, 0]} castShadow>
-        <boxGeometry args={[0.55, 0.32, 0.62]} />
-        <Metal color={accent} glow={0.22} metal={0.2} rough={0.45} />
-      </mesh>
-      <mesh position={[0.15, 0.95, 0]} castShadow>
-        <boxGeometry args={[0.7, 0.12, 0.7]} />
-        <Metal color="#243240" metal={0.45} rough={0.35} />
-      </mesh>
-      <Axle spots={[[-0.35, 0.48], [-0.35, -0.48], [0.62, 0.48], [0.62, -0.48]]} />
-    </group>
-  );
-}
-
-function Seeder() {
-  return (
-    <group>
-      <mesh position={[-1.15, 0.48, 0]} castShadow>
-        <boxGeometry args={[1.5, 0.08, 0.12]} />
-        <Metal color="#9aa8b5" metal={0.7} rough={0.25} />
-      </mesh>
-      <RoundedBox args={[0.95, 0.55, 0.72]} position={[0.05, 0.78, 0]} radius={0.06} smoothness={2} castShadow>
-        <Metal color="#f4f7fb" metal={0.25} rough={0.4} />
-      </RoundedBox>
-      <mesh position={[0.05, 1.12, 0]} castShadow>
-        <boxGeometry args={[0.55, 0.16, 0.42]} />
-        <Metal color="#7dffa8" glow={0.35} metal={0.2} rough={0.45} />
-      </mesh>
-      <mesh position={[0.72, 0.4, 0]} castShadow>
-        <boxGeometry args={[0.16, 0.1, 2.15]} />
-        <Metal color="#2c3d4d" metal={0.55} rough={0.35} />
-      </mesh>
-      {[-0.8, -0.4, 0, 0.4, 0.8].map((z) => (
-        <mesh key={z} position={[0.78, 0.28, z]} rotation={[0, 0, Math.PI / 2]} castShadow>
-          <cylinderGeometry args={[0.16, 0.16, 0.05, 12]} />
-          <meshStandardMaterial color="#5c6b78" metalness={0.6} roughness={0.3} />
-        </mesh>
-      ))}
-      <Axle spots={[[-0.2, 0.55], [-0.2, -0.55], [0.85, 0.7], [0.85, -0.7]]} />
-    </group>
-  );
-}
-
-function Harvester({ compact = false }: { compact?: boolean }) {
-  const header = compact ? 1.7 : 2.35;
-  const body: [number, number, number] = compact ? [1.85, 0.62, 1.05] : [2.25, 0.72, 1.2];
-  const accent = compact ? '#ffb15a' : '#ffd36a';
-  return (
-    <group>
-      <RoundedBox args={body} position={[0, 0.72, 0]} radius={0.08} smoothness={2} castShadow>
-        <Metal color="#f3f6fa" metal={0.3} rough={0.38} />
-      </RoundedBox>
-      <mesh position={compact ? [-0.35, 1.22, 0] : [-0.15, 1.28, 0]} castShadow>
-        <boxGeometry args={compact ? [0.7, 0.38, 0.85] : [0.9, 0.42, 0.95]} />
-        <Metal color={accent} glow={0.25} metal={0.15} rough={0.45} />
-      </mesh>
-      <mesh position={compact ? [-0.85, 1.18, 0] : [-0.85, 1.25, 0]} castShadow>
-        <boxGeometry args={[0.62, 0.5, 0.9]} />
-        <Metal color="#d5e8f6" metal={0.15} rough={0.18} />
-      </mesh>
-      <mesh position={[body[0] / 2 + 0.12, 0.46, 0]} castShadow>
-        <boxGeometry args={[0.28, 0.32, header]} />
-        <Metal color={accent} glow={0.45} metal={0.2} rough={0.4} />
-      </mesh>
-      <mesh position={[body[0] / 2 + 0.28, 0.72, 0]} rotation={[0, 0, Math.PI / 2]} castShadow>
-        <cylinderGeometry args={[0.16, 0.16, header - 0.15, 12]} />
-        <meshStandardMaterial color="#243240" metalness={0.45} roughness={0.4} />
-      </mesh>
-      <Axle spots={[[-0.45, 0.55], [-0.45, -0.55], [0.55, 0.58], [0.55, -0.58]]} />
-    </group>
-  );
-}
-
-function Drone() {
-  return (
-    <group position={[0, 1.25, 0]}>
-      <mesh castShadow>
-        <boxGeometry args={[0.38, 0.1, 0.38]} />
-        <Metal color="#1d2b38" metal={0.55} rough={0.28} />
-      </mesh>
-      <mesh position={[0, -0.12, 0]}>
-        <boxGeometry args={[0.12, 0.08, 0.12]} />
-        <Metal color="#49c2ff" glow={0.9} metal={0.2} rough={0.3} />
-      </mesh>
-      {[0, Math.PI / 2, Math.PI, (Math.PI * 3) / 2].map((angle) => (
-        <group key={angle} rotation={[0, angle, 0]}>
-          <mesh position={[0.38, 0.02, 0]} castShadow>
-            <boxGeometry args={[0.62, 0.025, 0.05]} />
-            <Metal color="#d7e6f2" metal={0.65} rough={0.22} />
-          </mesh>
-          <mesh position={[0.68, 0.03, 0]} rotation={[Math.PI / 2, 0, 0]}>
-            <torusGeometry args={[0.14, 0.012, 6, 18]} />
-            <meshBasicMaterial color="#8fd4ff" toneMapped={false} />
-          </mesh>
-        </group>
-      ))}
-    </group>
-  );
-}
-
-function Rover() {
-  return (
-    <group>
-      <RoundedBox args={[1.35, 0.28, 0.78]} position={[0, 0.42, 0]} radius={0.05} smoothness={2} castShadow>
-        <Metal color="#eef3f8" metal={0.35} rough={0.35} />
-      </RoundedBox>
-      <mesh position={[0.15, 0.78, 0]} castShadow>
-        <cylinderGeometry args={[0.05, 0.06, 0.55, 8]} />
-        <Metal color="#8ea0b0" metal={0.6} rough={0.25} />
-      </mesh>
-      <mesh position={[0.15, 1.1, 0]} castShadow>
-        <sphereGeometry args={[0.16, 14, 12]} />
-        <Metal color="#c9b6ff" glow={0.7} metal={0.2} rough={0.3} />
-      </mesh>
-      <mesh position={[-0.35, 0.62, 0]} castShadow>
-        <boxGeometry args={[0.4, 0.16, 0.46]} />
-        <Metal color="#2a3a4a" metal={0.4} rough={0.4} />
-      </mesh>
-      <Axle spots={[[-0.4, 0.4], [-0.4, -0.4], [0.42, 0.4], [0.42, -0.4]]} />
-    </group>
-  );
-}
-
 function ExhibitTip({ id }: { id: string }) {
   const lang = useLang();
   const device = HALL_EXAMPLE_DEVICES.find((item) => item.id === id)!;
@@ -575,30 +431,24 @@ function Exhibit({
         <boxGeometry args={[2.1, 1.7, 1.45]} />
         <meshBasicMaterial transparent opacity={0} depthWrite={false} />
       </mesh>
+      <StatusHalo id={id} />
       <group scale={scale}>{children}</group>
       {tipped && <ExhibitTip id={id} />}
     </group>
   );
 }
 
-function Silhouette({ kind, accent }: { kind: ExhibitKind; accent?: string }) {
-  if (kind === 'seeder') return <Seeder />;
-  if (kind === 'harvester') return <Harvester />;
-  if (kind === 'combine') return <Harvester compact />;
-  if (kind === 'drone') return <Drone />;
-  if (kind === 'rover') return <Rover />;
-  return <Rig accent={accent} />;
-}
 
-function HallWorld({ selected, hovered, reducedMotion, onSelect, onHover }: HallSceneProps) {
+function HallWorld({ selected, hovered, reducedMotion, idle, onSelect, onHover }: HallSceneProps) {
   const floor = useFloorTexture();
+  const ao = useFloorAoTexture();
   const { invalidate, size, gl } = useThree();
   const [tip, setTip] = useState<string | null>(null);
   const [orbit, setOrbit] = useState(false);
   const settle = useCallback(() => setOrbit(true), []);
   const release = useCallback(() => setOrbit(false), []);
   const zone = HALL_ZONES.find((item) => item.id === selected)!;
-  useEffect(() => () => { floor?.dispose(); }, [floor]);
+  useEffect(() => () => { floor?.dispose(); ao?.dispose(); }, [floor, ao]);
   useEffect(() => () => { gl.domElement.style.cursor = ''; }, [gl]);
   useEffect(() => { invalidate(); }, [selected, hovered, tip, invalidate]);
   return (
@@ -627,7 +477,11 @@ function HallWorld({ selected, hovered, reducedMotion, onSelect, onHover }: Hall
       <HallLook enabled={orbit} target={[zone.position[0], 0.55, zone.position[2]]} />
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0.1]} receiveShadow>
         <planeGeometry args={[24, 16]} />
-        <meshStandardMaterial map={floor ?? undefined} color="#eef5fb" roughness={0.9} metalness={0.02} />
+        <meshStandardMaterial map={floor ?? undefined} color="#d7e6f2" roughness={0.36} metalness={0.24} envMapIntensity={1.15} />
+      </mesh>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.008, 0.1]}>
+        <planeGeometry args={[HALL_FLOOR.width, HALL_FLOOR.depth]} />
+        <meshBasicMaterial map={ao ?? undefined} transparent depthWrite={false} blending={THREE.MultiplyBlending} />
       </mesh>
       <mesh position={[0, 0.02, 0.1]}>
         <boxGeometry args={[1.2, 0.025, 14.4]} />
@@ -684,14 +538,23 @@ function HallWorld({ selected, hovered, reducedMotion, onSelect, onHover }: Hall
           onHover={onHover}
           onTip={setTip}
         >
-          <Silhouette kind={exhibit.kind} accent={exhibit.accent} />
+          <ExhibitModel
+            kind={exhibit.kind}
+            accent={exhibit.accent}
+            moving={
+              idle
+              && !reducedMotion
+              && (exhibit.kind === 'drone' || exhibitStatus(exhibit.id) !== 'offline')
+            }
+          />
         </Exhibit>
       ))}
       {[[-9.6, -5.6], [-9.6, 5.8], [9.6, -5.6], [9.6, 5.8], [-1.15, -6.3], [1.15, -6.3], [-1.15, 6.2], [1.15, 6.2], [-3.3, 6.15], [3.3, 6.15], [-7.4, 0.15], [7.4, 0.15]].map(([x, z]) => (
         <Plant key={`${x}-${z}`} position={[x, 0, z]} />
       ))}
+      <HallIdle enabled={idle} reduced={reducedMotion} />
       {!reducedMotion && size.width >= 720 && (
-        <ContactShadows frames={1} position={[0, 0.012, 0.1]} opacity={0.32} scale={22} blur={2.2} far={3.2} resolution={192} />
+        <ContactShadows frames={1} position={[0, 0.016, 0.1]} opacity={0.28} scale={22} blur={2.4} far={3.4} resolution={192} />
       )}
       {!reducedMotion && size.width >= 720 && (
         <Suspense fallback={null}>

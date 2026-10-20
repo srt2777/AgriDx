@@ -38,6 +38,18 @@ html.theme-dark .hall-page {
 }
 
 .hall-kicker { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.hall-idle-toggle {
+  min-height: 44px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--hub-primary) 55%, var(--hub-border));
+  background: color-mix(in srgb, var(--hub-card) 80%, transparent);
+  color: var(--hub-foreground);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+}
+.hall-idle-toggle[aria-pressed='true'] { box-shadow: inset 0 0 0 1px var(--hub-primary); }
+.hall-idle-toggle:disabled { opacity: 0.55; }
 .hall-kicker p { min-width: 0; }
 .hall-top p,
 .hall-top time {

@@ -41,6 +41,7 @@ const HallStage = memo(function HallStage({
   selected,
   hovered,
   reducedMotion,
+  idle,
   onSelect,
   onHover,
   onLive,
@@ -49,6 +50,7 @@ const HallStage = memo(function HallStage({
   selected: HallZoneId;
   hovered: HallZoneId | null;
   reducedMotion: boolean;
+  idle: boolean;
   onSelect: (id: HallZoneId) => void;
   onHover: (id: HallZoneId | null) => void;
   onLive: () => void;
@@ -56,7 +58,7 @@ const HallStage = memo(function HallStage({
 }) {
   return (
     <DeferredScene priority fallback={null}>
-      <HallScene selected={selected} hovered={hovered} reducedMotion={reducedMotion} onSelect={onSelect} onHover={onHover} onLive={onLive} onLost={onLost} />
+      <HallScene selected={selected} hovered={hovered} reducedMotion={reducedMotion} idle={idle} onSelect={onSelect} onHover={onHover} onLive={onLive} onLost={onLost} />
     </DeferredScene>
   );
 });
@@ -172,12 +174,16 @@ export default function HallPage() {
   }, []);
   const [hovered, setHovered] = useState<HallZoneId | null>(null);
   const [reducedMotion, setReducedMotion] = useState(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const [idle, setIdle] = useState(() => !window.matchMedia('(prefers-reduced-motion: reduce)').matches);
   const [graphics, setGraphics] = useState<GraphicsReason | 'live'>(() => (probeWebGL() ? 'loading' : 'unsupported'));
   const onLive = useCallback(() => setGraphics('live'), []);
   const onLost = useCallback(() => setGraphics((current) => (current === 'unsupported' ? current : 'lost')), []);
   useEffect(() => {
     const media = window.matchMedia('(prefers-reduced-motion: reduce)');
-    const apply = () => setReducedMotion(media.matches);
+    const apply = () => {
+      setReducedMotion(media.matches);
+      if (media.matches) setIdle(false);
+    };
     media.addEventListener('change', apply);
     return () => media.removeEventListener('change', apply);
   }, []);
@@ -209,6 +215,15 @@ export default function HallPage() {
         <header className="hall-top">
           <div className="hall-kicker">
             <p>{t('结构示意 · 不是实车监测', 'Schematic · not live monitoring')}</p>
+            <button
+              type="button"
+              className="hall-idle-toggle"
+              aria-pressed={idle}
+              disabled={reducedMotion}
+              onClick={() => setIdle((value) => !value)}
+            >
+              {idle ? t('暂停动态', 'Pause motion') : t('机具动态', 'Machine motion')}
+            </button>
             <DemoNote />
           </div>
           <div className="hall-title-plate">
@@ -261,6 +276,7 @@ export default function HallPage() {
                   selected={selected}
                   hovered={hovered}
                   reducedMotion={reducedMotion}
+                  idle={idle}
                   onSelect={choose}
                   onHover={setHovered}
                   onLive={onLive}
