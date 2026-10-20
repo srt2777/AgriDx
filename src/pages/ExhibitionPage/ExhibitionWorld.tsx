@@ -261,27 +261,114 @@ function ResearchSculpture({ color }: { color: string }) {
   );
 }
 
+function ZoneSign({ number, color }: { number: string; color: string }) {
+  const texture = useMemo(() => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 256;
+    canvas.height = 128;
+    const context = canvas.getContext('2d');
+    if (!context) return null;
+    context.fillStyle = '#102033';
+    context.fillRect(0, 0, 256, 128);
+    context.fillStyle = color;
+    context.fillRect(0, 0, 14, 128);
+    context.fillStyle = '#f4fbff';
+    context.font = '700 64px sans-serif';
+    context.fillText(number, 36, 84);
+    const map = new THREE.CanvasTexture(canvas);
+    map.colorSpace = THREE.SRGBColorSpace;
+    return map;
+  }, [number, color]);
+  useEffect(() => () => texture?.dispose(), [texture]);
+  if (!texture) return null;
+  return (
+    <mesh position={[0, 0.72, 2.15]} castShadow>
+      <boxGeometry args={[0.86, 0.4, 0.05]} />
+      <meshStandardMaterial map={texture} metalness={0.2} roughness={0.42} emissive={color} emissiveIntensity={0.18} />
+    </mesh>
+  );
+}
+
+function PavilionRoof({ id, color }: { id: ZoneId; color: string }) {
+  if (id === 'knowledge') {
+    return (
+      <group>
+        <Block size={[4.8, 0.1, 2.5]} position={[0, 3.05, 0]} color="#e7eef3" />
+        <Block size={[4.9, 0.05, 0.08]} position={[0, 3.12, 1.2]} color={color} glow={color} />
+        <Block size={[4.9, 0.05, 0.08]} position={[0, 3.12, -1.2]} color={color} glow={color} />
+      </group>
+    );
+  }
+  if (id === 'diagnosis') {
+    return (
+      <mesh position={[0, 3.55, -0.7]} castShadow>
+        <cylinderGeometry args={[0.95, 0.2, 0.16, 6]} />
+        <meshStandardMaterial color="#f2f6f8" emissive={color} emissiveIntensity={0.45} metalness={0.4} roughness={0.3} />
+      </mesh>
+    );
+  }
+  if (id === 'models') {
+    return (
+      <group>
+        <Block size={[3.8, 0.1, 1.5]} position={[-0.2, 2.55, 0]} rotation={[0.35, 0, 0]} color="#d5e0e4" />
+        <Block size={[3.8, 0.1, 1.5]} position={[-0.2, 2.55, 0]} rotation={[-0.35, 0, 0]} color="#c5d4da" />
+        <Block size={[3.9, 0.05, 0.08]} position={[0, 2.15, 1.05]} color={color} glow={color} />
+      </group>
+    );
+  }
+  return (
+    <group>
+      {[-1.15, 1.15].map((x) => (
+        <Block key={x} size={[0.16, 2.4, 0.16]} position={[x, 1.5, 1.15]} color="#d5dee6" />
+      ))}
+      <Block size={[2.7, 0.12, 0.28]} position={[0, 2.75, 1.15]} color="#eef3f6" />
+      <Block size={[2.5, 0.04, 0.06]} position={[0, 2.84, 1.15]} color={color} glow={color} />
+    </group>
+  );
+}
+
 function Pavilion({
   zone,
   selected,
+  reducedMotion,
   onSelect,
 }: {
   zone: (typeof WORLD_ZONES)[number];
   selected: boolean;
+  reducedMotion: boolean;
   onSelect: (id: ZoneId) => void;
 }) {
   const lang = useLang();
   const color = zone.color;
   const [hot, setHot] = useState(false);
+  const rig = useRef<THREE.Group>(null);
+  const pulse = useRef(0);
+  const scale = useRef(1);
   const invalidate = useThree((state) => state.invalidate);
   useEffect(() => { invalidate(); }, [hot, selected, invalidate]);
   const lit = selected || hot;
+  useFrame((_, delta) => {
+    if (!rig.current) return;
+    const goal = lit && !reducedMotion ? 1.028 : 1;
+    if (!reducedMotion && pulse.current > 0) {
+      pulse.current = Math.max(0, pulse.current - delta * 1.8);
+      scale.current = 1 + Math.sin((1 - pulse.current / 0.28) * Math.PI) * 0.045;
+    } else {
+      const step = reducedMotion ? 1 : 1 - Math.exp(-8 * Math.min(delta, 0.05));
+      scale.current += (goal - scale.current) * step;
+    }
+    rig.current.scale.setScalar(scale.current);
+    if (pulse.current > 0 || Math.abs(scale.current - goal) > 0.0015) invalidate();
+  });
   return (
     <group position={[zone.x, 0, zone.z]}>
       <group
+        ref={rig}
         onClick={(event) => {
           event.stopPropagation();
+          if (!reducedMotion) pulse.current = 0.28;
           onSelect(zone.id);
+          invalidate();
         }}
         onPointerOver={(event) => {
           event.stopPropagation();
@@ -291,9 +378,11 @@ function Pavilion({
       >
         <mesh position={[0, 0.13, 0]} receiveShadow castShadow>
           <cylinderGeometry args={[2.7, 2.8, 0.25, 64]} />
-          <meshStandardMaterial color={lit ? '#294b60' : '#1a3042'} emissive={color} emissiveIntensity={lit ? 0.22 : 0} metalness={0.72} roughness={0.35} />
+          <meshStandardMaterial color={lit ? '#294b60' : '#1a3042'} emissive={color} emissiveIntensity={lit ? 0.35 : 0.08} metalness={0.72} roughness={0.35} />
         </mesh>
         <Ring position={[0, 0.27, 0]} radius={2.65} color={color} thickness={lit ? 0.045 : 0.018} />
+        <PavilionRoof id={zone.id} color={color} />
+        <ZoneSign number={zone.number} color={color} />
         {zone.id === 'knowledge' && <KnowledgeSculpture color={color} />}
         {zone.id === 'diagnosis' && <DiagnosisSculpture color={color} />}
         {zone.id === 'models' && <ModelSculpture color={color} />}
@@ -463,6 +552,128 @@ function CampusFloor() {
   );
 }
 
+function campusSky(theme: 'dark' | 'light') {
+  const hour = Number(new Intl.DateTimeFormat('en-US', { timeZone: 'Asia/Shanghai', hour: 'numeric', hourCycle: 'h23' }).format(new Date()));
+  const night = hour < 6 || hour >= 19;
+  const golden = !night && (hour < 9 || hour >= 16);
+  if (theme === 'light') {
+    if (night) return { fog: '#d7e0e8', top: '#b7c8d8', horizon: '#e7eef3', sun: '#f4f7fb', ambient: 1.05 };
+    if (golden) return { fog: '#f3e7d8', top: '#f0d2ae', horizon: '#f8efe4', sun: '#ffd7a8', ambient: 1.12 };
+    return { fog: '#eaf0f5', top: '#c5d7e6', horizon: '#e7eef3', sun: '#fff6ea', ambient: 1.15 };
+  }
+  if (night) return { fog: '#121a22', top: '#1a2740', horizon: '#2a3848', sun: '#d5e2ee', ambient: 0.72 };
+  if (golden) return { fog: '#2c241c', top: '#4a3424', horizon: '#6a4a32', sun: '#ffc48a', ambient: 0.82 };
+  return { fog: '#18232e', top: '#24384a', horizon: '#3a5160', sun: '#fff3db', ambient: 0.85 };
+}
+
+function SkyDome({ top, horizon }: { top: string; horizon: string }) {
+  const material = useMemo(() => new THREE.ShaderMaterial({
+    side: THREE.BackSide,
+    depthWrite: false,
+    uniforms: {
+      uTop: { value: new THREE.Color(top) },
+      uHorizon: { value: new THREE.Color(horizon) },
+    },
+    vertexShader: 'varying vec3 vPos; void main() { vPos = position; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }',
+    fragmentShader: 'varying vec3 vPos; uniform vec3 uTop; uniform vec3 uHorizon; void main() { float h = smoothstep(-18.0, 36.0, vPos.y); gl_FragColor = vec4(mix(uHorizon, uTop, h), 1.0); }',
+  }), [top, horizon]);
+  useEffect(() => () => material.dispose(), [material]);
+  return (
+    <mesh>
+      <sphereGeometry args={[88, 20, 12]} />
+      <primitive object={material} attach="material" />
+    </mesh>
+  );
+}
+
+function Pollen({ live, reducedMotion }: { live: { current: boolean }; reducedMotion: boolean }) {
+  const { invalidate, size } = useThree();
+  const allow = !reducedMotion && size.width >= 720;
+  const points = useRef<THREE.Points>(null);
+  const geometry = useMemo(() => {
+    const count = 48;
+    const position = new Float32Array(count * 3);
+    for (let index = 0; index < count; index += 1) {
+      const seed = Math.sin(index * 12.9898) * 43758.5453;
+      const unit = seed - Math.floor(seed);
+      const lift = Math.sin(index * 78.233) * 43758.5453;
+      const high = lift - Math.floor(lift);
+      const depth = Math.sin(index * 39.346) * 43758.5453;
+      const far = depth - Math.floor(depth);
+      position[index * 3] = (unit - 0.5) * 24;
+      position[index * 3 + 1] = 0.6 + high * 5.5;
+      position[index * 3 + 2] = (far - 0.5) * 18;
+    }
+    const next = new THREE.BufferGeometry();
+    next.setAttribute('position', new THREE.BufferAttribute(position, 3));
+    return next;
+  }, []);
+  useEffect(() => () => geometry.dispose(), [geometry]);
+  useFrame((state, delta) => {
+    if (!allow || !live.current || !points.current) return;
+    const step = Math.min(delta, 0.05);
+    const attribute = points.current.geometry.getAttribute('position') as THREE.BufferAttribute;
+    for (let index = 0; index < attribute.count; index += 1) {
+      const nextY = attribute.getY(index) + step * 0.18;
+      attribute.setY(index, nextY > 6.4 ? 0.5 : nextY);
+      attribute.setX(index, attribute.getX(index) + Math.sin(state.clock.elapsedTime * 0.6 + index) * step * 0.08);
+    }
+    attribute.needsUpdate = true;
+    invalidate();
+  });
+  if (!allow) return null;
+  return (
+    <points ref={points} geometry={geometry}>
+      <pointsMaterial color="#f4e2b4" size={0.09} transparent opacity={0.5} depthWrite={false} sizeAttenuation />
+    </points>
+  );
+}
+
+function WheatPatch({ position, rotation, live, reducedMotion }: { position: [number, number, number]; rotation: number; live: { current: boolean }; reducedMotion: boolean }) {
+  const { invalidate } = useThree();
+  const material = useMemo(() => new THREE.ShaderMaterial({
+    transparent: true,
+    side: THREE.DoubleSide,
+    depthWrite: false,
+    uniforms: { uTime: { value: 0 }, uColor: { value: new THREE.Color('#d2b15a') } },
+    vertexShader: 'uniform float uTime; varying vec2 vUv; void main() { vUv = uv; vec3 p = position; p.x += sin(uTime * 1.3 + position.y * 5.0) * 0.12 * uv.y; gl_Position = projectionMatrix * modelViewMatrix * vec4(p, 1.0); }',
+    fragmentShader: 'uniform vec3 uColor; varying vec2 vUv; void main() { float blade = smoothstep(0.18, 0.0, abs(fract(vUv.x * 16.0) - 0.5)); float alpha = blade * smoothstep(0.0, 0.15, vUv.y); if (alpha < 0.04) discard; gl_FragColor = vec4(uColor, alpha * 0.85); }',
+  }), []);
+  useEffect(() => () => material.dispose(), [material]);
+  useFrame((_, delta) => {
+    if (reducedMotion || !live.current) return;
+    material.uniforms.uTime.value += Math.min(delta, 0.05);
+    invalidate();
+  });
+  return (
+    <mesh position={position} rotation={[0, rotation, 0]} material={material}>
+      <planeGeometry args={[3.2, 0.9, 1, 4]} />
+    </mesh>
+  );
+}
+
+function Flag({ position, color, live, reducedMotion }: { position: [number, number, number]; color: string; live: { current: boolean }; reducedMotion: boolean }) {
+  const { invalidate } = useThree();
+  const cloth = useRef<THREE.Mesh>(null);
+  useFrame((state) => {
+    if (reducedMotion || !live.current || !cloth.current) return;
+    cloth.current.rotation.y = Math.sin(state.clock.elapsedTime * 1.5) * 0.4;
+    invalidate();
+  });
+  return (
+    <group position={position}>
+      <mesh position={[0, 1.15, 0]}>
+        <cylinderGeometry args={[0.03, 0.045, 2.3, 6]} />
+        <meshStandardMaterial color="#d7e1e8" metalness={0.45} roughness={0.32} />
+      </mesh>
+      <mesh ref={cloth} position={[0.38, 2.05, 0]}>
+        <planeGeometry args={[0.72, 0.36]} />
+        <meshStandardMaterial color={color} emissive={color} emissiveIntensity={0.28} side={THREE.DoubleSide} />
+      </mesh>
+    </group>
+  );
+}
+
 function WorldScene({
   mode,
   selected,
@@ -495,6 +706,11 @@ function WorldScene({
   const parallaxGoal = useRef(new THREE.Vector2());
   const viewTarget = useMemo(() => new THREE.Vector3(), []);
   const viewPosition = useMemo(() => new THREE.Vector3(), []);
+  const springPos = useRef(new THREE.Vector3(23, 25, 29));
+  const springVel = useRef(new THREE.Vector3());
+  const springDelta = useMemo(() => new THREE.Vector3(), []);
+  const streaks = useRef<THREE.Group>(null);
+  const live = useRef(false);
   const { camera, size, invalidate, gl } = useThree();
   const theme = useTheme();
   useEffect(() => { invalidate(); }, [theme, invalidate]);
@@ -634,7 +850,22 @@ function WorldScene({
         }
       }
       const ease = reducedMotion ? 1 : 1 - Math.exp((cinematicOn.current ? -1.45 : -5) * Math.min(elapsed, 0.2));
-      camera.position.lerp(viewPosition, ease);
+      if (mode === 'drive' && !reducedMotion) {
+        const dt = Math.min(elapsed, 0.05);
+        springDelta.subVectors(viewPosition, springPos.current);
+        springVel.current.addScaledVector(springDelta, 9 * dt);
+        springVel.current.multiplyScalar(Math.exp(-7 * dt));
+        springPos.current.addScaledVector(springVel.current, dt);
+        if (springDelta.lengthSq() < 0.0015 && springVel.current.lengthSq() < 0.0008) {
+          springPos.current.copy(viewPosition);
+          springVel.current.set(0, 0, 0);
+        }
+        camera.position.copy(springPos.current);
+      } else {
+        camera.position.lerp(viewPosition, ease);
+        springPos.current.copy(camera.position);
+        springVel.current.set(0, 0, 0);
+      }
       orbit.current?.target.lerp(viewTarget, ease);
       orbit.current?.update();
       const cameraMoving =
@@ -651,17 +882,29 @@ function WorldScene({
         }
       }
     }
+    if (streaks.current) {
+      const speed = Math.abs(current.speed);
+      const show = mode === 'drive' && !reducedMotion && speed > 1.1;
+      streaks.current.visible = show;
+      if (show) {
+        streaks.current.position.set(current.x, 0.85, current.z);
+        streaks.current.rotation.y = current.heading;
+        streaks.current.scale.z = THREE.MathUtils.clamp(speed / 5.5, 0.35, 1.2);
+      }
+    }
+    live.current = moving || settling.current || cinematicOn.current;
     if (moving) invalidate();
   });
 
   return (
     <>
-      <fog attach="fog" args={[theme === 'dark' ? '#18232e' : '#eaf0f5', 42, 100]} />
-      <ambientLight intensity={theme === 'dark' ? 0.85 : 1.15} color="#d6e2eb" />
+      <SkyDome top={campusSky(theme === 'dark' ? 'dark' : 'light').top} horizon={campusSky(theme === 'dark' ? 'dark' : 'light').horizon} />
+      <fog attach="fog" args={[campusSky(theme === 'dark' ? 'dark' : 'light').fog, 52, 120]} />
+      <ambientLight intensity={campusSky(theme === 'dark' ? 'dark' : 'light').ambient} color="#d6e2eb" />
       <directionalLight
         position={[-8, 18, 10]}
         intensity={3.2}
-        color="#fff3db"
+        color={campusSky(theme === 'dark' ? 'dark' : 'light').sun}
         castShadow
         shadow-mapSize={size.width < 700 ? [512, 512] : [1024, 1024]}
         shadow-camera-left={-18}
@@ -676,14 +919,27 @@ function WorldScene({
       <LocalEnvironment />
       <CampusFloor />
       <GroundSweep play={cinematic} reducedMotion={reducedMotion} />
+      <Pollen live={live} reducedMotion={reducedMotion} />
+      <WheatPatch position={[-11.2, 0.45, 3.2]} rotation={0.4} live={live} reducedMotion={reducedMotion} />
+      <WheatPatch position={[11.1, 0.45, -2.4]} rotation={-0.5} live={live} reducedMotion={reducedMotion} />
+      <Flag position={[-4.6, 0, -8.2]} color="#85caff" live={live} reducedMotion={reducedMotion} />
+      <Flag position={[10.6, 0, 8.1]} color="#e9bb76" live={live} reducedMotion={reducedMotion} />
       {WORLD_ZONES.map((zone) => (
-        <Pavilion key={zone.id} zone={zone} selected={selected === zone.id} onSelect={onSelect} />
+        <Pavilion key={zone.id} zone={zone} selected={selected === zone.id} reducedMotion={reducedMotion} onSelect={onSelect} />
       ))}
       <Suspense fallback={null}>
         <group ref={actor}>
           <TractorModel onLoaded={onLoaded} />
         </group>
       </Suspense>
+      <group ref={streaks} visible={false}>
+        {[-0.42, 0, 0.42].map((x) => (
+          <mesh key={x} position={[x, 0, -1.5]}>
+            <boxGeometry args={[0.025, 0.015, 1.5]} />
+            <meshBasicMaterial color="#d7f6ff" transparent opacity={0.4} depthWrite={false} />
+          </mesh>
+        ))}
+      </group>
       <OrbitControls
         ref={orbit}
         makeDefault

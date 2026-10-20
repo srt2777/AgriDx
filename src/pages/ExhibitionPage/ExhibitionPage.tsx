@@ -658,6 +658,7 @@ export default function ExhibitionPage() {
                 {t('园区导览', 'CAMPUS MAP')}
               </span>
               <div className="expo-map-grid">
+                <span className="expo-map-north" aria-hidden="true">N</span>
                 {WORLD_ZONES.map((zone) => (
                   <button
                     type="button"
