@@ -163,9 +163,16 @@
       "date": "2026-10-19"
     },
     {
+      "id": "knowledge-sources-normalize-20261021",
+      "kind": "knowledge",
+      "base": "3.5.9",
+      "version": "3.5.10",
+      "date": "2026-10-21"
+    },
+    {
       "id": "hall-20261020-digital-twin",
       "kind": "feature",
-      "base": "3.5.9",
+      "base": "3.5.10",
       "version": "3.6.0",
       "date": "2026-10-21"
     }

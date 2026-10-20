@@ -13,6 +13,15 @@ const manifest = JSON.parse(fs.readFileSync(`${index}/采集记录/20261019_烟�
   baseline_integrity: { entries_bytes: number; entries_sha256: string; knowledge_documents: number;
     knowledge_sha256: string; hierarchy_sha256: string; components_sha256: string; other_sources_sha256: string };
 };
+// 3.5.10仅追加书名、子品牌和规范型号字段并统一主品牌；基线比较还原到追加前的来源形状。
+const ADDED_3510 = ['sub_brand', 'product_line', 'brand_label', 'title_status', 'title_evidence', 'model_ids'];
+const before3510 = <T extends Record<string, unknown>>(source: T): T => {
+  const copy: Record<string, unknown> = { ...source };
+  if (typeof copy.brand_label === 'string') copy.brand = copy.brand_label;
+  if (copy.title_status !== undefined) delete copy.title;
+  for (const field of ADDED_3510) delete copy[field];
+  return copy as T;
+};
 const hash = (value: string | Buffer) => createHash('sha256').update(value).digest('hex');
 const read = (path: string) => fs.readFileSync(path, 'utf8').replace(/\r\n/g, '\n');
 const batch = loadArchive().chunks.filter(c => manifest.entry_ids.includes(c.entryId ?? ''));
@@ -31,7 +40,7 @@ test('续补四条保持4873行旧索引、67份正文、其他来源及原导�
   assert.equal(hash(JSON.stringify(hierarchy.entries.slice(0, 4873))), base.hierarchy_sha256);
   assert.equal(hash(JSON.stringify(hierarchy.components)), base.components_sha256);
   const sources = JSON.parse(read(`${index}/sources.json`)) as { source_id: string }[];
-  assert.equal(hash(JSON.stringify(sources.filter(s => s.source_id !== 'SRC-MH-6065-6075-CAB-REV01'))), base.other_sources_sha256);
+  assert.equal(hash(JSON.stringify(sources.filter(s => s.source_id !== 'SRC-MH-6065-6075-CAB-REV01').map(before3510))), base.other_sources_sha256);
 });
 
 test('四个新现象有独立编号正文、页码和精确配置，不拆原因或合列烟色凑数', () => {

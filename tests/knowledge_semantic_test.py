@@ -61,7 +61,7 @@ class ArchiveFixture:
         raw = self.root / f'知识库/原始农机说明书/{number}.html'
         raw.parent.mkdir(parents=True, exist_ok=True)
         raw.write_text(f'synthetic manual {number}', encoding='utf8')
-        source = {'source_id': sid, 'brand': '测试品牌', 'model': model,
+        source = {'source_id': sid, 'brand': '测试品牌', 'model': model, 'title': '合成资料手册',
                   'models': value.get('models', [model]), 'path': raw.relative_to(self.root).as_posix(),
                   'url': 'https://example.invalid/synthetic', 'version': 'fixture-v1',
                   'scope_boundary': value.get('source_boundary', f'仅测试{model}'),
