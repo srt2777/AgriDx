@@ -1,11 +1,10 @@
-import { Suspense, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react';
+import { useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { ContactShadows, Html, RoundedBox } from '@react-three/drei';
 import { Bloom, EffectComposer, Vignette } from '@react-three/postprocessing';
 import { ErrorBoundary } from 'react-error-boundary';
 import { Tractor } from 'lucide-react';
 import * as THREE from 'three';
-import TractorModel from '@/components/TractorModel';
 import { useLang } from '@/hooks/useLang';
 import {
   HALL_EXAMPLE_DEVICES,
@@ -15,7 +14,7 @@ import {
   type HallZoneId,
 } from './hall-example-data';
 
-interface HallSceneProps {
+export interface HallSceneProps {
   selected: HallZoneId;
   hovered: HallZoneId | null;
   reducedMotion: boolean;
@@ -35,7 +34,7 @@ const SHORT: Record<HallZoneId, { zh: string; en: string }> = {
   D: { zh: '智慧农业', en: 'Smart' },
 };
 
-type ExhibitKind = 'tractor' | 'seeder' | 'harvester' | 'combine' | 'drone' | 'rover';
+type ExhibitKind = 'rig' | 'seeder' | 'harvester' | 'combine' | 'drone' | 'rover';
 
 const EXHIBITS: readonly {
   id: string;
@@ -43,10 +42,11 @@ const EXHIBITS: readonly {
   position: [number, number, number];
   rotation: number;
   scale: number;
+  accent?: string;
 }[] = [
-  { id: 'a1', kind: 'tractor', position: [-6.55, 0, -3.9], rotation: 0.5, scale: 0.68 },
-  { id: 'a2', kind: 'tractor', position: [-4.05, 0, -2.2], rotation: -0.72, scale: 0.58 },
-  { id: 'b2', kind: 'tractor', position: [4.05, 0, -3.75], rotation: 2.4, scale: 0.62 },
+  { id: 'a1', kind: 'rig', position: [-6.55, 0, -3.9], rotation: 0.5, scale: 1.08, accent: '#d94a3a' },
+  { id: 'a2', kind: 'rig', position: [-4.05, 0, -2.2], rotation: -0.72, scale: 0.92, accent: '#2f7d46' },
+  { id: 'b2', kind: 'rig', position: [4.05, 0, -3.75], rotation: 2.4, scale: 1, accent: '#e07a2f' },
   { id: 'b3', kind: 'seeder', position: [6.55, 0, -2.15], rotation: 2.05, scale: 1 },
   { id: 'c3', kind: 'harvester', position: [-6.55, 0, 3.95], rotation: 0.42, scale: 1 },
   { id: 'c1', kind: 'combine', position: [-3.95, 0, 2.4], rotation: -0.5, scale: 1 },
@@ -114,13 +114,19 @@ function FocusCamera({ selected, reducedMotion }: { selected: HallZoneId; reduce
     const offset = size.width < 720 ? WIDE : CLOSE;
     goal.current.set(zone.position[0] + offset.x, offset.y, zone.position[2] + offset.z);
     goalLook.current.set(zone.position[0], 0.55, zone.position[2]);
-    const ease = reducedMotion ? 1 : 1 - Math.exp(-2.2 * Math.min(delta, 0.05));
-    const before = camera.position.distanceToSquared(goal.current) + look.current.distanceToSquared(goalLook.current);
+    const ease = reducedMotion ? 1 : 1 - Math.exp(-5 * Math.min(delta, 0.2));
     camera.position.lerp(goal.current, ease);
     look.current.lerp(goalLook.current, ease);
+    const left = camera.position.distanceToSquared(goal.current) + look.current.distanceToSquared(goalLook.current);
+    if (left > 0.002) {
+      camera.lookAt(look.current);
+      invalidate();
+      return;
+    }
+    camera.position.copy(goal.current);
+    look.current.copy(goalLook.current);
     camera.lookAt(look.current);
-    if (before > 0.0008) invalidate();
-    else settled.current = true;
+    settled.current = true;
   });
   return null;
 }
@@ -234,6 +240,29 @@ function Axle({ spots }: { spots: readonly (readonly [number, number])[] }) {
       <meshStandardMaterial color="#1b2631" roughness={0.65} metalness={0.25} />
     </mesh>
   ));
+}
+
+function Rig({ accent = '#d94a3a' }: { accent?: string }) {
+  return (
+    <group>
+      <RoundedBox args={[1.15, 0.42, 0.78]} position={[0.28, 0.62, 0]} radius={0.06} smoothness={2} castShadow>
+        <Metal color="#e7eef4" metal={0.28} rough={0.42} />
+      </RoundedBox>
+      <mesh position={[-0.48, 0.96, 0]} castShadow>
+        <boxGeometry args={[0.62, 0.52, 0.72]} />
+        <Metal color="#d5e7f5" metal={0.12} rough={0.18} />
+      </mesh>
+      <mesh position={[0.72, 0.78, 0]} castShadow>
+        <boxGeometry args={[0.55, 0.32, 0.62]} />
+        <Metal color={accent} glow={0.22} metal={0.2} rough={0.45} />
+      </mesh>
+      <mesh position={[0.15, 0.95, 0]} castShadow>
+        <boxGeometry args={[0.7, 0.12, 0.7]} />
+        <Metal color="#243240" metal={0.45} rough={0.35} />
+      </mesh>
+      <Axle spots={[[-0.35, 0.48], [-0.35, -0.48], [0.62, 0.48], [0.62, -0.48]]} />
+    </group>
+  );
 }
 
 function Seeder() {
@@ -418,13 +447,13 @@ function Exhibit({
   );
 }
 
-function Silhouette({ kind }: { kind: ExhibitKind }) {
+function Silhouette({ kind, accent }: { kind: ExhibitKind; accent?: string }) {
   if (kind === 'seeder') return <Seeder />;
   if (kind === 'harvester') return <Harvester />;
   if (kind === 'combine') return <Harvester compact />;
   if (kind === 'drone') return <Drone />;
   if (kind === 'rover') return <Rover />;
-  return <TractorModel />;
+  return <Rig accent={accent} />;
 }
 
 function HallWorld({ selected, hovered, reducedMotion, onSelect, onHover }: HallSceneProps) {
@@ -435,7 +464,6 @@ function HallWorld({ selected, hovered, reducedMotion, onSelect, onHover }: Hall
   useEffect(() => () => { floor?.dispose(); }, [floor]);
   useEffect(() => () => { gl.domElement.style.cursor = ''; }, [gl]);
   useEffect(() => { invalidate(); }, [selected, hovered, tip, invalidate]);
-  const shadow = size.width < 800 ? 512 : 1024;
   return (
     <>
       <color attach="background" args={['#c5ddf0']} />
@@ -447,7 +475,7 @@ function HallWorld({ selected, hovered, reducedMotion, onSelect, onHover }: Hall
         intensity={2.7}
         color="#fff6ea"
         castShadow
-        shadow-mapSize={[shadow, shadow]}
+        shadow-mapSize={[512, 512]}
         shadow-camera-left={-16}
         shadow-camera-right={16}
         shadow-camera-top={12}
@@ -507,28 +535,26 @@ function HallWorld({ selected, hovered, reducedMotion, onSelect, onHover }: Hall
           onHover={onHover}
         />
       ))}
-      <Suspense fallback={null}>
-        {EXHIBITS.map((exhibit) => (
-          <Exhibit
-            key={exhibit.id}
-            id={exhibit.id}
-            position={exhibit.position}
-            rotation={exhibit.rotation}
-            scale={exhibit.scale}
-            tipped={tip === exhibit.id}
-            onSelect={onSelect}
-            onHover={onHover}
-            onTip={setTip}
-          >
-            <Silhouette kind={exhibit.kind} />
-          </Exhibit>
-        ))}
-      </Suspense>
+      {EXHIBITS.map((exhibit) => (
+        <Exhibit
+          key={exhibit.id}
+          id={exhibit.id}
+          position={exhibit.position}
+          rotation={exhibit.rotation}
+          scale={exhibit.scale}
+          tipped={tip === exhibit.id}
+          onSelect={onSelect}
+          onHover={onHover}
+          onTip={setTip}
+        >
+          <Silhouette kind={exhibit.kind} accent={exhibit.accent} />
+        </Exhibit>
+      ))}
       {[[-9.6, -5.6], [-9.6, 5.8], [9.6, -5.6], [9.6, 5.8], [-1.15, -6.3], [1.15, -6.3], [-1.15, 6.5], [1.15, 6.5]].map(([x, z]) => (
         <Plant key={`${x}-${z}`} position={[x, 0, z]} />
       ))}
       {!reducedMotion && size.width >= 720 && (
-        <ContactShadows position={[0, 0.012, 0.1]} opacity={0.32} scale={22} blur={2.2} far={3.2} resolution={256} />
+        <ContactShadows frames={1} position={[0, 0.012, 0.1]} opacity={0.32} scale={22} blur={2.2} far={3.2} resolution={192} />
       )}
       <StageGlow reducedMotion={reducedMotion} />
     </>
@@ -540,8 +566,8 @@ function StageGlow({ reducedMotion }: { reducedMotion: boolean }) {
   const width = useThree((state) => state.size.width);
   if (reducedMotion || width < 720) return null;
   return (
-    <EffectComposer multisampling={0} enableNormalPass={false}>
-      <Bloom luminanceThreshold={0.58} luminanceSmoothing={0.22} intensity={0.42} mipmapBlur radius={0.45} levels={4} />
+    <EffectComposer multisampling={0} enableNormalPass={false} resolutionScale={0.7}>
+      <Bloom luminanceThreshold={0.58} luminanceSmoothing={0.22} intensity={0.4} mipmapBlur radius={0.42} levels={3} />
       <Vignette eskil={false} offset={0.18} darkness={0.42} />
     </EffectComposer>
   );
@@ -567,7 +593,7 @@ export default function HallScene(props: HallSceneProps) {
         shadows
         camera={{ position: [HOME.x, HOME.y, HOME.z], fov: 32, near: 0.1, far: 80 }}
         gl={{ antialias: true, alpha: false, powerPreference: 'high-performance' }}
-        dpr={[1, 1.5]}
+        dpr={[1, 1.25]}
         frameloop="demand"
         onCreated={({ camera }) => camera.lookAt(HOME_LOOK)}
         aria-label={lang === 'zh' ? '农机数字孪生展示大厅的等轴示意' : 'Isometric schematic of the machinery hall'}

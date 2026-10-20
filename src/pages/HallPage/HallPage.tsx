@@ -1,4 +1,4 @@
-import { lazy, useEffect, useState, type CSSProperties } from 'react';
+import { lazy, memo, useEffect, useState, type CSSProperties } from 'react';
 import { Link } from 'react-router-dom';
 import {
   BookOpen,
@@ -29,6 +29,26 @@ import {
 import './hall.css';
 
 const HallScene = lazy(() => import('./HallScene'));
+
+const HallStage = memo(function HallStage({
+  selected,
+  hovered,
+  reducedMotion,
+  onSelect,
+  onHover,
+}: {
+  selected: HallZoneId;
+  hovered: HallZoneId | null;
+  reducedMotion: boolean;
+  onSelect: (id: HallZoneId) => void;
+  onHover: (id: HallZoneId | null) => void;
+}) {
+  return (
+    <DeferredScene priority fallback={<HallSceneLoading />}>
+      <HallScene selected={selected} hovered={hovered} reducedMotion={reducedMotion} onSelect={onSelect} onHover={onHover} />
+    </DeferredScene>
+  );
+});
 
 function HallSceneLoading() {
   const lang = useLang();
@@ -211,15 +231,13 @@ export default function HallPage() {
               <span>{selected} {t('展区', 'ZONE')} · {t('左右方向键切换', 'Arrow keys switch zones')}</span>
               <strong>{t(zone.zh, zone.en)}</strong>
             </div>
-            <DeferredScene priority fallback={<HallSceneLoading />}>
-              <HallScene
-                selected={selected}
-                hovered={hovered}
-                reducedMotion={reducedMotion}
-                onSelect={setSelected}
-                onHover={setHovered}
-              />
-            </DeferredScene>
+            <HallStage
+              selected={selected}
+              hovered={hovered}
+              reducedMotion={reducedMotion}
+              onSelect={setSelected}
+              onHover={setHovered}
+            />
             <div className="hall-scan" aria-hidden="true" />
           </div>
           <aside className="hall-side">
