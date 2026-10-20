@@ -1,6 +1,7 @@
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { Html, MeshReflectorMaterial, OrbitControls, RoundedBox } from '@react-three/drei';
+import { Bloom, EffectComposer, Vignette } from '@react-three/postprocessing';
 import { ErrorBoundary } from 'react-error-boundary';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
@@ -269,6 +270,10 @@ function Pavilion({
 }) {
   const lang = useLang();
   const color = zone.color;
+  const [hot, setHot] = useState(false);
+  const invalidate = useThree((state) => state.invalidate);
+  useEffect(() => { invalidate(); }, [hot, selected, invalidate]);
+  const lit = selected || hot;
   return (
     <group position={[zone.x, 0, zone.z]}>
       <group
@@ -276,12 +281,17 @@ function Pavilion({
           event.stopPropagation();
           onSelect(zone.id);
         }}
+        onPointerOver={(event) => {
+          event.stopPropagation();
+          setHot(true);
+        }}
+        onPointerOut={() => setHot(false)}
       >
         <mesh position={[0, 0.13, 0]} receiveShadow castShadow>
           <cylinderGeometry args={[2.7, 2.8, 0.25, 64]} />
-          <meshStandardMaterial color={selected ? '#294b60' : '#1a3042'} metalness={0.72} roughness={0.35} />
+          <meshStandardMaterial color={lit ? '#294b60' : '#1a3042'} emissive={color} emissiveIntensity={lit ? 0.22 : 0} metalness={0.72} roughness={0.35} />
         </mesh>
-        <Ring position={[0, 0.27, 0]} radius={2.65} color={color} thickness={selected ? 0.045 : 0.018} />
+        <Ring position={[0, 0.27, 0]} radius={2.65} color={color} thickness={lit ? 0.045 : 0.018} />
         {zone.id === 'knowledge' && <KnowledgeSculpture color={color} />}
         {zone.id === 'diagnosis' && <DiagnosisSculpture color={color} />}
         {zone.id === 'models' && <ModelSculpture color={color} />}
@@ -556,6 +566,12 @@ function WorldScene({
           settling.current = false;
         }}
       />
+      {mode === 'overview' && !reducedMotion && size.width >= 900 && (
+        <EffectComposer multisampling={0} enableNormalPass={false}>
+          <Bloom luminanceThreshold={0.85} luminanceSmoothing={0.25} intensity={0.28} mipmapBlur radius={0.35} levels={4} />
+          <Vignette eskil={false} offset={0.25} darkness={0.28} />
+        </EffectComposer>
+      )}
     </>
   );
 }

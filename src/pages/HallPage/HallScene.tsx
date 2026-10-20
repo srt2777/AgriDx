@@ -1,6 +1,7 @@
 import { Suspense, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { Html, RoundedBox } from '@react-three/drei';
+import { Bloom, EffectComposer, Vignette } from '@react-three/postprocessing';
 import { ErrorBoundary } from 'react-error-boundary';
 import { Tractor } from 'lucide-react';
 import * as THREE from 'three';
@@ -238,13 +239,13 @@ function HallWorld({ selected, hovered, reducedMotion, onSelect, onHover }: Hall
       {[-8, -2.6, 2.6, 8].map((x) => (
         <mesh key={x} position={[x, 4.05, 0.1]}>
           <boxGeometry args={[0.08, 0.05, 14.4]} />
-          <meshStandardMaterial color="#9fd8ff" emissive="#7ecfff" emissiveIntensity={0.8} />
+          <meshStandardMaterial color="#9fd8ff" emissive="#7ecfff" emissiveIntensity={1.8} toneMapped={false} />
         </mesh>
       ))}
       {[-4.2, 0.2, 4.6].map((z) => (
         <mesh key={z} position={[0, 4.02, z]}>
           <boxGeometry args={[20, 0.04, 0.06]} />
-          <meshStandardMaterial color="#bfe6ff" emissive="#8fd4ff" emissiveIntensity={0.55} />
+          <meshStandardMaterial color="#bfe6ff" emissive="#8fd4ff" emissiveIntensity={1.35} toneMapped={false} />
         </mesh>
       ))}
       {HALL_ZONES.map((zone) => (
@@ -280,7 +281,20 @@ function HallWorld({ selected, hovered, reducedMotion, onSelect, onHover }: Hall
       {[[-9.6, -5.6], [-9.6, 5.8], [9.6, -5.6], [9.6, 5.8], [-1.1, -6.2], [1.1, -6.2], [-1.1, 6.4], [1.1, 6.4]].map(([x, z]) => (
         <Plant key={`${x}-${z}`} position={[x, 0, z]} />
       ))}
+      <StageGlow reducedMotion={reducedMotion} />
     </>
+  );
+}
+
+/** Desktop glow only. Narrow screens and reduced motion keep the plain framebuffer. */
+function StageGlow({ reducedMotion }: { reducedMotion: boolean }) {
+  const width = useThree((state) => state.size.width);
+  if (reducedMotion || width < 720) return null;
+  return (
+    <EffectComposer multisampling={0} enableNormalPass={false}>
+      <Bloom luminanceThreshold={0.2} luminanceSmoothing={0.25} intensity={0.65} mipmapBlur radius={0.5} levels={5} />
+      <Vignette eskil={false} offset={0.2} darkness={0.38} />
+    </EffectComposer>
   );
 }
 
