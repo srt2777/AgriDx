@@ -49,6 +49,13 @@ export const WORLD_ZONES = [
   },
 ] as const;
 
+/** New-version pavilion routes. Research stays on the classic home. */
+export function pavilionDestination(id: ZoneId): { path: '/knowledge' | '/chat' | '/models' | '/'; classicResearch: boolean } {
+  const zone = WORLD_ZONES.find((item) => item.id === id)!;
+  if (zone.path) return { path: zone.path, classicResearch: false };
+  return { path: '/', classicResearch: true };
+}
+
 export interface DriveState {
   x: number;
   z: number;

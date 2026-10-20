@@ -10,6 +10,7 @@ import TractorModel from './TractorModel';
 import { TRACTOR_COMPONENTS, TRACTOR_MODEL_URL, type TractorComponent } from './tractor-model-info';
 import TractorFraming from './TractorFraming';
 import { TRACTOR_VIEWS, type TractorView } from './tractor-view-config';
+import { modelPreviewFallback } from '@/lib/scene-fallback-copy';
 import {
   SCHEMATIC_HUD,
   STUDIO_LIGHTS,
@@ -315,12 +316,13 @@ export default function TractorViewer({ component = 'all', exploded = false, mod
   };
 
   if (!webglSupported) {
+    const preview = modelPreviewFallback(lang);
     return (
       <div className="flex h-full w-full flex-col items-center justify-center gap-3 rounded-2xl border border-border/50 bg-gradient-to-br from-muted/30 to-transparent text-muted-foreground">
         <MonitorPlay className="size-16 opacity-40" />
-        <div className="text-sm font-medium">{lang === 'zh' ? '3D 模型预览' : '3D model preview'}</div>
-        <div className="text-xs opacity-60">{lang === 'zh' ? '当前浏览器环境不支持 WebGL' : 'WebGL is unavailable in this browser'}</div>
-        <div className="text-xs opacity-60">{lang === 'zh' ? '支持的设备上可查看可交互 3D 拖拉机模型' : 'Use a supported device to explore the interactive tractor model'}</div>
+        <div className="text-sm font-medium">{preview.title}</div>
+        <div className="text-xs opacity-60">{preview.note}</div>
+        <div className="text-xs opacity-60">{preview.hint}</div>
       </div>
     );
   }

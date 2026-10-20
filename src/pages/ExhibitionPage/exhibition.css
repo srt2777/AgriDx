@@ -10,21 +10,12 @@
   font-family: var(--font-sans);
   font-size: 13px;
 }
-.expo-page *,
-.expo-page *::before,
-.expo-page *::after {
-  box-sizing: border-box;
-}
 .expo-page h1,
 .expo-page h2,
 .expo-page h3,
 .expo-page p {
   margin: 0;
   font-family: inherit;
-}
-.expo-page a {
-  color: inherit;
-  text-decoration: none;
 }
 .expo-page button {
   font: inherit;
@@ -43,23 +34,8 @@
 .expo-page .skip-link:focus {
   top: 14px;
 }
-.expo-page button,
-.expo-page a {
-  -webkit-tap-highlight-color: transparent;
-}
-.expo-page a:focus-visible,
-.expo-page button:focus-visible,
-.expo-page input:focus-visible,
-.expo-page select:focus-visible,
-.expo-page textarea:focus-visible,
-.expo-page summary:focus-visible,
-.expo-world-stage:focus-visible {
-  outline: 2px solid var(--ring);
-  outline-offset: 4px;
-}
 .expo-header,
-.expo-main,
-.expo-footer {
+.expo-main {
   max-width: 1800px;
   margin-inline: auto;
 }
@@ -1019,26 +995,6 @@
   color: var(--primary);
   font-weight: 600;
 }
-.expo-footer {
-  display: flex;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 15px;
-  padding: 28px 10px;
-  color: var(--muted-foreground);
-  font-size: 8px;
-  letter-spacing: 1px;
-}
-.expo-footer span {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.expo-footer i {
-  width: 2px;
-  height: 2px;
-  background: var(--muted);
-}
 .expo-notice {
   position: fixed;
   bottom: 22px;
@@ -1501,17 +1457,6 @@
   }
   .expo-direct-links :is(button, a) {
     font-size: 10px;
-  }
-  .expo-footer {
-    flex-direction: column;
-    padding: 24px 5px;
-    font-size: 7px;
-    letter-spacing: 0.3px;
-    line-height: 1.8;
-  }
-  .expo-footer span {
-    flex-wrap: wrap;
-    gap: 8px;
   }
 }
 @media (max-width: 350px) {

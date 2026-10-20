@@ -86,3 +86,14 @@ export const HALL_EXAMPLE_DEVICES: readonly HallExampleDevice[] = [
 export function hallStatusCount(status: HallDeviceStatus): number {
   return HALL_EXAMPLE_DEVICES.filter((device) => device.status === status).length;
 }
+
+export function devicesInZone(zone: HallZoneId): HallExampleDevice[] {
+  return HALL_EXAMPLE_DEVICES.filter((device) => device.zone === zone);
+}
+
+/** Arrow keys move the selected hall zone and wrap at the ends. */
+export function adjacentHallZone(current: HallZoneId, direction: 1 | -1): HallZoneId {
+  const index = HALL_ZONES.findIndex((zone) => zone.id === current);
+  const next = (index + direction + HALL_ZONES.length) % HALL_ZONES.length;
+  return HALL_ZONES[next].id;
+}

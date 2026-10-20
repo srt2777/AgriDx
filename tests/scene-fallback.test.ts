@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { sceneFallbackCopy } from '../src/lib/scene-fallback-copy';
+import { modelPreviewFallback, sceneFallbackCopy } from '../src/lib/scene-fallback-copy';
 import { MOTION, easeOutCubic, frameEase, motionTokenCss, rateFor } from '../src/lib/motion-tokens';
 import { probeWebGL } from '../src/lib/webgl';
 
@@ -31,4 +31,11 @@ test('没有 WebGL 时探测失败，静态示意仍说明展区可用', () => {
   assert.match(lost.note, /展区导航/);
   assert.match(missing.note, /WebGL/);
   assert.match(missing.title, /园区/);
+  const model = modelPreviewFallback('zh');
+  const modelEn = modelPreviewFallback('en');
+  assert.equal(model.title, '3D 模型预览');
+  assert.match(model.note, /不支持 WebGL/);
+  assert.match(model.hint, /3D 拖拉机模型/);
+  assert.equal(modelEn.title, '3D model preview');
+  assert.match(modelEn.note, /WebGL is unavailable/);
 });

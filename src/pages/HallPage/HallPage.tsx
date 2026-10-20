@@ -24,6 +24,8 @@ import { easeOutCubic, MOTION } from '@/lib/motion-tokens';
 import { probeWebGL, type GraphicsReason } from '@/lib/webgl';
 import {
   HALL_EXAMPLE_DEVICES,
+  adjacentHallZone,
+  devicesInZone,
   exampleDataLabel,
   HALL_EXAMPLE_TOTAL,
   HALL_STATUS_EXAMPLE,
@@ -184,15 +186,13 @@ export default function HallPage() {
     const onKey = (event: KeyboardEvent) => {
       const target = event.target;
       if (target instanceof HTMLElement && (target.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName))) return;
-      const index = HALL_ZONES.findIndex((item) => item.id === selected);
       if (event.key === 'Escape') {
         setDetail(false);
         return;
       }
       if (event.key !== 'ArrowRight' && event.key !== 'ArrowLeft') return;
       event.preventDefault();
-      const next = event.key === 'ArrowRight' ? (index + 1) % HALL_ZONES.length : (index + HALL_ZONES.length - 1) % HALL_ZONES.length;
-      choose(HALL_ZONES[next].id);
+      choose(adjacentHallZone(selected, event.key === 'ArrowRight' ? 1 : -1));
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
@@ -205,7 +205,7 @@ export default function HallPage() {
 
   return (
     <div className="hall-page">
-      <section className="hall-board" aria-labelledby="hall-title">
+      <section className="hall-board nv-corners" aria-labelledby="hall-title">
         <header className="hall-top">
           <div className="hall-kicker">
             <p>{t('结构示意 · 不是实车监测', 'Schematic · not live monitoring')}</p>
@@ -226,7 +226,7 @@ export default function HallPage() {
                 <button
                   key={item.id}
                   type="button"
-                  className={`hall-zone${active ? ' is-on' : ''}${hovered === item.id ? ' is-hover' : ''}`}
+                  className={`hall-zone nv-corners${active ? ' is-on' : ''}${hovered === item.id ? ' is-hover' : ''}`}
                   aria-pressed={active}
                   style={{ '--zone-color': item.color } as CSSProperties}
                   onClick={() => choose(item.id)}
@@ -250,7 +250,7 @@ export default function HallPage() {
               <span>{selected} {t('展区', 'ZONE')} · {t('点按机具或方向键切换', 'Tap a machine or use arrow keys')}</span>
               <strong>{t(zone.zh, zone.en)}</strong>
               <ul className="hall-stage-devices">
-                {HALL_EXAMPLE_DEVICES.filter((device) => device.zone === selected).map((device) => (
+                {devicesInZone(selected).map((device) => (
                   <li key={device.id}><strong>{device.name}</strong><span>{statusLabel(device.status)}</span></li>
                 ))}
               </ul>
@@ -270,7 +270,7 @@ export default function HallPage() {
             )}
             <div className="hall-scan" aria-hidden="true" />
             {detail && (
-              <aside className="hall-drawer" key={selected} aria-labelledby="hall-drawer-title">
+              <aside className="hall-drawer nv-corners" key={selected} aria-labelledby="hall-drawer-title">
                 <header>
                   <div>
                     <span>{selected} {t('展区', 'ZONE')}</span>
@@ -281,9 +281,9 @@ export default function HallPage() {
                   </button>
                 </header>
                 <p>{t(zone.blurbZh, zone.blurbEn)}</p>
-                <span className="hall-example-tag">{exampleDataLabel(lang === 'zh' ? 'zh' : 'en')}</span>
+                <span className="nv-example">{exampleDataLabel(lang)}</span>
                 <ul>
-                  {HALL_EXAMPLE_DEVICES.filter((device) => device.zone === selected).map((device) => (
+                  {devicesInZone(selected).map((device) => (
                     <li key={device.id}>
                       <strong>{device.name}</strong>
                       <em className={`is-${device.status}`}>{statusLabel(device.status)}</em>
@@ -303,17 +303,17 @@ export default function HallPage() {
             )}
           </div>
           <aside className="hall-side">
-            <section className="hall-panel" aria-labelledby="hall-status-title">
+            <section className="hall-panel nv-corners" aria-labelledby="hall-status-title">
               <header>
                 <h2 id="hall-status-title">{t('运行状态概览', 'Status overview')}</h2>
-                <span className="hall-example-tag">{exampleDataLabel(lang === 'zh' ? 'zh' : 'en')}</span>
+                <span className="nv-example">{exampleDataLabel(lang)}</span>
               </header>
               <StatusRing label={t('示例运行状态', 'Example operating status')} reducedMotion={reducedMotion} />
             </section>
-            <section className="hall-panel hall-devices" aria-labelledby="hall-device-title">
+            <section className="hall-panel hall-devices nv-corners" aria-labelledby="hall-device-title">
               <header>
                 <h2 id="hall-device-title">{t('设备列表', 'Equipment list')}</h2>
-                <span className="hall-example-tag">{exampleDataLabel(lang === 'zh' ? 'zh' : 'en')}</span>
+                <span className="nv-example">{exampleDataLabel(lang)}</span>
               </header>
               <div className="hall-table-wrap">
                 <table>

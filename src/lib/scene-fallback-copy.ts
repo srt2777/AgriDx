@@ -25,3 +25,12 @@ export function sceneFallbackCopy(kind: 'campus' | 'hall', reason: GraphicsReaso
       : 'WebGL is unavailable here. This static plan stays on screen, and zone navigation still works.',
   };
 }
+
+/** Model workshop copy when the canvas cannot start. The page itself still renders. */
+export function modelPreviewFallback(lang: 'zh' | 'en') {
+  return {
+    title: lang === 'zh' ? '3D 模型预览' : '3D model preview',
+    note: lang === 'zh' ? '当前浏览器环境不支持 WebGL' : 'WebGL is unavailable in this browser',
+    hint: lang === 'zh' ? '支持的设备上可查看可交互 3D 拖拉机模型' : 'Use a supported device to explore the interactive tractor model',
+  };
+}

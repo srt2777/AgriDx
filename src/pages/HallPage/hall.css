@@ -4,11 +4,11 @@
 }
 
 html.theme-dark .hall-page {
-  --hub-background: #07131d;
-  --hub-surface: #10283a;
-  --hub-card: #0e2233;
-  --hub-primary: #7ad7ff;
-  --hub-border: #1a5674;
+  --hub-background: var(--hall-night);
+  --hub-surface: var(--hall-surface);
+  --hub-card: var(--hall-card);
+  --hub-primary: var(--hall-cyan);
+  --hub-border: var(--hall-line);
 }
 
 .hall-board {
@@ -293,29 +293,7 @@ html.theme-dark .hall-page {
 
 .hall-fallback p { margin: 0; max-width: 280px; font-size: 13px; line-height: 1.6; }
 
-.hall-board::before,
-.hall-panel::before,
-.hall-zone::before,
-.hall-drawer::before {
-  content: '';
-  position: absolute;
-  inset: 7px;
-  pointer-events: none;
-  border-radius: inherit;
-  background:
-    linear-gradient(var(--hub-primary), var(--hub-primary)) left top / 18px 2px no-repeat,
-    linear-gradient(var(--hub-primary), var(--hub-primary)) left top / 2px 18px no-repeat,
-    linear-gradient(var(--hub-primary), var(--hub-primary)) right top / 18px 2px no-repeat,
-    linear-gradient(var(--hub-primary), var(--hub-primary)) right top / 2px 18px no-repeat,
-    linear-gradient(var(--hub-primary), var(--hub-primary)) left bottom / 18px 2px no-repeat,
-    linear-gradient(var(--hub-primary), var(--hub-primary)) left bottom / 2px 18px no-repeat,
-    linear-gradient(var(--hub-primary), var(--hub-primary)) right bottom / 18px 2px no-repeat,
-    linear-gradient(var(--hub-primary), var(--hub-primary)) right bottom / 2px 18px no-repeat;
-  filter: drop-shadow(0 0 4px color-mix(in srgb, var(--hub-primary) 80%, transparent));
-  opacity: 0.95;
-}
-
-.hall-zone::before { inset: 5px; opacity: 0.8; }
+.hall-zone.nv-corners::before { inset: 5px; opacity: 0.8; }
 
 .hall-panel {
   position: relative;
@@ -345,16 +323,6 @@ html.theme-dark .hall-page {
   letter-spacing: 0.04em;
 }
 
-.hall-example-tag {
-  flex: none;
-  padding: 2px 7px;
-  border-radius: 999px;
-  border: 1px solid color-mix(in srgb, var(--wheat) 65%, var(--hub-border));
-  background: color-mix(in srgb, var(--wheat) 18%, var(--hub-card));
-  color: var(--hub-foreground);
-  font-size: 10px;
-  letter-spacing: 0.08em;
-}
 
 .hall-ring {
   display: grid;
@@ -540,6 +508,7 @@ a.hall-card:hover,
 
 .hall-stage.is-detail .hall-stage-caption { opacity: 0; }
 
+.hall-drawer.nv-corners,
 .hall-drawer {
   position: absolute;
   z-index: 4;

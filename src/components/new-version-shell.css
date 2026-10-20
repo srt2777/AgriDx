@@ -8,15 +8,9 @@
   font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
 }
 
-.new-version-shell *, .new-version-shell *::before, .new-version-shell *::after { box-sizing: border-box; }
-.new-version-shell a { color: inherit; text-decoration: none; }
-.new-version-shell button, .new-version-shell a { -webkit-tap-highlight-color: transparent; }
-.new-version-shell a:focus-visible, .new-version-shell button:focus-visible, .new-version-shell input:focus-visible, .new-version-shell select:focus-visible { outline: 2px solid var(--ring); outline-offset: 4px; }
-
 .new-version-skip-link { position: fixed; z-index: 60; top: -80px; left: 20px; padding: 10px 16px; border-radius: 8px; background: var(--card); color: var(--foreground) !important; font-size: 13px; font-weight: 600; box-shadow: 0 8px 24px rgb(0 0 0 / 28%); }
 .new-version-skip-link:focus { top: 14px; outline: 2px solid var(--ring); outline-offset: 3px; }
 .new-version-header-content { width: 100%; min-height: 84px; padding: 12px 18px; display: grid; grid-template-columns: 250px minmax(0, 1fr) auto; align-items: center; gap: 20px; border-bottom: 1px solid var(--border); position: relative; }
-.new-version-header::after { content: ''; position: absolute; bottom: -1px; left: 18%; width: 64%; height: 12px; background: var(--wheat); box-shadow: none; mask: var(--wheat-ear); -webkit-mask: var(--wheat-ear); pointer-events: none; }
 .new-version-brand { display: flex; align-items: center; gap: 11px; min-width: 0; }
 .new-version-college-mark { flex: none; display: block; width: 42px; height: 42px; overflow: hidden; border-radius: 50%; background: var(--muted); }
 .new-version-college-mark img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: right; }
@@ -66,7 +60,6 @@
 @media (max-width: 760px) {
   .new-version-header, .new-version-subheader { width: min(100% - 28px, 1744px); }
   .new-version-header-content { min-height: 76px; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; }
-  .new-version-header::after { left: 20%; width: 60%; }
   .new-version-navigation { grid-column: 1 / -1; grid-row: 2; justify-content: flex-start; overflow-x: auto; padding: 0 0 9px; }
   .new-version-tools { grid-column: 2; grid-row: 1; }
   .new-version-brand { grid-column: 1; grid-row: 1; }

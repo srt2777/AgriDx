@@ -55,6 +55,7 @@ import {
   initialDriveState,
   KEY_ACTIONS,
   WORLD_ZONES,
+  pavilionDestination,
   type DriveAction,
   type WorldMode,
   type ZoneId,
@@ -286,15 +287,14 @@ export default function ExhibitionPage() {
   }
   function enterZone(id: ZoneId, source?: Element | null) {
     stopInput();
-    const zone = WORLD_ZONES.find((item) => item.id === id)!;
+    const destination = pavilionDestination(id);
     const go = () => {
-      if (zone.path) navigate(zone.path);
-      else {
+      if (destination.classicResearch) {
         setUiVersion('old');
         navigate('/', { state: { scrollTo: 'research' } });
-      }
+      } else navigate(destination.path);
     };
-    const name = sharedTransitionName('pavilion', zone.id);
+    const name = sharedTransitionName('pavilion', id);
     if (!name) {
       go();
       return;

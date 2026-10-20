@@ -508,7 +508,7 @@ function ExhibitTip({ id }: { id: string }) {
         <strong>{device.name}</strong>
         <span>{zone.id} · {lang === 'zh' ? zone.zh : zone.en}</span>
         <em className={`is-${device.status}`}>{lang === 'zh' ? status.zh : status.en}</em>
-        <small>{exampleDataLabel(lang === 'zh' ? 'zh' : 'en')}</small>
+        <small>{exampleDataLabel(lang)}</small>
       </div>
     </Html>
   );

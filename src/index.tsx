@@ -10,6 +10,7 @@ import './typography.css';
 import './liquid-glass.css';
 import './motion.css';
 import './new-version-polish.css';
+import './new-version-tokens.css';
 import './wheat-motif.css';
 import './premium-workspace.css';
 import './material-you.css';
