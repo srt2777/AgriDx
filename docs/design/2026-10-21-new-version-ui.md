@@ -127,6 +127,12 @@ WebGL 不可用或上下文中断时，画面换成静态平面示意，展亭�
 
 新版按 Ctrl 或 Command K 打开玻璃「快速前往」。条目在 `COMMAND_ROUTES`：大厅、数字展厅、农机知识、模型工坊、智能诊断。每条路径都有对应的状态条文案。输入「结构」只留下模型工坊。
 
+细指针靠近玻璃卡片时，卡片随光标轻轻倾斜；宽于 720px 的面板保持平整。主按钮按下时从落点扩开一圈浅色。长页面顶部有一条跟滚动走的进度线。目录数字约 0.9 秒跳到终值，减少动态时直接显示。带 `title` 的控件在约 320 毫秒后出现同一套玻璃提示，带箭头。诊断提示用 sonner，颜色跟着当前主题。按 `?` 打开快捷键表。这些只挂在新版上。
+
+![快捷键](2026-10-21-new-version-ui/delight-shortcuts-r17-dark.png)
+
+![主题提示](2026-10-21-new-version-ui/delight-toast-r17-dark.png)
+
 `beginSharedTransition` 在支持 `startViewTransition` 且未开启减少动态时，把来源元素过渡到目标页的 `[data-shared-target]`。其余情况直接导航。
 
 新版未知地址使用外壳、麦穗线和五个去向。旧版未知地址保持原样。
@@ -146,6 +152,7 @@ WebGL 不可用或上下文中断时，画面换成静态平面示意，展亭�
 | 园区路径 | `src/pages/ExhibitionPage/world-navigation.ts` 的 `pavilionDestination` |
 | 过渡 | `src/lib/shared-transition.ts` |
 | 快速前往、状态条、404 文案 | `src/lib/command-routes.ts` |
+| 倾斜、进度、数字、提示、快捷键 | `src/lib/delight.ts` |
 | WebGL 文案 | `src/lib/scene-fallback-copy.ts` |
 | 棚拍灯光、引出线、测量比例 | `src/components/studio-schematic.ts` |
 

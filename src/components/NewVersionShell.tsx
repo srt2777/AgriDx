@@ -8,6 +8,7 @@ import { useLang, setLang } from '@/hooks/useLang';
 import { useReducedMotion } from 'framer-motion';
 import DemoNote from '@/components/DemoNote';
 import { CommandButton } from '@/components/CommandPalette';
+import { ShortcutButton } from '@/components/NewVersionDelight';
 import { SiteStatusBar } from '@/components/SiteStatusBar';
 import VersionSwitch from '@/components/VersionSwitch';
 import MagneticPointer from '@/components/MagneticPointer';
@@ -77,6 +78,7 @@ export function NewVersionShell() {
 
         <div className="new-version-tools">
           <CommandButton />
+          <ShortcutButton />
           <DemoNote />
           <VersionSwitch exhibition onChange={() => navigate('/')} />
           <ThemeSwitch />

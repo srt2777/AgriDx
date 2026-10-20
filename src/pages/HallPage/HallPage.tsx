@@ -20,6 +20,7 @@ import { useKnowledgeCatalog } from '@/hooks/useKnowledgeCatalog';
 import { useLang } from '@/hooks/useLang';
 import { preloadPage } from '@/lib/page-loaders';
 import { beginSharedTransition, sharedTransitionName } from '@/lib/shared-transition';
+import { StatTicker } from '@/components/StatTicker';
 import { easeOutCubic, MOTION } from '@/lib/motion-tokens';
 import { probeWebGL, type GraphicsReason } from '@/lib/webgl';
 import {
@@ -203,7 +204,7 @@ export default function HallPage() {
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [selected, choose]);
-  const number = (value: number | undefined) => (loading || failed || value === undefined ? '—' : value.toLocaleString());
+  const stat = (value: number | undefined) => (loading || failed ? undefined : value);
   const statusLabel = (status: HallDeviceStatus) => {
     const item = HALL_STATUS_EXAMPLE.find((entry) => entry.id === status)!;
     return lang === 'zh' ? item.zh : item.en;
@@ -380,9 +381,9 @@ export default function HallPage() {
               <h2>{t('展厅概况', 'Hall overview')}</h2>
               <p>
                 {lang === 'zh' ? (
-                  <>目录 <span className="hall-stat">{number(catalog?.totals.entries)}</span> 条 · <span className="hall-stat">{number(catalog?.totals.brands)}</span> 个品牌 · <span className="hall-stat">{number(catalog?.totals.models)}</span> 个型号或系列。环上的 12 台是示例，不是在线机队。</>
+                  <>目录 <span className="hall-stat"><StatTicker value={stat(catalog?.totals.entries)} reduced={reducedMotion} /></span> 条 · <span className="hall-stat"><StatTicker value={stat(catalog?.totals.brands)} reduced={reducedMotion} /></span> 个品牌 · <span className="hall-stat"><StatTicker value={stat(catalog?.totals.models)} reduced={reducedMotion} /></span> 个型号或系列。环上的 12 台是示例，不是在线机队。</>
                 ) : (
-                  <><span className="hall-stat">{number(catalog?.totals.entries)}</span> catalog entries · <span className="hall-stat">{number(catalog?.totals.brands)}</span> brands · <span className="hall-stat">{number(catalog?.totals.models)}</span> models or series. The ring’s 12 units are an example, not a live fleet.</>
+                  <><span className="hall-stat"><StatTicker value={stat(catalog?.totals.entries)} reduced={reducedMotion} /></span> catalog entries · <span className="hall-stat"><StatTicker value={stat(catalog?.totals.brands)} reduced={reducedMotion} /></span> brands · <span className="hall-stat"><StatTicker value={stat(catalog?.totals.models)} reduced={reducedMotion} /></span> models or series. The ring’s 12 units are an example, not a live fleet.</>
                 )}
               </p>
             </div>
@@ -393,7 +394,7 @@ export default function HallPage() {
           </Link>
           <Link className="hall-card" to="/knowledge" onPointerEnter={() => preloadPage('/knowledge')} onFocus={() => preloadPage('/knowledge')}>
             <span className="hall-card-icon"><Tractor size={16} /></span>
-            <div><h2>{t('在展机具', 'Machines on show')}</h2><p>{t(`${number(catalog?.totals.models)} 个型号或系列，可从知识目录打开。`, `${number(catalog?.totals.models)} models or series open from the catalog.`)}</p></div>
+            <div><h2>{t('在展机具', 'Machines on show')}</h2><p>{lang === 'zh' ? <><StatTicker value={stat(catalog?.totals.models)} reduced={reducedMotion} /> 个型号或系列，可从知识目录打开。</> : <><StatTicker value={stat(catalog?.totals.models)} reduced={reducedMotion} /> models or series open from the catalog.</>}</p></div>
           </Link>
           <Link className="hall-card" to="/models" onPointerEnter={() => preloadPage('/models')} onFocus={() => preloadPage('/models')}>
             <span className="hall-card-icon"><Boxes size={16} /></span>
@@ -405,7 +406,7 @@ export default function HallPage() {
           </Link>
           <Link className="hall-card" to="/knowledge" onPointerEnter={() => preloadPage('/knowledge')} onFocus={() => preloadPage('/knowledge')}>
             <span className="hall-card-icon"><BookOpen size={16} /></span>
-            <div><h2>{t('资料目录', 'Evidence')}</h2><p>{t(`${number(catalog?.totals.sources)} 个来源。适用范围仍需核对。`, `${number(catalog?.totals.sources)} sources. Scope still needs a check.`)}</p></div>
+            <div><h2>{t('资料目录', 'Evidence')}</h2><p>{lang === 'zh' ? <><StatTicker value={stat(catalog?.totals.sources)} reduced={reducedMotion} /> 个来源。适用范围仍需核对。</> : <><StatTicker value={stat(catalog?.totals.sources)} reduced={reducedMotion} /> sources. Scope still needs a check.</>}</p></div>
           </Link>
           <article className="hall-card">
             <span className="hall-card-icon"><Radar size={16} /></span>

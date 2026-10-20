@@ -49,6 +49,8 @@ import { useLang, setLang } from '@/hooks/useLang';
 import { setUiVersion } from '@/hooks/useUiVersion';
 import { useKnowledgeCatalog } from '@/hooks/useKnowledgeCatalog';
 import { CommandButton } from '@/components/CommandPalette';
+import { ShortcutButton } from '@/components/NewVersionDelight';
+import { StatTicker } from '@/components/StatTicker';
 import { SiteStatusBar } from '@/components/SiteStatusBar';
 import { beginSharedTransition, sharedTransitionName } from '@/lib/shared-transition';
 import { campusIntroPlan } from './intro-timing';
@@ -330,7 +332,6 @@ export default function ExhibitionPage() {
   const detail = selected ? ZONE_DETAILS[selected] : null;
   const ActiveIcon = selected ? ZONE_ICONS[selected] : Compass;
   const totals = !failed ? catalog?.totals : undefined;
-  const number = (value: number | undefined) => (value === undefined ? '—' : value.toLocaleString());
   const models = (catalog?.brands ?? []).flatMap((brand) =>
     brand.models.map((model) => ({ ...model, brandId: brand.id, brandName: brand.name })),
   );
@@ -379,6 +380,7 @@ export default function ExhibitionPage() {
         </div>
         <LiquidGlass lens variant="clear" displacementScale={24} className="expo-header-glass" contentClassName="expo-header-tools">
           <CommandButton />
+          <ShortcutButton />
           <DemoNote />
           <VersionSwitch exhibition />
           <ThemeSwitch />
@@ -604,15 +606,15 @@ export default function ExhibitionPage() {
               </div>
               <div className="expo-sheet-counts">
                 <div>
-                  <strong>{number(totals?.archivedEntries)}</strong>
+                  <strong><StatTicker value={totals?.archivedEntries} reduced={reducedMotion} /></strong>
                   <span>{t('机型归档条目', 'MODEL ARCHIVE ENTRIES')}</span>
                 </div>
                 <div>
-                  <strong>{number(totals?.sources)}</strong>
+                  <strong><StatTicker value={totals?.sources} reduced={reducedMotion} /></strong>
                   <span>{t('来源', 'SOURCES')}</span>
                 </div>
                 <div>
-                  <strong>{number(totals?.models)}</strong>
+                  <strong><StatTicker value={totals?.models} reduced={reducedMotion} /></strong>
                   <span>{t('型号 / 系列', 'MODELS / SERIES')}</span>
                 </div>
               </div>
@@ -818,15 +820,15 @@ export default function ExhibitionPage() {
           <dl>
             <div>
               <dt>{t('知识条目合计', 'KNOWLEDGE ENTRIES')}</dt>
-              <dd>{number(totals?.entries)}</dd>
+              <dd><StatTicker value={totals?.entries} reduced={reducedMotion} /></dd>
             </div>
             <div>
               <dt>{t('资料来源', 'SOURCES')}</dt>
-              <dd>{number(totals?.sources)}</dd>
+              <dd><StatTicker value={totals?.sources} reduced={reducedMotion} /></dd>
             </div>
             <div>
               <dt>{t('品牌目录', 'BRANDS')}</dt>
-              <dd>{number(totals?.brands)}</dd>
+              <dd><StatTicker value={totals?.brands} reduced={reducedMotion} /></dd>
             </div>
           </dl>
           <p>

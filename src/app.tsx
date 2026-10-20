@@ -10,6 +10,8 @@ const KnowledgePage = lazy(pageLoaders.knowledge);
 const ModelPage = lazy(pageLoaders.models);
 import NotFoundPage from '@/pages/NotFoundPage/NotFoundPage';
 import CommandPalette from '@/components/CommandPalette';
+import { NewVersionDelight } from '@/components/NewVersionDelight';
+import { ThemedToaster } from '@/components/ThemedToaster';
 import { useUiVersion } from '@/hooks/useUiVersion';
 const ExhibitionPage = lazy(pageLoaders.exhibition);
 const HallPage = lazy(pageLoaders.hall);
@@ -34,6 +36,12 @@ function NewCommandPalette() {
   return <CommandPalette />;
 }
 
+function NewVersionChrome() {
+  const version = useUiVersion();
+  if (version !== 'new') return null;
+  return <NewVersionDelight />;
+}
+
 function VersionedHomePage() {
   const version = useUiVersion();
   return version === 'new' ? <ExhibitionPage /> : <HomePage />;
@@ -55,6 +63,8 @@ export default function App() {
     </Routes>
     {PreviewStatus && <Suspense fallback={null}><PreviewStatus /></Suspense>}
     <NewCommandPalette />
+    <NewVersionChrome />
+    <ThemedToaster />
     <AutoUpdateStatus />
     </>
   );

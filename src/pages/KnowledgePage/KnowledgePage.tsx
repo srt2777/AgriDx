@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useReducedMotion } from 'framer-motion';
 import { ArrowLeft, ArrowRight, BookOpen, Check, ChevronRight, Layers, Loader2, Search, TriangleAlert } from 'lucide-react';
@@ -11,30 +10,8 @@ import { useKnowledgeCatalog } from '@/hooks/useKnowledgeCatalog';
 import type { CatalogEntry } from '@shared/knowledge-catalog';
 import { CATALOG_FILTER_KEYS } from '@shared/knowledge-catalog';
 import { LiquidGlass } from '@/components/ui/liquid-glass';
-import { easeOutCubic, MOTION } from '@/lib/motion-tokens';
+import { StatTicker } from '@/components/StatTicker';
 import '@/control-glass.css';
-
-function StatFigure({ value, reduced }: { value: number | undefined; reduced: boolean }) {
-  const [shown, setShown] = useState(0);
-  useEffect(() => {
-    if (value === undefined) return;
-    if (reduced) {
-      setShown(value);
-      return;
-    }
-    const start = performance.now();
-    let frame = 0;
-    const tick = (now: number) => {
-      const progress = Math.min(1, (now - start) / MOTION.ms.count);
-      setShown(value * easeOutCubic(progress));
-      if (progress < 1) frame = requestAnimationFrame(tick);
-    };
-    frame = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(frame);
-  }, [reduced, value]);
-  if (value === undefined) return '—';
-  return Math.round(shown).toLocaleString();
-}
 
 const INFORMATION_TYPES = new Set(['资料索引', '资料核验', '机型资料', '资料缺口', '系统适用边界']);
 
@@ -87,7 +64,7 @@ export default function KnowledgePage() {
           [catalog?.totals.archivedEntries, t('来源归档', 'Source archive entries')],
           [catalog?.totals.learningEntries, t('通识学习', 'General learning entries')],
           [catalog?.totals.models, t('型号 / 系列目录', 'Model / series directories')],
-        ].map(([value, label]) => <div key={String(label)}><strong>{version === 'new' ? <StatFigure value={typeof value === 'number' ? value : undefined} reduced={reducedMotion} /> : (typeof value === 'number' ? value.toLocaleString() : '—')}</strong><span>{label}</span></div>)}
+        ].map(([value, label]) => <div key={String(label)}><strong>{version === 'new' ? <StatTicker value={typeof value === 'number' ? value : undefined} reduced={reducedMotion} /> : (typeof value === 'number' ? value.toLocaleString() : '—')}</strong><span>{label}</span></div>)}
       </div>
 
       <nav className="library-collections" aria-label={t('知识浏览方式', 'Knowledge browsing mode')}>

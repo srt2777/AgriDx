@@ -1,0 +1,174 @@
+/* New-version delight. Classic pages do not carry data-ui-version="new". */
+
+.nv-ticker { font-variant-numeric: tabular-nums; }
+
+.nv-progress {
+  position: fixed;
+  z-index: 70;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  pointer-events: none;
+}
+.nv-progress > span {
+  display: block;
+  width: 100%;
+  height: 100%;
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+  background: var(--hub-primary, var(--primary));
+  opacity: 0.9;
+}
+
+@media (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  [data-ui-version='new'] .hall-card.is-tilting,
+  [data-ui-version='new'] .chat-context.is-tilting,
+  [data-ui-version='new'] .hall-drawer.is-tilting,
+  [data-ui-version='new'] .expo-catalog-sheet.is-tilting,
+  [data-ui-version='new'] .not-found-card.is-tilting {
+    transform: perspective(800px) rotateX(var(--nv-rx, 0deg)) rotateY(var(--nv-ry, 0deg));
+    transition: transform var(--motion-hover, 220ms) var(--motion-ease-out, ease);
+  }
+}
+
+[data-ui-version='new'] .expo-start-button,
+[data-ui-version='new'] .expo-hall-link,
+[data-ui-version='new'] .glass-button:not(.glass-secondary),
+[data-ui-version='new'] .hall-drawer > a {
+  position: relative;
+  isolation: isolate;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  [data-ui-version='new'] .expo-start-button::after,
+  [data-ui-version='new'] .expo-hall-link::after,
+  [data-ui-version='new'] .glass-button:not(.glass-secondary)::after,
+  [data-ui-version='new'] .hall-drawer > a::after {
+    content: '';
+    position: absolute;
+    z-index: 1;
+    width: 160%;
+    aspect-ratio: 1;
+    left: var(--nv-press-x, 50%);
+    top: var(--nv-press-y, 50%);
+    translate: -50% -50%;
+    border-radius: 50%;
+    background: color-mix(in srgb, white 46%, transparent);
+    opacity: 0;
+    transform: scale(0.2);
+    pointer-events: none;
+  }
+  [data-ui-version='new'] .expo-start-button:active::after,
+  [data-ui-version='new'] .expo-hall-link:active::after,
+  [data-ui-version='new'] .glass-button:not(.glass-secondary):active::after,
+  [data-ui-version='new'] .hall-drawer > a:active::after {
+    opacity: 0.9;
+    transform: scale(1);
+    transition: transform 380ms var(--motion-ease-out, ease), opacity 460ms ease;
+  }
+  [data-ui-version='new'] .expo-start-button:active {
+    transform: translateY(1px);
+  }
+}
+
+.nv-tip {
+  position: fixed;
+  z-index: 85;
+  max-width: 240px;
+  margin: 0;
+  padding: 6px 10px;
+  border: 1px solid color-mix(in srgb, var(--hub-primary, var(--primary)) 42%, var(--border));
+  border-radius: 10px;
+  color: var(--foreground);
+  background: color-mix(in srgb, var(--hub-card, var(--card)) 88%, transparent);
+  box-shadow: 0 10px 28px rgb(0 0 0 / 22%);
+  backdrop-filter: blur(14px);
+  font-size: 12px;
+  line-height: 1.4;
+  pointer-events: none;
+}
+.nv-tip::after {
+  content: '';
+  position: absolute;
+  left: var(--nv-tip-arrow, 18px);
+  border: 6px solid transparent;
+}
+.nv-tip.is-above::after {
+  top: 100%;
+  border-top-color: color-mix(in srgb, var(--hub-card, var(--card)) 92%, var(--hub-primary, var(--primary)));
+}
+.nv-tip.is-below::after {
+  bottom: 100%;
+  border-bottom-color: color-mix(in srgb, var(--hub-card, var(--card)) 92%, var(--hub-primary, var(--primary)));
+}
+@media (prefers-reduced-motion: no-preference) {
+  .nv-tip { animation: nv-tip-in var(--motion-color, 180ms) var(--motion-ease-out, ease); }
+}
+@keyframes nv-tip-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.nv-shortcuts {
+  position: fixed;
+  z-index: 90;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 24px 16px;
+  background: rgb(7 16 24 / 42%);
+}
+.nv-shortcuts-panel {
+  width: min(420px, 100%);
+  padding: 18px 18px 14px;
+  border: 1px solid color-mix(in srgb, var(--hub-primary, var(--primary)) 40%, var(--border));
+  border-radius: 20px;
+  color: var(--foreground);
+  background: color-mix(in srgb, var(--hub-card, var(--card)) 86%, transparent);
+  box-shadow: 0 24px 60px rgb(0 0 0 / 28%), inset 0 1px 0 rgb(255 255 255 / 16%);
+  backdrop-filter: blur(18px);
+  outline: none;
+}
+.nv-shortcuts-panel p {
+  margin: 0 0 12px;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  color: var(--muted-foreground);
+}
+.nv-shortcuts-panel dl { display: grid; gap: 8px; margin: 0; }
+.nv-shortcuts-panel div { display: grid; grid-template-columns: 132px minmax(0, 1fr); gap: 10px; align-items: baseline; }
+.nv-shortcuts-panel dt { margin: 0; font-size: 13px; font-variant-numeric: tabular-nums; }
+.nv-shortcuts-panel dd { margin: 0; font-size: 13px; color: color-mix(in srgb, var(--foreground) 78%, var(--muted-foreground)); }
+.nv-shortcuts-panel button {
+  min-height: 44px;
+  margin-top: 14px;
+  padding: 0 14px;
+  border: 1px solid color-mix(in srgb, var(--hub-primary, var(--primary)) 45%, var(--border));
+  border-radius: 999px;
+  background: transparent;
+  color: var(--foreground);
+  cursor: pointer;
+}
+
+html[data-ui-version='new'] [data-sonner-toaster] {
+  --normal-bg: color-mix(in srgb, var(--hub-card, var(--card)) 88%, transparent);
+  --normal-border: color-mix(in srgb, var(--hub-primary, var(--primary)) 42%, var(--border));
+  --normal-text: var(--foreground);
+  --border-radius: 16px;
+}
+html[data-ui-version='new'] [data-sonner-toast] {
+  backdrop-filter: blur(16px);
+  box-shadow: 0 16px 40px rgb(0 0 0 / 24%), inset 0 1px 0 rgb(255 255 255 / 16%);
+}
+html[data-ui-version='old'] [data-sonner-toaster] {
+  --normal-bg: var(--card);
+  --normal-text: var(--foreground);
+  --normal-border: var(--border);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nv-tip,
+  .nv-shortcuts,
+  .nv-shortcuts-panel { animation: none; }
+}
