@@ -1,16 +1,38 @@
 import { useReducedMotion } from 'framer-motion';
 import { Fragment, useEffect, useMemo, useRef } from 'react';
 import { createPortal, useFrame, useThree, type ThreeEvent } from '@react-three/fiber';
-import { Html, useGLTF } from '@react-three/drei';
+import { Html, Line, useGLTF } from '@react-three/drei';
 import { SkeletonUtils } from 'three-stdlib';
 import * as THREE from 'three';
 
 import { useLang } from '@/hooks/useLang';
 import { TRACTOR_COMPONENTS, TRACTOR_MODEL_URL, type TractorComponent } from './tractor-model-info';
 import { getComponentBounds, getComponentOwner, isTractorComponent } from './tractor-component-utils';
+import { partOpacity, type StudioPresentation } from './studio-schematic';
 const OFFSETS: Record<string, [number, number, number]> = {
   body: [-.1, .75, 0], cab: [.4, .8, 0], engine: [-.8, .05, 0],
   drivetrain: [0, 0, 0], hydraulics: [.6, 0, 0], electrical: [-.2, .65, 0], wheels: [0, -.2, 0],
+};
+function SchematicLeader({ start, end, label }: { start: [number, number, number]; end: [number, number, number]; label: string }) {
+  const points = useMemo(() => [start, end], [start, end]);
+  return (
+    <group>
+      <Line points={points} color="#7ad7ff" lineWidth={1} raycast={() => null} />
+      <Html position={end} center wrapperClass="tractor-leader" zIndexRange={[20, 10]} style={{ pointerEvents: 'none' }}>
+        <span className="tractor-leader-label">{label}</span>
+      </Html>
+    </group>
+  );
+}
+
+const LEADER_OFFSETS: Record<Exclude<TractorComponent, 'all'>, [number, number, number]> = {
+  body: [-0.55, 0.35, 0.2],
+  cab: [0.45, 0.55, 0.15],
+  engine: [-0.7, 0.25, 0.1],
+  drivetrain: [0.15, -0.35, 0.45],
+  hydraulics: [0.7, 0.15, -0.1],
+  electrical: [-0.35, 0.55, -0.15],
+  wheels: [0.55, -0.25, 0.35],
 };
 
 interface TractorModelProps {
@@ -20,12 +42,14 @@ interface TractorModelProps {
   exploded?: boolean;
   interactive?: boolean;
   showHotspots?: boolean;
+  presentation?: StudioPresentation;
+  leaders?: boolean;
   onComponentSelect?: (component: TractorComponent) => void;
   onLayoutSettled?: (object: THREE.Object3D) => void;
 }
 
 /** Original schematic GLB. Cache geometry is shared; all changed materials are cloned. */
-export default function TractorModel({ onLoaded, component = 'all', exploded = false, modelUrl = TRACTOR_MODEL_URL, interactive = false, showHotspots = false, onComponentSelect, onLayoutSettled }: TractorModelProps) {
+export default function TractorModel({ onLoaded, component = 'all', exploded = false, modelUrl = TRACTOR_MODEL_URL, interactive = false, showHotspots = false, presentation = 'solid', leaders = false, onComponentSelect, onLayoutSettled }: TractorModelProps) {
   const lang = useLang();
   const reducedMotion = useReducedMotion();
   const invalidate = useThree(state => state.invalidate);
@@ -78,6 +102,19 @@ export default function TractorModel({ onLoaded, component = 'all', exploded = f
     });
     return groups;
   }, [model, originalModel]);
+
+  const leaderMarks = useMemo(() => componentGroups.map(({ id, object }) => {
+    const bounds = new THREE.Box3().setFromObject(object);
+    if (bounds.isEmpty()) return null;
+    const start = object.worldToLocal(bounds.getCenter(new THREE.Vector3()));
+    const end = start.clone().add(new THREE.Vector3(...LEADER_OFFSETS[id]));
+    return {
+      id,
+      object,
+      start: start.toArray() as [number, number, number],
+      end: end.toArray() as [number, number, number],
+    };
+  }).filter(item => item !== null), [componentGroups]);
 
   const hotspots = useMemo(() => componentGroups.map(({ id, object }) => {
     const bounds = getComponentBounds(model, id);
@@ -150,19 +187,22 @@ export default function TractorModel({ onLoaded, component = 'all', exploded = f
   useEffect(() => {
     model.traverse(node => {
       if (!(node instanceof THREE.Mesh)) return;
-      const selected = !originalModel || component === 'all' || getComponentOwner(node)?.userData.component === component;
-      node.castShadow = selected;
+      const owner = getComponentOwner(node)?.userData.component;
+      const selected = !originalModel || component === 'all' || owner === component;
+      const viewingAll = !originalModel || component === 'all';
+      const mode = originalModel ? presentation : 'solid';
+      node.castShadow = selected && mode !== 'xray';
       const materials = Array.isArray(node.material) ? node.material : [node.material];
       materials.forEach(material => {
-        const targetOpacity = selected ? material.userData.baseOpacity : .09;
+        const targetOpacity = partOpacity(mode, selected, viewingAll, material.userData.baseOpacity ?? 1);
         material.userData.targetOpacity = targetOpacity;
         material.transparent = true;
-        material.depthWrite = selected ? material.userData.baseDepthWrite : false;
+        material.depthWrite = targetOpacity > 0.5 ? material.userData.baseDepthWrite : false;
         material.needsUpdate = true;
       });
     });
     invalidate();
-  }, [model, component, originalModel, invalidate]);
+  }, [model, component, originalModel, presentation, invalidate]);
 
   useEffect(() => {
     model.updateWorldMatrix(true, true);
@@ -199,6 +239,14 @@ export default function TractorModel({ onLoaded, component = 'all', exploded = f
             {selected && <span className="tractor-hotspot-label">{label}</span>}
           </button>
         </Html>, object,
+      )}</Fragment>;
+    })}
+    {originalModel && leaders && leaderMarks.map(({ id, object, start, end }) => {
+      if (presentation === 'isolate' && component !== 'all' && component !== id) return null;
+      const info = TRACTOR_COMPONENTS.find(item => item.id === id)!;
+      const label = lang === 'zh' ? info.zh : info.en;
+      return <Fragment key={`leader-${id}`}>{createPortal(
+        <SchematicLeader start={start} end={end} label={label} />, object,
       )}</Fragment>;
     })}
   </>;

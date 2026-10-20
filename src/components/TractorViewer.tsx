@@ -2,7 +2,7 @@ import { lazy, Suspense, useState, useEffect, useRef, useCallback, useId } from 
 import { Canvas, useThree } from '@react-three/fiber';
 import { Bounds, OrbitControls, Grid } from '@react-three/drei';
 import { ErrorBoundary } from 'react-error-boundary';
-import { Focus, Loader2, MapPin, MonitorPlay, Pause, Play, RotateCcw, ScanLine, X } from 'lucide-react';
+import { Camera, Focus, Loader2, MapPin, MonitorPlay, Pause, Play, RotateCcw, ScanLine, X } from 'lucide-react';
 import * as THREE from 'three';
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
@@ -10,6 +10,16 @@ import TractorModel from './TractorModel';
 import { TRACTOR_COMPONENTS, TRACTOR_MODEL_URL, type TractorComponent } from './tractor-model-info';
 import TractorFraming from './TractorFraming';
 import { TRACTOR_VIEWS, type TractorView } from './tractor-view-config';
+import {
+  SCHEMATIC_HUD,
+  STUDIO_LIGHTS,
+  STUDIO_LIGHT_LOOK,
+  STUDIO_PRESENTATIONS,
+  STUDIO_TURNTABLE_SPEED,
+  schematicSpan,
+  type StudioLight,
+  type StudioPresentation,
+} from './studio-schematic';
 import { useLang } from '@/hooks/useLang';
 import { useTheme } from '@/hooks/useTheme';
 import { LiquidGlass } from '@/components/ui/liquid-glass';
@@ -28,6 +38,8 @@ const AUTO_ROTATE_SPEED = 0.8;
 
 // Canvas 配置常量：避免每次渲染创建新对象字面量导致 R3F 重建 WebGL context（滚动闪屏主因之一）
 const GL_CONFIG = { antialias: true, alpha: true } as const;
+// Stable config: a fresh object each render rebuilds the WebGL context. Buffer is kept so a screenshot can read the frame.
+const GL_STUDIO = { antialias: true, alpha: true, preserveDrawingBuffer: true } as const;
 const DPR_CONFIG: [number, number] = [1, 1.5];
 const LIGHT_COLORS = {
   dark: { background: '#18232e', fog: '#18232e', cell: '#344654', section: '#657c8b' },
@@ -84,6 +96,28 @@ function ProgrammaticEnvironment() {
   return null;
 }
 
+function StudioAtmosphere({ light }: { light: StudioLight }) {
+  const look = STUDIO_LIGHT_LOOK[light];
+  const { scene, invalidate } = useThree();
+  useEffect(() => {
+    const previous = scene.background;
+    scene.background = new THREE.Color(look.background);
+    invalidate();
+    return () => {
+      scene.background = previous;
+    };
+  }, [scene, look.background, invalidate]);
+  return (
+    <>
+      <fog attach="fog" args={[look.fog, 8, 22]} />
+      <ambientLight intensity={look.ambient} />
+      <hemisphereLight args={[look.hemiSky, look.hemiGround, look.hemi]} />
+      <directionalLight position={[5, 8, 5]} intensity={look.key} color={look.keyColor} castShadow shadow-mapSize={[1024, 1024]} />
+      <directionalLight position={[-3, 4, -2]} intensity={look.fill} color={look.fillColor} />
+    </>
+  );
+}
+
 /**
  * 3D 拖拉机查看器
  * - 使用本地原创分组件拖拉机结构示意 GLB，保留旧模型原件
@@ -92,11 +126,12 @@ function ProgrammaticEnvironment() {
  * - 支持鼠标/触屏拖拽旋转、滚轮缩放
  * - WebGL 不可用时降级为占位提示
  */
-export default function TractorViewer({ component = 'all', exploded = false, modelUrl = TRACTOR_MODEL_URL, controls = false, onComponentChange, focusRequest = 0 }: {
+export default function TractorViewer({ component = 'all', exploded = false, modelUrl = TRACTOR_MODEL_URL, controls = false, studio = false, onComponentChange, focusRequest = 0 }: {
   component?: TractorComponent;
   exploded?: boolean;
   modelUrl?: string;
   controls?: boolean;
+  studio?: boolean;
   onComponentChange?: (component: TractorComponent) => void;
   focusRequest?: number;
 }) {
@@ -114,6 +149,10 @@ export default function TractorViewer({ component = 'all', exploded = false, mod
   const selectedInfo = TRACTOR_COMPONENTS.find(item => item.id === selectedComponent)!;
   // 无控制栏的首页预览保持静止，避免移除暂停入口后出现无法停止的自转。
   const [autoRotate, setAutoRotate] = useState(() => controls && !window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const [light, setLight] = useState<StudioLight>('studio');
+  const [presentation, setPresentation] = useState<StudioPresentation>('solid');
+  const [shareNote, setShareNote] = useState('');
+  const [span, setSpan] = useState<ReturnType<typeof schematicSpan>>(null);
   const [webglSupported] = useState(() => {
     try {
       const context = document.createElement('canvas').getContext('webgl2');
@@ -128,11 +167,18 @@ export default function TractorViewer({ component = 'all', exploded = false, mod
   const modelObject = loadedModel?.url === modelUrl ? loadedModel.object : null;
   const modelLoaded = !!modelObject;
   const controlsRef = useRef<OrbitControlsImpl | null>(null);
+  const stageRef = useRef<HTMLDivElement>(null);
   const autoRotateTimerRef = useRef<number | null>(null);
   const refitAfterLayout = useRef(true);
   useEffect(() => { refitAfterLayout.current = true; }, [modelUrl, exploded]);
 
   const isDark = useTheme() === 'dark';
+  const schematic = modelUrl === TRACTOR_MODEL_URL;
+  const rotateSpeed = studio ? STUDIO_TURNTABLE_SPEED : AUTO_ROTATE_SPEED;
+  const showStudio = studio && controls;
+  useEffect(() => {
+    if (!schematic) setPresentation('solid');
+  }, [schematic]);
 
   // 通过 ref 直接启停 OrbitControls 内置自动旋转
   // 不用 React state 驱动 prop，避免 prop 变化触发组件重渲染导致相机重置
@@ -187,23 +233,75 @@ export default function TractorViewer({ component = 'all', exploded = false, mod
       controlsRef.current = node;
       if (node) {
         node.autoRotate = autoRotate && view === 'isometric';
-        node.autoRotateSpeed = AUTO_ROTATE_SPEED;
+        node.autoRotateSpeed = rotateSpeed;
       }
     },
-    [autoRotate, view],
+    [autoRotate, view, rotateSpeed],
   );
+  useEffect(() => {
+    const orbit = controlsRef.current;
+    if (!orbit) return;
+    orbit.autoRotateSpeed = rotateSpeed;
+    orbit.autoRotate = autoRotate && view === 'isometric';
+  }, [rotateSpeed, autoRotate, view]);
 
+  const publishSpan = useCallback((object: THREE.Object3D) => {
+    if (!studio) {
+      setSpan(null);
+      return;
+    }
+    const size = new THREE.Box3().setFromObject(object).getSize(new THREE.Vector3());
+    setSpan(schematicSpan(size));
+  }, [studio]);
   const handleModelLoaded = useCallback(
     (object: THREE.Object3D) => {
       setLoadedModel({ url: modelUrl, object });
+      publishSpan(object);
     },
-    [modelUrl],
+    [modelUrl, publishSpan],
   );
-  const handleLayoutSettled = useCallback(() => {
+  const handleLayoutSettled = useCallback((object: THREE.Object3D) => {
+    publishSpan(object);
     if (!refitAfterLayout.current) return;
     refitAfterLayout.current = false;
     setLayoutRevision(value => value + 1);
-  }, []);
+  }, [publishSpan]);
+  const saveIllustration = useCallback(async () => {
+    const canvas = stageRef.current?.querySelector('canvas');
+    const title = lang === 'zh' ? SCHEMATIC_HUD.zh.title : SCHEMATIC_HUD.en.title;
+    if (!canvas) {
+      setShareNote(lang === 'zh' ? '画布还没准备好' : 'Canvas is not ready');
+      return;
+    }
+    setShareNote(lang === 'zh' ? '正在保存结构示意…' : 'Saving structure illustration…');
+    const blob = await new Promise<Blob | null>(resolve => canvas.toBlob(resolve, 'image/png'));
+    if (!blob || blob.size < 32) {
+      setShareNote(lang === 'zh' ? '这一帧是空的，请等模型出现后再保存' : 'This frame is empty. Wait for the model, then save again.');
+      return;
+    }
+    const file = new File([blob], 'agridx-structure-schematic.png', { type: 'image/png' });
+    const shareData = { files: [file], title };
+    try {
+      if (navigator.canShare?.(shareData)) {
+        await navigator.share(shareData);
+        setShareNote(lang === 'zh' ? '已准备分享结构示意' : 'Structure illustration is ready to share');
+        return;
+      }
+    } catch (error) {
+      if (error instanceof DOMException && error.name === 'AbortError') {
+        setShareNote(lang === 'zh' ? '已取消分享' : 'Share cancelled');
+        return;
+      }
+    }
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'agridx-structure-schematic.png';
+    link.click();
+    window.setTimeout(() => URL.revokeObjectURL(url), 1500);
+    setShareNote(lang === 'zh' ? '已保存结构示意' : 'Structure illustration saved');
+  }, [lang]);
+
   const focusSelected = () => {
     setAutoRotate(false);
     setAutoRotateByRef(false);
@@ -232,9 +330,26 @@ export default function TractorViewer({ component = 'all', exploded = false, mod
   }
 
   const palette = isDark ? LIGHT_COLORS.dark : LIGHT_COLORS.light;
+  const look = STUDIO_LIGHT_LOOK[light];
+  const hud = lang === 'zh' ? SCHEMATIC_HUD.zh : SCHEMATIC_HUD.en;
+  const gridCell = studio ? look.cell : palette.cell;
+  const gridSection = studio ? look.section : palette.section;
 
   return (
-    <div className="tractor-viewer relative h-full w-full" data-component={selectedComponent} data-model-state={modelLoaded ? 'ready' : 'loading'}>
+    <div className={`tractor-viewer relative h-full w-full${showStudio ? ' is-studio' : ''}`} data-component={selectedComponent} data-model-state={modelLoaded ? 'ready' : 'loading'} data-studio-light={showStudio ? light : undefined} data-presentation={showStudio ? presentation : undefined}>
+      {showStudio && <div className="studio-bar">
+        <div className="studio-bar-group" role="group" aria-label={lang === 'zh' ? '棚拍灯光' : 'Studio lighting'}>
+          {STUDIO_LIGHTS.map(item => <button key={item.id} type="button" className="studio-chip" aria-pressed={light === item.id} onClick={() => setLight(item.id)}>{lang === 'zh' ? item.zh : item.en}</button>)}
+        </div>
+        <div className="studio-bar-group" role="group" aria-label={lang === 'zh' ? '部件显示' : 'Part display'}>
+          {STUDIO_PRESENTATIONS.map(item => <button key={item.id} type="button" className="studio-chip" aria-pressed={presentation === item.id} disabled={!schematic && item.id !== 'solid'} onClick={() => setPresentation(item.id)}>{lang === 'zh' ? item.zh : item.en}</button>)}
+        </div>
+        <button type="button" className="studio-save" disabled={!modelLoaded} onClick={() => { void saveIllustration(); }}>
+          <Camera size={16} />{lang === 'zh' ? '保存结构示意' : 'Save structure illustration'}
+        </button>
+        <p className="studio-share-note" aria-live="polite">{shareNote}</p>
+      </div>}
+      <div className="tractor-stage" ref={stageRef}>
       <ErrorBoundary
         resetKeys={[modelUrl]}
         FallbackComponent={ModelFallback}
@@ -248,34 +363,29 @@ export default function TractorViewer({ component = 'all', exploded = false, mod
           frameloop={autoRotate && view === 'isometric' ? 'always' : 'demand'}
           shadows
           camera={CAMERA_CONFIG}
-          gl={GL_CONFIG}
+          gl={studio ? GL_STUDIO : GL_CONFIG}
           dpr={DPR_CONFIG}
         >
-          <fog attach="fog" args={[palette.fog, 8, 20]} />
+          {studio ? <StudioAtmosphere light={light} /> : <>
+            <fog attach="fog" args={[palette.fog, 8, 20]} />
+            <ambientLight intensity={0.5} />
+            <hemisphereLight args={['#FFF8E7', '#C8B89A', 0.6]} />
+            <directionalLight position={[5, 8, 5]} intensity={1.2} castShadow shadow-mapSize={[1024, 1024]} />
+            <directionalLight position={[-3, 4, -3]} intensity={0.3} color="#E8D5B7" />
+          </>}
 
           {/* 程序化环境光照（零网络依赖，替代 drei Environment preset 的 HDR 贴图） */}
           <ProgrammaticEnvironment />
-
-          {/* 光照 */}
-          <ambientLight intensity={0.5} />
-          <hemisphereLight args={['#FFF8E7', '#C8B89A', 0.6]} />
-          <directionalLight
-            position={[5, 8, 5]}
-            intensity={1.2}
-            castShadow
-            shadow-mapSize={[1024, 1024]}
-          />
-          <directionalLight position={[-3, 4, -3]} intensity={0.3} color="#E8D5B7" />
 
           {/* 地面网格 */}
           <Grid
             args={[20, 20]}
             cellSize={1}
             cellThickness={0.5}
-            cellColor={palette.cell}
+            cellColor={gridCell}
             sectionSize={5}
             sectionThickness={1}
-            sectionColor={palette.section}
+            sectionColor={gridSection}
             fadeDistance={15}
             fadeStrength={1}
             position={[0, -0.4, 0]}
@@ -292,6 +402,7 @@ export default function TractorViewer({ component = 'all', exploded = false, mod
             <Bounds margin={1.25} maxDuration={reducedMotion ? 0 : 0.9}>
               <TractorModel onLoaded={handleModelLoaded} onLayoutSettled={handleLayoutSettled} component={selectedComponent}
                 exploded={exploded} modelUrl={modelUrl} interactive={interactive} showHotspots={interactive && showHotspots}
+                presentation={studio && schematic ? presentation : 'solid'} leaders={studio && exploded && schematic}
                 onComponentSelect={handleComponentSelect} />
               <TractorFraming model={modelObject} component={selectedComponent} view={view}
                 request={focusRequest + localFocusRequest} layoutRevision={layoutRevision} />
@@ -312,7 +423,7 @@ export default function TractorViewer({ component = 'all', exploded = false, mod
             maxDistance={18}
             maxPolarAngle={Math.PI / 2.2}
             minPolarAngle={0.03}
-            autoRotateSpeed={AUTO_ROTATE_SPEED}
+            autoRotateSpeed={rotateSpeed}
             onStart={handleInteractionStart}
             onEnd={handleInteractionEnd}
           />
@@ -362,6 +473,12 @@ export default function TractorViewer({ component = 'all', exploded = false, mod
       </LiquidGlass></div>}
       <div className="pointer-events-none absolute bottom-3 left-1/2 -translate-x-1/2 whitespace-nowrap text-[10px] text-muted-foreground/70">
         {lang === 'zh' ? '拖动旋转 · 滚轮缩放' : 'Drag to rotate · Scroll to zoom'}
+      </div>
+      {showStudio && span && <aside className="studio-hud" aria-label={hud.title}>
+        <strong>{hud.title}</strong>
+        <p className="studio-hud-span">{lang === 'zh' ? `宽 ${span.width} · 高 ${span.height} · 长 ${span.length}` : `W ${span.width} · H ${span.height} · L ${span.length}`}</p>
+        <small>{hud.note}</small>
+      </aside>}
       </div>
     </div>
   );

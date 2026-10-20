@@ -101,7 +101,7 @@ export default function ModelPage() {
           <span className="flex min-w-0 items-center gap-2 text-sm font-medium"><Box className="size-4 text-primary" /><span className="truncate">{customModel?.name ?? t('原创拖拉机结构示意', 'Original tractor schematic')}</span></span>
           <span className="shrink-0 rounded-full bg-primary/10 px-2.5 py-1 text-[10px] text-primary">{customModel ? t('本地预览', 'Local preview') : 'GLB · 0.65 MB'}</span>
         </div>
-        <div className="model-stage h-[350px] sm:h-[420px] lg:h-[480px]" data-component={component}><DeferredScene fallback={<SceneLoading />}><TractorViewer controls modelUrl={customModel?.url ?? TRACTOR_MODEL_URL} component={component} exploded={exploded} onComponentChange={setComponent} focusRequest={focusRequest} /></DeferredScene></div>
+        <div className="model-stage h-[350px] sm:h-[420px] lg:h-[480px]" data-component={component}><DeferredScene fallback={<SceneLoading />}><TractorViewer controls studio={version === 'new'} modelUrl={customModel?.url ?? TRACTOR_MODEL_URL} component={component} exploded={exploded} onComponentChange={setComponent} focusRequest={focusRequest} /></DeferredScene></div>
         <div className="flex flex-wrap items-center gap-3 border-t border-border px-5 py-4 text-xs">
           <a href={TRACTOR_MODEL_URL} download className="flex items-center gap-1.5 font-medium text-primary"><Download className="size-3.5" />{t('下载示意模型', 'Download schematic GLB')}</a>
           <label className="flex cursor-pointer items-center gap-1.5 text-muted-foreground hover:text-primary"><Upload className="size-3.5" />{t('导入 GLB 预览', 'Import GLB')}<input type="file" accept=".glb" className="sr-only" aria-label={t('导入 GLB 模型', 'Import GLB model')} onChange={selectModel} /></label>
