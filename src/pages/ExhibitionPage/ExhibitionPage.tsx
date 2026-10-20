@@ -40,6 +40,7 @@ import FloatingPanel from '@/components/FloatingPanel';
 import { LiquidSelection } from '@/components/ui/liquid-selection';
 import { LiquidGlass } from '@/components/ui/liquid-glass';
 import DeferredScene from '@/components/DeferredScene';
+import DemoNote from '@/components/DemoNote';
 import MagneticPointer from '@/components/MagneticPointer';
 import SceneFallback from '@/components/SceneFallback';
 import { preloadPage } from '@/lib/page-loaders';
@@ -352,14 +353,15 @@ export default function ExhibitionPage() {
           </a>
           <Link to="/" className="expo-wordmark">
             <strong>耕知 · 耘诊</strong>
-            <small>AGRIDX / SPATIAL EXPLORATION</small>
+            <small>{t('数字园区', 'DIGITAL CAMPUS')}</small>
           </Link>
         </div>
         <div className="expo-title">
-          <span>KNOWLEDGE IN EVERY DIRECTION</span>
-          <h1>{t('农机装备数字展示大厅', 'Agricultural equipment hub')}</h1>
+          <span>{t('知识 · 结构 · 诊断', 'KNOWLEDGE · STRUCTURE · DIAGNOSIS')}</span>
+          <h1>{t('农机知识，在同一片园区', 'One campus for machinery knowledge')}</h1>
         </div>
         <LiquidGlass lens variant="clear" displacementScale={24} className="expo-header-glass" contentClassName="expo-header-tools">
+          <DemoNote />
           <VersionSwitch exhibition />
           <ThemeSwitch />
           <button
@@ -385,7 +387,7 @@ export default function ExhibitionPage() {
         <div className="expo-scene-bar">
           <span>
             <i />
-            {t('原创三维园区 · 四个功能展区', 'ORIGINAL 3D CAMPUS · FOUR FEATURE ZONES')}
+            {t('三维园区 · 四个展区', '3D CAMPUS · FOUR ZONES')}
           </span>
           <button
             ref={catalogTrigger}
@@ -400,7 +402,7 @@ export default function ExhibitionPage() {
             }}
           >
             <Search size={15} />
-            {t('查找设备资料', 'Find machine evidence')}
+            {t('查找资料', 'Find evidence')}
             <kbd>/</kbd>
           </button>
         </div>
@@ -423,7 +425,7 @@ export default function ExhibitionPage() {
           {cinematic && (
             <div className="expo-intro" role="status">
               <p>{t('耕知 · 耘诊', 'GENGZHI · YUNZHEN')}</p>
-              <strong>{t('进入农机数字园区', 'Enter the machinery campus')}</strong>
+              <strong>{t('进入数字园区', 'Enter the campus')}</strong>
               <button type="button" onClick={endCinematic} autoFocus>
                 {t('跳过', 'Skip')}
               </button>
@@ -457,17 +459,17 @@ export default function ExhibitionPage() {
           <aside className="expo-world-guide">
             <div className="expo-guide-eyebrow">
               <Compass size={15} />
-              <span>THE EXPLORATION CAMPUS</span>
+              <span>{t('数字园区', 'THE CAMPUS')}</span>
             </div>
             <h2>
-              {t('把探索，', 'A new dimension.')}
+              {t('把资料，', 'Evidence,')}
               <br />
-              <span>{t('带入三维。', 'A clearer connection.')}</span>
+              <span>{t('放进三维。', 'in three dimensions.')}</span>
             </h2>
             <p>
               {t(
-                '驾驶拖拉机穿行园区，沿不同展区连接结构、知识与诊断。',
-                'Drive through the campus to discover structure, knowledge and diagnosis.',
+                '沿展区看结构、查目录、做诊断。',
+                'Use the zones to see structure, open the catalog, and start a diagnosis.',
               )}
             </p>
             <button type="button" className="expo-start-button magnetic" onClick={startDrive}>

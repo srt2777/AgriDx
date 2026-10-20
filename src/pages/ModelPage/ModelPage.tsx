@@ -4,7 +4,9 @@ import { ArrowRight, Box, Download, ExternalLink, Focus, ImagePlus, Layers3, Upl
 import DeferredScene from '@/components/DeferredScene';
 import SceneLoading from '@/components/SceneLoading';
 import { TRACTOR_COMPONENTS, TRACTOR_MODEL_URL, type TractorComponent } from '@/components/tractor-model-info';
+import { ModelPeek } from '@/components/CardPeek';
 import { useLang } from '@/hooks/useLang';
+import { useUiVersion } from '@/hooks/useUiVersion';
 import { useUpdateBlocker } from '@/features/updates/useUpdateBlocker';
 
 const TractorViewer = lazy(() => import('@/components/TractorViewer'));
@@ -17,6 +19,7 @@ type ReferencePhoto = { angle: string; url: string; name: string; size: number }
 
 export default function ModelPage() {
   const lang = useLang();
+  const version = useUiVersion();
   const t = (zh: string, en: string) => lang === 'zh' ? zh : en;
   const [component, setComponent] = useState<TractorComponent>('all');
   const [focusRequest, setFocusRequest] = useState(0);
@@ -87,9 +90,10 @@ export default function ModelPage() {
 
   return <div className="mx-auto max-w-6xl px-4 pb-16 pt-10 md:px-6 md:pt-16">
     <div className="mb-8 max-w-3xl">
-      <p className="text-xs font-semibold tracking-[.14em] text-primary">{t('耕知·耘诊 / 模型工坊', 'GENGZHI · YUNZHEN / MODEL STUDIO')}</p>
-      <h1 className="mt-3 text-3xl font-semibold tracking-tight text-foreground md:text-4xl">{t('把机械结构，看得更清楚。', 'See the machine structure clearly.')}</h1>
-      <p className="mt-4 text-sm leading-7 text-muted-foreground">{t('观察整机与组件，准备同一实物的多角度参考照片，再核对生成模型。三维展示帮助理解结构，具体维修仍需匹配机型资料。', 'Explore the machine and its components, prepare reference photos, then inspect the resulting model. Use model-specific evidence for maintenance decisions.')}</p>
+      <p className="text-xs font-semibold tracking-[.14em] text-primary">{t('耕知 · 模型工坊', 'GENGZHI · MODEL STUDIO')}</p>
+      <h1 className="mt-3 text-3xl font-semibold tracking-tight text-foreground md:text-4xl">{t('看清结构，再对资料。', 'See the structure, then check the evidence.')}</h1>
+      <p className="mt-4 text-sm leading-7 text-muted-foreground">{t('整机和部件都是示意。维修结论仍要回到对应机型的资料。', 'The machine and its parts are a schematic. Repair decisions still follow model-specific evidence.')}</p>
+      {version === 'new' && <span className="wheat-line mt-5 w-56" aria-hidden="true" />}
     </div>
     <div className="grid gap-5 lg:grid-cols-[1.65fr_1fr]">
       <section className="min-w-0 overflow-hidden rounded-3xl border border-border bg-card">
@@ -108,7 +112,7 @@ export default function ModelPage() {
         <p className="flex items-center gap-2 text-sm font-semibold"><Layers3 className="size-4 text-primary" />{t('从整机到组件', 'From machine to component')}</p>
         <p className="mt-3 text-xs leading-6 text-muted-foreground">{customModel ? t('本地模型的组件名称与尺寸尚未核验，先查看整体结构。', 'Component names and dimensions of the local model are not verified. Inspect its overall geometry first.') : t('选中组件，观察位置关系；展开示意查看被外壳遮挡的结构。模型没有绑定真实故障或实车尺寸。', 'Select a component or expand the schematic to inspect concealed structures. The model is not bound to real faults or measured dimensions.')}</p>
         {!customModel && <p className="mt-3 text-xs leading-6 text-primary">{t('点击模型或热点选择部件，视角会自动聚焦。拖动旋转，滚动缩放。', 'Click the model or a hotspot to select a component and focus the view. Drag to rotate and scroll to zoom.')}</p>}
-        <div className="mt-5 grid grid-cols-2 gap-2">{TRACTOR_COMPONENTS.map(item => <button type="button" key={item.id} disabled={!!customModel && item.id !== 'all'} aria-pressed={component === item.id} onClick={() => { setComponent(item.id); if (item.id !== 'all') setFocusRequest(previous => previous + 1); }} className={`model-part min-w-0 break-words rounded-xl border px-3 py-3 text-left text-xs transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-35 ${component === item.id ? 'is-on border-primary/40 bg-primary/10 text-primary' : 'border-border text-muted-foreground hover:border-primary/30'}`}>{t(item.zh, item.en)}</button>)}</div>
+        <div className="mt-5 grid grid-cols-2 gap-2">{TRACTOR_COMPONENTS.map(item => <button type="button" key={item.id} disabled={!!customModel && item.id !== 'all'} aria-pressed={component === item.id} onClick={() => { setComponent(item.id); if (item.id !== 'all') setFocusRequest(previous => previous + 1); }} className={`model-part min-w-0 break-words rounded-xl border px-3 py-3 text-left text-xs transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-35 ${component === item.id ? 'is-on border-primary/40 bg-primary/10 text-primary' : 'border-border text-muted-foreground hover:border-primary/30'}`}>{t(item.zh, item.en)}{version === 'new' && <ModelPeek id={item.id} caption={t(item.zh, item.en)} />}</button>)}</div>
         <div aria-live="polite" aria-atomic="true" className="mt-4 rounded-xl border border-primary/15 bg-primary/5 p-4">
           <p className="text-xs font-semibold text-foreground">{customModel ? t('本地模型 · 整机', 'Local model · Whole machine') : t(selectedComponent.zh, selectedComponent.en)}</p>
           <p className="mt-2 break-words text-xs leading-6 text-muted-foreground">{customModel ? t('当前导入模型仅支持整机预览。部件分类、热点与聚焦需要先核验模型结构。', 'The imported model supports whole-machine preview. Component selection, hotspots and focus require its structure to be verified first.') : t(selectedComponent.descriptionZh, selectedComponent.descriptionEn)}</p>

@@ -5,6 +5,10 @@ export type HallDeviceStatus = 'online' | 'standby' | 'maintenance' | 'offline';
 
 export const HALL_EXAMPLE_LABEL = '示例数据';
 
+export function exampleDataLabel(lang: 'zh' | 'en'): string {
+  return lang === 'zh' ? HALL_EXAMPLE_LABEL : 'Example data';
+}
+
 export const HALL_ZONES = [
   {
     id: 'A',

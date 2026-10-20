@@ -28,6 +28,8 @@
   padding: 12px 18px 8px;
 }
 
+.hall-kicker { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.hall-kicker p { min-width: 0; }
 .hall-top p,
 .hall-top time {
   margin: 0;

@@ -10,7 +10,7 @@ import { frameEase, MOTION, rateFor } from '@/lib/motion-tokens';
 import { bindContextLoss, probeWebGL } from '@/lib/webgl';
 import {
   HALL_EXAMPLE_DEVICES,
-  HALL_EXAMPLE_LABEL,
+  exampleDataLabel,
   HALL_STATUS_EXAMPLE,
   HALL_ZONES,
   type HallZoneId,
@@ -508,7 +508,7 @@ function ExhibitTip({ id }: { id: string }) {
         <strong>{device.name}</strong>
         <span>{zone.id} · {lang === 'zh' ? zone.zh : zone.en}</span>
         <em className={`is-${device.status}`}>{lang === 'zh' ? status.zh : status.en}</em>
-        <small>{HALL_EXAMPLE_LABEL}</small>
+        <small>{exampleDataLabel(lang === 'zh' ? 'zh' : 'en')}</small>
       </div>
     </Html>
   );

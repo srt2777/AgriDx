@@ -13,6 +13,7 @@ import {
   Wheat,
 } from 'lucide-react';
 import DeferredScene from '@/components/DeferredScene';
+import DemoNote from '@/components/DemoNote';
 import SceneFallback from '@/components/SceneFallback';
 import { useKnowledgeCatalog } from '@/hooks/useKnowledgeCatalog';
 import { useLang } from '@/hooks/useLang';
@@ -21,7 +22,7 @@ import { easeOutCubic, MOTION } from '@/lib/motion-tokens';
 import { probeWebGL, type GraphicsReason } from '@/lib/webgl';
 import {
   HALL_EXAMPLE_DEVICES,
-  HALL_EXAMPLE_LABEL,
+  exampleDataLabel,
   HALL_EXAMPLE_TOTAL,
   HALL_STATUS_EXAMPLE,
   HALL_ZONES,
@@ -194,8 +195,12 @@ export default function HallPage() {
     <div className="hall-page">
       <section className="hall-board" aria-labelledby="hall-title">
         <header className="hall-top">
-          <p>{t('结构示意 · 非实车监测', 'SCHEMATIC · NOT LIVE TELEMETRY')}</p>
+          <div className="hall-kicker">
+            <p>{t('结构示意 · 不是实车监测', 'Schematic · not live monitoring')}</p>
+            <DemoNote />
+          </div>
           <h1 id="hall-title">{t('农机装备数字孪生展示大厅', 'Agricultural equipment digital-twin hall')}</h1>
+          <span className="wheat-line" aria-hidden="true" />
           <time dateTime={stamp}>{stamp}</time>
         </header>
         <div className="hall-body">
@@ -255,14 +260,14 @@ export default function HallPage() {
             <section className="hall-panel" aria-labelledby="hall-status-title">
               <header>
                 <h2 id="hall-status-title">{t('运行状态概览', 'Status overview')}</h2>
-                <span className="hall-example-tag">{HALL_EXAMPLE_LABEL}</span>
+                <span className="hall-example-tag">{exampleDataLabel(lang === 'zh' ? 'zh' : 'en')}</span>
               </header>
               <StatusRing label={t('示例运行状态', 'Example operating status')} reducedMotion={reducedMotion} />
             </section>
             <section className="hall-panel hall-devices" aria-labelledby="hall-device-title">
               <header>
                 <h2 id="hall-device-title">{t('设备列表', 'Equipment list')}</h2>
-                <span className="hall-example-tag">{HALL_EXAMPLE_LABEL}</span>
+                <span className="hall-example-tag">{exampleDataLabel(lang === 'zh' ? 'zh' : 'en')}</span>
               </header>
               <div className="hall-table-wrap">
                 <table>
@@ -313,7 +318,7 @@ export default function HallPage() {
               <h2>{t('展厅概况', 'Hall overview')}</h2>
               <p>
                 {lang === 'zh' ? (
-                  <>资料目录 <span className="hall-stat">{number(catalog?.totals.entries)}</span> 条 · <span className="hall-stat">{number(catalog?.totals.brands)}</span> 个品牌 · <span className="hall-stat">{number(catalog?.totals.models)}</span> 个型号或系列。运行环中的 12 台是示例，不是在线机队。</>
+                  <>目录 <span className="hall-stat">{number(catalog?.totals.entries)}</span> 条 · <span className="hall-stat">{number(catalog?.totals.brands)}</span> 个品牌 · <span className="hall-stat">{number(catalog?.totals.models)}</span> 个型号或系列。环上的 12 台是示例，不是在线机队。</>
                 ) : (
                   <><span className="hall-stat">{number(catalog?.totals.entries)}</span> catalog entries · <span className="hall-stat">{number(catalog?.totals.brands)}</span> brands · <span className="hall-stat">{number(catalog?.totals.models)}</span> models or series. The ring’s 12 units are an example, not a live fleet.</>
                 )}
@@ -322,27 +327,27 @@ export default function HallPage() {
           </article>
           <Link className="hall-card" to="/knowledge" onPointerEnter={() => preloadPage('/knowledge')} onFocus={() => preloadPage('/knowledge')}>
             <span className="hall-card-icon"><Wheat size={16} /></span>
-            <div><h2>{t('四大展区', 'Four zones')}</h2><p>{t('按动力、耕作、收获与智慧农业浏览示意分区。', 'Browse power, tillage, harvest and smart-agriculture stands.')}</p></div>
+            <div><h2>{t('四大展区', 'Four zones')}</h2><p>{t('动力、耕作、收获、智慧农业。', 'Power, tillage, harvest, and smart agriculture.')}</p></div>
           </Link>
           <Link className="hall-card" to="/knowledge" onPointerEnter={() => preloadPage('/knowledge')} onFocus={() => preloadPage('/knowledge')}>
             <span className="hall-card-icon"><Tractor size={16} /></span>
-            <div><h2>{t('在展机具', 'Catalogued machines')}</h2><p>{t(`${number(catalog?.totals.models)} 个型号或系列可从知识目录打开。`, `${number(catalog?.totals.models)} models or series open from the catalog.`)}</p></div>
+            <div><h2>{t('在展机具', 'Machines on show')}</h2><p>{t(`${number(catalog?.totals.models)} 个型号或系列，可从知识目录打开。`, `${number(catalog?.totals.models)} models or series open from the catalog.`)}</p></div>
           </Link>
           <Link className="hall-card" to="/models" onPointerEnter={() => preloadPage('/models')} onFocus={() => preloadPage('/models')}>
             <span className="hall-card-icon"><Boxes size={16} /></span>
-            <div><h2>{t('结构示意', 'Structure')}</h2><p>{t('模型工坊查看部件，不等同于实测外形。', 'Open the studio for components. It is not a measured body.')}</p></div>
+            <div><h2>{t('结构示意', 'Schematic')}</h2><p>{t('到模型工坊看部件。这不是实测外形。', 'Open the studio for parts. This is not a measured body.')}</p></div>
           </Link>
           <Link className="hall-card" to="/chat" onPointerEnter={() => preloadPage('/chat')} onFocus={() => preloadPage('/chat')}>
             <span className="hall-card-icon"><Cpu size={16} /></span>
-            <div><h2>{t('智能诊断', 'Diagnosis')}</h2><p>{t('带着机型与现象进入诊断工作台。', 'Take a model and symptoms to the diagnosis desk.')}</p></div>
+            <div><h2>{t('智能诊断', 'Diagnosis')}</h2><p>{t('带上机型和现象，进入诊断。', 'Bring a model and a symptom to diagnosis.')}</p></div>
           </Link>
           <Link className="hall-card" to="/knowledge" onPointerEnter={() => preloadPage('/knowledge')} onFocus={() => preloadPage('/knowledge')}>
             <span className="hall-card-icon"><BookOpen size={16} /></span>
-            <div><h2>{t('资料目录', 'Evidence')}</h2><p>{t(`${number(catalog?.totals.sources)} 个来源，适用范围仍需核对。`, `${number(catalog?.totals.sources)} sources. Applicability still needs a check.`)}</p></div>
+            <div><h2>{t('资料目录', 'Evidence')}</h2><p>{t(`${number(catalog?.totals.sources)} 个来源。适用范围仍需核对。`, `${number(catalog?.totals.sources)} sources. Scope still needs a check.`)}</p></div>
           </Link>
           <article className="hall-card">
             <span className="hall-card-icon"><Radar size={16} /></span>
-            <div><h2>{t('监测边界', 'Monitoring limit')}</h2><p>{t('未接入传感器、告警或实车孪生数据。', 'No sensors, alarms or physical-twin feed are connected.')}</p></div>
+            <div><h2>{t('监测边界', 'Monitoring limit')}</h2><p>{t('未接传感器，也没有实车数据。', 'No sensors, and no data from a physical machine.')}</p></div>
           </article>
         </div>
       </section>

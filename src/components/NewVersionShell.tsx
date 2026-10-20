@@ -6,6 +6,7 @@ import { Globe } from 'lucide-react';
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useLang, setLang } from '@/hooks/useLang';
 import { useReducedMotion } from 'framer-motion';
+import DemoNote from '@/components/DemoNote';
 import VersionSwitch from '@/components/VersionSwitch';
 import MagneticPointer from '@/components/MagneticPointer';
 import ThemeSwitch from '@/components/ThemeSwitch';
@@ -66,6 +67,7 @@ export function NewVersionShell() {
         </nav>
 
         <div className="new-version-tools">
+          <DemoNote />
           <VersionSwitch exhibition onChange={() => navigate('/')} />
           <ThemeSwitch />
           <button type="button" className="new-version-language" onClick={() => setLang(lang === 'zh' ? 'en' : 'zh')} aria-label={t('切换语言', 'Switch language')}>
@@ -75,8 +77,8 @@ export function NewVersionShell() {
         </div>
       </LiquidGlass></header>
       <div className="new-version-subheader">
-        <span><i aria-hidden="true" />{t('探索装备 · 连接知识 · 辅助诊断', 'EXPLORE EQUIPMENT · CONNECT KNOWLEDGE')}</span>
-        <span className="new-version-route-label">{location.pathname === '/knowledge' ? t('农机知识', 'MACHINE KNOWLEDGE') : location.pathname === '/models' ? t('模型工坊', 'MODEL STUDIO') : location.pathname === '/hall' ? t('数字展厅', 'DIGITAL HALL') : t('智能诊断', 'DIAGNOSIS')}</span>
+        <span><i aria-hidden="true" />{t('探索装备 · 连接知识 · 辅助诊断', 'EXPLORE EQUIPMENT · CONNECT KNOWLEDGE · GUIDE DIAGNOSIS')}</span>
+        <span className="new-version-route-label">{location.pathname === '/knowledge' ? t('知识目录', 'CATALOG') : location.pathname === '/models' ? t('模型工坊', 'MODEL STUDIO') : location.pathname === '/hall' ? t('数字展厅', 'DIGITAL HALL') : t('智能诊断', 'DIAGNOSIS')}</span>
       </div>
       <main id="main-content" className="new-version-main" tabIndex={-1}>
         <Outlet />

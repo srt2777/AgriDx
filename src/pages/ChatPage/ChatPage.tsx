@@ -20,6 +20,7 @@ import { LiquidGlass } from '@/components/ui/liquid-glass';
 import { Link, useLocation } from 'react-router-dom';
 import content, { pick } from '@/data/content';
 import { useLang } from '@/hooks/useLang';
+import { useUiVersion } from '@/hooks/useUiVersion';
 
 import type { AnswerMode, ChatProvider, FallbackReason } from '@shared/chat';
 import { MACHINE_TYPES_ZH, MACHINE_TYPES_EN } from '@/features/chat/session';
@@ -32,6 +33,7 @@ export default function ChatPage() {
   const location = useLocation();
   const handoff: unknown = location.state;
   const lang = useLang();
+  const version = useUiVersion();
   const t = useCallback((zh: string, en: string) => (lang === 'zh' ? zh : en), [lang]);
   const providerLabel = (provider?: ChatProvider) =>
     provider === 'knowledge-base' ? t('本地知识库', 'Local knowledge base') :
@@ -260,13 +262,13 @@ export default function ChatPage() {
               <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-primary/10 text-primary">
                 <Sparkles className="h-7 w-7" />
               </div>
-              <h2 className="font-serif text-xl font-bold text-foreground">{pick(content.CHAT_WELCOME.title, lang)}</h2>
-              <p className="mt-2 max-w-md text-sm text-muted-foreground">{pick(content.CHAT_WELCOME.desc, lang)}</p>
+              <h2 className="font-serif text-xl font-bold text-foreground">{version === 'new' ? t('描述现象，从资料里找起点。', 'Describe the symptom. Start from the evidence.') : pick(content.CHAT_WELCOME.title, lang)}</h2>
+              <p className="mt-2 max-w-md text-sm text-muted-foreground">{version === 'new' ? t('带上机型更好。回答依据是已索引资料，适用范围仍需核对。', 'A model helps. Answers follow indexed evidence, and scope still needs a check.') : pick(content.CHAT_WELCOME.desc, lang)}</p>
 
 
               {/* 快捷提问按钮 */}
               <div className="mt-6 w-full">
-                <div className="mb-3 text-xs font-medium text-wheat">{t('您可以这样问', 'Try asking')}</div>
+                <div className="mb-3 text-xs font-medium text-wheat">{version === 'new' ? t('可以这样问', 'You can ask') : t('您可以这样问', 'Try asking')}</div>
                 <div className="grid gap-2 md:grid-cols-2">
                   {content.CHAT_QUICK_QUESTIONS.map((q) => (
                     <button
