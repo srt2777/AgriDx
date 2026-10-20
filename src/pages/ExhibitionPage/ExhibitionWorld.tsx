@@ -13,6 +13,7 @@ import { useLang } from '@/hooks/useLang';
 import { useTheme } from '@/hooks/useTheme';
 import { frameEase, MOTION, rateFor } from '@/lib/motion-tokens';
 import { bindContextLoss, probeWebGL } from '@/lib/webgl';
+import { campusSky } from './campus-sky';
 
 const CampusGlow = lazy(() => import('@/components/SceneGlow').then((mod) => ({ default: mod.CampusGlow })));
 useGLTF.preload(TRACTOR_MODEL_URL);
@@ -77,12 +78,14 @@ function Block({
   size,
   color = '#182a3e',
   glow,
+  glowStrength = 0.82,
   rotation,
 }: {
   position: [number, number, number];
   size: [number, number, number];
   color?: string;
   glow?: string;
+  glowStrength?: number;
   rotation?: [number, number, number];
 }) {
   // Thin road markings and light strips need only six faces.
@@ -95,7 +98,7 @@ function Block({
           roughness={0.33}
           metalness={0.55}
           emissive={glow ?? '#000000'}
-          emissiveIntensity={glow ? 0.65 : 0}
+          emissiveIntensity={glow ? glowStrength : 0}
         />
       </mesh>
     );
@@ -114,7 +117,7 @@ function Block({
         roughness={0.33}
         metalness={0.55}
         emissive={glow ?? '#000000'}
-        emissiveIntensity={glow ? 0.65 : 0}
+        emissiveIntensity={glow ? glowStrength : 0}
       />
     </RoundedBox>
   );
@@ -301,7 +304,7 @@ function PavilionRoof({ id, color }: { id: ZoneId; color: string }) {
   if (id === 'knowledge') {
     return (
       <group>
-        <Block size={[4.8, 0.1, 2.5]} position={[0, 3.05, 0]} color="#e7eef3" />
+        <Block size={[4.8, 0.1, 2.5]} position={[0, 3.05, 0]} color="#e7eef3" glow={color} glowStrength={0.16} />
         <Block size={[4.9, 0.05, 0.08]} position={[0, 3.12, 1.2]} color={color} glow={color} />
         <Block size={[4.9, 0.05, 0.08]} position={[0, 3.12, -1.2]} color={color} glow={color} />
       </group>
@@ -318,8 +321,8 @@ function PavilionRoof({ id, color }: { id: ZoneId; color: string }) {
   if (id === 'models') {
     return (
       <group>
-        <Block size={[3.8, 0.1, 1.5]} position={[-0.2, 2.55, 0]} rotation={[0.35, 0, 0]} color="#d5e0e4" />
-        <Block size={[3.8, 0.1, 1.5]} position={[-0.2, 2.55, 0]} rotation={[-0.35, 0, 0]} color="#c5d4da" />
+        <Block size={[3.8, 0.1, 1.5]} position={[-0.2, 2.55, 0]} rotation={[0.35, 0, 0]} color="#d5e0e4" glow={color} glowStrength={0.14} />
+        <Block size={[3.8, 0.1, 1.5]} position={[-0.2, 2.55, 0]} rotation={[-0.35, 0, 0]} color="#c5d4da" glow={color} glowStrength={0.14} />
         <Block size={[3.9, 0.05, 0.08]} position={[0, 2.15, 1.05]} color={color} glow={color} />
       </group>
     );
@@ -329,7 +332,7 @@ function PavilionRoof({ id, color }: { id: ZoneId; color: string }) {
       {[-1.15, 1.15].map((x) => (
         <Block key={x} size={[0.16, 2.4, 0.16]} position={[x, 1.5, 1.15]} color="#d5dee6" />
       ))}
-      <Block size={[2.7, 0.12, 0.28]} position={[0, 2.75, 1.15]} color="#eef3f6" />
+      <Block size={[2.7, 0.12, 0.28]} position={[0, 2.75, 1.15]} color="#eef3f6" glow={color} glowStrength={0.18} />
       <Block size={[2.5, 0.04, 0.06]} position={[0, 2.84, 1.15]} color={color} glow={color} />
     </group>
   );
@@ -386,9 +389,9 @@ function Pavilion({
       >
         <mesh position={[0, 0.13, 0]} receiveShadow castShadow>
           <cylinderGeometry args={[2.7, 2.8, 0.25, 64]} />
-          <meshStandardMaterial color={lit ? '#294b60' : '#1a3042'} emissive={color} emissiveIntensity={lit ? 0.35 : 0.08} metalness={0.72} roughness={0.35} />
+          <meshStandardMaterial color={lit ? '#294b60' : '#1a3042'} emissive={color} emissiveIntensity={lit ? 0.48 : 0.22} metalness={0.72} roughness={0.35} />
         </mesh>
-        <Ring position={[0, 0.27, 0]} radius={2.65} color={color} thickness={lit ? 0.045 : 0.018} />
+        <Ring position={[0, 0.27, 0]} radius={2.65} color={color} thickness={lit ? 0.05 : 0.032} />
         <PavilionRoof id={zone.id} color={color} />
         <ZoneSign number={zone.number} color={color} />
         {zone.id === 'knowledge' && <KnowledgeSculpture color={color} />}
@@ -560,31 +563,19 @@ function CampusFloor() {
   );
 }
 
-function campusSky(theme: 'dark' | 'light') {
-  const hour = Number(new Intl.DateTimeFormat('en-US', { timeZone: 'Asia/Shanghai', hour: 'numeric', hourCycle: 'h23' }).format(new Date()));
-  const night = hour < 6 || hour >= 19;
-  const golden = !night && (hour < 9 || hour >= 16);
-  if (theme === 'light') {
-    if (night) return { fog: '#d7e0e8', top: '#b7c8d8', horizon: '#e7eef3', sun: '#f4f7fb', ambient: 1.05 };
-    if (golden) return { fog: '#f3e7d8', top: '#f0d2ae', horizon: '#f8efe4', sun: '#ffd7a8', ambient: 1.12 };
-    return { fog: '#eaf0f5', top: '#c5d7e6', horizon: '#e7eef3', sun: '#fff6ea', ambient: 1.15 };
-  }
-  if (night) return { fog: '#121a22', top: '#1a2740', horizon: '#2a3848', sun: '#d5e2ee', ambient: 0.72 };
-  if (golden) return { fog: '#2c241c', top: '#4a3424', horizon: '#6a4a32', sun: '#ffc48a', ambient: 0.82 };
-  return { fog: '#18232e', top: '#24384a', horizon: '#3a5160', sun: '#fff3db', ambient: 0.85 };
-}
-
-function SkyDome({ top, horizon }: { top: string; horizon: string }) {
+function SkyDome({ top, horizon, glow, glowAmount }: { top: string; horizon: string; glow: string; glowAmount: number }) {
   const material = useMemo(() => new THREE.ShaderMaterial({
     side: THREE.BackSide,
     depthWrite: false,
     uniforms: {
       uTop: { value: new THREE.Color(top) },
       uHorizon: { value: new THREE.Color(horizon) },
+      uGlow: { value: new THREE.Color(glow) },
+      uGlowAmt: { value: glowAmount },
     },
     vertexShader: 'varying vec3 vPos; void main() { vPos = position; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }',
-    fragmentShader: 'varying vec3 vPos; uniform vec3 uTop; uniform vec3 uHorizon; void main() { float h = smoothstep(-18.0, 36.0, vPos.y); gl_FragColor = vec4(mix(uHorizon, uTop, h), 1.0); }',
-  }), [top, horizon]);
+    fragmentShader: 'varying vec3 vPos; uniform vec3 uTop; uniform vec3 uHorizon; uniform vec3 uGlow; uniform float uGlowAmt; void main() { float h = smoothstep(-10.0, 46.0, vPos.y); vec3 sky = mix(uHorizon, uTop, h); float d = vPos.y / 9.0; float band = exp(-d * d); sky = mix(sky, uGlow, band * uGlowAmt); gl_FragColor = vec4(sky, 1.0); }',
+  }), [top, horizon, glow, glowAmount]);
   useEffect(() => () => material.dispose(), [material]);
   return (
     <mesh>
@@ -722,6 +713,7 @@ function WorldScene({
   const announced = useRef(false);
   const { camera, size, invalidate, gl } = useThree();
   const theme = useTheme();
+  const sky = campusSky(theme === 'dark' ? 'dark' : 'light');
   useEffect(() => { invalidate(); }, [theme, invalidate]);
   useEffect(() => {
     cinematicOn.current = cinematic && !reducedMotion;
@@ -911,13 +903,13 @@ function WorldScene({
 
   return (
     <>
-      <SkyDome top={campusSky(theme === 'dark' ? 'dark' : 'light').top} horizon={campusSky(theme === 'dark' ? 'dark' : 'light').horizon} />
-      <fog attach="fog" args={[campusSky(theme === 'dark' ? 'dark' : 'light').fog, 52, 120]} />
-      <ambientLight intensity={campusSky(theme === 'dark' ? 'dark' : 'light').ambient} color="#d6e2eb" />
+      <SkyDome top={sky.top} horizon={sky.horizon} glow={sky.glow} glowAmount={sky.glowAmount} />
+      <fog attach="fog" args={[sky.fog, 52, 120]} />
+      <ambientLight intensity={sky.ambient} color="#d6e2eb" />
       <directionalLight
         position={[-8, 18, 10]}
         intensity={3.2}
-        color={campusSky(theme === 'dark' ? 'dark' : 'light').sun}
+        color={sky.sun}
         castShadow
         shadow-mapSize={size.width < 700 ? [512, 512] : [1024, 1024]}
         shadow-camera-left={-18}

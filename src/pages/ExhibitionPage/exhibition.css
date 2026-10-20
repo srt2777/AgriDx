@@ -298,7 +298,9 @@
   inset: 0;
   z-index: 2;
   pointer-events: none;
-  background: linear-gradient(90deg, color-mix(in srgb, var(--background) 73%, transparent), transparent 28%, transparent 83%, color-mix(in srgb, var(--background) 33%, transparent)),
+  background:
+    radial-gradient(ellipse 78% 68% at 50% 46%, transparent 46%, color-mix(in srgb, var(--background) 58%, transparent) 100%),
+    linear-gradient(90deg, color-mix(in srgb, var(--background) 73%, transparent), transparent 28%, transparent 83%, color-mix(in srgb, var(--background) 33%, transparent)),
     linear-gradient(0deg, color-mix(in srgb, var(--background) 80%, transparent), transparent 22%, transparent 86%, color-mix(in srgb, var(--background) 20%, transparent));
 }
 .expo-world-guide {
@@ -1337,7 +1339,10 @@
     border-radius: 15px;
   }
   .expo-world-vignette {
-    background: linear-gradient(0deg, color-mix(in srgb, var(--background) 80%, transparent), transparent 40%), linear-gradient(180deg, color-mix(in srgb, var(--background) 87%, transparent), transparent 37%);
+    background:
+      radial-gradient(ellipse 86% 72% at 50% 48%, transparent 42%, color-mix(in srgb, var(--background) 62%, transparent) 100%),
+      linear-gradient(0deg, color-mix(in srgb, var(--background) 80%, transparent), transparent 40%),
+      linear-gradient(180deg, color-mix(in srgb, var(--background) 87%, transparent), transparent 37%);
   }
   .expo-world-canvas {
     top: 245px;
