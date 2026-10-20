@@ -127,7 +127,6 @@ function StatusRing({ label, reducedMotion }: { label: string; reducedMotion: bo
       <svg viewBox="0 0 120 120" role="img">
         <title>{`${label} ${HALL_EXAMPLE_TOTAL}`}</title>
         <circle className="hall-ring-track" cx="60" cy="60" r={radius} />
-        <circle className="hall-ring-sweep" cx="60" cy="60" r="52" />
         {HALL_STATUS_EXAMPLE.map((item, index) => {
           const length = Math.max((counts[index] / HALL_EXAMPLE_TOTAL) * circumference - gap, 0);
           const dash = `${length} ${circumference - length}`;
@@ -285,7 +284,6 @@ export default function HallPage() {
                 />
               </div>
             )}
-            <div className="hall-scan" aria-hidden="true" />
             {detail && (
               <aside className="hall-drawer nv-corners" key={selected} aria-labelledby="hall-drawer-title">
                 <header>

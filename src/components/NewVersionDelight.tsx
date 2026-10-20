@@ -3,31 +3,19 @@ import { createPortal } from 'react-dom';
 import { useLocation } from 'react-router-dom';
 import { useLang } from '@/hooks/useLang';
 import {
-  PRESS_SELECTOR,
-  TILT_SELECTOR,
   TOOLTIP_DELAY_MS,
   isTypingTarget,
   openShortcuts,
-  pointerTilt,
   scrollProgress,
   shortcutRows,
   shortcutToggleKey,
-  tiltAllowed,
   tooltipPlacement,
 } from '@/lib/delight';
 import './delight.css';
 
 type TipState = { text: string; rect: DOMRect };
 
-function finePointer(): boolean {
-  return window.matchMedia('(pointer: fine)').matches;
-}
-
-function reducedMotion(): boolean {
-  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-}
-
-/** Cursor tilt, press origin, reading progress, glass tooltips, and the ? shortcut list. */
+/** Reading progress, glass tooltips, and the ? shortcut list. */
 export function NewVersionDelight() {
   const lang = useLang();
   const location = useLocation();
@@ -60,69 +48,6 @@ export function NewVersionDelight() {
       cancelAnimationFrame(frame);
     };
   }, [location.pathname]);
-
-  useEffect(() => {
-    const fineMedia = window.matchMedia('(pointer: fine)');
-    const reduceMedia = window.matchMedia('(prefers-reduced-motion: reduce)');
-    let tilted: HTMLElement | null = null;
-    let frame = 0;
-    let pending: PointerEvent | null = null;
-    const clearTilt = () => {
-      if (!tilted) return;
-      tilted.style.removeProperty('--nv-rx');
-      tilted.style.removeProperty('--nv-ry');
-      tilted.classList.remove('is-tilting');
-      tilted = null;
-    };
-    const apply = () => {
-      frame = 0;
-      const event = pending;
-      pending = null;
-      if (!event || !tiltAllowed({ fine: finePointer(), reduced: reducedMotion() })) {
-        clearTilt();
-        return;
-      }
-      const node = event.target instanceof Element ? event.target.closest<HTMLElement>(TILT_SELECTOR) : null;
-      if (tilted && tilted !== node) clearTilt();
-      if (!node) return;
-      const tilt = pointerTilt(node.getBoundingClientRect(), event.clientX, event.clientY);
-      if (!tilt) {
-        if (tilted === node) clearTilt();
-        return;
-      }
-      tilted = node;
-      node.classList.add('is-tilting');
-      node.style.setProperty('--nv-rx', `${tilt.x}deg`);
-      node.style.setProperty('--nv-ry', `${tilt.y}deg`);
-    };
-    const onMove = (event: PointerEvent) => {
-      if (!tiltAllowed({ fine: finePointer(), reduced: reducedMotion() })) return;
-      pending = event;
-      if (!frame) frame = requestAnimationFrame(apply);
-    };
-    const onPress = (event: PointerEvent) => {
-      const node = event.target instanceof Element ? event.target.closest<HTMLElement>(PRESS_SELECTOR) : null;
-      if (!node) return;
-      const rect = node.getBoundingClientRect();
-      if (rect.width < 1 || rect.height < 1) return;
-      node.style.setProperty('--nv-press-x', `${((event.clientX - rect.left) / rect.width) * 100}%`);
-      node.style.setProperty('--nv-press-y', `${((event.clientY - rect.top) / rect.height) * 100}%`);
-    };
-    fineMedia.addEventListener('change', clearTilt);
-    reduceMedia.addEventListener('change', clearTilt);
-    window.addEventListener('pointermove', onMove, { passive: true });
-    window.addEventListener('pointerdown', onPress, { passive: true });
-    window.addEventListener('blur', clearTilt);
-    return () => {
-      fineMedia.removeEventListener('change', clearTilt);
-      reduceMedia.removeEventListener('change', clearTilt);
-      window.removeEventListener('pointermove', onMove);
-      window.removeEventListener('pointerdown', onPress);
-      window.removeEventListener('blur', clearTilt);
-      cancelAnimationFrame(frame);
-      clearTilt();
-    };
-  }, []);
 
   useEffect(() => {
     let timer = 0;

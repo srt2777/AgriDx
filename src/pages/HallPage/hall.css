@@ -86,7 +86,7 @@ html.theme-dark .hall-page {
   padding: 8px 34px 9px;
   background: linear-gradient(180deg, color-mix(in srgb, var(--hub-primary) 34%, transparent), color-mix(in srgb, var(--hub-card) 82%, #041018));
   clip-path: polygon(16px 0, calc(100% - 16px) 0, 100% 50%, calc(100% - 16px) 100%, 16px 100%, 0 50%);
-  filter: drop-shadow(0 0 12px color-mix(in srgb, var(--hub-primary) 65%, transparent));
+  filter: drop-shadow(0 8px 16px rgb(0 0 0 / 18%));
 }
 
 .hall-top h1 {
@@ -98,7 +98,7 @@ html.theme-dark .hall-page {
   font-size: clamp(18px, 1.7vw, 26px);
   font-weight: 560;
   letter-spacing: 0.08em;
-  text-shadow: 0 0 14px color-mix(in srgb, var(--hub-primary) 70%, transparent);
+  text-shadow: none;
 }
 
 .hall-body {
@@ -228,18 +228,6 @@ html.theme-dark .hall-page {
 .hall-stage-caption span { font-size: 10px; letter-spacing: 0.12em; opacity: 0.75; }
 .hall-stage-caption strong { font-size: 13px; font-weight: 600; }
 
-.hall-scan {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background:
-    repeating-linear-gradient(to bottom, transparent 0 7px, rgb(8 28 48 / 7%) 7px 8px),
-    linear-gradient(to bottom, transparent 0%, rgb(150 220 255 / 0%) 46%, rgb(170 230 255 / 28%) 50%, rgb(150 220 255 / 0%) 54%, transparent 100%);
-  background-size: 100% 100%, 100% 240%;
-  background-repeat: repeat, no-repeat;
-  mix-blend-mode: screen;
-}
-
 .hall-marker {
   display: flex;
   flex-direction: column;
@@ -256,7 +244,7 @@ html.theme-dark .hall-page {
   background: rgb(8 24 40 / 82%);
   color: white;
   letter-spacing: 0.04em;
-  box-shadow: 0 0 12px color-mix(in srgb, var(--zone-color) 55%, transparent);
+  box-shadow: 0 8px 16px rgb(0 0 0 / 22%);
   cursor: pointer;
 }
 
@@ -347,14 +335,6 @@ html.theme-dark .hall-page {
 .hall-ring svg { width: 92px; height: 92px; }
 .hall-ring-track { fill: none; stroke: color-mix(in srgb, var(--hub-border) 80%, transparent); stroke-width: 10; }
 .hall-ring-arc { fill: none; stroke-width: 10; stroke-linecap: butt; transform: rotate(-90deg); transform-origin: 60px 60px; }
-.hall-ring-sweep {
-  fill: none;
-  stroke: var(--hub-primary);
-  stroke-width: 1.25;
-  stroke-dasharray: 16 96;
-  opacity: 0.55;
-  transform-origin: 60px 60px;
-}
 .hall-ring-arc.is-online { stroke: var(--success); }
 .hall-ring-arc.is-standby { stroke: var(--chart-4); }
 .hall-ring-arc.is-maintenance { stroke: var(--warning); }
@@ -466,57 +446,14 @@ a.hall-card:hover,
 
 @media (prefers-reduced-motion: no-preference) {
   .hall-board { animation: hall-rise var(--motion-enter, 520ms) var(--motion-ease-out, cubic-bezier(.16, 1, .3, 1)); }
-  .hall-board::after {
-    content: '';
-    position: absolute;
-    left: 22px;
-    right: 22px;
-    bottom: 7px;
-    height: 1px;
-    pointer-events: none;
-    background: linear-gradient(90deg, transparent, var(--hub-primary), transparent);
-    background-size: 28% 100%;
-    background-repeat: no-repeat;
-    opacity: 0.7;
-    animation: hall-flow 7.5s linear infinite;
-  }
-  .hall-zone,
-  .hall-panel,
-  .hall-card { animation: hall-enter var(--motion-rise, 640ms) var(--motion-ease-out, cubic-bezier(.16, 1, .3, 1)) backwards; }
-  .hall-zone:nth-child(1) { animation-delay: 50ms; }
-  .hall-zone:nth-child(2) { animation-delay: 110ms; }
-  .hall-zone:nth-child(3) { animation-delay: 170ms; }
-  .hall-zone:nth-child(4) { animation-delay: 230ms; }
-  .hall-side .hall-panel:nth-child(1) { animation-delay: 90ms; }
-  .hall-side .hall-panel:nth-child(2) { animation-delay: 170ms; }
-  .hall-cards > :nth-child(1) { animation-delay: 80ms; }
-  .hall-cards > :nth-child(2) { animation-delay: 130ms; }
-  .hall-cards > :nth-child(3) { animation-delay: 180ms; }
-  .hall-cards > :nth-child(4) { animation-delay: 230ms; }
-  .hall-cards > :nth-child(5) { animation-delay: 280ms; }
-  .hall-cards > :nth-child(6) { animation-delay: 330ms; }
-  .hall-cards > :nth-child(7) { animation-delay: 380ms; }
   .hall-zone,
   .hall-card,
-  .hall-marker { transition: border-color var(--motion-color, 180ms) ease, box-shadow var(--motion-hover, 220ms) ease, transform var(--motion-hover, 220ms) var(--motion-ease-standard, cubic-bezier(.2, .8, .2, 1)); }
-  .hall-drawer { animation: hall-drawer-in var(--motion-rise, 640ms) var(--motion-ease-out, cubic-bezier(.16, 1, .3, 1)); }
-  .hall-marker.is-on { animation: hall-marker-pulse 2.4s ease-in-out infinite; }
-  .hall-zone:active,
-  .hall-card:active { transform: scale(0.985); }
-  .hall-scan { animation: hall-scan 6.5s linear infinite; }
-  .hall-ring-sweep { animation: hall-spin 14s linear infinite; }
+  .hall-marker { transition: border-color var(--motion-color, 180ms) ease, background-color var(--motion-color, 180ms) ease; }
+  .hall-drawer { animation: hall-drawer-in var(--motion-enter, 520ms) var(--motion-ease-out, cubic-bezier(.16, 1, .3, 1)); }
 }
 
-@keyframes hall-drawer-in { from { transform: translateX(calc(-100% - 20px)); } to { transform: none; } }
-@keyframes hall-rise { from { opacity: 0.6; transform: translateY(8px); } to { opacity: 1; transform: none; } }
-@keyframes hall-enter { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
-@keyframes hall-marker-pulse {
-  0%, 100% { box-shadow: 0 0 8px color-mix(in srgb, var(--zone-color) 55%, transparent); }
-  50% { box-shadow: 0 0 18px color-mix(in srgb, var(--zone-color) 90%, transparent); }
-}
-@keyframes hall-scan { from { background-position: 0 0, 0 -40%; } to { background-position: 0 0, 0 140%; } }
-@keyframes hall-flow { from { background-position: -30% 0; } to { background-position: 130% 0; } }
-@keyframes hall-spin { to { transform: rotate(360deg); } }
+@keyframes hall-drawer-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes hall-rise { from { opacity: 0; } to { opacity: 1; } }
 
 .hall-stage.is-detail .hall-stage-caption { opacity: 0; }
 
@@ -536,7 +473,7 @@ a.hall-card:hover,
   border-radius: 14px;
   border: 1px solid color-mix(in srgb, var(--hub-primary) 55%, var(--hub-border));
   background: color-mix(in srgb, var(--hub-card) 92%, #041018);
-  box-shadow: 0 0 24px color-mix(in srgb, var(--hub-primary) 28%, transparent);
+  box-shadow: 0 16px 36px rgb(0 0 0 / 18%);
   color: var(--hub-foreground);
 }
 
@@ -602,8 +539,6 @@ a.hall-card:hover,
 @media (max-width: 1180px) {
   .hall-body { grid-template-columns: 200px minmax(0, 1fr) 250px; }
 }
-
-html.theme-light .hall-scan { opacity: 0.4; mix-blend-mode: multiply; }
 
 @media (prefers-reduced-motion: reduce) {
   .hall-drawer { animation: none; }

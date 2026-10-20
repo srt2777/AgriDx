@@ -1,36 +1,37 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import path from 'node:path';
 import { test } from 'node:test';
+import { fileURLToPath } from 'node:url';
 import {
-  PRESS_SELECTOR,
-  TILT_SELECTOR,
   TOOLTIP_DELAY_MS,
   countFrame,
   isTypingTarget,
-  typingElement,
-  pointerTilt,
   scrollProgress,
   shortcutRows,
   shortcutToggleKey,
-  tiltAllowed,
-  tiltAmount,
+  typingElement,
   tooltipPlacement,
 } from '../src/lib/delight';
 
-test('玻璃卡片只在细指针且未减少动态时倾斜，宽面板保持平整', () => {
-  assert.equal(tiltAllowed({ fine: true, reduced: false }), true);
-  assert.equal(tiltAllowed({ fine: false, reduced: false }), false);
-  assert.equal(tiltAllowed({ fine: true, reduced: true }), false);
-  assert.equal(tiltAmount(280), 4.5);
-  assert.equal(tiltAmount(520), 2.5);
-  assert.equal(tiltAmount(900), 0);
-  const tilt = pointerTilt({ left: 0, top: 0, width: 200, height: 100 }, 200, 0);
-  assert.ok(tilt);
-  assert.equal(tilt.y, 4.5);
-  assert.equal(tilt.x, 4.5);
-  assert.equal(pointerTilt({ left: 0, top: 0, width: 800, height: 200 }, 100, 40), null);
-  assert.match(TILT_SELECTOR, /\.hall-card/);
-  assert.match(PRESS_SELECTOR, /\.expo-start-button/);
-  assert.match(PRESS_SELECTOR, /glass-button:not\(\.glass-secondary\)/);
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+
+test('克制后不再保留跟手倾斜、扫描线和磁吸光标', () => {
+  const files = [
+    'src/components/delight.css',
+    'src/components/NewVersionDelight.tsx',
+    'src/new-version-polish.css',
+    'src/pages/HallPage/hall.css',
+    'src/pages/HallPage/HallPage.tsx',
+    'src/components/NewVersionShell.tsx',
+    'src/pages/ExhibitionPage/ExhibitionPage.tsx',
+  ].map((file) => readFileSync(path.join(root, file), 'utf8')).join('\n');
+  assert.equal(files.includes('is-tilting'), false);
+  assert.equal(files.includes('hall-scan'), false);
+  assert.equal(files.includes('pointer-glow'), false);
+  assert.equal(files.includes('MagneticPointer'), false);
+  assert.equal(files.includes('hall-marker-pulse'), false);
+  assert.equal(files.includes('class="magnetic"') || files.includes(' magnetic'), false);
 });
 
 test('阅读进度、数字跳动、提示和问号快捷键', () => {

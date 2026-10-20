@@ -152,47 +152,24 @@
 .new-version-shell .catalog-brand-pills button[aria-pressed='true'],
 .new-version-shell .catalog-model-grid button[aria-pressed='true'] {
   border-color: color-mix(in srgb, var(--hub-primary, var(--primary)) 70%, white);
-  box-shadow: 0 0 16px color-mix(in srgb, var(--hub-primary, var(--primary)) 24%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--hub-primary, var(--primary)) 45%, transparent);
 }
 
 .new-version-shell .catalog-model-grid { margin-top: 18px; }
 .new-version-shell .catalog-model-grid small { color: var(--muted-foreground); font-size: 11px; }
 
 @media (prefers-reduced-motion: no-preference) {
-  .new-version-shell .chat-chip {
-    animation: chat-chip-in var(--motion-enter, 520ms) var(--motion-ease-out, cubic-bezier(.16, 1, .3, 1)) both;
-  }
-  .new-version-shell .chat-chip:nth-child(1) { animation-delay: 40ms; }
-  .new-version-shell .chat-chip:nth-child(2) { animation-delay: 90ms; }
-  .new-version-shell .chat-chip:nth-child(3) { animation-delay: 140ms; }
-  .new-version-shell .chat-chip:nth-child(4) { animation-delay: 190ms; }
-  .new-version-shell .chat-chip:nth-child(5) { animation-delay: 240ms; }
-  .new-version-shell .chat-chip:nth-child(6) { animation-delay: 290ms; }
   .new-version-shell .chat-message.is-thinking::after { animation: nv-shimmer 1.15s linear infinite; }
   .new-version-shell .chat-message.is-answer { animation: answer-shimmer var(--motion-count, 900ms) var(--motion-ease-out, ease) both; }
-  .new-version-shell .chat-evidence-body,
-  .new-version-shell .evidence-entry-body { animation: evidence-expand var(--motion-rise, 640ms) var(--motion-ease-out, cubic-bezier(.16, 1, .3, 1)) both; }
   .new-version-shell .catalog-brand-pills button,
   .new-version-shell .catalog-model-grid button {
-    transition: transform var(--motion-hover, 220ms) var(--motion-ease-standard, cubic-bezier(.2, .8, .2, 1)), border-color var(--motion-color, 180ms) ease;
+    transition: border-color var(--motion-color, 180ms) ease, background-color var(--motion-color, 180ms) ease;
   }
-  .new-version-shell .catalog-brand-pills button:hover,
-  .new-version-shell .catalog-model-grid button:hover { transform: translateY(-2px); }
-}
-
-@keyframes chat-chip-in {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: none; }
 }
 
 @keyframes answer-shimmer {
   from { opacity: 0.45; }
   to { opacity: 1; }
-}
-
-@keyframes evidence-expand {
-  from { opacity: 0; transform: translateY(-8px); }
-  to { opacity: 1; transform: none; }
 }
 
 @media (max-width: 1100px) {
@@ -201,11 +178,8 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .new-version-shell .chat-chip,
   .new-version-shell .chat-message.is-thinking::after,
   .new-version-shell .chat-message.is-answer,
-  .new-version-shell .chat-evidence-body,
-  .new-version-shell .evidence-entry-body,
   .new-version-shell .catalog-brand-pills button,
   .new-version-shell .catalog-model-grid button { animation: none; transition: none; }
 }

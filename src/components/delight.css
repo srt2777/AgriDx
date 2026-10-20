@@ -21,54 +21,12 @@
   opacity: 0.9;
 }
 
-@media (pointer: fine) and (prefers-reduced-motion: no-preference) {
-  [data-ui-version='new'] .hall-card.is-tilting,
-  [data-ui-version='new'] .chat-context.is-tilting,
-  [data-ui-version='new'] .hall-drawer.is-tilting,
-  [data-ui-version='new'] .expo-catalog-sheet.is-tilting,
-  [data-ui-version='new'] .not-found-card.is-tilting {
-    transform: perspective(800px) rotateX(var(--nv-rx, 0deg)) rotateY(var(--nv-ry, 0deg));
-    transition: transform var(--motion-hover, 220ms) var(--motion-ease-out, ease);
-  }
-}
-
-[data-ui-version='new'] .expo-start-button,
-[data-ui-version='new'] .expo-hall-link,
-[data-ui-version='new'] .glass-button:not(.glass-secondary),
-[data-ui-version='new'] .hall-drawer > a {
-  position: relative;
-  isolation: isolate;
-}
-
 @media (prefers-reduced-motion: no-preference) {
-  [data-ui-version='new'] .expo-start-button::after,
-  [data-ui-version='new'] .expo-hall-link::after,
-  [data-ui-version='new'] .glass-button:not(.glass-secondary)::after,
-  [data-ui-version='new'] .hall-drawer > a::after {
-    content: '';
-    position: absolute;
-    z-index: 1;
-    width: 160%;
-    aspect-ratio: 1;
-    left: var(--nv-press-x, 50%);
-    top: var(--nv-press-y, 50%);
-    translate: -50% -50%;
-    border-radius: 50%;
-    background: color-mix(in srgb, white 46%, transparent);
-    opacity: 0;
-    transform: scale(0.2);
-    pointer-events: none;
-  }
-  [data-ui-version='new'] .expo-start-button:active::after,
-  [data-ui-version='new'] .expo-hall-link:active::after,
-  [data-ui-version='new'] .glass-button:not(.glass-secondary):active::after,
-  [data-ui-version='new'] .hall-drawer > a:active::after {
-    opacity: 0.9;
-    transform: scale(1);
-    transition: transform 380ms var(--motion-ease-out, ease), opacity 460ms ease;
-  }
-  [data-ui-version='new'] .expo-start-button:active {
-    transform: translateY(1px);
+  [data-ui-version='new'] .expo-start-button:active,
+  [data-ui-version='new'] .expo-hall-link:active,
+  [data-ui-version='new'] .glass-button:not(.glass-secondary):active,
+  [data-ui-version='new'] .hall-drawer > a:active {
+    opacity: 0.82;
   }
 }
 

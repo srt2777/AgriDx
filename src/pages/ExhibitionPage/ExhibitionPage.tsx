@@ -41,7 +41,6 @@ import { LiquidSelection } from '@/components/ui/liquid-selection';
 import { LiquidGlass } from '@/components/ui/liquid-glass';
 import DeferredScene from '@/components/DeferredScene';
 import DemoNote from '@/components/DemoNote';
-import MagneticPointer from '@/components/MagneticPointer';
 import SceneFallback from '@/components/SceneFallback';
 import { preloadPage } from '@/lib/page-loaders';
 import { probeWebGL, type GraphicsReason } from '@/lib/webgl';
@@ -341,7 +340,6 @@ export default function ExhibitionPage() {
 
   return (
     <div className={`expo-page${landed ? ' is-landed' : ''}`} data-ui-version="new" data-intro={intro ? '' : undefined} data-flight={flight ? '' : undefined}>
-      <MagneticPointer active={!reducedMotion} />
       <a
         className="skip-link"
         href="#expo-main"
@@ -495,7 +493,7 @@ export default function ExhibitionPage() {
                 'Use the zones to see structure, open the catalog, and start a diagnosis.',
               )}
             </p>
-            <button type="button" className="expo-start-button magnetic" onClick={startDrive}>
+            <button type="button" className="expo-start-button" onClick={startDrive}>
               <Navigation size={16} />
               {mode === 'drive' ? t('继续漫游', 'Continue exploring') : t('开始漫游', 'Start exploring')}
               <ArrowUpRight size={16} />
@@ -846,7 +844,7 @@ export default function ExhibitionPage() {
               <ChevronRight size={14} />
             </button>
           ))}
-          <Link className="expo-hall-link magnetic" to="/hall" onPointerEnter={() => preloadPage('/hall')} onFocus={() => preloadPage('/hall')} onClick={(event) => {
+          <Link className="expo-hall-link" to="/hall" onPointerEnter={() => preloadPage('/hall')} onFocus={() => preloadPage('/hall')} onClick={(event) => {
             if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return;
             event.preventDefault();
             beginSharedTransition(sharedTransitionName('pavilion', 'hall'), () => navigate('/hall'), event.currentTarget);
