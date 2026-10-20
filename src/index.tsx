@@ -11,6 +11,7 @@ import './liquid-glass.css';
 import './motion.css';
 import './new-version-polish.css';
 import './wheat-motif.css';
+import './premium-workspace.css';
 import './material-you.css';
 
 // 使用 HashRouter：路由挂在 URL 的 # 之后（如 /#/chat），
