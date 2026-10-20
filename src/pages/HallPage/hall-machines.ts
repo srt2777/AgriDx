@@ -22,14 +22,14 @@ export const EXHIBITS: readonly {
   scale: number;
   accent?: string;
 }[] = [
-  { id: 'a1', kind: 'rig', position: [-6.55, 0, -3.9], rotation: 0.5, scale: 1.08, accent: '#d94a3a' },
-  { id: 'a2', kind: 'rig', position: [-4.05, 0, -2.2], rotation: -0.72, scale: 0.92, accent: '#2f7d46' },
-  { id: 'b2', kind: 'rig', position: [4.05, 0, -3.75], rotation: 2.4, scale: 1, accent: '#e07a2f' },
-  { id: 'b3', kind: 'seeder', position: [6.55, 0, -2.15], rotation: 2.05, scale: 1 },
-  { id: 'c3', kind: 'harvester', position: [-6.55, 0, 3.95], rotation: 0.42, scale: 1 },
-  { id: 'c1', kind: 'combine', position: [-3.95, 0, 2.4], rotation: -0.5, scale: 1 },
-  { id: 'd1', kind: 'drone', position: [4.35, 0, 2.55], rotation: 0.3, scale: 1 },
-  { id: 'd3', kind: 'rover', position: [6.6, 0, 4.05], rotation: 2.55, scale: 1 },
+  { id: 'a1', kind: 'rig', position: [-6.55, 0, -3.9], rotation: 0.5, scale: 1.28, accent: '#d94a3a' },
+  { id: 'a2', kind: 'rig', position: [-4.05, 0, -2.2], rotation: -0.72, scale: 1.1, accent: '#2f7d46' },
+  { id: 'b2', kind: 'rig', position: [4.05, 0, -3.75], rotation: 2.4, scale: 1.18, accent: '#e07a2f' },
+  { id: 'b3', kind: 'seeder', position: [6.55, 0, -2.15], rotation: 2.05, scale: 1.18 },
+  { id: 'c3', kind: 'harvester', position: [-6.55, 0, 3.95], rotation: 0.42, scale: 1.18 },
+  { id: 'c1', kind: 'combine', position: [-3.95, 0, 2.4], rotation: -0.5, scale: 1.18 },
+  { id: 'd1', kind: 'drone', position: [4.35, 0, 2.55], rotation: 0.3, scale: 1.22 },
+  { id: 'd3', kind: 'rover', position: [6.6, 0, 4.05], rotation: 2.55, scale: 1.18 },
 ];
 
 /** Parts a still frame must show. Motion is separate and optional. */

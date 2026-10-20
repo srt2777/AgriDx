@@ -490,9 +490,9 @@ function CampusFloor() {
           mixBlur={small ? 0 : 0.75}
           mixStrength={1.3}
           mirror={0.3}
-          color={dark ? '#293c4b' : '#b5c9d7'}
-          roughness={0.65}
-          metalness={0.7}
+          color={dark ? '#1b2e3c' : '#c5d5e0'}
+          roughness={dark ? 0.4 : 0.55}
+          metalness={0.74}
           depthScale={0.4}
           minDepthThreshold={0.4}
           maxDepthThreshold={1.4}
