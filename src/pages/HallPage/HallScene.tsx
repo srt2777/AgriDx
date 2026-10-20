@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
+import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 import { ContactShadows, Html, RoundedBox } from '@react-three/drei';
 import { Bloom, EffectComposer, Vignette } from '@react-three/postprocessing';
 import { ErrorBoundary } from 'react-error-boundary';
@@ -131,11 +132,29 @@ function FocusCamera({ selected, reducedMotion }: { selected: HallZoneId; reduce
   return null;
 }
 
+function HallEnvironment() {
+  const { gl, scene } = useThree();
+  useEffect(() => {
+    const generator = new THREE.PMREMGenerator(gl);
+    const room = new RoomEnvironment();
+    const target = generator.fromScene(room, 0.04);
+    scene.environment = target.texture;
+    scene.environmentIntensity = 0.62;
+    return () => {
+      scene.environment = null;
+      target.dispose();
+      room.dispose();
+      generator.dispose();
+    };
+  }, [gl, scene]);
+  return null;
+}
+
 function GlassWall({ position, size }: { position: [number, number, number]; size: [number, number, number] }) {
   return (
     <mesh position={position}>
       <boxGeometry args={size} />
-      <meshStandardMaterial color="#c5e6f8" transparent opacity={0.2} roughness={0.04} metalness={0.12} depthWrite={false} />
+      <meshStandardMaterial color="#d5eaf6" transparent opacity={0.32} roughness={0.06} metalness={0.62} envMapIntensity={1.4} depthWrite={false} />
     </mesh>
   );
 }
@@ -226,6 +245,7 @@ function Metal({ color, glow = 0, metal = 0.45, rough = 0.32 }: { color: string;
       color={color}
       metalness={metal}
       roughness={rough}
+      envMapIntensity={1.15}
       emissive={glow > 0 ? color : '#000000'}
       emissiveIntensity={glow}
       toneMapped={glow < 0.9}
@@ -466,6 +486,7 @@ function HallWorld({ selected, hovered, reducedMotion, onSelect, onHover }: Hall
   useEffect(() => { invalidate(); }, [selected, hovered, tip, invalidate]);
   return (
     <>
+      <HallEnvironment />
       <color attach="background" args={['#c5ddf0']} />
       <fog attach="fog" args={['#c5ddf0', 26, 52]} />
       <hemisphereLight args={['#f5fbff', '#7fa4be', 0.72]} />
@@ -503,7 +524,7 @@ function HallWorld({ selected, hovered, reducedMotion, onSelect, onHover }: Hall
       </mesh>
       <mesh position={[0, 4.22, 0.1]}>
         <boxGeometry args={[23.2, 0.05, 15.6]} />
-        <meshStandardMaterial color="#e7f3fb" transparent opacity={0.28} roughness={0.08} metalness={0.04} />
+        <meshStandardMaterial color="#e7f3fb" transparent opacity={0.34} roughness={0.12} metalness={0.28} envMapIntensity={0.9} />
       </mesh>
       {[-8.2, -2.7, 2.7, 8.2].map((x) => (
         <mesh key={`beam-${x}`} position={[x, 4.08, 0.1]}>
@@ -520,7 +541,7 @@ function HallWorld({ selected, hovered, reducedMotion, onSelect, onHover }: Hall
       {[[-10.9, -6.9], [10.9, -6.9], [-10.9, 7.05], [10.9, 7.05]].map(([x, z]) => (
         <mesh key={`post-${x}-${z}`} position={[x, 2.1, z]} castShadow>
           <boxGeometry args={[0.18, 4.2, 0.18]} />
-          <meshStandardMaterial color="#e7f1f8" metalness={0.55} roughness={0.22} />
+          <meshStandardMaterial color="#e7f1f8" metalness={0.72} roughness={0.18} envMapIntensity={1.35} />
         </mesh>
       ))}
       {HALL_ZONES.map((item) => (

@@ -40,6 +40,7 @@ import FloatingPanel from '@/components/FloatingPanel';
 import { LiquidSelection } from '@/components/ui/liquid-selection';
 import { LiquidGlass } from '@/components/ui/liquid-glass';
 import DeferredScene from '@/components/DeferredScene';
+import MagneticPointer from '@/components/MagneticPointer';
 import { preloadPage } from '@/lib/page-loaders';
 import { useLang, setLang } from '@/hooks/useLang';
 import { setUiVersion } from '@/hooks/useUiVersion';
@@ -99,6 +100,29 @@ export default function ExhibitionPage() {
   const t = (zh: string, en: string) => (lang === 'zh' ? zh : en);
   const navigate = useNavigate();
   const reducedMotion = !!useReducedMotion();
+  const stage = useRef<HTMLElement>(null);
+  const [cinematic, setCinematic] = useState(() => {
+    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return false;
+    try { return sessionStorage.getItem('agridx-campus-intro') !== '1'; } catch { return false; }
+  });
+  const endCinematic = useCallback(() => {
+    const skipFocused = document.activeElement instanceof HTMLElement && !!document.activeElement.closest('.expo-intro');
+    try { sessionStorage.setItem('agridx-campus-intro', '1'); } catch { /* private mode keeps the intro for this load only */ }
+    setCinematic(false);
+    if (skipFocused) stage.current?.focus({ preventScroll: true });
+  }, []);
+  useEffect(() => {
+    if (!cinematic) return;
+    const onKey = (event: globalThis.KeyboardEvent) => {
+      if (event.key === 'Escape') endCinematic();
+    };
+    const timer = window.setTimeout(endCinematic, 4200);
+    window.addEventListener('keydown', onKey);
+    return () => {
+      window.clearTimeout(timer);
+      window.removeEventListener('keydown', onKey);
+    };
+  }, [cinematic, endCinematic]);
   const { catalog, loading, failed, retry } = useKnowledgeCatalog();
   const [mode, setMode] = useState<WorldMode>('overview');
   const [selected, setSelected] = useState<ZoneId | null>(null);
@@ -110,7 +134,6 @@ export default function ExhibitionPage() {
   const [catalogOpen, setCatalogOpen] = useState(false);
   const [search, setSearch] = useState('');
   const [notice, setNotice] = useState('');
-  const stage = useRef<HTMLElement>(null);
   const [input] = useState<WorldInput>(() => ({ actions: new Map() }));
   const searchInput = useRef<HTMLInputElement>(null);
   const catalogTrigger = useRef<HTMLButtonElement>(null);
@@ -287,6 +310,7 @@ export default function ExhibitionPage() {
 
   return (
     <div className="expo-page" data-ui-version="new">
+      <MagneticPointer active={!reducedMotion} />
       <a
         className="skip-link"
         href="#expo-main"
@@ -384,6 +408,15 @@ export default function ExhibitionPage() {
           data-tractor-x={position.x.toFixed(2)}
           data-tractor-z={position.z.toFixed(2)}
         >
+          {cinematic && (
+            <div className="expo-intro" role="status">
+              <p>{t('耕知 · 耘诊', 'GENGZHI · YUNZHEN')}</p>
+              <strong>{t('进入农机数字园区', 'Enter the machinery campus')}</strong>
+              <button type="button" onClick={endCinematic} autoFocus>
+                {t('跳过', 'Skip')}
+              </button>
+            </div>
+          )}
           <div className="expo-world-canvas">
             <DeferredScene
               priority={mode === 'drive' || focus !== null || destination !== null || reset > 0}
@@ -401,6 +434,8 @@ export default function ExhibitionPage() {
                 reset={reset}
                 input={input}
                 reducedMotion={reducedMotion}
+                cinematic={cinematic}
+                onCinematicEnd={endCinematic}
                 onSelect={selectZone}
                 onPosition={setPosition}
                 onNearby={onNearby}
@@ -424,7 +459,7 @@ export default function ExhibitionPage() {
                 'Drive through the campus to discover structure, knowledge and diagnosis.',
               )}
             </p>
-            <button type="button" className="expo-start-button" onClick={startDrive}>
+            <button type="button" className="expo-start-button magnetic" onClick={startDrive}>
               <Navigation size={16} />
               {mode === 'drive' ? t('继续漫游', 'Continue exploring') : t('开始漫游', 'Start exploring')}
               <ArrowUpRight size={16} />
@@ -774,7 +809,7 @@ export default function ExhibitionPage() {
               <ChevronRight size={14} />
             </button>
           ))}
-          <Link className="expo-hall-link" to="/hall" onPointerEnter={() => preloadPage('/hall')} onFocus={() => preloadPage('/hall')}>
+          <Link className="expo-hall-link magnetic" to="/hall" onPointerEnter={() => preloadPage('/hall')} onFocus={() => preloadPage('/hall')}>
             {t('数字展厅', 'Digital hall')}
             <ChevronRight size={14} />
           </Link>

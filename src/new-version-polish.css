@@ -165,7 +165,23 @@
   100% { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--primary) 55%, transparent); }
 }
 
+.pointer-glow {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 12;
+  width: 168px;
+  height: 168px;
+  margin: -84px 0 0 -84px;
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(circle, color-mix(in srgb, var(--primary) 28%, transparent) 0%, transparent 68%);
+  transition: opacity 180ms linear;
+}
+
 @media (prefers-reduced-motion: reduce) {
+  .pointer-glow { display: none; }
   .new-version-header::after,
   .expo-world-stage,
   .new-version-shell .rounded-3xl,

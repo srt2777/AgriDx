@@ -1,4 +1,4 @@
-import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Suspense, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { Html, MeshReflectorMaterial, OrbitControls, RoundedBox } from '@react-three/drei';
 import { Bloom, EffectComposer, Vignette } from '@react-three/postprocessing';
@@ -35,6 +35,8 @@ interface WorldProps {
   reset: number;
   input: WorldInput;
   reducedMotion: boolean;
+  cinematic: boolean;
+  onCinematicEnd: () => void;
   onSelect: (id: ZoneId) => void;
   onPosition: (state: DriveState) => void;
   onNearby: (id: ZoneId | null) => void;
@@ -317,6 +319,67 @@ function Pavilion({
   );
 }
 
+const SWEEP_VERTEX = `
+  varying vec2 vUv;
+  void main() {
+    vUv = uv;
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+  }
+`;
+const SWEEP_FRAGMENT = `
+  uniform float uTime;
+  uniform vec3 uColor;
+  varying vec2 vUv;
+  void main() {
+    vec2 grid = abs(fract(vUv * vec2(26.0, 20.0)) - 0.5);
+    float line = min(grid.x, grid.y);
+    float gridLine = smoothstep(0.045, 0.0, line);
+    float sweep = uTime < 0.0 ? 0.0 : smoothstep(0.12, 0.0, abs(vUv.y - uTime));
+    float alpha = gridLine * 0.16 + sweep * gridLine * 0.9;
+    if (alpha < 0.02) discard;
+    gl_FragColor = vec4(uColor, alpha);
+  }
+`;
+
+/** One grid sweep across the plaza, then the material stays put. */
+function GroundSweep({ play, reducedMotion }: { play: boolean; reducedMotion: boolean }) {
+  const { invalidate, size } = useThree();
+  const dark = useTheme() === 'dark';
+  const done = useRef(!(play && !reducedMotion));
+  const started = useRef<number | null>(null);
+  const material = useMemo(() => new THREE.ShaderMaterial({
+    transparent: true,
+    depthWrite: false,
+    toneMapped: false,
+    uniforms: {
+      uTime: { value: -1 },
+      uColor: { value: new THREE.Color(dark ? '#b7e4ff' : '#1d5f86') },
+    },
+    vertexShader: SWEEP_VERTEX,
+    fragmentShader: SWEEP_FRAGMENT,
+  }), [dark]);
+  useEffect(() => () => material.dispose(), [material]);
+  useFrame((state) => {
+    if (done.current || size.width < 720) return;
+    if (started.current === null) started.current = state.clock.elapsedTime;
+    const next = -0.15 + ((state.clock.elapsedTime - started.current) / 3.2) * 1.3;
+    if (next >= 1.15) {
+      material.uniforms.uTime.value = -1;
+      done.current = true;
+      return;
+    }
+    material.uniforms.uTime.value = next;
+    invalidate();
+  });
+  if (size.width < 720) return null;
+  return (
+    <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.028, 0]} renderOrder={2}>
+      <planeGeometry args={[27.4, 22.6]} />
+      <primitive object={material} attach="material" />
+    </mesh>
+  );
+}
+
 function CampusFloor() {
   const dark = useTheme() === 'dark';
   const small = useThree((state) => state.size.width < 700);
@@ -408,6 +471,8 @@ function WorldScene({
   reset,
   input,
   reducedMotion,
+  cinematic,
+  onCinematicEnd,
   onSelect,
   onPosition,
   onNearby,
@@ -421,6 +486,9 @@ function WorldScene({
   const telemetryTime = useRef(0);
   const lastPublished = useRef(initialDriveState());
   const settling = useRef(true);
+  const cinematicOn = useRef(cinematic);
+  const cinematicPlaced = useRef(false);
+  const cinematicEnded = useRef(!cinematic);
   const steered = useRef(false);
   const userOrbit = useRef(false);
   const parallax = useRef(new THREE.Vector2());
@@ -430,6 +498,21 @@ function WorldScene({
   const { camera, size, invalidate, gl } = useThree();
   const theme = useTheme();
   useEffect(() => { invalidate(); }, [theme, invalidate]);
+  useEffect(() => {
+    cinematicOn.current = cinematic && !reducedMotion;
+    if (!cinematicOn.current) return;
+    settling.current = true;
+    invalidate();
+  }, [cinematic, reducedMotion, invalidate]);
+  useLayoutEffect(() => {
+    if (!cinematicOn.current || cinematicPlaced.current || size.width < 2) return;
+    cinematicPlaced.current = true;
+    const aspect = size.width / Math.max(size.height, 1);
+    const scale = Math.max(1, 1.25 / aspect) * (size.width < 720 ? 1.28 : 1.55);
+    camera.position.set(23 * scale, 25 * scale, 29 * scale);
+    settling.current = true;
+    invalidate();
+  }, [camera, invalidate, size.width, size.height]);
 
   useEffect(() => {
     input.wake = invalidate;
@@ -550,7 +633,7 @@ function WorldScene({
           viewTarget.x += parallax.current.x * 0.28;
         }
       }
-      const ease = reducedMotion ? 1 : 1 - Math.exp(-5 * Math.min(elapsed, 0.2));
+      const ease = reducedMotion ? 1 : 1 - Math.exp((cinematicOn.current ? -1.45 : -5) * Math.min(elapsed, 0.2));
       camera.position.lerp(viewPosition, ease);
       orbit.current?.target.lerp(viewTarget, ease);
       orbit.current?.update();
@@ -559,7 +642,14 @@ function WorldScene({
         (orbit.current?.target.distanceToSquared(viewTarget) ?? 0) > 0.0008;
       const parallaxMoving = mode === 'overview' && !focus && parallax.current.distanceToSquared(parallaxGoal.current) > 0.0004;
       if (cameraMoving || moving || parallaxMoving) invalidate();
-      else settling.current = false;
+      else {
+        settling.current = false;
+        if (cinematicOn.current && !cinematicEnded.current) {
+          cinematicEnded.current = true;
+          cinematicOn.current = false;
+          onCinematicEnd();
+        }
+      }
     }
     if (moving) invalidate();
   });
@@ -585,6 +675,7 @@ function WorldScene({
       <directionalLight position={[8, 6, -12]} intensity={1.8} color="#80caff" />
       <LocalEnvironment />
       <CampusFloor />
+      <GroundSweep play={cinematic} reducedMotion={reducedMotion} />
       {WORLD_ZONES.map((zone) => (
         <Pavilion key={zone.id} zone={zone} selected={selected === zone.id} onSelect={onSelect} />
       ))}

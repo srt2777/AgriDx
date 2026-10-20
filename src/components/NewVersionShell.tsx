@@ -5,7 +5,9 @@ import { publicAsset } from '@/lib/public-asset';
 import { Globe } from 'lucide-react';
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useLang, setLang } from '@/hooks/useLang';
+import { useReducedMotion } from 'framer-motion';
 import VersionSwitch from '@/components/VersionSwitch';
+import MagneticPointer from '@/components/MagneticPointer';
 import ThemeSwitch from '@/components/ThemeSwitch';
 import './new-version-shell.css';
 
@@ -29,11 +31,13 @@ export function NewVersionShell() {
   const lang = useLang();
   const location = useLocation();
   const navigate = useNavigate();
+  const reducedMotion = !!useReducedMotion();
   const navItems = lang === 'zh' ? NAV_ZH : NAV_EN;
   const t = (zh: string, en: string) => lang === 'zh' ? zh : en;
 
   return (
     <div className="new-version-shell" data-ui-version="new" data-route={location.pathname}>
+      <MagneticPointer active={!reducedMotion} />
       <a className="new-version-skip-link" href="#main-content">{t('跳到主要内容', 'Skip to content')}</a>
       <header className="new-version-header"><LiquidGlass lens className="new-version-header-glass" contentClassName="new-version-header-content">
         <div className="new-version-brand">
@@ -54,7 +58,7 @@ export function NewVersionShell() {
               end={item.path === '/'}
               onPointerEnter={() => preloadPage(item.path, 'new')}
               onFocus={() => preloadPage(item.path, 'new')}
-              className={({ isActive }) => `new-version-nav-item${isActive ? ' is-active' : ''}`}
+              className={({ isActive }) => `new-version-nav-item magnetic${isActive ? ' is-active' : ''}`}
             >
               {({ isActive }) => <>{isActive && <LiquidSelection className="new-version-nav-indicator" layoutId="new-shell-navigation" />}<span className="new-version-nav-label">{item.label}</span></>}
             </NavLink>
