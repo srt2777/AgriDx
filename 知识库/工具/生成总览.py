@@ -60,7 +60,8 @@ def generate(date, visuals):
     assert len(source_map) == len(sources)
     assert len({e['entry_id'] for e in entries}) == len(entries)
     assert all(e['source_id'] in source_map for e in entries)
-    by_brand = Counter(e['brand'] for e in entries)
+    source_brand = {s['source_id']: s['brand'] for s in sources}
+    by_brand = Counter(source_brand[e['source_id']] for e in entries)
     source_brands = Counter(s['brand'] for s in sources)
     by_type = Counter(e['entry_type'] for e in entries)
     purposes = Counter(content_group(s) for s in sources)
@@ -152,7 +153,7 @@ def generate(date, visuals):
 
 {table(['索引原始品牌／发布方标签', '来源数', '条目数'], brand_rows)}
 
-这是{len(by_brand)}个原始标签，包含雷沃／雷沃欧豹／雷沃阿波斯以及导航系统发布方，不表述为同样数量的独立拖拉机品牌，不修改来源原字段。
+这是{len(by_brand)}个统一主品牌／发布方标签（3.5.10起雷沃欧豹、雷沃阿波斯归入雷沃并以`sub_brand`保留子品牌，千寻位置/千耘以`product_line`保留产品线），包含导航系统发布方，不表述为同样数量的独立拖拉机品牌。
 
 ## 人与AI如何读同一份资料
 

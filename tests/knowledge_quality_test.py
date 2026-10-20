@@ -31,7 +31,7 @@ class QualityTests(unittest.TestCase):
             raw = self.root / f'知识库/原始农机说明书/{number}.html'
             raw.parent.mkdir(parents=True, exist_ok=True)
             raw.write_text('test manual ' + str(number), encoding='utf8')
-            source = {'source_id': sid, 'brand': '测试品牌', 'model': 'M1', 'models': ['M1'],
+            source = {'source_id': sid, 'brand': '测试品牌', 'model': 'M1', 'models': ['M1'], 'title': '合成资料手册',
                       'path': raw.relative_to(self.root).as_posix(), 'url': 'https://example.invalid/manual',
                       'version': 'fixture-v1', 'scope_boundary': '仅测试M1', 'sha256': validator.digest(raw),
                       'bytes': raw.stat().st_size, 'source_level': '合成测试资料'}
@@ -156,6 +156,25 @@ class QualityTests(unittest.TestCase):
         self.write()
         self.card(0, '- 证据：SRC-TEST-00')
         self.assertIn('entry.evidence', self.rules(self.scan()))
+
+    def test_source_title_brand_and_model_ids(self):
+        cases = [({'title': None}, 'source.title'),
+                 ({'title': '合成资料手册', 'title_status': '已核对'}, 'source.title'),
+                 ({'brand': '雷沃欧豹'}, 'source.brand'),
+                 ({'model_ids': ['M1', 'M1']}, 'source.model_ids')]
+        for change, rule in cases:
+            with self.subTest(rule=rule, change=change):
+                original = dict(self.sources[0])
+                self.sources[0].update(change)
+                if self.sources[0].get('title') is None:
+                    self.sources[0].pop('title')
+                self.write()
+                self.assertIn(rule, self.rules(self.scan()))
+                self.sources[0] = original
+        self.sources[0].pop('title')
+        self.sources[0]['title_status'] = '待核实'
+        self.write()
+        self.assertNotIn('source.title', self.rules(self.scan()))
 
     def test_source_hash_bytes_url_and_duplicate_models(self):
         for field, value, rule in [('sha256', '0' * 64, 'source.file'),
