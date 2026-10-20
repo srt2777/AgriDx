@@ -89,9 +89,13 @@
 | 模型工坊 | `/models` | `pavilion-models` |
 | 研究依据 | 切回旧版首页研究章节 | 无 |
 
-每次浏览器会话可以播放一次可跳过的镜头下落。跳过记在 `sessionStorage` 的 `agridx-campus-intro`。减少动态不播放片头。
+第一次打开新版时，前约 4.8 秒只留一件事：镜头从高处落下，画面中央的标题在 1.4 秒内揭开，麦穗线跟着画出。导览、查找资料和坐标先让开。页眉标题在大约 3 秒时接上。时间到了，「开始漫游」和四个展区再进来。跳过或 Esc 会立刻结束，并记在 `sessionStorage` 的 `agridx-campus-intro`。同一会话不再重播。减少动态不播放这段。时长写在 `intro-timing.ts`。
 
 WebGL 不可用或上下文中断时，画面换成静态平面示意，展亭按钮仍然可点，三维分包不再下载。
+
+![新版园区开场](2026-10-21-new-version-ui/campus-intro-r15-dark.png)
+
+![开场结束后的园区](2026-10-21-new-version-ui/campus-landed-r15-dark.png)
 
 ![深色园区](2026-10-21-new-version-ui/campus-round9-dark.png)
 

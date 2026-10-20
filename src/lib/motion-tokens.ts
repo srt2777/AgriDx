@@ -7,7 +7,7 @@ export const MOTION = {
     enter: 520,
     rise: 640,
     count: 900,
-    cinematic: 2100,
+    cinematic: 2800,
     parallax: 940,
   },
   ease: {

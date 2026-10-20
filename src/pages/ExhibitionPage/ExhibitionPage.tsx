@@ -51,6 +51,7 @@ import { useKnowledgeCatalog } from '@/hooks/useKnowledgeCatalog';
 import { CommandButton } from '@/components/CommandPalette';
 import { SiteStatusBar } from '@/components/SiteStatusBar';
 import { beginSharedTransition, sharedTransitionName } from '@/lib/shared-transition';
+import { campusIntroPlan } from './intro-timing';
 import {
   initialDriveState,
   KEY_ACTIONS,
@@ -107,28 +108,34 @@ export default function ExhibitionPage() {
   const navigate = useNavigate();
   const reducedMotion = !!useReducedMotion();
   const stage = useRef<HTMLElement>(null);
-  const [cinematic, setCinematic] = useState(() => {
-    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return false;
+  const [flight, setFlight] = useState(() => {
+    const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
+    if (!campusIntroPlan(reduced).play) return false;
     try { return sessionStorage.getItem('agridx-campus-intro') !== '1'; } catch { return false; }
   });
-  const endCinematic = useCallback(() => {
-    const skipFocused = document.activeElement instanceof HTMLElement && !!document.activeElement.closest('.expo-intro');
+  const [intro, setIntro] = useState(flight);
+  const [landed, setLanded] = useState(false);
+  const endFlight = useCallback(() => setFlight(false), []);
+  const endIntro = useCallback(() => {
+    const skipFocused = document.activeElement instanceof HTMLElement && !!document.activeElement.closest('.expo-hero, .expo-intro-skip');
     try { sessionStorage.setItem('agridx-campus-intro', '1'); } catch { /* private mode keeps the intro for this load only */ }
-    setCinematic(false);
+    setFlight(false);
+    setIntro(false);
+    setLanded(true);
     if (skipFocused) stage.current?.focus({ preventScroll: true });
   }, []);
   useEffect(() => {
-    if (!cinematic) return;
+    if (!intro) return;
     const onKey = (event: globalThis.KeyboardEvent) => {
-      if (event.key === 'Escape') endCinematic();
+      if (event.key === 'Escape') endIntro();
     };
-    const timer = window.setTimeout(endCinematic, 4200);
+    const timer = window.setTimeout(endIntro, campusIntroPlan(false).holdMs);
     window.addEventListener('keydown', onKey);
     return () => {
       window.clearTimeout(timer);
       window.removeEventListener('keydown', onKey);
     };
-  }, [cinematic, endCinematic]);
+  }, [intro, endIntro]);
   const [graphics, setGraphics] = useState<GraphicsReason | 'live'>(() => (probeWebGL() ? 'loading' : 'unsupported'));
   const [coarse, setCoarse] = useState(() => window.matchMedia?.('(pointer: coarse)').matches ?? false);
   const onLive = useCallback(() => setGraphics('live'), []);
@@ -332,7 +339,7 @@ export default function ExhibitionPage() {
   );
 
   return (
-    <div className="expo-page" data-ui-version="new">
+    <div className={`expo-page${landed ? ' is-landed' : ''}`} data-ui-version="new" data-intro={intro ? '' : undefined} data-flight={flight ? '' : undefined}>
       <MagneticPointer active={!reducedMotion} />
       <a
         className="skip-link"
@@ -433,14 +440,17 @@ export default function ExhibitionPage() {
           data-tractor-x={position.x.toFixed(2)}
           data-tractor-z={position.z.toFixed(2)}
         >
-          {cinematic && (
-            <div className="expo-intro" role="status">
-              <p>{t('耕知 · 耘诊', 'GENGZHI · YUNZHEN')}</p>
-              <strong>{t('进入数字园区', 'Enter the campus')}</strong>
-              <button type="button" onClick={endCinematic} autoFocus>
-                {t('跳过', 'Skip')}
-              </button>
+          {intro && (
+            <div className="expo-hero" aria-hidden="true">
+              <p>{t('知识 · 结构 · 诊断', 'KNOWLEDGE · STRUCTURE · DIAGNOSIS')}</p>
+              <strong>{t('农机知识，在同一片园区', 'One campus for machinery knowledge')}</strong>
+              <i />
             </div>
+          )}
+          {intro && (
+            <button type="button" className="expo-intro-skip" onClick={endIntro} autoFocus>
+              {t('跳过', 'Skip')}
+            </button>
           )}
           <div className={`expo-world-canvas${graphics === 'live' ? ' is-live' : ''}`}>
             <SceneFallback kind="campus" reason={graphics === 'live' ? 'loading' : graphics} hidden={graphics === 'live'} />
@@ -456,8 +466,8 @@ export default function ExhibitionPage() {
                 reset={reset}
                 input={input}
                 reducedMotion={reducedMotion}
-                cinematic={cinematic}
-                onCinematicEnd={endCinematic}
+                cinematic={flight}
+                onCinematicEnd={endFlight}
                 onLive={onLive}
                 onLost={onLost}
                 onSelect={selectZone}
