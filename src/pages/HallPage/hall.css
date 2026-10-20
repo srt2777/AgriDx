@@ -4,6 +4,7 @@
 }
 
 .hall-board {
+  position: relative;
   display: grid;
   grid-template-rows: auto minmax(480px, 1fr) auto;
   min-height: calc(100dvh - 168px);
@@ -190,6 +191,25 @@
 }
 
 .hall-fallback p { margin: 0; max-width: 280px; font-size: 13px; line-height: 1.6; }
+
+.hall-board::before,
+.hall-panel::before {
+  content: '';
+  position: absolute;
+  inset: 8px;
+  pointer-events: none;
+  border-radius: inherit;
+  background:
+    linear-gradient(var(--hub-primary), var(--hub-primary)) left top / 16px 1px no-repeat,
+    linear-gradient(var(--hub-primary), var(--hub-primary)) left top / 1px 16px no-repeat,
+    linear-gradient(var(--hub-primary), var(--hub-primary)) right top / 16px 1px no-repeat,
+    linear-gradient(var(--hub-primary), var(--hub-primary)) right top / 1px 16px no-repeat,
+    linear-gradient(var(--hub-primary), var(--hub-primary)) left bottom / 16px 1px no-repeat,
+    linear-gradient(var(--hub-primary), var(--hub-primary)) left bottom / 1px 16px no-repeat,
+    linear-gradient(var(--hub-primary), var(--hub-primary)) right bottom / 16px 1px no-repeat,
+    linear-gradient(var(--hub-primary), var(--hub-primary)) right bottom / 1px 16px no-repeat;
+  opacity: 0.55;
+}
 
 .hall-panel {
   position: relative;
