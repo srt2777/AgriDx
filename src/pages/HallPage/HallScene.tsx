@@ -162,14 +162,109 @@ function GlassWall({ position, size }: { position: [number, number, number]; siz
 function Plant({ position }: { position: [number, number, number] }) {
   return (
     <group position={position}>
-      <mesh position={[0, 0.18, 0]} castShadow>
-        <cylinderGeometry args={[0.07, 0.09, 0.36, 8]} />
+      <mesh position={[0, 0.07, 0]} castShadow>
+        <cylinderGeometry args={[0.16, 0.12, 0.14, 8]} />
+        <meshStandardMaterial color="#e7eef3" metalness={0.28} roughness={0.42} />
+      </mesh>
+      <mesh position={[0, 0.28, 0]} castShadow>
+        <cylinderGeometry args={[0.05, 0.07, 0.28, 8]} />
         <meshStandardMaterial color="#d7e4ee" roughness={0.4} metalness={0.15} />
       </mesh>
-      <mesh position={[0, 0.48, 0]} castShadow>
-        <sphereGeometry args={[0.2, 12, 10]} />
-        <meshStandardMaterial color="#4ea36a" roughness={0.55} />
+      <mesh position={[0, 0.5, 0]} castShadow>
+        <sphereGeometry args={[0.18, 10, 8]} />
+        <meshStandardMaterial color="#3f9a62" roughness={0.55} />
       </mesh>
+    </group>
+  );
+}
+
+function Signboard({ id, color, position }: { id: string; color: string; position: [number, number, number] }) {
+  const texture = useMemo(() => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 256;
+    canvas.height = 128;
+    const context = canvas.getContext('2d');
+    if (!context) return null;
+    context.fillStyle = '#102033';
+    context.fillRect(0, 0, 256, 128);
+    context.fillStyle = color;
+    context.fillRect(0, 0, 16, 128);
+    context.fillStyle = '#f5fbff';
+    context.font = '700 72px sans-serif';
+    context.fillText(id, 48, 88);
+    const map = new THREE.CanvasTexture(canvas);
+    map.colorSpace = THREE.SRGBColorSpace;
+    map.anisotropy = 4;
+    return map;
+  }, [id, color]);
+  useEffect(() => () => texture?.dispose(), [texture]);
+  if (!texture) return null;
+  return (
+    <group position={position} rotation={[0, Math.PI / 5, 0]}>
+      <mesh position={[0, 0.55, 0]} castShadow>
+        <boxGeometry args={[0.08, 1.1, 0.08]} />
+        <meshStandardMaterial color="#d5e2ee" metalness={0.55} roughness={0.28} />
+      </mesh>
+      <mesh position={[0.42, 1.05, 0]} castShadow>
+        <boxGeometry args={[0.96, 0.42, 0.05]} />
+        <meshStandardMaterial map={texture} metalness={0.18} roughness={0.4} />
+      </mesh>
+    </group>
+  );
+}
+
+function CeilingTruss() {
+  const chords = [-6.4, -2.1, 2.2, 6.4];
+  const crosses = [-10.4, -6.9, -3.4, 0.1, 3.5, 7, 10.4];
+  return (
+    <group>
+      {chords.map((z) => (
+        <mesh key={`chord-${z}`} position={[0, 3.72, z]}>
+          <boxGeometry args={[22.2, 0.08, 0.08]} />
+          <meshStandardMaterial color="#8eabbf" metalness={0.74} roughness={0.28} envMapIntensity={1.1} />
+        </mesh>
+      ))}
+      {crosses.map((x) => (
+        <mesh key={`cross-${x}`} position={[x, 3.64, 0.1]}>
+          <boxGeometry args={[0.07, 0.07, 14.4]} />
+          <meshStandardMaterial color="#9bb6c8" metalness={0.7} roughness={0.3} envMapIntensity={1.05} />
+        </mesh>
+      ))}
+      {[-5.1, -1.5, 2.1, 5.5].map((z) => (
+        <mesh key={`strip-${z}`} position={[0, 3.48, z]}>
+          <boxGeometry args={[16.2, 0.035, 0.18]} />
+          <meshStandardMaterial color="#e9f8ff" emissive="#b9e7ff" emissiveIntensity={0.85} toneMapped={false} />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
+function EntranceDoors() {
+  return (
+    <group position={[0, 0, 6.55]}>
+      <mesh position={[0, 3.05, 0]}>
+        <boxGeometry args={[4.6, 0.1, 0.12]} />
+        <meshStandardMaterial color="#e7f1f8" metalness={0.62} roughness={0.22} envMapIntensity={1.2} />
+      </mesh>
+      {[-2.2, 2.2].map((x) => (
+        <mesh key={`jamb-${x}`} position={[x, 1.5, 0]} castShadow>
+          <boxGeometry args={[0.1, 3, 0.1]} />
+          <meshStandardMaterial color="#e7f1f8" metalness={0.62} roughness={0.22} envMapIntensity={1.2} />
+        </mesh>
+      ))}
+      {[-1, 1].map((side) => (
+        <group key={side} position={[side * 2.15, 1.45, 0]} rotation={[0, side * -0.85, 0]}>
+          <mesh position={[side * -0.9, 0, 0]}>
+            <boxGeometry args={[1.75, 2.55, 0.035]} />
+            <meshStandardMaterial color="#d7eef8" transparent opacity={0.38} roughness={0.05} metalness={0.48} envMapIntensity={1.3} depthWrite={false} />
+          </mesh>
+          <mesh position={[side * -0.9, 0, 0.03]}>
+            <boxGeometry args={[0.04, 2.2, 0.04]} />
+            <meshStandardMaterial color="#f7fbff" metalness={0.7} roughness={0.2} />
+          </mesh>
+        </group>
+      ))}
     </group>
   );
 }
@@ -192,6 +287,7 @@ function ZoneStand({
   onHover: (id: HallZoneId | null) => void;
 }) {
   const lang = useLang();
+  const width = useThree((state) => state.size.width);
   const lit = active || hovered;
   const label = SHORT[id];
   return (
@@ -222,7 +318,7 @@ function ZoneStand({
         <ringGeometry args={[3.35, 3.5, 64]} />
         <meshBasicMaterial color={color} transparent opacity={lit ? 0.95 : 0.4} toneMapped={false} />
       </mesh>
-      <Html position={[0, 2.35, 0]} center zIndexRange={[12, 0]} distanceFactor={12}>
+      <Html position={[0, 2.35, 0]} center zIndexRange={[12, 0]} distanceFactor={width < 720 ? 20 : 12}>
         <button
           type="button"
           className={`hall-marker${active ? ' is-on' : ''}`}
@@ -448,7 +544,11 @@ function Exhibit({
   };
   return (
     <group position={position} rotation={[0, rotation, 0]}>
-      <mesh position={[0, 0.2, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+      <mesh position={[0, 0.1, 0]} castShadow receiveShadow>
+        <cylinderGeometry args={[0.78, 0.92, 0.2, 6]} />
+        <meshStandardMaterial color="#f7fbfe" metalness={0.22} roughness={0.38} envMapIntensity={0.8} />
+      </mesh>
+      <mesh position={[0, 0.22, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
         <circleGeometry args={[1.05, 28]} />
         <meshStandardMaterial
           color={tipped ? '#ffffff' : '#d5e4ef'}
@@ -526,23 +626,21 @@ function HallWorld({ selected, hovered, reducedMotion, onSelect, onHover }: Hall
         <boxGeometry args={[23.2, 0.05, 15.6]} />
         <meshStandardMaterial color="#e7f3fb" transparent opacity={0.34} roughness={0.12} metalness={0.28} envMapIntensity={0.9} />
       </mesh>
-      {[-8.2, -2.7, 2.7, 8.2].map((x) => (
-        <mesh key={`beam-${x}`} position={[x, 4.08, 0.1]}>
-          <boxGeometry args={[0.1, 0.06, 14.6]} />
-          <meshStandardMaterial color="#bfe8ff" emissive="#8fd4ff" emissiveIntensity={1.7} toneMapped={false} />
-        </mesh>
-      ))}
-      {[-4.4, 0.15, 4.7].map((z) => (
-        <mesh key={`strip-${z}`} position={[0, 4.04, z]}>
-          <boxGeometry args={[20.4, 0.045, 0.07]} />
-          <meshStandardMaterial color="#d2efff" emissive="#9ad8ff" emissiveIntensity={1.25} toneMapped={false} />
-        </mesh>
-      ))}
+      <CeilingTruss />
+      <EntranceDoors />
       {[[-10.9, -6.9], [10.9, -6.9], [-10.9, 7.05], [10.9, 7.05]].map(([x, z]) => (
         <mesh key={`post-${x}-${z}`} position={[x, 2.1, z]} castShadow>
           <boxGeometry args={[0.18, 4.2, 0.18]} />
           <meshStandardMaterial color="#e7f1f8" metalness={0.72} roughness={0.18} envMapIntensity={1.35} />
         </mesh>
+      ))}
+      {HALL_ZONES.map((item) => (
+        <Signboard
+          key={`sign-${item.id}`}
+          id={item.id}
+          color={item.color}
+          position={[item.position[0] + (item.position[0] < 0 ? 2.7 : -2.7), 0, item.position[2] + 2.15]}
+        />
       ))}
       {HALL_ZONES.map((item) => (
         <ZoneStand
@@ -571,7 +669,7 @@ function HallWorld({ selected, hovered, reducedMotion, onSelect, onHover }: Hall
           <Silhouette kind={exhibit.kind} accent={exhibit.accent} />
         </Exhibit>
       ))}
-      {[[-9.6, -5.6], [-9.6, 5.8], [9.6, -5.6], [9.6, 5.8], [-1.15, -6.3], [1.15, -6.3], [-1.15, 6.5], [1.15, 6.5]].map(([x, z]) => (
+      {[[-9.6, -5.6], [-9.6, 5.8], [9.6, -5.6], [9.6, 5.8], [-1.15, -6.3], [1.15, -6.3], [-1.15, 6.2], [1.15, 6.2], [-3.3, 6.15], [3.3, 6.15], [-7.4, 0.15], [7.4, 0.15]].map(([x, z]) => (
         <Plant key={`${x}-${z}`} position={[x, 0, z]} />
       ))}
       {!reducedMotion && size.width >= 720 && (

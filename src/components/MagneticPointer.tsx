@@ -1,15 +1,24 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 
 /** Nudges the nearest `.magnetic` control and a click-through glow. Fine pointers only. */
 export default function MagneticPointer({ active }: { active: boolean }) {
   const glow = useRef<HTMLDivElement>(null);
+  const [host, setHost] = useState<HTMLElement | null>(null);
+  useEffect(() => {
+    const node = document.querySelector('.expo-world-canvas');
+    setHost(node instanceof HTMLElement ? node : null);
+  }, [active]);
   useEffect(() => {
     if (!active || !window.matchMedia?.('(pointer: fine)').matches) return;
     const move = (event: PointerEvent) => {
       const halo = glow.current;
       if (halo) {
-        halo.style.transform = `translate3d(${event.clientX}px, ${event.clientY}px, 0)`;
-        halo.style.opacity = '1';
+        const stage = halo.offsetParent instanceof HTMLElement ? halo.offsetParent.getBoundingClientRect() : null;
+        const x = stage ? event.clientX - stage.left : event.clientX;
+        const y = stage ? event.clientY - stage.top : event.clientY;
+        halo.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+        halo.style.opacity = stage && (x < 0 || y < 0 || x > stage.width || y > stage.height) ? '0' : '1';
       }
       const nodes = document.querySelectorAll<HTMLElement>('.magnetic');
       nodes.forEach((node) => { node.style.transform = ''; });
@@ -50,5 +59,6 @@ export default function MagneticPointer({ active }: { active: boolean }) {
     };
   }, [active]);
   if (!active) return null;
-  return <div ref={glow} className="pointer-glow" aria-hidden="true" />;
+  const glowNode = <div ref={glow} className="pointer-glow" aria-hidden="true" />;
+  return host ? createPortal(glowNode, host) : glowNode;
 }

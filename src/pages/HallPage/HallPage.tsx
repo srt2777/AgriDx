@@ -297,7 +297,7 @@ export default function HallPage() {
         </div>
         <div className="hall-cards">
           <article className="hall-card is-lead">
-            <LayoutGrid size={18} />
+            <span className="hall-card-icon"><LayoutGrid size={16} /></span>
             <div>
               <h2>{t('展厅概况', 'Hall overview')}</h2>
               <p>
@@ -309,27 +309,27 @@ export default function HallPage() {
             </div>
           </article>
           <Link className="hall-card" to="/knowledge" onPointerEnter={() => preloadPage('/knowledge')} onFocus={() => preloadPage('/knowledge')}>
-            <BookOpen size={18} />
+            <span className="hall-card-icon"><Wheat size={16} /></span>
             <div><h2>{t('四大展区', 'Four zones')}</h2><p>{t('按动力、耕作、收获与智慧农业浏览示意分区。', 'Browse power, tillage, harvest and smart-agriculture stands.')}</p></div>
           </Link>
           <Link className="hall-card" to="/knowledge" onPointerEnter={() => preloadPage('/knowledge')} onFocus={() => preloadPage('/knowledge')}>
-            <Tractor size={18} />
+            <span className="hall-card-icon"><Tractor size={16} /></span>
             <div><h2>{t('在展机具', 'Catalogued machines')}</h2><p>{t(`${number(catalog?.totals.models)} 个型号或系列可从知识目录打开。`, `${number(catalog?.totals.models)} models or series open from the catalog.`)}</p></div>
           </Link>
           <Link className="hall-card" to="/models" onPointerEnter={() => preloadPage('/models')} onFocus={() => preloadPage('/models')}>
-            <Boxes size={18} />
+            <span className="hall-card-icon"><Boxes size={16} /></span>
             <div><h2>{t('结构示意', 'Structure')}</h2><p>{t('模型工坊查看部件，不等同于实测外形。', 'Open the studio for components. It is not a measured body.')}</p></div>
           </Link>
           <Link className="hall-card" to="/chat" onPointerEnter={() => preloadPage('/chat')} onFocus={() => preloadPage('/chat')}>
-            <Cpu size={18} />
+            <span className="hall-card-icon"><Cpu size={16} /></span>
             <div><h2>{t('智能诊断', 'Diagnosis')}</h2><p>{t('带着机型与现象进入诊断工作台。', 'Take a model and symptoms to the diagnosis desk.')}</p></div>
           </Link>
           <Link className="hall-card" to="/knowledge" onPointerEnter={() => preloadPage('/knowledge')} onFocus={() => preloadPage('/knowledge')}>
-            <BookOpen size={18} />
+            <span className="hall-card-icon"><BookOpen size={16} /></span>
             <div><h2>{t('资料目录', 'Evidence')}</h2><p>{t(`${number(catalog?.totals.sources)} 个来源，适用范围仍需核对。`, `${number(catalog?.totals.sources)} sources. Applicability still needs a check.`)}</p></div>
           </Link>
           <article className="hall-card">
-            <Gauge size={18} />
+            <span className="hall-card-icon"><Radar size={16} /></span>
             <div><h2>{t('监测边界', 'Monitoring limit')}</h2><p>{t('未接入传感器、告警或实车孪生数据。', 'No sensors, alarms or physical-twin feed are connected.')}</p></div>
           </article>
         </div>
