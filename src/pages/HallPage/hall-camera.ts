@@ -8,12 +8,20 @@ export const HALL_OVERVIEW = {
 
 const CLOSE = [6.4, 5.6, 6.4] as const;
 const WIDE = [8.8, 7.8, 8.8] as const;
+/** A short stage crops the wide overview down to empty floor. Step in, still showing all four zones. */
+const NARROW_OVERVIEW = {
+  position: [11.6, 9.8, 11.6] as [number, number, number],
+  look: [0, 0.42, 0.1] as [number, number, number],
+};
 
 export function hallCameraGoal(focus: HallZoneId | null, width: number): {
   position: [number, number, number];
   look: [number, number, number];
 } {
-  if (!focus) return { position: [...HALL_OVERVIEW.position], look: [...HALL_OVERVIEW.look] };
+  if (!focus) {
+    const home = width < 720 ? NARROW_OVERVIEW : HALL_OVERVIEW;
+    return { position: [...home.position], look: [...home.look] };
+  }
   const zone = HALL_ZONES.find((item) => item.id === focus)!;
   const offset = width < 720 ? WIDE : CLOSE;
   return {

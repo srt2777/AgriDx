@@ -21,12 +21,34 @@
 }
 
 .scene-fallback-note {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
   margin: 0;
   max-width: 360px;
   color: var(--hub-muted);
   font-size: 13px;
   line-height: 1.6;
   text-align: center;
+}
+.scene-fallback[data-graphics='loading'] .scene-fallback-note {
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--hub-card) 72%, transparent);
+  border: 1px solid color-mix(in srgb, var(--hub-primary) 32%, transparent);
+}
+.scene-fallback-ring {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 1.5px solid color-mix(in srgb, var(--hub-primary) 28%, transparent);
+  border-top-color: var(--hub-primary);
+  animation: scene-fallback-spin 900ms linear infinite;
+}
+@keyframes scene-fallback-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) {
+  .scene-fallback-ring { animation: none; }
 }
 
 .hall-stage.is-live .scene-fallback,

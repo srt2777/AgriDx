@@ -79,7 +79,9 @@ function useFloorTexture() {
     const context = canvas.getContext('2d');
     if (!context) return null;
     context.clearRect(0, 0, 512, 512);
-    context.strokeStyle = 'rgba(198, 224, 238, 0.42)';
+    context.fillStyle = 'rgba(4, 12, 22, 0.82)';
+    context.fillRect(0, 0, 512, 512);
+    context.strokeStyle = 'rgba(176, 214, 230, 0.55)';
     context.lineWidth = 1;
     for (let line = 0; line <= 512; line += 64) {
       context.beginPath();
@@ -91,7 +93,7 @@ function useFloorTexture() {
       context.lineTo(512, line);
       context.stroke();
     }
-    context.strokeStyle = 'rgba(232, 246, 252, 0.78)';
+    context.strokeStyle = 'rgba(214, 236, 246, 0.9)';
     context.lineWidth = 2;
     for (let line = 0; line <= 512; line += 256) {
       context.beginPath();
@@ -335,12 +337,12 @@ function HallEnclosure() {
       <group position={[0, 0, depth / 2]}>
         <mesh position={[0, 2.85, 0]}>
           <boxGeometry args={[4.4, 0.1, 0.16]} />
-          <meshStandardMaterial color="#d7eaf4" metalness={0.4} roughness={0.28} />
+          <meshStandardMaterial color="#8aa4b4" metalness={0.48} roughness={0.34} />
         </mesh>
         {[-2.15, 2.15].map((x) => (
           <mesh key={`jamb-${x}`} position={[x, 1.4, 0]}>
             <boxGeometry args={[0.1, 2.8, 0.12]} />
-            <meshStandardMaterial color="#d7eaf4" metalness={0.4} roughness={0.28} />
+            <meshStandardMaterial color="#8aa4b4" metalness={0.48} roughness={0.34} />
           </mesh>
         ))}
         {[-0.95, 0.95].map((x) => (
@@ -562,12 +564,12 @@ function HallWorld({ selected, focus, hovered, reducedMotion, idle, onSelect, on
         <MeshReflectorMaterial
           resolution={size.width < 720 ? 128 : 256}
           blur={size.width < 720 ? [0, 0] : [90, 36]}
-          mixBlur={0.65}
-          mixStrength={1.05}
-          mirror={0.38}
-          color="#0e1a28"
-          roughness={0.32}
-          metalness={0.58}
+          mixBlur={0.72}
+          mixStrength={0.42}
+          mirror={0.16}
+          color="#08131e"
+          roughness={0.5}
+          metalness={0.18}
           depthScale={0.45}
           minDepthThreshold={0.25}
           maxDepthThreshold={1.25}
@@ -588,7 +590,7 @@ function HallWorld({ selected, focus, hovered, reducedMotion, idle, onSelect, on
       <HallEnclosure />
       <mesh position={[0, 0.16, -7.62]} receiveShadow>
         <boxGeometry args={[23.2, 0.32, 0.1]} />
-        <meshStandardMaterial color="#d5e2ee" metalness={0.35} roughness={0.4} />
+        <meshStandardMaterial color="#1a3346" metalness={0.28} roughness={0.55} />
       </mesh>
       <mesh position={[0, 4.22, 0.1]}>
         <boxGeometry args={[23.2, 0.05, 15.6]} />

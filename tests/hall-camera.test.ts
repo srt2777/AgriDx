@@ -6,6 +6,9 @@ test('展厅默认停在总览，点选展区后才飞近', () => {
   const home = hallCameraGoal(null, 1920);
   assert.deepEqual(home.position, [...HALL_OVERVIEW.position]);
   assert.deepEqual(home.look, [...HALL_OVERVIEW.look]);
+  const narrowHome = hallCameraGoal(null, 390);
+  assert.ok(narrowHome.position[1] < home.position[1]);
+  assert.ok(narrowHome.position[1] > 8);
   const close = hallCameraGoal('A', 1920);
   assert.ok(close.position[1] < home.position[1]);
   assert.equal(close.look[0] < 0, true);

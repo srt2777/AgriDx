@@ -962,9 +962,36 @@
 }
 .world-loading {
   z-index: 3;
+  background:
+    radial-gradient(42% 36% at 50% 46%, color-mix(in srgb, var(--hub-primary) 18%, transparent), transparent 72%);
 }
-.world-loading svg {
-  animation: expo-spin 1s linear infinite;
+.world-loading-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  min-width: 220px;
+  padding: 22px 28px 18px;
+  border-radius: 18px;
+  color: var(--hub-foreground, var(--foreground));
+  letter-spacing: 0.04em;
+  background: color-mix(in srgb, var(--hub-card, var(--card)) 78%, transparent);
+  border: 1px solid color-mix(in srgb, var(--hub-primary, var(--primary)) 48%, transparent);
+  box-shadow:
+    0 18px 48px rgb(0 0 0 / 32%),
+    inset 0 1px 0 rgb(255 255 255 / 22%);
+  backdrop-filter: blur(16px);
+}
+.world-loading-ring {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1.5px solid color-mix(in srgb, var(--hub-primary, var(--primary)) 28%, transparent);
+  border-top-color: var(--hub-primary, var(--primary));
+  animation: expo-spin 900ms linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .world-loading-ring { animation: none; border-top-color: var(--hub-primary, var(--primary)); }
 }
 .world-fallback {
   flex-direction: column;

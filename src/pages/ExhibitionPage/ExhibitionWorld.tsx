@@ -1,12 +1,13 @@
 import { lazy, Suspense, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { Html, MeshReflectorMaterial, OrbitControls, RoundedBox } from '@react-three/drei';
+import { Html, MeshReflectorMaterial, OrbitControls, RoundedBox, useGLTF } from '@react-three/drei';
 import { ErrorBoundary } from 'react-error-boundary';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
 import * as THREE from 'three';
-import { ArrowUpRight, Loader2 } from 'lucide-react';
+import { ArrowUpRight } from 'lucide-react';
 import TractorModel from '@/components/TractorModel';
+import { TRACTOR_MODEL_URL } from '@/components/tractor-model-info';
 import SceneFallback from '@/components/SceneFallback';
 import { useLang } from '@/hooks/useLang';
 import { useTheme } from '@/hooks/useTheme';
@@ -14,6 +15,7 @@ import { frameEase, MOTION, rateFor } from '@/lib/motion-tokens';
 import { bindContextLoss, probeWebGL } from '@/lib/webgl';
 
 const CampusGlow = lazy(() => import('@/components/SceneGlow').then((mod) => ({ default: mod.CampusGlow })));
+useGLTF.preload(TRACTOR_MODEL_URL);
 import {
   initialDriveState,
   nearbyZone,
@@ -717,6 +719,7 @@ function WorldScene({
   const springDelta = useMemo(() => new THREE.Vector3(), []);
   const streaks = useRef<THREE.Group>(null);
   const live = useRef(false);
+  const announced = useRef(false);
   const { camera, size, invalidate, gl } = useThree();
   const theme = useTheme();
   useEffect(() => { invalidate(); }, [theme, invalidate]);
@@ -796,6 +799,10 @@ function WorldScene({
   }, [gl, invalidate, mode, focus, reducedMotion]);
 
   useFrame((state, elapsed) => {
+    if (!announced.current) {
+      announced.current = true;
+      onLoaded();
+    }
     const actions = new Set(input.actions.values());
     if (actions.size) route.current = [];
     if (mode === 'drive') {
@@ -933,11 +940,13 @@ function WorldScene({
       {WORLD_ZONES.map((zone) => (
         <Pavilion key={zone.id} zone={zone} selected={selected === zone.id} reducedMotion={reducedMotion} onSelect={onSelect} />
       ))}
-      <Suspense fallback={null}>
-        <group ref={actor}>
-          <TractorModel onLoaded={onLoaded} />
-        </group>
-      </Suspense>
+      <group ref={actor}>
+        <ErrorBoundary FallbackComponent={WorldLost}>
+          <Suspense fallback={null}>
+            <TractorModel />
+          </Suspense>
+        </ErrorBoundary>
+      </group>
       <group ref={streaks} visible={false}>
         {[-0.42, 0, 0.42].map((x) => (
           <mesh key={x} position={[x, 0, -1.5]}>
@@ -1018,8 +1027,10 @@ export default function ExhibitionWorld({ onLive, onLost, ...props }: WorldProps
       </Canvas>
       {!ready && (
         <div className="world-loading" role="status">
-          <Loader2 size={20} />
-          <span>{lang === 'zh' ? '正在打开三维园区…' : 'Opening the 3D campus…'}</span>
+          <div className="world-loading-card">
+            <span className="world-loading-ring" aria-hidden="true" />
+            <span>{lang === 'zh' ? '正在打开三维园区…' : 'Opening the 3D campus…'}</span>
+          </div>
         </div>
       )}
     </ErrorBoundary>
