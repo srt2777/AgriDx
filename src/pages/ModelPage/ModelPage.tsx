@@ -6,6 +6,7 @@ import SceneLoading from '@/components/SceneLoading';
 import { TRACTOR_COMPONENTS, TRACTOR_MODEL_URL, type TractorComponent } from '@/components/tractor-model-info';
 import { useLang } from '@/hooks/useLang';
 import { useUpdateBlocker } from '@/features/updates/useUpdateBlocker';
+import ModelGeneration from '@/features/modeling/ModelGeneration';
 
 const TractorViewer = lazy(() => import('@/components/TractorViewer'));
 
@@ -26,7 +27,8 @@ export default function ModelPage() {
   const [error, setError] = useState('');
   const [identity, setIdentity] = useState('');
   const [readingModels, setReadingModels] = useState(0);
-  useUpdateBlocker('/models', readingModels > 0 || !!customModel || photos.length > 0 || !!identity.trim());
+  const [generating, setGenerating] = useState(false);
+  useUpdateBlocker('/models', generating || readingModels > 0 || !!customModel || photos.length > 0 || !!identity.trim());
   const urls = useRef(new Set<string>());
   const selectedComponent = TRACTOR_COMPONENTS.find(item => item.id === component) ?? TRACTOR_COMPONENTS[0];
 
@@ -56,9 +58,10 @@ export default function ModelPage() {
     setError('');
   }
   async function selectModel(event: ChangeEvent<HTMLInputElement>) {
-    const file = event.target.files?.[0];
-    event.target.value = '';
-    if (!file) return;
+    const file = event.target.files?.[0]; event.target.value = '';
+    if (file) await loadModel(file).catch(() => {});
+  }
+  async function loadModel(file: File) {
     setReadingModels(count => count + 1);
     try {
       if (!file.name.toLowerCase().endsWith('.glb') || file.size > 25 * 1024 * 1024 || file.size < 24) throw new Error('format');
@@ -73,12 +76,13 @@ export default function ModelPage() {
       if (customModel) { URL.revokeObjectURL(customModel.url); urls.current.delete(customModel.url); }
       setCustomModel({ url: makeUrl(file), name: file.name });
       setComponent('all'); setExploded(false); setError('');
-    } catch {
+    } catch (cause) {
       setError(t('请选择完整的 GLB 2.0 文件（最多 25 MB），贴图与资源需内嵌；外部资源文件暂不支持。', 'Use a complete GLB 2.0 file up to 25 MB with embedded resources; external resources are not supported.'));
+      throw cause;
     } finally { setReadingModels(count => count - 1); }
   }
   function exportPlan() {
-    const plan = { purpose: 'photo-reference-preparation', generatedModel: false, machineIdentity: identity.trim() || '待确认', views: photos.map(({ angle, name, size }) => ({ angle, fileName: name, bytes: size })), generationService: 'not_connected', nextSteps: ['Run a verified image-to-3D service', 'Review mesh and material in Blender', 'Export embedded GLB and import for preview'] };
+    const plan = { purpose: 'photo-reference-preparation', generatedModel: false, machineIdentity: identity.trim() || '待确认', views: photos.map(({ angle, name, size }) => ({ angle, fileName: name, bytes: size })), generationService: 'img2threejs', submissionStatus: 'reference_checklist_only', nextSteps: ['Run a verified image-to-3D service', 'Review mesh and material in Blender', 'Export embedded GLB and import for preview'] };
     const url = URL.createObjectURL(new Blob([JSON.stringify(plan, null, 2)], { type: 'application/json' }));
     const link = document.createElement('a');
     link.href = url; link.download = 'agri-model-reference-plan.json'; link.click();
@@ -121,7 +125,7 @@ export default function ModelPage() {
     </div>
     {error && <p role="alert" className="mt-4 rounded-xl border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">{error}</p>}
     <section className="mt-10 rounded-3xl border border-border bg-card p-5 md:p-8">
-      <div className="flex flex-wrap items-start justify-between gap-4"><div><h2 className="text-xl font-semibold">{t('准备多角度照片', 'Prepare reference views')}</h2><p className="mt-2 max-w-2xl text-xs leading-6 text-muted-foreground">{t('使用同一实物、相同光照与完整轮廓的照片。图片仅保存在当前页面，不上传；刷新后需重新选择。整理照片后，连接真实生成服务取得 GLB，再回到上方预览。', 'Use the same object, consistent lighting and a complete outline. Images stay in this page and are not uploaded; select them again after reloading. Use a connected generation service to obtain a GLB, then inspect it here.')}</p></div><span className="rounded-full border border-border px-3 py-1.5 text-xs text-muted-foreground">{t('照片重建：待接入', 'Reconstruction: not connected')}</span></div>
+      <div className="flex flex-wrap items-start justify-between gap-4"><div><h2 className="text-xl font-semibold">{t('准备多角度照片', 'Prepare reference views')}</h2><p className="mt-2 max-w-2xl text-xs leading-6 text-muted-foreground">{t('使用同一实物、相同光照与完整轮廓的照片。选择照片时仅在当前页面预览；点击下方“上传并生成”后才会发送到建模服务。生成并通过校验的结果会自动载入上方预览。', 'Use the same object, consistent lighting and a complete outline. Selected images remain in this page until you click Upload and generate. Results that pass the pipeline checks load in the viewer above.')}</p></div><span className="rounded-full border border-border px-3 py-1.5 text-xs text-muted-foreground">{t('img2threejs · 分阶段建模', 'img2threejs · Staged reconstruction')}</span></div>
       <label className="mt-5 block text-xs text-muted-foreground">{t('参考对象（品牌 / 型号，可选）', 'Reference object (brand / model, optional)')}<input value={identity} onChange={event => setIdentity(event.target.value.slice(0, 120))} className="mt-2 block w-full max-w-sm rounded-xl border border-border bg-background px-3 py-2.5 text-sm text-foreground" placeholder={t('如：需建模的拖拉机型号', 'Tractor model to reconstruct')} /></label>
       <div className="mt-5 grid grid-cols-2 gap-3 md:grid-cols-4">{ANGLES.map(angle => {
         const photo = photos.find(item => item.angle === angle.id);
@@ -134,8 +138,9 @@ export default function ModelPage() {
         </div>;
       })}</div>
       <div className="mt-5 flex flex-wrap items-center gap-3 text-xs"><button type="button" disabled={!photos.length} onClick={exportPlan} className="flex items-center gap-2 rounded-full bg-primary px-4 py-2.5 text-primary-foreground disabled:opacity-40"><Download className="size-3.5" />{t('导出视角清单', 'Export view checklist')}</button><span className="text-muted-foreground">{photos.length} / 4 {t('视角已整理', 'views prepared')}</span></div>
+      <ModelGeneration photos={photos} identity={identity} onModel={loadModel} onBusy={setGenerating} />
       <div className="mt-7 grid gap-3 border-t border-border pt-5 text-xs leading-6 md:grid-cols-3">
-        <a href="https://github.com/Tencent-Hunyuan/Hunyuan3D-2/blob/main/examples/textured_shape_gen_multiview.py" target="_blank" rel="noreferrer" className="text-muted-foreground hover:text-primary"><span className="flex items-center gap-1.5 font-medium text-foreground">01 · {t('混元多视图生成', 'Hunyuan multiview generation')}<ExternalLink className="size-3" /></span>{t('官方流程可生成白模与纹理；本页尚未连接生成服务。', 'The official flow generates geometry and texture; this page is not connected to inference.')}</a>
+        <a href="https://github.com/img2threejs/img2threejs" target="_blank" rel="noreferrer" className="text-muted-foreground hover:text-primary"><span className="flex items-center gap-1.5 font-medium text-foreground">01 · {t('img2threejs 建模流程', 'img2threejs reconstruction')}<ExternalLink className="size-3" /></span>{t('按参考图生成可编辑的 Three.js 代码，并保留分阶段校验记录。', 'Generate editable Three.js code with staged review evidence.')}</a>
         <a href="https://docs.blender.org/manual/en/5.1/addons/import_export/scene_gltf2.html" target="_blank" rel="noreferrer" className="text-muted-foreground hover:text-primary"><span className="flex items-center gap-1.5 font-medium text-foreground">02 · {t('Blender 修整', 'Refine in Blender')}<ExternalLink className="size-3" /></span>{t('核对网格、材质与尺寸，修整后导出资源内嵌的 GLB。', 'Review geometry, materials and dimensions, then export an embedded GLB.')}</a>
         <div className="text-muted-foreground"><span className="font-medium text-foreground">03 · {t('预览与核验', 'Preview and verify')}</span><p>{t('导入生成结果并检查各个视角。AI 生成几何不能代替实测 CAD，magic 的具体工具仍待确认。', 'Import the result and inspect every view. AI geometry does not replace measured CAD; the specific magic tool remains unconfirmed.')}</p></div>
       </div>
