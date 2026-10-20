@@ -4,7 +4,7 @@ import { Bloom, EffectComposer, Vignette } from '@react-three/postprocessing';
 export function HallGlow() {
   return (
     <EffectComposer multisampling={0} enableNormalPass={false} resolutionScale={0.7}>
-      <Bloom luminanceThreshold={0.42} luminanceSmoothing={0.2} intensity={0.72} mipmapBlur radius={0.48} levels={4} />
+      <Bloom luminanceThreshold={0.82} luminanceSmoothing={0.28} intensity={0.32} mipmapBlur radius={0.4} levels={4} />
       <Vignette eskil={false} offset={0.18} darkness={0.42} />
     </EffectComposer>
   );

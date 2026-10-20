@@ -185,7 +185,7 @@ html.theme-dark .hall-page {
   min-height: 460px;
   border-radius: 14px;
   overflow: hidden;
-  background: #d7e8f5;
+  background: #07141e;
   border: 1px solid color-mix(in srgb, var(--hub-primary) 35%, white);
   box-shadow: inset 0 0 0 1px rgb(255 255 255 / 35%);
 }
@@ -198,7 +198,7 @@ html.theme-dark .hall-page {
   z-index: 2;
   pointer-events: none;
   opacity: 0;
-  background: radial-gradient(240px circle at var(--hall-x, 50%) var(--hall-y, 40%), color-mix(in srgb, white 28%, var(--hub-primary)) 0%, transparent 68%);
+  background: radial-gradient(280px circle at var(--hall-x, 50%) var(--hall-y, 40%), color-mix(in srgb, var(--hub-primary) 32%, transparent), transparent 70%);
   transition: opacity var(--motion-color, 180ms) linear;
 }
 
@@ -216,7 +216,7 @@ html.theme-dark .hall-page {
   right: 0;
   top: -24%;
   height: 22%;
-  background: linear-gradient(to bottom, transparent, color-mix(in srgb, white 55%, var(--hub-primary)) 46%, transparent);
+  background: linear-gradient(to bottom, transparent, color-mix(in srgb, var(--hub-primary) 55%, transparent) 46%, transparent);
   opacity: 0;
 }
 @media (prefers-reduced-motion: no-preference) {

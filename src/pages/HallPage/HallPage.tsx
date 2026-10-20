@@ -41,6 +41,7 @@ const HallScene = lazy(() => import('./HallScene'));
 
 const HallStage = memo(function HallStage({
   selected,
+  focus,
   hovered,
   reducedMotion,
   idle,
@@ -50,6 +51,7 @@ const HallStage = memo(function HallStage({
   onLost,
 }: {
   selected: HallZoneId;
+  focus: HallZoneId | null;
   hovered: HallZoneId | null;
   reducedMotion: boolean;
   idle: boolean;
@@ -60,7 +62,7 @@ const HallStage = memo(function HallStage({
 }) {
   return (
     <DeferredScene priority fallback={null}>
-      <HallScene selected={selected} hovered={hovered} reducedMotion={reducedMotion} idle={idle} onSelect={onSelect} onHover={onHover} onLive={onLive} onLost={onLost} />
+      <HallScene selected={selected} focus={focus} hovered={hovered} reducedMotion={reducedMotion} idle={idle} onSelect={onSelect} onHover={onHover} onLive={onLive} onLost={onLost} />
     </DeferredScene>
   );
 });
@@ -176,7 +178,7 @@ function HallStageLight() {
       const rect = stage.getBoundingClientRect();
       light.style.setProperty('--hall-x', `${event.clientX - rect.left}px`);
       light.style.setProperty('--hall-y', `${event.clientY - rect.top}px`);
-      light.style.opacity = '1';
+      light.style.opacity = '0.55';
     };
     const move = (event: PointerEvent) => {
       if (event.pointerType !== 'mouse') return;
@@ -207,6 +209,7 @@ export default function HallPage() {
   const stamp = useShanghaiClock();
   const { catalog, loading, failed } = useKnowledgeCatalog();
   const [selected, setSelected] = useState<HallZoneId>('A');
+  const [focus, setFocus] = useState<HallZoneId | null>(null);
   const [detail, setDetail] = useState(false);
   const [scan, setScan] = useState(0);
   const zoneRef = useRef(selected);
@@ -214,6 +217,7 @@ export default function HallPage() {
     if (zoneSweep(zoneRef.current, id)) setScan((value) => value + 1);
     zoneRef.current = id;
     setSelected(id);
+    setFocus(id);
     setDetail(true);
   }, []);
   const [hovered, setHovered] = useState<HallZoneId | null>(null);
@@ -320,6 +324,7 @@ export default function HallPage() {
               <div className="hall-stage-view">
                 <HallStage
                   selected={selected}
+                  focus={focus}
                   hovered={hovered}
                   reducedMotion={reducedMotion}
                   idle={idle}

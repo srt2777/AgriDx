@@ -15,6 +15,7 @@ import {
   HALL_ZONES,
   type HallZoneId,
 } from './hall-example-data';
+import { hallCameraGoal, HALL_OVERVIEW } from './hall-camera';
 import { EXHIBITS, HALL_FLOOR, exhibitStatus, floorAoUv } from './hall-machines';
 import { ExhibitModel, HallIdle, StatusHalo } from './hall-exhibits';
 
@@ -22,6 +23,7 @@ const HallGlow = lazy(() => import('@/components/SceneGlow').then((mod) => ({ de
 
 export interface HallSceneProps {
   selected: HallZoneId;
+  focus: HallZoneId | null;
   hovered: HallZoneId | null;
   reducedMotion: boolean;
   idle: boolean;
@@ -31,10 +33,8 @@ export interface HallSceneProps {
   onLost?: () => void;
 }
 
-const HOME = new THREE.Vector3(16.2, 13.2, 16.2);
-const HOME_LOOK = new THREE.Vector3(0, 0.35, 0.1);
-const CLOSE = new THREE.Vector3(6.4, 5.6, 6.4);
-const WIDE = new THREE.Vector3(8.8, 7.8, 8.8);
+const HOME = new THREE.Vector3(...HALL_OVERVIEW.position);
+const HOME_LOOK = new THREE.Vector3(...HALL_OVERVIEW.look);
 
 const SHORT: Record<HallZoneId, { zh: string; en: string }> = {
   A: { zh: '动力农机', en: 'Power' },
@@ -78,9 +78,9 @@ function useFloorTexture() {
     canvas.height = 512;
     const context = canvas.getContext('2d');
     if (!context) return null;
-    context.fillStyle = '#e7f1f8';
+    context.fillStyle = '#163044';
     context.fillRect(0, 0, 512, 512);
-    context.strokeStyle = '#c5d8e8';
+    context.strokeStyle = '#2c5470';
     context.lineWidth = 2;
     for (let line = 0; line <= 512; line += 64) {
       context.beginPath();
@@ -92,7 +92,7 @@ function useFloorTexture() {
       context.lineTo(512, line);
       context.stroke();
     }
-    context.strokeStyle = '#b7cfe2';
+    context.strokeStyle = '#3d6d8c';
     context.lineWidth = 4;
     context.strokeRect(8, 8, 496, 496);
     const texture = new THREE.CanvasTexture(canvas);
@@ -106,12 +106,12 @@ function useFloorTexture() {
 }
 
 function FocusCamera({
-  selected,
+  focus,
   reducedMotion,
   onSettled,
   onRelease,
 }: {
-  selected: HallZoneId;
+  focus: HallZoneId | null;
   reducedMotion: boolean;
   onSettled: () => void;
   onRelease: () => void;
@@ -125,13 +125,12 @@ function FocusCamera({
     settled.current = false;
     onRelease();
     invalidate();
-  }, [selected, size.width, reducedMotion, onRelease, invalidate]);
+  }, [focus, size.width, reducedMotion, onRelease, invalidate]);
   useFrame((_, delta) => {
     if (settled.current) return;
-    const zone = HALL_ZONES.find((item) => item.id === selected)!;
-    const offset = size.width < 720 ? WIDE : CLOSE;
-    goal.current.set(zone.position[0] + offset.x, offset.y, zone.position[2] + offset.z);
-    goalLook.current.set(zone.position[0], 0.55, zone.position[2]);
+    const next = hallCameraGoal(focus, size.width);
+    goal.current.set(next.position[0], next.position[1], next.position[2]);
+    goalLook.current.set(next.look[0], next.look[1], next.look[2]);
     const ease = frameEase(rateFor(MOTION.ms.enter), delta, reducedMotion);
     camera.position.lerp(goal.current, ease);
     look.current.lerp(goalLook.current, ease);
@@ -157,7 +156,7 @@ function HallEnvironment() {
     const room = new RoomEnvironment();
     const target = generator.fromScene(room, 0.04);
     scene.environment = target.texture;
-    scene.environmentIntensity = 0.62;
+    scene.environmentIntensity = 0.28;
     return () => {
       scene.environment = null;
       target.dispose();
@@ -172,7 +171,7 @@ function GlassWall({ position, size }: { position: [number, number, number]; siz
   return (
     <mesh position={position}>
       <boxGeometry args={size} />
-      <meshStandardMaterial color="#d5eaf6" transparent opacity={0.32} roughness={0.06} metalness={0.62} envMapIntensity={1.4} depthWrite={false} />
+      <meshStandardMaterial color="#6a9bb8" transparent opacity={0.16} roughness={0.08} metalness={0.35} envMapIntensity={0.35} depthWrite={false} />
     </mesh>
   );
 }
@@ -251,7 +250,7 @@ function CeilingTruss() {
       {[-5.1, -1.5, 2.1, 5.5].map((z) => (
         <mesh key={`strip-${z}`} position={[0, 3.48, z]}>
           <boxGeometry args={[16.2, 0.035, 0.18]} />
-          <meshStandardMaterial color="#e9f8ff" emissive="#9adfff" emissiveIntensity={1.45} toneMapped={false} />
+          <meshStandardMaterial color="#9adfff" emissive="#7ec8ee" emissiveIntensity={0.35} />
         </mesh>
       ))}
     </group>
@@ -318,23 +317,22 @@ function ZoneStand({
         onPointerOut={() => onHover(null)}
       >
         <boxGeometry args={[8.2, 0.16, 5.05]} />
-        <meshStandardMaterial color={lit ? '#f7fbfe' : '#e4eef6'} roughness={0.55} metalness={0.06} />
+        <meshStandardMaterial color={lit ? '#1a4560' : '#10283a'} roughness={0.62} metalness={0.08} />
       </mesh>
       <mesh position={[0, 0.17, 0]} rotation={[-Math.PI / 2, 0, 0]}>
         <planeGeometry args={[7.5, 4.35]} />
         <meshStandardMaterial
           color={color}
           emissive={color}
-          emissiveIntensity={lit ? 1.35 : 0.42}
+          emissiveIntensity={lit ? 0.72 : 0.38}
           transparent
-          opacity={lit ? 0.62 : 0.28}
-          toneMapped={false}
+          opacity={lit ? 0.55 : 0.34}
           depthWrite={false}
         />
       </mesh>
       <mesh position={[0, 0.175, 0]} rotation={[-Math.PI / 2, 0, 0]}>
         <ringGeometry args={[3.35, 3.5, 64]} />
-        <meshBasicMaterial color={color} transparent opacity={lit ? 0.95 : 0.4} toneMapped={false} />
+        <meshBasicMaterial color={color} transparent opacity={lit ? 0.7 : 0.32} />
       </mesh>
       <Html position={[0, 2.35, 0]} center zIndexRange={[12, 0]} distanceFactor={width < 720 ? 20 : 12}>
         <button
@@ -439,7 +437,7 @@ function Exhibit({
 }
 
 
-function HallWorld({ selected, hovered, reducedMotion, idle, onSelect, onHover }: HallSceneProps) {
+function HallWorld({ selected, focus, hovered, reducedMotion, idle, onSelect, onHover }: HallSceneProps) {
   const floor = useFloorTexture();
   const ao = useFloorAoTexture();
   const { invalidate, size, gl } = useThree();
@@ -447,21 +445,24 @@ function HallWorld({ selected, hovered, reducedMotion, idle, onSelect, onHover }
   const [orbit, setOrbit] = useState(false);
   const settle = useCallback(() => setOrbit(true), []);
   const release = useCallback(() => setOrbit(false), []);
-  const zone = HALL_ZONES.find((item) => item.id === selected)!;
+  const framed = focus ? HALL_ZONES.find((item) => item.id === focus)! : null;
+  const lookTarget: [number, number, number] = framed
+    ? [framed.position[0], 0.55, framed.position[2]]
+    : [HOME_LOOK.x, HOME_LOOK.y, HOME_LOOK.z];
   useEffect(() => () => { floor?.dispose(); ao?.dispose(); }, [floor, ao]);
   useEffect(() => () => { gl.domElement.style.cursor = ''; }, [gl]);
   useEffect(() => { invalidate(); }, [selected, hovered, tip, invalidate]);
   return (
     <>
       <HallEnvironment />
-      <color attach="background" args={['#b7d6ee']} />
-      <fog attach="fog" args={['#b7d6ee', 28, 54]} />
-      <hemisphereLight args={['#f4fbff', '#6d9ec4', 0.78]} />
-      <ambientLight intensity={0.48} color="#e7f6ff" />
+      <color attach="background" args={['#071622']} />
+      <fog attach="fog" args={['#071622', 24, 52]} />
+      <hemisphereLight args={['#8ec4e4', '#071018', 0.38]} />
+      <ambientLight intensity={0.18} color="#9ecae0" />
       <directionalLight
         position={[9, 18, 7]}
-        intensity={2.55}
-        color="#e7f4ff"
+        intensity={0.92}
+        color="#d5ecff"
         castShadow
         shadow-mapSize={[512, 512]}
         shadow-camera-left={-16}
@@ -471,13 +472,15 @@ function HallWorld({ selected, hovered, reducedMotion, idle, onSelect, onHover }
         shadow-camera-far={42}
         shadow-bias={-0.0002}
       />
-      <directionalLight position={[-10, 7, -4]} intensity={1.15} color="#b7e7ff" />
-      <pointLight position={[zone.position[0], 3.6, zone.position[2]]} color={zone.color} intensity={36} distance={12} decay={2} />
-      <FocusCamera selected={selected} reducedMotion={reducedMotion} onSettled={settle} onRelease={release} />
-      <HallLook enabled={orbit} target={[zone.position[0], 0.55, zone.position[2]]} />
+      <directionalLight position={[-10, 7, -4]} intensity={0.26} color="#7eb6d8" />
+      {framed && (
+        <pointLight position={[framed.position[0], 3.2, framed.position[2]]} color={framed.color} intensity={4.5} distance={9} decay={2} />
+      )}
+      <FocusCamera focus={focus} reducedMotion={reducedMotion} onSettled={settle} onRelease={release} />
+      <HallLook enabled={orbit} target={lookTarget} />
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0.1]} receiveShadow>
         <planeGeometry args={[24, 16]} />
-        <meshStandardMaterial map={floor ?? undefined} color="#d7e6f2" roughness={0.36} metalness={0.24} envMapIntensity={1.15} />
+        <meshStandardMaterial map={floor ?? undefined} color="#ffffff" roughness={0.78} metalness={0.04} envMapIntensity={0.2} />
       </mesh>
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.008, 0.1]}>
         <planeGeometry args={[HALL_FLOOR.width, HALL_FLOOR.depth]} />
@@ -485,7 +488,7 @@ function HallWorld({ selected, hovered, reducedMotion, idle, onSelect, onHover }
       </mesh>
       <mesh position={[0, 0.02, 0.1]}>
         <boxGeometry args={[1.2, 0.025, 14.4]} />
-        <meshStandardMaterial color="#d5ebf8" emissive="#8fd4ff" emissiveIntensity={1.05} toneMapped={false} />
+        <meshStandardMaterial color="#7ec8ee" emissive="#5eb4e0" emissiveIntensity={0.28} />
       </mesh>
       <GlassWall position={[0, 2.15, -7.7]} size={[23.2, 4.3, 0.08]} />
       <GlassWall position={[-11.6, 2.15, 0.1]} size={[0.08, 4.3, 15.6]} />
@@ -496,14 +499,14 @@ function HallWorld({ selected, hovered, reducedMotion, idle, onSelect, onHover }
       </mesh>
       <mesh position={[0, 4.22, 0.1]}>
         <boxGeometry args={[23.2, 0.05, 15.6]} />
-        <meshStandardMaterial color="#e7f3fb" transparent opacity={0.34} roughness={0.12} metalness={0.28} envMapIntensity={0.9} />
+        <meshStandardMaterial color="#0e2436" transparent opacity={0.55} roughness={0.45} metalness={0.04} envMapIntensity={0.12} />
       </mesh>
       <CeilingTruss />
       <EntranceDoors />
       {[[-10.9, -6.9], [10.9, -6.9], [-10.9, 7.05], [10.9, 7.05]].map(([x, z]) => (
         <mesh key={`post-${x}-${z}`} position={[x, 2.1, z]} castShadow>
           <boxGeometry args={[0.18, 4.2, 0.18]} />
-          <meshStandardMaterial color="#e7f1f8" metalness={0.72} roughness={0.18} envMapIntensity={1.35} />
+          <meshStandardMaterial color="#9bb4c6" metalness={0.55} roughness={0.32} envMapIntensity={0.35} />
         </mesh>
       ))}
       {HALL_ZONES.map((item) => (
@@ -576,7 +579,7 @@ function HallLook({ enabled, target }: { enabled: boolean; target: readonly [num
     controls.rotateSpeed = 0.65;
     controls.zoomSpeed = 0.7;
     controls.minDistance = 6;
-    controls.maxDistance = 28;
+    controls.maxDistance = 40;
     controls.minPolarAngle = 0.35;
     controls.maxPolarAngle = 1.2;
     controls.touches.ONE = THREE.TOUCH.ROTATE;
@@ -622,6 +625,8 @@ export default function HallScene({ onLive, onLost, ...props }: HallSceneProps) 
         frameloop="demand"
         onCreated={({ camera, gl }) => {
           camera.lookAt(HOME_LOOK);
+          gl.toneMapping = THREE.ACESFilmicToneMapping;
+          gl.toneMappingExposure = 0.92;
           gl.domElement.style.touchAction = 'none';
           markLive(gl.domElement);
         }}

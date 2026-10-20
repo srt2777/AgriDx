@@ -15,7 +15,7 @@ function Metal({ color, glow = 0, metal = 0.45, rough = 0.32 }: { color: string;
       color={color}
       metalness={metal}
       roughness={rough}
-      envMapIntensity={1.15}
+      envMapIntensity={0.42}
       emissive={glow > 0 ? color : '#000000'}
       emissiveIntensity={glow}
       toneMapped={glow < 0.9}
