@@ -1,6 +1,6 @@
 import { Suspense, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { Html, RoundedBox } from '@react-three/drei';
+import { ContactShadows, Html, RoundedBox } from '@react-three/drei';
 import { Bloom, EffectComposer, Vignette } from '@react-three/postprocessing';
 import { ErrorBoundary } from 'react-error-boundary';
 import { Tractor } from 'lucide-react';
@@ -281,6 +281,9 @@ function HallWorld({ selected, hovered, reducedMotion, onSelect, onHover }: Hall
       {[[-9.6, -5.6], [-9.6, 5.8], [9.6, -5.6], [9.6, 5.8], [-1.1, -6.2], [1.1, -6.2], [-1.1, 6.4], [1.1, 6.4]].map(([x, z]) => (
         <Plant key={`${x}-${z}`} position={[x, 0, z]} />
       ))}
+      {!reducedMotion && size.width >= 720 && (
+        <ContactShadows position={[0, 0.021, 0.1]} opacity={0.28} scale={22} blur={2.4} far={3.5} resolution={256} />
+      )}
       <StageGlow reducedMotion={reducedMotion} />
     </>
   );
