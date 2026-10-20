@@ -111,7 +111,7 @@ export default function KnowledgePage() {
         </LiquidGlass>
       </section>}
 
-      {loading && <div className="catalog-state" role="status"><Loader2 className="animate-spin" size={24} /><p>{t('读取适用资料与覆盖范围…', 'Loading documents and coverage…')}</p></div>}
+      {loading && <div className="catalog-state" role="status"><Loader2 className="animate-spin" size={24} /><p>{t('读取适用资料与覆盖范围…', 'Loading documents and coverage…')}</p><div className="catalog-skeleton" aria-hidden="true"><span /><span /><span /></div></div>}
       {failed && <div className="catalog-state" role="alert"><TriangleAlert size={26} /><h2>{t('暂时无法读取知识目录', 'Knowledge catalog is unavailable')}</h2><p>{t('目录未加载，不展示推测的数量或故障策略。请重试。', 'No catalog is loaded, so no estimated counts or strategies are shown. Please retry.')}</p><button onClick={retry} className="catalog-action">{t('重新加载', 'Retry')}</button></div>}
 
       {machineView && !loading && !failed && !model && <section className="catalog-onboarding"><div><BookOpen size={30} strokeWidth={1.3} /><h2>{t('先选品牌，再确认完整机型。', 'Choose a brand, then confirm the machine.')}</h2><p>{t('从故障表现向下查部件，也可以从零部件资料向上理解影响。系列资料、型号未确认资料与具体型号分别显示，来源没有明确的关系会保留缺口。', 'Trace symptoms down to components, or explore part evidence to understand higher-level effects. Series, unconfirmed and specific-model documents stay distinct; unsupported relationships remain gaps.')}</p></div><div className="catalog-brand-pills">{catalog?.brands.map(item => <button onClick={() => updateFilter('brand', item.id)} key={item.id} aria-pressed={brand?.id === item.id}>{item.name}<ChevronRight size={15} /></button>)}</div></section>}

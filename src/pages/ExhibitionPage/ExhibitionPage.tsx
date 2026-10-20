@@ -561,7 +561,8 @@ export default function ExhibitionPage() {
               <div className="expo-catalog-list" aria-live="polite">
                 {loading ? (
                   <div className="expo-catalog-state" role="status">
-                    {t('正在读取知识目录…', 'Loading the catalog…')}
+                    <p>{t('正在读取知识目录…', 'Loading the catalog…')}</p>
+                    <div className="expo-catalog-skeleton" aria-hidden="true"><span /><span /><span /></div>
                   </div>
                 ) : failed ? (
                   <div className="expo-catalog-state" role="alert">

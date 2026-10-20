@@ -256,7 +256,7 @@ export default function ChatPage() {
 
           {/* 空状态 / 欢迎态 */}
           {isEmpty && (
-            <div className="flex flex-col items-center py-8 text-center">
+            <div className="chat-empty flex flex-col items-center py-8 text-center">
               <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-primary/10 text-primary">
                 <Sparkles className="h-7 w-7" />
               </div>
@@ -287,7 +287,7 @@ export default function ChatPage() {
           {messages.map((msg) => (
             <div
               key={msg.id}
-              className={`mb-4 flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+              className={`chat-message mb-4 flex ${msg.role === 'user' ? 'is-user justify-end' : 'is-reply justify-start'}`}
             >
               {msg.role !== 'user' && (
                 <div className="mr-2 mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">

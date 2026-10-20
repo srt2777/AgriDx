@@ -289,7 +289,7 @@ export default function TractorViewer({ component = 'all', exploded = false, mod
 
           {/* Suspense fallback 必须是 three.js 对象，不能放 HTML 元素 */}
           <Suspense fallback={<CanvasLoadingPlaceholder />}>
-            <Bounds margin={1.25} maxDuration={reducedMotion ? 0 : .45}>
+            <Bounds margin={1.25} maxDuration={reducedMotion ? 0 : 0.9}>
               <TractorModel onLoaded={handleModelLoaded} onLayoutSettled={handleLayoutSettled} component={selectedComponent}
                 exploded={exploded} modelUrl={modelUrl} interactive={interactive} showHotspots={interactive && showHotspots}
                 onComponentSelect={handleComponentSelect} />

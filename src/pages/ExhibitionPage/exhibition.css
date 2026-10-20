@@ -50,6 +50,9 @@
 .expo-page a:focus-visible,
 .expo-page button:focus-visible,
 .expo-page input:focus-visible,
+.expo-page select:focus-visible,
+.expo-page textarea:focus-visible,
+.expo-page summary:focus-visible,
 .expo-world-stage:focus-visible {
   outline: 2px solid var(--ring);
   outline-offset: 4px;
@@ -105,15 +108,16 @@
 }
 .expo-title > span {
   display: block;
-  font-size: 8px;
-  letter-spacing: 2.6px;
+  font-size: 11px;
+  letter-spacing: 0.22em;
   color: var(--muted-foreground);
-  margin-bottom: 9px;
+  margin-bottom: 10px;
 }
 .expo-title h1 {
-  font-size: clamp(19px, 1.7vw, 27px);
-  letter-spacing: 2px;
-  font-weight: 500;
+  font-size: clamp(22px, 1.8vw, 30px);
+  letter-spacing: 0.08em;
+  font-weight: 560;
+  line-height: 1.25;
 }
 .expo-header-tools {
   display: flex;
@@ -245,11 +249,11 @@
   color: var(--primary);
 }
 .expo-world-guide > p {
-  font-size: 11px;
-  line-height: 1.9;
-  color: var(--muted-foreground);
-  max-width: 204px;
-  margin-top: 15px;
+  font-size: 13px;
+  line-height: 1.7;
+  color: color-mix(in srgb, var(--foreground) 78%, var(--muted-foreground));
+  max-width: 220px;
+  margin-top: 16px;
 }
 .expo-start-button {
   display: flex;
@@ -803,19 +807,27 @@
 }
 .expo-catalog-state {
   text-align: center;
-  padding: 25px 10px;
-  color: var(--muted-foreground);
-  font-size: 11px;
-  line-height: 1.9;
+  padding: 28px 12px;
+  color: color-mix(in srgb, var(--foreground) 78%, var(--muted-foreground));
+  font-size: 13px;
+  line-height: 1.7;
 }
 .expo-catalog-state button {
   min-height: 44px;
   margin-top: 12px;
-  background: var(--accent);
-  color: var(--muted-foreground);
+  background: var(--primary);
+  color: var(--primary-foreground);
   padding: 0 16px;
-  border: 1px solid var(--border);
-  border-radius: 7px;
+  border: 0;
+  border-radius: 999px;
+  font-weight: 600;
+}
+.expo-catalog-skeleton { display: grid; gap: 8px; margin-top: 14px; }
+.expo-catalog-skeleton span {
+  display: block;
+  height: 36px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--foreground) 8%, transparent);
 }
 .expo-catalog-note {
   color: var(--muted-foreground);

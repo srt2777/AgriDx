@@ -21,8 +21,9 @@ function PageContent({ children }: { children: ReactNode }) {
   const { pathname } = useLocation();
   const version = useUiVersion();
   // Reset only the content boundary: the header remains available during a slow route load.
+  const reveal = pathname === '/' ? 'route-home-reveal' : version === 'new' ? 'route-shell-reveal' : 'route-content-reveal';
   return <Suspense key={pathname} fallback={<PageLoading />}>
-    <div key={pathname === '/' ? version : pathname} className={pathname === '/' ? 'route-home-reveal' : 'route-content-reveal'}>{children}</div>
+    <div key={pathname === '/' ? version : pathname} className={reveal}>{children}</div>
   </Suspense>;
 }
 
