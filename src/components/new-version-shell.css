@@ -88,3 +88,36 @@
 }
 
 .new-version-wordmark small { color: var(--wheat); }
+
+/* Knowledge, diagnosis, and the model studio share the hall's night-blue frame.
+   Classic pages never use this shell. */
+html.theme-dark .new-version-shell {
+  background:
+    radial-gradient(ellipse 88% 42% at 50% -10%, rgb(122 215 255 / 16%), transparent 62%),
+    var(--hall-night);
+}
+html.theme-dark .new-version-shell .new-version-header-glass {
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--hall-cyan) 32%, transparent),
+    0 14px 36px rgb(4 12 20 / 28%);
+}
+html.theme-dark .new-version-subheader i {
+  background: var(--hall-cyan);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--hall-cyan) 50%, transparent);
+}
+html.theme-dark .new-version-shell .knowledge-page {
+  background:
+    radial-gradient(ellipse 70% 28% at 50% 0%, rgb(122 215 255 / 10%), transparent 72%),
+    transparent;
+}
+html.theme-dark .new-version-shell .chat-glass {
+  background:
+    linear-gradient(180deg, rgb(16 40 58 / 78%), rgb(7 19 29 / 92%));
+  border: 1px solid color-mix(in srgb, var(--hall-cyan) 28%, transparent);
+}
+html.theme-dark .new-version-shell .model-stage {
+  background:
+    radial-gradient(ellipse at 50% 42%, color-mix(in srgb, var(--hall-cyan) 18%, transparent), transparent 58%),
+    var(--hall-surface);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--hall-cyan) 22%, transparent);
+}
