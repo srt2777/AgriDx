@@ -421,9 +421,13 @@ function WorldScene({
   const telemetryTime = useRef(0);
   const lastPublished = useRef(initialDriveState());
   const settling = useRef(true);
+  const steered = useRef(false);
+  const userOrbit = useRef(false);
+  const parallax = useRef(new THREE.Vector2());
+  const parallaxGoal = useRef(new THREE.Vector2());
   const viewTarget = useMemo(() => new THREE.Vector3(), []);
   const viewPosition = useMemo(() => new THREE.Vector3(), []);
-  const { camera, size, invalidate } = useThree();
+  const { camera, size, invalidate, gl } = useThree();
   const theme = useTheme();
   useEffect(() => { invalidate(); }, [theme, invalidate]);
 
@@ -450,12 +454,41 @@ function WorldScene({
   }, [destination, invalidate]);
   useEffect(() => {
     settling.current = true;
+    steered.current = false;
+    parallax.current.set(0, 0);
+    parallaxGoal.current.set(0, 0);
     if (mode === 'overview') {
       route.current = [];
       input.actions.clear();
     }
     invalidate();
   }, [mode, focus, size.width, size.height, input, invalidate]);
+  useEffect(() => {
+    const canvas = gl.domElement;
+    const move = (event: PointerEvent) => {
+      if (reducedMotion || mode !== 'overview' || focus || steered.current || event.buttons) return;
+      const rect = canvas.getBoundingClientRect();
+      if (rect.width < 1 || rect.height < 1) return;
+      const nextX = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+      const nextY = ((event.clientY - rect.top) / rect.height) * 2 - 1;
+      if (Math.abs(nextX - parallaxGoal.current.x) < 0.004 && Math.abs(nextY - parallaxGoal.current.y) < 0.004) return;
+      parallaxGoal.current.set(nextX, nextY);
+      settling.current = true;
+      invalidate();
+    };
+    const leave = () => {
+      if (parallaxGoal.current.lengthSq() < 0.0001) return;
+      parallaxGoal.current.set(0, 0);
+      settling.current = true;
+      invalidate();
+    };
+    canvas.addEventListener('pointermove', move);
+    canvas.addEventListener('pointerleave', leave);
+    return () => {
+      canvas.removeEventListener('pointermove', move);
+      canvas.removeEventListener('pointerleave', leave);
+    };
+  }, [gl, invalidate, mode, focus, reducedMotion]);
 
   useFrame((state, elapsed) => {
     const actions = new Set(input.actions.values());
@@ -509,6 +542,13 @@ function WorldScene({
         const aspect = size.width / size.height;
         const scale = Math.max(1, 1.25 / aspect);
         viewPosition.set(23 * scale, 25 * scale, 29 * scale);
+        if (!reducedMotion && !userOrbit.current && !steered.current) {
+          const follow = 1 - Math.exp(-3.2 * Math.min(elapsed, 0.05));
+          parallax.current.lerp(parallaxGoal.current, follow);
+          viewPosition.x += parallax.current.x * 1.15;
+          viewPosition.y += parallax.current.y * -0.38;
+          viewTarget.x += parallax.current.x * 0.28;
+        }
       }
       const ease = reducedMotion ? 1 : 1 - Math.exp(-5 * Math.min(elapsed, 0.2));
       camera.position.lerp(viewPosition, ease);
@@ -517,7 +557,8 @@ function WorldScene({
       const cameraMoving =
         camera.position.distanceToSquared(viewPosition) > 0.0008 ||
         (orbit.current?.target.distanceToSquared(viewTarget) ?? 0) > 0.0008;
-      if (cameraMoving || moving) invalidate();
+      const parallaxMoving = mode === 'overview' && !focus && parallax.current.distanceToSquared(parallaxGoal.current) > 0.0004;
+      if (cameraMoving || moving || parallaxMoving) invalidate();
       else settling.current = false;
     }
     if (moving) invalidate();
@@ -563,7 +604,12 @@ function WorldScene({
         minPolarAngle={0.15}
         maxPolarAngle={Math.PI / 2.4}
         onStart={() => {
+          steered.current = true;
+          userOrbit.current = true;
           settling.current = false;
+        }}
+        onEnd={() => {
+          userOrbit.current = false;
         }}
       />
       {mode === 'overview' && !reducedMotion && size.width >= 900 && (

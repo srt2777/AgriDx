@@ -7,7 +7,13 @@ import { Tractor } from 'lucide-react';
 import * as THREE from 'three';
 import TractorModel from '@/components/TractorModel';
 import { useLang } from '@/hooks/useLang';
-import { HALL_ZONES, type HallZoneId } from './hall-example-data';
+import {
+  HALL_EXAMPLE_DEVICES,
+  HALL_EXAMPLE_LABEL,
+  HALL_STATUS_EXAMPLE,
+  HALL_ZONES,
+  type HallZoneId,
+} from './hall-example-data';
 
 interface HallSceneProps {
   selected: HallZoneId;
@@ -19,7 +25,34 @@ interface HallSceneProps {
 
 const HOME = new THREE.Vector3(16.2, 13.2, 16.2);
 const HOME_LOOK = new THREE.Vector3(0, 0.35, 0.1);
-const bias = new THREE.Vector3();
+const CLOSE = new THREE.Vector3(6.4, 5.6, 6.4);
+const WIDE = new THREE.Vector3(8.8, 7.8, 8.8);
+
+const SHORT: Record<HallZoneId, { zh: string; en: string }> = {
+  A: { zh: '动力农机', en: 'Power' },
+  B: { zh: '耕作播种', en: 'Tillage' },
+  C: { zh: '收获植保', en: 'Harvest' },
+  D: { zh: '智慧农业', en: 'Smart' },
+};
+
+type ExhibitKind = 'tractor' | 'seeder' | 'harvester' | 'combine' | 'drone' | 'rover';
+
+const EXHIBITS: readonly {
+  id: string;
+  kind: ExhibitKind;
+  position: [number, number, number];
+  rotation: number;
+  scale: number;
+}[] = [
+  { id: 'a1', kind: 'tractor', position: [-6.55, 0, -3.9], rotation: 0.5, scale: 0.68 },
+  { id: 'a2', kind: 'tractor', position: [-4.05, 0, -2.2], rotation: -0.72, scale: 0.58 },
+  { id: 'b2', kind: 'tractor', position: [4.05, 0, -3.75], rotation: 2.4, scale: 0.62 },
+  { id: 'b3', kind: 'seeder', position: [6.55, 0, -2.15], rotation: 2.05, scale: 1 },
+  { id: 'c3', kind: 'harvester', position: [-6.55, 0, 3.95], rotation: 0.42, scale: 1 },
+  { id: 'c1', kind: 'combine', position: [-3.95, 0, 2.4], rotation: -0.5, scale: 1 },
+  { id: 'd1', kind: 'drone', position: [4.35, 0, 2.55], rotation: 0.3, scale: 1 },
+  { id: 'd3', kind: 'rover', position: [6.6, 0, 4.05], rotation: 2.55, scale: 1 },
+];
 
 function supportsWebGL(): boolean {
   try {
@@ -38,9 +71,9 @@ function useFloorTexture() {
     canvas.height = 512;
     const context = canvas.getContext('2d');
     if (!context) return null;
-    context.fillStyle = '#f3f8fc';
+    context.fillStyle = '#e7f1f8';
     context.fillRect(0, 0, 512, 512);
-    context.strokeStyle = '#d5e3ef';
+    context.strokeStyle = '#c5d8e8';
     context.lineWidth = 2;
     for (let line = 0; line <= 512; line += 64) {
       context.beginPath();
@@ -52,6 +85,9 @@ function useFloorTexture() {
       context.lineTo(512, line);
       context.stroke();
     }
+    context.strokeStyle = '#b7cfe2';
+    context.lineWidth = 4;
+    context.strokeRect(8, 8, 496, 496);
     const texture = new THREE.CanvasTexture(canvas);
     texture.colorSpace = THREE.SRGBColorSpace;
     texture.wrapS = THREE.RepeatWrapping;
@@ -65,22 +101,26 @@ function useFloorTexture() {
 function FocusCamera({ selected, reducedMotion }: { selected: HallZoneId; reducedMotion: boolean }) {
   const { camera, invalidate, size } = useThree();
   const look = useRef(HOME_LOOK.clone());
-  const goal = useRef(new THREE.Vector3());
-  const goalLook = useRef(new THREE.Vector3());
-  useEffect(() => { invalidate(); }, [selected, size.width, invalidate]);
+  const goal = useRef(HOME.clone());
+  const goalLook = useRef(HOME_LOOK.clone());
+  const settled = useRef(false);
+  useEffect(() => {
+    settled.current = false;
+    invalidate();
+  }, [selected, size.width, reducedMotion, invalidate]);
   useFrame((_, delta) => {
+    if (settled.current) return;
     const zone = HALL_ZONES.find((item) => item.id === selected)!;
-    const narrow = size.width < 720;
-    const distance = narrow ? 1.22 : 1;
-    bias.set(zone.position[0], 0, zone.position[2]);
-    goal.current.copy(HOME).multiplyScalar(distance).addScaledVector(bias, 0.18);
-    goalLook.current.copy(HOME_LOOK).addScaledVector(bias, 0.22);
-    const ease = reducedMotion ? 1 : 1 - Math.exp(-2.6 * Math.min(delta, 0.08));
+    const offset = size.width < 720 ? WIDE : CLOSE;
+    goal.current.set(zone.position[0] + offset.x, offset.y, zone.position[2] + offset.z);
+    goalLook.current.set(zone.position[0], 0.55, zone.position[2]);
+    const ease = reducedMotion ? 1 : 1 - Math.exp(-2.2 * Math.min(delta, 0.05));
     const before = camera.position.distanceToSquared(goal.current) + look.current.distanceToSquared(goalLook.current);
     camera.position.lerp(goal.current, ease);
     look.current.lerp(goalLook.current, ease);
     camera.lookAt(look.current);
-    if (before > 0.0015) invalidate();
+    if (before > 0.0008) invalidate();
+    else settled.current = true;
   });
   return null;
 }
@@ -89,7 +129,7 @@ function GlassWall({ position, size }: { position: [number, number, number]; siz
   return (
     <mesh position={position}>
       <boxGeometry args={size} />
-      <meshStandardMaterial color="#b9def4" transparent opacity={0.22} roughness={0.05} metalness={0.15} depthWrite={false} />
+      <meshStandardMaterial color="#c5e6f8" transparent opacity={0.2} roughness={0.04} metalness={0.12} depthWrite={false} />
     </mesh>
   );
 }
@@ -99,11 +139,11 @@ function Plant({ position }: { position: [number, number, number] }) {
     <group position={position}>
       <mesh position={[0, 0.18, 0]} castShadow>
         <cylinderGeometry args={[0.07, 0.09, 0.36, 8]} />
-        <meshStandardMaterial color="#d7e4ee" roughness={0.4} />
+        <meshStandardMaterial color="#d7e4ee" roughness={0.4} metalness={0.15} />
       </mesh>
       <mesh position={[0, 0.48, 0]} castShadow>
         <sphereGeometry args={[0.2, 12, 10]} />
-        <meshStandardMaterial color="#67b37a" roughness={0.55} />
+        <meshStandardMaterial color="#4ea36a" roughness={0.55} />
       </mesh>
     </group>
   );
@@ -128,6 +168,7 @@ function ZoneStand({
 }) {
   const lang = useLang();
   const lit = active || hovered;
+  const label = SHORT[id];
   return (
     <group position={position}>
       <mesh
@@ -137,14 +178,26 @@ function ZoneStand({
         onPointerOver={(event) => { event.stopPropagation(); onHover(id); }}
         onPointerOut={() => onHover(null)}
       >
-        <boxGeometry args={[8.4, 0.16, 5.15]} />
-        <meshStandardMaterial color={lit ? '#ffffff' : '#f7fbfe'} emissive={color} emissiveIntensity={lit ? 0.28 : 0.05} roughness={0.42} metalness={0.08} />
+        <boxGeometry args={[8.2, 0.16, 5.05]} />
+        <meshStandardMaterial color={lit ? '#f7fbfe' : '#e4eef6'} roughness={0.55} metalness={0.06} />
       </mesh>
-      <mesh position={[0, 0.18, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-        <ringGeometry args={[3.55, 3.68, 64]} />
-        <meshBasicMaterial color={color} transparent opacity={lit ? 0.95 : 0.45} />
+      <mesh position={[0, 0.17, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <planeGeometry args={[7.5, 4.35]} />
+        <meshStandardMaterial
+          color={color}
+          emissive={color}
+          emissiveIntensity={lit ? 1.35 : 0.42}
+          transparent
+          opacity={lit ? 0.62 : 0.28}
+          toneMapped={false}
+          depthWrite={false}
+        />
       </mesh>
-      <Html position={[0, 2.55, 0]} center zIndexRange={[12, 0]} distanceFactor={14}>
+      <mesh position={[0, 0.175, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <ringGeometry args={[3.35, 3.5, 64]} />
+        <meshBasicMaterial color={color} transparent opacity={lit ? 0.95 : 0.4} toneMapped={false} />
+      </mesh>
+      <Html position={[0, 2.35, 0]} center zIndexRange={[12, 0]} distanceFactor={12}>
         <button
           type="button"
           className={`hall-marker${active ? ' is-on' : ''}`}
@@ -153,136 +206,329 @@ function ZoneStand({
           onPointerEnter={() => onHover(id)}
           onPointerLeave={() => onHover(null)}
         >
-          {id} {lang === 'zh' ? '展区' : 'zone'}
+          <b>{id}</b>
+          <span>{lang === 'zh' ? label.zh : label.en}</span>
         </button>
       </Html>
     </group>
   );
 }
 
-function MachinePad({ position, rotation, children }: { position: [number, number, number]; rotation: number; children: ReactNode }) {
+function Metal({ color, glow = 0, metal = 0.45, rough = 0.32 }: { color: string; glow?: number; metal?: number; rough?: number }) {
   return (
-    <group position={position} rotation={[0, rotation, 0]}>
-      <mesh position={[0, 0.02, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
-        <circleGeometry args={[1.15, 24]} />
-        <meshStandardMaterial color="#d5e2ee" roughness={0.8} />
+    <meshStandardMaterial
+      color={color}
+      metalness={metal}
+      roughness={rough}
+      emissive={glow > 0 ? color : '#000000'}
+      emissiveIntensity={glow}
+      toneMapped={glow < 0.9}
+    />
+  );
+}
+
+function Axle({ spots }: { spots: readonly (readonly [number, number])[] }) {
+  return spots.map(([x, z]) => (
+    <mesh key={`${x}-${z}`} position={[x, 0.24, z]} rotation={[0, 0, Math.PI / 2]} castShadow>
+      <cylinderGeometry args={[0.22, 0.22, 0.16, 14]} />
+      <meshStandardMaterial color="#1b2631" roughness={0.65} metalness={0.25} />
+    </mesh>
+  ));
+}
+
+function Seeder() {
+  return (
+    <group>
+      <mesh position={[-1.15, 0.48, 0]} castShadow>
+        <boxGeometry args={[1.5, 0.08, 0.12]} />
+        <Metal color="#9aa8b5" metal={0.7} rough={0.25} />
       </mesh>
-      {children}
+      <RoundedBox args={[0.95, 0.55, 0.72]} position={[0.05, 0.78, 0]} radius={0.06} smoothness={2} castShadow>
+        <Metal color="#f4f7fb" metal={0.25} rough={0.4} />
+      </RoundedBox>
+      <mesh position={[0.05, 1.12, 0]} castShadow>
+        <boxGeometry args={[0.55, 0.16, 0.42]} />
+        <Metal color="#7dffa8" glow={0.35} metal={0.2} rough={0.45} />
+      </mesh>
+      <mesh position={[0.72, 0.4, 0]} castShadow>
+        <boxGeometry args={[0.16, 0.1, 2.15]} />
+        <Metal color="#2c3d4d" metal={0.55} rough={0.35} />
+      </mesh>
+      {[-0.8, -0.4, 0, 0.4, 0.8].map((z) => (
+        <mesh key={z} position={[0.78, 0.28, z]} rotation={[0, 0, Math.PI / 2]} castShadow>
+          <cylinderGeometry args={[0.16, 0.16, 0.05, 12]} />
+          <meshStandardMaterial color="#5c6b78" metalness={0.6} roughness={0.3} />
+        </mesh>
+      ))}
+      <Axle spots={[[-0.2, 0.55], [-0.2, -0.55], [0.85, 0.7], [0.85, -0.7]]} />
     </group>
   );
 }
 
-function BlockMachine({ position, rotation, color }: { position: [number, number, number]; rotation: number; color: string }) {
+function Harvester({ compact = false }: { compact?: boolean }) {
+  const header = compact ? 1.7 : 2.35;
+  const body: [number, number, number] = compact ? [1.85, 0.62, 1.05] : [2.25, 0.72, 1.2];
+  const accent = compact ? '#ffb15a' : '#ffd36a';
   return (
-    <MachinePad position={position} rotation={rotation}>
-      <RoundedBox args={[1.7, 0.55, 0.9]} position={[0, 0.55, 0]} radius={0.06} smoothness={2} castShadow>
-        <meshStandardMaterial color="#f4f7fb" metalness={0.35} roughness={0.35} />
+    <group>
+      <RoundedBox args={body} position={[0, 0.72, 0]} radius={0.08} smoothness={2} castShadow>
+        <Metal color="#f3f6fa" metal={0.3} rough={0.38} />
       </RoundedBox>
-      <RoundedBox args={[0.7, 0.45, 0.7]} position={[-0.15, 0.95, 0]} radius={0.05} smoothness={2} castShadow>
-        <meshStandardMaterial color="#dbe7f1" metalness={0.2} roughness={0.4} />
-      </RoundedBox>
-      <mesh position={[0.95, 0.48, 0]} castShadow>
-        <boxGeometry args={[0.7, 0.28, 1.15]} />
-        <meshStandardMaterial color={color} emissive={color} emissiveIntensity={0.35} metalness={0.4} roughness={0.35} />
+      <mesh position={compact ? [-0.35, 1.22, 0] : [-0.15, 1.28, 0]} castShadow>
+        <boxGeometry args={compact ? [0.7, 0.38, 0.85] : [0.9, 0.42, 0.95]} />
+        <Metal color={accent} glow={0.25} metal={0.15} rough={0.45} />
       </mesh>
-      {[[-0.45, 0.28], [0.5, 0.28]].map(([x, z]) => (
-        <mesh key={`${x}-${z}`} position={[x, 0.22, z]} rotation={[0, 0, Math.PI / 2]} castShadow>
-          <cylinderGeometry args={[0.2, 0.2, 0.16, 12]} />
-          <meshStandardMaterial color="#243140" roughness={0.6} />
-        </mesh>
-      ))}
-    </MachinePad>
+      <mesh position={compact ? [-0.85, 1.18, 0] : [-0.85, 1.25, 0]} castShadow>
+        <boxGeometry args={[0.62, 0.5, 0.9]} />
+        <Metal color="#d5e8f6" metal={0.15} rough={0.18} />
+      </mesh>
+      <mesh position={[body[0] / 2 + 0.12, 0.46, 0]} castShadow>
+        <boxGeometry args={[0.28, 0.32, header]} />
+        <Metal color={accent} glow={0.45} metal={0.2} rough={0.4} />
+      </mesh>
+      <mesh position={[body[0] / 2 + 0.28, 0.72, 0]} rotation={[0, 0, Math.PI / 2]} castShadow>
+        <cylinderGeometry args={[0.16, 0.16, header - 0.15, 12]} />
+        <meshStandardMaterial color="#243240" metalness={0.45} roughness={0.4} />
+      </mesh>
+      <Axle spots={[[-0.45, 0.55], [-0.45, -0.55], [0.55, 0.58], [0.55, -0.58]]} />
+    </group>
   );
+}
+
+function Drone() {
+  return (
+    <group position={[0, 1.25, 0]}>
+      <mesh castShadow>
+        <boxGeometry args={[0.38, 0.1, 0.38]} />
+        <Metal color="#1d2b38" metal={0.55} rough={0.28} />
+      </mesh>
+      <mesh position={[0, -0.12, 0]}>
+        <boxGeometry args={[0.12, 0.08, 0.12]} />
+        <Metal color="#49c2ff" glow={0.9} metal={0.2} rough={0.3} />
+      </mesh>
+      {[0, Math.PI / 2, Math.PI, (Math.PI * 3) / 2].map((angle) => (
+        <group key={angle} rotation={[0, angle, 0]}>
+          <mesh position={[0.38, 0.02, 0]} castShadow>
+            <boxGeometry args={[0.62, 0.025, 0.05]} />
+            <Metal color="#d7e6f2" metal={0.65} rough={0.22} />
+          </mesh>
+          <mesh position={[0.68, 0.03, 0]} rotation={[Math.PI / 2, 0, 0]}>
+            <torusGeometry args={[0.14, 0.012, 6, 18]} />
+            <meshBasicMaterial color="#8fd4ff" toneMapped={false} />
+          </mesh>
+        </group>
+      ))}
+    </group>
+  );
+}
+
+function Rover() {
+  return (
+    <group>
+      <RoundedBox args={[1.35, 0.28, 0.78]} position={[0, 0.42, 0]} radius={0.05} smoothness={2} castShadow>
+        <Metal color="#eef3f8" metal={0.35} rough={0.35} />
+      </RoundedBox>
+      <mesh position={[0.15, 0.78, 0]} castShadow>
+        <cylinderGeometry args={[0.05, 0.06, 0.55, 8]} />
+        <Metal color="#8ea0b0" metal={0.6} rough={0.25} />
+      </mesh>
+      <mesh position={[0.15, 1.1, 0]} castShadow>
+        <sphereGeometry args={[0.16, 14, 12]} />
+        <Metal color="#c9b6ff" glow={0.7} metal={0.2} rough={0.3} />
+      </mesh>
+      <mesh position={[-0.35, 0.62, 0]} castShadow>
+        <boxGeometry args={[0.4, 0.16, 0.46]} />
+        <Metal color="#2a3a4a" metal={0.4} rough={0.4} />
+      </mesh>
+      <Axle spots={[[-0.4, 0.4], [-0.4, -0.4], [0.42, 0.4], [0.42, -0.4]]} />
+    </group>
+  );
+}
+
+function ExhibitTip({ id }: { id: string }) {
+  const lang = useLang();
+  const device = HALL_EXAMPLE_DEVICES.find((item) => item.id === id)!;
+  const zone = HALL_ZONES.find((item) => item.id === device.zone)!;
+  const status = HALL_STATUS_EXAMPLE.find((item) => item.id === device.status)!;
+  return (
+    <Html position={[0, 2.15, 0]} center distanceFactor={11} zIndexRange={[24, 0]} style={{ pointerEvents: 'none' }}>
+      <div className="hall-tip">
+        <strong>{device.name}</strong>
+        <span>{zone.id} · {lang === 'zh' ? zone.zh : zone.en}</span>
+        <em className={`is-${device.status}`}>{lang === 'zh' ? status.zh : status.en}</em>
+        <small>{HALL_EXAMPLE_LABEL}</small>
+      </div>
+    </Html>
+  );
+}
+
+function Exhibit({
+  id,
+  position,
+  rotation,
+  scale,
+  tipped,
+  onSelect,
+  onHover,
+  onTip,
+  children,
+}: {
+  id: string;
+  position: [number, number, number];
+  rotation: number;
+  scale: number;
+  tipped: boolean;
+  onSelect: (id: HallZoneId) => void;
+  onHover: (id: HallZoneId | null) => void;
+  onTip: (id: string | null) => void;
+  children: ReactNode;
+}) {
+  const { gl } = useThree();
+  const device = HALL_EXAMPLE_DEVICES.find((item) => item.id === id)!;
+  const zone = HALL_ZONES.find((item) => item.id === device.zone)!;
+  const enter = (event: { stopPropagation: () => void }) => {
+    event.stopPropagation();
+    onTip(id);
+    onHover(device.zone);
+    gl.domElement.style.cursor = 'pointer';
+  };
+  const leave = () => {
+    onTip(null);
+    onHover(null);
+    gl.domElement.style.cursor = '';
+  };
+  return (
+    <group position={position} rotation={[0, rotation, 0]}>
+      <mesh position={[0, 0.2, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+        <circleGeometry args={[1.05, 28]} />
+        <meshStandardMaterial
+          color={tipped ? '#ffffff' : '#d5e4ef'}
+          emissive={zone.color}
+          emissiveIntensity={tipped ? 0.55 : 0.08}
+          roughness={0.72}
+        />
+      </mesh>
+      <mesh position={[0, 0.95, 0]} onClick={(event) => { event.stopPropagation(); onSelect(device.zone); }} onPointerOver={enter} onPointerOut={leave}>
+        <boxGeometry args={[2.1, 1.7, 1.45]} />
+        <meshBasicMaterial transparent opacity={0} depthWrite={false} />
+      </mesh>
+      <group scale={scale}>{children}</group>
+      {tipped && <ExhibitTip id={id} />}
+    </group>
+  );
+}
+
+function Silhouette({ kind }: { kind: ExhibitKind }) {
+  if (kind === 'seeder') return <Seeder />;
+  if (kind === 'harvester') return <Harvester />;
+  if (kind === 'combine') return <Harvester compact />;
+  if (kind === 'drone') return <Drone />;
+  if (kind === 'rover') return <Rover />;
+  return <TractorModel />;
 }
 
 function HallWorld({ selected, hovered, reducedMotion, onSelect, onHover }: HallSceneProps) {
   const floor = useFloorTexture();
-  const { invalidate, size } = useThree();
+  const { invalidate, size, gl } = useThree();
+  const [tip, setTip] = useState<string | null>(null);
+  const zone = HALL_ZONES.find((item) => item.id === selected)!;
   useEffect(() => () => { floor?.dispose(); }, [floor]);
-  useEffect(() => { invalidate(); }, [selected, hovered, invalidate]);
+  useEffect(() => () => { gl.domElement.style.cursor = ''; }, [gl]);
+  useEffect(() => { invalidate(); }, [selected, hovered, tip, invalidate]);
   const shadow = size.width < 800 ? 512 : 1024;
   return (
     <>
-      <color attach="background" args={['#d7e8f5']} />
-      <fog attach="fog" args={['#d7e8f5', 28, 58]} />
-      <ambientLight intensity={1.15} color="#f4f8fc" />
+      <color attach="background" args={['#c5ddf0']} />
+      <fog attach="fog" args={['#c5ddf0', 26, 52]} />
+      <hemisphereLight args={['#f5fbff', '#7fa4be', 0.72]} />
+      <ambientLight intensity={0.55} color="#f7fbff" />
       <directionalLight
-        position={[8, 16, 6]}
-        intensity={2.4}
-        color="#fffaf2"
+        position={[9, 18, 7]}
+        intensity={2.7}
+        color="#fff6ea"
         castShadow
         shadow-mapSize={[shadow, shadow]}
         shadow-camera-left={-16}
         shadow-camera-right={16}
         shadow-camera-top={12}
         shadow-camera-bottom={-12}
-        shadow-camera-far={40}
+        shadow-camera-far={42}
         shadow-bias={-0.0002}
       />
-      <directionalLight position={[-8, 8, -6]} intensity={0.7} color="#9fd6ff" />
+      <directionalLight position={[-10, 7, -4]} intensity={0.85} color="#9fd4ff" />
+      <pointLight position={[zone.position[0], 3.6, zone.position[2]]} color={zone.color} intensity={26} distance={11} decay={2} />
       <FocusCamera selected={selected} reducedMotion={reducedMotion} />
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0.1]} receiveShadow>
         <planeGeometry args={[24, 16]} />
-        <meshStandardMaterial map={floor ?? undefined} color="#f4f8fc" roughness={0.86} metalness={0.02} />
+        <meshStandardMaterial map={floor ?? undefined} color="#eef5fb" roughness={0.9} metalness={0.02} />
       </mesh>
-      <mesh position={[0, 0.015, 0.1]}>
-        <boxGeometry args={[1.35, 0.03, 14.2]} />
-        <meshStandardMaterial color="#d5ebf8" emissive="#7ec8ee" emissiveIntensity={0.18} />
+      <mesh position={[0, 0.02, 0.1]}>
+        <boxGeometry args={[1.2, 0.025, 14.4]} />
+        <meshStandardMaterial color="#d5ebf8" emissive="#8fd4ff" emissiveIntensity={1.05} toneMapped={false} />
       </mesh>
-      <GlassWall position={[0, 2.1, -7.7]} size={[23.2, 4.2, 0.08]} />
-      <GlassWall position={[-11.6, 2.1, 0.1]} size={[0.08, 4.2, 15.6]} />
-      <GlassWall position={[11.6, 2.1, 0.1]} size={[0.08, 4.2, 15.6]} />
-      <mesh position={[0, 4.15, 0.1]}>
-        <boxGeometry args={[23.2, 0.06, 15.6]} />
-        <meshStandardMaterial color="#e7f3fb" transparent opacity={0.35} roughness={0.1} metalness={0.05} />
+      <GlassWall position={[0, 2.15, -7.7]} size={[23.2, 4.3, 0.08]} />
+      <GlassWall position={[-11.6, 2.15, 0.1]} size={[0.08, 4.3, 15.6]} />
+      <GlassWall position={[11.6, 2.15, 0.1]} size={[0.08, 4.3, 15.6]} />
+      <mesh position={[0, 0.16, -7.62]} receiveShadow>
+        <boxGeometry args={[23.2, 0.32, 0.1]} />
+        <meshStandardMaterial color="#d5e2ee" metalness={0.35} roughness={0.4} />
       </mesh>
-      {[-8, -2.6, 2.6, 8].map((x) => (
-        <mesh key={x} position={[x, 4.05, 0.1]}>
-          <boxGeometry args={[0.08, 0.05, 14.4]} />
-          <meshStandardMaterial color="#9fd8ff" emissive="#7ecfff" emissiveIntensity={1.8} toneMapped={false} />
+      <mesh position={[0, 4.22, 0.1]}>
+        <boxGeometry args={[23.2, 0.05, 15.6]} />
+        <meshStandardMaterial color="#e7f3fb" transparent opacity={0.28} roughness={0.08} metalness={0.04} />
+      </mesh>
+      {[-8.2, -2.7, 2.7, 8.2].map((x) => (
+        <mesh key={`beam-${x}`} position={[x, 4.08, 0.1]}>
+          <boxGeometry args={[0.1, 0.06, 14.6]} />
+          <meshStandardMaterial color="#bfe8ff" emissive="#8fd4ff" emissiveIntensity={1.7} toneMapped={false} />
         </mesh>
       ))}
-      {[-4.2, 0.2, 4.6].map((z) => (
-        <mesh key={z} position={[0, 4.02, z]}>
-          <boxGeometry args={[20, 0.04, 0.06]} />
-          <meshStandardMaterial color="#bfe6ff" emissive="#8fd4ff" emissiveIntensity={1.35} toneMapped={false} />
+      {[-4.4, 0.15, 4.7].map((z) => (
+        <mesh key={`strip-${z}`} position={[0, 4.04, z]}>
+          <boxGeometry args={[20.4, 0.045, 0.07]} />
+          <meshStandardMaterial color="#d2efff" emissive="#9ad8ff" emissiveIntensity={1.25} toneMapped={false} />
         </mesh>
       ))}
-      {HALL_ZONES.map((zone) => (
+      {[[-10.9, -6.9], [10.9, -6.9], [-10.9, 7.05], [10.9, 7.05]].map(([x, z]) => (
+        <mesh key={`post-${x}-${z}`} position={[x, 2.1, z]} castShadow>
+          <boxGeometry args={[0.18, 4.2, 0.18]} />
+          <meshStandardMaterial color="#e7f1f8" metalness={0.55} roughness={0.22} />
+        </mesh>
+      ))}
+      {HALL_ZONES.map((item) => (
         <ZoneStand
-          key={zone.id}
-          id={zone.id}
-          position={zone.position}
-          color={zone.color}
-          active={selected === zone.id}
-          hovered={hovered === zone.id}
+          key={item.id}
+          id={item.id}
+          position={item.position}
+          color={item.color}
+          active={selected === item.id}
+          hovered={hovered === item.id}
           onSelect={onSelect}
           onHover={onHover}
         />
       ))}
       <Suspense fallback={null}>
-        <MachinePad position={[-6.5, 0, -3.7]} rotation={0.55}>
-          <group scale={0.72}><TractorModel /></group>
-        </MachinePad>
-        <MachinePad position={[-4.1, 0, -2.35]} rotation={-0.7}>
-          <group scale={0.62}><TractorModel /></group>
-        </MachinePad>
-        <MachinePad position={[4.2, 0, -3.5]} rotation={2.5}>
-          <group scale={0.68}><TractorModel /></group>
-        </MachinePad>
-        <MachinePad position={[6.5, 0, -2.2]} rotation={2.1}>
-          <group scale={0.58}><TractorModel /></group>
-        </MachinePad>
+        {EXHIBITS.map((exhibit) => (
+          <Exhibit
+            key={exhibit.id}
+            id={exhibit.id}
+            position={exhibit.position}
+            rotation={exhibit.rotation}
+            scale={exhibit.scale}
+            tipped={tip === exhibit.id}
+            onSelect={onSelect}
+            onHover={onHover}
+            onTip={setTip}
+          >
+            <Silhouette kind={exhibit.kind} />
+          </Exhibit>
+        ))}
       </Suspense>
-      <BlockMachine position={[-6.4, 0, 3.9]} rotation={0.4} color="#f0c24a" />
-      <BlockMachine position={[-4.0, 0, 2.5]} rotation={-0.5} color="#ef8b4c" />
-      <BlockMachine position={[4.3, 0, 2.6]} rotation={2.2} color="#7d6cff" />
-      <BlockMachine position={[6.6, 0, 4.0]} rotation={2.6} color="#49c2ff" />
-      {[[-9.6, -5.6], [-9.6, 5.8], [9.6, -5.6], [9.6, 5.8], [-1.1, -6.2], [1.1, -6.2], [-1.1, 6.4], [1.1, 6.4]].map(([x, z]) => (
+      {[[-9.6, -5.6], [-9.6, 5.8], [9.6, -5.6], [9.6, 5.8], [-1.15, -6.3], [1.15, -6.3], [-1.15, 6.5], [1.15, 6.5]].map(([x, z]) => (
         <Plant key={`${x}-${z}`} position={[x, 0, z]} />
       ))}
       {!reducedMotion && size.width >= 720 && (
-        <ContactShadows position={[0, 0.021, 0.1]} opacity={0.28} scale={22} blur={2.4} far={3.5} resolution={256} />
+        <ContactShadows position={[0, 0.012, 0.1]} opacity={0.32} scale={22} blur={2.2} far={3.2} resolution={256} />
       )}
       <StageGlow reducedMotion={reducedMotion} />
     </>
@@ -295,8 +541,8 @@ function StageGlow({ reducedMotion }: { reducedMotion: boolean }) {
   if (reducedMotion || width < 720) return null;
   return (
     <EffectComposer multisampling={0} enableNormalPass={false}>
-      <Bloom luminanceThreshold={0.2} luminanceSmoothing={0.25} intensity={0.65} mipmapBlur radius={0.5} levels={5} />
-      <Vignette eskil={false} offset={0.2} darkness={0.38} />
+      <Bloom luminanceThreshold={0.58} luminanceSmoothing={0.22} intensity={0.42} mipmapBlur radius={0.45} levels={4} />
+      <Vignette eskil={false} offset={0.18} darkness={0.42} />
     </EffectComposer>
   );
 }

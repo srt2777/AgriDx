@@ -159,21 +159,56 @@
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background: repeating-linear-gradient(to bottom, transparent 0 3px, rgb(10 32 52 / 4.5%) 3px 4px);
-  mix-blend-mode: multiply;
+  background:
+    repeating-linear-gradient(to bottom, transparent 0 7px, rgb(8 28 48 / 7%) 7px 8px),
+    linear-gradient(to bottom, transparent 0%, rgb(150 220 255 / 0%) 46%, rgb(170 230 255 / 28%) 50%, rgb(150 220 255 / 0%) 54%, transparent 100%);
+  background-size: 100% 100%, 100% 240%;
+  background-repeat: repeat, no-repeat;
+  mix-blend-mode: screen;
 }
 
 .hall-marker {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
   border: 1px solid color-mix(in srgb, var(--zone-color) 80%, white);
-  border-radius: 999px;
-  padding: 4px 10px;
-  background: rgb(8 24 40 / 78%);
+  border-radius: 12px;
+  padding: 4px 10px 5px;
+  background: rgb(8 24 40 / 82%);
   color: white;
-  font-size: 12px;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.04em;
   box-shadow: 0 0 12px color-mix(in srgb, var(--zone-color) 55%, transparent);
   cursor: pointer;
 }
+
+.hall-marker b { font-size: 13px; font-weight: 650; line-height: 1.1; }
+.hall-marker span { font-size: 10px; font-weight: 500; opacity: 0.9; }
+
+.hall-tip {
+  min-width: 156px;
+  padding: 8px 10px 9px;
+  border: 1px solid rgb(163 212 236 / 50%);
+  border-radius: 10px;
+  background: rgb(10 22 34 / 90%);
+  color: #f4fbff;
+  box-shadow: 0 12px 28px rgb(0 0 0 / 32%);
+  text-align: left;
+}
+
+.hall-tip strong,
+.hall-tip span,
+.hall-tip em,
+.hall-tip small { display: block; }
+
+.hall-tip strong { font-size: 12px; font-weight: 650; }
+.hall-tip span,
+.hall-tip small { margin-top: 2px; color: rgb(214 232 244 / 78%); font-size: 10px; font-style: normal; }
+.hall-tip em { margin-top: 4px; font-size: 11px; font-style: normal; color: #8fd4ff; }
+.hall-tip em.is-online { color: #7dffa8; }
+.hall-tip em.is-standby { color: #9fd4ff; }
+.hall-tip em.is-maintenance { color: #ffd36a; }
+.hall-tip em.is-offline { color: #c5d0da; }
 
 .hall-marker.is-on { background: color-mix(in srgb, var(--zone-color) 78%, #082030); }
 
@@ -261,6 +296,14 @@
 .hall-ring svg { width: 118px; height: 118px; }
 .hall-ring-track { fill: none; stroke: color-mix(in srgb, var(--hub-border) 80%, transparent); stroke-width: 10; }
 .hall-ring-arc { fill: none; stroke-width: 10; stroke-linecap: butt; transform: rotate(-90deg); transform-origin: 60px 60px; }
+.hall-ring-sweep {
+  fill: none;
+  stroke: var(--hub-primary);
+  stroke-width: 1.25;
+  stroke-dasharray: 16 96;
+  opacity: 0.55;
+  transform-origin: 60px 60px;
+}
 .hall-ring-arc.is-online { stroke: var(--success); }
 .hall-ring-arc.is-standby { stroke: var(--chart-4); }
 .hall-ring-arc.is-maintenance { stroke: var(--warning); }
@@ -331,21 +374,55 @@ a.hall-card:hover,
 
 @media (prefers-reduced-motion: no-preference) {
   .hall-board { animation: hall-rise 520ms cubic-bezier(.16, 1, .3, 1); }
+  .hall-board::after {
+    content: '';
+    position: absolute;
+    left: 22px;
+    right: 22px;
+    bottom: 7px;
+    height: 1px;
+    pointer-events: none;
+    background: linear-gradient(90deg, transparent, var(--hub-primary), transparent);
+    background-size: 28% 100%;
+    background-repeat: no-repeat;
+    opacity: 0.7;
+    animation: hall-flow 7.5s linear infinite;
+  }
+  .hall-zone,
+  .hall-panel,
+  .hall-card { animation: hall-enter 680ms cubic-bezier(.16, 1, .3, 1) backwards; }
+  .hall-zone:nth-child(1) { animation-delay: 50ms; }
+  .hall-zone:nth-child(2) { animation-delay: 110ms; }
+  .hall-zone:nth-child(3) { animation-delay: 170ms; }
+  .hall-zone:nth-child(4) { animation-delay: 230ms; }
+  .hall-side .hall-panel:nth-child(1) { animation-delay: 90ms; }
+  .hall-side .hall-panel:nth-child(2) { animation-delay: 170ms; }
+  .hall-cards > :nth-child(1) { animation-delay: 80ms; }
+  .hall-cards > :nth-child(2) { animation-delay: 130ms; }
+  .hall-cards > :nth-child(3) { animation-delay: 180ms; }
+  .hall-cards > :nth-child(4) { animation-delay: 230ms; }
+  .hall-cards > :nth-child(5) { animation-delay: 280ms; }
+  .hall-cards > :nth-child(6) { animation-delay: 330ms; }
+  .hall-cards > :nth-child(7) { animation-delay: 380ms; }
   .hall-zone,
   .hall-card,
   .hall-marker { transition: border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease; }
   .hall-marker.is-on { animation: hall-marker-pulse 2.4s ease-in-out infinite; }
   .hall-zone:active,
   .hall-card:active { transform: scale(0.985); }
-  .hall-scan { animation: hall-scan 8s linear infinite; }
+  .hall-scan { animation: hall-scan 6.5s linear infinite; }
+  .hall-ring-sweep { animation: hall-spin 14s linear infinite; }
 }
 
 @keyframes hall-rise { from { opacity: 0.6; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@keyframes hall-enter { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
 @keyframes hall-marker-pulse {
   0%, 100% { box-shadow: 0 0 8px color-mix(in srgb, var(--zone-color) 55%, transparent); }
   50% { box-shadow: 0 0 18px color-mix(in srgb, var(--zone-color) 90%, transparent); }
 }
-@keyframes hall-scan { from { background-position: 0 0; } to { background-position: 0 28px; } }
+@keyframes hall-scan { from { background-position: 0 0, 0 -40%; } to { background-position: 0 0, 0 140%; } }
+@keyframes hall-flow { from { background-position: -30% 0; } to { background-position: 130% 0; } }
+@keyframes hall-spin { to { transform: rotate(360deg); } }
 
 @media (max-width: 1180px) {
   .hall-body { grid-template-columns: 200px minmax(0, 1fr) 260px; }

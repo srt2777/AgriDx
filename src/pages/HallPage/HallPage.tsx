@@ -65,20 +65,47 @@ function useShanghaiClock(): string {
   return stamp;
 }
 
-function StatusRing({ label }: { label: string }) {
+const STATUS_TARGETS = HALL_STATUS_EXAMPLE.map((item) => item.count);
+
+function useCountUps(targets: readonly number[], reduced: boolean): number[] {
+  const [values, setValues] = useState<number[]>(() => (reduced ? [...targets] : targets.map(() => 0)));
+  useEffect(() => {
+    if (reduced) {
+      setValues([...targets]);
+      return;
+    }
+    const origin = targets.map(() => 0);
+    const start = performance.now();
+    let frame = 0;
+    const tick = (now: number) => {
+      const t = Math.min(1, (now - start) / 900);
+      const eased = 1 - (1 - t) ** 3;
+      setValues(targets.map((goal, index) => origin[index] + (goal - origin[index]) * eased));
+      if (t < 1) frame = requestAnimationFrame(tick);
+    };
+    frame = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frame);
+  }, [reduced, targets]);
+  return values;
+}
+
+function StatusRing({ label, reducedMotion }: { label: string; reducedMotion: boolean }) {
   const lang = useLang();
+  const counts = useCountUps(STATUS_TARGETS, reducedMotion);
+  const shown = counts.map((value) => Math.round(value));
   const radius = 42;
   const circumference = 2 * Math.PI * radius;
   const gap = 0.03 * circumference;
   let cursor = 0;
-  const summary = HALL_STATUS_EXAMPLE.map((item) => `${lang === 'zh' ? item.zh : item.en} ${item.count}`).join('，');
+  const summary = HALL_STATUS_EXAMPLE.map((item, index) => `${lang === 'zh' ? item.zh : item.en} ${shown[index]}`).join('，');
   return (
     <figure className="hall-ring" aria-label={`${label}，${summary}`}>
       <svg viewBox="0 0 120 120" role="img">
         <title>{`${label} ${HALL_EXAMPLE_TOTAL}`}</title>
         <circle className="hall-ring-track" cx="60" cy="60" r={radius} />
-        {HALL_STATUS_EXAMPLE.map((item) => {
-          const length = Math.max((item.count / HALL_EXAMPLE_TOTAL) * circumference - gap, 0);
+        <circle className="hall-ring-sweep" cx="60" cy="60" r="52" />
+        {HALL_STATUS_EXAMPLE.map((item, index) => {
+          const length = Math.max((counts[index] / HALL_EXAMPLE_TOTAL) * circumference - gap, 0);
           const dash = `${length} ${circumference - length}`;
           const offset = -cursor;
           cursor += length + gap;
@@ -94,15 +121,15 @@ function StatusRing({ label }: { label: string }) {
             />
           );
         })}
-        <text x="60" y="58" textAnchor="middle" className="hall-ring-total">{HALL_EXAMPLE_TOTAL}</text>
+        <text x="60" y="58" textAnchor="middle" className="hall-ring-total">{shown.reduce((sum, value) => sum + value, 0)}</text>
         <text x="60" y="74" textAnchor="middle" className="hall-ring-unit">{lang === 'zh' ? '台' : 'units'}</text>
       </svg>
       <figcaption>
-        {HALL_STATUS_EXAMPLE.map((item) => (
+        {HALL_STATUS_EXAMPLE.map((item, index) => (
           <span key={item.id} className={`hall-legend is-${item.id}`}>
             <i />
             {lang === 'zh' ? item.zh : item.en}
-            <strong>{item.count}</strong>
+            <strong>{shown[index]}</strong>
           </span>
         ))}
       </figcaption>
@@ -201,7 +228,7 @@ export default function HallPage() {
                 <h2 id="hall-status-title">{t('运行状态概览', 'Status overview')}</h2>
                 <span className="hall-example-tag">{HALL_EXAMPLE_LABEL}</span>
               </header>
-              <StatusRing label={t('示例运行状态', 'Example operating status')} />
+              <StatusRing label={t('示例运行状态', 'Example operating status')} reducedMotion={reducedMotion} />
             </section>
             <section className="hall-panel hall-devices" aria-labelledby="hall-device-title">
               <header>
