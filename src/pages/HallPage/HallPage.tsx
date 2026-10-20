@@ -206,7 +206,23 @@ export default function HallPage() {
                   </thead>
                   <tbody>
                     {HALL_EXAMPLE_DEVICES.map((device) => (
-                      <tr key={device.id} className={device.zone === selected ? 'is-current' : ''} data-zone={device.zone}>
+                      <tr
+                        key={device.id}
+                        className={device.zone === selected ? 'is-current' : ''}
+                        data-zone={device.zone}
+                        tabIndex={0}
+                        role="button"
+                        aria-pressed={device.zone === selected}
+                        onClick={() => setSelected(device.zone)}
+                        onPointerEnter={() => setHovered(device.zone)}
+                        onPointerLeave={() => setHovered(null)}
+                        onKeyDown={(event) => {
+                          if (event.key === 'Enter' || event.key === ' ') {
+                            event.preventDefault();
+                            setSelected(device.zone);
+                          }
+                        }}
+                      >
                         <td>
                           <strong>{device.name}</strong>
                           <small>{device.zone} {t('展区', 'zone')}</small>

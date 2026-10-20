@@ -264,7 +264,9 @@
 .hall-devices td strong,
 .hall-devices td small { display: block; }
 .hall-devices td small { color: var(--hub-muted); font-size: 10px; }
+.hall-devices tr { cursor: pointer; }
 .hall-devices tr.is-current td { background: color-mix(in srgb, var(--hub-primary) 12%, transparent); }
+.hall-devices tr:hover td { background: color-mix(in srgb, var(--hub-primary) 8%, transparent); }
 .hall-badge {
   display: inline-flex;
   align-items: center;
@@ -312,12 +314,17 @@ a.hall-card:hover,
   .hall-zone,
   .hall-card,
   .hall-marker { transition: border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease; }
+  .hall-marker.is-on { animation: hall-marker-pulse 2.4s ease-in-out infinite; }
   .hall-zone:active,
   .hall-card:active { transform: scale(0.985); }
   .hall-scan { animation: hall-scan 8s linear infinite; }
 }
 
 @keyframes hall-rise { from { opacity: 0.6; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@keyframes hall-marker-pulse {
+  0%, 100% { box-shadow: 0 0 8px color-mix(in srgb, var(--zone-color) 55%, transparent); }
+  50% { box-shadow: 0 0 18px color-mix(in srgb, var(--zone-color) 90%, transparent); }
+}
 @keyframes hall-scan { from { background-position: 0 0; } to { background-position: 0 28px; } }
 
 @media (max-width: 1180px) {

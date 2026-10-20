@@ -27,6 +27,16 @@
   box-shadow: inset 0 1px 0 color-mix(in srgb, var(--hub-primary) 24%, transparent);
 }
 
+.new-version-shell .model-stage {
+  background:
+    radial-gradient(ellipse at 50% 42%, color-mix(in srgb, var(--hub-primary) 22%, transparent), transparent 58%),
+    var(--hub-surface);
+}
+
+.new-version-shell textarea:focus-visible {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--hub-primary) 35%, transparent);
+}
+
 .new-version-shell .library-collections button[aria-pressed='true'] {
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--hub-primary) 55%, transparent);
 }
