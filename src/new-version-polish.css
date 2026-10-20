@@ -65,5 +65,6 @@
   .new-version-header::after,
   .expo-world-stage,
   .new-version-shell .rounded-3xl,
-  .new-version-shell .knowledge-page .library-collections button { animation: none; transition: none; }
+  .new-version-shell .knowledge-page .library-collections button,
+  .new-version-shell .evidence-entry { animation: none; transition: none; }
 }
