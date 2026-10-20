@@ -1,4 +1,6 @@
 .new-version-shell {
+  display: flex;
+  flex-direction: column;
   min-height: 100dvh;
   color: var(--foreground);
   background: radial-gradient(ellipse at 50% 0%, var(--accent), transparent 52%),
@@ -33,7 +35,11 @@
 .new-version-subheader > span:first-child { display: flex; align-items: center; gap: 8px; }
 .new-version-subheader i { width: 5px; height: 5px; border-radius: 50%; background: var(--muted); box-shadow: 0 0 8px rgb(106 221 185 / 38%); }
 .new-version-route-label { color: var(--muted-foreground); }
-.new-version-main { min-width: 0; min-height: calc(100dvh - 148px); }
+.new-version-header, .new-version-subheader { flex-shrink: 0; }
+.new-version-main { min-width: 0; flex: 1 0 auto; }
+.new-version-shell[data-route='/chat'] { height: 100dvh; overflow: hidden; }
+.new-version-shell[data-route='/chat'] .new-version-main { display: flex; flex-direction: column; min-height: 0; }
+.new-version-shell[data-route='/chat'] .chat-glass { height: auto; min-height: 0; flex: 1; }
 
 /* Existing feature pages consume the shared CSS variables; these rules only adapt their viewport chrome. */
 .new-version-shell .knowledge-page { min-height: calc(100dvh - 140px); }

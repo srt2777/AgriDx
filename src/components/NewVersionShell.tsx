@@ -7,9 +7,12 @@ import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-do
 import { useLang, setLang } from '@/hooks/useLang';
 import { useReducedMotion } from 'framer-motion';
 import DemoNote from '@/components/DemoNote';
+import { CommandButton } from '@/components/CommandPalette';
+import { SiteStatusBar } from '@/components/SiteStatusBar';
 import VersionSwitch from '@/components/VersionSwitch';
 import MagneticPointer from '@/components/MagneticPointer';
 import ThemeSwitch from '@/components/ThemeSwitch';
+import { beginSharedTransition } from '@/lib/shared-transition';
 import './new-version-shell.css';
 
 const NAV_ZH = [
@@ -59,6 +62,12 @@ export function NewVersionShell() {
               end={item.path === '/'}
               onPointerEnter={() => preloadPage(item.path, 'new')}
               onFocus={() => preloadPage(item.path, 'new')}
+              onClick={(event) => {
+                if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return;
+                if (event.currentTarget.getAttribute('aria-current') === 'page') return;
+                event.preventDefault();
+                beginSharedTransition(null, () => navigate(item.path));
+              }}
               className={({ isActive }) => `new-version-nav-item magnetic${isActive ? ' is-active' : ''}`}
             >
               {({ isActive }) => <>{isActive && <LiquidSelection className="new-version-nav-indicator" layoutId="new-shell-navigation" />}<span className="new-version-nav-label">{item.label}</span></>}
@@ -67,6 +76,7 @@ export function NewVersionShell() {
         </nav>
 
         <div className="new-version-tools">
+          <CommandButton />
           <DemoNote />
           <VersionSwitch exhibition onChange={() => navigate('/')} />
           <ThemeSwitch />
@@ -83,6 +93,7 @@ export function NewVersionShell() {
       <main id="main-content" className="new-version-main" tabIndex={-1}>
         <Outlet />
       </main>
+      <SiteStatusBar />
     </div>
   );
 }

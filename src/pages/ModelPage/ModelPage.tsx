@@ -91,7 +91,7 @@ export default function ModelPage() {
   return <div className="mx-auto max-w-6xl px-4 pb-16 pt-10 md:px-6 md:pt-16">
     <div className="mb-8 max-w-3xl">
       <p className="text-xs font-semibold tracking-[.14em] text-primary">{t('耕知 · 模型工坊', 'GENGZHI · MODEL STUDIO')}</p>
-      <h1 className="mt-3 text-3xl font-semibold tracking-tight text-foreground md:text-4xl">{t('看清结构，再对资料。', 'See the structure, then check the evidence.')}</h1>
+      <h1 className="mt-3 text-3xl font-semibold tracking-tight text-foreground md:text-4xl" data-shared-target={version === 'new' ? 'models' : undefined}>{t('看清结构，再对资料。', 'See the structure, then check the evidence.')}</h1>
       <p className="mt-4 text-sm leading-7 text-muted-foreground">{t('整机和部件都是示意。维修结论仍要回到对应机型的资料。', 'The machine and its parts are a schematic. Repair decisions still follow model-specific evidence.')}</p>
       {version === 'new' && <span className="wheat-line mt-5 w-56" aria-hidden="true" />}
     </div>

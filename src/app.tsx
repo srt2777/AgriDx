@@ -9,6 +9,7 @@ const ChatPage = lazy(pageLoaders.chat);
 const KnowledgePage = lazy(pageLoaders.knowledge);
 const ModelPage = lazy(pageLoaders.models);
 import NotFoundPage from '@/pages/NotFoundPage/NotFoundPage';
+import CommandPalette from '@/components/CommandPalette';
 import { useUiVersion } from '@/hooks/useUiVersion';
 const ExhibitionPage = lazy(pageLoaders.exhibition);
 const HallPage = lazy(pageLoaders.hall);
@@ -25,6 +26,12 @@ function PageContent({ children }: { children: ReactNode }) {
   return <Suspense key={pathname} fallback={<PageLoading />}>
     <div key={pathname === '/' ? version : pathname} className={reveal}>{children}</div>
   </Suspense>;
+}
+
+function NewCommandPalette() {
+  const version = useUiVersion();
+  if (version !== 'new') return null;
+  return <CommandPalette />;
 }
 
 function VersionedHomePage() {
@@ -47,6 +54,7 @@ export default function App() {
       <Route path="*" element={<NotFoundPage />} />
     </Routes>
     {PreviewStatus && <Suspense fallback={null}><PreviewStatus /></Suspense>}
+    <NewCommandPalette />
     <AutoUpdateStatus />
     </>
   );

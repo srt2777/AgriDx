@@ -139,7 +139,7 @@ export default function ChatPage() {
             <Bot className="h-4 w-4" />
           </div>
           <div className="min-w-0">
-            <div className="truncate text-sm font-semibold text-foreground">耕知·耘诊 · {t('诊断工作台', 'Diagnosis workspace')}</div>
+            <div className="truncate text-sm font-semibold text-foreground" data-shared-target={version === 'new' ? 'diagnosis' : undefined}>耕知·耘诊 · {t('诊断工作台', 'Diagnosis workspace')}</div>
             <div className="flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground" role="status">
               <span title={configurationHint}>{serviceStatus}</span>
               {currentProvider && (

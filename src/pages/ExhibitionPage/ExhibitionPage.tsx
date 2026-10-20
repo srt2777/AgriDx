@@ -48,7 +48,9 @@ import { probeWebGL, type GraphicsReason } from '@/lib/webgl';
 import { useLang, setLang } from '@/hooks/useLang';
 import { setUiVersion } from '@/hooks/useUiVersion';
 import { useKnowledgeCatalog } from '@/hooks/useKnowledgeCatalog';
-import { version as appVersion } from '../../../package.json';
+import { CommandButton } from '@/components/CommandPalette';
+import { SiteStatusBar } from '@/components/SiteStatusBar';
+import { beginSharedTransition, sharedTransitionName } from '@/lib/shared-transition';
 import {
   initialDriveState,
   KEY_ACTIONS,
@@ -282,14 +284,22 @@ export default function ExhibitionPage() {
     setSelected(null);
     setReset((value) => value + 1);
   }
-  function enterZone(id: ZoneId) {
+  function enterZone(id: ZoneId, source?: Element | null) {
     stopInput();
     const zone = WORLD_ZONES.find((item) => item.id === id)!;
-    if (zone.path) navigate(zone.path);
-    else {
-      setUiVersion('old');
-      navigate('/', { state: { scrollTo: 'research' } });
+    const go = () => {
+      if (zone.path) navigate(zone.path);
+      else {
+        setUiVersion('old');
+        navigate('/', { state: { scrollTo: 'research' } });
+      }
+    };
+    const name = sharedTransitionName('pavilion', zone.id);
+    if (!name) {
+      go();
+      return;
     }
+    beginSharedTransition(name, go, source ?? null);
   }
   function pointerDrive(event: PointerEvent<HTMLButtonElement>, action: DriveAction) {
     if (event.button !== 0) return;
@@ -361,6 +371,7 @@ export default function ExhibitionPage() {
           <h1>{t('农机知识，在同一片园区', 'One campus for machinery knowledge')}</h1>
         </div>
         <LiquidGlass lens variant="clear" displacementScale={24} className="expo-header-glass" contentClassName="expo-header-tools">
+          <CommandButton />
           <DemoNote />
           <VersionSwitch exhibition />
           <ThemeSwitch />
@@ -540,7 +551,7 @@ export default function ExhibitionPage() {
                 ))}
               </div>
               <div className="expo-zone-actions">
-                <button type="button" onPointerEnter={() => preloadPage(selectedZone.path ?? '/', selectedZone.path ? 'new' : 'old')} onFocus={() => preloadPage(selectedZone.path ?? '/', selectedZone.path ? 'new' : 'old')} onClick={() => enterZone(selectedZone.id)}>
+                <button type="button" onPointerEnter={() => preloadPage(selectedZone.path ?? '/', selectedZone.path ? 'new' : 'old')} onFocus={() => preloadPage(selectedZone.path ?? '/', selectedZone.path ? 'new' : 'old')} onClick={(event) => enterZone(selectedZone.id, event.currentTarget.closest('.expo-zone-card')?.querySelector('h2') ?? event.currentTarget)}>
                   {t('进入展区', 'Open zone')}
                   <ArrowRight size={15} />
                 </button>
@@ -818,27 +829,22 @@ export default function ExhibitionPage() {
         <nav className="expo-direct-links" aria-label={t('直接进入功能', 'Direct feature access')}>
           <span>{t('也可以直接出发', 'OR GO DIRECTLY')}</span>
           {WORLD_ZONES.map((zone) => (
-            <button type="button" key={zone.id} onPointerEnter={() => preloadPage(zone.path ?? '/', zone.path ? 'new' : 'old')} onFocus={() => preloadPage(zone.path ?? '/', zone.path ? 'new' : 'old')} onClick={() => enterZone(zone.id)}>
+            <button type="button" key={zone.id} onPointerEnter={() => preloadPage(zone.path ?? '/', zone.path ? 'new' : 'old')} onFocus={() => preloadPage(zone.path ?? '/', zone.path ? 'new' : 'old')} onClick={(event) => enterZone(zone.id, event.currentTarget)}>
               {t(zone.zh, zone.en)}
               <ChevronRight size={14} />
             </button>
           ))}
-          <Link className="expo-hall-link magnetic" to="/hall" onPointerEnter={() => preloadPage('/hall')} onFocus={() => preloadPage('/hall')}>
+          <Link className="expo-hall-link magnetic" to="/hall" onPointerEnter={() => preloadPage('/hall')} onFocus={() => preloadPage('/hall')} onClick={(event) => {
+            if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return;
+            event.preventDefault();
+            beginSharedTransition(sharedTransitionName('pavilion', 'hall'), () => navigate('/hall'), event.currentTarget);
+          }}>
             {t('数字展厅', 'Digital hall')}
             <ChevronRight size={14} />
           </Link>
         </nav>
       </main>
-      <footer className="expo-footer">
-        <span>
-          AGRIDX <i />
-          {t('南京农业大学工学院 · 农机知识与诊断', 'COLLEGE OF ENGINEERING, NAU · KNOWLEDGE & DIAGNOSIS')}
-        </span>
-        <span>
-          v{appVersion} <i />
-          SPATIAL EXPLORATION
-        </span>
-      </footer>
+      <SiteStatusBar />
       {notice && (
         <div className="expo-notice" role="status">
           {notice}

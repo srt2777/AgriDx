@@ -21,8 +21,20 @@
 .expo-zone-nav > button > svg:last-child { transition: transform var(--motion-hover, 220ms) var(--motion-ease-press, cubic-bezier(.2, .8, .2, 1.15)); }
 .expo-zone-nav > button:is(:hover, :focus-visible, [aria-pressed='true']) > svg:last-child { transform: translate(2px, -2px); }
 @media (max-width: 639px) { .expo-zone-card { --ui-panel-origin: 100% 100%; } }
+html:active-view-transition :is(.route-content-reveal, .route-home-reveal, .route-shell-reveal) { animation: none; }
+html[data-shared='pavilion-knowledge'] [data-shared-target='knowledge'],
+html[data-shared='hall-knowledge'] [data-shared-target='knowledge'],
+html[data-shared='pavilion-diagnosis'] [data-shared-target='diagnosis'],
+html[data-shared='pavilion-models'] [data-shared-target='models'],
+html[data-shared='pavilion-hall'] [data-shared-target='hall'] { view-transition-name: route-shared; }
+::view-transition-old(route-shared),
+::view-transition-new(route-shared) {
+  animation-duration: var(--motion-enter, 520ms);
+  animation-timing-function: var(--motion-ease-out, cubic-bezier(.16, 1, .3, 1));
+}
 @media (prefers-reduced-motion: reduce) {
   .route-content-reveal, .route-home-reveal, .route-shell-reveal { animation: none; }
+  ::view-transition-old(route-shared), ::view-transition-new(route-shared) { animation: none; }
   .agri-liquid-glass :is(button, a)[data-glass-pressed], .expo-page button:active { transform: none; }
   .agri-liquid-glass button, .agri-liquid-glass a, .expo-page button, .expo-zone-nav > button > svg:last-child { transition: none !important; }
   .expo-zone-nav > button > svg:last-child { transform: none !important; }

@@ -1,5 +1,5 @@
 import { lazy, memo, useCallback, useEffect, useState, type CSSProperties } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   BookOpen,
   Boxes,
@@ -19,6 +19,7 @@ import SceneFallback from '@/components/SceneFallback';
 import { useKnowledgeCatalog } from '@/hooks/useKnowledgeCatalog';
 import { useLang } from '@/hooks/useLang';
 import { preloadPage } from '@/lib/page-loaders';
+import { beginSharedTransition, sharedTransitionName } from '@/lib/shared-transition';
 import { easeOutCubic, MOTION } from '@/lib/motion-tokens';
 import { probeWebGL, type GraphicsReason } from '@/lib/webgl';
 import {
@@ -157,6 +158,7 @@ function StatusRing({ label, reducedMotion }: { label: string; reducedMotion: bo
 
 export default function HallPage() {
   const lang = useLang();
+  const navigate = useNavigate();
   const t = (zh: string, en: string) => (lang === 'zh' ? zh : en);
   const stamp = useShanghaiClock();
   const { catalog, loading, failed } = useKnowledgeCatalog();
@@ -210,7 +212,7 @@ export default function HallPage() {
             <DemoNote />
           </div>
           <div className="hall-title-plate">
-            <h1 id="hall-title">{t('农机装备数字孪生展示大厅', 'Agricultural equipment digital-twin hall')}</h1>
+            <h1 id="hall-title" data-shared-target="hall">{t('农机装备数字孪生展示大厅', 'Agricultural equipment digital-twin hall')}</h1>
           </div>
           <span className="wheat-line" aria-hidden="true" />
           <time dateTime={stamp}>{stamp}</time>
@@ -290,7 +292,11 @@ export default function HallPage() {
                   ))}
                 </ul>
                 <p className="hall-drawer-note">{t('规格是示例数据，不是铭牌或实测。', 'Specs are example data, not a plate or a measurement.')}</p>
-                <Link to="/knowledge" onPointerEnter={() => preloadPage('/knowledge')} onFocus={() => preloadPage('/knowledge')}>
+                <Link to="/knowledge" onPointerEnter={() => preloadPage('/knowledge')} onFocus={() => preloadPage('/knowledge')} onClick={(event) => {
+                  if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return;
+                  event.preventDefault();
+                  beginSharedTransition(sharedTransitionName('hall', selected), () => navigate('/knowledge'), document.getElementById('hall-drawer-title'));
+                }}>
                   {t('查看该展区资料', 'Open this zone’s evidence')}
                 </Link>
               </aside>
