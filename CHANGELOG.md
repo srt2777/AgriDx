@@ -6,6 +6,11 @@
 
 2026-10-13按用户最新要求，将原3.3.0和原3.4.0的两批累计800条知识扩充合并为3.3.0，原3.5.0功能整合调整为3.4.0，后续主题修复和开发网关修复原3.5.1、3.5.2对应协调为3.4.1、3.4.2，本阶段项目版本上限为3.4.9。历史提交、采集过程及原始验证输出保留当时实际编号，本轮编号协调不另升版。
 
+## 3.6.2 — 2026-10-21
+
+- 修复腾讯正式发布适配仓库更名：仓库已由 `srt2777/AgriDx-v3` 更名为 `srt2777/AgriDx`，`Tencent production` 工作流的仓库条件仍写旧名，main 上每次都被跳过。工作流条件改为新名；`scripts/tencent-deploy/*` 改为读取 `GITHUB_REPOSITORY`（默认 `srt2777/AgriDx`）。更名前已安装的服务器控制器仍报告旧名，公网接入检查同时接受新旧名称；其余部署流程与安全检查不变。`.openai/dev-preview.json` 与开发网关 `worker.js` 同步新名，开发网关本次未重新部署。
+- 更新类型：fix；批次：fix-tencent-deploy-repo-rename-20261021。本地验证：`npm run verify` 通过，测试 411 项，409 通过、2 项跳过、0 失败。
+
 ## 3.6.1 — 2026-10-21
 
 - 修复 main 的 `Development preview` 工作流在“Publish the development artifact branch”失败：仓库已由 `srt2777/AgriDx-v3` 更名为 `srt2777/AgriDx`，运行时 `GITHUB_REPOSITORY` 与发布脚本写死的旧名不一致，触发“预览产物必须对应本仓库 main 主干的当前完整提交”。发布脚本改为读取 `GITHUB_REPOSITORY`（默认 `srt2777/AgriDx`），开发构建默认值同步；`dev-preview-built` 分支与 Sites 开发站来源不变。腾讯正式发布工作流未改动。
