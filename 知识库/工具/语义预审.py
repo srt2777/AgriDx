@@ -173,7 +173,7 @@ def read_review(path):
 
 
 def merge_review(existing, pairs, verdicts, kb_version, ai_model):
-    """新候选追加为 pending；已有行只补 AI 结论，人工决定字段不变；消失的候选保留原行。"""
+    """新候选追加为 pending；已有行可补空的 AI 建议结论，人工决定字段不变；消失的候选保留原行。"""
     rows = dict(existing)
     for p in pairs:
         if p['tier'] not in REVIEW_TIERS:
@@ -182,7 +182,8 @@ def merge_review(existing, pairs, verdicts, kb_version, ai_model):
             'pair_id': p['pair_id'], 'a': p['a'], 'b': p['b'], 'jaccard': p['jaccard'], 'cosine': p['cosine'],
             'tier': p['tier'], 'ai_verdict': None, 'ai_model': None, 'reviewer': None,
             'decision': 'pending', 'decided_at': None, 'kb_version': kb_version}
-        if p['pair_id'] in verdicts and row['decision'] == 'pending':
+        # 只填空的 ai_verdict；不改 decision/reviewer/decided_at（人工决定保留）
+        if p['pair_id'] in verdicts and not row.get('ai_verdict'):
             row = {**row, 'ai_verdict': verdicts[p['pair_id']], 'ai_model': ai_model}
         rows[p['pair_id']] = row
     return [rows[k] for k in sorted(rows)]
@@ -224,8 +225,8 @@ def main():
         reviewer = NoReviewer()
     verdicts, errors = {}, {}
     if reviewer.identity:
+        # 对尚无 ai_verdict 的跨来源候选送审（含已人工决定、仅缺 AI 建议的行）；不改人工决定
         todo = [p for p in pairs if p['tier'] in REVIEW_TIERS
-                and existing.get(p['pair_id'], {}).get('decision', 'pending') == 'pending'
                 and not existing.get(p['pair_id'], {}).get('ai_verdict')][:args.limit]
         for p in todo:
             try:

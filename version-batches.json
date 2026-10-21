@@ -224,6 +224,13 @@
       "base": "3.7.4",
       "version": "3.7.5",
       "date": "2026-10-21"
+    },
+    {
+      "id": "dedup-deepseek-reviewer-20261021",
+      "kind": "maintenance",
+      "base": "3.7.5",
+      "version": "3.7.6",
+      "date": "2026-10-21"
     }
   ]
 }

@@ -6,6 +6,13 @@
 
 2026-10-13按用户最新要求，将原3.3.0和原3.4.0的两批累计800条知识扩充合并为3.3.0，原3.5.0功能整合调整为3.4.0，后续主题修复和开发网关修复原3.5.1、3.5.2对应协调为3.4.1、3.4.2，本阶段项目版本上限为3.4.9。历史提交、采集过程及原始验证输出保留当时实际编号，本轮编号协调不另升版。
 
+## 3.7.6 — 2026-10-21
+
+- 接入可插拔语义去重 AI 预审适配器 `scripts/dedup-reviewer-deepseek.mjs`：从 stdin 读一对候选 JSON，调用 DeepSeek OpenAI 兼容接口（默认 `https://api.deepseek.com`、`deepseek-chat`），向 stdout 写校验后的 `{relation, keep_both, reason, evidence_spans}`。密钥只读进程环境 `DEEPSEEK_API_KEY`，不入库、不写 CHANGELOG/PR。
+- `语义预审.py`：对尚无 `ai_verdict` 的跨来源候选可回填 AI 建议（含已人工决定的行），不改 `decision`/`reviewer`/`decided_at`。本次对 5 对候选写入 `ai_verdict`（均为 `scope_variant`/`keep_both=true`，模型 `deepseek-chat`）；人工 `keep`/`supersede` 决定保留。未改条目或 Markdown 正文，`kb_version` 仍为 2026.10.1。
+- 文档：`docs/knowledge-semantic.md` 补充 `DEEPSEEK_API_KEY` 与 `AGRIDX_DEDUP_REVIEWER_CMD` 设置示例。
+- 更新类型：maintenance；批次：dedup-deepseek-reviewer-20261021。验证：本地（Node 24）`npm run verify` 通过，测试 424 项，422 通过、2 项跳过、0 失败；`tests/semantic_prereview_test.py` 6 项通过；`语义预审.py --check` 未审 0。本提交未部署。
+
 ## 3.7.5 — 2026-10-21
 
 - 新版模型工坊接入完整部件拖拉机（原草稿 PR #64 声称 3.7.0/3.7.1；合入时主干已至 3.7.4，按用户协调改记为本版）。悬停描边、点选聚焦、示例故障、爆炸展开和部件树；旧版模型页保持原结构示意。
