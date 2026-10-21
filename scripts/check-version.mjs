@@ -36,6 +36,22 @@ export function validateVersionState({ packageJson, lockJson, readme, changelog,
   return version;
 }
 
+// 最新 CHANGELOG 节须写明本批次 ID 与验证结果（docs/version-policy.md#更新日志格式）。
+export function validateLatestChangelog(changelog, batches) {
+  const match = changelog.match(/^##\s+(\d+\.\d+\.\d+)\b[^\n]*\n([\s\S]*?)(?=^##\s|(?![\s\S]))/m);
+  if (!match) throw new Error('CHANGELOG 缺少版本节。');
+  const [, version, body] = match;
+  const batch = batches?.batches?.at(-1);
+  if (batch && batch.version === version && !body.includes(batch.id)) {
+    throw new Error(`CHANGELOG ${version} 节未写批次 ID ${batch.id}。`);
+  }
+  if (!/更新类型[：:]\s*(knowledge|fix|maintenance|feature|breaking)/.test(body)) {
+    throw new Error(`CHANGELOG ${version} 节缺少“更新类型：knowledge|fix|maintenance|feature|breaking”。`);
+  }
+  if (!/验证/.test(body)) throw new Error(`CHANGELOG ${version} 节缺少验证结果。`);
+  return version;
+}
+
 export function checkVersion() {
   const read = (name) => readFileSync(path.join(rootDir, name), 'utf8');
   const version = validateVersionState({
@@ -45,6 +61,8 @@ export function checkVersion() {
     changelog: read('CHANGELOG.md'),
     batches: existsSync(path.join(rootDir, 'version-batches.json')) ? JSON.parse(read('version-batches.json')) : undefined,
   });
+  validateLatestChangelog(read('CHANGELOG.md'),
+    existsSync(path.join(rootDir, 'version-batches.json')) ? JSON.parse(read('version-batches.json')) : undefined);
   console.log(`[version] ${version}：package、锁文件、README 与最新日志一致。`);
 }
 

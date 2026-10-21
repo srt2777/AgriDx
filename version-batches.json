@@ -198,17 +198,31 @@
       "date": "2026-10-21"
     },
     {
-      "id": "studio-20261021-parts-tractor",
-      "kind": "feature",
+      "id": "changelog-kb-version-20261021",
+      "kind": "maintenance",
       "base": "3.6.3",
-      "version": "3.7.0",
+      "version": "3.7.2",
       "date": "2026-10-21"
     },
     {
-      "id": "studio-20261021-parts-full",
-      "kind": "fix",
-      "base": "3.7.0",
-      "version": "3.7.1",
+      "id": "dedup-ai-prereview-20261021",
+      "kind": "maintenance",
+      "base": "3.7.2",
+      "version": "3.7.3",
+      "date": "2026-10-21"
+    },
+    {
+      "id": "dedup-human-review-20261021",
+      "kind": "maintenance",
+      "base": "3.7.3",
+      "version": "3.7.4",
+      "date": "2026-10-21"
+    },
+    {
+      "id": "studio-20261021-parts-tractor",
+      "kind": "feature",
+      "base": "3.7.4",
+      "version": "3.7.5",
       "date": "2026-10-21"
     }
   ]
