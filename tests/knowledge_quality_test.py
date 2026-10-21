@@ -31,7 +31,7 @@ class QualityTests(unittest.TestCase):
             raw = self.root / f'知识库/原始农机说明书/{number}.html'
             raw.parent.mkdir(parents=True, exist_ok=True)
             raw.write_text('test manual ' + str(number), encoding='utf8')
-            source = {'source_id': sid, 'brand': '测试品牌', 'model': 'M1', 'models': ['M1'],
+            source = {'source_id': sid, 'brand': '测试品牌', 'model': 'M1', 'models': ['M1'], 'title': '合成资料手册',
                       'path': raw.relative_to(self.root).as_posix(), 'url': 'https://example.invalid/manual',
                       'version': 'fixture-v1', 'scope_boundary': '仅测试M1', 'sha256': validator.digest(raw),
                       'bytes': raw.stat().st_size, 'source_level': '合成测试资料'}
@@ -100,6 +100,45 @@ class QualityTests(unittest.TestCase):
         self.assertEqual(len(missing), 4)
         self.assertTrue(all(x['severity'] == 'error' and x['evidence']['field'] for x in missing))
 
+    def test_optional_roles_and_risk_are_backward_compatible_and_validated(self):
+        base = self.scan()
+        self.assertEqual(base['summary']['role_schema']['entries_with_roles'], 0)
+        self.assertEqual(base['summary']['role_schema']['entries_with_risk_level'], 0)
+        self.card(0, '- 故障现象：合成现象。\n- 可能原因：合成原因。\n- 针对处理：合成处理。\n- 证据：SRC-TEST-0；测试章节1。')
+        self.entries[0].update(roles=['symptom', 'cause', 'action'], role_basis='原文标记',
+                               risk_level='medium', risk_basis='合成测试依据')
+        self.entries[1].update(roles=['check'], role_basis='人工核对')
+        self.write()
+        report = self.scan()
+        self.assertEqual(report['summary']['errors'], 0)
+        summary = report['summary']['role_schema']
+        self.assertEqual((summary['entries_with_roles'], summary['entries_with_risk_level']), (2, 1))
+        self.assertEqual(summary['roles'], {'symptom': 1, 'cause': 1, 'check': 1, 'action': 1, 'retest': 0})
+        self.assertEqual(summary['risk_levels'], {'medium': 1})
+        bad = [
+            {'roles': ['cause', 'symptom'], 'role_basis': '人工核对'},          # order
+            {'roles': ['symptom', 'symptom'], 'role_basis': '人工核对'},        # duplicate
+            {'roles': [], 'role_basis': '人工核对'},                            # empty
+            {'roles': ['diagnosis'], 'role_basis': '人工核对'},                 # unknown role
+            {'roles': ['symptom']},                                             # missing basis
+            {'role_basis': '人工核对'},                                         # basis without roles
+            {'roles': ['retest'], 'role_basis': '原文标记'},                    # no explicit marker
+            {'risk_level': 'critical', 'risk_basis': '依据'},                   # unknown level
+            {'risk_level': 'high'},                                             # missing basis
+            {'risk_basis': '依据'},                                             # basis without level
+        ]
+        for fields in bad:
+            with self.subTest(fields=fields):
+                entry = {k: v for k, v in self.entries[0].items()
+                         if k not in ('roles', 'role_basis', 'risk_level', 'risk_basis')}
+                self.entries[0] = {**entry, **fields}
+                self.write()
+                self.assertIn('entry.roles', self.rules(self.scan()))
+        entry = {k: v for k, v in self.entries[0].items() if k not in ('roles', 'role_basis', 'risk_level', 'risk_basis')}
+        self.entries[0] = {**entry, 'entry_type': '资料索引', 'risk_level': 'low', 'risk_basis': '依据'}
+        self.write()
+        self.assertIn('entry.roles', self.rules(self.scan()))
+
     def test_bad_json_line_does_not_hide_later_valid_records(self):
         path = self.index / 'entries.jsonl'
         path.write_text('{bad json}\n' + path.read_text('utf8'), encoding='utf8')
@@ -156,6 +195,25 @@ class QualityTests(unittest.TestCase):
         self.write()
         self.card(0, '- 证据：SRC-TEST-00')
         self.assertIn('entry.evidence', self.rules(self.scan()))
+
+    def test_source_title_brand_and_model_ids(self):
+        cases = [({'title': None}, 'source.title'),
+                 ({'title': '合成资料手册', 'title_status': '已核对'}, 'source.title'),
+                 ({'brand': '雷沃欧豹'}, 'source.brand'),
+                 ({'model_ids': ['M1', 'M1']}, 'source.model_ids')]
+        for change, rule in cases:
+            with self.subTest(rule=rule, change=change):
+                original = dict(self.sources[0])
+                self.sources[0].update(change)
+                if self.sources[0].get('title') is None:
+                    self.sources[0].pop('title')
+                self.write()
+                self.assertIn(rule, self.rules(self.scan()))
+                self.sources[0] = original
+        self.sources[0].pop('title')
+        self.sources[0]['title_status'] = '待核实'
+        self.write()
+        self.assertNotIn('source.title', self.rules(self.scan()))
 
     def test_source_hash_bytes_url_and_duplicate_models(self):
         for field, value, rule in [('sha256', '0' * 64, 'source.file'),

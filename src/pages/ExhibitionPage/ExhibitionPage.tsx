@@ -40,15 +40,24 @@ import FloatingPanel from '@/components/FloatingPanel';
 import { LiquidSelection } from '@/components/ui/liquid-selection';
 import { LiquidGlass } from '@/components/ui/liquid-glass';
 import DeferredScene from '@/components/DeferredScene';
+import DemoNote from '@/components/DemoNote';
+import SceneFallback from '@/components/SceneFallback';
 import { preloadPage } from '@/lib/page-loaders';
+import { probeWebGL, type GraphicsReason } from '@/lib/webgl';
 import { useLang, setLang } from '@/hooks/useLang';
 import { setUiVersion } from '@/hooks/useUiVersion';
 import { useKnowledgeCatalog } from '@/hooks/useKnowledgeCatalog';
-import { version as appVersion } from '../../../package.json';
+import { CommandButton } from '@/components/CommandPalette';
+import { ShortcutButton } from '@/components/NewVersionDelight';
+import { StatTicker } from '@/components/StatTicker';
+import { SiteStatusBar } from '@/components/SiteStatusBar';
+import { beginSharedTransition, sharedTransitionName } from '@/lib/shared-transition';
+import { campusIntroPlan } from './intro-timing';
 import {
   initialDriveState,
   KEY_ACTIONS,
   WORLD_ZONES,
+  pavilionDestination,
   type DriveAction,
   type WorldMode,
   type ZoneId,
@@ -99,6 +108,45 @@ export default function ExhibitionPage() {
   const t = (zh: string, en: string) => (lang === 'zh' ? zh : en);
   const navigate = useNavigate();
   const reducedMotion = !!useReducedMotion();
+  const stage = useRef<HTMLElement>(null);
+  const [flight, setFlight] = useState(() => {
+    const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
+    if (!campusIntroPlan(reduced).play) return false;
+    try { return sessionStorage.getItem('agridx-campus-intro') !== '1'; } catch { return false; }
+  });
+  const [intro, setIntro] = useState(flight);
+  const [landed, setLanded] = useState(false);
+  const endFlight = useCallback(() => setFlight(false), []);
+  const endIntro = useCallback(() => {
+    const skipFocused = document.activeElement instanceof HTMLElement && !!document.activeElement.closest('.expo-hero, .expo-intro-skip');
+    try { sessionStorage.setItem('agridx-campus-intro', '1'); } catch { /* private mode keeps the intro for this load only */ }
+    setFlight(false);
+    setIntro(false);
+    setLanded(true);
+    if (skipFocused) stage.current?.focus({ preventScroll: true });
+  }, []);
+  useEffect(() => {
+    if (!intro) return;
+    const onKey = (event: globalThis.KeyboardEvent) => {
+      if (event.key === 'Escape') endIntro();
+    };
+    const timer = window.setTimeout(endIntro, campusIntroPlan(false).holdMs);
+    window.addEventListener('keydown', onKey);
+    return () => {
+      window.clearTimeout(timer);
+      window.removeEventListener('keydown', onKey);
+    };
+  }, [intro, endIntro]);
+  const [graphics, setGraphics] = useState<GraphicsReason | 'live'>(() => (probeWebGL() ? 'loading' : 'unsupported'));
+  const [coarse, setCoarse] = useState(() => window.matchMedia?.('(pointer: coarse)').matches ?? false);
+  const onLive = useCallback(() => setGraphics('live'), []);
+  const onLost = useCallback(() => setGraphics((current) => (current === 'unsupported' ? current : 'lost')), []);
+  useEffect(() => {
+    const media = window.matchMedia('(pointer: coarse)');
+    const apply = () => setCoarse(media.matches);
+    media.addEventListener('change', apply);
+    return () => media.removeEventListener('change', apply);
+  }, []);
   const { catalog, loading, failed, retry } = useKnowledgeCatalog();
   const [mode, setMode] = useState<WorldMode>('overview');
   const [selected, setSelected] = useState<ZoneId | null>(null);
@@ -110,7 +158,6 @@ export default function ExhibitionPage() {
   const [catalogOpen, setCatalogOpen] = useState(false);
   const [search, setSearch] = useState('');
   const [notice, setNotice] = useState('');
-  const stage = useRef<HTMLElement>(null);
   const [input] = useState<WorldInput>(() => ({ actions: new Map() }));
   const searchInput = useRef<HTMLInputElement>(null);
   const catalogTrigger = useRef<HTMLButtonElement>(null);
@@ -246,14 +293,21 @@ export default function ExhibitionPage() {
     setSelected(null);
     setReset((value) => value + 1);
   }
-  function enterZone(id: ZoneId) {
+  function enterZone(id: ZoneId, source?: Element | null) {
     stopInput();
-    const zone = WORLD_ZONES.find((item) => item.id === id)!;
-    if (zone.path) navigate(zone.path);
-    else {
-      setUiVersion('old');
-      navigate('/', { state: { scrollTo: 'research' } });
+    const destination = pavilionDestination(id);
+    const go = () => {
+      if (destination.classicResearch) {
+        setUiVersion('old');
+        navigate('/', { state: { scrollTo: 'research' } });
+      } else navigate(destination.path);
+    };
+    const name = sharedTransitionName('pavilion', id);
+    if (!name) {
+      go();
+      return;
     }
+    beginSharedTransition(name, go, source ?? null);
   }
   function pointerDrive(event: PointerEvent<HTMLButtonElement>, action: DriveAction) {
     if (event.button !== 0) return;
@@ -277,7 +331,6 @@ export default function ExhibitionPage() {
   const detail = selected ? ZONE_DETAILS[selected] : null;
   const ActiveIcon = selected ? ZONE_ICONS[selected] : Compass;
   const totals = !failed ? catalog?.totals : undefined;
-  const number = (value: number | undefined) => (value === undefined ? '—' : value.toLocaleString());
   const models = (catalog?.brands ?? []).flatMap((brand) =>
     brand.models.map((model) => ({ ...model, brandId: brand.id, brandName: brand.name })),
   );
@@ -286,7 +339,7 @@ export default function ExhibitionPage() {
   );
 
   return (
-    <div className="expo-page" data-ui-version="new">
+    <div className={`expo-page${landed ? ' is-landed' : ''}`} data-ui-version="new" data-intro={intro ? '' : undefined} data-flight={flight ? '' : undefined}>
       <a
         className="skip-link"
         href="#expo-main"
@@ -316,14 +369,17 @@ export default function ExhibitionPage() {
           </a>
           <Link to="/" className="expo-wordmark">
             <strong>耕知 · 耘诊</strong>
-            <small>AGRIDX / SPATIAL EXPLORATION</small>
+            <small>{t('数字园区', 'DIGITAL CAMPUS')}</small>
           </Link>
         </div>
         <div className="expo-title">
-          <span>KNOWLEDGE IN EVERY DIRECTION</span>
-          <h1>{t('农机装备数字展示大厅', 'Agricultural equipment hub')}</h1>
+          <span>{t('知识 · 结构 · 诊断', 'KNOWLEDGE · STRUCTURE · DIAGNOSIS')}</span>
+          <h1>{t('农机知识，在同一片园区', 'One campus for machinery knowledge')}</h1>
         </div>
         <LiquidGlass lens variant="clear" displacementScale={24} className="expo-header-glass" contentClassName="expo-header-tools">
+          <CommandButton />
+          <ShortcutButton />
+          <DemoNote />
           <VersionSwitch exhibition />
           <ThemeSwitch />
           <button
@@ -349,7 +405,7 @@ export default function ExhibitionPage() {
         <div className="expo-scene-bar">
           <span>
             <i />
-            {t('原创三维园区 · 四个功能展区', 'ORIGINAL 3D CAMPUS · FOUR FEATURE ZONES')}
+            {t('三维园区 · 四个展区', '3D CAMPUS · FOUR ZONES')}
           </span>
           <button
             ref={catalogTrigger}
@@ -364,7 +420,7 @@ export default function ExhibitionPage() {
             }}
           >
             <Search size={15} />
-            {t('查找设备资料', 'Find machine evidence')}
+            {t('查找资料', 'Find evidence')}
             <kbd>/</kbd>
           </button>
         </div>
@@ -384,14 +440,23 @@ export default function ExhibitionPage() {
           data-tractor-x={position.x.toFixed(2)}
           data-tractor-z={position.z.toFixed(2)}
         >
-          <div className="expo-world-canvas">
-            <DeferredScene
-              priority={mode === 'drive' || focus !== null || destination !== null || reset > 0}
-              fallback={
-                <div className="world-loading" role="status">
-                  {t('正在打开三维园区…', 'Opening the 3D campus…')}
-                </div>
-              }
+          {intro && (
+            <div className="expo-hero" aria-hidden="true">
+              <p>{t('知识 · 结构 · 诊断', 'KNOWLEDGE · STRUCTURE · DIAGNOSIS')}</p>
+              <strong>{t('农机知识，在同一片园区', 'One campus for machinery knowledge')}</strong>
+              <i />
+            </div>
+          )}
+          {intro && (
+            <button type="button" className="expo-intro-skip" onClick={endIntro} autoFocus>
+              {t('跳过', 'Skip')}
+            </button>
+          )}
+          <div className={`expo-world-canvas${graphics === 'live' ? ' is-live' : ''}`}>
+            <SceneFallback kind="campus" reason={graphics === 'live' ? 'loading' : graphics} hidden={graphics === 'live'} />
+            {(graphics === 'loading' || graphics === 'live') && <DeferredScene
+              priority
+              fallback={null}
             >
               <ExhibitionWorld
                 mode={mode}
@@ -401,30 +466,34 @@ export default function ExhibitionPage() {
                 reset={reset}
                 input={input}
                 reducedMotion={reducedMotion}
+                cinematic={flight}
+                onCinematicEnd={endFlight}
+                onLive={onLive}
+                onLost={onLost}
                 onSelect={selectZone}
                 onPosition={setPosition}
                 onNearby={onNearby}
               />
-            </DeferredScene>
+            </DeferredScene>}
           </div>
           <div className="expo-world-vignette" aria-hidden="true" />
           <aside className="expo-world-guide">
             <div className="expo-guide-eyebrow">
               <Compass size={15} />
-              <span>THE EXPLORATION CAMPUS</span>
+              <span>{t('数字园区', 'THE CAMPUS')}</span>
             </div>
             <h2>
-              {t('把探索，', 'A new dimension.')}
+              {t('把资料，', 'Evidence,')}
               <br />
-              <span>{t('带入三维。', 'A clearer connection.')}</span>
+              <span>{t('放进三维。', 'in three dimensions.')}</span>
             </h2>
             <p>
               {t(
-                '驾驶拖拉机穿行园区，沿不同展区连接结构、知识与诊断。',
-                'Drive through the campus to discover structure, knowledge and diagnosis.',
+                '沿展区看结构、查目录、做诊断。',
+                'Use the zones to see structure, open the catalog, and start a diagnosis.',
               )}
             </p>
-            <button type="button" className="expo-start-button" onClick={startDrive}>
+            <button type="button" className="expo-start-button glass-press" data-motion="glass-press" onClick={startDrive}>
               <Navigation size={16} />
               {mode === 'drive' ? t('继续漫游', 'Continue exploring') : t('开始漫游', 'Start exploring')}
               <ArrowUpRight size={16} />
@@ -458,8 +527,9 @@ export default function ExhibitionPage() {
             <FloatingPanel
               key={selectedZone.id}
               as="aside"
-              className="expo-zone-card"
+              className="expo-zone-card is-beamed"
               glass
+              beam
               style={{ '--zone-color': selectedZone.color } as CSSProperties}
               label={t('当前展区', 'Selected zone')}
             >
@@ -492,13 +562,13 @@ export default function ExhibitionPage() {
                 ))}
               </div>
               <div className="expo-zone-actions">
-                <button type="button" onPointerEnter={() => preloadPage(selectedZone.path ?? '/', selectedZone.path ? 'new' : 'old')} onFocus={() => preloadPage(selectedZone.path ?? '/', selectedZone.path ? 'new' : 'old')} onClick={() => enterZone(selectedZone.id)}>
+                <button type="button" className="glass-press" data-motion="glass-press" onPointerEnter={() => preloadPage(selectedZone.path ?? '/', selectedZone.path ? 'new' : 'old')} onFocus={() => preloadPage(selectedZone.path ?? '/', selectedZone.path ? 'new' : 'old')} onClick={(event) => enterZone(selectedZone.id, event.currentTarget.closest('.expo-zone-card')?.querySelector('h2') ?? event.currentTarget)}>
                   {t('进入展区', 'Open zone')}
                   <ArrowRight size={15} />
                 </button>
                 <button
                   type="button"
-                  className="expo-visit-button"
+                  className="expo-visit-button glass-press"
                   onClick={() => visitZone(selectedZone.id)}
                 >
                   <MoveUpRight size={14} />
@@ -535,15 +605,15 @@ export default function ExhibitionPage() {
               </div>
               <div className="expo-sheet-counts">
                 <div>
-                  <strong>{number(totals?.archivedEntries)}</strong>
+                  <strong><StatTicker value={totals?.archivedEntries} reduced={reducedMotion} /></strong>
                   <span>{t('机型归档条目', 'MODEL ARCHIVE ENTRIES')}</span>
                 </div>
                 <div>
-                  <strong>{number(totals?.sources)}</strong>
+                  <strong><StatTicker value={totals?.sources} reduced={reducedMotion} /></strong>
                   <span>{t('来源', 'SOURCES')}</span>
                 </div>
                 <div>
-                  <strong>{number(totals?.models)}</strong>
+                  <strong><StatTicker value={totals?.models} reduced={reducedMotion} /></strong>
                   <span>{t('型号 / 系列', 'MODELS / SERIES')}</span>
                 </div>
               </div>
@@ -561,7 +631,8 @@ export default function ExhibitionPage() {
               <div className="expo-catalog-list" aria-live="polite">
                 {loading ? (
                   <div className="expo-catalog-state" role="status">
-                    {t('正在读取知识目录…', 'Loading the catalog…')}
+                    <p>{t('正在读取知识目录…', 'Loading the catalog…')}</p>
+                    <div className="expo-catalog-skeleton" aria-hidden="true"><span /><span /><span /></div>
                   </div>
                 ) : failed ? (
                   <div className="expo-catalog-state" role="alert">
@@ -622,6 +693,7 @@ export default function ExhibitionPage() {
                 {t('园区导览', 'CAMPUS MAP')}
               </span>
               <div className="expo-map-grid">
+                <span className="expo-map-north" aria-hidden="true">N</span>
                 {WORLD_ZONES.map((zone) => (
                   <button
                     type="button"
@@ -637,7 +709,7 @@ export default function ExhibitionPage() {
                     aria-label={t(`驶向${zone.zh}`, `Drive to ${zone.en}`)}
                     className={nearby === zone.id ? 'is-nearby' : ''}
                   >
-                    {zone.number}
+                    <span>{zone.number}</span>
                   </button>
                 ))}
                 <span
@@ -685,7 +757,7 @@ export default function ExhibitionPage() {
                 </>
               ) : (
                 <>
-                  <span>{t('拖动环视 · 滚轮缩放', 'DRAG TO ORBIT · SCROLL TO ZOOM')}</span>
+                  <span>{coarse ? t('单指拖动环视 · 双指缩放', 'DRAG TO ORBIT · PINCH TO ZOOM') : t('拖动环视 · 滚轮缩放', 'DRAG TO ORBIT · SCROLL TO ZOOM')}</span>
                   <small>{t('点击展区，发现更多', 'SELECT A ZONE TO DISCOVER MORE')}</small>
                 </>
               )}
@@ -747,15 +819,15 @@ export default function ExhibitionPage() {
           <dl>
             <div>
               <dt>{t('知识条目合计', 'KNOWLEDGE ENTRIES')}</dt>
-              <dd>{number(totals?.entries)}</dd>
+              <dd><StatTicker value={totals?.entries} reduced={reducedMotion} /></dd>
             </div>
             <div>
               <dt>{t('资料来源', 'SOURCES')}</dt>
-              <dd>{number(totals?.sources)}</dd>
+              <dd><StatTicker value={totals?.sources} reduced={reducedMotion} /></dd>
             </div>
             <div>
               <dt>{t('品牌目录', 'BRANDS')}</dt>
-              <dd>{number(totals?.brands)}</dd>
+              <dd><StatTicker value={totals?.brands} reduced={reducedMotion} /></dd>
             </div>
           </dl>
           <p>
@@ -768,23 +840,22 @@ export default function ExhibitionPage() {
         <nav className="expo-direct-links" aria-label={t('直接进入功能', 'Direct feature access')}>
           <span>{t('也可以直接出发', 'OR GO DIRECTLY')}</span>
           {WORLD_ZONES.map((zone) => (
-            <button type="button" key={zone.id} onPointerEnter={() => preloadPage(zone.path ?? '/', zone.path ? 'new' : 'old')} onFocus={() => preloadPage(zone.path ?? '/', zone.path ? 'new' : 'old')} onClick={() => enterZone(zone.id)}>
+            <button type="button" key={zone.id} onPointerEnter={() => preloadPage(zone.path ?? '/', zone.path ? 'new' : 'old')} onFocus={() => preloadPage(zone.path ?? '/', zone.path ? 'new' : 'old')} onClick={(event) => enterZone(zone.id, event.currentTarget)}>
               {t(zone.zh, zone.en)}
               <ChevronRight size={14} />
             </button>
           ))}
+          <Link className="expo-hall-link" to="/hall" onPointerEnter={() => preloadPage('/hall')} onFocus={() => preloadPage('/hall')} onClick={(event) => {
+            if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return;
+            event.preventDefault();
+            beginSharedTransition(sharedTransitionName('pavilion', 'hall'), () => navigate('/hall'), event.currentTarget);
+          }}>
+            {t('数字展厅', 'Digital hall')}
+            <ChevronRight size={14} />
+          </Link>
         </nav>
       </main>
-      <footer className="expo-footer">
-        <span>
-          AGRIDX <i />
-          {t('南京农业大学工学院 · 农机知识与诊断', 'COLLEGE OF ENGINEERING, NAU · KNOWLEDGE & DIAGNOSIS')}
-        </span>
-        <span>
-          v{appVersion} <i />
-          SPATIAL EXPLORATION
-        </span>
-      </footer>
+      <SiteStatusBar />
       {notice && (
         <div className="expo-notice" role="status">
           {notice}

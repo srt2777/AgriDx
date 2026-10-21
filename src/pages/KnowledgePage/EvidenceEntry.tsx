@@ -3,7 +3,9 @@ import { Link } from 'react-router-dom';
 import { ArrowRight, ChevronRight, FileText, ShieldCheck } from 'lucide-react';
 import type { CatalogEntry } from '@shared/knowledge-catalog';
 import { useLang } from '@/hooks/useLang';
+import { useUiVersion } from '@/hooks/useUiVersion';
 import DeferredMarkdown from '@/components/DeferredMarkdown';
+import { KnowledgePeek } from '@/components/CardPeek';
 
 interface DiagnosisState {
   machineType?: string;
@@ -14,12 +16,14 @@ interface DiagnosisState {
 
 export default function EvidenceEntry({ entry, diagnosisState }: { entry: CatalogEntry; diagnosisState: DiagnosisState }) {
   const lang = useLang();
+  const version = useUiVersion();
   const t = (zh: string, en: string) => lang === 'zh' ? zh : en;
   const [open, setOpen] = useState(false);
   return <details className="evidence-entry" onToggle={event => setOpen(event.currentTarget.open)}>
     <summary>
       <FileText size={20} strokeWidth={1.4} />
       <div><h3>{entry.title}</h3><span>{entry.entryId} · {entry.entryType} · {entry.locator || t('定位待核实', 'Locator unconfirmed')} · {entry.status}</span></div>
+      {version === 'new' && <KnowledgePeek kind="archive" caption={entry.entryType} />}
       <ChevronRight size={18} className="evidence-toggle" />
     </summary>
     {open && <div className="evidence-entry-body">

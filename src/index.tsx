@@ -1,12 +1,19 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { HashRouter } from 'react-router-dom';
+import { installMotionTokens } from './lib/motion-tokens';
 import App from './app';
+installMotionTokens();
 import './index.css';
 import './tailwind-theme.css';
 import './typography.css';
 import './liquid-glass.css';
 import './motion.css';
+import './components/motion/premium-motion.css';
+import './new-version-polish.css';
+import './new-version-tokens.css';
+import './wheat-motif.css';
+import './premium-workspace.css';
 import './material-you.css';
 
 // 使用 HashRouter：路由挂在 URL 的 # 之后（如 /#/chat），

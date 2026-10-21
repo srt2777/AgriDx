@@ -1,5 +1,5 @@
 import type { DiagnosisMode } from '../../../shared/diagnosis';
-import { useRef, useEffect, useCallback, type FormEvent, type KeyboardEvent } from 'react';
+import { useRef, useEffect, useCallback, useState, type FormEvent, type KeyboardEvent } from 'react';
 import { Send, Trash2, Loader2, Bot, User, Sparkles, Cpu, Square } from 'lucide-react';
 import DeferredMarkdown from '@/components/DeferredMarkdown';
 import { Button } from '@/components/ui/button';
@@ -20,6 +20,7 @@ import { LiquidGlass } from '@/components/ui/liquid-glass';
 import { Link, useLocation } from 'react-router-dom';
 import content, { pick } from '@/data/content';
 import { useLang } from '@/hooks/useLang';
+import { useUiVersion } from '@/hooks/useUiVersion';
 
 import type { AnswerMode, ChatProvider, FallbackReason } from '@shared/chat';
 import { MACHINE_TYPES_ZH, MACHINE_TYPES_EN } from '@/features/chat/session';
@@ -27,11 +28,15 @@ import { useChatSession } from '@/features/chat/useChatSession';
 import { useLlmHealth } from '@/features/chat/useLlmHealth';
 import { useUpdateBlocker } from '@/features/updates/useUpdateBlocker';
 import { hasUnsavedProfile } from '@/features/updates/update-safety';
+import { MorphingPanel } from '@/components/motion/MorphingPanel';
+import { ThinkingOrbs } from '@/components/motion/ThinkingOrbs';
+import { useDiagnosisOrb } from '@/components/motion/useDiagnosisOrb';
 
 export default function ChatPage() {
   const location = useLocation();
   const handoff: unknown = location.state;
   const lang = useLang();
+  const version = useUiVersion();
   const t = useCallback((zh: string, en: string) => (lang === 'zh' ? zh : en), [lang]);
   const providerLabel = (provider?: ChatProvider) =>
     provider === 'knowledge-base' ? t('本地知识库', 'Local knowledge base') :
@@ -50,7 +55,8 @@ export default function ChatPage() {
     machineType, setMachineType, brand, setBrand, model, setModel,
     sendMessage, stopRequest, handleClear, memory, profile,
     diagnosisMode, setDiagnosisMode, deviceName, setDeviceName, hours, setHours, deviceNotes, setDeviceNotes, progress, setProgress,
-  } = useChatSession({ handoff, translate: t, focusInput });
+  } = useChatSession({ handoff, translate: t, focusInput, minLoadingMs: version === 'new' ? 900 : 0 });
+  const orb = useDiagnosisOrb(version === 'new' && isLoading);
   useUpdateBlocker('/chat', isLoading || memory.busy || !memory.ready || !!input.trim()
     || progress.trim() !== (memory.session?.progress ?? '')
     || hasUnsavedProfile(profile, memory.devices.find(device => device.id === memory.deviceId)));
@@ -118,9 +124,14 @@ export default function ChatPage() {
   const configurationHint = typeof llmHealth === 'object' && llmHealth.configured
     ? `${llmHealth.primary ? `${t('首选模型', 'Preferred provider')}: ${providerLabel(llmHealth.primary)}. ` : ''}${t('已配置密钥；服务可用性以实际对话结果为准。', 'An API key is configured; availability is determined by actual chat requests.')}`
     : undefined;
+  const contextProps = {
+    t, typeOptions, machineType, setMachineType, brand, setBrand, model, setModel,
+    isLoading, memory, profile, deviceName, setDeviceName, hours, setHours,
+    deviceNotes, setDeviceNotes, progress, setProgress,
+  };
 
   return (
-    <div className="flex h-[calc(100dvh-5.625rem)] flex-col chat-glass">
+    <div className={`flex h-[calc(100dvh-5.625rem)] flex-col chat-glass${version === 'new' ? ' is-premium' : ''}`}>
       {/* 顶部工具栏 */}
       <LiquidGlass
         variant="regular"
@@ -132,7 +143,7 @@ export default function ChatPage() {
             <Bot className="h-4 w-4" />
           </div>
           <div className="min-w-0">
-            <div className="truncate text-sm font-semibold text-foreground">耕知·耘诊 · {t('诊断工作台', 'Diagnosis workspace')}</div>
+            <div className="truncate text-sm font-semibold text-foreground" data-shared-target={version === 'new' ? 'diagnosis' : undefined}>耕知·耘诊 · {t('诊断工作台', 'Diagnosis workspace')}</div>
             <div className="flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground" role="status">
               <span title={configurationHint}>{serviceStatus}</span>
               {currentProvider && (
@@ -180,100 +191,35 @@ export default function ChatPage() {
           <option value="ai_assisted" disabled={typeof llmHealth !== 'object' || !llmHealth.configured || llmHealth.allowExternalAi === false}>{t('AI 辅助分析', 'AI-assisted analysis')}</option>
         </select>
       </div>
+      <div className={version === 'new' ? 'chat-workspace' : 'flex min-h-0 flex-1 flex-col'}>
+      <div className={version === 'new' ? 'chat-thread' : 'contents'}>
       {/* 消息列表 */}
       <div className="min-h-0 flex-1 overflow-y-auto" role="log" aria-label={t('诊断对话', 'Diagnosis conversation')} aria-live="polite">
         <div className="mx-auto max-w-3xl px-4 py-6 md:px-6">
-              {/* 农机信息选择（可选） */}
-              <div className="mb-6 w-full rounded-xl border border-border/60 bg-card p-4 text-left">
-                <div className="mb-3 flex items-center justify-between gap-3 text-xs font-medium text-primary"><span>{t('诊断上下文 · 请核对现场铭牌', 'Machine context · check the machine plate')}</span><Link to="/knowledge" className="underline underline-offset-4">{t('浏览适用资料', 'Browse evidence')}</Link></div>
-                <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
-                  <select
-                    aria-label={t('农机类型', 'Machine type')}
-                    value={machineType}
-                    onChange={(e) => setMachineType(e.target.value)}
-                    disabled={isLoading || memory.busy}
-                    className="h-10 rounded-md border border-border bg-background px-3 text-sm text-foreground disabled:opacity-60"
-                  >
-                    <option value="">{t('类型', 'Type')}</option>
-                    {typeOptions.map((v, index) => (
-                      <option key={MACHINE_TYPES_ZH[index]} value={MACHINE_TYPES_ZH[index]}>{v}</option>
-                    ))}
-                  </select>
-                  <input
-                    aria-label={t('品牌', 'Brand')}
-                    maxLength={100}
-                    value={brand}
-                    onChange={(e) => setBrand(e.target.value)}
-                    placeholder={t('品牌（选填）', 'Brand (optional)')}
-                    disabled={isLoading || memory.busy}
-                    className="h-10 rounded-md border border-border bg-background px-3 text-sm text-foreground disabled:opacity-60"
-                  />
-                  <input
-                    aria-label={t('型号', 'Model')}
-                    maxLength={100}
-                    value={model}
-                    onChange={(e) => setModel(e.target.value)}
-                    placeholder={t('型号（选填）', 'Model (optional)')}
-                    disabled={isLoading || memory.busy}
-                    className="h-10 rounded-md border border-border bg-background px-3 text-sm text-foreground disabled:opacity-60"
-                  />
-                </div>
-
-              <p className="mt-3 text-xs leading-relaxed text-muted-foreground">{t('完整型号与配置帮助限定资料范围；系列资料不能直接代替具体机型。带入的问题仅预填，由你确认后发送。', 'The complete model and configuration define applicability. Series documents do not replace specific-model evidence. Imported questions are drafts for you to review and send.')}</p>
-              <details className="mt-4 border-t border-border/60 pt-3">
-                <summary className="cursor-pointer text-sm font-medium">{t('诊断记忆', 'Diagnosis memory')} · {memory.ready ? t('已连接', 'Connected') : t('未就绪', 'Not ready')}</summary>
-                <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{typeof __AGRIDX_DEV_PREVIEW__ !== 'undefined' && __AGRIDX_DEV_PREVIEW__ ? t('开发预览的档案与对话仅保存在当前浏览器，清除网站数据会删除。检查结果是用户报告。', 'Preview profiles and chats stay in this browser. Clearing site data deletes them. Checks are user reports.') : t('档案与对话保存到后端，同一浏览器重新打开可继续。清除浏览器身份后无法自动恢复；检查结果是用户报告。', 'Profiles and chats are saved on the server for this browser. Clearing browser identity prevents automatic recovery; checks are user reports.')}</p>
-                <div className="mt-3 grid gap-2 sm:grid-cols-2">
-                  <select aria-label={t('选择设备档案', 'Select device profile')} value={memory.deviceId} disabled={isLoading || memory.busy || !memory.ready}
-                    onChange={(e) => memory.selectDevice(e.target.value)} className="h-10 min-w-0 rounded-md border border-border bg-background px-3 text-sm">
-                    <option value="">{t('新设备（独立档案）', 'New device (separate profile)')}</option>
-                    {memory.devices.map((d) => <option key={d.id} value={d.id}>{d.name} · {d.model || d.brand}</option>)}
-                  </select>
-                  <select aria-label={t('继续历史诊断', 'Resume diagnosis')} value={memory.session?.id || ''} disabled={isLoading || memory.busy || !memory.ready}
-                    onChange={(e) => { if (e.target.value) void memory.restore(e.target.value); }} className="h-10 min-w-0 rounded-md border border-border bg-background px-3 text-sm">
-                    <option value="">{t('继续历史诊断…', 'Resume a diagnosis…')}</option>
-                    {memory.sessions.map((s) => <option key={s.id} value={s.id}>{memory.devices.find((d) => d.id === s.deviceId)?.name} · {s.title}</option>)}
-                  </select>
-                  <label className="text-xs">{t('设备名称（区分不同车辆）', 'Device name (identify the vehicle)')}<input maxLength={100} value={deviceName} onChange={(e) => setDeviceName(e.target.value)} disabled={isLoading || memory.busy} className="mt-1 h-10 w-full rounded-md border border-border bg-background px-3 text-sm" /></label>
-                  <label className="text-xs">{t('使用小时数（选填）', 'Operating hours (optional)')}<input type="number" min="0" max="1000000" step="any" value={hours} onChange={(e) => setHours(e.target.value)} disabled={isLoading || memory.busy} className="mt-1 h-10 w-full rounded-md border border-border bg-background px-3 text-sm" /></label>
-                </div>
-                <label className="mt-3 block text-xs">{t('设备维护记录（用户提供）', 'Maintenance notes (user reported)')}<Textarea value={deviceNotes} maxLength={2000} onChange={(e) => setDeviceNotes(e.target.value)} disabled={isLoading || memory.busy} className="mt-1" rows={2} /></label>
-                <div className="mt-2 flex flex-wrap gap-2">
-                  <Button variant="secondary" size="sm" disabled={isLoading || memory.busy || !memory.ready || !deviceName.trim()} onClick={() => void memory.action(async () => { await memory.saveProfile(profile); })}>{t('保存设备档案', 'Save device profile')}</Button>
-                  <Button variant="secondary" size="sm" disabled={isLoading || memory.busy || !memory.ready} onClick={memory.newDiagnosis}>{t('新建诊断', 'New diagnosis')}</Button>
-                  <Button variant="ghost" size="sm" disabled={isLoading || memory.busy || !memory.deviceId} onClick={() => { if (window.confirm(t('删除此设备及其全部诊断记录？无法恢复。', 'Delete this device and all its diagnoses? This cannot be undone.'))) void memory.deleteDevice(); }}>{t('删除设备及记录', 'Delete device and records')}</Button>
-                </div>
-                <label className="mt-3 block text-xs">{t('本次检查进度（已检查项目、结果、待检查项）', 'Progress (checks done, results, remaining checks)')}<Textarea value={progress} maxLength={2000} onChange={(e) => setProgress(e.target.value)} disabled={isLoading || memory.busy || !memory.session} placeholder={t('例如：电瓶已检查正常；下一步检查接线。', 'Example: Battery checked, reported normal; wiring check pending.')} className="mt-1" rows={2} /></label>
-                <div className="mt-2 flex flex-wrap gap-2">
-                  <Button variant="secondary" size="sm" disabled={isLoading || memory.busy || !memory.session || progress.trim() === memory.session.progress} onClick={() => void memory.saveProgress(progress)}>{t('保存检查进度', 'Save progress')}</Button>
-                  <Button variant="ghost" size="sm" disabled={isLoading || memory.busy || !memory.session} onClick={() => { if (window.confirm(t('删除本次诊断及检查进度？设备档案保留。', 'Delete this diagnosis and progress? Keep the device profile.'))) void memory.deleteDiagnosis(); }}>{t('删除本次诊断', 'Delete diagnosis')}</Button>
-                </div>
-                {memory.session?.summary && <details className="mt-3 text-xs"><summary className="cursor-pointer">{t('查看历史用户报告节选', 'Older user report excerpts')}</summary><p className="mt-2 whitespace-pre-wrap text-muted-foreground">{memory.session.summary}</p></details>}
-                {memory.error && <p role="alert" className="mt-2 text-xs text-destructive">{memory.error}</p>}
-                {!memory.ready && <Button variant="secondary" size="sm" className="mt-2" onClick={memory.retry}>{t('重试连接记忆', 'Retry memory connection')}</Button>}
-              </details>
-              </div>
+              {version !== 'new' && <MachineContext framed {...contextProps} />}
 
           {/* 空状态 / 欢迎态 */}
           {isEmpty && (
-            <div className="flex flex-col items-center py-8 text-center">
-              <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-primary/10 text-primary">
-                <Sparkles className="h-7 w-7" />
+            <div className="chat-empty flex flex-col items-center py-8 text-center">
+              <div className="mb-4 flex items-center justify-center">
+                {version === 'new'
+                  ? <ThinkingOrbs state="listening" label={t('待命', 'Listening')} />
+                  : <span className="flex h-14 w-14 items-center justify-center rounded-full bg-primary/10 text-primary"><Sparkles className="h-7 w-7" /></span>}
               </div>
-              <h2 className="font-serif text-xl font-bold text-foreground">{pick(content.CHAT_WELCOME.title, lang)}</h2>
-              <p className="mt-2 max-w-md text-sm text-muted-foreground">{pick(content.CHAT_WELCOME.desc, lang)}</p>
+              <h2 className="font-serif text-xl font-bold text-foreground">{version === 'new' ? t('描述现象，从资料里找起点。', 'Describe the symptom. Start from the evidence.') : pick(content.CHAT_WELCOME.title, lang)}</h2>
+              <p className="mt-2 max-w-md text-sm text-muted-foreground">{version === 'new' ? t('带上机型更好。回答依据是已索引资料，适用范围仍需核对。', 'A model helps. Answers follow indexed evidence, and scope still needs a check.') : pick(content.CHAT_WELCOME.desc, lang)}</p>
 
 
               {/* 快捷提问按钮 */}
               <div className="mt-6 w-full">
-                <div className="mb-3 text-xs font-medium text-wheat">{t('您可以这样问', 'Try asking')}</div>
+                <div className="mb-3 text-xs font-medium text-wheat">{version === 'new' ? t('可以这样问', 'You can ask') : t('您可以这样问', 'Try asking')}</div>
                 <div className="grid gap-2 md:grid-cols-2">
                   {content.CHAT_QUICK_QUESTIONS.map((q) => (
                     <button
                       key={pick(q, lang)}
                       onClick={() => handleQuickQuestion(pick(q, lang))}
                       disabled={isLoading || memory.busy}
-                      className="rounded-md border border-border/60 bg-card p-3 text-left text-sm text-foreground transition-all hover:border-primary/40 hover:bg-accent/50 hover:text-primary disabled:opacity-50"
+                      className="chat-chip rounded-md border border-border/60 bg-card p-3 text-left text-sm text-foreground transition-all hover:border-primary/40 hover:bg-accent/50 hover:text-primary disabled:opacity-50"
                     >
                       {pick(q, lang)}
                     </button>
@@ -287,7 +233,7 @@ export default function ChatPage() {
           {messages.map((msg) => (
             <div
               key={msg.id}
-              className={`mb-4 flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+              className={`chat-message mb-4 flex ${msg.role === 'user' ? 'is-user justify-end' : 'is-reply justify-start'}${msg.role === 'loading' ? ' is-thinking' : ''}${msg.role === 'assistant' ? ' is-answer' : ''}`}
             >
               {msg.role !== 'user' && (
                 <div className="mr-2 mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
@@ -306,19 +252,26 @@ export default function ChatPage() {
                 }`}
               >
                 {msg.role === 'loading' ? (
-                  <div className="flex items-center gap-2">
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    <span>{t('正在思考...', 'Thinking...')}</span>
-                  </div>
+                  version === 'new' ? (
+                    <ThinkingOrbs
+                      state={orb === 'listening' ? 'searching' : orb}
+                      label={orb === 'solving' ? t('整理判断…', 'Sorting the answer…') : t('检索资料…', 'Searching evidence…')}
+                    />
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      <span>{t('正在思考...', 'Thinking...')}</span>
+                    </div>
+                  )
                 ) : msg.role === 'user' ? (
                   <div className="whitespace-pre-wrap">{msg.content}</div>
                 ) : (
                   <div className="prose prose-sm max-w-none overflow-x-auto dark:prose-invert">
                     {msg.coordinationMessage && <p className="text-xs text-muted-foreground">{msg.coordinationMessage}</p>}
                     <DeferredMarkdown>{msg.localSummary || msg.content}</DeferredMarkdown>
-                    {msg.localSummary && <details className="mt-3"><summary className="cursor-pointer text-xs">{t('展开完整资料与适用限制', 'Full evidence and applicability')}</summary><DeferredMarkdown>{msg.content}</DeferredMarkdown></details>}
+                    {msg.localSummary && <details className="chat-evidence mt-3"><summary className="cursor-pointer text-xs">{t('展开完整资料与适用限制', 'Full evidence and applicability')}</summary><div className="chat-evidence-body"><DeferredMarkdown>{msg.content}</DeferredMarkdown></div></details>}
                     {msg.role === 'assistant' && (msg.model || msg.provider || msg.answerMode || msg.fallbackReason || msg.knowledgeChunks !== undefined) && (
-                      <div className="mt-2 border-t border-border/40 pt-2 text-[11px] leading-relaxed text-muted-foreground">
+                      <div className="chat-source mt-2 border-t border-border/40 pt-2 text-[11px] leading-relaxed text-muted-foreground">
                         <div className="flex flex-wrap gap-x-2 gap-y-1">
                           {msg.answerMode && <span>{answerModeLabel(msg.answerMode)}</span>}
                           {msg.knowledgeChunks !== undefined && <span>{t(`知识库命中 ${msg.knowledgeChunks} 条`, `${msg.knowledgeChunks} knowledge snippets retrieved`)}</span>}
@@ -347,7 +300,7 @@ export default function ChatPage() {
         className="chat-input-glass"
         contentClassName="border-t border-border/60 px-4 py-4 md:px-6"
       >
-        <form onSubmit={handleSubmit} className="mx-auto max-w-3xl">
+        <form onSubmit={handleSubmit} className="chat-composer mx-auto max-w-3xl">
           <div className="flex items-end gap-2">
             <Textarea
               aria-label={t('故障描述', 'Fault description')}
@@ -370,7 +323,8 @@ export default function ChatPage() {
               type="submit"
               size="icon"
               disabled={!input.trim() || input.trim().length > 2000}
-              className="shrink-0"
+              className={version === 'new' ? 'shrink-0 glass-press' : 'shrink-0'}
+              data-motion={version === 'new' ? 'glass-press' : undefined}
               aria-label={t('发送', 'Send')}
             >
               <Send className="h-4 w-4" />
@@ -382,6 +336,112 @@ export default function ChatPage() {
           </div>
         </form>
       </LiquidGlass>
+      </div>
+      {version === 'new' && (
+        <aside className="chat-context" aria-label={t('机具上下文', 'Machine context')}>
+          <MachineContext framed={false} {...contextProps} />
+        </aside>
+      )}
+      </div>
+    </div>
+  );
+}
+
+function MachineContext({
+  framed, t, typeOptions, machineType, setMachineType, brand, setBrand, model, setModel,
+  isLoading, memory, profile, deviceName, setDeviceName, hours, setHours, deviceNotes, setDeviceNotes, progress, setProgress,
+}: {
+  framed: boolean;
+  t: (zh: string, en: string) => string;
+  typeOptions: readonly string[];
+  machineType: string;
+  setMachineType: (value: string) => void;
+  brand: string;
+  setBrand: (value: string) => void;
+  model: string;
+  setModel: (value: string) => void;
+  isLoading: boolean;
+  memory: ReturnType<typeof useChatSession>['memory'];
+  profile: Parameters<ReturnType<typeof useChatSession>['memory']['saveProfile']>[0];
+  deviceName: string;
+  setDeviceName: (value: string) => void;
+  hours: string;
+  setHours: (value: string) => void;
+  deviceNotes: string;
+  setDeviceNotes: (value: string) => void;
+  progress: string;
+  setProgress: (value: string) => void;
+}) {
+  const [hud, setHud] = useState<'machine' | 'scope' | 'progress'>('machine');
+  const plate = [machineType, brand, model].filter(Boolean).join(' · ');
+  const hudSteps = [
+    ['machine', t('机具', 'Machine')],
+    ['scope', t('边界', 'Scope')],
+    ['progress', t('进度', 'Progress')],
+  ] as const;
+  return (
+    <div className={framed ? 'mb-6 w-full rounded-xl border border-border/60 bg-card p-4 text-left' : 'text-left'}>
+      {!framed && (
+        <section className="chat-hud" aria-label={t('诊断步骤', 'Diagnosis steps')}>
+          <div className="morph-steps" role="tablist" aria-label={t('诊断步骤', 'Diagnosis steps')}>
+            {hudSteps.map(([id, label]) => (
+              <button key={id} type="button" role="tab" aria-selected={hud === id} onClick={() => setHud(id)}>{label}</button>
+            ))}
+          </div>
+          <MorphingPanel stepKey={hud}>
+            <div role="tabpanel">
+              {hud === 'machine' && <p>{plate || t('尚未填写铭牌', 'No plate yet')}<br />{t('核对铭牌上的完整型号。', 'Check the full model on the plate.')}</p>}
+              {hud === 'scope' && <p>{t('回答依据是已索引资料。系列资料不能代替具体机型，适用范围仍需核对。', 'Answers follow indexed evidence. Series documents do not replace a specific model, and scope still needs a check.')}</p>}
+              {hud === 'progress' && <p>{progress.trim() || t('还没有本次检查进度。', 'No check progress yet.')}<br />{t('保存后留在这台设备的诊断记忆里。', 'After you save it, it stays with this device’s diagnosis memory.')}</p>}
+            </div>
+          </MorphingPanel>
+        </section>
+      )}
+      <div className="mb-3 flex items-center justify-between gap-3 text-xs font-medium text-primary">
+        <span>{framed ? t('诊断上下文 · 请核对现场铭牌', 'Machine context · check the machine plate') : t('机具上下文', 'Machine context')}</span>
+        <Link to="/knowledge" className="underline underline-offset-4">{t('浏览资料', 'Browse evidence')}</Link>
+      </div>
+      <div className="chat-fields grid grid-cols-1 gap-2 sm:grid-cols-3">
+        <select aria-label={t('农机类型', 'Machine type')} value={machineType} onChange={(event) => setMachineType(event.target.value)} disabled={isLoading || memory.busy} className="h-10 rounded-md border border-border bg-background px-3 text-sm text-foreground disabled:opacity-60">
+          <option value="">{t('类型', 'Type')}</option>
+          {typeOptions.map((label, index) => <option key={MACHINE_TYPES_ZH[index]} value={MACHINE_TYPES_ZH[index]}>{label}</option>)}
+        </select>
+        <input aria-label={t('品牌', 'Brand')} maxLength={100} value={brand} onChange={(event) => setBrand(event.target.value)} placeholder={t('品牌（选填）', 'Brand (optional)')} disabled={isLoading || memory.busy} className="h-10 rounded-md border border-border bg-background px-3 text-sm text-foreground disabled:opacity-60" />
+        <input aria-label={t('型号', 'Model')} maxLength={100} value={model} onChange={(event) => setModel(event.target.value)} placeholder={t('型号（选填）', 'Model (optional)')} disabled={isLoading || memory.busy} className="h-10 rounded-md border border-border bg-background px-3 text-sm text-foreground disabled:opacity-60" />
+      </div>
+      <p className="mt-3 text-xs leading-relaxed text-muted-foreground">{framed ? t('完整型号与配置帮助限定资料范围；系列资料不能直接代替具体机型。带入的问题仅预填，由你确认后发送。', 'The complete model and configuration define applicability. Series documents do not replace specific-model evidence. Imported questions are drafts for you to review and send.') : t('核对铭牌上的完整型号。系列资料不能代替具体机型。', 'Check the full model on the plate. Series documents do not replace a specific model.')}</p>
+      <details className="chat-evidence mt-4 border-t border-border/60 pt-3">
+        <summary className="cursor-pointer text-sm font-medium">{t('诊断记忆', 'Diagnosis memory')} · {memory.ready ? t('已连接', 'Connected') : t('未就绪', 'Not ready')}</summary>
+        <div className="chat-evidence-body">
+          <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{typeof __AGRIDX_DEV_PREVIEW__ !== 'undefined' && __AGRIDX_DEV_PREVIEW__ ? t('开发预览的档案与对话仅保存在当前浏览器，清除网站数据会删除。检查结果是用户报告。', 'Preview profiles and chats stay in this browser. Clearing site data deletes them. Checks are user reports.') : t('档案与对话保存到后端，同一浏览器重新打开可继续。清除浏览器身份后无法自动恢复；检查结果是用户报告。', 'Profiles and chats are saved on the server for this browser. Clearing browser identity prevents automatic recovery; checks are user reports.')}</p>
+          <div className="mt-3 grid gap-2 sm:grid-cols-2">
+            <select aria-label={t('选择设备档案', 'Select device profile')} value={memory.deviceId} disabled={isLoading || memory.busy || !memory.ready} onChange={(event) => memory.selectDevice(event.target.value)} className="h-10 min-w-0 rounded-md border border-border bg-background px-3 text-sm">
+              <option value="">{t('新设备（独立档案）', 'New device (separate profile)')}</option>
+              {memory.devices.map((device) => <option key={device.id} value={device.id}>{device.name} · {device.model || device.brand}</option>)}
+            </select>
+            <select aria-label={t('继续历史诊断', 'Resume diagnosis')} value={memory.session?.id || ''} disabled={isLoading || memory.busy || !memory.ready} onChange={(event) => { if (event.target.value) void memory.restore(event.target.value); }} className="h-10 min-w-0 rounded-md border border-border bg-background px-3 text-sm">
+              <option value="">{t('继续历史诊断…', 'Resume a diagnosis…')}</option>
+              {memory.sessions.map((session) => <option key={session.id} value={session.id}>{memory.devices.find((device) => device.id === session.deviceId)?.name} · {session.title}</option>)}
+            </select>
+            <label className="text-xs">{t('设备名称（区分不同车辆）', 'Device name (identify the vehicle)')}<input maxLength={100} value={deviceName} onChange={(event) => setDeviceName(event.target.value)} disabled={isLoading || memory.busy} className="mt-1 h-10 w-full rounded-md border border-border bg-background px-3 text-sm" /></label>
+            <label className="text-xs">{t('使用小时数（选填）', 'Operating hours (optional)')}<input type="number" min="0" max="1000000" step="any" value={hours} onChange={(event) => setHours(event.target.value)} disabled={isLoading || memory.busy} className="mt-1 h-10 w-full rounded-md border border-border bg-background px-3 text-sm" /></label>
+          </div>
+          <label className="mt-3 block text-xs">{t('设备维护记录（用户提供）', 'Maintenance notes (user reported)')}<Textarea value={deviceNotes} maxLength={2000} onChange={(event) => setDeviceNotes(event.target.value)} disabled={isLoading || memory.busy} className="mt-1" rows={2} /></label>
+          <div className="mt-2 flex flex-wrap gap-2">
+            <Button variant="secondary" size="sm" disabled={isLoading || memory.busy || !memory.ready || !deviceName.trim()} onClick={() => void memory.action(async () => { await memory.saveProfile(profile); })}>{t('保存设备档案', 'Save device profile')}</Button>
+            <Button variant="secondary" size="sm" disabled={isLoading || memory.busy || !memory.ready} onClick={memory.newDiagnosis}>{t('新建诊断', 'New diagnosis')}</Button>
+            <Button variant="ghost" size="sm" disabled={isLoading || memory.busy || !memory.deviceId} onClick={() => { if (window.confirm(t('删除此设备及其全部诊断记录？无法恢复。', 'Delete this device and all its diagnoses? This cannot be undone.'))) void memory.deleteDevice(); }}>{t('删除设备及记录', 'Delete device and records')}</Button>
+          </div>
+          <label className="mt-3 block text-xs">{t('本次检查进度（已检查项目、结果、待检查项）', 'Progress (checks done, results, remaining checks)')}<Textarea value={progress} maxLength={2000} onChange={(event) => setProgress(event.target.value)} disabled={isLoading || memory.busy || !memory.session} placeholder={t('例如：电瓶已检查正常；下一步检查接线。', 'Example: Battery checked, reported normal; wiring check pending.')} className="mt-1" rows={2} /></label>
+          <div className="mt-2 flex flex-wrap gap-2">
+            <Button variant="secondary" size="sm" disabled={isLoading || memory.busy || !memory.session || progress.trim() === memory.session.progress} onClick={() => void memory.saveProgress(progress)}>{t('保存检查进度', 'Save progress')}</Button>
+            <Button variant="ghost" size="sm" disabled={isLoading || memory.busy || !memory.session} onClick={() => { if (window.confirm(t('删除本次诊断及检查进度？设备档案保留。', 'Delete this diagnosis and progress? Keep the device profile.'))) void memory.deleteDiagnosis(); }}>{t('删除本次诊断', 'Delete diagnosis')}</Button>
+          </div>
+          {memory.session?.summary && <details className="mt-3 text-xs"><summary className="cursor-pointer">{t('查看历史用户报告节选', 'Older user report excerpts')}</summary><p className="mt-2 whitespace-pre-wrap text-muted-foreground">{memory.session.summary}</p></details>}
+          {memory.error && <p role="alert" className="mt-2 text-xs text-destructive">{memory.error}</p>}
+          {!memory.ready && <Button variant="secondary" size="sm" className="mt-2" onClick={memory.retry}>{t('重试连接记忆', 'Retry memory connection')}</Button>}
+        </div>
+      </details>
     </div>
   );
 }

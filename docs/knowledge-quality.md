@@ -50,6 +50,7 @@ npm run knowledge:quality -- --report server/data/knowledge-quality/report.json 
 | `source.*` | 真实原件路径、哈希、字节、页数、网址格式、已核对页范围 | URL格式通过不代表远端可访问或发布方已确认 |
 | `scope.*` | 精确型号非空无重复子集、CAB/ROPS、2WD/4WD、国三/国四及来源条件一致性 | 不根据型号后缀推断配置，不要求描述性model字符串完全相等 |
 | `entry.section`、`entry.evidence` | 正式知识卡路径、确切编号/标题/正文、确切来源ID及页码范围 | `SRC-A-0010`不能冒充`SRC-A-001`；不复制正文到索引 |
+| `entry.roles` | 可选`roles`/`role_basis`、`risk_level`/`risk_basis`的取值、顺序与成对填写；`原文标记`须在本条正文找到对应字段标记；资料信息类不得标注 | 不自动标注；未标注不表示无该角色或低风险，风险等级不是确诊或安全结论 |
 | `body.*` | 明确出现的空/重复字段、不同来源ID、状态分类分歧、占位、异常字符、1200字符截断风险 | 接受旧式段落、列表和表格；不要求统一维修步骤；不同来源引用仅警告待审 |
 | `status.unspecified`、`source.level`、`source.external` | 无法分类状态、来源等级记录缺口、外链原件本次未重新取得 | 全部为info，不等于事实错误、未经人工核对或来源不可靠 |
 
@@ -57,13 +58,13 @@ npm run knowledge:quality -- --report server/data/knowledge-quality/report.json 
 
 ## JSON与Markdown报告契约
 
-`schema_version: 1`、`rules_version: 1.0.0`。快照包含输入文件内容SHA256，报告时间为UTC。报告包含完整当前发现，不只是本次变更；增量执行也不会丢失缓存中未解决的问题。
+`schema_version: 1`、`rules_version: 1.1.0`（2026-10-21增加`entry.roles`及`summary.role_schema`统计；此前示例报告保留1.0.0原值）。快照包含输入文件内容SHA256，报告时间为UTC。报告包含完整当前发现，不只是本次变更；增量执行也不会丢失缓存中未解决的问题。
 
 每项finding包含`finding_id`、`rule_id`、`entry_id`、`source_id`、`category`、`severity`、`message`、`evidence`、`observed`、`suggestion`。`severity`为`error/warning/info`。编号由规则、记录身份、证据位置和问题文本确定；重复编号的各次出现分别编号。
 
 `evidence.path`为仓库相对路径；知识卡和JSONL用真实行号，`sources.json`使用数组JSON指针，例如`/3/source_level`，不把第4个来源冒充为第4行。`locator`保留原证据定位。Markdown报告提供原始值并转义表格及HTML字符。
 
-顶层`summary`按严重程度、规则、类别统计；`affected_entries`是独立条目数，不能与来源问题数相加当作错误知识数量。`verification_counts`仅统计现有严格解析结果，`verified`不表示全书、厂家或实车验证。无效JSON行和非对象记录另有finding，不能用有效状态计数代替原始输入行数。
+顶层`summary`按严重程度、规则、类别统计，`role_schema`分别统计已标注角色与风险等级的条目数；`affected_entries`是独立条目数，不能与来源问题数相加当作错误知识数量。`verification_counts`仅统计现有严格解析结果，`verified`不表示全书、厂家或实车验证。无效JSON行和非对象记录另有finding，不能用有效状态计数代替原始输入行数。
 
 来源完整性、人工核验、适用性和来源渠道是不同维度。本阶段不提供一个可能误导诊断的总质量分，也不修改任何状态。
 

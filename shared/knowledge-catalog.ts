@@ -101,6 +101,8 @@ export interface KnowledgeCatalog {
     faultEntries: number;
     mappedEntries: number;
   };
+  /** Knowledge-base release from kb-version.json (YYYY.MM.N), added by the catalog route. */
+  kbVersion?: string | null;
   expansion: { targetLabel: '1w+'; countingUnit: 'indexed-entry'; status: 'planned' | 'reached' };
   brands: CatalogBrand[];
   selected?: CatalogSelection;
@@ -131,4 +133,15 @@ export function validCatalogCondition(key: typeof CATALOG_FILTER_KEYS[number], v
   if (key === 'collection') return ['all', 'archive', 'learning'].includes(value);
   if (key === 'page') return /^[1-9]\d{0,5}$/.test(value);
   return true;
+}
+
+/** 3.5.10起来源品牌统一为主品牌，子品牌/产品线另存；旧标签筛选仍映射到主品牌。 */
+export const LEGACY_BRAND_LABELS: Readonly<Record<string, string>> = {
+  雷沃欧豹: '雷沃',
+  雷沃阿波斯: '雷沃',
+  '千寻位置 / 千耘': '千寻位置',
+};
+
+export function canonicalCatalogBrand(brand: string | undefined): string | undefined {
+  return brand === undefined ? undefined : LEGACY_BRAND_LABELS[brand] ?? brand;
 }

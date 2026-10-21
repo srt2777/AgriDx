@@ -3,6 +3,7 @@ import type {
   CatalogModel, CatalogPart, KnowledgeCatalog,
   KnowledgeLibrary, LearningEntry, LibraryEntry,
 } from '../../shared/knowledge-catalog';
+import { canonicalCatalogBrand } from '../../shared/knowledge-catalog';
 import type { ArchiveSource } from './archive';
 import type { KnowledgeChunk } from './types';
 import { buildCommonFramework, commonEntryIds, validateCommonDefinition } from './common';
@@ -216,7 +217,8 @@ function asEntry(chunk: KnowledgeChunk): CatalogEntry {
 }
 
 /** Exact strings identify archive nodes; an unknown model never falls back to a nearby model. */
-function selectKnowledgeCatalog(current: CatalogState, filters: CatalogFilters): KnowledgeCatalog {
+function selectKnowledgeCatalog(current: CatalogState, requested: CatalogFilters): KnowledgeCatalog {
+  const filters: CatalogFilters = requested.brand ? { ...requested, brand: canonicalCatalogBrand(requested.brand) } : requested;
   // An explicit condition requires matching metadata; unknown conditions stay a collection gap.
   const applicable = (chunk: KnowledgeChunk) =>
     (!filters.configuration || chunk.configuration === filters.configuration) &&

@@ -8,7 +8,7 @@ import { knowledgeSnapshotPlugin } from './lib/dev-preview.mjs';
 const { version } = JSON.parse(readFileSync(path.join(rootDir, 'package.json'), 'utf8'));
 const commit = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: rootDir, encoding: 'utf8' }).trim();
 const branch = process.env.GITHUB_REF_NAME || execFileSync('git', ['branch', '--show-current'], { cwd: rootDir, encoding: 'utf8' }).trim();
-const repository = process.env.GITHUB_REPOSITORY || 'srt2777/AgriDx-v3';
+const repository = process.env.GITHUB_REPOSITORY || 'srt2777/AgriDx';
 const release = { version, commit, branch, repository, builtAt: new Date().toISOString() };
 runPackageBin('typescript', 'tsc', ['-b', 'tsconfig.app.json']);
 await build({

@@ -1,4 +1,4 @@
-const artifactOrigin = 'https://raw.githubusercontent.com/srt2777/AgriDx-v3/dev-preview-built/';
+const artifactOrigin = 'https://raw.githubusercontent.com/srt2777/AgriDx/dev-preview-built/';
 const types = {
   html: 'text/html; charset=utf-8', js: 'application/javascript; charset=utf-8',
   css: 'text/css; charset=utf-8', json: 'application/json; charset=utf-8',
@@ -46,7 +46,7 @@ export async function servePreview(request, upstreamFetch = fetch) {
   }
 }
 
-const repository = 'srt2777/AgriDx-v3';
+const repository = 'srt2777/AgriDx';
 const adminCookie = '__Host-agridx-admin';
 const visitorCookie = '__Host-agridx-visitor';
 const day = 86_400_000;

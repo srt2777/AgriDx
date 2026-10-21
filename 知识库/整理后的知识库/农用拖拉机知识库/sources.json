@@ -2,7 +2,11 @@
   {
     "source_id": "SRC-LV-TG-WEB",
     "brand": "雷沃",
+    "sub_brand": "欧豹",
     "model": "欧豹TG系列",
+    "title": "雷沃欧豹TG系列拖拉机常见故障及排除方法",
+    "title_status": "已核对",
+    "title_evidence": "已存HTML的<title>与正文<h1>",
     "path": "知识库/原始农机说明书/雷沃/TG系列/常见故障及排除方法.html",
     "url": "https://www.nongjitong.com/company/lovol/oubaotg/fault_and_elimination.html",
     "document_type": "企业店铺维保网页",
@@ -14,12 +18,18 @@
     "bytes": 11558,
     "models": [
       "欧豹TG系列"
+    ],
+    "model_ids": [
+      "欧豹TG系列"
     ]
   },
   {
     "source_id": "SRC-LV-NR3-WEB",
     "brand": "雷沃",
     "model": "国三拖拉机",
+    "title": "雷沃国三拖拉机发动机日常作业维护指导与保养",
+    "title_status": "已核对",
+    "title_evidence": "已存HTML的<title>；正文<h1>为“雷沃国三拖拉机发动机日常作业维护指导保养”",
     "emission_stage": "国三",
     "path": "知识库/原始农机说明书/雷沃/国三/发动机日常维护与保养.html",
     "url": "https://www.nongjitong.com/company/lovol/tractor_motor_maintain.html",
@@ -29,12 +39,18 @@
     "status": "已取得正文",
     "collected_at": "2026-10-02",
     "sha256": "01587338307dd3470c3b14fbade2ef0762db8c81104f609765c783935d3a9875",
-    "bytes": 10735
+    "bytes": 10735,
+    "model_ids": [
+      "国三拖拉机"
+    ]
   },
   {
     "source_id": "SRC-DF-WINTER-20201225",
     "brand": "东风",
     "model": "具体系列待核实",
+    "title": "拖拉机冬季保养注意事项",
+    "title_status": "已核对",
+    "title_evidence": "已存HTML的<title>（后缀“常州东风农机集团有限公司”为站名）与正文<h1>",
     "path": "知识库/原始农机说明书/东风/系列待核实/拖拉机冬季保养注意事项.html",
     "url": "https://www.dfamgc.com/390.html",
     "document_type": "厂家维护文章",
@@ -43,12 +59,18 @@
     "status": "已取得正文",
     "collected_at": "2026-10-02",
     "sha256": "3a9b1c448a54dab1a741dc532528482853816beb7a3b7a8c01eef4e2701b54af",
-    "bytes": 45110
+    "bytes": 45110,
+    "model_ids": [
+      "具体系列待核实"
+    ]
   },
   {
     "source_id": "SRC-HH-T70-20250414",
     "brand": "鸿鹄",
     "model": "T70",
+    "title": "[十堰]无人拖拉机耕地机器人给土地“体检”",
+    "title_status": "已核对",
+    "title_evidence": "已存HTML的<title>（后缀为站名“湖北省农业农村厅”）与正文<h1>",
     "path": "知识库/原始农机说明书/鸿鹄/T70/湖北农业农村厅_20250414.html",
     "url": "https://nyt.hubei.gov.cn/bmdt/yw/szdt/202504/t20250414_5614333_slh.shtml",
     "document_type": "政府网站报道",
@@ -60,12 +82,18 @@
     "bytes": 26210,
     "models": [
       "T70"
+    ],
+    "model_ids": [
+      "T70"
     ]
   },
   {
     "source_id": "SRC-ZL-PL-202011",
     "brand": "中联",
     "model": "PL系列",
+    "title": "中联农机PL系列拖拉机维保手册（中联农机公司，2020年11月）",
+    "title_status": "已核对",
+    "title_evidence": "封面PDF第1页",
     "path": "知识库/原始农机说明书/中联/PL系列/中联PL系列拖拉机维保操作手册.pdf",
     "url": "https://www.zoomlion-ag.com/whby_1.html",
     "document_type": "既有完整PDF",
@@ -103,12 +131,18 @@
     "updated_at": "2026-10-12",
     "models": [
       "PL系列"
+    ],
+    "model_ids": [
+      "PL系列"
     ]
   },
   {
     "source_id": "SRC-NH-WM25-92157408",
     "brand": "纽荷兰",
     "model": "WORKMASTER25",
+    "title": "OPERATOR’S MANUAL Workmaster™ 25 Compact Tractor（Part number 92157408，1st edition English，November 2023）",
+    "title_status": "已核对",
+    "title_evidence": "封面PDF第1页",
     "path": "知识库/原始农机说明书/纽荷兰/WORKMASTER25/NewHolland_WORKMASTER25_2023_92157408.pdf",
     "url": "https://agriculture.newholland.com/en-us/nar/services-and-solutions/compact-tractor-resources",
     "document_type": "既有完整PDF",
@@ -250,12 +284,18 @@
       "189": "2026-10-15两轮自动图文复核；所引条目编号与正文主题见本批知识卡",
       "194": "2026-10-15两轮自动图文复核；所引条目编号与正文主题见本批知识卡"
     },
-    "updated_at": "2026-10-15"
+    "updated_at": "2026-10-15",
+    "model_ids": [
+      "WORKMASTER25"
+    ]
   },
   {
     "source_id": "SRC-KB-LX2620-6C82063118",
     "brand": "久保田",
     "model": "LX2620/LX2620SU",
+    "title": "OPERATOR'S MANUAL MODELS LX2620 LX2620SU（English (U.S.A.)，Code No. 6C820-6311-8）",
+    "title_status": "已核对",
+    "title_evidence": "封面PDF第1页",
     "path": "知识库/原始农机说明书/久保田/LX2620-LX2620SU/kubota-lx2620-operator-manual.pdf",
     "url": "https://www.gartontractor.com/resources/manuals/kubota-lx2620-operator-manual",
     "document_type": "既有完整PDF",
@@ -361,11 +401,21 @@
       "95": "2026-10-15两轮自动图文复核；所引条目编号与正文主题见本批知识卡",
       "96": "2026-10-15两轮自动图文复核；所引条目编号与正文主题见本批知识卡"
     },
-    "updated_at": "2026-10-15"
+    "updated_at": "2026-10-15",
+    "model_ids": [
+      "LX2620",
+      "LX2620SU",
+      "LX2620HSD",
+      "LX2620SUHSD",
+      "LX2620HSDC",
+      "LX2620HSDCC"
+    ]
   },
   {
     "source_id": "SRC-LV-TX-TRAINING",
-    "brand": "雷沃欧豹",
+    "brand": "雷沃",
+    "sub_brand": "欧豹",
+    "brand_label": "雷沃欧豹",
     "model": "TX平台",
     "title": "雷沃欧豹TX平台拖拉机交机培训手册",
     "path": "知识库/原始农机说明书/雷沃/TX系列/19162429_6519.pdf",
@@ -422,11 +472,16 @@
     "updated_at": "2026-10-15",
     "models": [
       "TX平台"
+    ],
+    "model_ids": [
+      "TX平台"
     ]
   },
   {
     "source_id": "SRC-LV-TD-TRAINING",
-    "brand": "雷沃欧豹",
+    "brand": "雷沃",
+    "sub_brand": "欧豹",
+    "brand_label": "雷沃欧豹",
     "model": "TD平台",
     "title": "雷沃欧豹TD平台拖拉机交机培训手册",
     "path": "知识库/原始农机说明书/雷沃/TD系列/19162322_3238.pdf",
@@ -489,11 +544,16 @@
     "updated_at": "2026-10-15",
     "models": [
       "TD平台"
+    ],
+    "model_ids": [
+      "TD平台"
     ]
   },
   {
     "source_id": "SRC-LV-TB-TRAINING",
-    "brand": "雷沃欧豹",
+    "brand": "雷沃",
+    "sub_brand": "欧豹",
+    "brand_label": "雷沃欧豹",
     "model": "TB平台",
     "title": "雷沃欧豹TB平台拖拉机交机培训手册",
     "path": "知识库/原始农机说明书/雷沃/TB系列/19162218_4956.pdf",
@@ -555,11 +615,16 @@
     "models": [
       "TB平台"
     ],
-    "updated_at": "2026-10-15"
+    "updated_at": "2026-10-15",
+    "model_ids": [
+      "TB平台"
+    ]
   },
   {
     "source_id": "SRC-LV-P5000-TRAINING",
-    "brand": "雷沃阿波斯",
+    "brand": "雷沃",
+    "sub_brand": "阿波斯",
+    "brand_label": "雷沃阿波斯",
     "model": "P5000",
     "title": "阿波斯P5000拖拉机交机培训手册",
     "path": "知识库/原始农机说明书/雷沃/P5000/19161645_3081.pdf",
@@ -621,7 +686,10 @@
     "models": [
       "P5000"
     ],
-    "updated_at": "2026-10-15"
+    "updated_at": "2026-10-15",
+    "model_ids": [
+      "P5000"
+    ]
   },
   {
     "source_id": "SRC-YTO-LX-MANUAL",
@@ -714,7 +782,14 @@
       "LX1254",
       "LX1304"
     ],
-    "updated_at": "2026-10-15"
+    "updated_at": "2026-10-15",
+    "model_ids": [
+      "LX1004",
+      "LX1104",
+      "LX1204",
+      "LX1254",
+      "LX1304"
+    ]
   },
   {
     "source_id": "SRC-YTO-LF-MANUAL",
@@ -789,6 +864,11 @@
     "updated_at": "2026-10-13",
     "index_warning": "正文目录的部分章页标引不一致；本批引用以实际印刷页码+PDF物理页为准。例如目录写技术保养38，正文实际印刷40；目录写底盘排故59，正文实际印刷57。",
     "models": [
+      "LF804S",
+      "LF904S",
+      "LF954S"
+    ],
+    "model_ids": [
       "LF804S",
       "LF904S",
       "LF954S"
@@ -990,7 +1070,33 @@
     "edition_warning": "纸面版次日期晚于所列首次印刷日期；技术规格含(G4)机型。PDF元数据2023-10-05不能替代纸面版次，内部版本关系待厂家核实。",
     "emissions_evidence": "技术规格列(G4)机型，PDF第80页/纸面72页含DOC+DPF+SCR、DOC+DPF后处理型式；PDF第78页/纸面70页铭牌示例却标GB20891-2014第三阶段，故不对整册统一标记国四。",
     "updated_at": "2026-10-16",
-    "emission_stage_unknown": true
+    "emission_stage_unknown": true,
+    "model_ids": [
+      "TT2004(G4)",
+      "TT1804(G4)",
+      "TT1604(G4)",
+      "TT1604-D(G4)",
+      "TT1600(G4)",
+      "TT1600-D(G4)",
+      "TT1400(G4)",
+      "TT1400-D(G4)",
+      "TT1004(G4)",
+      "TT1004-D(G4)",
+      "TT1004-N(G4)",
+      "TT904(G4)",
+      "TT904-N(G4)",
+      "TT804(G4)",
+      "TT804-N(G4)",
+      "TT704(G4)",
+      "TT704-D(G4)",
+      "TT704-N(G4)",
+      "TT604(G4)",
+      "TT604-D(G4)",
+      "TT504(G4)",
+      "TT504-D(G4)",
+      "TT504-S(G4)",
+      "TT500-D"
+    ]
   },
   {
     "source_id": "SRC-JD-6E-G4-OMTR115296",
@@ -1176,11 +1282,24 @@
       "6E-1504-L (G4)",
       "6E-1504-PL (G4)"
     ],
-    "updated_at": "2026-10-15"
+    "updated_at": "2026-10-15",
+    "model_ids": [
+      "6E-1004(G4)",
+      "6E-1204(G4)",
+      "6E-1204-P(G4)",
+      "6E-1404(G4)",
+      "6E-1404-P(G4)",
+      "6E-1404-L(G4)",
+      "6E-1404-PL(G4)",
+      "6E-1504-L(G4)",
+      "6E-1504-PL(G4)"
+    ]
   },
   {
     "source_id": "SRC-QX-QY210PRO-V01",
-    "brand": "千寻位置 / 千耘",
+    "brand": "千寻位置",
+    "product_line": "千耘",
+    "brand_label": "千寻位置 / 千耘",
     "model": "QYBD-2.5SD（QY210 Pro）",
     "title": "千耘QY210Pro北斗农机自动驾驶系统使用说明",
     "path": "知识库/原始农机说明书/智能化配套系统/千寻/QY210Pro/165468154663987807.pdf",
@@ -1234,7 +1353,11 @@
       "QYBD-2.5SD",
       "QY210 Pro"
     ],
-    "updated_at": "2026-10-15"
+    "updated_at": "2026-10-15",
+    "model_ids": [
+      "QYBD-2-5SD",
+      "QY210PRO"
+    ]
   },
   {
     "source_id": "SRC-BARB-HYDROTRAC-4HWD-REPO",
@@ -1284,7 +1407,10 @@
     },
     "knowledge_path": "知识库/整理后的知识库/农用拖拉机知识库/机型知识卡/Barbieri_HydroTRAC4HWD.md",
     "copyright_note": "原件在既有用户GitHub仓库；未查证厂商再分发许可。本批仅新增自行概述及证据定位，不重新上传原件；PDF元数据创建/修改于2022年不是封面发行日期。",
-    "index_warning": "所查看页面未印可确认的独立页码；不得臆造印刷页码。维护表与正文的部分周期表达、燃油/机油滤芯显示代码存在疑点，本卡不抽取这些数值/代码。"
+    "index_warning": "所查看页面未印可确认的独立页码；不得臆造印刷页码。维护表与正文的部分周期表达、燃油/机油滤芯显示代码存在疑点，本卡不抽取这些数值/代码。",
+    "model_ids": [
+      "HYDROTRAC4HWD"
+    ]
   },
   {
     "source_id": "SRC-YTO-LF1504-SMLF150449010",
@@ -1396,7 +1522,10 @@
     "index_warning": "封面/前言日期不同；6A3LU-T19、6A3L-T7、LR-R/A/B/M/N发动机资料引用不一致；目录与正文页脚有偏差，按实际正文定位",
     "copyright_note": "前言有复制、转译、商业传播限制；未取得另行发布许可。本批仅存自行编写的事实概述、源链接与来源记录，不上传完整PDF。",
     "emission_stage": "国三",
-    "updated_at": "2026-10-15"
+    "updated_at": "2026-10-15",
+    "model_ids": [
+      "LF1504"
+    ]
   },
   {
     "source_id": "SRC-KB-M6060-3C13199724",
@@ -1525,7 +1654,11 @@
     "bytes": 4339,
     "configuration": "ROPS",
     "drive_configuration": "4WD",
-    "updated_at": "2026-10-15"
+    "updated_at": "2026-10-15",
+    "model_ids": [
+      "M6060",
+      "M7060"
+    ]
   },
   {
     "source_id": "SRC-KB-M5-3B79199724",
@@ -1682,7 +1815,11 @@
     },
     "sha256": "4de4da9a6fca0c34314168e02cb7fa1d711a92b0c36fe58e856f7741a20edc74",
     "bytes": 5295,
-    "updated_at": "2026-10-15"
+    "updated_at": "2026-10-15",
+    "model_ids": [
+      "M5-091",
+      "M5-111"
+    ]
   },
   {
     "source_id": "SRC-WD-WF1404-1604-2021",
@@ -1770,7 +1907,13 @@
       "70": "2026-10-15两轮自动图文复核；所引条目编号与正文主题见本批知识卡",
       "71": "2026-10-15两轮自动图文复核；所引条目编号与正文主题见本批知识卡"
     },
-    "updated_at": "2026-10-15"
+    "updated_at": "2026-10-15",
+    "model_ids": [
+      "WF1404-3",
+      "WF1404-2",
+      "WF1504-2",
+      "WF1604-2"
+    ]
   },
   {
     "source_id": "SRC-WD-WF1404-1804-2022",
@@ -1864,7 +2007,16 @@
       "76": "2026-10-15两轮自动图文复核；所引条目编号与正文主题见本批知识卡",
       "77": "2026-10-15两轮自动图文复核；所引条目编号与正文主题见本批知识卡"
     },
-    "updated_at": "2026-10-15"
+    "updated_at": "2026-10-15",
+    "model_ids": [
+      "WF1404-3",
+      "WF1504-1",
+      "WF1604-1",
+      "WF1404",
+      "WF1504",
+      "WF1604",
+      "WF1804"
+    ]
   },
   {
     "source_id": "SRC-CHC-NX510-FEB2024",
@@ -1974,7 +2126,13 @@
       "98": "2026-10-15两轮自动图文复核；所引条目编号与正文主题见本批知识卡",
       "100": "2026-10-15两轮自动图文复核；所引条目编号与正文主题见本批知识卡"
     },
-    "updated_at": "2026-10-15"
+    "updated_at": "2026-10-15",
+    "model_ids": [
+      "NX510",
+      "NX510SE",
+      "NX510PRO",
+      "NX510PLUS"
+    ]
   },
   {
     "source_id": "SRC-JD-5E-D0-OMSJ34997",
@@ -2122,7 +2280,19 @@
     },
     "pdf_metadata_date": "2020-04-30",
     "updated_at": "2026-10-15",
-    "text_layer_status": "当前归档PDF可提取文本；两批所列证据页均有文本及图像核对记录，未全书逐条审校/厂家复核/实车验证"
+    "text_layer_status": "当前归档PDF可提取文本；两批所列证据页均有文本及图像核对记录，未全书逐条审校/厂家复核/实车验证",
+    "model_ids": [
+      "5E-850",
+      "5E-854",
+      "5E-904",
+      "5E-954",
+      "5E-1000",
+      "5E-1004",
+      "5E-1100",
+      "5E-1104",
+      "5E-1200",
+      "5E-1204"
+    ]
   },
   {
     "source_id": "SRC-JD-6B-L1-OMSU54855",
@@ -2293,7 +2463,14 @@
     },
     "pdf_metadata_date": "2021-12-29",
     "updated_at": "2026-10-15",
-    "text_layer_status": "当前归档PDF可提取文本；本轮所列证据页同时目视核对，不代表全书审校"
+    "text_layer_status": "当前归档PDF可提取文本；本轮所列证据页同时目视核对，不代表全书审校",
+    "model_ids": [
+      "JD954",
+      "JD1104",
+      "JD1204-A",
+      "JD1354-A",
+      "JD1404-A"
+    ]
   },
   {
     "source_id": "SRC-JD-6M-OMAL232272-03AUG2026",
@@ -2499,7 +2676,12 @@
     },
     "text_layer_status": "可提取文本；本批引用文字已核，记录所列表格／配置页另目视核对；未全书审校。",
     "download_method": "公开免费POST附件；downloadId=599456，publicationType=Operator's Manual，productName=OMAL232272，marketingCode为空",
-    "updated_at": "2026-10-15"
+    "updated_at": "2026-10-15",
+    "model_ids": [
+      "6M-1654(G4)",
+      "6M-1854(G4)",
+      "6M-2104(G4)"
+    ]
   },
   {
     "source_id": "SRC-JD-TM901519-FT4-2019",
@@ -2534,7 +2716,13 @@
     "manual_sha256": "da737ce7649af7cbb1b3dbead9da6c5ea1237cceb3197b1e09eb490bf2cb9aad",
     "manual_bytes": 111341,
     "manual_pdf_pages": 5,
-    "source_level": "厂家官方技术出版物5页预览；不是完整维修手册"
+    "source_level": "厂家官方技术出版物5页预览；不是完整维修手册",
+    "model_ids": [
+      "5045E(FT4)",
+      "5055E(FT4)",
+      "5065E(FT4)",
+      "5075E(FT4)"
+    ]
   },
   {
     "source_id": "SRC-MH-6065-6075-CAB-REV01",
@@ -2575,6 +2763,10 @@
       "113": "2026-10-18目视核对完整表页并引用白烟；2026-10-19重读并抽取蓝烟、黑灰烟合列及燃油消耗分组；印刷112",
       "114": "人工目视核对完整故障表、星号与页脚：TURBOCHARGER及HYDRAULICS；印刷113",
       "115": "人工目视核对完整故障表、星号与页脚：BRAKES、TRANSMISSION、REAR WHEELS、ELECTRICALS；2026-10-19重读并抽取后轮不转及相邻离合器拖滞送修行；印刷114"
-    }
+    },
+    "model_ids": [
+      "6065",
+      "6075"
+    ]
   }
 ]

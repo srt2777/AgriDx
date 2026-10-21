@@ -123,3 +123,29 @@ Linux x86_64、Python3.12.14、2 vCPU/8GiB限制；完成项目验证后独立�
 本地47项新增Python语义/安全回归和4个Node入口回归通过，既有30项规则回归保留；完整项目验证256项中254通过、2项平台跳过，类型检查、Lint及前后端构建通过。既有Fast Refresh和Three.js包大小提示仍存在。
 
 尚未取得实际模型权重，也没有领域人员独立标注集。因此真实embedding候选召回、维修分类精确率、CPU推理吞吐、模型依赖安装体积及模型峰值内存仍待验收，不能用规则或模拟向量指标替代。PR用于审查实现与规则基线，不自动启用模型或部署。
+
+## 模板折叠、AI 预审与人工审核（3.7.3）
+
+`知识库/工具/语义预审.py` 复用上文 `scan()` 的候选，不另起召回，也不改上文六类关系。新增三步：
+
+1. **模板折叠**：同一来源中，把机型名、编号、Section/Group 号换成占位符后正文相同、且机型不同的条目归为一个 `scope_variant` 簇（`TG-…`），整簇只看一次，只加标签。2026-10-21 全量：110 簇、500 条（主要是 `KB-JD-TM901519` 目录条目）。
+2. **分级**：其余候选按字符 3-gram Jaccard（默认 ≥0.8）筛选。跨来源的记为 `dup_candidate`；现有规则理由里有数值、单位、否定或安全差异的记为 `conflict_candidate`；同来源高相似（多为同手册不同主题）记为 `same_source_similar`，只写报告、不送审。同日结果：dup 3 对、conflict 2 对、同来源 1835 对。
+3. **AI 预审（默认关闭）**：`--reviewer none` 是默认值，不调用 AI，也不生成结论。`--reviewer command` 从环境变量 `AGRIDX_DEDUP_REVIEWER_CMD` 读一个维护者自备的命令：每对候选通过 stdin 以 JSON 传入（含提示词、双方正文与元数据），命令在 stdout 返回 `{relation: duplicate|complementary|scope_variant|conflict|unrelated|uncertain, keep_both, reason, evidence_spans}`。字段不合规就记为错误，不写结论。`AGRIDX_DEDUP_REVIEWER_MODEL` 记录模型名。可选适配器：`scripts/dedup-reviewer-deepseek.mjs`（DeepSeek OpenAI 兼容接口，模型默认 `deepseek-chat`）；密钥只从进程环境变量 `DEEPSEEK_API_KEY` 读取，不入库、不写 CHANGELOG/PR。设置示例：`export DEEPSEEK_API_KEY=…`（本地密钥文件，chmod 600）、`export AGRIDX_DEDUP_REVIEWER_CMD='node scripts/dedup-reviewer-deepseek.mjs'`、`export AGRIDX_DEDUP_REVIEWER_MODEL=deepseek-chat`。只在离线批处理里运行，不接入诊断请求；对尚无 `ai_verdict` 的跨来源候选写建议结论（可回填已人工决定但缺 AI 建议的行），不改 `decision`/`reviewer`/`decided_at`，`--limit` 限制每次送审的对数。
+
+人工审核文件 `知识库/整理后的知识库/农用拖拉机知识库/dedup-review.jsonl` 每行一对，字段为 `pair_id, a, b, jaccard, cosine, tier, ai_verdict, ai_model, reviewer, decision(pending|keep|merge|supersede|conflict), decided_at, kb_version`。`--write-review` 按 `pair_id` 增量合并：新候选追加为 `pending`；已决定的行不变，也不再送审；已经消失的候选保留原行。审核人直接编辑 `decision`、`reviewer`、`decided_at`。
+
+工具**永不删除、永不修改条目或正文**。`merge`/`supersede` 由维护者在知识整理 PR 里手工处理，原条目保留，并按知识更新规则升 `kb_version`。
+
+```bash
+python3 -B 知识库/工具/语义预审.py --report server/data/knowledge-quality/prereview.json   # 只看
+python3 -B 知识库/工具/语义预审.py --write-review                                          # 合并到审核文件
+python3 -B 知识库/工具/语义预审.py --check                                                 # CI：未审数量只作警告
+# 可选：离线 AI 预审（需本地 DEEPSEEK_API_KEY；默认仍关闭）
+# export DEEPSEEK_API_KEY=…   # 勿提交
+# export AGRIDX_DEDUP_REVIEWER_CMD='node scripts/dedup-reviewer-deepseek.mjs'
+# export AGRIDX_DEDUP_REVIEWER_MODEL=deepseek-chat
+# python3 -B 知识库/工具/语义预审.py --reviewer command --write-review --limit 50 \
+#   --report server/data/knowledge-quality/prereview.json
+```
+
+CI 在 Ubuntu 上运行 `--check`，设为 `continue-on-error`：未审的 dup/conflict 候选以 GitHub 警告显示，不阻断合入，也不影响 `ci-verify`。

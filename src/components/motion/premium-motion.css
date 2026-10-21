@@ -1,0 +1,341 @@
+/* Premium motion for the new UI. Idle effects stay on small HUD chrome. */
+
+.glass-press {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+.glass-press::after {
+  content: '';
+  position: absolute;
+  z-index: 2;
+  top: -30%;
+  bottom: -30%;
+  left: -45%;
+  width: 42%;
+  background: linear-gradient(100deg, transparent, rgb(255 255 255 / 70%), transparent);
+  transform: translateX(-30%) skewX(-18deg);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.is-beamed {
+  position: relative;
+  isolation: isolate;
+}
+
+.border-beam {
+  position: absolute;
+  z-index: 5;
+  inset: 0;
+  padding: 1.5px;
+  border-radius: inherit;
+  pointer-events: none;
+  overflow: hidden;
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
+}
+
+.border-beam-spin {
+  position: absolute;
+  inset: -90%;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0 60%,
+    color-mix(in srgb, var(--beam, var(--hub-primary, #7ad7ff)) 92%, white) 78%,
+    transparent 90%
+  );
+}
+
+.hall-zone.is-beamed,
+.expo-zone-card.is-beamed {
+  --beam: var(--zone-color);
+}
+
+.thinking-orbs {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.thinking-orbs-stage {
+  position: relative;
+  width: 38px;
+  height: 22px;
+  flex: none;
+}
+
+.thinking-orbs-stage i {
+  position: absolute;
+  top: 4px;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 32% 30%, #fff, color-mix(in srgb, var(--hub-primary, #7ad7ff) 78%, white) 46%, transparent 72%);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--hub-primary, #7ad7ff) 55%, transparent);
+}
+
+.thinking-orbs-stage i:nth-child(1) { left: 0; }
+.thinking-orbs-stage i:nth-child(2) { left: 12px; }
+.thinking-orbs-stage i:nth-child(3) { left: 24px; }
+
+.thinking-orbs-label {
+  min-width: 0;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.twin-query {
+  display: flex;
+  min-height: 180px;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.parts-loading .thinking-orbs,
+.twin-query .thinking-orbs {
+  padding: 8px 14px;
+  border-radius: 999px;
+  color: #f4fbff;
+  background: rgb(8 20 32 / 72%);
+  border: 1px solid rgb(122 215 255 / 45%);
+}
+
+.morph-panel {
+  position: relative;
+  overflow: hidden;
+  border-radius: 14px;
+}
+
+.morph-steps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.morph-steps button {
+  min-height: 32px;
+  padding: 0 10px;
+  border: 1px solid color-mix(in srgb, var(--hub-primary, var(--primary)) 35%, var(--border));
+  border-radius: 999px;
+  background: transparent;
+  color: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.morph-steps button[aria-selected='true'] {
+  color: #07131d;
+  background: var(--hall-cyan, var(--hub-primary, #7ad7ff));
+  border-color: transparent;
+}
+
+.parts-morph {
+  margin-top: 10px;
+  border: 1px solid rgb(122 215 255 / 35%);
+  background: rgb(8 22 34 / 42%);
+}
+
+.parts-morph .morph-panel-view {
+  padding: 12px;
+}
+
+.parts-morph .parts-detail {
+  margin-top: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.chat-hud {
+  margin-bottom: 12px;
+  padding: 10px;
+  border-radius: 14px;
+  border: 1px solid color-mix(in srgb, var(--hub-primary, var(--primary)) 35%, var(--border));
+  background: color-mix(in srgb, var(--card) 72%, transparent);
+}
+
+.chat-hud .morph-panel-view {
+  padding: 8px 2px 2px;
+}
+
+.chat-hud p {
+  margin: 0;
+  color: var(--muted-foreground);
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.tilt-card {
+  position: relative;
+  border-radius: inherit;
+  transform-style: preserve-3d;
+}
+
+.tilt-glare {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  mix-blend-mode: soft-light;
+}
+
+.studio-tilt {
+  display: inline-flex;
+  border-radius: 999px;
+}
+
+.parts-kpi-card {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  pointer-events: auto;
+}
+
+.spring-drawer-scrim {
+  position: absolute;
+  z-index: 3;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(90deg, rgb(4 16 24 / 32%), transparent 48%);
+}
+
+.hall-drawer.spring-drawer {
+  animation: none;
+  background: color-mix(in srgb, var(--hub-card) 74%, transparent);
+  backdrop-filter: blur(18px) saturate(150%);
+  -webkit-backdrop-filter: blur(18px) saturate(150%);
+}
+
+@media (min-width: 1024px) {
+  .parts-studio .parts-drawer {
+    top: auto;
+    height: auto;
+    max-height: calc(100% - 68px);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .glass-press::after {
+    transition: transform 680ms cubic-bezier(.2, .8, .2, 1), opacity 180ms ease;
+  }
+
+  .glass-press:hover::after,
+  .glass-press:focus-visible::after {
+    opacity: 1;
+    transform: translateX(340%) skewX(-18deg);
+  }
+
+  .studio-save.glass-press:active,
+  .command-launch.glass-press:active,
+  .hall-drawer > a.glass-press:active,
+  .chat-composer .glass-press:active {
+    transform: scale(0.975);
+  }
+
+  .border-beam-spin {
+    animation: border-beam-spin 3.6s linear infinite;
+  }
+
+  .thinking-orbs.is-searching i {
+    animation: orb-search 1.35s ease-in-out infinite;
+  }
+
+  .thinking-orbs.is-searching i:nth-child(2) { animation-delay: .12s; }
+  .thinking-orbs.is-searching i:nth-child(3) { animation-delay: .24s; }
+
+  .thinking-orbs.is-solving i:nth-child(1) { animation: orb-solve-left 1.5s ease-in-out infinite; }
+  .thinking-orbs.is-solving i:nth-child(2) { animation: orb-solve-core 1.5s ease-in-out infinite; }
+  .thinking-orbs.is-solving i:nth-child(3) { animation: orb-solve-right 1.5s ease-in-out infinite; }
+
+  .thinking-orbs.is-listening i {
+    animation: orb-listen 2.2s ease-in-out infinite;
+  }
+
+  .thinking-orbs.is-listening i:nth-child(2) { animation-delay: .18s; }
+  .thinking-orbs.is-listening i:nth-child(3) { animation-delay: .36s; }
+}
+
+@keyframes border-beam-spin {
+  to { transform: rotate(1turn); }
+}
+
+@keyframes orb-search {
+  0%, 100% { transform: translateY(0) scale(.82); opacity: .45; }
+  50% { transform: translateY(-5px) scale(1); opacity: 1; }
+}
+
+@keyframes orb-solve-left {
+  0%, 100% { transform: translateX(0) scale(.86); }
+  50% { transform: translateX(7px) scale(1.05); }
+}
+
+@keyframes orb-solve-right {
+  0%, 100% { transform: translateX(0) scale(.86); }
+  50% { transform: translateX(-7px) scale(1.05); }
+}
+
+@keyframes orb-solve-core {
+  0%, 100% { transform: scale(.8); opacity: .55; }
+  50% { transform: scale(1.12); opacity: 1; }
+}
+
+@keyframes orb-listen {
+  0%, 100% { transform: scale(.84); opacity: .5; }
+  50% { transform: scale(1); opacity: .95; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .glass-press::after,
+  .border-beam-spin,
+  .thinking-orbs-stage i,
+  .tilt-glare,
+  .spring-drawer-scrim {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .glass-press::after,
+  .tilt-glare,
+  .spring-drawer-scrim { opacity: 0; }
+
+  .border-beam-spin {
+    background: color-mix(in srgb, var(--beam, var(--hub-primary, #7ad7ff)) 70%, white);
+    opacity: .55;
+  }
+
+  .studio-save.glass-press:active,
+  .command-launch.glass-press:active,
+  .hall-drawer > a.glass-press:active,
+  .chat-composer .glass-press:active { transform: none; }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .hall-drawer.spring-drawer,
+  .parts-loading .thinking-orbs,
+  .twin-query .thinking-orbs,
+  .chat-hud,
+  .parts-morph {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: var(--hub-card, var(--card));
+  }
+
+  .glass-press::after { display: none; }
+}
+
+.parts-studio { overflow-x: clip; }
+
+@media (max-width: 720px) {
+  .thinking-orbs-label { font-size: 11px; }
+}

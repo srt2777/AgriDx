@@ -20,7 +20,7 @@ jobs:
   deploy:
     if: >-
       vars.TENCENT_DEPLOY_ENABLED != 'false' &&
-      github.repository == 'srt2777/AgriDx-v3' &&
+      github.repository == 'srt2777/AgriDx' &&
       ((github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') ||
        (github.event_name == 'workflow_run' &&
         github.event.workflow_run.conclusion == 'success' &&

@@ -15,7 +15,7 @@ test('开发入口仅使用固定预览产物，不把访客凭据或生产查�
   assert.equal(response.status, 200);
   assert.match(response.headers.get('content-type')!, /text\/html/);
   assert.equal(response.headers.get('cache-control'), 'no-store');
-  assert.match(seen!.url, /^https:\/\/raw.githubusercontent.com\/srt2777\/AgriDx-v3\/dev-preview-built\/index.html\?t=\d+$/);
+  assert.match(seen!.url, /^https:\/\/raw.githubusercontent.com\/srt2777\/AgriDx\/dev-preview-built\/index.html\?t=\d+$/);
   assert.deepEqual(seen!.options, { redirect: 'manual' });
   assert.equal(await response.text(), '<html>preview</html>');
 });
@@ -36,7 +36,7 @@ test('首屏依赖的公共初始化脚本可通过开发网关读取，并保�
   for (const src of scripts) {
     const source = readFileSync(new URL(`../public${src}`, import.meta.url), 'utf8');
     const response = await servePreview(new Request(`https://preview.example${src}`), async (url, options) => {
-      assert.match(url, new RegExp(`^https://raw\\.githubusercontent\\.com/srt2777/AgriDx-v3/dev-preview-built/${src.slice(1).replaceAll('.', '\\.')}\\?t=\\d+$`));
+      assert.match(url, new RegExp(`^https://raw\\.githubusercontent\\.com/srt2777/AgriDx/dev-preview-built/${src.slice(1).replaceAll('.', '\\.')}\\?t=\\d+$`));
       assert.deepEqual(options, { redirect: 'manual' });
       return new Response(source);
     });

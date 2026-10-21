@@ -163,11 +163,88 @@
       "date": "2026-10-19"
     },
     {
+      "id": "knowledge-sources-normalize-20261021",
+      "kind": "knowledge",
+      "base": "3.5.9",
+      "version": "3.5.10",
+      "date": "2026-10-21"
+    },
+    {
+      "id": "hall-20261020-digital-twin",
+      "kind": "feature",
+      "base": "3.5.10",
+      "version": "3.6.0",
+      "date": "2026-10-21"
+    },
+    {
+      "id": "fix-dev-preview-repo-rename-20261021",
+      "kind": "fix",
+      "base": "3.6.0",
+      "version": "3.6.1",
+      "date": "2026-10-21"
+    },
+    {
+      "id": "fix-tencent-deploy-repo-rename-20261021",
+      "kind": "fix",
+      "base": "3.6.1",
+      "version": "3.6.2",
+      "date": "2026-10-21"
+    },
+    {
+      "id": "kb-roles-schema-20261021",
+      "kind": "knowledge",
+      "base": "3.6.2",
+      "version": "3.6.3",
+      "date": "2026-10-21"
+    },
+    {
+      "id": "changelog-kb-version-20261021",
+      "kind": "maintenance",
+      "base": "3.6.3",
+      "version": "3.7.2",
+      "date": "2026-10-21"
+    },
+    {
+      "id": "dedup-ai-prereview-20261021",
+      "kind": "maintenance",
+      "base": "3.7.2",
+      "version": "3.7.3",
+      "date": "2026-10-21"
+    },
+    {
+      "id": "dedup-human-review-20261021",
+      "kind": "maintenance",
+      "base": "3.7.3",
+      "version": "3.7.4",
+      "date": "2026-10-21"
+    },
+    {
+      "id": "studio-20261021-parts-tractor",
+      "kind": "feature",
+      "base": "3.7.4",
+      "version": "3.7.5",
+      "date": "2026-10-21"
+    },
+    {
+      "id": "dedup-deepseek-reviewer-20261021",
+      "kind": "maintenance",
+      "base": "3.7.5",
+      "version": "3.7.6",
+      "date": "2026-10-21"
+    },
+    {
+      "id": "ui-20261021-t70-glass-motion",
+      "kind": "maintenance",
+      "base": "3.7.6",
+      "version": "3.7.7",
+      "date": "2026-10-21"
+    },
+    {
       "id": "img2threejs-generation-20261020",
       "kind": "feature",
-      "base": "3.5.9",
-      "version": "3.6.0",
-      "date": "2026-10-20"
+      "base": "3.7.7",
+      "version": "3.8.0",
+      "date": "2026-10-21"
     }
   ]
 }

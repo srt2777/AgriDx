@@ -1,10 +1,10 @@
 {
   "schema_version": 1,
-  "snapshot_date_shanghai": "2026-10-19",
-  "repository_version": "3.5.8",
+  "snapshot_date_shanghai": "2026-10-21",
+  "repository_version": "3.5.10",
   "scope": "仅由现有索引派生的统计与导航，不是新增维修事实，不加入检索",
   "input_sha256": {
-    "知识库/整理后的知识库/农用拖拉机知识库/sources.json": "f7316d035d84409030ecb158af945a1de300174675e5e10b2b781db52380a2ba",
+    "知识库/整理后的知识库/农用拖拉机知识库/sources.json": "8fe14f18be1ebd06b8881bb24d8bffc97930a5bea1657612d06af332930d771b",
     "知识库/整理后的知识库/农用拖拉机知识库/entries.jsonl": "2bf45e3a7abe7a84afc48bf8ee129c00786558e2d3b0b97c7a4cdf26ec493385",
     "docs/tractor-knowledge/index.jsonl": "1eac29d4f33681de65628b95b992b248f35c62578fb2f9e45ac5b1fdda8b414f",
     "docs/tractor-knowledge/expansion-5000/index.jsonl": "f498bd5dce2b3f96730ab5d508936d5852d0173416e2636878e35aabcda3fbfc"
@@ -15,7 +15,7 @@
     "learning_entries": 6000,
     "total_library_entries": 10877,
     "knowledge_documents": 68,
-    "brand_labels": 16,
+    "brand_labels": 14,
     "generic_chunks": 9,
     "retrieval_chunks": 10886,
     "information_or_scope_entries": 534
@@ -52,9 +52,9 @@
       "entries": 245
     },
     {
-      "label": "雷沃欧豹",
-      "sources": 3,
-      "entries": 159
+      "label": "雷沃",
+      "sources": 6,
+      "entries": 229
     },
     {
       "label": "中联",
@@ -62,17 +62,12 @@
       "entries": 151
     },
     {
-      "label": "雷沃阿波斯",
-      "sources": 1,
-      "entries": 63
-    },
-    {
       "label": "Mahindra",
       "sources": 1,
       "entries": 24
     },
     {
-      "label": "千寻位置 / 千耘",
+      "label": "千寻位置",
       "sources": 1,
       "entries": 10
     },
@@ -85,11 +80,6 @@
       "label": "华测",
       "sources": 1,
       "entries": 8
-    },
-    {
-      "label": "雷沃",
-      "sources": 2,
-      "entries": 7
     },
     {
       "label": "东风",
@@ -1066,7 +1056,7 @@
     },
     {
       "source_id": "SRC-LV-TX-TRAINING",
-      "brand": "雷沃欧豹",
+      "brand": "雷沃",
       "model": "TX平台",
       "version": "未标明（待核实）",
       "version_date": "待核实",
@@ -1137,7 +1127,7 @@
     },
     {
       "source_id": "SRC-LV-TD-TRAINING",
-      "brand": "雷沃欧豹",
+      "brand": "雷沃",
       "model": "TD平台",
       "version": "未标明（待核实）",
       "version_date": "待核实",
@@ -1213,7 +1203,7 @@
     },
     {
       "source_id": "SRC-LV-TB-TRAINING",
-      "brand": "雷沃欧豹",
+      "brand": "雷沃",
       "model": "TB平台",
       "version": "未标明（待核实）",
       "version_date": "待核实",
@@ -1288,7 +1278,7 @@
     },
     {
       "source_id": "SRC-LV-P5000-TRAINING",
-      "brand": "雷沃阿波斯",
+      "brand": "雷沃",
       "model": "P5000",
       "version": "未标明（待核实）",
       "version_date": "待核实",
@@ -2695,7 +2685,7 @@
     },
     {
       "source_id": "SRC-QX-QY210PRO-V01",
-      "brand": "千寻位置 / 千耘",
+      "brand": "千寻位置",
       "model": "QYBD-2.5SD（QY210 Pro）",
       "version": "V0.1",
       "version_date": "2022-05-23",

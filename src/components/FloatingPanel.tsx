@@ -2,6 +2,7 @@ import type { CSSProperties, ReactNode } from 'react';
 import { motion, useIsPresent, useReducedMotion } from 'framer-motion';
 import { UI_SPRING } from '@/lib/ui-motion';
 import { LiquidGlass } from '@/components/ui/liquid-glass';
+import { BorderBeam } from '@/components/motion/BorderBeam';
 
 interface FloatingPanelProps {
   children: ReactNode;
@@ -11,10 +12,11 @@ interface FloatingPanelProps {
   label?: string;
   style?: CSSProperties;
   glass?: boolean;
+  beam?: boolean;
 }
 
 /** Exit can finish visually while the dismissed controls immediately stop taking input. */
-export default function FloatingPanel({ children, className, as = 'div', id, label, style, glass = false }: FloatingPanelProps) {
+export default function FloatingPanel({ children, className, as = 'div', id, label, style, glass = false, beam = false }: FloatingPanelProps) {
   const present = useIsPresent();
   const reducedMotion = useReducedMotion();
   const Panel = as === 'aside' ? motion.aside : motion.div;
@@ -29,5 +31,5 @@ export default function FloatingPanel({ children, className, as = 'div', id, lab
     exit={reducedMotion ? { opacity: 1 } : { opacity: 0, scale: 0.98, y: -4, transition: { duration: 0.12 } }}
     transition={reducedMotion ? { duration: 0 } : UI_SPRING}
     style={{ transformOrigin: 'var(--ui-panel-origin, 100% 0%)', ...style }}
-  >{glass ? <LiquidGlass lens displacementScale={24} className="floating-panel-glass" contentClassName="floating-panel-content">{children}</LiquidGlass> : children}</Panel>;
+  >{glass ? <LiquidGlass lens displacementScale={24} className="floating-panel-glass" contentClassName="floating-panel-content">{children}</LiquidGlass> : children}{beam && <BorderBeam />}</Panel>;
 }

@@ -2,7 +2,7 @@
 # New opt-in systemd controller; never use the historical cloud-pull/cron code.
 set -euo pipefail
 umask 077
-readonly REPOSITORY=https://github.com/srt2777/AgriDx-v3.git
+readonly REPOSITORY=https://github.com/${GITHUB_REPOSITORY:-srt2777/AgriDx}.git
 readonly SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)"
 readonly CURRENT=/opt/agridx/current
 readonly STATE_DIR=/var/lib/agridx-github-sync

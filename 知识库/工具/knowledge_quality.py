@@ -13,7 +13,7 @@ import re
 import tempfile
 
 SCHEMA_VERSION = 1
-RULES_VERSION = '1.0.0'
+RULES_VERSION = '1.1.0'
 STATES = ('verified', 'pending', 'unverified', 'failed', 'unspecified')
 
 # id: category, severity, suggested next action. Keep IDs stable across reports.
@@ -25,6 +25,9 @@ RULES = {
     'record.placeholder': ('completeness', 'warning', '用证据支持的实际内容替换占位符，或明确标记资料缺口。'),
     'source.id': ('source', 'error', '使用唯一的ASCII大写来源编号，并同步真实引用。'),
     'source.url': ('source', 'error', '补充可追溯的完整HTTP(S)入口。'),
+    'source.title': ('source', 'error', '按封面或已存网页标题登记书名并写明出处；无法核对时标明title_status=待核实，不编造书名。'),
+    'source.brand': ('source', 'error', '品牌用统一主品牌，子品牌/产品线写入sub_brand或product_line。'),
+    'source.model_ids': ('applicability', 'error', '由models机械派生规范型号编号，非空且不重复，不新增型号。'),
     'source.file': ('source', 'error', '核对原件路径、哈希、字节数与页数；不要覆盖原件。'),
     'source.pages': ('source', 'error', '对照原件检查已核对页记录与实际物理页范围。'),
     'source.level': ('source', 'info', '补充发布方与取得渠道；缺失不等于来源不可靠。'),
@@ -33,6 +36,7 @@ RULES = {
     'scope.condition': ('applicability', 'error', '核对配置或排放条件，不跨型号补造适用范围。'),
     'entry.id': ('index', 'error', '使用唯一的ASCII大写条目编号，避免复用编号。'),
     'entry.type': ('field_format', 'error', '选择整理规范允许的条目类别。'),
+    'entry.roles': ('field_format', 'error', '按原文字段标记或人工核对结果填写roles/role_basis、risk_level/risk_basis；无法确定时省略并留待审核。'),
     'entry.summary': ('body_format', 'error', '事实正文仅维护在Markdown，不在索引保留summary副本。'),
     'entry.source': ('source_consistency', 'error', '核对条目来源编号与品牌，不把不同品牌资料混用。'),
     'entry.path': ('body_format', 'error', '将索引指向整理后的知识库内正式Markdown知识卡。'),

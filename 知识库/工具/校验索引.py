@@ -25,8 +25,25 @@ ENTRY_TYPES = {'维护/故障知识', '操作/维护知识', '安全操作', '�
 REPO = Path(__file__).resolve().parents[2]
 INDEX_PATH = Path('知识库/整理后的知识库/农用拖拉机知识库')
 IDENTIFIER = re.compile(r'[A-Z0-9]+(?:-[A-Z0-9]+)*')
+LEGACY_BRAND_LABELS = {'雷沃欧豹': '雷沃', '雷沃阿波斯': '雷沃', '千寻位置 / 千耘': '千寻位置'}
+MODEL_ID = re.compile(r'[0-9A-Z\u4e00-\u9fff()][0-9A-Z\u4e00-\u9fff()\-]*')
 SOURCE_FIELDS = ['source_id', 'brand', 'model', 'path', 'url', 'version', 'scope_boundary', 'sha256']
 ENTRY_FIELDS = ['entry_id', 'source_id', 'brand', 'model', 'title', 'knowledge_path', 'locator', 'status', 'entry_type']
+# Optional per-entry roles/risk (schema 2026-10-21). Absent fields mean "not yet tagged",
+# never "no symptom" or "low risk"; existing entries stay valid without them.
+ENTRY_ROLES = ('symptom', 'cause', 'check', 'action', 'retest')
+ROLE_BASES = ('原文标记', '人工核对')
+RISK_LEVELS = ('high', 'medium', 'low')
+# Information-only categories are never presented as repair judgement, so they carry no roles/risk.
+NON_DIAGNOSTIC_ENTRY_TYPES = {'系统适用边界', '资料索引', '资料核验', '机型资料', '资料缺口'}
+# Explicit field labels in the Markdown section that justify role_basis=原文标记.
+ROLE_MARKERS = {
+    'symptom': r'故障现象|适用现象|现象|故障症状|症状|故障证据',
+    'cause': r'(?:原表|故障表)?(?:列出的)?可能原因(?:选摘)?|故障原因|故障表可能原因',
+    'check': r'诊断步骤|检查方法|检查步骤|排查步骤|故障排查|初步核对|(?:原文)?核对方向|初步方向',
+    'action': r'维修建议|维修方法|维修步骤|针对处理|处理建议|处理方法|(?:对应|原文|手册)处理方向|排除方法',
+    'retest': r'复检|复查|复测|验收|恢复验收|试运转检查|故障排除确认',
+}
 
 
 def digest(path):
@@ -89,6 +106,34 @@ def check_conditions(record):
                            ('drive_configuration', ['2WD', '4WD'])]:
         require(field not in record or record[field] in allowed,
                 'scope.condition', f'{field}条件无效', field)
+
+
+def role_marker(role, body):
+    return bool(re.search(r'^\s*(?:[-*]\s*)?\**(?:' + ROLE_MARKERS[role] + r')\**\s*[：:]', body, re.M))
+
+
+def check_roles(entry, body):
+    """Validate optional roles/risk fields; body is the entry's Markdown section text."""
+    tagged = [field for field in ['roles', 'role_basis', 'risk_level', 'risk_basis'] if field in entry]
+    if not tagged:
+        return
+    require(entry['entry_type'] not in NON_DIAGNOSTIC_ENTRY_TYPES, 'entry.roles',
+            '资料信息类条目不标注角色或风险等级', tagged[0])
+    if 'roles' in entry or 'role_basis' in entry:
+        roles = entry.get('roles')
+        require(isinstance(roles, list) and bool(roles) and len(set(roles)) == len(roles) and
+                all(role in ENTRY_ROLES for role in roles) and
+                roles == sorted(roles, key=ENTRY_ROLES.index),
+                'entry.roles', 'roles须为symptom/cause/check/action/retest的非空、无重复子集并按此顺序', 'roles')
+        require(entry.get('role_basis') in ROLE_BASES, 'entry.roles', 'roles须同时填写role_basis（原文标记或人工核对）', 'role_basis')
+        if entry['role_basis'] == '原文标记':
+            missing = [role for role in roles if not role_marker(role, body)]
+            require(not missing, 'entry.roles', f"role_basis=原文标记，但正文缺少对应字段标记：{'、'.join(missing)}", 'roles')
+    if 'risk_level' in entry or 'risk_basis' in entry:
+        require(entry.get('risk_level') in RISK_LEVELS, 'entry.roles', 'risk_level只能为high、medium或low', 'risk_level')
+        basis = entry.get('risk_basis')
+        require(isinstance(basis, str) and bool(basis.strip()) and basis == basis.strip(), 'entry.roles',
+                'risk_level须同时填写非空risk_basis（原文警示或人工核对依据）', 'risk_basis')
 
 
 def check_models(models):
@@ -212,6 +257,20 @@ class ArchiveAudit:
             url = urlparse(source['url'])
             require(url.scheme in ['http', 'https'] and bool(url.netloc), 'source.url', '来源网址须为完整HTTP(S)链接', 'url')
             check_conditions(source)
+            title_status = source.get('title_status')
+            require(title_status in [None, '已核对', '待核实'], 'source.title', 'title_status只能为已核对或待核实', 'title_status')
+            require((isinstance(source.get('title'), str) and bool(source['title'].strip())) or title_status == '待核实',
+                    'source.title', '来源须登记书名/标题，未核实时须标明title_status=待核实', 'title')
+            require(title_status != '已核对' or (isinstance(source.get('title_evidence'), str) and bool(source['title_evidence'].strip())),
+                    'source.title', '已核对书名须记录title_evidence（封面页或网页标题位置）', 'title_evidence')
+            for field in ['sub_brand', 'product_line', 'brand_label']:
+                require(field not in source or (isinstance(source[field], str) and bool(source[field].strip())),
+                        'source.brand', f'{field}须为非空字符串', field)
+            require(source.get('brand') not in LEGACY_BRAND_LABELS, 'source.brand', '品牌须用统一主品牌，子品牌写入sub_brand/product_line', 'brand')
+            ids = source.get('model_ids')
+            require(ids is None or isinstance(ids, list) and bool(ids) and len(set(ids)) == len(ids) and
+                    all(isinstance(x, str) and bool(MODEL_ID.fullmatch(x)) for x in ids),
+                    'source.model_ids', 'model_ids须为非空、无重复的规范型号编号列表', 'model_ids')
             if 'models' in source:
                 require(check_models(source['models']), 'scope.models', '精确型号列表无效或重复', 'models')
             path = self.resolved(source['path'], '知识库/原始农机说明书')
@@ -291,7 +350,7 @@ class ArchiveAudit:
             require(bool(IDENTIFIER.fullmatch(entry['source_id'])), 'source.id', '条目来源编号格式无效', 'source_id')
             require('summary' not in entry, 'entry.summary', '事实正文仅在Markdown知识卡维护，条目索引不得保留summary副本', 'summary')
             require(entry['entry_type'] in ENTRY_TYPES, 'entry.type', '条目类别无效', 'entry_type')
-            require(source and entry['brand'] == source.get('brand'), 'entry.source', '来源不存在或品牌不一致', 'source_id')
+            require(source and entry['brand'] in [source.get('brand'), source.get('brand_label')], 'entry.source', '来源不存在或品牌不一致', 'source_id')
             if 'models' in entry:
                 models = entry['models']
                 require(check_models(models) and isinstance(source.get('models'), list) and all(model in source['models'] for model in models),
@@ -311,6 +370,7 @@ class ArchiveAudit:
             if count:
                 pages = cited_pages(entry['locator'])
                 require(pages and all(1 <= page <= count for page in pages), 'entry.evidence', 'PDF证据页缺失或越界', 'locator')
+            check_roles(entry, body)
             additions, style = body_checks(entry, body, entry['knowledge_path'], section['line'])
             self.findings.extend(additions)
             result['body_format'] = style
@@ -346,6 +406,8 @@ class ArchiveAudit:
         sources, entries = self.read_indices()
         source_map, source_results, checked, seen_sources, seen_entries = {}, {}, [], set(), set()
         kinds, states, formats = collections.Counter(), collections.Counter(), collections.Counter()
+        role_counts, risk_counts, role_bases = collections.Counter(), collections.Counter(), collections.Counter()
+        tagged_roles = tagged_risk = 0
         document_paths = set()
         for position, source in enumerate(sources, 1):
             identity = source.get('source_id') if isinstance(source, dict) else None
@@ -394,6 +456,13 @@ class ArchiveAudit:
             states[result['verification']] += 1
             if isinstance(entry.get('entry_type'), str):
                 kinds[entry['entry_type']] += 1
+            if isinstance(entry.get('roles'), list):
+                tagged_roles += 1
+                role_counts.update(role for role in entry['roles'] if isinstance(role, str))
+                role_bases[str(entry.get('role_basis'))] += 1
+            if 'risk_level' in entry:
+                tagged_risk += 1
+                risk_counts[str(entry['risk_level'])] += 1
             if result['body_format']:
                 formats[result['body_format']] += 1
                 document_paths.add(entry['knowledge_path'])
@@ -437,7 +506,11 @@ class ArchiveAudit:
                         'info': severity['info'], 'findings': len(findings),
                         'affected_entries': len({x['entry_id'] for x in findings if x['entry_id']}),
                         'by_rule': dict(collections.Counter(x['rule_id'] for x in findings)),
-                        'by_category': dict(collections.Counter(x['category'] for x in findings))},
+                        'by_category': dict(collections.Counter(x['category'] for x in findings)),
+                        'role_schema': {'entries_with_roles': tagged_roles, 'entries_with_risk_level': tagged_risk,
+                                        'roles': {role: role_counts[role] for role in ENTRY_ROLES},
+                                        'role_basis': dict(role_bases), 'risk_levels': dict(risk_counts),
+                                        'note': '未标注表示尚未整理，不表示无该角色或低风险'}},
             'verification_counts': {state: states[state] for state in STATES},
             'body_formats': dict(formats), 'sources': checked, 'errors': errors, 'notes': notes, 'findings': findings,
             'common_framework': common_summary,
