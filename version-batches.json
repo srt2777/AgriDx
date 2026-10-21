@@ -175,6 +175,13 @@
       "base": "3.5.10",
       "version": "3.6.0",
       "date": "2026-10-21"
+    },
+    {
+      "id": "fix-dev-preview-repo-rename-20261021",
+      "kind": "fix",
+      "base": "3.6.0",
+      "version": "3.6.1",
+      "date": "2026-10-21"
     }
   ]
 }
