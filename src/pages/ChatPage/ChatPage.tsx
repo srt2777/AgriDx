@@ -55,7 +55,7 @@ export default function ChatPage() {
     machineType, setMachineType, brand, setBrand, model, setModel,
     sendMessage, stopRequest, handleClear, memory, profile,
     diagnosisMode, setDiagnosisMode, deviceName, setDeviceName, hours, setHours, deviceNotes, setDeviceNotes, progress, setProgress,
-  } = useChatSession({ handoff, translate: t, focusInput });
+  } = useChatSession({ handoff, translate: t, focusInput, minLoadingMs: version === 'new' ? 900 : 0 });
   const orb = useDiagnosisOrb(version === 'new' && isLoading);
   useUpdateBlocker('/chat', isLoading || memory.busy || !memory.ready || !!input.trim()
     || progress.trim() !== (memory.session?.progress ?? '')

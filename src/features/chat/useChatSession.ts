@@ -15,10 +15,12 @@ interface ChatSessionOptions {
   handoff: unknown;
   translate: (zh: string, en: string) => string;
   focusInput: () => void;
+  /** Keeps the loading row on screen long enough to read named orb states. */
+  minLoadingMs?: number;
 }
 
 /** Owns conversation lifecycle; the page renders the workspace and input controls. */
-export function useChatSession({ handoff, translate: t, focusInput }: ChatSessionOptions) {
+export function useChatSession({ handoff, translate: t, focusInput, minLoadingMs = 0 }: ChatSessionOptions) {
   const [initial] = useState(() => loadChatSession(handoff));
   const [messages, setMessages] = useState(initial.messages);
   const [input, setInput] = useState(initial.draft);
@@ -67,6 +69,7 @@ export function useChatSession({ handoff, translate: t, focusInput }: ChatSessio
     if (!trimmed || trimmed.length > MAX_QUESTION_LENGTH || requestRef.current || memory.busy) return;
     const controller = new AbortController();
     requestRef.current = controller;
+    const started = performance.now();
     // Leave time for sequential provider fallback and transport of the local answer.
     const timeout = window.setTimeout(() => controller.abort(new DOMException('Timeout', 'TimeoutError')), 60_000);
     const userMessage: ChatMessage = { id: generateMessageId(), role: 'user', content: trimmed };
@@ -85,6 +88,9 @@ export function useChatSession({ handoff, translate: t, focusInput }: ChatSessio
         t('智能诊断服务暂时无法连接，请稍后重试。', 'AI service unavailable, please try again later.'),
       );
       // Stop, clear or unmount can invalidate this request while its body is being read.
+      if (requestRef.current !== controller) return;
+      const remain = Math.max(0, minLoadingMs - (performance.now() - started));
+      if (remain > 0) await new Promise((resolve) => window.setTimeout(resolve, remain));
       if (requestRef.current !== controller) return;
       if (reply.memory) memory.updateSession(reply.memory);
       setCurrentModel(reply.model || '');
@@ -109,7 +115,7 @@ export function useChatSession({ handoff, translate: t, focusInput }: ChatSessio
         window.setTimeout(focusInput, 0);
       }
     }
-  }, [messages, machineType, brand, model, t, focusInput, resetStatus, memory, profile, diagnosisMode]);
+  }, [messages, machineType, brand, model, t, focusInput, resetStatus, memory, profile, diagnosisMode, minLoadingMs]);
 
   const stopRequest = useCallback(() => {
     requestRef.current?.abort();

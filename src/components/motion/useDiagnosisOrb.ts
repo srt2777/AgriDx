@@ -10,7 +10,7 @@ export function useDiagnosisOrb(active: boolean): OrbState {
       return;
     }
     setState('searching');
-    const timer = window.setTimeout(() => setState('solving'), 1100);
+    const timer = window.setTimeout(() => setState('solving'), 420);
     return () => window.clearTimeout(timer);
   }, [active]);
   return state;
