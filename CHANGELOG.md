@@ -6,6 +6,12 @@
 
 2026-10-13按用户最新要求，将原3.3.0和原3.4.0的两批累计800条知识扩充合并为3.3.0，原3.5.0功能整合调整为3.4.0，后续主题修复和开发网关修复原3.5.1、3.5.2对应协调为3.4.1、3.4.2，本阶段项目版本上限为3.4.9。历史提交、采集过程及原始验证输出保留当时实际编号，本轮编号协调不另升版。
 
+## 3.7.3 — 2026-10-21
+
+- 语义去重增加离线预审与人工审核文件，复用 3.4.10 的 `scan()` 候选。新增 `知识库/工具/语义预审.py`：（1）模板折叠，同来源只差机型的目录条目归为 `scope_variant` 簇，共 110 簇、500 条；（2）按字符 3-gram Jaccard ≥0.8 分级，跨来源为 `dup_candidate` 3 对、`conflict_candidate` 2 对，同来源 1835 对只写报告；（3）AI 预审器可插拔，默认关闭（`--reviewer none`），`--reviewer command` 调用维护者自备的命令并校验 JSON 结论。本次没有可用密钥，未运行 AI，不生成任何结论。
+- 新增 `dedup-review.jsonl`，记录 5 对 `pending`，按 `pair_id` 增量合并，保留人工决定。CI 在 Ubuntu 上运行 `--check`，只出警告，不阻断。工具不删除、不修改条目或正文；`entries.jsonl` 与 Markdown 未改，`kb_version` 仍为 2026.10.1。说明见 `docs/knowledge-semantic.md`。
+- 更新类型：maintenance；批次：dedup-ai-prereview-20261021。验证：本地（Node 24）`npm run verify` 通过，测试 418 项，416 通过、2 项跳过、0 失败；`tests/semantic_prereview_test.py` 6 项、`tests/knowledge_semantic_test.py` 通过；`语义预审.py --check` 报 5 对未审（警告）。本提交未部署。
+
 ## 3.7.2 — 2026-10-21
 
 - 知识库独立版本：新增 `知识库/整理后的知识库/农用拖拉机知识库/kb-version.json`，首版 `2026.10.1`，记录归档 4877、通识 6000、来源 28 的计数和条目/来源/层级/通识索引/整理 Markdown 的内容哈希。`scripts/kb-version.mjs` 校验哈希（接入 `npm run verify`），`--bump` 按 `YYYY.MM.N` 升版。`/api/knowledge/catalog` 响应增加 `kbVersion`。不改任何条目数据或正文。
