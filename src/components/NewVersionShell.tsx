@@ -88,7 +88,7 @@ export function NewVersionShell() {
         <span><i aria-hidden="true" />{t('探索装备 · 连接知识 · 辅助诊断', 'EXPLORE EQUIPMENT · CONNECT KNOWLEDGE · GUIDE DIAGNOSIS')}</span>
         <span className="new-version-route-label">{location.pathname === '/knowledge' ? t('知识目录', 'CATALOG') : location.pathname === '/models' ? t('模型工坊', 'MODEL STUDIO') : location.pathname === '/hall' ? t('数字展厅', 'DIGITAL HALL') : t('智能诊断', 'DIAGNOSIS')}</span>
       </div>
-      <main id="main-content" className="new-version-main" tabIndex={-1}>
+      <main id="main-content" key={location.pathname} className="new-version-main" tabIndex={-1}>
         <Outlet />
       </main>
       <SiteStatusBar />

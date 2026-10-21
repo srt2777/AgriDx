@@ -1,5 +1,5 @@
 import { useCallback, useState, type ChangeEvent } from 'react';
-import { Camera, Download, Upload } from 'lucide-react';
+import { Camera, Download, Upload, X } from 'lucide-react';
 import { useReducedMotion } from 'framer-motion';
 import DeferredScene from '@/components/DeferredScene';
 import SceneLoading from '@/components/SceneLoading';
@@ -14,6 +14,8 @@ import { faultList, partExample } from './part-faults';
 import { DEFAULT_PARTS_MODEL, orderedParts, PARTS_MODEL_ORDER, PARTS_SHOWCASE } from './parts-models';
 import '../tractor-viewer.css';
 import './parts-studio.css';
+
+type StudioLog = { id: number; zh: string; en: string };
 
 export default function PartsStudio({ onImport }: { onImport: (event: ChangeEvent<HTMLInputElement>) => void }) {
   const lang = useLang();
@@ -30,11 +32,22 @@ export default function PartsStudio({ onImport }: { onImport: (event: ChangeEven
   const [faultPartId, setFaultPartId] = useState<string | null>(null);
   const [shareNote, setShareNote] = useState('');
   const [modelId, setModelId] = useState<PartsModelId>(DEFAULT_PARTS_MODEL);
+  const [log, setLog] = useState<StudioLog[]>([
+    { id: 2, zh: '工坊就绪 · 鸿鹄 T70', en: 'Studio ready · Honghu T70' },
+    { id: 1, zh: '结构示意 · 未接实车', en: 'Schematic · no live machine' },
+  ]);
   const spec = PARTS_SHOWCASE[modelId];
   const modelUrl = publicAsset(spec.file);
   const parts = orderedParts(modelId);
   const resolved = resolveSelection(selection, modelId);
   const example = resolved ? partExample(resolved.node.partId, modelId) : null;
+  const language = lang === 'zh' ? 'zh' : 'en';
+  const faultNode = faultPartId ? parts.find(part => part.partId === faultPartId) : undefined;
+  const faultLabel = faultNode ? partTitle(faultNode, language, modelId) : t('未点亮', 'Off');
+
+  const pushLog = useCallback((zh: string, en: string) => {
+    setLog(previous => (previous[0]?.zh === zh ? previous : [{ id: (previous[0]?.id ?? 0) + 1, zh, en }, ...previous].slice(0, 4)));
+  }, []);
 
   const onReady = useCallback(() => {
     setReady(true);
@@ -45,9 +58,15 @@ export default function PartsStudio({ onImport }: { onImport: (event: ChangeEven
 
   function choose(name: string | null) {
     setSelection(name);
+    if (!name) return;
+    const next = resolveSelection(name, modelId);
+    if (!next) return;
+    const title = partTitle(next.node, language, modelId);
+    pushLog(`点选 · ${title}`, `Selected · ${partTitle(next.node, 'en', modelId)}`);
   }
   function switchModel(next: PartsModelId) {
     if (next === modelId) return;
+    const item = PARTS_SHOWCASE[next];
     setModelId(next);
     setSelection(null);
     setExplode(0);
@@ -55,11 +74,25 @@ export default function PartsStudio({ onImport }: { onImport: (event: ChangeEven
     setReady(false);
     setError('');
     setShareNote('');
+    pushLog(`切换机型 · ${item.titleZh}`, `Model · ${item.titleEn}`);
   }
   function toggleFault(partId: string) {
     const next = faultPartId === partId ? null : partId;
     setFaultPartId(next);
-    if (next) setSelection(selectionForPart(next, modelId));
+    if (!next) {
+      pushLog('故障示意已关闭', 'Fault example cleared');
+      return;
+    }
+    setSelection(selectionForPart(next, modelId));
+    const node = parts.find(part => part.partId === next);
+    const title = node ? partTitle(node, language, modelId) : next;
+    const titleEn = node ? partTitle(node, 'en', modelId) : next;
+    pushLog(`故障示意 · ${title}`, `Fault example · ${titleEn}`);
+  }
+  function toggleExplode() {
+    const open = explode < 1;
+    setExplode(open ? 1 : 0);
+    pushLog(open ? '爆炸展开 · 100%' : '爆炸收回 · 整机', open ? 'Exploded · 100%' : 'Explosion closed');
   }
   async function saveIllustration() {
     const canvas = document.querySelector<HTMLCanvasElement>('.parts-stage canvas');
@@ -78,8 +111,11 @@ export default function PartsStudio({ onImport }: { onImport: (event: ChangeEven
   const fallback = modelPreviewFallback(lang === 'zh' ? 'zh' : 'en');
   const graphics = !supported || lost;
 
+  const selectedLabel = resolved ? partTitle(resolved.node, language, modelId) : t('整机', 'Whole machine');
+  const timeline = [...log].reverse();
+
   return (
-    <div className="parts-studio">
+    <div className={`parts-studio${resolved ? ' is-part-open' : ''}${reduced ? ' is-reduced' : ''}`}>
       <section className="parts-stage-card" aria-label={t(spec.titleZh, spec.titleEn)}>
         <div className="parts-stage-head">
           <span className="min-w-0">
@@ -113,37 +149,93 @@ export default function PartsStudio({ onImport }: { onImport: (event: ChangeEven
           <p className="studio-share-note" aria-live="polite">{shareNote}</p>
         </div>
         <div className="model-stage parts-stage" data-model={modelId} data-component={selection ?? 'all'} data-fault={faultPartId ?? ''} data-explode={explode >= 1 ? 'open' : 'closed'}>
-          {graphics ? (
-            <div className="flex h-full flex-col items-center justify-center gap-2 text-center text-muted-foreground">
-              <p className="text-sm font-medium text-foreground">{fallback.title}</p>
-              <p className="text-xs">{fallback.note}</p>
-              <p className="text-xs">{fallback.hint}</p>
+          <div className="parts-viewport">
+            <div className="parts-kpi" aria-label={t('示例概览', 'Example overview')}>
+              <span className="parts-chip">{t('示例数据', 'Example data')}</span>
+              <span><b>{parts.length}</b> {t('部件', 'Parts')}</span>
+              <span><b>{selectedLabel}</b> {t('选中', 'Selected')}</span>
+              <span><b>{Math.round(explode * 100)}%</b> {t('爆炸', 'Explode')}</span>
+              <span><b>{faultLabel}</b> {t('故障', 'Fault')}</span>
             </div>
-          ) : (
-            <DeferredScene fallback={<SceneLoading />}>
-              <PartsTractorScene
-                url={modelUrl}
-                selection={selection}
-                explode={explode}
-                presentation={presentation}
-                light={light}
-                faultPartId={faultPartId}
-                reduced={reduced}
-                lang={lang === 'zh' ? 'zh' : 'en'}
-                modelId={modelId}
-                onSelect={choose}
-                onReady={onReady}
-                onLost={onLost}
-                onError={onError}
-              />
-            </DeferredScene>
-          )}
-          {!graphics && !ready && !error && <div className="parts-loading"><span>{t(`正在打开${spec.titleZh}…`, `Opening ${spec.titleEn}…`)}</span></div>}
+            {graphics ? (
+              <div className="flex h-full flex-col items-center justify-center gap-2 text-center text-muted-foreground">
+                <p className="text-sm font-medium text-foreground">{fallback.title}</p>
+                <p className="text-xs">{fallback.note}</p>
+                <p className="text-xs">{fallback.hint}</p>
+              </div>
+            ) : (
+              <DeferredScene fallback={<SceneLoading />}>
+                <PartsTractorScene
+                  url={modelUrl}
+                  selection={selection}
+                  explode={explode}
+                  presentation={presentation}
+                  light={light}
+                  faultPartId={faultPartId}
+                  reduced={reduced}
+                  lang={lang === 'zh' ? 'zh' : 'en'}
+                  modelId={modelId}
+                  onSelect={choose}
+                  onReady={onReady}
+                  onLost={onLost}
+                  onError={onError}
+                />
+              </DeferredScene>
+            )}
+            {!graphics && !ready && !error && <div className="parts-loading"><span>{t(`正在打开${spec.titleZh}…`, `Opening ${spec.titleEn}…`)}</span></div>}
+            <ol className="parts-event-log" aria-label={t('示例记录', 'Example log')}>
+              {timeline.map(item => <li key={item.id}>{language === 'zh' ? item.zh : item.en}</li>)}
+            </ol>
+          </div>
+          <aside className="parts-panel">
+            <p>{t('部件', 'Parts')}<span className="parts-chip">{t('示例数据', 'Example data')}</span></p>
+            <p className="parts-panel-note">{t('点选部件后，详情从右侧滑出。状态和故障是示例，没有接入实车。', 'Select a part and the detail slides in from the right. Status and faults are examples, with no live machine attached.')}</p>
+            <div className="parts-fault">
+              <p>{t('故障示意', 'Fault example')}</p>
+              <div className="parts-fault-list" role="group" aria-label={t('带示例故障的部件', 'Parts with example faults')}>
+                {faultList(modelId).map(partId => {
+                  const node = parts.find(part => part.partId === partId);
+                  if (!node) return null;
+                  return (
+                    <button key={partId} type="button" aria-pressed={faultPartId === partId} onClick={() => toggleFault(partId)}>
+                      {partTitle(node, language, modelId)}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+            <div className="parts-tree">
+              <p>{t('部件树', 'Part tree')}</p>
+              <div className="parts-tree-list">
+                <button type="button" className="parts-whole" aria-pressed={selection === null} onClick={() => choose(null)}>{t('整机', 'Whole machine')}</button>
+                {parts.map(part => <TreeNode key={part.name} part={part} selection={selection} lang={language} model={modelId} onSelect={choose} />)}
+              </div>
+            </div>
+            {error && <p role="alert" className="parts-missing">{error}</p>}
+          </aside>
+          <aside className="parts-drawer" aria-live="polite" aria-hidden={resolved ? undefined : true} inert={resolved ? undefined : true}>
+            <div className="parts-drawer-head">
+              <p>{t('部件详情', 'Part detail')}<span className="parts-chip">{t('示例数据', 'Example data')}</span></p>
+              <button type="button" className="parts-drawer-close" onClick={() => choose(null)} aria-label={t('关闭部件详情', 'Close part detail')}><X size={16} /></button>
+            </div>
+            {resolved && example && (
+              <div className="parts-detail">
+                <h2>{partTitle(resolved.node, language, modelId)}</h2>
+                <p className="parts-status">{t('示例状态', 'Example status')} · {t(example.statusZh, example.statusEn)}</p>
+                {example.faults.length > 0 && (
+                  <>
+                    <p className="parts-status">{t('常见故障', 'Common faults')}</p>
+                    <ul>{example.faults.map(fault => <li key={fault.zh}>{t(fault.zh, fault.en)}</li>)}</ul>
+                  </>
+                )}
+              </div>
+            )}
+          </aside>
         </div>
         <div className="parts-explode">
           <label className="sr-only" htmlFor="parts-explode-range">{t('爆炸程度', 'Explode amount')}</label>
           <input id="parts-explode-range" type="range" min={0} max={1} step={0.01} value={explode} onChange={event => setExplode(Number(event.target.value))} />
-          <button type="button" aria-pressed={explode >= 1} onClick={() => setExplode(value => value >= 1 ? 0 : 1)}>{t('爆炸展开', 'Explode')}</button>
+          <button type="button" aria-pressed={explode >= 1} onClick={toggleExplode}>{t('爆炸展开', 'Explode')}</button>
         </div>
         <div className="parts-stage-foot">
           <a href={modelUrl} download className="inline-flex items-center gap-1.5 font-medium text-primary"><Download className="size-3.5" />{t(modelId === 't70' ? '下载鸿鹄 T70' : '下载部件模型', modelId === 't70' ? 'Download Honghu T70' : 'Download parts model')}</a>
@@ -153,45 +245,6 @@ export default function PartsStudio({ onImport }: { onImport: (event: ChangeEven
           </label>
         </div>
       </section>
-      <aside className="parts-panel">
-        <p>{t('部件', 'Parts')}<span className="parts-chip">{t('示例数据', 'Example data')}</span></p>
-        <div className="parts-detail" aria-live="polite">
-          {resolved && example ? (
-            <>
-              <h2>{partTitle(resolved.node, lang === 'zh' ? 'zh' : 'en', modelId)}</h2>
-              <p className="parts-status">{t('示例状态', 'Example status')} · {t(example.statusZh, example.statusEn)}</p>
-              {example.faults.length > 0 && (
-                <>
-                  <p className="parts-status">{t('常见故障', 'Common faults')}</p>
-                  <ul>{example.faults.map(fault => <li key={fault.zh}>{t(fault.zh, fault.en)}</li>)}</ul>
-                </>
-              )}
-            </>
-          ) : <p className="parts-missing">{t('点选模型或列表中的部件。状态和故障是示例，没有接入实车。', 'Select a part in the model or the list. Status and faults are examples, with no live machine attached.')}</p>}
-        </div>
-        <div className="parts-fault">
-          <p>{t('故障示意', 'Fault example')}</p>
-          <div className="parts-fault-list" role="group" aria-label={t('带示例故障的部件', 'Parts with example faults')}>
-            {faultList(modelId).map(partId => {
-              const node = parts.find(part => part.partId === partId);
-              if (!node) return null;
-              return (
-                <button key={partId} type="button" aria-pressed={faultPartId === partId} onClick={() => toggleFault(partId)}>
-                  {partTitle(node, lang === 'zh' ? 'zh' : 'en', modelId)}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-        <div className="parts-tree">
-          <p>{t('部件树', 'Part tree')}</p>
-          <div className="parts-tree-list">
-            <button type="button" className="parts-whole" aria-pressed={selection === null} onClick={() => choose(null)}>{t('整机', 'Whole machine')}</button>
-            {parts.map(part => <TreeNode key={part.name} part={part} selection={selection} lang={lang === 'zh' ? 'zh' : 'en'} model={modelId} onSelect={choose} />)}
-          </div>
-        </div>
-        {error && <p role="alert" className="parts-missing">{error}</p>}
-      </aside>
     </div>
   );
 }
