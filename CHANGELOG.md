@@ -6,6 +6,14 @@
 
 2026-10-13按用户最新要求，将原3.3.0和原3.4.0的两批累计800条知识扩充合并为3.3.0，原3.5.0功能整合调整为3.4.0，后续主题修复和开发网关修复原3.5.1、3.5.2对应协调为3.4.1、3.4.2，本阶段项目版本上限为3.4.9。历史提交、采集过程及原始验证输出保留当时实际编号，本轮编号协调不另升版。
 
+## 3.7.2 — 2026-10-21
+
+- 知识库独立版本：新增 `知识库/整理后的知识库/农用拖拉机知识库/kb-version.json`，首版 `2026.10.1`，记录归档 4877、通识 6000、来源 28 的计数和条目/来源/层级/通识索引/整理 Markdown 的内容哈希。`scripts/kb-version.mjs` 校验哈希（接入 `npm run verify`），`--bump` 按 `YYYY.MM.N` 升版。`/api/knowledge/catalog` 响应增加 `kbVersion`。不改任何条目数据或正文。
+- 更新日志检查：沿用现有 CHANGELOG 与批次格式，`check:version` 增加最新版本节须写批次 ID、更新类型与验证结果；新增 `.github/pull_request_template.md`（批次、类型、验证、部署）。规则写入 `docs/version-policy.md`。
+- `docs/architecture.md` 补系统上下文、知识数据链路、版本与发布链路及新模块（记忆、更新、展厅/三维分包），注明核对版本。
+- 编号：用户选择 3.7.x 维护版本；3.7.1 留给 PR #64。
+- 更新类型：maintenance；批次：changelog-kb-version-20261021。验证：本地（Node 24）`npm run verify` 通过，测试 418 项，416 通过、2 项跳过、0 失败；`kb-version --check` 2026.10.1 一致。本提交未部署。
+
 ## 3.6.3 — 2026-10-21
 
 - 知识条目增加可选角色与风险等级字段及校验（分阶段计划第2步）：`entries.jsonl` 可选 `roles`（symptom/cause/check/action/retest 有序子集）+ 必填配套 `role_basis`（原文标记/人工核对），以及可选 `risk_level`（high/medium/low）+ 必填配套 `risk_basis`。`role_basis=原文标记` 时校验工具逐项核对正文字段标签；资料索引、资料核验、机型资料、资料缺口、系统适用边界不得标注。未标注表示尚未整理，不表示无该角色或低风险。

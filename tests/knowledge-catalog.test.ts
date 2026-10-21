@@ -170,3 +170,10 @@ test('catalogue HTTP selection serves source-backed content without asking an ex
   assert.match(result.selected!.entries[0].content, /立即停止发动机/);
   assert.equal(result.selected!.entries[0].sourceId, 'SRC-NH-WM25-92157408');
 });
+
+test('catalog API reports the knowledge-base version from kb-version.json', async () => {
+  const response = await requestCatalog('');
+  assert.equal(response.status, 200);
+  const body = await response.json() as KnowledgeCatalog;
+  assert.match(String(body.kbVersion), /^20\d{2}\.\d{2}\.\d+$/);
+});

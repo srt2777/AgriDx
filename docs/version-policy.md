@@ -35,3 +35,11 @@ npm.cmd run check:version
 只需安装 Node 即可运行脚本及专用测试：`node --test tests/version-update.test.mjs`。每次提交补充与改动相关的检查，主线合入前完成项目要求的验证。
 
 用户2026-10-15最新确认：项目版本上限提高到 **3.8.0**，覆盖此前3.4.9上限与禁止3.4.10的限制；知识更新仍统一递增补丁，三段整数比较。历史编号保留，不将上限调整解释为直接跳升当前版本。
+
+## 更新日志格式
+
+沿用现有 CHANGELOG 与 `version-batches.json` 格式，不改写历史节。自 3.7.2 起，`npm run check:version`（含于 `verify`）要求最新版本节写明：批次 ID（与 `version-batches.json` 最后一项一致）、`更新类型：knowledge|fix|maintenance|feature|breaking`、实际验证结果。部署状态如实写“未部署”或实际结果。PR 描述按 `.github/pull_request_template.md` 填写。
+
+## 知识库版本
+
+知识库另有独立版本 `kb_version`（`YYYY.MM.N`，与项目 SemVer 分开），记录在 `知识库/整理后的知识库/农用拖拉机知识库/kb-version.json`，附内容哈希与计数。知识条目、来源、层级、通识索引或整理 Markdown 变化时，运行 `node scripts/kb-version.mjs --bump`；`verify` 发现哈希变了而版本未升会失败。项目补丁号仍按上表照常递增。
