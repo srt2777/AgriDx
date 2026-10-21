@@ -6,6 +6,12 @@
 
 2026-10-13按用户最新要求，将原3.3.0和原3.4.0的两批累计800条知识扩充合并为3.3.0，原3.5.0功能整合调整为3.4.0，后续主题修复和开发网关修复原3.5.1、3.5.2对应协调为3.4.1、3.4.2，本阶段项目版本上限为3.4.9。历史提交、采集过程及原始验证输出保留当时实际编号，本轮编号协调不另升版。
 
+## 3.6.3 — 2026-10-21
+
+- 知识条目增加可选角色与风险等级字段及校验（分阶段计划第2步）：`entries.jsonl` 可选 `roles`（symptom/cause/check/action/retest 有序子集）+ 必填配套 `role_basis`（原文标记/人工核对），以及可选 `risk_level`（high/medium/low）+ 必填配套 `risk_basis`。`role_basis=原文标记` 时校验工具逐项核对正文字段标签；资料索引、资料核验、机型资料、资料缺口、系统适用边界不得标注。未标注表示尚未整理，不表示无该角色或低风险。
+- `校验索引.py` 新增 `entry.roles` 规则与 `summary.role_schema` 统计，规则版本 1.0.0 → 1.1.0；服务端加载同样检查字段结构。`条目整理规范.md` 与 `docs/knowledge-quality.md` 写明字段规则。本批不改任何条目数据与 Markdown 正文：4877 条中已标注角色 0、风险 0（前后相同）；检索派生的覆盖/风险提示不变。
+- 更新类型：knowledge；批次：kb-roles-schema-20261021。本地验证（Node 24.22.0）：`npm run verify` 通过，测试 413 项，411 通过、2 项跳过、0 失败；`npm run knowledge:quality` 0 错误 0 警告；`tests/knowledge_quality_test.py` 35 项通过。本提交未部署。
+
 ## 3.6.2 — 2026-10-21
 
 - 修复腾讯正式发布适配仓库更名：仓库已由 `srt2777/AgriDx-v3` 更名为 `srt2777/AgriDx`，`Tencent production` 工作流的仓库条件仍写旧名，main 上每次都被跳过。工作流条件改为新名；`scripts/tencent-deploy/*` 改为读取 `GITHUB_REPOSITORY`（默认 `srt2777/AgriDx`）。更名前已安装的服务器控制器仍报告旧名，公网接入检查同时接受新旧名称；其余部署流程与安全检查不变。`.openai/dev-preview.json` 与开发网关 `worker.js` 同步新名，开发网关本次未重新部署。
