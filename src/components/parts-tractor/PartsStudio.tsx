@@ -2,7 +2,10 @@ import { useCallback, useState, type ChangeEvent } from 'react';
 import { Camera, Download, Upload, X } from 'lucide-react';
 import { useReducedMotion } from 'framer-motion';
 import DeferredScene from '@/components/DeferredScene';
-import SceneLoading from '@/components/SceneLoading';
+import { BorderBeam } from '@/components/motion/BorderBeam';
+import { MorphingPanel } from '@/components/motion/MorphingPanel';
+import { TiltCard } from '@/components/motion/TiltCard';
+import { TwinQuery } from '@/components/motion/ThinkingOrbs';
 import { modelPreviewFallback } from '@/lib/scene-fallback-copy';
 import { publicAsset } from '@/lib/public-asset';
 import { probeWebGL } from '@/lib/webgl';
@@ -32,6 +35,7 @@ export default function PartsStudio({ onImport }: { onImport: (event: ChangeEven
   const [faultPartId, setFaultPartId] = useState<string | null>(null);
   const [shareNote, setShareNote] = useState('');
   const [modelId, setModelId] = useState<PartsModelId>(DEFAULT_PARTS_MODEL);
+  const [detailStep, setDetailStep] = useState<'overview' | 'faults' | 'log'>('overview');
   const [log, setLog] = useState<StudioLog[]>([
     { id: 2, zh: '工坊就绪 · 鸿鹄 T70', en: 'Studio ready · Honghu T70' },
     { id: 1, zh: '结构示意 · 未接实车', en: 'Schematic · no live machine' },
@@ -58,6 +62,7 @@ export default function PartsStudio({ onImport }: { onImport: (event: ChangeEven
 
   function choose(name: string | null) {
     setSelection(name);
+    setDetailStep('overview');
     if (!name) return;
     const next = resolveSelection(name, modelId);
     if (!next) return;
@@ -69,6 +74,7 @@ export default function PartsStudio({ onImport }: { onImport: (event: ChangeEven
     const item = PARTS_SHOWCASE[next];
     setModelId(next);
     setSelection(null);
+    setDetailStep('overview');
     setExplode(0);
     setFaultPartId(null);
     setReady(false);
@@ -128,8 +134,14 @@ export default function PartsStudio({ onImport }: { onImport: (event: ChangeEven
           <div className="studio-bar-group" role="group" aria-label={t('机型', 'Machine')}>
             {PARTS_MODEL_ORDER.map(id => {
               const item = PARTS_SHOWCASE[id];
+              const selectedModel = modelId === id;
               return (
-                <button key={id} type="button" className="studio-chip" aria-pressed={modelId === id} onClick={() => switchModel(id)}>{t(item.titleZh, item.titleEn)}</button>
+                <TiltCard key={id} className="studio-tilt">
+                  <button type="button" className={`studio-chip${selectedModel ? ' is-beamed' : ''}`} aria-pressed={selectedModel} onClick={() => switchModel(id)}>
+                    {selectedModel && <BorderBeam />}
+                    {t(item.titleZh, item.titleEn)}
+                  </button>
+                </TiltCard>
               );
             })}
           </div>
@@ -143,7 +155,7 @@ export default function PartsStudio({ onImport }: { onImport: (event: ChangeEven
               <button key={item.id} type="button" className="studio-chip" aria-pressed={presentation === item.id} onClick={() => setPresentation(item.id)}>{t(item.zh, item.en)}</button>
             ))}
           </div>
-          <button type="button" className="studio-save" disabled={!ready || graphics} onClick={() => { void saveIllustration(); }}>
+          <button type="button" className="studio-save glass-press" data-motion="glass-press" disabled={!ready || graphics} onClick={() => { void saveIllustration(); }}>
             <Camera size={16} />{t('保存结构示意', 'Save structure illustration')}
           </button>
           <p className="studio-share-note" aria-live="polite">{shareNote}</p>
@@ -151,11 +163,11 @@ export default function PartsStudio({ onImport }: { onImport: (event: ChangeEven
         <div className="model-stage parts-stage" data-model={modelId} data-component={selection ?? 'all'} data-fault={faultPartId ?? ''} data-explode={explode >= 1 ? 'open' : 'closed'}>
           <div className="parts-viewport">
             <div className="parts-kpi" aria-label={t('示例概览', 'Example overview')}>
-              <span className="parts-chip">{t('示例数据', 'Example data')}</span>
-              <span><b>{parts.length}</b> {t('部件', 'Parts')}</span>
-              <span><b>{selectedLabel}</b> {t('选中', 'Selected')}</span>
-              <span><b>{Math.round(explode * 100)}%</b> {t('爆炸', 'Explode')}</span>
-              <span><b>{faultLabel}</b> {t('故障', 'Fault')}</span>
+              <TiltCard className="parts-kpi-card"><span className="parts-chip">{t('示例数据', 'Example data')}</span></TiltCard>
+              <TiltCard className="parts-kpi-card"><span><b>{parts.length}</b> {t('部件', 'Parts')}</span></TiltCard>
+              <TiltCard className="parts-kpi-card"><span><b>{selectedLabel}</b> {t('选中', 'Selected')}</span></TiltCard>
+              <TiltCard className="parts-kpi-card"><span><b>{Math.round(explode * 100)}%</b> {t('爆炸', 'Explode')}</span></TiltCard>
+              <TiltCard className="parts-kpi-card"><span><b>{faultLabel}</b> {t('故障', 'Fault')}</span></TiltCard>
             </div>
             {graphics ? (
               <div className="flex h-full flex-col items-center justify-center gap-2 text-center text-muted-foreground">
@@ -164,7 +176,7 @@ export default function PartsStudio({ onImport }: { onImport: (event: ChangeEven
                 <p className="text-xs">{fallback.hint}</p>
               </div>
             ) : (
-              <DeferredScene fallback={<SceneLoading />}>
+              <DeferredScene fallback={<TwinQuery label={t('正在打开孪生视图…', 'Opening the twin view…')} />}>
                 <PartsTractorScene
                   url={modelUrl}
                   selection={selection}
@@ -182,7 +194,7 @@ export default function PartsStudio({ onImport }: { onImport: (event: ChangeEven
                 />
               </DeferredScene>
             )}
-            {!graphics && !ready && !error && <div className="parts-loading"><span>{t(`正在打开${spec.titleZh}…`, `Opening ${spec.titleEn}…`)}</span></div>}
+            {!graphics && !ready && !error && <div className="parts-loading"><TwinQuery label={t(`正在打开${spec.titleZh}…`, `Opening ${spec.titleEn}…`)} /></div>}
             <ol className="parts-event-log" aria-label={t('示例记录', 'Example log')}>
               {timeline.map(item => <li key={item.id}>{language === 'zh' ? item.zh : item.en}</li>)}
             </ol>
@@ -219,16 +231,39 @@ export default function PartsStudio({ onImport }: { onImport: (event: ChangeEven
               <button type="button" className="parts-drawer-close" onClick={() => choose(null)} aria-label={t('关闭部件详情', 'Close part detail')}><X size={16} /></button>
             </div>
             {resolved && example && (
-              <div className="parts-detail">
-                <h2>{partTitle(resolved.node, language, modelId)}</h2>
-                <p className="parts-status">{t('示例状态', 'Example status')} · {t(example.statusZh, example.statusEn)}</p>
-                {example.faults.length > 0 && (
-                  <>
-                    <p className="parts-status">{t('常见故障', 'Common faults')}</p>
-                    <ul>{example.faults.map(fault => <li key={fault.zh}>{t(fault.zh, fault.en)}</li>)}</ul>
-                  </>
-                )}
-              </div>
+              <>
+                <div className="morph-steps" role="tablist" aria-label={t('部件详情步骤', 'Part detail steps')}>
+                  {([
+                    ['overview', t('概况', 'Overview')],
+                    ['faults', t('故障', 'Faults')],
+                    ['log', t('记录', 'Log')],
+                  ] as const).map(([id, label]) => (
+                    <button key={id} type="button" role="tab" aria-selected={detailStep === id} onClick={() => setDetailStep(id)}>{label}</button>
+                  ))}
+                </div>
+                <MorphingPanel stepKey={`${resolved.node.name}:${detailStep}`} className="parts-morph is-beamed" beam>
+                  {detailStep === 'overview' && (
+                    <div className="parts-detail">
+                      <h2>{partTitle(resolved.node, language, modelId)}</h2>
+                      <p className="parts-status">{t('示例状态', 'Example status')} · {t(example.statusZh, example.statusEn)}</p>
+                    </div>
+                  )}
+                  {detailStep === 'faults' && (
+                    <div className="parts-detail">
+                      <h2>{t('常见故障', 'Common faults')}</h2>
+                      {example.faults.length > 0
+                        ? <ul>{example.faults.map(fault => <li key={fault.zh}>{t(fault.zh, fault.en)}</li>)}</ul>
+                        : <p className="parts-status">{t('这一部件没有示例故障。', 'This part has no example fault.')}</p>}
+                    </div>
+                  )}
+                  {detailStep === 'log' && (
+                    <div className="parts-detail">
+                      <h2>{t('示例记录', 'Example log')}</h2>
+                      <ul>{log.slice(0, 3).map(item => <li key={item.id}>{language === 'zh' ? item.zh : item.en}</li>)}</ul>
+                    </div>
+                  )}
+                </MorphingPanel>
+              </>
             )}
           </aside>
         </div>

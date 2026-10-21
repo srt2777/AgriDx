@@ -9,6 +9,7 @@ import './tailwind-theme.css';
 import './typography.css';
 import './liquid-glass.css';
 import './motion.css';
+import './components/motion/premium-motion.css';
 import './new-version-polish.css';
 import './new-version-tokens.css';
 import './wheat-motif.css';

@@ -1,5 +1,5 @@
 import type { DiagnosisMode } from '../../../shared/diagnosis';
-import { useRef, useEffect, useCallback, type FormEvent, type KeyboardEvent } from 'react';
+import { useRef, useEffect, useCallback, useState, type FormEvent, type KeyboardEvent } from 'react';
 import { Send, Trash2, Loader2, Bot, User, Sparkles, Cpu, Square } from 'lucide-react';
 import DeferredMarkdown from '@/components/DeferredMarkdown';
 import { Button } from '@/components/ui/button';
@@ -28,6 +28,9 @@ import { useChatSession } from '@/features/chat/useChatSession';
 import { useLlmHealth } from '@/features/chat/useLlmHealth';
 import { useUpdateBlocker } from '@/features/updates/useUpdateBlocker';
 import { hasUnsavedProfile } from '@/features/updates/update-safety';
+import { MorphingPanel } from '@/components/motion/MorphingPanel';
+import { ThinkingOrbs } from '@/components/motion/ThinkingOrbs';
+import { useDiagnosisOrb } from '@/components/motion/useDiagnosisOrb';
 
 export default function ChatPage() {
   const location = useLocation();
@@ -53,6 +56,7 @@ export default function ChatPage() {
     sendMessage, stopRequest, handleClear, memory, profile,
     diagnosisMode, setDiagnosisMode, deviceName, setDeviceName, hours, setHours, deviceNotes, setDeviceNotes, progress, setProgress,
   } = useChatSession({ handoff, translate: t, focusInput });
+  const orb = useDiagnosisOrb(version === 'new' && isLoading);
   useUpdateBlocker('/chat', isLoading || memory.busy || !memory.ready || !!input.trim()
     || progress.trim() !== (memory.session?.progress ?? '')
     || hasUnsavedProfile(profile, memory.devices.find(device => device.id === memory.deviceId)));
@@ -197,8 +201,10 @@ export default function ChatPage() {
           {/* 空状态 / 欢迎态 */}
           {isEmpty && (
             <div className="chat-empty flex flex-col items-center py-8 text-center">
-              <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-primary/10 text-primary">
-                <Sparkles className="h-7 w-7" />
+              <div className="mb-4 flex items-center justify-center">
+                {version === 'new'
+                  ? <ThinkingOrbs state="listening" label={t('待命', 'Listening')} />
+                  : <span className="flex h-14 w-14 items-center justify-center rounded-full bg-primary/10 text-primary"><Sparkles className="h-7 w-7" /></span>}
               </div>
               <h2 className="font-serif text-xl font-bold text-foreground">{version === 'new' ? t('描述现象，从资料里找起点。', 'Describe the symptom. Start from the evidence.') : pick(content.CHAT_WELCOME.title, lang)}</h2>
               <p className="mt-2 max-w-md text-sm text-muted-foreground">{version === 'new' ? t('带上机型更好。回答依据是已索引资料，适用范围仍需核对。', 'A model helps. Answers follow indexed evidence, and scope still needs a check.') : pick(content.CHAT_WELCOME.desc, lang)}</p>
@@ -246,10 +252,17 @@ export default function ChatPage() {
                 }`}
               >
                 {msg.role === 'loading' ? (
-                  <div className="flex items-center gap-2">
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    <span>{t('正在思考...', 'Thinking...')}</span>
-                  </div>
+                  version === 'new' ? (
+                    <ThinkingOrbs
+                      state={orb === 'listening' ? 'searching' : orb}
+                      label={orb === 'solving' ? t('整理判断…', 'Sorting the answer…') : t('检索资料…', 'Searching evidence…')}
+                    />
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      <span>{t('正在思考...', 'Thinking...')}</span>
+                    </div>
+                  )
                 ) : msg.role === 'user' ? (
                   <div className="whitespace-pre-wrap">{msg.content}</div>
                 ) : (
@@ -310,7 +323,8 @@ export default function ChatPage() {
               type="submit"
               size="icon"
               disabled={!input.trim() || input.trim().length > 2000}
-              className="shrink-0"
+              className={version === 'new' ? 'shrink-0 glass-press' : 'shrink-0'}
+              data-motion={version === 'new' ? 'glass-press' : undefined}
               aria-label={t('发送', 'Send')}
             >
               <Send className="h-4 w-4" />
@@ -358,8 +372,31 @@ function MachineContext({
   progress: string;
   setProgress: (value: string) => void;
 }) {
+  const [hud, setHud] = useState<'machine' | 'scope' | 'progress'>('machine');
+  const plate = [machineType, brand, model].filter(Boolean).join(' · ');
+  const hudSteps = [
+    ['machine', t('机具', 'Machine')],
+    ['scope', t('边界', 'Scope')],
+    ['progress', t('进度', 'Progress')],
+  ] as const;
   return (
     <div className={framed ? 'mb-6 w-full rounded-xl border border-border/60 bg-card p-4 text-left' : 'text-left'}>
+      {!framed && (
+        <section className="chat-hud" aria-label={t('诊断步骤', 'Diagnosis steps')}>
+          <div className="morph-steps" role="tablist" aria-label={t('诊断步骤', 'Diagnosis steps')}>
+            {hudSteps.map(([id, label]) => (
+              <button key={id} type="button" role="tab" aria-selected={hud === id} onClick={() => setHud(id)}>{label}</button>
+            ))}
+          </div>
+          <MorphingPanel stepKey={hud}>
+            <div role="tabpanel">
+              {hud === 'machine' && <p>{plate || t('尚未填写铭牌', 'No plate yet')}<br />{t('核对铭牌上的完整型号。', 'Check the full model on the plate.')}</p>}
+              {hud === 'scope' && <p>{t('回答依据是已索引资料。系列资料不能代替具体机型，适用范围仍需核对。', 'Answers follow indexed evidence. Series documents do not replace a specific model, and scope still needs a check.')}</p>}
+              {hud === 'progress' && <p>{progress.trim() || t('还没有本次检查进度。', 'No check progress yet.')}<br />{t('保存后留在这台设备的诊断记忆里。', 'After you save it, it stays with this device’s diagnosis memory.')}</p>}
+            </div>
+          </MorphingPanel>
+        </section>
+      )}
       <div className="mb-3 flex items-center justify-between gap-3 text-xs font-medium text-primary">
         <span>{framed ? t('诊断上下文 · 请核对现场铭牌', 'Machine context · check the machine plate') : t('机具上下文', 'Machine context')}</span>
         <Link to="/knowledge" className="underline underline-offset-4">{t('浏览资料', 'Browse evidence')}</Link>

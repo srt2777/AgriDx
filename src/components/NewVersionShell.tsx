@@ -73,8 +73,8 @@ export function NewVersionShell() {
         </nav>
 
         <div className="new-version-tools">
-          <CommandButton />
-          <ShortcutButton />
+          <CommandButton className="glass-press" />
+          <ShortcutButton className="glass-press" />
           <DemoNote />
           <VersionSwitch exhibition onChange={() => navigate('/')} />
           <ThemeSwitch />

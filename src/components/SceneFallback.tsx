@@ -1,6 +1,7 @@
 import { sceneFallbackCopy } from '@/lib/scene-fallback-copy';
 import type { GraphicsReason } from '@/lib/webgl';
 import { useLang } from '@/hooks/useLang';
+import { ThinkingOrbs } from '@/components/motion/ThinkingOrbs';
 import './scene-fallback.css';
 
 export default function SceneFallback({
@@ -18,8 +19,9 @@ export default function SceneFallback({
     <div className="scene-fallback" role="img" aria-label={copy.title} aria-hidden={hidden || undefined} data-graphics={reason}>
       {kind === 'campus' ? <CampusPlan /> : <HallPlan />}
       <p className="scene-fallback-note" role="status">
-        {reason === 'loading' && <i className="scene-fallback-ring" aria-hidden="true" />}
-        {copy.note}
+        {reason === 'loading'
+          ? <ThinkingOrbs state="searching" label={copy.note} />
+          : copy.note}
       </p>
     </div>
   );

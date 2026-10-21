@@ -238,6 +238,13 @@
       "base": "3.7.6",
       "version": "3.7.7",
       "date": "2026-10-21"
+    },
+    {
+      "id": "ui-20261021-motion-five",
+      "kind": "maintenance",
+      "base": "3.7.7",
+      "version": "3.7.8",
+      "date": "2026-10-21"
     }
   ]
 }
