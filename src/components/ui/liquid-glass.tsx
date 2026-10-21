@@ -68,6 +68,7 @@ export function LiquidGlass({ children, className = '', contentClassName = '', v
     const touched = new Set<HTMLElement>();
     const ripples = new Set<HTMLElement>();
     const ripple = (control: HTMLElement, x: number, y: number) => {
+      if (element.closest('[data-ui-version="new"]')) return;
       for (const old of control.querySelectorAll('.material-ripple')) { ripples.delete(old as HTMLElement); old.remove(); }
       const rect = control.getBoundingClientRect();
       const node = document.createElement('span');

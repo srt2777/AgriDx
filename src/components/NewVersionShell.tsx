@@ -5,18 +5,25 @@ import { publicAsset } from '@/lib/public-asset';
 import { Globe } from 'lucide-react';
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useLang, setLang } from '@/hooks/useLang';
+import DemoNote from '@/components/DemoNote';
+import { CommandButton } from '@/components/CommandPalette';
+import { ShortcutButton } from '@/components/NewVersionDelight';
+import { SiteStatusBar } from '@/components/SiteStatusBar';
 import VersionSwitch from '@/components/VersionSwitch';
 import ThemeSwitch from '@/components/ThemeSwitch';
+import { beginSharedTransition } from '@/lib/shared-transition';
 import './new-version-shell.css';
 
 const NAV_ZH = [
   { path: '/', label: '大厅' },
+  { path: '/hall', label: '数字展厅' },
   { path: '/knowledge', label: '农机知识' },
   { path: '/models', label: '模型工坊' },
   { path: '/chat', label: '智能诊断' },
 ];
 const NAV_EN = [
   { path: '/', label: 'Hub' },
+  { path: '/hall', label: 'Digital hall' },
   { path: '/knowledge', label: 'Knowledge' },
   { path: '/models', label: 'Model studio' },
   { path: '/chat', label: 'Diagnosis' },
@@ -52,6 +59,12 @@ export function NewVersionShell() {
               end={item.path === '/'}
               onPointerEnter={() => preloadPage(item.path, 'new')}
               onFocus={() => preloadPage(item.path, 'new')}
+              onClick={(event) => {
+                if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return;
+                if (event.currentTarget.getAttribute('aria-current') === 'page') return;
+                event.preventDefault();
+                beginSharedTransition(null, () => navigate(item.path));
+              }}
               className={({ isActive }) => `new-version-nav-item${isActive ? ' is-active' : ''}`}
             >
               {({ isActive }) => <>{isActive && <LiquidSelection className="new-version-nav-indicator" layoutId="new-shell-navigation" />}<span className="new-version-nav-label">{item.label}</span></>}
@@ -60,6 +73,9 @@ export function NewVersionShell() {
         </nav>
 
         <div className="new-version-tools">
+          <CommandButton />
+          <ShortcutButton />
+          <DemoNote />
           <VersionSwitch exhibition onChange={() => navigate('/')} />
           <ThemeSwitch />
           <button type="button" className="new-version-language" onClick={() => setLang(lang === 'zh' ? 'en' : 'zh')} aria-label={t('切换语言', 'Switch language')}>
@@ -69,12 +85,13 @@ export function NewVersionShell() {
         </div>
       </LiquidGlass></header>
       <div className="new-version-subheader">
-        <span><i aria-hidden="true" />{t('探索装备 · 连接知识 · 辅助诊断', 'EXPLORE EQUIPMENT · CONNECT KNOWLEDGE')}</span>
-        <span className="new-version-route-label">{location.pathname === '/knowledge' ? t('农机知识', 'MACHINE KNOWLEDGE') : location.pathname === '/models' ? t('模型工坊', 'MODEL STUDIO') : t('智能诊断', 'DIAGNOSIS')}</span>
+        <span><i aria-hidden="true" />{t('探索装备 · 连接知识 · 辅助诊断', 'EXPLORE EQUIPMENT · CONNECT KNOWLEDGE · GUIDE DIAGNOSIS')}</span>
+        <span className="new-version-route-label">{location.pathname === '/knowledge' ? t('知识目录', 'CATALOG') : location.pathname === '/models' ? t('模型工坊', 'MODEL STUDIO') : location.pathname === '/hall' ? t('数字展厅', 'DIGITAL HALL') : t('智能诊断', 'DIAGNOSIS')}</span>
       </div>
       <main id="main-content" className="new-version-main" tabIndex={-1}>
         <Outlet />
       </main>
+      <SiteStatusBar />
     </div>
   );
 }

@@ -1,19 +1,24 @@
 import { Link, useSearchParams } from 'react-router-dom';
+import { useReducedMotion } from 'framer-motion';
 import { ArrowLeft, ArrowRight, BookOpen, Check, ChevronRight, Layers, Loader2, Search, TriangleAlert } from 'lucide-react';
 import EvidenceEntry from './EvidenceEntry';
 import CommonFrameworkBrowser from './CommonFrameworkBrowser';
 import KnowledgeLibraryBrowser from './KnowledgeLibraryBrowser';
 import { useLang } from '@/hooks/useLang';
+import { useUiVersion } from '@/hooks/useUiVersion';
 import { useKnowledgeCatalog } from '@/hooks/useKnowledgeCatalog';
 import type { CatalogEntry } from '@shared/knowledge-catalog';
 import { CATALOG_FILTER_KEYS } from '@shared/knowledge-catalog';
 import { LiquidGlass } from '@/components/ui/liquid-glass';
+import { StatTicker } from '@/components/StatTicker';
 import '@/control-glass.css';
 
 const INFORMATION_TYPES = new Set(['资料索引', '资料核验', '机型资料', '资料缺口', '系统适用边界']);
 
 export default function KnowledgePage() {
   const lang = useLang();
+  const version = useUiVersion();
+  const reducedMotion = !!useReducedMotion();
   const t = (zh: string, en: string) => lang === 'zh' ? zh : en;
   const [params, setParams] = useSearchParams();
   const machineView = params.get('view') === 'machine' || ['brand', 'model', 'component', 'part', 'symptom', 'configuration', 'driveConfiguration', 'emissionStage'].some(key => params.has(key));
@@ -49,7 +54,7 @@ export default function KnowledgePage() {
     <div className="page-container">
       <Link to="/" className="knowledge-back"><ArrowLeft size={15} />{t('返回首页', 'Back to home')}</Link>
       <header className="knowledge-page-heading">
-        <div><div className="section-eyebrow">{t('耕知 · 农机知识', 'GENGZHI · MACHINE KNOWLEDGE')}</div><h1>{t('归档与通识，汇入同一个知识目录。', 'Archived evidence and learning in one library.')}</h1><p>{t('统一搜索已有来源的归档资料与拖拉机通识正文，也可按品牌、机型、组件和零部件浏览。数量代表已索引记录，各条资料保留自己的来源、核验状态和适用范围。', 'Search source archives and tractor learning texts together, or browse by brand, model, component and part. Counts reflect indexed records; each entry retains its source, verification status and applicability.')}</p></div>
+        <div><div className="section-eyebrow">{t('耕知 · 知识目录', 'GENGZHI · CATALOG')}</div><h1 data-shared-target={version === 'new' ? 'knowledge' : undefined}>{t('归档与通识，同一个目录。', 'Archives and learning, one catalog.')}</h1><p>{t('按品牌、机型和部件查找。条数是已索引记录；每条保留来源、核验和适用范围。', 'Search by brand, model, and part. Counts are indexed records. Each entry keeps its source, check, and scope.')}</p>{version === 'new' && <span className="wheat-line" aria-hidden="true" />}</div>
         <div className="knowledge-heading-icon" aria-hidden="true"><Layers size={38} strokeWidth={1.15} /><span>01 — 04</span></div>
       </header>
 
@@ -59,7 +64,7 @@ export default function KnowledgePage() {
           [catalog?.totals.archivedEntries, t('来源归档', 'Source archive entries')],
           [catalog?.totals.learningEntries, t('通识学习', 'General learning entries')],
           [catalog?.totals.models, t('型号 / 系列目录', 'Model / series directories')],
-        ].map(([value, label]) => <div key={String(label)}><strong>{typeof value === 'number' ? value.toLocaleString() : '—'}</strong><span>{label}</span></div>)}
+        ].map(([value, label]) => <div key={String(label)}><strong>{version === 'new' ? <StatTicker value={typeof value === 'number' ? value : undefined} reduced={reducedMotion} /> : (typeof value === 'number' ? value.toLocaleString() : '—')}</strong><span>{label}</span></div>)}
       </div>
 
       <nav className="library-collections" aria-label={t('知识浏览方式', 'Knowledge browsing mode')}>
@@ -111,7 +116,9 @@ export default function KnowledgePage() {
         </LiquidGlass>
       </section>}
 
-      {loading && <div className="catalog-state" role="status"><Loader2 className="animate-spin" size={24} /><p>{t('读取适用资料与覆盖范围…', 'Loading documents and coverage…')}</p></div>}
+      {version === 'new' && machineView && brand && <div className="catalog-model-grid" aria-label={t('型号或系列', 'Models or series')}>{brand.models.map(item => <button type="button" key={item.id} aria-pressed={model?.id === item.id} onClick={() => updateFilter('model', item.id)}><strong>{item.name}</strong><small>{item.scope === 'series' ? t('系列', 'Series') : item.scope === 'pending' ? t('待核实', 'Unconfirmed') : t('具体型号', 'Specific model')}</small></button>)}</div>}
+
+      {loading && <div className="catalog-state" role="status"><Loader2 className="animate-spin" size={24} /><p>{t('读取适用资料与覆盖范围…', 'Loading documents and coverage…')}</p><div className="catalog-skeleton" aria-hidden="true"><span /><span /><span /></div></div>}
       {failed && <div className="catalog-state" role="alert"><TriangleAlert size={26} /><h2>{t('暂时无法读取知识目录', 'Knowledge catalog is unavailable')}</h2><p>{t('目录未加载，不展示推测的数量或故障策略。请重试。', 'No catalog is loaded, so no estimated counts or strategies are shown. Please retry.')}</p><button onClick={retry} className="catalog-action">{t('重新加载', 'Retry')}</button></div>}
 
       {machineView && !loading && !failed && !model && <section className="catalog-onboarding"><div><BookOpen size={30} strokeWidth={1.3} /><h2>{t('先选品牌，再确认完整机型。', 'Choose a brand, then confirm the machine.')}</h2><p>{t('从故障表现向下查部件，也可以从零部件资料向上理解影响。系列资料、型号未确认资料与具体型号分别显示，来源没有明确的关系会保留缺口。', 'Trace symptoms down to components, or explore part evidence to understand higher-level effects. Series, unconfirmed and specific-model documents stay distinct; unsupported relationships remain gaps.')}</p></div><div className="catalog-brand-pills">{catalog?.brands.map(item => <button onClick={() => updateFilter('brand', item.id)} key={item.id} aria-pressed={brand?.id === item.id}>{item.name}<ChevronRight size={15} /></button>)}</div></section>}
@@ -128,7 +135,7 @@ export default function KnowledgePage() {
         </section>
       </>}
 
-      <aside className="catalog-boundaries"><div className="section-eyebrow">{t('覆盖是可检查的过程', 'COVERAGE IS A VERIFIABLE PROCESS')}</div><h2>{t('向全覆盖推进，先把缺口标清。', 'Toward full coverage, make the gaps clear first.')}</h2><p>{t('总数按两类资料中可独立定位的条目累计，归档与学习资料共同展示。通识数量不换算成维修证据、独立故障种类或已核验机型覆盖。', 'The total adds independently locatable archive and learning entries in one library. Learning counts do not imply repair evidence, distinct fault types or verified model coverage.')}</p>{catalog?.limitations.length ? <ul>{catalog.limitations.map(limit => <li key={limit}>{limit}</li>)}</ul> : null}</aside>
+      <aside className="catalog-boundaries"><div className="section-eyebrow">{t('覆盖可以核对', 'COVERAGE CAN BE CHECKED')}</div><h2>{t('先标清缺口，再谈覆盖。', 'Name the gaps before claiming coverage.')}</h2><p>{t('条数是已索引的归档和通识。通识不是维修证据，也不等于已核验的机型覆盖。', 'Counts are indexed archives and learning notes. Learning notes are not repair evidence, and they are not verified model coverage.')}</p>{catalog?.limitations.length ? <ul>{catalog.limitations.map(limit => <li key={limit}>{limit}</li>)}</ul> : null}</aside>
     </div>
   </div>;
 }

@@ -1,0 +1,185 @@
+/* Premium chat and knowledge chrome for the new shell only. */
+
+.new-version-shell .chat-glass.is-premium {
+  height: calc(100dvh - 148px);
+}
+
+.new-version-shell .chat-workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 320px);
+  min-height: 0;
+  flex: 1;
+}
+
+.new-version-shell .chat-thread {
+  display: flex;
+  min-width: 0;
+  min-height: 0;
+  flex-direction: column;
+}
+
+.new-version-shell .chat-context {
+  position: relative;
+  margin: 12px 14px 12px 0;
+  padding: 16px 14px 14px;
+  overflow: auto;
+  border-radius: 14px;
+  border: 1px solid color-mix(in srgb, var(--hub-primary, var(--primary)) 48%, var(--border));
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--hub-card, var(--card)) 92%, transparent), color-mix(in srgb, var(--hub-background, var(--background)) 40%, var(--card)));
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--hub-primary, var(--primary)) 22%, transparent),
+    0 0 22px color-mix(in srgb, var(--hub-primary, var(--primary)) 16%, transparent);
+}
+
+.new-version-shell .chat-context::before,
+.new-version-shell .chat-source::before,
+.new-version-shell .catalog-brand-pills button::before,
+.new-version-shell .catalog-model-grid button::before {
+  content: '';
+  position: absolute;
+  inset: 6px;
+  pointer-events: none;
+  background:
+    linear-gradient(var(--hub-primary, var(--primary)), var(--hub-primary, var(--primary))) left top / 14px 2px no-repeat,
+    linear-gradient(var(--hub-primary, var(--primary)), var(--hub-primary, var(--primary))) left top / 2px 14px no-repeat,
+    linear-gradient(var(--hub-primary, var(--primary)), var(--hub-primary, var(--primary))) right top / 14px 2px no-repeat,
+    linear-gradient(var(--hub-primary, var(--primary)), var(--hub-primary, var(--primary))) right top / 2px 14px no-repeat,
+    linear-gradient(var(--hub-primary, var(--primary)), var(--hub-primary, var(--primary))) left bottom / 14px 2px no-repeat,
+    linear-gradient(var(--hub-primary, var(--primary)), var(--hub-primary, var(--primary))) left bottom / 2px 14px no-repeat,
+    linear-gradient(var(--hub-primary, var(--primary)), var(--hub-primary, var(--primary))) right bottom / 14px 2px no-repeat,
+    linear-gradient(var(--hub-primary, var(--primary)), var(--hub-primary, var(--primary))) right bottom / 2px 14px no-repeat;
+  opacity: 0.85;
+}
+
+.new-version-shell .chat-context .chat-fields { grid-template-columns: 1fr; }
+.new-version-shell .chat-context h2 {
+  margin: 0;
+  font-size: 14px;
+  letter-spacing: 0.04em;
+}
+
+.new-version-shell .chat-composer {
+  border-radius: 18px;
+  border: 1px solid color-mix(in srgb, var(--hub-primary, var(--primary)) 35%, var(--border));
+  background: color-mix(in srgb, var(--card) 78%, transparent);
+  padding: 8px;
+  backdrop-filter: blur(10px);
+}
+
+.new-version-shell .chat-composer:focus-within {
+  border-color: color-mix(in srgb, var(--hub-primary, var(--primary)) 75%, white);
+  box-shadow:
+    0 0 0 3px color-mix(in srgb, var(--hub-primary, var(--primary)) 32%, transparent),
+    0 0 28px color-mix(in srgb, var(--hub-primary, var(--primary)) 28%, transparent);
+}
+
+.new-version-shell .chat-chip {
+  border-radius: 999px;
+  border-color: color-mix(in srgb, var(--hub-primary, var(--primary)) 35%, var(--border));
+  background: color-mix(in srgb, var(--card) 80%, transparent);
+}
+
+.new-version-shell .chat-source {
+  position: relative;
+  margin-top: 10px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  border: 1px solid color-mix(in srgb, var(--hub-primary, var(--primary)) 32%, var(--border));
+  background: color-mix(in srgb, var(--hub-surface, var(--background)) 70%, transparent);
+}
+
+.new-version-shell .chat-evidence-body,
+.new-version-shell .evidence-entry-body { transform-origin: top; }
+
+.new-version-shell .chat-message.is-thinking {
+  position: relative;
+  overflow: hidden;
+}
+
+.new-version-shell .chat-message.is-thinking::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(100deg, transparent 20%, color-mix(in srgb, var(--hub-primary, var(--primary)) 42%, transparent) 50%, transparent 80%);
+  background-size: 220% 100%;
+}
+
+.new-version-shell .knowledge-page .library-collections,
+.new-version-shell .knowledge-page .catalog-filter-section {
+  position: sticky;
+  z-index: 6;
+  border-radius: 16px;
+  border: 1px solid color-mix(in srgb, var(--hub-primary, var(--primary)) 32%, var(--border));
+  background: color-mix(in srgb, var(--card) 86%, transparent);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 10px 28px color-mix(in srgb, var(--background) 35%, transparent);
+}
+
+.new-version-shell .knowledge-page .library-collections { top: 8px; padding: 8px; margin-bottom: 16px; }
+.new-version-shell .knowledge-page .catalog-filter-section { top: 68px; }
+
+.new-version-shell .catalog-stats strong {
+  display: inline-block;
+  min-width: 4.6em;
+  font-variant-numeric: tabular-nums;
+}
+
+.new-version-shell .catalog-brand-pills,
+.new-version-shell .catalog-model-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(168px, 1fr));
+  gap: 10px;
+}
+
+.new-version-shell .catalog-brand-pills button,
+.new-version-shell .catalog-model-grid button {
+  position: relative;
+  display: flex;
+  min-height: 76px;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-end;
+  gap: 4px;
+  padding: 12px;
+  border-radius: 14px;
+  border: 1px solid color-mix(in srgb, var(--hub-primary, var(--primary)) 30%, var(--border));
+  background: color-mix(in srgb, var(--card) 88%, transparent);
+  text-align: left;
+}
+
+.new-version-shell .catalog-brand-pills button[aria-pressed='true'],
+.new-version-shell .catalog-model-grid button[aria-pressed='true'] {
+  border-color: color-mix(in srgb, var(--hub-primary, var(--primary)) 70%, white);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--hub-primary, var(--primary)) 45%, transparent);
+}
+
+.new-version-shell .catalog-model-grid { margin-top: 18px; }
+.new-version-shell .catalog-model-grid small { color: var(--muted-foreground); font-size: 11px; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .new-version-shell .chat-message.is-thinking::after { animation: nv-shimmer 1.15s linear infinite; }
+  .new-version-shell .chat-message.is-answer { animation: answer-shimmer var(--motion-count, 900ms) var(--motion-ease-out, ease) both; }
+  .new-version-shell .catalog-brand-pills button,
+  .new-version-shell .catalog-model-grid button {
+    transition: border-color var(--motion-color, 180ms) ease, background-color var(--motion-color, 180ms) ease;
+  }
+}
+
+@keyframes answer-shimmer {
+  from { opacity: 0.45; }
+  to { opacity: 1; }
+}
+
+@media (max-width: 1100px) {
+  .new-version-shell .chat-workspace { grid-template-columns: 1fr; }
+  .new-version-shell .chat-context { order: -1; max-height: 240px; margin: 8px 12px 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .new-version-shell .chat-message.is-thinking::after,
+  .new-version-shell .chat-message.is-answer,
+  .new-version-shell .catalog-brand-pills button,
+  .new-version-shell .catalog-model-grid button { animation: none; transition: none; }
+}

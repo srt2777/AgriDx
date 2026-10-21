@@ -127,7 +127,7 @@
   transition: transform 300ms cubic-bezier(.2, 0, 0, 1), color 180ms ease, background-color 180ms ease;
 }
 
-:root .expo-page :is(.expo-icon-button, .expo-start-button, .expo-zone-actions button, .expo-catalog-trigger, .expo-direct-links button) { border-radius: 24px; }
+:root .expo-page :is(.expo-icon-button, .expo-start-button, .expo-zone-actions button, .expo-catalog-trigger, .expo-direct-links button, .expo-direct-links a) { border-radius: 24px; }
 :root .expo-page .expo-icon-button { color: var(--md-on-surface-variant); }
 :root .expo-page .expo-guide-glass { --lg-radius: 28px; }
 :root .expo-zone-nav > button { border-radius: 24px; color: var(--md-on-surface-variant); }

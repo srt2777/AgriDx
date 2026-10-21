@@ -10,21 +10,12 @@
   font-family: var(--font-sans);
   font-size: 13px;
 }
-.expo-page *,
-.expo-page *::before,
-.expo-page *::after {
-  box-sizing: border-box;
-}
 .expo-page h1,
 .expo-page h2,
 .expo-page h3,
 .expo-page p {
   margin: 0;
   font-family: inherit;
-}
-.expo-page a {
-  color: inherit;
-  text-decoration: none;
 }
 .expo-page button {
   font: inherit;
@@ -43,20 +34,8 @@
 .expo-page .skip-link:focus {
   top: 14px;
 }
-.expo-page button,
-.expo-page a {
-  -webkit-tap-highlight-color: transparent;
-}
-.expo-page a:focus-visible,
-.expo-page button:focus-visible,
-.expo-page input:focus-visible,
-.expo-world-stage:focus-visible {
-  outline: 2px solid var(--ring);
-  outline-offset: 4px;
-}
 .expo-header,
-.expo-main,
-.expo-footer {
+.expo-main {
   max-width: 1800px;
   margin-inline: auto;
 }
@@ -105,15 +84,17 @@
 }
 .expo-title > span {
   display: block;
-  font-size: 8px;
-  letter-spacing: 2.6px;
+  font-size: 11px;
+  letter-spacing: 0.22em;
   color: var(--muted-foreground);
-  margin-bottom: 9px;
+  margin-bottom: 10px;
 }
 .expo-title h1 {
-  font-size: clamp(19px, 1.7vw, 27px);
-  letter-spacing: 2px;
-  font-weight: 500;
+  font-size: clamp(22px, 1.8vw, 30px);
+  letter-spacing: 0.06em;
+  font-weight: 560;
+  line-height: 1.25;
+  text-wrap: balance;
 }
 .expo-header-tools {
   display: flex;
@@ -202,10 +183,112 @@
   box-shadow: 0 35px 70px var(--surface-shadow),
     inset 0 1px 0 var(--glass-control-edge);
 }
+.expo-hero {
+  position: absolute;
+  z-index: 6;
+  left: 50%;
+  top: 42%;
+  display: grid;
+  justify-items: center;
+  width: min(720px, calc(100% - 96px));
+  transform: translate(-50%, -50%);
+  text-align: center;
+  pointer-events: none;
+  animation: expo-hero-hold 4800ms linear both;
+}
+.expo-hero p,
+.expo-hero strong { margin: 0; }
+.expo-hero p {
+  color: var(--wheat);
+  font-size: 12px;
+  letter-spacing: 0.18em;
+  animation: expo-kicker-in 700ms var(--motion-ease-out, cubic-bezier(.16, 1, .3, 1)) both;
+}
+.expo-hero strong {
+  display: block;
+  margin-top: 16px;
+  font-size: clamp(34px, 4.8vw, 68px);
+  font-weight: 560;
+  letter-spacing: 0.04em;
+  line-height: 1.12;
+  text-wrap: balance;
+  text-shadow: 0 10px 28px color-mix(in srgb, var(--background) 70%, transparent);
+  clip-path: inset(0 0 0 0);
+  animation: expo-title-reveal 1400ms var(--motion-ease-out, cubic-bezier(.16, 1, .3, 1)) 180ms both;
+}
+.expo-hero i {
+  display: block;
+  width: 180px;
+  height: 12px;
+  margin-top: 18px;
+  background: var(--wheat);
+  mask: var(--wheat-ear) center / 180px 12px no-repeat;
+  -webkit-mask: var(--wheat-ear) center / 180px 12px no-repeat;
+  clip-path: inset(0 100% 0 0);
+  animation: expo-wheat-draw 1100ms var(--motion-ease-out, cubic-bezier(.16, 1, .3, 1)) 700ms forwards;
+}
+.expo-intro-skip {
+  position: absolute;
+  z-index: 7;
+  left: 50%;
+  bottom: 28px;
+  min-height: 44px;
+  padding: 0 18px;
+  transform: translateX(-50%);
+  border: 1px solid color-mix(in srgb, var(--wheat) 70%, var(--border));
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--card) 88%, transparent);
+  color: var(--foreground);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+}
+.expo-page[data-intro] .expo-title h1 {
+  animation: expo-chrome-in 800ms var(--motion-ease-out, cubic-bezier(.16, 1, .3, 1)) 3000ms both;
+}
+.expo-page[data-intro] .expo-world-guide,
+.expo-page[data-intro] .expo-catalog-trigger,
+.expo-page[data-intro] .expo-world-coordinate {
+  opacity: 0;
+  transform: translateY(16px);
+  pointer-events: none;
+}
+.expo-page[data-intro] .expo-world-vignette {
+  background:
+    radial-gradient(ellipse at 50% 42%, transparent 0 18%, color-mix(in srgb, var(--background) 42%, transparent) 68%),
+    linear-gradient(90deg, color-mix(in srgb, var(--background) 73%, transparent), transparent 28%, transparent 83%, color-mix(in srgb, var(--background) 33%, transparent)),
+    linear-gradient(0deg, color-mix(in srgb, var(--background) 80%, transparent), transparent 22%, transparent 86%, color-mix(in srgb, var(--background) 20%, transparent));
+}
+.expo-page.is-landed .expo-world-guide,
+.expo-page.is-landed .expo-catalog-trigger,
+.expo-page.is-landed .expo-world-coordinate {
+  animation: expo-chrome-in var(--motion-rise, 640ms) var(--motion-ease-out, cubic-bezier(.16, 1, .3, 1)) both;
+}
+.expo-page.is-landed .expo-catalog-trigger { animation-delay: 140ms; }
+@keyframes expo-kicker-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes expo-title-reveal {
+  from { clip-path: inset(0 0 100% 0); letter-spacing: 0.18em; }
+  to { clip-path: inset(0 0 0 0); letter-spacing: 0.04em; }
+}
+@keyframes expo-wheat-draw { to { clip-path: inset(0 0 0 0); } }
+@keyframes expo-hero-hold {
+  0% { opacity: 0; }
+  10% { opacity: 1; }
+  74% { opacity: 1; }
+  100% { opacity: 0; }
+}
+@keyframes expo-chrome-in { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+@media (max-width: 760px) {
+  .expo-hero { top: 38%; width: min(100% - 36px, 720px); }
+  .expo-hero p { letter-spacing: 0.08em; font-size: 10px; }
+  .expo-hero strong { font-size: clamp(28px, 8vw, 40px); }
+  .expo-intro-skip { bottom: 16px; }
+}
 .expo-world-canvas {
   position: absolute;
   inset: 0;
   z-index: 1;
+  overflow: hidden;
 }
 .expo-world-canvas canvas {
   touch-action: none;
@@ -215,7 +298,9 @@
   inset: 0;
   z-index: 2;
   pointer-events: none;
-  background: linear-gradient(90deg, color-mix(in srgb, var(--background) 73%, transparent), transparent 28%, transparent 83%, color-mix(in srgb, var(--background) 33%, transparent)),
+  background:
+    radial-gradient(ellipse 78% 68% at 50% 46%, transparent 46%, color-mix(in srgb, var(--background) 58%, transparent) 100%),
+    linear-gradient(90deg, color-mix(in srgb, var(--background) 73%, transparent), transparent 28%, transparent 83%, color-mix(in srgb, var(--background) 33%, transparent)),
     linear-gradient(0deg, color-mix(in srgb, var(--background) 80%, transparent), transparent 22%, transparent 86%, color-mix(in srgb, var(--background) 20%, transparent));
 }
 .expo-world-guide {
@@ -245,11 +330,11 @@
   color: var(--primary);
 }
 .expo-world-guide > p {
-  font-size: 11px;
-  line-height: 1.9;
-  color: var(--muted-foreground);
-  max-width: 204px;
-  margin-top: 15px;
+  font-size: 13px;
+  line-height: 1.7;
+  color: color-mix(in srgb, var(--foreground) 78%, var(--muted-foreground));
+  max-width: 220px;
+  margin-top: 16px;
 }
 .expo-start-button {
   display: flex;
@@ -358,9 +443,10 @@
   background: linear-gradient(135deg, color-mix(in srgb, var(--card) 93%, transparent), color-mix(in srgb, var(--card) 94%, transparent));
   box-shadow: 0 12px 28px var(--surface-shadow),
     inset 0 1px 0 var(--glass-control-edge);
+  min-height: 44px;
   transition:
-    border-color 0.2s,
-    transform 0.2s;
+    border-color var(--motion-color, 180ms),
+    transform var(--motion-hover, 220ms) var(--motion-ease-standard, cubic-bezier(.2, .8, .2, 1));
   position: relative;
 }
 .world-zone-label::after {
@@ -510,12 +596,13 @@
   pointer-events: auto;
 }
 .expo-mini-map {
-  padding: 11px;
-  width: 150px;
-  border-radius: 12px;
-  background: color-mix(in srgb, var(--card) 93%, transparent);
-  border: 1px solid color-mix(in srgb, var(--border) 27%, transparent);
-  box-shadow: 0 10px 25px var(--surface-shadow);
+  padding: 12px 12px 10px;
+  width: 168px;
+  border-radius: 18px;
+  background: color-mix(in srgb, var(--card) 78%, transparent);
+  border: 1px solid color-mix(in srgb, var(--primary) 28%, var(--border));
+  box-shadow: inset 0 1px 0 color-mix(in srgb, white 22%, transparent), 0 14px 30px var(--surface-shadow);
+  backdrop-filter: blur(12px);
 }
 .expo-map-title {
   display: flex;
@@ -527,35 +614,57 @@
 }
 .expo-map-grid {
   position: relative;
-  height: 96px;
+  height: 118px;
   margin-top: 8px;
-  background: linear-gradient(0deg, transparent 44%, color-mix(in srgb, var(--muted) 11%, transparent) 44%, color-mix(in srgb, var(--muted) 11%, transparent) 56%, transparent 56%),
-    linear-gradient(90deg, transparent 43%, color-mix(in srgb, var(--muted) 11%, transparent) 43%, color-mix(in srgb, var(--muted) 11%, transparent) 57%, transparent 57%);
-  border: 1px solid color-mix(in srgb, var(--border) 18%, transparent);
-  border-radius: 5px;
+  border-radius: 14px;
+  border: 1px solid color-mix(in srgb, var(--border) 28%, transparent);
+  background:
+    radial-gradient(circle at 50% 50%, transparent 0 34%, color-mix(in srgb, var(--primary) 28%, transparent) 35% 36%, transparent 37% 58%, color-mix(in srgb, var(--primary) 16%, transparent) 59% 60%, transparent 61%),
+    linear-gradient(0deg, transparent 49%, color-mix(in srgb, var(--foreground) 10%, transparent) 49% 51%, transparent 51%),
+    linear-gradient(90deg, transparent 49%, color-mix(in srgb, var(--foreground) 10%, transparent) 49% 51%, transparent 51%),
+    color-mix(in srgb, var(--background) 55%, transparent);
+}
+.expo-map-north {
+  position: absolute;
+  top: 5px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: var(--muted-foreground);
+  font-size: 8px;
+  letter-spacing: 0.14em;
+  pointer-events: none;
 }
 .expo-map-grid > button {
   position: absolute;
-  width: 28px;
-  height: 24px;
-  min-width: 28px;
-  border: 1px solid color-mix(in srgb, var(--border) 36%, transparent);
-  border-radius: 4px;
-  background: var(--accent);
-  color: color-mix(in srgb, var(--zone-color) var(--zone-tone), var(--foreground));
-  transform: translate(-50%, -50%);
-  font-size: 8px;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
   padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--foreground);
+  transform: translate(-50%, -50%);
 }
-.expo-map-grid > button::before {
-  content: '';
-  position: absolute;
-  inset: -8px;
+.expo-map-grid > button span {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border: 1px solid color-mix(in srgb, var(--zone-color) 70%, white);
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--card) 80%, var(--zone-color));
+  font-size: 8px;
+  font-weight: 650;
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--zone-color) 22%, transparent);
 }
-.expo-map-grid > button:hover,
-.expo-map-grid > button.is-nearby {
-  border-color: color-mix(in srgb, var(--zone-color) var(--zone-tone), var(--foreground));
-  background: var(--accent);
+.expo-map-grid > button:hover span,
+.expo-map-grid > button.is-nearby span {
+  border-color: var(--zone-color);
+  background: color-mix(in srgb, var(--zone-color) 35%, var(--card));
+  transform: scale(1.12);
 }
 .expo-map-player {
   color: var(--muted-foreground);
@@ -803,19 +912,27 @@
 }
 .expo-catalog-state {
   text-align: center;
-  padding: 25px 10px;
-  color: var(--muted-foreground);
-  font-size: 11px;
-  line-height: 1.9;
+  padding: 28px 12px;
+  color: color-mix(in srgb, var(--foreground) 78%, var(--muted-foreground));
+  font-size: 13px;
+  line-height: 1.7;
 }
 .expo-catalog-state button {
   min-height: 44px;
   margin-top: 12px;
-  background: var(--accent);
-  color: var(--muted-foreground);
+  background: var(--primary);
+  color: var(--primary-foreground);
   padding: 0 16px;
-  border: 1px solid var(--border);
-  border-radius: 7px;
+  border: 0;
+  border-radius: 999px;
+  font-weight: 600;
+}
+.expo-catalog-skeleton { display: grid; gap: 8px; margin-top: 14px; }
+.expo-catalog-skeleton span {
+  display: block;
+  height: 36px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--foreground) 8%, transparent);
 }
 .expo-catalog-note {
   color: var(--muted-foreground);
@@ -847,9 +964,36 @@
 }
 .world-loading {
   z-index: 3;
+  background:
+    radial-gradient(42% 36% at 50% 46%, color-mix(in srgb, var(--hub-primary) 18%, transparent), transparent 72%);
 }
-.world-loading svg {
-  animation: expo-spin 1s linear infinite;
+.world-loading-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  min-width: 220px;
+  padding: 22px 28px 18px;
+  border-radius: 18px;
+  color: var(--hub-foreground, var(--foreground));
+  letter-spacing: 0.04em;
+  background: color-mix(in srgb, var(--hub-card, var(--card)) 78%, transparent);
+  border: 1px solid color-mix(in srgb, var(--hub-primary, var(--primary)) 48%, transparent);
+  box-shadow:
+    0 18px 48px rgb(0 0 0 / 32%),
+    inset 0 1px 0 rgb(255 255 255 / 22%);
+  backdrop-filter: blur(16px);
+}
+.world-loading-ring {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1.5px solid color-mix(in srgb, var(--hub-primary, var(--primary)) 28%, transparent);
+  border-top-color: var(--hub-primary, var(--primary));
+  animation: expo-spin 900ms linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .world-loading-ring { animation: none; border-top-color: var(--hub-primary, var(--primary)); }
 }
 .world-fallback {
   flex-direction: column;
@@ -928,7 +1072,7 @@
   letter-spacing: 1px;
   margin-right: auto;
 }
-.expo-direct-links button {
+.expo-direct-links :is(button, a) {
   display: flex;
   align-items: center;
   gap: 9px;
@@ -938,28 +1082,12 @@
   background: transparent;
   font-size: 11px;
 }
-.expo-direct-links button:hover {
+.expo-direct-links :is(button, a):hover {
   color: var(--primary);
 }
-.expo-footer {
-  display: flex;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 15px;
-  padding: 28px 10px;
-  color: var(--muted-foreground);
-  font-size: 8px;
-  letter-spacing: 1px;
-}
-.expo-footer span {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.expo-footer i {
-  width: 2px;
-  height: 2px;
-  background: var(--muted);
+.expo-direct-links .expo-hall-link {
+  color: var(--primary);
+  font-weight: 600;
 }
 .expo-notice {
   position: fixed;
@@ -982,13 +1110,18 @@
   }
 }
 @media (min-width: 781px) and (max-height: 920px) {
-  .expo-map-grid { height: 72px; }
+  .expo-map-grid { height: 100px; }
 }
 @media (min-width: 1900px) {
   .expo-world-stage {
     height: 900px;
   }
 }
+@media (max-width: 1440px) {
+  .expo-title > span { letter-spacing: 0.12em; font-size: 10px; }
+  .expo-title h1 { letter-spacing: 0.03em; }
+}
+
 @media (max-width: 1150px) {
   .expo-page {
     padding-inline: 22px;
@@ -1028,7 +1161,7 @@
   .expo-world-bottom {
     left: 25px;
     right: 25px;
-    grid-template-columns: 150px 1fr;
+    grid-template-columns: 168px 1fr;
     gap: 12px;
   }
   .expo-world-hint {
@@ -1206,7 +1339,10 @@
     border-radius: 15px;
   }
   .expo-world-vignette {
-    background: linear-gradient(0deg, color-mix(in srgb, var(--background) 80%, transparent), transparent 40%), linear-gradient(180deg, color-mix(in srgb, var(--background) 87%, transparent), transparent 37%);
+    background:
+      radial-gradient(ellipse 86% 72% at 50% 48%, transparent 42%, color-mix(in srgb, var(--background) 62%, transparent) 100%),
+      linear-gradient(0deg, color-mix(in srgb, var(--background) 80%, transparent), transparent 40%),
+      linear-gradient(180deg, color-mix(in srgb, var(--background) 87%, transparent), transparent 37%);
   }
   .expo-world-canvas {
     top: 245px;
@@ -1416,19 +1552,8 @@
     padding-inline: 5px;
     gap: 8px 22px;
   }
-  .expo-direct-links button {
+  .expo-direct-links :is(button, a) {
     font-size: 10px;
-  }
-  .expo-footer {
-    flex-direction: column;
-    padding: 24px 5px;
-    font-size: 7px;
-    letter-spacing: 0.3px;
-    line-height: 1.8;
-  }
-  .expo-footer span {
-    flex-wrap: wrap;
-    gap: 8px;
   }
 }
 @media (max-width: 350px) {

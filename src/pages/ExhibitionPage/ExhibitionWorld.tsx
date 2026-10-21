@@ -1,14 +1,22 @@
-import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { Html, MeshReflectorMaterial, OrbitControls, RoundedBox } from '@react-three/drei';
+import { Html, MeshReflectorMaterial, OrbitControls, RoundedBox, useGLTF } from '@react-three/drei';
 import { ErrorBoundary } from 'react-error-boundary';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
 import * as THREE from 'three';
-import { ArrowUpRight, Loader2, Tractor } from 'lucide-react';
+import { ArrowUpRight } from 'lucide-react';
 import TractorModel from '@/components/TractorModel';
+import { TRACTOR_MODEL_URL } from '@/components/tractor-model-info';
+import SceneFallback from '@/components/SceneFallback';
 import { useLang } from '@/hooks/useLang';
 import { useTheme } from '@/hooks/useTheme';
+import { frameEase, MOTION, rateFor } from '@/lib/motion-tokens';
+import { bindContextLoss, probeWebGL } from '@/lib/webgl';
+import { campusSky } from './campus-sky';
+
+const CampusGlow = lazy(() => import('@/components/SceneGlow').then((mod) => ({ default: mod.CampusGlow })));
+useGLTF.preload(TRACTOR_MODEL_URL);
 import {
   initialDriveState,
   nearbyZone,
@@ -34,9 +42,13 @@ interface WorldProps {
   reset: number;
   input: WorldInput;
   reducedMotion: boolean;
+  cinematic: boolean;
+  onCinematicEnd: () => void;
   onSelect: (id: ZoneId) => void;
   onPosition: (state: DriveState) => void;
   onNearby: (id: ZoneId | null) => void;
+  onLive?: () => void;
+  onLost?: () => void;
 }
 
 const GL_OPTIONS = { alpha: true, antialias: true } as const;
@@ -66,12 +78,14 @@ function Block({
   size,
   color = '#182a3e',
   glow,
+  glowStrength = 0.82,
   rotation,
 }: {
   position: [number, number, number];
   size: [number, number, number];
   color?: string;
   glow?: string;
+  glowStrength?: number;
   rotation?: [number, number, number];
 }) {
   // Thin road markings and light strips need only six faces.
@@ -84,7 +98,7 @@ function Block({
           roughness={0.33}
           metalness={0.55}
           emissive={glow ?? '#000000'}
-          emissiveIntensity={glow ? 0.65 : 0}
+          emissiveIntensity={glow ? glowStrength : 0}
         />
       </mesh>
     );
@@ -103,7 +117,7 @@ function Block({
         roughness={0.33}
         metalness={0.55}
         emissive={glow ?? '#000000'}
-        emissiveIntensity={glow ? 0.65 : 0}
+        emissiveIntensity={glow ? glowStrength : 0}
       />
     </RoundedBox>
   );
@@ -258,30 +272,128 @@ function ResearchSculpture({ color }: { color: string }) {
   );
 }
 
+function ZoneSign({ number, color }: { number: string; color: string }) {
+  const texture = useMemo(() => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 256;
+    canvas.height = 128;
+    const context = canvas.getContext('2d');
+    if (!context) return null;
+    context.fillStyle = '#102033';
+    context.fillRect(0, 0, 256, 128);
+    context.fillStyle = color;
+    context.fillRect(0, 0, 14, 128);
+    context.fillStyle = '#f4fbff';
+    context.font = '700 64px sans-serif';
+    context.fillText(number, 36, 84);
+    const map = new THREE.CanvasTexture(canvas);
+    map.colorSpace = THREE.SRGBColorSpace;
+    return map;
+  }, [number, color]);
+  useEffect(() => () => texture?.dispose(), [texture]);
+  if (!texture) return null;
+  return (
+    <mesh position={[0, 0.72, 2.15]} castShadow>
+      <boxGeometry args={[0.86, 0.4, 0.05]} />
+      <meshStandardMaterial map={texture} metalness={0.2} roughness={0.42} emissive={color} emissiveIntensity={0.18} />
+    </mesh>
+  );
+}
+
+function PavilionRoof({ id, color }: { id: ZoneId; color: string }) {
+  if (id === 'knowledge') {
+    return (
+      <group>
+        <Block size={[4.8, 0.1, 2.5]} position={[0, 3.05, 0]} color="#e7eef3" glow={color} glowStrength={0.16} />
+        <Block size={[4.9, 0.05, 0.08]} position={[0, 3.12, 1.2]} color={color} glow={color} />
+        <Block size={[4.9, 0.05, 0.08]} position={[0, 3.12, -1.2]} color={color} glow={color} />
+      </group>
+    );
+  }
+  if (id === 'diagnosis') {
+    return (
+      <mesh position={[0, 3.55, -0.7]} castShadow>
+        <cylinderGeometry args={[0.95, 0.2, 0.16, 6]} />
+        <meshStandardMaterial color="#f2f6f8" emissive={color} emissiveIntensity={0.45} metalness={0.4} roughness={0.3} />
+      </mesh>
+    );
+  }
+  if (id === 'models') {
+    return (
+      <group>
+        <Block size={[3.8, 0.1, 1.5]} position={[-0.2, 2.55, 0]} rotation={[0.35, 0, 0]} color="#d5e0e4" glow={color} glowStrength={0.14} />
+        <Block size={[3.8, 0.1, 1.5]} position={[-0.2, 2.55, 0]} rotation={[-0.35, 0, 0]} color="#c5d4da" glow={color} glowStrength={0.14} />
+        <Block size={[3.9, 0.05, 0.08]} position={[0, 2.15, 1.05]} color={color} glow={color} />
+      </group>
+    );
+  }
+  return (
+    <group>
+      {[-1.15, 1.15].map((x) => (
+        <Block key={x} size={[0.16, 2.4, 0.16]} position={[x, 1.5, 1.15]} color="#d5dee6" />
+      ))}
+      <Block size={[2.7, 0.12, 0.28]} position={[0, 2.75, 1.15]} color="#eef3f6" glow={color} glowStrength={0.18} />
+      <Block size={[2.5, 0.04, 0.06]} position={[0, 2.84, 1.15]} color={color} glow={color} />
+    </group>
+  );
+}
+
 function Pavilion({
   zone,
   selected,
+  reducedMotion,
   onSelect,
 }: {
   zone: (typeof WORLD_ZONES)[number];
   selected: boolean;
+  reducedMotion: boolean;
   onSelect: (id: ZoneId) => void;
 }) {
   const lang = useLang();
   const color = zone.color;
+  const [hot, setHot] = useState(false);
+  const rig = useRef<THREE.Group>(null);
+  const pulse = useRef(0);
+  const scale = useRef(1);
+  const invalidate = useThree((state) => state.invalidate);
+  useEffect(() => { invalidate(); }, [hot, selected, invalidate]);
+  const lit = selected || hot;
+  useFrame((_, delta) => {
+    if (!rig.current) return;
+    const goal = lit && !reducedMotion ? 1.028 : 1;
+    if (!reducedMotion && pulse.current > 0) {
+      pulse.current = Math.max(0, pulse.current - delta * 1.8);
+      scale.current = 1 + Math.sin((1 - pulse.current / 0.28) * Math.PI) * 0.045;
+    } else {
+      const step = frameEase(rateFor(MOTION.ms.hover), delta, reducedMotion, 0.05);
+      scale.current += (goal - scale.current) * step;
+    }
+    rig.current.scale.setScalar(scale.current);
+    if (pulse.current > 0 || Math.abs(scale.current - goal) > 0.0015) invalidate();
+  });
   return (
     <group position={[zone.x, 0, zone.z]}>
       <group
+        ref={rig}
         onClick={(event) => {
           event.stopPropagation();
+          if (!reducedMotion) pulse.current = 0.28;
           onSelect(zone.id);
+          invalidate();
         }}
+        onPointerOver={(event) => {
+          event.stopPropagation();
+          setHot(true);
+        }}
+        onPointerOut={() => setHot(false)}
       >
         <mesh position={[0, 0.13, 0]} receiveShadow castShadow>
           <cylinderGeometry args={[2.7, 2.8, 0.25, 64]} />
-          <meshStandardMaterial color={selected ? '#294b60' : '#1a3042'} metalness={0.72} roughness={0.35} />
+          <meshStandardMaterial color={lit ? '#294b60' : '#1a3042'} emissive={color} emissiveIntensity={lit ? 0.48 : 0.22} metalness={0.72} roughness={0.35} />
         </mesh>
-        <Ring position={[0, 0.27, 0]} radius={2.65} color={color} thickness={selected ? 0.045 : 0.018} />
+        <Ring position={[0, 0.27, 0]} radius={2.65} color={color} thickness={lit ? 0.05 : 0.032} />
+        <PavilionRoof id={zone.id} color={color} />
+        <ZoneSign number={zone.number} color={color} />
         {zone.id === 'knowledge' && <KnowledgeSculpture color={color} />}
         {zone.id === 'diagnosis' && <DiagnosisSculpture color={color} />}
         {zone.id === 'models' && <ModelSculpture color={color} />}
@@ -307,6 +419,67 @@ function Pavilion({
   );
 }
 
+const SWEEP_VERTEX = `
+  varying vec2 vUv;
+  void main() {
+    vUv = uv;
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+  }
+`;
+const SWEEP_FRAGMENT = `
+  uniform float uTime;
+  uniform vec3 uColor;
+  varying vec2 vUv;
+  void main() {
+    vec2 grid = abs(fract(vUv * vec2(26.0, 20.0)) - 0.5);
+    float line = min(grid.x, grid.y);
+    float gridLine = smoothstep(0.045, 0.0, line);
+    float sweep = uTime < 0.0 ? 0.0 : smoothstep(0.12, 0.0, abs(vUv.y - uTime));
+    float alpha = gridLine * 0.16 + sweep * gridLine * 0.9;
+    if (alpha < 0.02) discard;
+    gl_FragColor = vec4(uColor, alpha);
+  }
+`;
+
+/** One grid sweep across the plaza, then the material stays put. */
+function GroundSweep({ play, reducedMotion }: { play: boolean; reducedMotion: boolean }) {
+  const { invalidate, size } = useThree();
+  const dark = useTheme() === 'dark';
+  const done = useRef(!(play && !reducedMotion));
+  const started = useRef<number | null>(null);
+  const material = useMemo(() => new THREE.ShaderMaterial({
+    transparent: true,
+    depthWrite: false,
+    toneMapped: false,
+    uniforms: {
+      uTime: { value: -1 },
+      uColor: { value: new THREE.Color(dark ? '#b7e4ff' : '#1d5f86') },
+    },
+    vertexShader: SWEEP_VERTEX,
+    fragmentShader: SWEEP_FRAGMENT,
+  }), [dark]);
+  useEffect(() => () => material.dispose(), [material]);
+  useFrame((state) => {
+    if (done.current || size.width < 720) return;
+    if (started.current === null) started.current = state.clock.elapsedTime;
+    const next = -0.15 + ((state.clock.elapsedTime - started.current) / 3.2) * 1.3;
+    if (next >= 1.15) {
+      material.uniforms.uTime.value = -1;
+      done.current = true;
+      return;
+    }
+    material.uniforms.uTime.value = next;
+    invalidate();
+  });
+  if (size.width < 720) return null;
+  return (
+    <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.028, 0]} renderOrder={2}>
+      <planeGeometry args={[27.4, 22.6]} />
+      <primitive object={material} attach="material" />
+    </mesh>
+  );
+}
+
 function CampusFloor() {
   const dark = useTheme() === 'dark';
   const small = useThree((state) => state.size.width < 700);
@@ -322,9 +495,9 @@ function CampusFloor() {
           mixBlur={small ? 0 : 0.75}
           mixStrength={1.3}
           mirror={0.3}
-          color={dark ? '#293c4b' : '#b5c9d7'}
-          roughness={0.65}
-          metalness={0.7}
+          color={dark ? '#1b2e3c' : '#c5d5e0'}
+          roughness={dark ? 0.4 : 0.55}
+          metalness={0.74}
           depthScale={0.4}
           minDepthThreshold={0.4}
           maxDepthThreshold={1.4}
@@ -390,6 +563,116 @@ function CampusFloor() {
   );
 }
 
+function SkyDome({ top, horizon, glow, glowAmount }: { top: string; horizon: string; glow: string; glowAmount: number }) {
+  const material = useMemo(() => new THREE.ShaderMaterial({
+    side: THREE.BackSide,
+    depthWrite: false,
+    uniforms: {
+      uTop: { value: new THREE.Color(top) },
+      uHorizon: { value: new THREE.Color(horizon) },
+      uGlow: { value: new THREE.Color(glow) },
+      uGlowAmt: { value: glowAmount },
+    },
+    vertexShader: 'varying vec3 vPos; void main() { vPos = position; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }',
+    fragmentShader: 'varying vec3 vPos; uniform vec3 uTop; uniform vec3 uHorizon; uniform vec3 uGlow; uniform float uGlowAmt; void main() { float h = smoothstep(-10.0, 46.0, vPos.y); vec3 sky = mix(uHorizon, uTop, h); float d = vPos.y / 9.0; float band = exp(-d * d); sky = mix(sky, uGlow, band * uGlowAmt); gl_FragColor = vec4(sky, 1.0); }',
+  }), [top, horizon, glow, glowAmount]);
+  useEffect(() => () => material.dispose(), [material]);
+  return (
+    <mesh>
+      <sphereGeometry args={[88, 20, 12]} />
+      <primitive object={material} attach="material" />
+    </mesh>
+  );
+}
+
+function Pollen({ live, reducedMotion }: { live: { current: boolean }; reducedMotion: boolean }) {
+  const { invalidate, size } = useThree();
+  const allow = !reducedMotion && size.width >= 720;
+  const points = useRef<THREE.Points>(null);
+  const geometry = useMemo(() => {
+    const count = 48;
+    const position = new Float32Array(count * 3);
+    for (let index = 0; index < count; index += 1) {
+      const seed = Math.sin(index * 12.9898) * 43758.5453;
+      const unit = seed - Math.floor(seed);
+      const lift = Math.sin(index * 78.233) * 43758.5453;
+      const high = lift - Math.floor(lift);
+      const depth = Math.sin(index * 39.346) * 43758.5453;
+      const far = depth - Math.floor(depth);
+      position[index * 3] = (unit - 0.5) * 24;
+      position[index * 3 + 1] = 0.6 + high * 5.5;
+      position[index * 3 + 2] = (far - 0.5) * 18;
+    }
+    const next = new THREE.BufferGeometry();
+    next.setAttribute('position', new THREE.BufferAttribute(position, 3));
+    return next;
+  }, []);
+  useEffect(() => () => geometry.dispose(), [geometry]);
+  useFrame((state, delta) => {
+    if (!allow || !live.current || !points.current) return;
+    const step = Math.min(delta, 0.05);
+    const attribute = points.current.geometry.getAttribute('position') as THREE.BufferAttribute;
+    for (let index = 0; index < attribute.count; index += 1) {
+      const nextY = attribute.getY(index) + step * 0.18;
+      attribute.setY(index, nextY > 6.4 ? 0.5 : nextY);
+      attribute.setX(index, attribute.getX(index) + Math.sin(state.clock.elapsedTime * 0.6 + index) * step * 0.08);
+    }
+    attribute.needsUpdate = true;
+    invalidate();
+  });
+  if (!allow) return null;
+  return (
+    <points ref={points} geometry={geometry}>
+      <pointsMaterial color="#f4e2b4" size={0.09} transparent opacity={0.5} depthWrite={false} sizeAttenuation />
+    </points>
+  );
+}
+
+function WheatPatch({ position, rotation, live, reducedMotion }: { position: [number, number, number]; rotation: number; live: { current: boolean }; reducedMotion: boolean }) {
+  const { invalidate } = useThree();
+  const material = useMemo(() => new THREE.ShaderMaterial({
+    transparent: true,
+    side: THREE.DoubleSide,
+    depthWrite: false,
+    uniforms: { uTime: { value: 0 }, uColor: { value: new THREE.Color('#d2b15a') } },
+    vertexShader: 'uniform float uTime; varying vec2 vUv; void main() { vUv = uv; vec3 p = position; p.x += sin(uTime * 1.3 + position.y * 5.0) * 0.12 * uv.y; gl_Position = projectionMatrix * modelViewMatrix * vec4(p, 1.0); }',
+    fragmentShader: 'uniform vec3 uColor; varying vec2 vUv; void main() { float blade = smoothstep(0.18, 0.0, abs(fract(vUv.x * 16.0) - 0.5)); float alpha = blade * smoothstep(0.0, 0.15, vUv.y); if (alpha < 0.04) discard; gl_FragColor = vec4(uColor, alpha * 0.85); }',
+  }), []);
+  useEffect(() => () => material.dispose(), [material]);
+  useFrame((_, delta) => {
+    if (reducedMotion || !live.current) return;
+    material.uniforms.uTime.value += Math.min(delta, 0.05);
+    invalidate();
+  });
+  return (
+    <mesh position={position} rotation={[0, rotation, 0]} material={material}>
+      <planeGeometry args={[3.2, 0.9, 1, 4]} />
+    </mesh>
+  );
+}
+
+function Flag({ position, color, live, reducedMotion }: { position: [number, number, number]; color: string; live: { current: boolean }; reducedMotion: boolean }) {
+  const { invalidate } = useThree();
+  const cloth = useRef<THREE.Mesh>(null);
+  useFrame((state) => {
+    if (reducedMotion || !live.current || !cloth.current) return;
+    cloth.current.rotation.y = Math.sin(state.clock.elapsedTime * 1.5) * 0.4;
+    invalidate();
+  });
+  return (
+    <group position={position}>
+      <mesh position={[0, 1.15, 0]}>
+        <cylinderGeometry args={[0.03, 0.045, 2.3, 6]} />
+        <meshStandardMaterial color="#d7e1e8" metalness={0.45} roughness={0.32} />
+      </mesh>
+      <mesh ref={cloth} position={[0.38, 2.05, 0]}>
+        <planeGeometry args={[0.72, 0.36]} />
+        <meshStandardMaterial color={color} emissive={color} emissiveIntensity={0.28} side={THREE.DoubleSide} />
+      </mesh>
+    </group>
+  );
+}
+
 function WorldScene({
   mode,
   selected,
@@ -398,6 +681,8 @@ function WorldScene({
   reset,
   input,
   reducedMotion,
+  cinematic,
+  onCinematicEnd,
   onSelect,
   onPosition,
   onNearby,
@@ -411,11 +696,40 @@ function WorldScene({
   const telemetryTime = useRef(0);
   const lastPublished = useRef(initialDriveState());
   const settling = useRef(true);
+  const cinematicOn = useRef(cinematic);
+  const cinematicPlaced = useRef(false);
+  const cinematicEnded = useRef(!cinematic);
+  const steered = useRef(false);
+  const userOrbit = useRef(false);
+  const parallax = useRef(new THREE.Vector2());
+  const parallaxGoal = useRef(new THREE.Vector2());
   const viewTarget = useMemo(() => new THREE.Vector3(), []);
   const viewPosition = useMemo(() => new THREE.Vector3(), []);
-  const { camera, size, invalidate } = useThree();
+  const springPos = useRef(new THREE.Vector3(23, 25, 29));
+  const springVel = useRef(new THREE.Vector3());
+  const springDelta = useMemo(() => new THREE.Vector3(), []);
+  const streaks = useRef<THREE.Group>(null);
+  const live = useRef(false);
+  const announced = useRef(false);
+  const { camera, size, invalidate, gl } = useThree();
   const theme = useTheme();
+  const sky = campusSky(theme === 'dark' ? 'dark' : 'light');
   useEffect(() => { invalidate(); }, [theme, invalidate]);
+  useEffect(() => {
+    cinematicOn.current = cinematic && !reducedMotion;
+    if (!cinematicOn.current) return;
+    settling.current = true;
+    invalidate();
+  }, [cinematic, reducedMotion, invalidate]);
+  useLayoutEffect(() => {
+    if (!cinematicOn.current || cinematicPlaced.current || size.width < 2) return;
+    cinematicPlaced.current = true;
+    const aspect = size.width / Math.max(size.height, 1);
+    const scale = Math.max(1, 1.25 / aspect) * (size.width < 720 ? 1.28 : 1.55);
+    camera.position.set(23 * scale, 25 * scale, 29 * scale);
+    settling.current = true;
+    invalidate();
+  }, [camera, invalidate, size.width, size.height]);
 
   useEffect(() => {
     input.wake = invalidate;
@@ -440,14 +754,47 @@ function WorldScene({
   }, [destination, invalidate]);
   useEffect(() => {
     settling.current = true;
+    steered.current = false;
+    parallax.current.set(0, 0);
+    parallaxGoal.current.set(0, 0);
     if (mode === 'overview') {
       route.current = [];
       input.actions.clear();
     }
     invalidate();
   }, [mode, focus, size.width, size.height, input, invalidate]);
+  useEffect(() => {
+    const canvas = gl.domElement;
+    const move = (event: PointerEvent) => {
+      if (reducedMotion || mode !== 'overview' || focus || steered.current || event.buttons) return;
+      const rect = canvas.getBoundingClientRect();
+      if (rect.width < 1 || rect.height < 1) return;
+      const nextX = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+      const nextY = ((event.clientY - rect.top) / rect.height) * 2 - 1;
+      if (Math.abs(nextX - parallaxGoal.current.x) < 0.004 && Math.abs(nextY - parallaxGoal.current.y) < 0.004) return;
+      parallaxGoal.current.set(nextX, nextY);
+      settling.current = true;
+      invalidate();
+    };
+    const leave = () => {
+      if (parallaxGoal.current.lengthSq() < 0.0001) return;
+      parallaxGoal.current.set(0, 0);
+      settling.current = true;
+      invalidate();
+    };
+    canvas.addEventListener('pointermove', move);
+    canvas.addEventListener('pointerleave', leave);
+    return () => {
+      canvas.removeEventListener('pointermove', move);
+      canvas.removeEventListener('pointerleave', leave);
+    };
+  }, [gl, invalidate, mode, focus, reducedMotion]);
 
   useFrame((state, elapsed) => {
+    if (!announced.current) {
+      announced.current = true;
+      onLoaded();
+    }
     const actions = new Set(input.actions.values());
     if (actions.size) route.current = [];
     if (mode === 'drive') {
@@ -499,28 +846,70 @@ function WorldScene({
         const aspect = size.width / size.height;
         const scale = Math.max(1, 1.25 / aspect);
         viewPosition.set(23 * scale, 25 * scale, 29 * scale);
+        if (!reducedMotion && !userOrbit.current && !steered.current) {
+          const follow = frameEase(rateFor(MOTION.ms.parallax), elapsed, false, 0.05);
+          parallax.current.lerp(parallaxGoal.current, follow);
+          viewPosition.x += parallax.current.x * 1.15;
+          viewPosition.y += parallax.current.y * -0.38;
+          viewTarget.x += parallax.current.x * 0.28;
+        }
       }
-      const ease = reducedMotion ? 1 : 1 - Math.exp(-5 * Math.min(elapsed, 0.2));
-      camera.position.lerp(viewPosition, ease);
+      const ease = frameEase(rateFor(cinematicOn.current ? MOTION.ms.cinematic : MOTION.ms.enter), elapsed, reducedMotion);
+      if (mode === 'drive' && !reducedMotion) {
+        const dt = Math.min(elapsed, 0.05);
+        springDelta.subVectors(viewPosition, springPos.current);
+        springVel.current.addScaledVector(springDelta, MOTION.spring.drive * dt);
+        springVel.current.multiplyScalar(Math.exp(-MOTION.spring.damp * dt));
+        springPos.current.addScaledVector(springVel.current, dt);
+        if (springDelta.lengthSq() < 0.0015 && springVel.current.lengthSq() < 0.0008) {
+          springPos.current.copy(viewPosition);
+          springVel.current.set(0, 0, 0);
+        }
+        camera.position.copy(springPos.current);
+      } else {
+        camera.position.lerp(viewPosition, ease);
+        springPos.current.copy(camera.position);
+        springVel.current.set(0, 0, 0);
+      }
       orbit.current?.target.lerp(viewTarget, ease);
       orbit.current?.update();
       const cameraMoving =
         camera.position.distanceToSquared(viewPosition) > 0.0008 ||
         (orbit.current?.target.distanceToSquared(viewTarget) ?? 0) > 0.0008;
-      if (cameraMoving || moving) invalidate();
-      else settling.current = false;
+      const parallaxMoving = mode === 'overview' && !focus && parallax.current.distanceToSquared(parallaxGoal.current) > 0.0004;
+      if (cameraMoving || moving || parallaxMoving) invalidate();
+      else {
+        settling.current = false;
+        if (cinematicOn.current && !cinematicEnded.current) {
+          cinematicEnded.current = true;
+          cinematicOn.current = false;
+          onCinematicEnd();
+        }
+      }
     }
+    if (streaks.current) {
+      const speed = Math.abs(current.speed);
+      const show = mode === 'drive' && !reducedMotion && speed > 1.1;
+      streaks.current.visible = show;
+      if (show) {
+        streaks.current.position.set(current.x, 0.85, current.z);
+        streaks.current.rotation.y = current.heading;
+        streaks.current.scale.z = THREE.MathUtils.clamp(speed / 5.5, 0.35, 1.2);
+      }
+    }
+    live.current = moving || settling.current || cinematicOn.current;
     if (moving) invalidate();
   });
 
   return (
     <>
-      <fog attach="fog" args={[theme === 'dark' ? '#18232e' : '#eaf0f5', 42, 100]} />
-      <ambientLight intensity={theme === 'dark' ? 0.85 : 1.15} color="#d6e2eb" />
+      <SkyDome top={sky.top} horizon={sky.horizon} glow={sky.glow} glowAmount={sky.glowAmount} />
+      <fog attach="fog" args={[sky.fog, 52, 120]} />
+      <ambientLight intensity={sky.ambient} color="#d6e2eb" />
       <directionalLight
         position={[-8, 18, 10]}
         intensity={3.2}
-        color="#fff3db"
+        color={sky.sun}
         castShadow
         shadow-mapSize={size.width < 700 ? [512, 512] : [1024, 1024]}
         shadow-camera-left={-18}
@@ -534,14 +923,30 @@ function WorldScene({
       <directionalLight position={[8, 6, -12]} intensity={1.8} color="#80caff" />
       <LocalEnvironment />
       <CampusFloor />
+      <GroundSweep play={cinematic} reducedMotion={reducedMotion} />
+      <Pollen live={live} reducedMotion={reducedMotion} />
+      <WheatPatch position={[-11.2, 0.45, 3.2]} rotation={0.4} live={live} reducedMotion={reducedMotion} />
+      <WheatPatch position={[11.1, 0.45, -2.4]} rotation={-0.5} live={live} reducedMotion={reducedMotion} />
+      <Flag position={[-4.6, 0, -8.2]} color="#85caff" live={live} reducedMotion={reducedMotion} />
+      <Flag position={[10.6, 0, 8.1]} color="#e9bb76" live={live} reducedMotion={reducedMotion} />
       {WORLD_ZONES.map((zone) => (
-        <Pavilion key={zone.id} zone={zone} selected={selected === zone.id} onSelect={onSelect} />
+        <Pavilion key={zone.id} zone={zone} selected={selected === zone.id} reducedMotion={reducedMotion} onSelect={onSelect} />
       ))}
-      <Suspense fallback={null}>
-        <group ref={actor}>
-          <TractorModel onLoaded={onLoaded} />
-        </group>
-      </Suspense>
+      <group ref={actor}>
+        <ErrorBoundary FallbackComponent={WorldLost}>
+          <Suspense fallback={null}>
+            <TractorModel />
+          </Suspense>
+        </ErrorBoundary>
+      </group>
+      <group ref={streaks} visible={false}>
+        {[-0.42, 0, 0.42].map((x) => (
+          <mesh key={x} position={[x, 0, -1.5]}>
+            <boxGeometry args={[0.025, 0.015, 1.5]} />
+            <meshBasicMaterial color="#d7f6ff" transparent opacity={0.4} depthWrite={false} />
+          </mesh>
+        ))}
+      </group>
       <OrbitControls
         ref={orbit}
         makeDefault
@@ -552,45 +957,47 @@ function WorldScene({
         maxDistance={100}
         minPolarAngle={0.15}
         maxPolarAngle={Math.PI / 2.4}
+        touches={{ ONE: THREE.TOUCH.ROTATE, TWO: THREE.TOUCH.DOLLY_PAN }}
         onStart={() => {
+          steered.current = true;
+          userOrbit.current = true;
           settling.current = false;
         }}
+        onEnd={() => {
+          userOrbit.current = false;
+        }}
       />
+      {mode === 'overview' && !reducedMotion && size.width >= 900 && (
+        <Suspense fallback={null}>
+          <CampusGlow />
+        </Suspense>
+      )}
     </>
   );
 }
 
-function WorldFallback() {
-  const lang = useLang();
-  return (
-    <div className="world-fallback">
-      <Tractor size={70} strokeWidth={1} />
-      <h2>{lang === 'zh' ? '三维空间暂不可用' : '3D space is unavailable'}</h2>
-      <p>
-        {lang === 'zh'
-          ? '通过展区导航，仍可进入知识库、诊断和模型工坊。'
-          : 'Use the zone navigation to open knowledge, diagnosis and the model studio.'}
-      </p>
-    </div>
-  );
+function WorldLost() {
+  return null;
 }
 
-export default function ExhibitionWorld(props: WorldProps) {
+export default function ExhibitionWorld({ onLive, onLost, ...props }: WorldProps) {
   const lang = useLang();
   const [ready, setReady] = useState(false);
-  const [supported] = useState(() => {
-    try {
-      const context = document.createElement('canvas').getContext('webgl2');
-      context?.getExtension('WEBGL_lose_context')?.loseContext();
-      return !!context;
-    } catch {
-      return false;
-    }
-  });
+  const [supported] = useState(probeWebGL);
+  const reported = useRef(false);
+  useEffect(() => {
+    if (!supported) onLost?.();
+  }, [supported, onLost]);
   const loaded = useCallback(() => setReady(true), []);
-  if (!supported) return <WorldFallback />;
+  const markLive = useCallback((canvas: HTMLCanvasElement) => {
+    if (reported.current) return;
+    reported.current = true;
+    onLive?.();
+    bindContextLoss(canvas, () => onLost?.());
+  }, [onLive, onLost]);
+  if (!supported) return <SceneFallback kind="campus" reason="unsupported" />;
   return (
-    <ErrorBoundary FallbackComponent={WorldFallback}>
+    <ErrorBoundary FallbackComponent={WorldLost} onError={() => onLost?.()}>
       <Canvas
         shadows={SHADOW_OPTIONS}
         camera={CAMERA}
@@ -598,18 +1005,24 @@ export default function ExhibitionWorld(props: WorldProps) {
         dpr={[1, 1.25]}
         frameloop="demand"
         role="group"
+        onCreated={({ gl }) => {
+          gl.domElement.style.touchAction = 'none';
+          markLive(gl.domElement);
+        }}
         aria-label={
           lang === 'zh'
-            ? '农机三维园区，四个展区围绕中央广场'
-            : '3D machinery campus with four pavilions around a central plaza'
+            ? '农机三维园区，四个展区围绕中央广场。单指拖动环视，双指缩放。'
+            : '3D machinery campus with four pavilions around a central plaza. Drag to orbit and pinch to zoom.'
         }
       >
         <WorldScene {...props} onLoaded={loaded} />
       </Canvas>
       {!ready && (
         <div className="world-loading" role="status">
-          <Loader2 size={20} />
-          <span>{lang === 'zh' ? '正在打开三维园区…' : 'Opening the 3D campus…'}</span>
+          <div className="world-loading-card">
+            <span className="world-loading-ring" aria-hidden="true" />
+            <span>{lang === 'zh' ? '正在打开三维园区…' : 'Opening the 3D campus…'}</span>
+          </div>
         </div>
       )}
     </ErrorBoundary>

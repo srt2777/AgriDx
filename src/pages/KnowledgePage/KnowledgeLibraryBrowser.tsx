@@ -3,14 +3,17 @@ import { Link } from 'react-router-dom';
 import { BookOpen, ChevronRight, Search } from 'lucide-react';
 import type { KnowledgeLibrary, LibraryEntry } from '@shared/knowledge-catalog';
 import DeferredMarkdown from '@/components/DeferredMarkdown';
+import { KnowledgePeek } from '@/components/CardPeek';
+import { useUiVersion } from '@/hooks/useUiVersion';
 
 function LibraryCard({ entry, lang }: { entry: LibraryEntry; lang: string }) {
   const [open, setOpen] = useState(false);
+  const version = useUiVersion();
   const t = (zh: string, en: string) => lang === 'zh' ? zh : en;
   return <details className="evidence-entry" onToggle={event => setOpen(event.currentTarget.open)}>
     <summary><BookOpen size={20} strokeWidth={1.4} /><div><h3>{entry.title}</h3>
       <span>{entry.entryId} · {entry.collection === 'learning' ? t('通识学习', 'General learning') : t('来源归档', 'Source archive')} · {entry.entryType}</span>
-    </div><ChevronRight size={18} className="evidence-toggle" /></summary>
+    </div>{version === 'new' && <KnowledgePeek kind={entry.collection === 'learning' ? 'learning' : 'archive'} caption={entry.entryType} />}<ChevronRight size={18} className="evidence-toggle" /></summary>
     {open && <div className="evidence-entry-body">
       <dl className="evidence-provenance">
         <div><dt>{t('核验状态', 'Verification status')}</dt><dd>{entry.status}</dd></div>
@@ -38,7 +41,7 @@ export default function KnowledgeLibraryBrowser({ library, lang, onChange }: {
   const t = (zh: string, en: string) => lang === 'zh' ? zh : en;
   const pages = Math.max(1, Math.ceil(library.total / library.pageSize));
   return <section className="unified-library" aria-labelledby="unified-library-heading">
-    <div className="catalog-evidence-heading"><h2 id="unified-library-heading">{t('统一知识目录', 'Unified knowledge library')}</h2>
+    <div className="catalog-evidence-heading"><h2 id="unified-library-heading">{t('知识目录', 'Knowledge catalog')}</h2>
       <span>{t(`当前 ${library.total.toLocaleString()} 条 · 第 ${library.page} / ${pages} 页`, `${library.total.toLocaleString()} entries · Page ${library.page} / ${pages}`)}</span></div>
     <form className="library-search" key={library.query} onSubmit={event => {
       event.preventDefault();
