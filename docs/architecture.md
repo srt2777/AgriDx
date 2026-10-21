@@ -1,6 +1,6 @@
 # v3 架构与维护
 
-> 核对于 3.7.2 / 2026-10-21。改动模块边界（新增 `server/`、`src/features/`、`src/pages/` 顶层目录或新的数据链路）须同步更新本文档。
+> 核对于 3.7.3 / 2026-10-21。改动模块边界（新增 `server/`、`src/features/`、`src/pages/` 顶层目录或新的数据链路）须同步更新本文档。
 
 项目保留 React/Vite/Express 和现有本地知识检索、双模型回退。3.0.1 将界面、请求边界、诊断用例、外部模型与运行初始化拆开，便于协作者独立修改和验证。
 
@@ -71,7 +71,7 @@ flowchart LR
   Snapshot --> Retrieval[检索与目录]
 ```
 
-`kb-version.json` 记录知识库独立版本（`YYYY.MM.N`）与内容哈希，`npm run verify` 校验；`/api/knowledge/catalog` 返回 `kbVersion`。语义去重只出候选报告与离线预审，人工决定写入 `dedup-review.jsonl`，工具不删除、不改写条目。详见[统一知识目录](knowledge-library.md)、[知识质量](knowledge-quality.md)、[语义候选](knowledge-semantic.md)。
+`kb-version.json` 记录知识库独立版本（`YYYY.MM.N`）与内容哈希，`npm run verify` 校验；`/api/knowledge/catalog` 返回 `kbVersion`。语义去重（`语义去重.py`）只出候选报告，`语义预审.py` 做模板折叠、分级与可选离线 AI 预审，人工决定写入 `dedup-review.jsonl`，工具不删除、不改写条目。详见[统一知识目录](knowledge-library.md)、[知识质量](knowledge-quality.md)、[语义候选](knowledge-semantic.md)。
 
 ## 版本与发布链路
 
