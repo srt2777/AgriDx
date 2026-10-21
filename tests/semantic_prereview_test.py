@@ -39,17 +39,26 @@ class PrereviewTest(unittest.TestCase):
         self.assertEqual(tiers[('A', 'B')], 'conflict_candidate')
         self.assertEqual(tiers[('A', 'C')], 'same_source_similar')
 
-    def test_merge_keeps_human_decisions_and_never_adds_ai_to_decided_rows(self):
+    def test_merge_keeps_human_decisions_and_can_backfill_empty_ai_verdict(self):
         pairs = [{'pair_id': 'DP-1', 'a': 'A', 'b': 'B', 'jaccard': 0.9, 'cosine': None, 'tier': 'dup_candidate'},
                  {'pair_id': 'DP-2', 'a': 'A', 'b': 'C', 'jaccard': 0.9, 'cosine': None, 'tier': 'dup_candidate'},
                  {'pair_id': 'DP-3', 'a': 'A', 'b': 'D', 'jaccard': 0.9, 'cosine': None, 'tier': 'same_source_similar'}]
-        decided = {'pair_id': 'DP-1', 'a': 'A', 'b': 'B', 'decision': 'keep', 'reviewer': 'x', 'ai_verdict': None}
+        decided = {'pair_id': 'DP-1', 'a': 'A', 'b': 'B', 'decision': 'keep', 'reviewer': 'x',
+                   'decided_at': 't', 'ai_verdict': None}
+        already = {'pair_id': 'DP-2', 'a': 'A', 'b': 'C', 'decision': 'pending', 'reviewer': None,
+                   'ai_verdict': {'relation': 'uncertain', 'keep_both': True, 'reason': 'old', 'evidence_spans': []},
+                   'ai_model': 'old-model'}
         verdict = {'relation': 'duplicate', 'keep_both': False, 'reason': 'r', 'evidence_spans': []}
-        rows = pr.merge_review({'DP-1': decided}, pairs, {'DP-1': verdict, 'DP-2': verdict}, '2026.10.1', 'm')
+        rows = pr.merge_review({'DP-1': decided, 'DP-2': already}, pairs,
+                               {'DP-1': verdict, 'DP-2': verdict}, '2026.10.1', 'm')
         self.assertEqual([r['pair_id'] for r in rows], ['DP-1', 'DP-2'])
-        self.assertEqual(rows[0], decided)
-        self.assertEqual(rows[1]['decision'], 'pending')
-        self.assertEqual(rows[1]['ai_verdict'], verdict)
+        self.assertEqual(rows[0]['decision'], 'keep')
+        self.assertEqual(rows[0]['reviewer'], 'x')
+        self.assertEqual(rows[0]['decided_at'], 't')
+        self.assertEqual(rows[0]['ai_verdict'], verdict)
+        self.assertEqual(rows[0]['ai_model'], 'm')
+        self.assertEqual(rows[1]['ai_verdict'], already['ai_verdict'])  # 已有 AI 结论不覆盖
+        self.assertEqual(rows[1]['ai_model'], 'old-model')
         self.assertEqual([p['pair_id'] for p in pr.unreviewed(rows, pairs)], ['DP-2'])
 
     def test_default_reviewer_produces_no_verdicts_and_verdicts_are_validated(self):
