@@ -493,7 +493,7 @@ export default function ExhibitionPage() {
                 'Use the zones to see structure, open the catalog, and start a diagnosis.',
               )}
             </p>
-            <button type="button" className="expo-start-button" onClick={startDrive}>
+            <button type="button" className="expo-start-button glass-press" data-motion="glass-press" onClick={startDrive}>
               <Navigation size={16} />
               {mode === 'drive' ? t('继续漫游', 'Continue exploring') : t('开始漫游', 'Start exploring')}
               <ArrowUpRight size={16} />
@@ -527,8 +527,9 @@ export default function ExhibitionPage() {
             <FloatingPanel
               key={selectedZone.id}
               as="aside"
-              className="expo-zone-card"
+              className="expo-zone-card is-beamed"
               glass
+              beam
               style={{ '--zone-color': selectedZone.color } as CSSProperties}
               label={t('当前展区', 'Selected zone')}
             >
@@ -561,13 +562,13 @@ export default function ExhibitionPage() {
                 ))}
               </div>
               <div className="expo-zone-actions">
-                <button type="button" onPointerEnter={() => preloadPage(selectedZone.path ?? '/', selectedZone.path ? 'new' : 'old')} onFocus={() => preloadPage(selectedZone.path ?? '/', selectedZone.path ? 'new' : 'old')} onClick={(event) => enterZone(selectedZone.id, event.currentTarget.closest('.expo-zone-card')?.querySelector('h2') ?? event.currentTarget)}>
+                <button type="button" className="glass-press" data-motion="glass-press" onPointerEnter={() => preloadPage(selectedZone.path ?? '/', selectedZone.path ? 'new' : 'old')} onFocus={() => preloadPage(selectedZone.path ?? '/', selectedZone.path ? 'new' : 'old')} onClick={(event) => enterZone(selectedZone.id, event.currentTarget.closest('.expo-zone-card')?.querySelector('h2') ?? event.currentTarget)}>
                   {t('进入展区', 'Open zone')}
                   <ArrowRight size={15} />
                 </button>
                 <button
                   type="button"
-                  className="expo-visit-button"
+                  className="expo-visit-button glass-press"
                   onClick={() => visitZone(selectedZone.id)}
                 >
                   <MoveUpRight size={14} />

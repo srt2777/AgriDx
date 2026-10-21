@@ -8,11 +8,22 @@ export type PartVisual = {
   outline: boolean;
 };
 
-/** Shells that hide the powertrain. Fault mode turns these into a faint x-ray. */
+/** Diesel shells that hide the powertrain. Fault mode turns these into a faint x-ray. */
 export const OCCLUDING_PARTS = new Set(['engine_hood', 'cab', 'fenders', 'headlights']);
 
-/** Parts the x-ray is meant to reveal. */
+/** Diesel parts the x-ray is meant to reveal. */
 export const INTERNAL_PARTS = new Set(['engine', 'gearbox', 'clutch', 'battery']);
+
+/** Honghu T70 shell that hides the battery bay. */
+export const T70_OCCLUDING_PARTS = new Set(['body_shell']);
+
+/** Honghu T70 part the shell x-ray is meant to reveal. */
+export const T70_INTERNAL_PARTS = new Set(['battery_box']);
+
+export function visualSets(model: 'diesel' | 't70'): { occluding: ReadonlySet<string>; internal: ReadonlySet<string> } {
+  if (model === 't70') return { occluding: T70_OCCLUDING_PARTS, internal: T70_INTERNAL_PARTS };
+  return { occluding: OCCLUDING_PARTS, internal: INTERNAL_PARTS };
+}
 
 export function clamp01(value: number): number {
   if (value <= 0) return 0;
@@ -47,12 +58,16 @@ export function partVisual(input: {
   hasSelection: boolean;
   presentation: StudioPresentation;
   faultPartId: string | null;
+  occluding?: ReadonlySet<string>;
+  internal?: ReadonlySet<string>;
 }): PartVisual {
   const { partId, selected, hovered, hasSelection, presentation, faultPartId } = input;
+  const occluding = input.occluding ?? OCCLUDING_PARTS;
+  const internal = input.internal ?? INTERNAL_PARTS;
   const outline = selected || hovered;
   if (faultPartId) {
     const faulted = partId === faultPartId;
-    const open = INTERNAL_PARTS.has(faultPartId) && OCCLUDING_PARTS.has(partId) && !faulted;
+    const open = internal.has(faultPartId) && occluding.has(partId) && !faulted;
     if (faulted) return { opacity: 1, depthWrite: true, desaturate: 0, pulse: true, outline };
     if (open) return { opacity: 0.15, depthWrite: false, desaturate: 0.35, pulse: false, outline: false };
     return {
