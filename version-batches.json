@@ -175,6 +175,13 @@
       "base": "3.5.10",
       "version": "3.6.0",
       "date": "2026-10-21"
+    },
+    {
+      "id": "studio-20261021-parts-tractor",
+      "kind": "feature",
+      "base": "3.6.0",
+      "version": "3.7.0",
+      "date": "2026-10-21"
     }
   ]
 }
