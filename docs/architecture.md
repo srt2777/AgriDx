@@ -1,5 +1,7 @@
 # v3 架构与维护
 
+> 核对于 3.7.2 / 2026-10-21。改动模块边界（新增 `server/`、`src/features/`、`src/pages/` 顶层目录或新的数据链路）须同步更新本文档。
+
 项目保留 React/Vite/Express 和现有本地知识检索、双模型回退。3.0.1 将界面、请求边界、诊断用例、外部模型与运行初始化拆开，便于协作者独立修改和验证。
 
 ## 模块职责
@@ -16,6 +18,9 @@
 | `server/diagnosis/` | 对话输入校验，协调上下文、知识检索、提示词与模型/本地答复 |
 | `server/knowledge/` | 原有索引、适用范围过滤、多轮上下文、目录和证据回复 |
 | `server/llm/` | 供应商协议、配置、超时和双模型顺序回退 |
+| `server/memory/` | 诊断记忆的上下文、存储与路由（见[诊断记忆](diagnostic-memory.md)） |
+| `src/features/updates/` | 客户端版本检查与自动更新提示（见[自动更新](deployment/automatic-client-update.md)） |
+| `src/pages/HallPage/`、`ExhibitionPage/`、`HomePage/`、`ModelPage/` | 数字展厅、园区首页与模型工坊；三维场景经 `DeferredScene` 延迟加载，WebGL 不可用时回退 `SceneFallback` |
 | `server/config/`、`server/runtime.ts` | 读取环境、初始化知识索引与运行依赖 |
 | `server/http/` | 安全头、限流、JSON 错误、前端托管及监听/退出 |
 | `scripts/` | 跨平台检查、构建、测试和已提交工作分支同步 |
@@ -38,6 +43,39 @@ flowchart LR
 HTTP 路由只做传输边界；诊断用例保留来源编号、定位、手册版本与适用范围，不将模型通用分析或品牌匹配当作确诊。知识原件和索引不随架构整理改写；修改知识时继续遵守其目录规范。
 
 3.6.0 的 `server/diagnosis/router.ts` 在一次已完成的检索结果上执行无副作用决策；`service.ts` 复用结果生成本地或 AI 答复。覆盖标签与检索文本在知识导入时计算，短期缓存只保存公开静态片段；来源、限制和正文按完整块计入上下文预算。安全降级、必要追问、可靠来源和原始分数的边界及性能验收见[诊断路由说明](diagnosis-router.md)。
+
+## 系统上下文
+
+```mermaid
+flowchart LR
+  Browser[浏览器：新旧版页面与三维分包] --> Express[Express API]
+  Express --> Snapshot[知识快照：归档 + 通识 + 层级]
+  Express --> LLM[双模型回退 / 本地证据答复]
+  Express --> Memory[诊断记忆]
+  GitHub[main CI 通过] --> Dev[Development preview 开发站]
+  GitHub --> Tencent[Tencent production 正式站控制器]
+```
+
+前端三维依赖由 `vite.config.ts` 拆为 `three`、`r3f` 与 `postfx` 分包；辉光仅宽屏且未开启减少动态时加载。
+
+## 知识数据链路
+
+```mermaid
+flowchart LR
+  Raw[原始说明书] --> Md[整理后 Markdown]
+  Md --> Index[entries.jsonl / sources.json / hierarchy.json]
+  TK[docs/tractor-knowledge 通识索引] --> Snapshot
+  Index --> Checks[校验索引.py / knowledge_quality.py / 语义去重.py]
+  Index --> KbVer[kb-version.json 内容哈希]
+  Checks --> Snapshot[服务端快照]
+  Snapshot --> Retrieval[检索与目录]
+```
+
+`kb-version.json` 记录知识库独立版本（`YYYY.MM.N`）与内容哈希，`npm run verify` 校验；`/api/knowledge/catalog` 返回 `kbVersion`。语义去重只出候选报告与离线预审，人工决定写入 `dedup-review.jsonl`，工具不删除、不改写条目。详见[统一知识目录](knowledge-library.md)、[知识质量](knowledge-quality.md)、[语义候选](knowledge-semantic.md)。
+
+## 版本与发布链路
+
+`npm run version:update` 同步项目版本、批次与 CHANGELOG 骨架；`check:version` 校验一致性、3.8.0 上限及最新日志节的批次 ID、更新类型与验证。知识内容变化另运行 `node scripts/kb-version.mjs --bump`。PR 合入 main 且 CI 通过后，开发站与腾讯正式站按[开发预览](deployment/dev-preview.md)与[腾讯主干同步](deployment/tencent-production-sync.md)更新；部署结果单独验收。规则见[版本规则](version-policy.md)。
 
 ## 初始化与入口
 
@@ -75,7 +113,7 @@ npm.cmd run dev
 npm.cmd run verify
 ```
 
-`verify` 依次检查 package/lockfile/README/最新日志版本、前后端与 Vite 配置类型、全部回归测试、Lint 和完整前后端构建；任一步失败即停止。`build` 同时构建前端与后端；保留 `build:client`、`build:server`、`test`、`typecheck` 和 `lint` 单独入口。构建与测试明确调用本地 Node CLI，无需 Bash 或 PATH 中的 vite/tsx。
+`verify` 依次检查 package/lockfile/README/最新日志版本、知识库版本哈希、前后端与 Vite 配置类型、全部回归测试、Lint 和完整前后端构建；任一步失败即停止。`build` 同时构建前端与后端；保留 `build:client`、`build:server`、`test`、`typecheck` 和 `lint` 单独入口。构建与测试明确调用本地 Node CLI，无需 Bash 或 PATH 中的 vite/tsx。
 
 锁文件补齐各平台可选依赖，现有依赖版本保持。如果本机镜像元数据不全，使用 `npm.cmd ci --registry=https://registry.npmjs.org` 完成本次安装；不修改用户全局 npm 设置。
 
