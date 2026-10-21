@@ -1,7 +1,9 @@
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js';
 import * as THREE from 'three';
-import { catalogByName } from './parts-catalog';
+import { catalogByName, type CatalogPart } from './parts-catalog';
+
+export type CatalogLookup = (name: string) => { node: CatalogPart } | null;
 
 export type PartRecord = {
   name: string;
@@ -83,14 +85,14 @@ function prepareMesh(mesh: THREE.Mesh, originals: Set<THREE.Material>, edgesMate
   return edges;
 }
 
-export function preparePartsRoot(root: THREE.Group): PreparedTractor {
+export function preparePartsRoot(root: THREE.Group, lookup: CatalogLookup = name => catalogByName(name)): PreparedTractor {
   const originals = new Set<THREE.Material>();
   const edgesMaterial = makeEdgeMaterial();
   const records: PartRecord[] = [];
   root.traverse(object => {
     const partId = object.userData?.part_id;
     if (typeof partId !== 'string' || hasPartChild(object)) return;
-    const catalog = catalogByName(object.name);
+    const catalog = lookup(object.name);
     const dir = asVec3(object.userData.explode_dir, catalog?.node.explodeDir ?? [0, 0, 0]);
     const slots: MaterialSlot[] = [];
     const edges: THREE.LineSegments[] = [];
@@ -143,14 +145,15 @@ export function preparePartsRoot(root: THREE.Group): PreparedTractor {
  * Meshopt-compressed GLB with WebP images and KHR_mesh_quantization.
  * GLTFLoader decodes EXT_texture_webp through the browser image decoder.
  * Node scale stays as exported; it undoes the quantization, so positions move in parent metres.
+ * Honghu T70 uses the same rule: explode adds explode_dir to the node position and leaves scale alone.
  */
-export async function loadPartsTractor(url: string): Promise<PreparedTractor> {
+export async function loadPartsTractor(url: string, lookup?: CatalogLookup): Promise<PreparedTractor> {
   if (!MeshoptDecoder.supported) throw new Error('Meshopt decoder is unavailable');
   await MeshoptDecoder.ready;
   const loader = new GLTFLoader();
   loader.setMeshoptDecoder(MeshoptDecoder);
   const gltf = await loader.loadAsync(url);
-  return preparePartsRoot(gltf.scene);
+  return preparePartsRoot(gltf.scene, lookup ?? (name => catalogByName(name)));
 }
 
 export function partOwner(object: THREE.Object3D | null): THREE.Object3D | null {
