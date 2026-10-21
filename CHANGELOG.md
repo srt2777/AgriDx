@@ -10,6 +10,7 @@
 
 - 语义去重增加离线预审与人工审核文件，复用 3.4.10 的 `scan()` 候选。新增 `知识库/工具/语义预审.py`：（1）模板折叠，同来源只差机型的目录条目归为 `scope_variant` 簇，共 110 簇、500 条；（2）按字符 3-gram Jaccard ≥0.8 分级，跨来源为 `dup_candidate` 3 对、`conflict_candidate` 2 对，同来源 1835 对只写报告；（3）AI 预审器可插拔，默认关闭（`--reviewer none`），`--reviewer command` 调用维护者自备的命令并校验 JSON 结论。本次没有可用密钥，未运行 AI，不生成任何结论。
 - 新增 `dedup-review.jsonl`，记录 5 对 `pending`，按 `pair_id` 增量合并，保留人工决定。CI 在 Ubuntu 上运行 `--check`，只出警告，不阻断。工具不删除、不修改条目或正文；`entries.jsonl` 与 Markdown 未改，`kb_version` 仍为 2026.10.1。说明见 `docs/knowledge-semantic.md`。
+- 同一版本修正：CI 的 Ubuntu 镜像缺少 `pdfinfo`，索引校验报错，预审因此中止（这一步是 continue-on-error，没有拦下合入）。现在 CI 先安装 poppler-utils，预审中止时会打印前几条错误。
 - 更新类型：maintenance；批次：dedup-ai-prereview-20261021。验证：本地（Node 24）`npm run verify` 通过，测试 418 项，416 通过、2 项跳过、0 失败；`tests/semantic_prereview_test.py` 6 项、`tests/knowledge_semantic_test.py` 通过；`语义预审.py --check` 报 5 对未审（警告）。本提交未部署。
 
 ## 3.7.2 — 2026-10-21

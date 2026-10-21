@@ -206,7 +206,8 @@ def main():
     repo = validator.REPO
     result = scan(repo=repo)
     if result['blocked']:
-        raise RuntimeError('质量检查存在错误，预审中止')
+        errors = result['quality'].get('errors', [])[:3]
+        raise RuntimeError(f'质量检查存在错误，预审中止：{json.dumps(errors, ensure_ascii=False)[:600]}')
     entries = load_entries(repo)
     clusters, member_of = fold_templates(entries)
     pairs = classify(result['relations'], entries, member_of, args.threshold)
