@@ -4,6 +4,9 @@ import { appendFileSync, readFileSync } from 'node:fs';
 import { setTimeout as delay } from 'node:timers/promises';
 import { isMain } from '../lib/process.mjs';
 
+const repository = process.env.GITHUB_REPOSITORY || 'srt2777/AgriDx';
+// Controllers installed before the rename still report the old repository name.
+const controllerRepositories = new Set([repository, 'srt2777/AgriDx', 'srt2777/AgriDx-v3']);
 const digest = value => createHash('sha256').update(value).digest('hex');
 
 export async function controllerConfigured(baseUrl, fetchImpl = fetch) {
@@ -16,7 +19,7 @@ export async function controllerConfigured(baseUrl, fetchImpl = fetch) {
   if (!response.ok) throw new Error(`服务器接入状态请求失败：HTTP ${response.status}`);
   let value;
   try { value = await response.json(); } catch { return false; }
-  return value?.controller === 'agridx-github-sync' && value?.repository === 'srt2777/AgriDx-v3' && value?.configured === true;
+  return value?.controller === 'agridx-github-sync' && controllerRepositories.has(value?.repository) && value?.configured === true;
 }
 
 export async function verifyPublicSite({ commit, version, entries, baseUrl,
@@ -134,7 +137,7 @@ if (isMain(import.meta.url)) {
       .split(/\r?\n/).filter(line => line.trim()).length;
     const isCurrent = () => {
       if (process.env.GITHUB_ACTIONS !== 'true') return true;
-      const result = spawnSync('gh', ['api', 'repos/srt2777/AgriDx-v3/git/ref/heads/main', '--jq', '.object.sha'],
+      const result = spawnSync('gh', ['api', `repos/${repository}/git/ref/heads/main`, '--jq', '.object.sha'],
         { encoding: 'utf8', shell: false, timeout: 15000 });
       if (result.status !== 0 || !/^[0-9a-f]{40}$/.test(result.stdout.trim())) throw new Error('无法重新确认最新main。');
       return result.stdout.trim() === commit;

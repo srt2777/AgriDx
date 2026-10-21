@@ -28,7 +28,7 @@ workdir=$(mktemp -d)
 trap 'rm -rf -- "$workdir"' EXIT
 for script in update-existing.sh sync-main.sh; do
   curl --fail --silent --show-error --location --max-time 60 \
-    "https://raw.githubusercontent.com/srt2777/AgriDx-v3/$COMMIT/scripts/tencent-deploy/$script" \
+    "https://raw.githubusercontent.com/${GITHUB_REPOSITORY:-srt2777/AgriDx}/$COMMIT/scripts/tencent-deploy/$script" \
     --output "$workdir/$script"
   bash -n "$workdir/$script"
 done
@@ -64,7 +64,7 @@ Unit=agridx-github-sync.service
 WantedBy=timers.target
 EOF
 install -m 0644 -o root -g root "$workdir/agridx-github-sync.service" "$workdir/agridx-github-sync.timer" "$SYSTEMD_DIR/"
-printf '%s\n' '{"controller":"agridx-github-sync","repository":"srt2777/AgriDx-v3","configured":true}' > "$workdir/controller.json"
+printf '%s\n' '{"controller":"agridx-github-sync","repository":"srt2777/AgriDx","configured":true}' > "$workdir/controller.json"
 install -m 0600 -o root -g root "$workdir/controller.json" "$STATE_DIR/controller.json"
 install -m 0644 -o root -g root "$workdir/controller.json" "$CURRENT/dist/deployment-automation.json"
 systemctl daemon-reload

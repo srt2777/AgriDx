@@ -352,7 +352,7 @@ test('腾讯成功更新使用完整 SHA，保留旧目录/env/Nginx且临时检
   assert.ok(!dropin.includes('EnvironmentFile'));
   const calls = context.calls();
   const clone = calls.find(call => call.command === 'git' && call.args[0] === 'clone');
-  assert.ok(clone?.args.includes('https://github.com/srt2777/AgriDx-v3.git'));
+  assert.ok(clone?.args.includes('https://github.com/srt2777/AgriDx.git'));
   const checkout = calls.find(call => call.command === 'git' && call.args[2] === 'checkout');
   assert.equal(checkout?.args.at(-1), commit);
   const stage = calls.find(call => call.command === 'systemd-run');
