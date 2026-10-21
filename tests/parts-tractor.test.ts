@@ -147,6 +147,32 @@ test('鸿鹄 T70 的 Meshopt 节点保留量化缩放，爆炸方向与部件表
   }
 });
 
+test('部件材质克隆关闭顶点色，贴图不会被 COLOR_0 盖住', () => {
+  const root = new THREE.Group();
+  const source = new THREE.MeshStandardMaterial({ color: 0xffffff });
+  source.vertexColors = true;
+  const mesh = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), source);
+  mesh.name = 'body_shell';
+  mesh.userData = { part_id: 'body_shell', label_zh: '车身外壳', explode_dir: [0, 0.4, 0] };
+  const count = mesh.geometry.getAttribute('position').count;
+  const colors = new Float32Array(count * 3);
+  colors.fill(0.2);
+  mesh.geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+  root.add(mesh);
+  const prepared = preparePartsRoot(root, name => catalogByName(name, 't70'));
+  const paint = prepared.records[0]?.slots[0]?.paint;
+  assert.ok(paint);
+  assert.equal(paint.vertexColors, false);
+  assert.equal(source.vertexColors, true);
+  const json = glbDocument('../public/models/t70-parts/t70_parts_meshopt.glb');
+  for (const meshDef of json.meshes) {
+    for (const primitive of meshDef.primitives) {
+      assert.equal(primitive.attributes.COLOR_0, undefined);
+    }
+  }
+  prepared.dispose();
+});
+
 test('爆炸位移加在节点平移上，量化缩放保持不动', () => {
   const root = new THREE.Group();
   const mesh = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshStandardMaterial());
@@ -180,8 +206,10 @@ type GltfNode = {
   extras?: { part_id?: string; label_zh?: string; explode_dir?: number[] };
 };
 
-function glbDocument(relative = '../public/models/tractor-parts/tractor_parts.glb'): { nodes: GltfNode[] } {
+type GltfPrimitive = { attributes: { COLOR_0?: number } };
+
+function glbDocument(relative = '../public/models/tractor-parts/tractor_parts.glb'): { nodes: GltfNode[]; meshes: { primitives: GltfPrimitive[] }[] } {
   const bytes = readFileSync(new URL(relative, import.meta.url));
   const length = bytes.readUInt32LE(12);
-  return JSON.parse(bytes.subarray(20, 20 + length).toString('utf8')) as { nodes: GltfNode[] };
+  return JSON.parse(bytes.subarray(20, 20 + length).toString('utf8')) as { nodes: GltfNode[]; meshes: { primitives: GltfPrimitive[] }[] };
 }
