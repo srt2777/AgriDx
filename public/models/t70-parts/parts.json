@@ -1,0 +1,520 @@
+{
+  "version": 1,
+  "source": "/workspace/t70_hunyuan_segmented.glb",
+  "units": "metres",
+  "up_axis": "Y (glTF/three.js). explode_dir = offset vector in metres (multiply by factor 0..1).",
+  "total_triangles": 248990,
+  "vehicle_center_blender_zup": [
+    0.028,
+    -0.0003,
+    0.2964
+  ],
+  "parts": [
+    {
+      "name": "battery_box",
+      "label_zh": "电池舱",
+      "part_id": "battery_box",
+      "source_part": "part_8",
+      "explode_dir": [
+        -0.2475,
+        -0.4856,
+        0.0009
+      ],
+      "explode_dir_blender_zup": [
+        -0.2475,
+        -0.0009,
+        -0.4856
+      ],
+      "origin": [
+        -0.0183,
+        0.2897,
+        0.0005
+      ],
+      "origin_blender_zup": [
+        -0.0183,
+        -0.0005,
+        0.2897
+      ],
+      "materials": [
+        "Material.001"
+      ],
+      "triangles": 15000
+    },
+    {
+      "name": "body_shell",
+      "label_zh": "车身外壳",
+      "part_id": "body_shell",
+      "source_part": "part_4",
+      "explode_dir": [
+        0.0459,
+        0.3958,
+        -0.0013
+      ],
+      "explode_dir_blender_zup": [
+        0.0459,
+        0.0013,
+        0.3958
+      ],
+      "origin": [
+        0.0354,
+        0.3352,
+        0.0001
+      ],
+      "origin_blender_zup": [
+        0.0354,
+        -0.0001,
+        0.3352
+      ],
+      "materials": [
+        "Material.001"
+      ],
+      "triangles": 69999
+    },
+    {
+      "name": "gps_antenna",
+      "label_zh": "GPS天线",
+      "part_id": "gps_antenna",
+      "source_part": "part_10",
+      "explode_dir": [
+        -0.3234,
+        0.6621,
+        0.0
+      ],
+      "explode_dir_blender_zup": [
+        -0.3234,
+        -0.0,
+        0.6621
+      ],
+      "origin": [
+        -0.3416,
+        0.4819,
+        0.0004
+      ],
+      "origin_blender_zup": [
+        -0.3416,
+        -0.0004,
+        0.4819
+      ],
+      "materials": [
+        "Material.001"
+      ],
+      "triangles": 4000
+    },
+    {
+      "name": "hub_fl",
+      "label_zh": "左前轮毂",
+      "part_id": "hub_fl",
+      "source_part": "part_12",
+      "explode_dir": [
+        0.3154,
+        -0.0689,
+        -0.8744
+      ],
+      "explode_dir_blender_zup": [
+        0.3154,
+        0.8744,
+        -0.0689
+      ],
+      "origin": [
+        0.2799,
+        0.1915,
+        -0.2652
+      ],
+      "origin_blender_zup": [
+        0.2799,
+        0.2652,
+        0.1915
+      ],
+      "materials": [
+        "Material.001"
+      ],
+      "triangles": 9999
+    },
+    {
+      "name": "hub_fr",
+      "label_zh": "右前轮毂",
+      "part_id": "hub_fr",
+      "source_part": "part_1",
+      "explode_dir": [
+        0.3153,
+        -0.0689,
+        0.8744
+      ],
+      "explode_dir_blender_zup": [
+        0.3153,
+        -0.8744,
+        -0.0689
+      ],
+      "origin": [
+        0.2796,
+        0.1915,
+        0.2657
+      ],
+      "origin_blender_zup": [
+        0.2796,
+        -0.2657,
+        0.1915
+      ],
+      "materials": [
+        "Material.001"
+      ],
+      "triangles": 10000
+    },
+    {
+      "name": "hub_rl",
+      "label_zh": "左后轮毂",
+      "part_id": "hub_rl",
+      "source_part": "part_13",
+      "explode_dir": [
+        -0.2894,
+        -0.0597,
+        -0.8518
+      ],
+      "explode_dir_blender_zup": [
+        -0.2894,
+        0.8518,
+        -0.0597
+      ],
+      "origin": [
+        -0.3035,
+        0.1918,
+        -0.2654
+      ],
+      "origin_blender_zup": [
+        -0.3035,
+        0.2654,
+        0.1918
+      ],
+      "materials": [
+        "Material.001"
+      ],
+      "triangles": 10000
+    },
+    {
+      "name": "hub_rr",
+      "label_zh": "右后轮毂",
+      "part_id": "hub_rr",
+      "source_part": "part_7",
+      "explode_dir": [
+        -0.2895,
+        -0.0598,
+        0.8517
+      ],
+      "explode_dir_blender_zup": [
+        -0.2895,
+        -0.8517,
+        -0.0598
+      ],
+      "origin": [
+        -0.3033,
+        0.1918,
+        0.2657
+      ],
+      "origin_blender_zup": [
+        -0.3033,
+        -0.2657,
+        0.1918
+      ],
+      "materials": [
+        "Material.001"
+      ],
+      "triangles": 9999
+    },
+    {
+      "name": "roof_cap",
+      "label_zh": "车顶盖",
+      "part_id": "roof_cap",
+      "source_part": "part_5",
+      "explode_dir": [
+        -0.1307,
+        0.7631,
+        -0.0002
+      ],
+      "explode_dir_blender_zup": [
+        -0.1307,
+        0.0002,
+        0.7631
+      ],
+      "origin": [
+        -0.1195,
+        0.5367,
+        0.0001
+      ],
+      "origin_blender_zup": [
+        -0.1195,
+        -0.0001,
+        0.5367
+      ],
+      "materials": [
+        "Material.001"
+      ],
+      "triangles": 11999
+    },
+    {
+      "name": "sensor_roof_l",
+      "label_zh": "左顶传感器",
+      "part_id": "sensor_roof_l",
+      "source_part": "part_0",
+      "explode_dir": [
+        -0.2164,
+        0.508,
+        -0.4133
+      ],
+      "explode_dir_blender_zup": [
+        -0.2164,
+        0.4133,
+        0.508
+      ],
+      "origin": [
+        -0.3361,
+        0.478,
+        -0.1062
+      ],
+      "origin_blender_zup": [
+        -0.3361,
+        0.1062,
+        0.478
+      ],
+      "materials": [
+        "Material.001"
+      ],
+      "triangles": 3999
+    },
+    {
+      "name": "sensor_roof_r",
+      "label_zh": "右顶传感器",
+      "part_id": "sensor_roof_r",
+      "source_part": "part_6",
+      "explode_dir": [
+        -0.2166,
+        0.5078,
+        0.413
+      ],
+      "explode_dir_blender_zup": [
+        -0.2166,
+        -0.413,
+        0.5078
+      ],
+      "origin": [
+        -0.3366,
+        0.4779,
+        0.1063
+      ],
+      "origin_blender_zup": [
+        -0.3366,
+        -0.1063,
+        0.4779
+      ],
+      "materials": [
+        "Material.001"
+      ],
+      "triangles": 3998
+    },
+    {
+      "name": "wheel_fl",
+      "label_zh": "左前轮",
+      "part_id": "wheel_fl",
+      "source_part": "part_2",
+      "explode_dir": [
+        0.328,
+        -0.076,
+        -0.7082
+      ],
+      "explode_dir_blender_zup": [
+        0.328,
+        0.7082,
+        -0.076
+      ],
+      "origin": [
+        0.2802,
+        0.1888,
+        -0.2239
+      ],
+      "origin_blender_zup": [
+        0.2802,
+        0.2239,
+        0.1888
+      ],
+      "materials": [
+        "Material.001"
+      ],
+      "triangles": 24999
+    },
+    {
+      "name": "wheel_fr",
+      "label_zh": "右前轮",
+      "part_id": "wheel_fr",
+      "source_part": "part_9",
+      "explode_dir": [
+        0.3281,
+        -0.0759,
+        0.7082
+      ],
+      "explode_dir_blender_zup": [
+        0.3281,
+        -0.7082,
+        -0.0759
+      ],
+      "origin": [
+        0.2803,
+        0.1887,
+        0.2245
+      ],
+      "origin_blender_zup": [
+        0.2803,
+        -0.2245,
+        0.1887
+      ],
+      "materials": [
+        "Material.001"
+      ],
+      "triangles": 24999
+    },
+    {
+      "name": "wheel_rl",
+      "label_zh": "左后轮",
+      "part_id": "wheel_rl",
+      "source_part": "part_3",
+      "explode_dir": [
+        -0.3,
+        -0.0648,
+        -0.6853
+      ],
+      "explode_dir_blender_zup": [
+        -0.3,
+        0.6853,
+        -0.0648
+      ],
+      "origin": [
+        -0.3032,
+        0.1891,
+        -0.224
+      ],
+      "origin_blender_zup": [
+        -0.3032,
+        0.224,
+        0.1891
+      ],
+      "materials": [
+        "Material.001"
+      ],
+      "triangles": 25000
+    },
+    {
+      "name": "wheel_rr",
+      "label_zh": "右后轮",
+      "part_id": "wheel_rr",
+      "source_part": "part_11",
+      "explode_dir": [
+        -0.3,
+        -0.0648,
+        0.6853
+      ],
+      "explode_dir_blender_zup": [
+        -0.3,
+        -0.6853,
+        -0.0648
+      ],
+      "origin": [
+        -0.3032,
+        0.1891,
+        0.2246
+      ],
+      "origin_blender_zup": [
+        -0.3032,
+        -0.2246,
+        0.1891
+      ],
+      "materials": [
+        "Material.001"
+      ],
+      "triangles": 24999
+    }
+  ],
+  "mapping": [
+    {
+      "source": "part_0",
+      "part_id": "sensor_roof_l",
+      "label_zh": "左顶传感器",
+      "triangles": 3999
+    },
+    {
+      "source": "part_1",
+      "part_id": "hub_fr",
+      "label_zh": "右前轮毂",
+      "triangles": 10000
+    },
+    {
+      "source": "part_10",
+      "part_id": "gps_antenna",
+      "label_zh": "GPS天线",
+      "triangles": 4000
+    },
+    {
+      "source": "part_11",
+      "part_id": "wheel_rr",
+      "label_zh": "右后轮",
+      "triangles": 24999
+    },
+    {
+      "source": "part_12",
+      "part_id": "hub_fl",
+      "label_zh": "左前轮毂",
+      "triangles": 9999
+    },
+    {
+      "source": "part_13",
+      "part_id": "hub_rl",
+      "label_zh": "左后轮毂",
+      "triangles": 10000
+    },
+    {
+      "source": "part_2",
+      "part_id": "wheel_fl",
+      "label_zh": "左前轮",
+      "triangles": 24999
+    },
+    {
+      "source": "part_3",
+      "part_id": "wheel_rl",
+      "label_zh": "左后轮",
+      "triangles": 25000
+    },
+    {
+      "source": "part_4",
+      "part_id": "body_shell",
+      "label_zh": "车身外壳",
+      "triangles": 69999
+    },
+    {
+      "source": "part_5",
+      "part_id": "roof_cap",
+      "label_zh": "车顶盖",
+      "triangles": 11999
+    },
+    {
+      "source": "part_6",
+      "part_id": "sensor_roof_r",
+      "label_zh": "右顶传感器",
+      "triangles": 3998
+    },
+    {
+      "source": "part_7",
+      "part_id": "hub_rr",
+      "label_zh": "右后轮毂",
+      "triangles": 9999
+    },
+    {
+      "source": "part_8",
+      "part_id": "battery_box",
+      "label_zh": "电池舱",
+      "triangles": 15000
+    },
+    {
+      "source": "part_9",
+      "part_id": "wheel_fr",
+      "label_zh": "右前轮",
+      "triangles": 24999
+    }
+  ]
+}

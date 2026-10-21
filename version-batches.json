@@ -231,6 +231,13 @@
       "base": "3.7.5",
       "version": "3.7.6",
       "date": "2026-10-21"
+    },
+    {
+      "id": "ui-20261021-t70-glass-motion",
+      "kind": "maintenance",
+      "base": "3.7.6",
+      "version": "3.7.7",
+      "date": "2026-10-21"
     }
   ]
 }

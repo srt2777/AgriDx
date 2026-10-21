@@ -1,13 +1,14 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Canvas, createPortal, useFrame, useThree, type ThreeEvent } from '@react-three/fiber';
 import { Html, Line, OrbitControls } from '@react-three/drei';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
 import * as THREE from 'three';
 import { bindContextLoss } from '@/lib/webgl';
-import { hoverLabel } from './parts-catalog';
+import { catalogByName, hoverLabel, type PartsModelId } from './parts-catalog';
 import { loadPartsTractor, partOwner, type PartRecord, type PreparedTractor } from './load-parts-tractor';
-import { partVisual, smoothstep, type StudioPresentation } from './parts-motion';
+import { partVisual, smoothstep, visualSets, type StudioPresentation } from './parts-motion';
+import { PARTS_SHOWCASE } from './parts-models';
 import { STUDIO_LIGHT_LOOK, type StudioLight } from '@/components/studio-schematic';
 
 const GL = { antialias: true, alpha: true, preserveDrawingBuffer: true } as const;
@@ -72,6 +73,7 @@ function TractorBody({
   faultPartId,
   reduced,
   lang,
+  modelId,
   onSelect,
 }: {
   prepared: PreparedTractor;
@@ -81,6 +83,7 @@ function TractorBody({
   faultPartId: string | null;
   reduced: boolean;
   lang: 'zh' | 'en';
+  modelId: PartsModelId;
   onSelect: (name: string) => void;
 }) {
   const { camera, invalidate, controls, gl } = useThree();
@@ -106,16 +109,18 @@ function TractorBody({
   const sphere = useMemo(() => new THREE.Sphere(), []);
   const outward = useMemo(() => new THREE.Vector3(), []);
   const hoveredRecord = prepared.records.find(record => record.name === hovered) ?? null;
+  const showcase = PARTS_SHOWCASE[modelId];
+  const sets = useMemo(() => visualSets(modelId), [modelId]);
 
   useEffect(() => {
     target.current = explode;
     if (reduced) {
       current.current = explode;
       writePositions(recordsRef.current, explode);
-      setLeaders(explode >= 0.98 ? buildLeaders(recordsRef.current) : []);
+      setLeaders(explode >= 0.98 ? buildLeaders(recordsRef.current, showcase.leaderLength) : []);
     }
     invalidate();
-  }, [explode, invalidate, reduced]);
+  }, [explode, invalidate, reduced, showcase.leaderLength]);
 
   useFrame((_, delta) => {
     const records = recordsRef.current;
@@ -126,7 +131,7 @@ function TractorBody({
       if (Math.abs(current.current - target.current) <= 0.004) current.current = target.current;
       writePositions(records, current.current);
       busy = current.current !== target.current;
-      if (!busy) setLeaders(current.current >= 0.98 ? buildLeaders(records) : []);
+      if (!busy) setLeaders(current.current >= 0.98 ? buildLeaders(records, showcase.leaderLength) : []);
     }
     if (cam.current.active && orbit) {
       const step = Math.min(delta, 0.05) * 1.6;
@@ -161,10 +166,12 @@ function TractorBody({
         hasSelection,
         presentation,
         faultPartId,
+        occluding: sets.occluding,
+        internal: sets.internal,
       }));
     }
     invalidate();
-  }, [faultPartId, hovered, invalidate, prepared.records, presentation, reduced, selection]);
+  }, [faultPartId, hovered, invalidate, prepared.records, presentation, reduced, selection, sets]);
 
   useEffect(() => {
     if (!orbit) return;
@@ -180,7 +187,7 @@ function TractorBody({
     box.getCenter(cam.current.toTarget);
     box.getBoundingSphere(sphere);
     const fov = ((camera instanceof THREE.PerspectiveCamera ? camera.fov : 38) * Math.PI) / 180;
-    const distance = THREE.MathUtils.clamp((sphere.radius / Math.sin(fov / 2)) * 1.35, 2.4, 80);
+    const distance = THREE.MathUtils.clamp((sphere.radius / Math.sin(fov / 2)) * 1.35, showcase.frameMin, 80);
     if (!fitted.current) outward.set(1, 0.72, 1);
     else outward.copy(camera.position).sub(orbit.target);
     if (outward.lengthSq() < 1e-4) outward.set(1, 0.72, 1);
@@ -207,7 +214,7 @@ function TractorBody({
     cam.current.t = 0;
     cam.current.active = true;
     invalidate();
-  }, [box, camera, invalidate, orbit, outward, prepared.records, prepared.root, reduced, selection, sphere]);
+  }, [box, camera, invalidate, orbit, outward, prepared.records, prepared.root, reduced, selection, showcase.frameMin, sphere]);
 
   const pick = (event: ThreeEvent<PointerEvent>) => {
     const owner = partOwner(event.object);
@@ -238,7 +245,7 @@ function TractorBody({
       />
       {hoveredRecord && createPortal(
         <Html center zIndexRange={[30, 0]} wrapperClass="part-tip-wrap" style={{ pointerEvents: 'none' }}>
-          <div className="part-tip" role="tooltip">{hoverLabel(hoveredRecord.labelZh, lang, hoveredRecord.name)}</div>
+          <div className="part-tip" role="tooltip">{hoverLabel(hoveredRecord.labelZh, lang, hoveredRecord.name, modelId)}</div>
         </Html>,
         hoveredRecord.object,
       )}
@@ -265,7 +272,7 @@ function writePositions(records: PartRecord[], t: number) {
   }
 }
 
-function buildLeaders(records: PartRecord[]): Leader[] {
+function buildLeaders(records: PartRecord[], length: number): Leader[] {
   const world = new THREE.Vector3();
   const outward = new THREE.Vector3();
   return records.map(record => {
@@ -273,7 +280,7 @@ function buildLeaders(records: PartRecord[]): Leader[] {
     record.object.getWorldPosition(world);
     outward.copy(record.dir);
     if (outward.lengthSq() < 1e-4) outward.set(0, 1, 0);
-    outward.normalize().multiplyScalar(0.42);
+    outward.normalize().multiplyScalar(length);
     return {
       key: record.name,
       label: record.labelZh,
@@ -292,6 +299,7 @@ export default function PartsTractorScene({
   faultPartId,
   reduced,
   lang,
+  modelId,
   onSelect,
   onReady,
   onLost,
@@ -305,12 +313,14 @@ export default function PartsTractorScene({
   faultPartId: string | null;
   reduced: boolean;
   lang: 'zh' | 'en';
+  modelId: PartsModelId;
   onSelect: (name: string) => void;
   onReady: () => void;
   onLost: () => void;
   onError: (message: string) => void;
 }) {
   const look = STUDIO_LIGHT_LOOK[light];
+  const showcase = PARTS_SHOWCASE[modelId];
   const [prepared, setPrepared] = useState<PreparedTractor | null>(null);
   const lost = useRef(onLost);
   const ready = useRef(onReady);
@@ -321,10 +331,11 @@ export default function PartsTractorScene({
     fail.current = onError;
   }, [onLost, onReady, onError]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     let alive = true;
     let current: PreparedTractor | null = null;
-    loadPartsTractor(url).then(next => {
+    setPrepared(null);
+    loadPartsTractor(url, name => catalogByName(name, modelId)).then(next => {
       if (!alive) { next.dispose(); return; }
       current = next;
       setPrepared(next);
@@ -336,7 +347,7 @@ export default function PartsTractorScene({
       alive = false;
       current?.dispose();
     };
-  }, [url]);
+  }, [modelId, url]);
 
   if (!prepared) return null;
 
@@ -345,7 +356,7 @@ export default function PartsTractorScene({
       className="tractor-canvas"
       frameloop="demand"
       shadows
-      camera={{ position: [4.4, 2.5, 4.4], fov: 38 }}
+      camera={{ position: [showcase.camera[0], showcase.camera[1], showcase.camera[2]], fov: 38 }}
       gl={GL}
       dpr={[1, 1.5]}
       onCreated={({ gl }) => bindContextLoss(gl.domElement, () => lost.current())}
@@ -369,9 +380,10 @@ export default function PartsTractorScene({
         faultPartId={faultPartId}
         reduced={reduced}
         lang={lang}
+        modelId={modelId}
         onSelect={onSelect}
       />
-      <OrbitControls makeDefault enableDamping={false} minDistance={1.2} maxDistance={80} maxPolarAngle={Math.PI / 2.05} />
+      <OrbitControls makeDefault enableDamping={false} minDistance={showcase.orbitMin} maxDistance={80} maxPolarAngle={Math.PI / 2.05} />
     </Canvas>
   );
 }

@@ -1,4 +1,7 @@
-import raw from '../../../public/models/tractor-parts/parts.json' with { type: 'json' };
+import dieselRaw from '../../../public/models/tractor-parts/parts.json' with { type: 'json' };
+import t70Raw from '../../../public/models/t70-parts/parts.json' with { type: 'json' };
+
+export type PartsModelId = 't70' | 'diesel';
 
 type RawNode = {
   name: string;
@@ -23,6 +26,23 @@ const SIDE: Record<string, string> = {
   wheel_fr: '右前',
   wheel_rl: '左后',
   wheel_rr: '右后',
+};
+
+const EN_T70: Record<string, string> = {
+  battery_box: 'Battery bay',
+  body_shell: 'Body shell',
+  gps_antenna: 'GPS antenna',
+  hub_fl: 'Front-left hub',
+  hub_fr: 'Front-right hub',
+  hub_rl: 'Rear-left hub',
+  hub_rr: 'Rear-right hub',
+  roof_cap: 'Roof cap',
+  sensor_roof_l: 'Left roof sensor',
+  sensor_roof_r: 'Right roof sensor',
+  wheel_fl: 'Front-left wheel',
+  wheel_fr: 'Front-right wheel',
+  wheel_rl: 'Rear-left wheel',
+  wheel_rr: 'Rear-right wheel',
 };
 
 const EN: Record<string, string> = {
@@ -74,14 +94,17 @@ function readNode(node: RawNode): CatalogPart {
   };
 }
 
-const parts = (raw.parts as RawNode[]).map(readNode);
+const catalogs: Record<PartsModelId, CatalogPart[]> = {
+  t70: (t70Raw.parts as RawNode[]).map(readNode),
+  diesel: (dieselRaw.parts as RawNode[]).map(readNode),
+};
 
-export function catalogParts(): readonly CatalogPart[] {
-  return parts;
+export function catalogParts(model: PartsModelId = 'diesel'): readonly CatalogPart[] {
+  return catalogs[model];
 }
 
-export function catalogByName(name: string): { node: CatalogPart; parent: CatalogPart | null } | null {
-  for (const part of parts) {
+export function catalogByName(name: string, model: PartsModelId = 'diesel'): { node: CatalogPart; parent: CatalogPart | null } | null {
+  for (const part of catalogs[model]) {
     if (part.name === name) return { node: part, parent: null };
     for (const child of part.children) {
       if (child.name === name) return { node: child, parent: part };
@@ -90,29 +113,31 @@ export function catalogByName(name: string): { node: CatalogPart; parent: Catalo
   return null;
 }
 
-export function resolveSelection(selection: string | null): { node: CatalogPart; parent: CatalogPart | null } | null {
+export function resolveSelection(selection: string | null, model: PartsModelId = 'diesel'): { node: CatalogPart; parent: CatalogPart | null } | null {
   if (!selection) return null;
-  if (selection.startsWith('group:')) return catalogByName(selection.slice(6));
-  return catalogByName(selection);
+  if (selection.startsWith('group:')) return catalogByName(selection.slice(6), model);
+  return catalogByName(selection, model);
 }
 
-export function selectionForPart(partId: string): string {
-  const part = parts.find(item => item.partId === partId);
+export function selectionForPart(partId: string, model: PartsModelId = 'diesel'): string {
+  const part = catalogs[model].find(item => item.partId === partId);
   if (!part) return partId;
   if (part.group) return `group:${part.name}`;
   return part.name;
 }
 
-export function partTitle(node: CatalogPart, lang: 'zh' | 'en'): string {
-  const side = SIDE[node.name];
+export function partTitle(node: CatalogPart, lang: 'zh' | 'en', model: PartsModelId = 'diesel'): string {
+  const side = model === 'diesel' ? SIDE[node.name] : undefined;
   const zh = side ? `${node.labelZh} · ${side}` : node.labelZh;
   if (lang === 'zh') return zh;
-  return EN[node.name] ?? zh;
+  const table = model === 't70' ? EN_T70 : EN;
+  return table[node.name] ?? zh;
 }
 
 /** Hover copy keeps the Chinese name stored on the mesh. */
-export function hoverLabel(labelZh: string, lang: 'zh' | 'en', name: string): string {
+export function hoverLabel(labelZh: string, lang: 'zh' | 'en', name: string, model: PartsModelId = 'diesel'): string {
   if (lang === 'zh') return labelZh;
-  const en = EN[name];
+  const table = model === 't70' ? EN_T70 : EN;
+  const en = table[name];
   return en ? `${labelZh} · ${en}` : labelZh;
 }

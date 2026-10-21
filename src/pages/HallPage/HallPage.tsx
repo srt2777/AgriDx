@@ -21,6 +21,8 @@ import { useLang } from '@/hooks/useLang';
 import { preloadPage } from '@/lib/page-loaders';
 import { beginSharedTransition, sharedTransitionName } from '@/lib/shared-transition';
 import { StatTicker } from '@/components/StatTicker';
+import { BorderBeam } from '@/components/motion/BorderBeam';
+import { SpringDrawer } from '@/components/motion/SpringDrawer';
 import { RING_DRAW_MS, zoneSweep } from '@/lib/delight';
 import { easeOutCubic, MOTION } from '@/lib/motion-tokens';
 import { probeWebGL, type GraphicsReason } from '@/lib/webgl';
@@ -289,13 +291,14 @@ export default function HallPage() {
                 <button
                   key={item.id}
                   type="button"
-                  className={`hall-zone nv-corners${active ? ' is-on' : ''}${hovered === item.id ? ' is-hover' : ''}`}
+                  className={`hall-zone nv-corners${active ? ' is-on is-beamed' : ''}${hovered === item.id ? ' is-hover' : ''}`}
                   aria-pressed={active}
                   style={{ '--zone-color': item.color } as CSSProperties}
                   onClick={() => choose(item.id)}
                   onPointerEnter={() => setHovered(item.id)}
                   onPointerLeave={() => setHovered(null)}
                 >
+                  {active && <BorderBeam />}
                   <span className="hall-zone-mark"><Icon size={16} strokeWidth={1.6} /></span>
                   <span>
                     <small>{item.id} {t('展区', 'ZONE')}</small>
@@ -335,8 +338,7 @@ export default function HallPage() {
                 />
               </div>
             )}
-            {detail && (
-              <aside className="hall-drawer nv-corners" key={selected} aria-labelledby="hall-drawer-title">
+            <SpringDrawer open={detail} className="hall-drawer nv-corners" labelledBy="hall-drawer-title">
                 <header>
                   <div>
                     <span>{selected} {t('展区', 'ZONE')}</span>
@@ -358,15 +360,14 @@ export default function HallPage() {
                   ))}
                 </ul>
                 <p className="hall-drawer-note">{t('规格是示例数据，不是铭牌或实测。', 'Specs are example data, not a plate or a measurement.')}</p>
-                <Link to="/knowledge" onPointerEnter={() => preloadPage('/knowledge')} onFocus={() => preloadPage('/knowledge')} onClick={(event) => {
+                <Link className="glass-press" data-motion="glass-press" to="/knowledge" onPointerEnter={() => preloadPage('/knowledge')} onFocus={() => preloadPage('/knowledge')} onClick={(event) => {
                   if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return;
                   event.preventDefault();
                   beginSharedTransition(sharedTransitionName('hall', selected), () => navigate('/knowledge'), document.getElementById('hall-drawer-title'));
                 }}>
                   {t('查看该展区资料', 'Open this zone’s evidence')}
                 </Link>
-              </aside>
-            )}
+            </SpringDrawer>
           </div>
           <aside className="hall-side">
             <section className="hall-panel nv-corners" aria-labelledby="hall-status-title">

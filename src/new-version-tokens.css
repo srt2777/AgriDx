@@ -1,3 +1,20 @@
+/* Shared chrome for the campus, the hall, and the new shell.
+   New-version accents follow the hub cyan. The gold version pill stays on --wheat. */
+:where(.expo-page, .new-version-shell) {
+  --primary: var(--hub-primary);
+  --primary-foreground: var(--hub-primary-foreground);
+  --ring: var(--hub-primary);
+  --accent: var(--hub-accent);
+  --accent-foreground: var(--hub-accent-foreground);
+}
+html.theme-dark :where(.expo-page, .new-version-shell) {
+  --primary: var(--hall-cyan);
+  --primary-foreground: #07131d;
+  --ring: var(--hall-cyan);
+  --accent: color-mix(in srgb, var(--hall-cyan) 14%, #10283a);
+  --accent-foreground: #e8f6ff;
+}
+
 /* Shared chrome for the campus, the hall, and the new shell. */
 :where(.expo-page, .new-version-shell, .hall-page),
 :where(.expo-page, .new-version-shell, .hall-page) * ,
