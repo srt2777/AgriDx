@@ -4,7 +4,7 @@ import { readFileSync, readdirSync } from 'node:fs';
 import path from 'node:path';
 import { rootDir } from './lib/process.mjs';
 
-const repository = 'srt2777/AgriDx-v3';
+const repository = process.env.GITHUB_REPOSITORY || 'srt2777/AgriDx';
 const branch = 'dev-preview-built';
 const api = (endpoint, data, method) => {
   const args = ['api', `repos/${repository}/${endpoint}`];
