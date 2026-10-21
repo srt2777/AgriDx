@@ -13,7 +13,7 @@ import re
 import tempfile
 
 SCHEMA_VERSION = 1
-RULES_VERSION = '1.0.0'
+RULES_VERSION = '1.1.0'
 STATES = ('verified', 'pending', 'unverified', 'failed', 'unspecified')
 
 # id: category, severity, suggested next action. Keep IDs stable across reports.
@@ -36,6 +36,7 @@ RULES = {
     'scope.condition': ('applicability', 'error', '核对配置或排放条件，不跨型号补造适用范围。'),
     'entry.id': ('index', 'error', '使用唯一的ASCII大写条目编号，避免复用编号。'),
     'entry.type': ('field_format', 'error', '选择整理规范允许的条目类别。'),
+    'entry.roles': ('field_format', 'error', '按原文字段标记或人工核对结果填写roles/role_basis、risk_level/risk_basis；无法确定时省略并留待审核。'),
     'entry.summary': ('body_format', 'error', '事实正文仅维护在Markdown，不在索引保留summary副本。'),
     'entry.source': ('source_consistency', 'error', '核对条目来源编号与品牌，不把不同品牌资料混用。'),
     'entry.path': ('body_format', 'error', '将索引指向整理后的知识库内正式Markdown知识卡。'),
