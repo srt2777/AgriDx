@@ -20,3 +20,4 @@ server/data/
 # Offline validator bytecode and optional local quality artifacts
 __pycache__/
 work/knowledge-quality/
+work/img2threejs/

@@ -238,6 +238,13 @@
       "base": "3.7.6",
       "version": "3.7.7",
       "date": "2026-10-21"
+    },
+    {
+      "id": "img2threejs-generation-20261020",
+      "kind": "feature",
+      "base": "3.7.7",
+      "version": "3.8.0",
+      "date": "2026-10-21"
     }
   ]
 }

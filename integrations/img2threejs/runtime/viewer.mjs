@@ -1,0 +1,21 @@
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { GLTFExporter } from 'three/addons/exporters/GLTFExporter.js';
+import { createObjectModel } from './src/createObjectModel.ts';
+const scene = new THREE.Scene(); scene.background = new THREE.Color('#e9edf1');
+const renderer = new THREE.WebGLRenderer({ antialias: true }); renderer.setSize(innerWidth, innerHeight); document.body.appendChild(renderer.domElement);
+const camera = new THREE.PerspectiveCamera(35, innerWidth / innerHeight, 0.01, 1000);
+const model = createObjectModel(); scene.add(model);
+const box = new THREE.Box3().setFromObject(model); const center = box.getCenter(new THREE.Vector3());
+const radius = Math.max(box.getSize(new THREE.Vector3()).length(), 0.1);
+scene.add(new THREE.HemisphereLight(0xffffff, 0x7a8791, 2));
+const key = new THREE.DirectionalLight(0xffffff, 3); key.position.set(radius, radius * 2, radius); scene.add(key);
+const controls = new OrbitControls(camera, renderer.domElement); controls.target.copy(center);
+window.setReviewAngle = angle => { const a = angle * Math.PI / 180; camera.position.set(center.x + Math.sin(a) * radius * 1.6, center.y + radius * 0.4, center.z + Math.cos(a) * radius * 1.6); controls.update(); renderer.render(scene, camera); };
+window.setReviewAngle(0);
+window.exportModel = async () => {
+  const binary = await new GLTFExporter().parseAsync(model, { binary: true, onlyVisible: true });
+  let value = ''; for (const byte of new Uint8Array(binary)) value += String.fromCharCode(byte); return btoa(value);
+};
+renderer.setAnimationLoop(() => { controls.update(); renderer.render(scene, camera); });
+window.__IMG2THREEJS_READY__ = true;

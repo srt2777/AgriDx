@@ -6,6 +6,7 @@ import { apiNotFound, createChatRateLimiter, errorHandler, securityHeaders } fro
 import { createCatalogRoutes } from './routes/catalog';
 import { createChatRoutes } from './routes/chat';
 import { createStatusRoutes } from './routes/status';
+import { createModelingRoutes } from './routes/modeling';
 import type { ServerRuntime } from './runtime';
 
 /** Assemble HTTP only; callers control initialization and listening. */
@@ -15,6 +16,7 @@ export function createApp(runtime: ServerRuntime): express.Express {
   app.disable('x-powered-by');
   app.use(securityHeaders);
   app.use(cors());
+  app.use('/api/modeling', createModelingRoutes());
   app.use(express.json({ limit: '256kb' }));
   app.use('/api/chat', createChatRateLimiter());
   const memory = runtime.getMemoryStore ?? getMemoryStore;
