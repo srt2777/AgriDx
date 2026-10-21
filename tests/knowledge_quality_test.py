@@ -100,6 +100,45 @@ class QualityTests(unittest.TestCase):
         self.assertEqual(len(missing), 4)
         self.assertTrue(all(x['severity'] == 'error' and x['evidence']['field'] for x in missing))
 
+    def test_optional_roles_and_risk_are_backward_compatible_and_validated(self):
+        base = self.scan()
+        self.assertEqual(base['summary']['role_schema']['entries_with_roles'], 0)
+        self.assertEqual(base['summary']['role_schema']['entries_with_risk_level'], 0)
+        self.card(0, '- 故障现象：合成现象。\n- 可能原因：合成原因。\n- 针对处理：合成处理。\n- 证据：SRC-TEST-0；测试章节1。')
+        self.entries[0].update(roles=['symptom', 'cause', 'action'], role_basis='原文标记',
+                               risk_level='medium', risk_basis='合成测试依据')
+        self.entries[1].update(roles=['check'], role_basis='人工核对')
+        self.write()
+        report = self.scan()
+        self.assertEqual(report['summary']['errors'], 0)
+        summary = report['summary']['role_schema']
+        self.assertEqual((summary['entries_with_roles'], summary['entries_with_risk_level']), (2, 1))
+        self.assertEqual(summary['roles'], {'symptom': 1, 'cause': 1, 'check': 1, 'action': 1, 'retest': 0})
+        self.assertEqual(summary['risk_levels'], {'medium': 1})
+        bad = [
+            {'roles': ['cause', 'symptom'], 'role_basis': '人工核对'},          # order
+            {'roles': ['symptom', 'symptom'], 'role_basis': '人工核对'},        # duplicate
+            {'roles': [], 'role_basis': '人工核对'},                            # empty
+            {'roles': ['diagnosis'], 'role_basis': '人工核对'},                 # unknown role
+            {'roles': ['symptom']},                                             # missing basis
+            {'role_basis': '人工核对'},                                         # basis without roles
+            {'roles': ['retest'], 'role_basis': '原文标记'},                    # no explicit marker
+            {'risk_level': 'critical', 'risk_basis': '依据'},                   # unknown level
+            {'risk_level': 'high'},                                             # missing basis
+            {'risk_basis': '依据'},                                             # basis without level
+        ]
+        for fields in bad:
+            with self.subTest(fields=fields):
+                entry = {k: v for k, v in self.entries[0].items()
+                         if k not in ('roles', 'role_basis', 'risk_level', 'risk_basis')}
+                self.entries[0] = {**entry, **fields}
+                self.write()
+                self.assertIn('entry.roles', self.rules(self.scan()))
+        entry = {k: v for k, v in self.entries[0].items() if k not in ('roles', 'role_basis', 'risk_level', 'risk_basis')}
+        self.entries[0] = {**entry, 'entry_type': '资料索引', 'risk_level': 'low', 'risk_basis': '依据'}
+        self.write()
+        self.assertIn('entry.roles', self.rules(self.scan()))
+
     def test_bad_json_line_does_not_hide_later_valid_records(self):
         path = self.index / 'entries.jsonl'
         path.write_text('{bad json}\n' + path.read_text('utf8'), encoding='utf8')

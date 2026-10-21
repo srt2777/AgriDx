@@ -3,7 +3,7 @@ import { appendFileSync } from 'node:fs';
 import { isMain, main } from '../lib/process.mjs';
 
 export const productionBranch = 'tencent-production-ready';
-const repository = 'srt2777/AgriDx-v3';
+const repository = process.env.GITHUB_REPOSITORY || 'srt2777/AgriDx';
 
 export function publishReady(commit, api) {
   if (!/^[0-9a-f]{40}$/.test(commit)) throw new Error('必须指定40位提交 SHA。');

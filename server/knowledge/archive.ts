@@ -7,8 +7,14 @@ import { isArchiveId } from './evidence';
 const ARCHIVE_ROOT = path.resolve(process.cwd(), '知识库/整理后的知识库');
 const ENTRY_TYPES = ['维护/故障知识', '操作/维护知识', '安全操作', '系统安装/调试',
   '系统适用边界', '资料索引', '资料核验', '机型资料', '资料缺口'];
+/** Optional role/risk schema (2026-10-21); absent means not yet tagged, never "none" or "low". */
+export const ENTRY_ROLES = ['symptom', 'cause', 'check', 'action', 'retest'] as const;
+export type EntryRole = typeof ENTRY_ROLES[number];
+const ROLE_BASES = ['原文标记', '人工核对'];
+const RISK_LEVELS = ['high', 'medium', 'low'];
+const NON_DIAGNOSTIC_ENTRY_TYPES = ['系统适用边界', '资料索引', '资料核验', '机型资料', '资料缺口'];
 
-interface ArchiveEntry {
+export interface ArchiveEntry {
   entry_id: string;
   source_id: string;
   brand: string;
@@ -24,6 +30,31 @@ interface ArchiveEntry {
   use?: string;
   entry_type?: string;
   emission_stage?: '国三' | '国四';
+  roles?: EntryRole[];
+  role_basis?: '原文标记' | '人工核对';
+  risk_level?: 'high' | 'medium' | 'low';
+  risk_basis?: string;
+}
+
+/** Mirrors 校验索引.py check_roles structure; the validator also checks explicit Markdown markers. */
+export function entryRoleSchemaError(entry: ArchiveEntry): string | undefined {
+  const tagged = ['roles', 'role_basis', 'risk_level', 'risk_basis'].some((field) => field in entry);
+  if (!tagged) return undefined;
+  if (NON_DIAGNOSTIC_ENTRY_TYPES.includes(entry.entry_type ?? '')) return '资料信息类条目不标注角色或风险等级';
+  if (entry.roles !== undefined || entry.role_basis !== undefined) {
+    const roles = entry.roles;
+    if (!Array.isArray(roles) || !roles.length || new Set(roles).size !== roles.length ||
+      roles.some((role, index) => !ENTRY_ROLES.includes(role) ||
+        (index > 0 && ENTRY_ROLES.indexOf(role) < ENTRY_ROLES.indexOf(roles[index - 1])))) {
+      return 'roles须为symptom/cause/check/action/retest的非空、无重复有序子集';
+    }
+    if (!ROLE_BASES.includes(entry.role_basis ?? '')) return 'roles须同时填写role_basis';
+  }
+  if (entry.risk_level !== undefined || entry.risk_basis !== undefined) {
+    if (!RISK_LEVELS.includes(entry.risk_level ?? '')) return 'risk_level只能为high、medium或low';
+    if (typeof entry.risk_basis !== 'string' || !entry.risk_basis.trim()) return 'risk_level须同时填写risk_basis';
+  }
+  return undefined;
 }
 
 export interface ArchiveSource {
@@ -99,6 +130,8 @@ export function loadArchive(archiveRoot = ARCHIVE_ROOT, options: { configureMode
     if (entry.emission_stage !== undefined && !['国三', '国四'].includes(entry.emission_stage)) {
       throw new Error(`知识条目排放阶段无效：${entry.entry_id}`);
     }
+    const roleError = entryRoleSchemaError(entry);
+    if (roleError) throw new Error(`知识条目角色/风险字段无效：${entry.entry_id}：${roleError}`);
     if (ids.has(entry.entry_id)) throw new Error(`知识条目编号重复：${entry.entry_id}`);
     ids.add(entry.entry_id);
     const source = sourceMap.get(entry.source_id);
