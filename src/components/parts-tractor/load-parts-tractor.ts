@@ -73,7 +73,12 @@ function prepareMesh(mesh: THREE.Mesh, originals: Set<THREE.Material>, edgesMate
   const list = (Array.isArray(source) ? source : [source]).filter(Boolean);
   const clones = list.map(material => {
     originals.add(material);
-    return material.clone();
+    const clone = material.clone();
+    // Hunyuan part splits wrote COLOR_0 over the photo albedo. Clones ignore vertex
+    // colors so a returning attribute cannot repaint the shell; the texture stays in front.
+    const paint = clone as THREE.MeshStandardMaterial;
+    if (paint.isMeshStandardMaterial) paint.vertexColors = false;
+    return clone;
   });
   mesh.material = Array.isArray(source) ? clones : clones[0];
   mesh.castShadow = true;
