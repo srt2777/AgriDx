@@ -140,8 +140,9 @@ export function preparePartsRoot(root: THREE.Group): PreparedTractor {
 }
 
 /**
- * Meshopt-compressed GLB with WebP images.
+ * Meshopt-compressed GLB with WebP images and KHR_mesh_quantization.
  * GLTFLoader decodes EXT_texture_webp through the browser image decoder.
+ * Node scale stays as exported; it undoes the quantization, so positions move in parent metres.
  */
 export async function loadPartsTractor(url: string): Promise<PreparedTractor> {
   if (!MeshoptDecoder.supported) throw new Error('Meshopt decoder is unavailable');

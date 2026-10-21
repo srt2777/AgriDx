@@ -306,7 +306,7 @@ export default function PartsTractorScene({
   reduced: boolean;
   lang: 'zh' | 'en';
   onSelect: (name: string) => void;
-  onReady: (names: string[]) => void;
+  onReady: () => void;
   onLost: () => void;
   onError: (message: string) => void;
 }) {
@@ -328,7 +328,7 @@ export default function PartsTractorScene({
       if (!alive) { next.dispose(); return; }
       current = next;
       setPrepared(next);
-      ready.current(next.records.map(record => record.name));
+      ready.current();
     }).catch((error: unknown) => {
       if (alive) fail.current(error instanceof Error ? error.message : String(error));
     });

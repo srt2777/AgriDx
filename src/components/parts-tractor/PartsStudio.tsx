@@ -24,7 +24,6 @@ export default function PartsStudio({ onImport }: { onImport: (event: ChangeEven
   const [lost, setLost] = useState(false);
   const [error, setError] = useState('');
   const [ready, setReady] = useState(false);
-  const [meshNames, setMeshNames] = useState<ReadonlySet<string>>(() => new Set());
   const [selection, setSelection] = useState<string | null>(null);
   const [explode, setExplode] = useState(0);
   const [light, setLight] = useState<StudioLight>('studio');
@@ -34,10 +33,8 @@ export default function PartsStudio({ onImport }: { onImport: (event: ChangeEven
   const parts = catalogParts();
   const resolved = resolveSelection(selection);
   const example = resolved ? partExample(resolved.node.partId) : null;
-  const meshReady = hasMesh(resolved?.node ?? null, meshNames);
 
-  const onReady = useCallback((names: string[]) => {
-    setMeshNames(new Set(names));
+  const onReady = useCallback(() => {
     setReady(true);
     setError('');
   }, []);
@@ -145,7 +142,6 @@ export default function PartsStudio({ onImport }: { onImport: (event: ChangeEven
                   <ul>{example.faults.map(fault => <li key={fault.zh}>{t(fault.zh, fault.en)}</li>)}</ul>
                 </>
               )}
-              {!meshReady && ready && <p className="parts-missing">{t('当前模型文件里没有这个网格，说明仍来自部件表。', 'This mesh is not in the current file. The note still comes from the parts list.')}</p>}
             </>
           ) : <p className="parts-missing">{t('点选模型或列表中的部件。状态和故障是示例，没有接入实车。', 'Select a part in the model or the list. Status and faults are examples, with no live machine attached.')}</p>}
         </div>
@@ -174,12 +170,6 @@ export default function PartsStudio({ onImport }: { onImport: (event: ChangeEven
       </aside>
     </div>
   );
-}
-
-function hasMesh(node: CatalogPart | null, names: ReadonlySet<string>) {
-  if (!node) return false;
-  if (node.group) return node.children.some(child => names.has(child.name));
-  return names.has(node.name);
 }
 
 function TreeNode({ part, selection, lang, onSelect }: { part: CatalogPart; selection: string | null; lang: 'zh' | 'en'; onSelect: (name: string) => void }) {
