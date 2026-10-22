@@ -1,7 +1,7 @@
 import { version } from '../../package.json';
 import { useLang } from '@/hooks/useLang';
 import { statusPlace } from '@/lib/command-routes';
-import { useLocation } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import './site-status.css';
 
 /** Same identity and place line on the campus, the shell, and the new 404. */
@@ -16,7 +16,7 @@ export function SiteStatusBar() {
         {lang === 'zh' ? '南京农业大学工学院 · 农机知识与诊断' : 'COLLEGE OF ENGINEERING, NAU · KNOWLEDGE & DIAGNOSIS'}
       </span>
       <span>
-        v{version} <i aria-hidden="true" />
+        <Link to="/version-history" className="hover:underline">{lang === 'zh' ? '更新记录' : 'Version history'} · v{version}</Link> <i aria-hidden="true" />
         {place}
       </span>
     </footer>

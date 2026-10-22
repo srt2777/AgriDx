@@ -39,6 +39,10 @@ test('整批同步四处版本，预演不写入，重跑不升版，旧批次�
     assert.match(get('README.md'), /3.4.5/);
     assert.match(get('CHANGELOG.md'), /3.4.5 — 2026-10-13/);
     assert.match(get('CHANGELOG.md'), /## 3.4.4/);
+    for (const title of ['详细改动', '知识库变化', '兼容性', '验证结果', '关联 PR', '部署记录']) {
+      assert.ok(get('CHANGELOG.md').includes('### ' + title), title);
+    }
+    assert.ok(get('CHANGELOG.md').includes('- 未记录'));
     const before = get('CHANGELOG.md');
     assert.equal(updateVersion(options).repeated, true);
     assert.equal(get('CHANGELOG.md'), before);

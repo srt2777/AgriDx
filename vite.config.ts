@@ -2,6 +2,7 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 import path from 'node:path';
+import { versionHistoryPlugin } from './scripts/version-history.mjs';
 import { execFileSync } from 'node:child_process';
 
 // A source archive can still be built locally; unknown builds never auto-reload.
@@ -15,7 +16,7 @@ const buildCommit = resolveBuildCommit();
 
 export default defineConfig({
   define: { __AGRIDX_DEV_PREVIEW__: 'false', __AGRIDX_BUILD_COMMIT__: JSON.stringify(buildCommit) },
-  plugins: [react(), tailwindcss(), {
+  plugins: [react(), tailwindcss(), versionHistoryPlugin(__dirname), {
     name: 'agridx-build-identity',
     apply: 'build',
     transformIndexHtml: () => buildCommit ? [{ tag: 'meta', attrs: { name: 'agridx-build-commit', content: buildCommit }, injectTo: 'head' as const }] : [],

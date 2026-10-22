@@ -22,7 +22,8 @@
     "preview:publish": "node scripts/publish-dev-preview.mjs",
     "design:palette": "node --import tsx scripts/material-you-tokens.mjs",
     "version:update": "node scripts/version-update.mjs",
-    "knowledge:dedup": "node scripts/knowledge-semantic.mjs"
+    "knowledge:dedup": "node scripts/knowledge-semantic.mjs",
+    "history:check": "node scripts/version-history.mjs"
   },
   "dependencies": {
     "@radix-ui/react-alert-dialog": "^1.1.14",

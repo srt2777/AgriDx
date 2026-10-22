@@ -44,6 +44,8 @@ npm.cmd run check:version
 
 ## 更新日志格式
 
+版本历史网页直接从 CHANGELOG 构建生成，维护方式见[版本历史记录](version-history.md)。自动升版模板现包括详细改动、知识库变化、兼容性、验证结果、关联 PR、部署记录；执行者填入真实证据，缺失保留“未记录”。同批补充日志不重复升版，部署记录不会自动转换为当前正式站成功状态。
+
 沿用现有 CHANGELOG 与 `version-batches.json` 格式，不改写历史节。自 3.7.2 起，`npm run check:version`（含于 `verify`）要求最新版本节写明：批次 ID（与 `version-batches.json` 最后一项一致）、`更新类型：knowledge|fix|maintenance|feature|breaking`、实际验证结果。部署状态如实写“未部署”或实际结果。PR 描述按 `.github/pull_request_template.md` 填写。
 
 ## 知识库版本

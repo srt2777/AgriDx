@@ -1,5 +1,5 @@
 import { ArrowRight, ExternalLink } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import content, { pick } from '@/data/content';
 import { useLang } from '@/hooks/useLang';
@@ -89,7 +89,7 @@ export default function ClosingSection() {
           </div>
 
           <div className="mt-8 flex flex-col items-center justify-between gap-2 border-t border-border/50 pt-6 text-xs text-muted-foreground/70 md:flex-row">
-            <div>{t('© 2026 耕知·耘诊 · 农业机械智能诊断平台', '© 2026 Gengzhi · Yunzhen · Agricultural Machinery Diagnosis')} · v{version}</div>
+            <div>{t('© 2026 耕知·耘诊 · 农业机械智能诊断平台', '© 2026 Gengzhi · Yunzhen · Agricultural Machinery Diagnosis')} · <Link to="/version-history" className="hover:underline">{t('更新记录', 'Version history')} · v{version}</Link></div>
             <div>{t('资料覆盖持续完善 · 现场处置请结合专业人员复核', 'Coverage is growing · review on-site actions with a qualified technician')}</div>
           </div>
         </div>
