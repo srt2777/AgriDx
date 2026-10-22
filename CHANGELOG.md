@@ -10,7 +10,7 @@
 
 - 新版界面暂时隐藏 3.7.8 的五组动效：液态按压（Liquid Glass Press）、形变面板（Morphing Modal）、边框流光（Border Beam）、思考光球（Thinking Orbs）、弹簧抽屉与倾斜卡片（Spring Drawer + Tilt Card）。单一开关 `PREMIUM_MOTION_ENABLED` 默认 `false`，组件与样式保留，改为 `true` 即可一起恢复。关闭时不挂 `glass-press` / `is-beamed`、不渲染步骤条、诊断 HUD、光球和抽屉遮罩；工坊详情回到标题、状态和故障列表，加载回到原有指示。工坊抽屉高度与横向裁切只在 `data-premium-motion=on` 时生效。
 - 项目已在 3.10.0 上限。用户要求本批递增补丁，因此上限只抬到 3.10.1 以容纳这一补丁，不升到 3.11.0。未改路由、接口、三维几何或知识库，`kb_version` 仍为 2026.10.3。
-- 更新类型：maintenance；批次：ui-20261022-hide-motion。验证结果与 GitHub 保存、部署状态由执行者按实际结果补充。
+- 更新类型：maintenance；批次：ui-20261022-hide-motion。验证：本地（Node v22.23.3）`npm run verify` 通过，测试 451 项，449 通过、2 项跳过、0 失败；版本、知识库版本、类型、lint（0 错误，1 条既有警告）与构建通过。新版界面抽查大厅展区卡、展厅抽屉、工坊部件详情和诊断页：五组动效节点均为 0，390px 无横向溢出。本提交未部署（合入 main 后按既有流程自动发布）。
 
 ## 3.10.0 — 2026-10-22
 
