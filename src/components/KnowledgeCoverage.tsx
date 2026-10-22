@@ -8,7 +8,7 @@ export default function KnowledgeCoverage() {
   const lang = useLang();
   const t = (zh: string, en: string) => lang === 'zh' ? zh : en;
   const { catalog, loading, failed } = useKnowledgeCatalog();
-  return <section id="knowledge" className="knowledge-section">
+  return <section id="knowledge" className="knowledge-section" data-home-beat="knowledge" data-home-side="end">
     <div className="page-container">
       <div className="section-heading">
         <div className="section-eyebrow">{t('耕知 · 从资料到结构', 'GENGZHI · FROM DOCUMENTS TO STRUCTURE')}</div>

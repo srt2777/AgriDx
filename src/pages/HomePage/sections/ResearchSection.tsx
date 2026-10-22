@@ -27,7 +27,7 @@ export default function ResearchSection() {
       url: 'https://arxiv.org/abs/2602.03578',
     },
   ];
-  return <section id="research" className="research-section">
+  return <section id="research" className="research-section" data-home-beat="research" data-home-side="end">
     <div className="page-container">
       <div className="research-heading"><div className="section-heading"><div className="section-eyebrow">{t('研究依据 · 面向下一步', 'RESEARCH REFERENCES · INFORMING WHAT’S NEXT')}</div><h2>{t('有论文启发，也有实测边界。', 'Research informs. Validation distinguishes.')}</h2><p className="mt-4">{t('从农业知识组织到按需检索，把研究思路转成可验证的建设步骤。论文结论、当前能力和本项目效果分别说明。', 'From agricultural knowledge organization to adaptive retrieval, translate research ideas into verifiable steps. Paper findings, current capabilities and project outcomes remain distinct.')}</p></div><BookOpen size={42} strokeWidth={1.1} aria-hidden="true" /></div>
       <div className="research-grid">{papers.map(paper => <article className="research-paper" key={paper.url}><div className="research-paper-meta"><span>{paper.year}</span><span>{paper.venue}</span></div><h3><a href={paper.url} target="_blank" rel="noreferrer">{paper.title}</a></h3><p>{paper.insight}</p><div className="research-paper-boundary">{paper.boundary}</div><a className="hero-text-link" href={paper.url} target="_blank" rel="noreferrer">{t('阅读原文', 'Read the paper')}<ArrowUpRight size={15} /></a></article>)}</div>
