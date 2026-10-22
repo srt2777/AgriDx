@@ -10,6 +10,8 @@ const FILES = {
   entries: `${KB_ROOT}/entries.jsonl`,
   sources: `${KB_ROOT}/sources.json`,
   hierarchy: `${KB_ROOT}/hierarchy.json`,
+  entry_roles: `${KB_ROOT}/entry-roles.jsonl`,
+  role_review_queue: `${KB_ROOT}/role-review-queue.jsonl`,
   learning_index: 'docs/tractor-knowledge/index.jsonl',
   learning_expansion: 'docs/tractor-knowledge/expansion-5000/index.jsonl',
 };

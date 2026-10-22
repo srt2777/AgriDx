@@ -1,8 +1,8 @@
 {
   "schema": 1,
-  "kb_version": "2026.10.1",
-  "released": "2026-10-21",
-  "project_version": "3.7.2",
+  "kb_version": "2026.10.2",
+  "released": "2026-10-22",
+  "project_version": "3.8.2",
   "counts": {
     "archive": 4877,
     "learning": 6000,
@@ -13,6 +13,8 @@
     "entries": "2bf45e3a7abe7a84afc48bf8ee129c00786558e2d3b0b97c7a4cdf26ec493385",
     "sources": "8fe14f18be1ebd06b8881bb24d8bffc97930a5bea1657612d06af332930d771b",
     "hierarchy": "36faa3045c99c8e72a3cfd27f83280de13cbf782b6bc1e54ed5e8a08573889af",
+    "entry_roles": "f53450631b094c4ed978a3c570610c457613bc8725ca450c6485b2a640015a82",
+    "role_review_queue": "30e653e0cb193b2b7475e057de294c9136cac100af91d26f6cff64ba345ef814",
     "learning_index": "1eac29d4f33681de65628b95b992b248f35c62578fb2f9e45ac5b1fdda8b414f",
     "learning_expansion": "f498bd5dce2b3f96730ab5d508936d5852d0173416e2636878e35aabcda3fbfc",
     "markdown": "39b8cbafcc9fb8816d34bfb662399730c93bb80fb21c350eabc2864cffd9f402"
