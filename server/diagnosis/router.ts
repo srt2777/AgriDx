@@ -131,7 +131,9 @@ export function decideDiagnosisRoute(input: DiagnosisRouterInput, config: Readon
   const riskLevel: DiagnosticRiskLevel = HIGH_RISK.test(`${input.query}\n${input.currentQuery}`) || indexedHighRisk ? 'high'
     : usable.length && usable.every(candidate => candidate.riskLevel === 'low') ? 'low' : 'unknown';
   const reliable = usable.some(candidate => candidate.sourceIndexed && candidate.referenceVerification === 'verified' && candidate.modelMatch === 'exact' && candidate.relevance.level === 'high');
-  const hasDiagnosticEvidence = candidates.some((candidate, index) => !candidate.excluded && candidate.sourceIndexed && TECHNICAL.has(input.retrieved[index].entryType ?? ''));
+  // 2026-10-22: for an open question (no brand/model) 通识 entries count as partial, never direct, evidence.
+  const hasDiagnosticEvidence = candidates.some((candidate, index) => !candidate.excluded && (candidate.sourceIndexed && TECHNICAL.has(input.retrieved[index].entryType ?? '')
+    || input.retrieved[index].generalEvidence === true && input.retrieved[index].entryType === '通识学习' && resolved.openArchive));
   const evidenceLevel: CoordinationDecision['evidenceLevel'] = !hasDiagnosticEvidence ? 'none'
     : !isAssisted && direct.length === 1 && !SYNTHESIS_REQUEST.test(input.currentQuery) && !evidenceConflict ? 'direct_reference' : 'partial';
   const ids = (selected: DiagnosisCandidateAssessment[]) => [...new Set(selected.flatMap(candidate => candidate.entryId ? [candidate.entryId] : []))];

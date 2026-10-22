@@ -11,7 +11,7 @@ import {
   type KnowledgeChunk,
 } from '../server/knowledge/retriever';
 import { buildSystemPrompt } from '../server/knowledge/systemPrompt';
-import { reloadKnowledgeSnapshot } from '../server/knowledge/snapshot';
+import { peekKnowledgeSnapshot, reloadKnowledgeSnapshot } from '../server/knowledge/snapshot';
 
 const context = { machineType: '拖拉机', brand: '纽荷兰', model: 'WORKMASTER25' };
 const starterQuery = '钥匙在 START，启动电机不转';
@@ -24,6 +24,7 @@ function card(text: string, heading = 'KB-TEST-001｜灯光不亮'): KnowledgeCh
 }
 
 before(() => loadKnowledgeBase());
+const loadedChunks = () => peekKnowledgeSnapshot()!.chunks.map((chunk) => ({ ...chunk, diagnosticMetadata: deriveDiagnosticMetadata(chunk) }));
 
 test('relevance retains the raw lexical score and never claims calibration or diagnostic accuracy', () => {
   const found = retrieve(starterQuery, 5, context);
@@ -84,7 +85,8 @@ test('generic information collection and background entries cannot qualify as di
     assert.deepEqual(deriveDiagnosticMetadata({ ...card(text), entryType: type }).coverage, noCoverage);
   }
   assert.deepEqual(deriveDiagnosticMetadata({ source: 'generic.md', heading: '灯光故障', text }).coverage, noCoverage);
-  const generic = retrieve('发动机打不着火')[0];
+  // 2026-10-22: open questions now rank archive + 通识 first, so read the generic hint from the index.
+  const generic = loadedChunks().find((chunk) => !chunk.entryId && chunk.heading.includes('启动'));
   assert.ok(generic && !generic.entryId);
   assert.deepEqual(generic.diagnosticMetadata?.coverage, noCoverage);
 });

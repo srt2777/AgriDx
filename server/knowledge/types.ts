@@ -40,6 +40,12 @@ export interface KnowledgeChunk {
   riskBasis?: string;
   /** General principles may inform analysis, but never prove model-specific repairs. */
   diagnosticEvidence?: false;
+  /**
+   * Set at retrieval time only (never in entry files): when the question names no brand or
+   * model, 通识 (TK) entries count as general-knowledge evidence (user decision 2026-10-22).
+   * Such evidence has no manual page and must be labelled 通识, never as a manual statement.
+   */
+  generalEvidence?: true;
   applicability?: 'matched' | 'pending';
   diagnosticMetadata?: DiagnosticMetadata;
   /** This is a raw lexical match score, not a percentage or diagnostic probability. */

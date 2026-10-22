@@ -186,6 +186,8 @@ export interface ResolvedScope {
   identityConflict: boolean;
   tractorArchive: boolean;
   genericKnowledge: boolean;
+  /** No brand and no concrete model named: archive and 通识 entries are searched together (2026-10-22). */
+  openArchive: boolean;
   electric: boolean;
 }
 
@@ -235,7 +237,8 @@ export function resolveScope(query: string, context: RetrievalContext): Resolved
   const electric = /电动|新能源|无人|electric|autonomous|new-energy/i.test([type, explicitBrand, context.model, queryPowerIdentity].filter(Boolean).join(' ')) ||
     brand === '鸿鹄' || models.includes('t70');
   const ambiguous = queryBrands.length > 1 || contextBrands.length > 1;
-  return { brand, models, emissions, configurations, driveConfigurations, ambiguous, identityConflict, tractorArchive, electric, genericKnowledge: tractorArchive && !identityConflict && !electric && !brand && models.length === 0 && emissions.length === 0 && !ambiguous };
+  return { brand, models, emissions, configurations, driveConfigurations, ambiguous, identityConflict, tractorArchive, electric, genericKnowledge: tractorArchive && !identityConflict && !electric && !brand && models.length === 0 && emissions.length === 0 && !ambiguous,
+    openArchive: tractorArchive && !identityConflict && !electric && !ambiguous && !brand && models.every((model) => model === '国三' || model === '国四') };
 }
 
 /** Matching is identity selection, not proof of market, configuration or version applicability. */
@@ -251,6 +254,8 @@ export function archiveApplicability(chunk: KnowledgeChunk, scope: ResolvedScope
       : allowed.length > 0 && allowed.every((model) => model.endsWith('g4')) ? '国四' : undefined);
   if (scope.emissions.some((stage) => stage !== emissionStage)) return undefined;
   const models = scope.models.filter((model) => model !== '国三' && model !== '国四');
+  // Open question (no brand/model): every archive entry is a pending candidate, never 'matched'.
+  if (models.length === 0 && !scope.brand) return scope.openArchive ? 'pending' : undefined;
   if (models.length === 0) return !chunk.requiresExactModel && scope.brand === brand ? 'pending' : undefined;
 
   if (chunk.model === '具体系列待核实') return scope.brand === brand ? 'pending' : undefined;

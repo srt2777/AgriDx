@@ -6,6 +6,13 @@
 
 2026-10-13按用户最新要求，将原3.3.0和原3.4.0的两批累计800条知识扩充合并为3.3.0，原3.5.0功能整合调整为3.4.0，后续主题修复和开发网关修复原3.5.1、3.5.2对应协调为3.4.1、3.4.2，本阶段项目版本上限为3.4.9。历史提交、采集过程及原始验证输出保留当时实际编号，本轮编号协调不另升版。
 
+## 3.10.0 — 2026-10-22
+
+- 诊断检索按用户（昶捷）2026-10-22决定调整：问题未指定品牌或型号时，4877条归档与6000条通识（TK）统一打分排序，各保底一条以免互相挤占；归档此时一律为待核实（pending），通识在运行时标记 `generalEvidence` 作为通识证据（证据等级最多 partial，不会成为直接手册答复）。指定品牌或型号时只检索匹配归档，不再补充通识（未收录型号返回空结果）。
+- 标注：通识证据统一标为“通识（无手册页码）”，不附书名页码；归档保留书名与页码。`knowledgeSources` 新增 `evidenceKind`、`evidenceLabel`、`generalEvidence`；`roleFlow.generalKnowledgeIds` 单列通识；本地回复显示【通识依据（通识·无手册页码，待验证）】；模型提示规则11同步。
+- 改动：`server/knowledge/{scope,retriever,roles,systemPrompt,fallbackDiagnosis,types}.ts`、`server/diagnosis/{router,service}.ts`、`shared/chat.ts`；文档 `docs/knowledge-library.md`、`docs/architecture.md`、`知识库/条目整理规范.md`、`AGENTS.md`。未改条目文件或 `diagnostic_evidence=false`，`kb_version` 仍为 2026.10.3。新增 `tests/tk-open-retrieval-20261022.test.ts`，并按新规则更新旧断言。
+- 更新类型：feature；批次：feat-tk-open-retrieval-20261022。验证：本地（Node 24）`npm run verify` 通过，测试 450 项，448 通过、2 项跳过、0 失败；版本、知识库版本、类型、lint（0 错误，1 条既有警告）与构建通过。本提交未部署（合入 main 后按既有流程自动发布）。
+
 ## 3.9.1 — 2026-10-22
 
 - 版本上限由 3.9.0 提高到 3.10.0：同步 docs/version-policy.md、AGENTS.md、CONTRIBUTING.md、README、CHANGELOG 头部说明、scripts/version-update.mjs 的 MAXIMUM_VERSION、scripts/check-version.mjs 上限检查；用户（昶捷）已于 2026-10-22 明确批准上限调整

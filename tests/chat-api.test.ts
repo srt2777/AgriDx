@@ -191,8 +191,9 @@ test('questions without applicable evidence still call the LLM with general-guid
   assert.equal(response.status, 200);
   assert.equal(response.body.provider, 'gemini');
   assert.equal(response.body.answerMode, 'general-guidance');
-  assert.ok(response.body.knowledgeChunks! > 0);
-  assert.ok(response.body.knowledgeSources?.every(source => source.entryType === '通识学习' && source.diagnosticEvidence === false && !source.sourceId));
+  // 2026-10-22: a named (unknown) model searches its archive only; TK is not used.
+  assert.equal(response.body.knowledgeChunks, 0);
+  assert.ok(!response.body.knowledgeSources?.some(source => source.entryType === '通识学习'));
   assert.equal(response.body.fellBack, false);
   assert.match(response.body.choices?.[0]?.message.content ?? '', /通用分析/);
   assert.equal(fetch.mock.callCount(), 1);

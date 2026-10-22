@@ -33,6 +33,12 @@ export interface ChatKnowledgeSource {
   entryId?: string;
   entryType?: string;
   diagnosticEvidence?: false;
+  /** 2026-10-22: TK used as general-knowledge evidence for an open (no brand/model) question. */
+  generalEvidence?: true;
+  /** archive = book entry with title/page; general-knowledge = 通识, no manual page; prompt = collection hint. */
+  evidenceKind?: 'archive' | 'general-knowledge' | 'prompt';
+  /** Human label: 通识 entries read “通识（无手册页码）”. */
+  evidenceLabel?: string;
   sourceId?: string;
   source: string;
   heading: string;
@@ -58,7 +64,7 @@ export interface ChatRoleFlowStep {
   locator?: string;
 }
 /** Displayed evidence grouped as symptom -> cause/check -> action -> retest (reviewed roles only). */
-export type ChatRoleFlow = Record<KnowledgeRole, ChatRoleFlowStep[]> & { untaggedEntryIds: string[] };
+export type ChatRoleFlow = Record<KnowledgeRole, ChatRoleFlowStep[]> & { untaggedEntryIds: string[]; generalKnowledgeIds?: string[] };
 
 export interface ChatResponse {
   diagnosisTrace?: DiagnosisTrace;
