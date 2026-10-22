@@ -11,6 +11,7 @@ import {
 import { buildSystemPrompt } from '../server/knowledge/systemPrompt';
 import { generateLocalKnowledgeReply } from '../server/knowledge/fallbackDiagnosis';
 import { resolveScope, type RetrievalContext } from '../server/knowledge/scope';
+import { peekKnowledgeSnapshot } from '../server/knowledge/snapshot';
 
 const tractor = { machineType: '拖拉机' };
 const workmaster = { ...tractor, brand: '纽荷兰', model: 'WORKMASTER25' };
@@ -19,6 +20,14 @@ const startQuery = '钥匙在 START，启动电机不转';
 // Model-specific regressions inspect archive hits; general learning is tested separately.
 function retrieve(query: string, k = 6, context: RetrievalContext = {}): KnowledgeChunk[] {
   return retrieveAll(query, k, context).filter(chunk => chunk.entryType !== '通识学习');
+}
+
+/** Generic hint files, reached directly: open questions now rank archive + 通识 above them (2026-10-22). */
+function genericHints(query: string): KnowledgeChunk[] {
+  const terms = [...query.matchAll(/[\u4e00-\u9fa5]{2}/g)].map((match) => match[0]);
+  return (peekKnowledgeSnapshot()?.chunks ?? []).filter((chunk) => !chunk.entryId && chunk.heading !== '(概述)')
+    .map((chunk) => ({ chunk, score: terms.filter((term) => `${chunk.heading}${chunk.text}`.includes(term)).length }))
+    .filter(({ score }) => score > 0).sort((a, b) => b.score - a.score).slice(0, 2).map(({ chunk }) => chunk);
 }
 
 function archived(chunks: KnowledgeChunk[]) {
@@ -437,7 +446,9 @@ test('a tractor context cannot override a non-tractor identity in the question',
 });
 
 test('unidentified equipment and non-tractor equipment do not receive tractor archive entries', () => {
-  assert.equal(archived(retrieve('发动机无法启动', 100)).length, 0);
+  // 2026-10-22: an open question searches the archive too, but never as a matched manual.
+  const open = archived(retrieve('发动机无法启动', 100));
+  assert.ok(open.length > 0 && open.every((chunk) => chunk.applicability === 'pending'));
   for (const machineType of ['联合收割机', '插秧机', '植保机']) {
     const found = retrieve(`纽荷兰 WORKMASTER25 ${startQuery}`, 100, { ...workmaster, machineType });
     assert.equal(archived(found).length, 0, machineType);
@@ -475,7 +486,11 @@ test('unidentified tractor questions collect information instead of returning un
   ];
   for (const query of queries) {
     for (const context of [{}, tractor]) {
-      const { message, retrieved } = buildSystemPrompt({ query, ...context, retrieved: retrieve(query, 6, context) });
+      // 2026-10-22: open questions now rank archive (pending) + 通识; none of it is a matched manual.
+      assert.ok(retrieve(query, 6, context).every((chunk) => chunk.applicability !== 'matched'), query);
+      // The generic information-collection hints keep their boundaries when they are what was found.
+      const hints = genericHints(query);
+      const { message, retrieved } = buildSystemPrompt({ query, ...context, retrieved: hints });
       assert.ok(retrieved.length > 0, query);
       assert.equal(archived(retrieved).length, 0, query);
       const reply = generateLocalKnowledgeReply(query, retrieved, context);
@@ -621,8 +636,8 @@ test('reloading the index is idempotent and the original generic retrieval remai
   const second = loadKnowledgeBase();
   assert.deepEqual(first, second);
   assert.deepEqual(stats(), initial);
+  assert.ok(genericHints('发动机水温过高开锅').some((chunk) => chunk.source === '01_通用原理/通用故障诊断.md' && chunk.heading.includes('水温过高')));
   const found = retrieve('发动机水温过高开锅');
-  assert.ok(found.some((chunk) => chunk.source === '01_通用原理/通用故障诊断.md' && chunk.heading.includes('水温过高')));
-  assert.equal(archived(found).length, 0);
-  assert.ok(found.length <= 6);
+  assert.ok(found.length > 0 && found.length <= 6);
+  assert.ok(archived(found).every((chunk) => chunk.applicability === 'pending'));
 });

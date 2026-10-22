@@ -69,8 +69,9 @@ ${describeSource(primary)}
   }
 
   const learning = retrieved.filter(chunk => chunk.entryType === '通识学习' && chunk.diagnosticEvidence === false);
-  const learningBlock = learning.length ? `\n\n**【通识参考（待验证）】**\n${learning.slice(0, 2).map(chunk =>
-    `### ${chunk.heading}\n${chunk.text}\n\n主题：${chunk.locator}；核验状态：${chunk.status}。`).join('\n\n')}\n\n以上原理可辅助理解现象，不能据此确定本机故障、维修步骤或专用参数。` : '';
+  const general = learning.some(chunk => chunk.generalEvidence);
+  const learningBlock = learning.length ? `\n\n**【${general ? '通识依据（通识·无手册页码，待验证）' : '通识参考（待验证）'}】**\n${learning.slice(0, 2).map(chunk =>
+    `### ${chunk.heading}\n${chunk.text}\n\n${chunk.entryId}｜通识（无手册页码）｜主题：${chunk.locator}；核验状态：${chunk.status}。`).join('\n\n')}\n\n${general ? '未指定品牌／型号，以上通识作为一般原理依据参与分析；它不是任何具体手册的说法，' : '以上原理可辅助理解现象，'}不能据此确定本机故障、维修步骤或专用参数。` : '';
   if (primary.entryType === '通识学习') {
     return `${serviceNotice}**【农机知识参考】**\n针对“${displayQuery}”检索到以下通识资料。${learningBlock}\n\n如需分析具体车辆，请结合完整机型、配置及已观察到的现象核对匹配手册。涉及现场操作时遵守本机安全规程。`;
   }
@@ -122,7 +123,7 @@ export function localReplySummary(
     return `**【服务状态】** ${status}\n\n${intro}\n\n请确认本次设备的品牌与完整型号，确认前暂停引用机型资料。`;
   }
   if (primary?.entryType === '通识学习') {
-    return `**【服务状态】** ${status}\n\n**【通识参考（待验证）】** ${plain(primary.heading)}\n\n${primary.text.slice(0, 600)}\n\n主题：${primary.locator}。${primary.status}。可用于原理理解，不能确定本机故障、维修步骤或专用参数。`;
+    return `**【服务状态】** ${status}\n\n**【${primary.generalEvidence ? '通识依据（通识·无手册页码）' : '通识参考（待验证）'}】** ${primary.entryId}｜${plain(primary.heading)}\n\n${primary.text.slice(0, 600)}\n\n主题：${primary.locator}。${primary.status}。可用于原理理解，不能确定本机故障、维修步骤或专用参数。`;
   }
   const evidence = primary
     ? `找到候选章节“${plain(primary.heading)}”，尚未确认适用于你的车辆或支持本次故障判断。展开下方资料可核对原文、页码及限制；不要直接据此换件。`

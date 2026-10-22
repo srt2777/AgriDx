@@ -24,23 +24,26 @@ test('6000条通识逐条可按编号检索，保留唯一正文、主题、核�
     assert.ok(chunk.locator?.includes(chunk.entryId!));
     assert.equal(chunk.diagnosticEvidence, false);
     assert.equal(hasIndexedReference(chunk), false);
-    assert.equal(hasDiagnosticEvidence([chunk]), false);
+    // 2026-10-22: an open (no brand/model) lookup uses TK as 通识 evidence; the data flag stays false.
+    assert.equal(chunk.generalEvidence, true);
+    assert.equal(hasDiagnosticEvidence([chunk]), true);
+    assert.equal(hasDiagnosticEvidence([{ ...chunk, generalEvidence: undefined }]), false);
     assert.equal(referenceVerification(chunk.status), 'unverified');
     assert.ok(Object.values(deriveDiagnosticMetadata(chunk).coverage).every(value => value === false));
-    assert.match(describeSource(chunk), /不是原厂手册证据/);
+    assert.match(describeSource(chunk), /通识（无手册页码）/);
+    assert.match(describeSource({ ...chunk, generalEvidence: undefined }), /不是原厂手册证据/);
   }
   assert.deepEqual(retrieve('TK-9999'), []);
   assert.equal(retrieve('KB-YTO-LF-MANUAL-007', 6, { brand: '东方红', model: 'LF804S' })[0]?.entryId, 'KB-YTO-LF-MANUAL-007');
   assert.deepEqual(retrieve('KB-YTO-LF-MANUAL-007', 6, { brand: '久保田', model: 'LX2620' }), []);
 });
 
-test('已知型号手册优先并补充通识，未知型号不套用手册，身份冲突和非拖拉机不召回', () => {
+test('已知型号只检索匹配手册（不用通识），未知型号不套用手册，身份冲突和非拖拉机不召回', () => {
   const found = retrieve('东方红 LF804S 启动机不转');
   assert.equal(found[0].entryId, 'KB-YTO-LF-MANUAL-007');
-  assert.ok(found.some(chunk => chunk.entryType === '通识学习'));
+  assert.ok(!found.some(chunk => chunk.entryType === '通识学习'), '2026-10-22: named model excludes TK');
   const unknown = retrieve('发动机启动困难', 6, { machineType: '拖拉机', brand: '久保田', model: 'LX9999' });
-  assert.ok(unknown.length > 0);
-  assert.ok(unknown.every(chunk => chunk.entryType === '通识学习'));
+  assert.deepEqual(unknown, []);
   assert.deepEqual(retrieve('东方红 LF804S 启动困难', 6, { brand: '久保田', model: 'LX2620' }), []);
   assert.deepEqual(retrieve('TK-1001', 6, { machineType: '联合收割机' }), []);
   assert.deepEqual(retrieve('电动拖拉机 柴油机启动困难'), []);
@@ -62,7 +65,7 @@ test('纯通识及归档信息参与AI上下文，但不升级为直接维修证
     assert.match(sent[0], /有效效率以燃料低热值为分母/);
     assert.match(sent[0], /通识知识参与分析/);
     assert.deepEqual(response.diagnosisTrace?.sentKnowledgeIds, ['TK-1001']);
-    assert.equal(response.answerMode, 'general-guidance');
+    assert.equal(response.answerMode, 'knowledge-grounded', '2026-10-22: open question counts TK as 通识 evidence');
     assert.deepEqual(response.coordination?.directEligibleIds, []);
     const info = loadArchive().chunks.find(chunk => chunk.entryType === '资料索引')!;
     const indexed = { ...info, applicability: 'matched' as const, relevance: { score: 100, method: 'keyword-weighted-overlap' as const, calibrated: false as const } };
@@ -72,7 +75,8 @@ test('纯通识及归档信息参与AI上下文，但不升级为直接维修证
     assert.ok(!decision.directEligibleIds?.length);
     const prompt = buildSystemPrompt({ query: 'TK-1001' });
     assert.match(prompt.message.content, /TK-1001/);
-    assert.equal(prompt.answerMode, 'general-guidance');
+    assert.match(prompt.message.content, /通识（无手册页码）/);
+    assert.equal(prompt.answerMode, 'knowledge-grounded');
   } finally {
     if (previousMode === undefined) delete process.env.DIAGNOSIS_MODE; else process.env.DIAGNOSIS_MODE = previousMode;
     if (previousExternal === undefined) delete process.env.ALLOW_EXTERNAL_AI; else process.env.ALLOW_EXTERNAL_AI = previousExternal;

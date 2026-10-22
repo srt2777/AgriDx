@@ -10,15 +10,17 @@ export interface RoleFlowStep {
   locator?: string;
 }
 /** symptom -> cause/check -> action -> retest, built only from reviewed roles (entry-roles.jsonl). */
-export type RoleFlow = Record<KnowledgeRole, RoleFlowStep[]> & { untaggedEntryIds: string[] };
+/** generalKnowledgeIds: 通识 evidence (no manual page) kept apart from book-cited steps. */
+export type RoleFlow = Record<KnowledgeRole, RoleFlowStep[]> & { untaggedEntryIds: string[]; generalKnowledgeIds: string[] };
 
 const ORDER: KnowledgeRole[] = ['symptom', 'cause', 'check', 'action', 'retest'];
 const LABELS: Record<KnowledgeRole, string> = { symptom: '现象', cause: '可能原因', check: '检查', action: '处理', retest: '复检' };
 
 export function buildRoleFlow(chunks: KnowledgeChunk[]): RoleFlow {
-  const flow: RoleFlow = { symptom: [], cause: [], check: [], action: [], retest: [], untaggedEntryIds: [] };
+  const flow: RoleFlow = { symptom: [], cause: [], check: [], action: [], retest: [], untaggedEntryIds: [], generalKnowledgeIds: [] };
   const seen = new Set<string>();
   for (const chunk of chunks) {
+    if (chunk.entryId && chunk.generalEvidence && !seen.has(chunk.entryId)) { seen.add(chunk.entryId); flow.generalKnowledgeIds.push(chunk.entryId); continue; }
     if (!chunk.entryId || chunk.diagnosticEvidence === false || seen.has(chunk.entryId)) continue;
     seen.add(chunk.entryId);
     if (!chunk.roles?.length) { flow.untaggedEntryIds.push(chunk.entryId); continue; }
@@ -51,5 +53,6 @@ export function formatRoleFlow(flow: RoleFlow): string {
     const items = roles.flatMap((role) => flow[role].map((step) => `  - ${LABELS[role]}：${citeStep(step)}`));
     if (items.length) lines.push(`- ${title}`, ...items);
   }
+  if (flow.generalKnowledgeIds?.length) lines.push(`- 通识依据（通识·无手册页码）：${flow.generalKnowledgeIds.join('、')}`);
   return lines.join('\n');
 }

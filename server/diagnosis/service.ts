@@ -70,6 +70,9 @@ export function createDiagnosticService(llm: DiagnosticProvider, dependencies: D
     const metadata = () => ({ knowledgeChunks: displayed.length, knowledgeSources: displayed.map(chunk => ({
       entryId: chunk.entryId, sourceId: chunk.sourceId, source: chunk.source, heading: chunk.heading,
       entryType: chunk.entryType, diagnosticEvidence: chunk.diagnosticEvidence,
+      ...(chunk.generalEvidence ? { generalEvidence: true as const } : {}),
+      evidenceKind: chunk.entryType === '通识学习' ? 'general-knowledge' as const : chunk.entryId ? 'archive' as const : 'prompt' as const,
+      evidenceLabel: chunk.entryType === '通识学习' ? '通识（无手册页码）' : chunk.entryId ? `手册：${chunk.sourceTitle ?? chunk.sourceId ?? '来源待核实'}${chunk.pages?.pdf ? `，PDF第${chunk.pages.pdf}页` : ''}${chunk.pages?.printed ? `，印刷第${chunk.pages.printed}页` : ''}` : '信息收集提示（非手册）',
       locator: chunk.locator, version: chunk.version, applicability: chunk.applicability, status: chunk.status,
       referenceVerification: referenceVerification(chunk.status), sourceIndexed: hasIndexedReference(chunk),
       ...(chunk.sourceTitle ? { sourceTitle: chunk.sourceTitle } : {}),

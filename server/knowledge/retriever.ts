@@ -263,10 +263,12 @@ export function retrieve(query: string, k = MAX_CHUNKS_IN_PROMPT, context: Retri
       applicabilityByScope.set(indexed.applicabilityKey, archiveApplicability(c, scope));
     }
     const applicability = learning ? undefined : applicabilityByScope.get(indexed.applicabilityKey);
-    if (learning ? !scope.tractorArchive || scope.electric || scope.identityConflict || scope.ambiguous
+    // 2026-10-22: 通识 joins diagnosis only for open questions; a named brand/model searches its archive only.
+    // An explicit TK-xxxx lookup still opens that entry, but never as evidence.
+    if (learning ? !(scope.openArchive || (requestedIds.size && scope.tractorArchive && !scope.electric && !scope.identityConflict && !scope.ambiguous))
       : c.entryId ? !applicability : !scope.genericKnowledge) continue;
     const score = requestedIds.size ? 100 : scoreChunk(indexed, qTokens, groups);
-    if (score > 0) scored.push({ ...c, applicability,
+    if (score > 0) scored.push({ ...c, applicability, ...(learning && scope.openArchive ? { generalEvidence: true as const } : {}),
       relevance: { score, method: 'keyword-weighted-overlap', calibrated: false } });
   }
   // Manual-specific hits take precedence; sample parameters must not contradict their instructions.
@@ -274,9 +276,26 @@ export function retrieve(query: string, k = MAX_CHUNKS_IN_PROMPT, context: Retri
   const learning = scored.filter(chunk => chunk.entryType === '通识学习').sort(byScore);
   const archived = scored.filter(chunk => chunk.entryId && chunk.entryType !== '通识学习').sort(byScore);
   const primary = archived.length ? archived : scored.filter(chunk => !chunk.entryId).sort(byScore);
-  // Keep matched manual references first and reserve context for relevant general principles.
-  const primaryLimit = learning.length && limit > 1 ? limit - 1 : limit;
-  const result = [...primary.slice(0, primaryLimit), ...learning.slice(0, Math.max(0, limit - Math.min(primary.length, primaryLimit)))];
+  let result: KnowledgeChunk[];
+  if (scope.openArchive && !requestedIds.size && archived.length && learning.length) {
+    // Open question: archive and 通识 compete in one ranking. The best hit of each kind always keeps a
+    // slot, so neither the 6,000 通识 entries nor the higher-scoring book headings crowd the other out.
+    const merged = [...archived, ...learning].sort(byScore).slice(0, limit);
+    if (limit > 1) {
+      for (const best of [archived[0], learning[0]]) {
+        if (merged.includes(best)) continue;
+        const other = best.entryType === '通识学习';
+        const drop = merged.map((chunk, i) => ({ chunk, i })).reverse()
+          .find(({ chunk }) => (chunk.entryType === '通识学习') !== other && chunk !== archived[0] && chunk !== learning[0]);
+        if (drop) merged[drop.i] = best;
+      }
+    }
+    result = merged.sort(byScore);
+  } else {
+    // Keep manual references first and reserve context for relevant general principles.
+    const primaryLimit = learning.length && limit > 1 ? limit - 1 : limit;
+    result = [...primary.slice(0, primaryLimit), ...learning.slice(0, Math.max(0, limit - Math.min(primary.length, primaryLimit)))];
+  }
   // Opportunistic expiration bounds memory as well as reuse time.
   for (const [key, entry] of retrievalCache) {
     if (entry.expiresAt <= now) retrievalCache.delete(key);
@@ -314,7 +333,9 @@ export function describeSource(chunk: KnowledgeChunk): string {
     `整理批次：${chunk.version}｜核验状态：${chunk.status}`,
     `正文定位：${chunk.source}#${chunk.entryId?.toLowerCase()}`,
     `用途限制：${chunk.scopeBoundary}`,
-    '来源性质：原创／模型辅助整理的通识资料；不是原厂手册证据。',
+    chunk.generalEvidence
+      ? '证据性质：通识（无手册页码）。本问题未指定品牌／型号，按用户2026-10-22决定作为通识证据参与分析；不是任何具体手册的说法，不能冒充原厂步骤或专用参数。'
+      : '来源性质：原创／模型辅助整理的通识资料；不是原厂手册证据。',
   ].join('\n');
   if (!chunk.entryId) return `来源：${chunk.source}｜章节：${chunk.heading}`;
   return [

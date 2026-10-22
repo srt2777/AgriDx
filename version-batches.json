@@ -280,6 +280,13 @@
       "base": "3.9.0",
       "version": "3.9.1",
       "date": "2026-10-22"
+    },
+    {
+      "id": "feat-tk-open-retrieval-20261022",
+      "kind": "feature",
+      "base": "3.9.1",
+      "version": "3.10.0",
+      "date": "2026-10-22"
     }
   ]
 }
