@@ -1,6 +1,8 @@
 // Lightweight metadata: importing a URL or type must not pull in the renderer.
 import { publicAsset } from '../lib/public-asset';
 export const TRACTOR_MODEL_URL = publicAsset('models/tractor-detailed-v1.glb');
+/** Hunyuan Honghu T70 used on the classic home page. Meshopt GLB, 14 parts, photo albedo. */
+export const HONGHU_T70_PARTS_URL = publicAsset('models/t70-parts/t70_parts_meshopt.glb');
 export type TractorComponent = 'all' | 'body' | 'engine' | 'drivetrain' | 'hydraulics' | 'electrical' | 'wheels' | 'cab';
 
 export interface TractorComponentInfo {

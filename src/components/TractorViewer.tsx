@@ -7,7 +7,7 @@ import * as THREE from 'three';
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 import TractorModel from './TractorModel';
-import { TRACTOR_COMPONENTS, TRACTOR_MODEL_URL, type TractorComponent } from './tractor-model-info';
+import { HONGHU_T70_PARTS_URL, TRACTOR_COMPONENTS, TRACTOR_MODEL_URL, type TractorComponent } from './tractor-model-info';
 import TractorFraming from './TractorFraming';
 import { TRACTOR_VIEWS, type TractorView } from './tractor-view-config';
 import { modelPreviewFallback } from '@/lib/scene-fallback-copy';
@@ -445,7 +445,9 @@ export default function TractorViewer({ component = 'all', exploded = false, mod
       <div className="tractor-model-badge absolute left-3 top-3 rounded-full border border-border/50 bg-card/85 px-3 py-1.5 text-[10px] text-muted-foreground backdrop-blur">
         {modelUrl === TRACTOR_MODEL_URL
           ? lang === 'zh' ? '原创结构示意 · 非实机 CAD' : 'Original schematic · Not machine CAD'
-          : lang === 'zh' ? '本地模型 · 尺寸待核验' : 'Local model · Dimensions unverified'}
+          : modelUrl === HONGHU_T70_PARTS_URL
+            ? lang === 'zh' ? '鸿鹄 T70 · 照片色' : 'Honghu T70 · Photo colors'
+            : lang === 'zh' ? '本地模型 · 尺寸待核验' : 'Local model · Dimensions unverified'}
       </div>
       {interactive && <div className="tractor-viewer-tools" role="group" aria-label={lang === 'zh' ? '模型标注与描边' : 'Model annotations and outline'}>
         <button type="button" className="tractor-tool-button" aria-label={lang === 'zh' ? '显示部件热点' : 'Show component hotspots'}

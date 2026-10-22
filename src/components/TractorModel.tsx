@@ -1,12 +1,26 @@
 import { useReducedMotion } from 'framer-motion';
-import { Fragment, useEffect, useMemo, useRef } from 'react';
+import { Fragment, use, useEffect, useMemo, useRef } from 'react';
 import { createPortal, useFrame, useThree, type ThreeEvent } from '@react-three/fiber';
 import { Html, Line, useGLTF } from '@react-three/drei';
+import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js';
 import { SkeletonUtils } from 'three-stdlib';
 import * as THREE from 'three';
 
 import { useLang } from '@/hooks/useLang';
-import { TRACTOR_COMPONENTS, TRACTOR_MODEL_URL, type TractorComponent } from './tractor-model-info';
+import { HONGHU_T70_PARTS_URL, TRACTOR_COMPONENTS, TRACTOR_MODEL_URL, type TractorComponent } from './tractor-model-info';
+
+let studioMeshoptReady: Promise<void> | undefined;
+function ensureStudioMeshopt() {
+  studioMeshoptReady ??= (async () => {
+    if (!MeshoptDecoder.supported) throw new Error('Meshopt decoder is unavailable');
+    await MeshoptDecoder.ready;
+  })();
+  return studioMeshoptReady;
+}
+
+function attachStudioMeshopt(loader: { setMeshoptDecoder(decoder: typeof MeshoptDecoder): void }) {
+  loader.setMeshoptDecoder(MeshoptDecoder);
+}
 import { getComponentBounds, getComponentOwner, isTractorComponent } from './tractor-component-utils';
 import { partOpacity, type StudioPresentation } from './studio-schematic';
 const OFFSETS: Record<string, [number, number, number]> = {
@@ -54,12 +68,14 @@ export default function TractorModel({ onLoaded, component = 'all', exploded = f
   const reducedMotion = useReducedMotion();
   const invalidate = useThree(state => state.invalidate);
   const originalModel = modelUrl === TRACTOR_MODEL_URL;
+  const photoParts = modelUrl === HONGHU_T70_PARTS_URL;
+  use(ensureStudioMeshopt());
   const callbacks = useRef({ onLoaded, onLayoutSettled });
   const pendingLayout = useRef(false);
   useEffect(() => {
     callbacks.current = { onLoaded, onLayoutSettled };
   }, [onLoaded, onLayoutSettled]);
-  const { scene } = useGLTF(modelUrl);
+  const { scene } = useGLTF(modelUrl, photoParts ? false : undefined, photoParts ? false : undefined, photoParts ? attachStudioMeshopt : undefined);
   const model = useMemo(() => {
     const cloned = SkeletonUtils.clone(scene);
     cloned.traverse(node => {
@@ -69,8 +85,12 @@ export default function TractorModel({ onLoaded, component = 'all', exploded = f
         const copy = material.clone();
         copy.userData = { ...copy.userData, baseOpacity: material.opacity, baseTransparent: material.transparent, baseDepthWrite: material.depthWrite };
         if (copy instanceof THREE.MeshStandardMaterial) {
-          copy.envMapIntensity = Math.max(copy.envMapIntensity, 1.25);
-          copy.roughness = THREE.MathUtils.clamp(copy.roughness, 0.2, 0.88);
+          if (photoParts) {
+            copy.vertexColors = false;
+          } else {
+            copy.envMapIntensity = Math.max(copy.envMapIntensity, 1.25);
+            copy.roughness = THREE.MathUtils.clamp(copy.roughness, 0.2, 0.88);
+          }
         }
         return copy;
       });
@@ -91,7 +111,7 @@ export default function TractorModel({ onLoaded, component = 'all', exploded = f
     cloned.position.set(-center.x, -scaled.min.y - .4, -center.z);
     cloned.updateMatrixWorld(true);
     return cloned;
-  }, [scene]);
+  }, [scene, photoParts]);
 
   const componentGroups = useMemo(() => {
     const groups: { id: Exclude<TractorComponent, 'all'>; object: THREE.Object3D; basePosition: THREE.Vector3; target: THREE.Vector3 }[] = [];
