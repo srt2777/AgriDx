@@ -33,6 +33,8 @@ ENTRY_FIELDS = ['entry_id', 'source_id', 'brand', 'model', 'title', 'knowledge_p
 # never "no symptom" or "low risk"; existing entries stay valid without them.
 ENTRY_ROLES = ('symptom', 'cause', 'check', 'action', 'retest')
 ROLE_BASES = ('原文标记', '人工核对')
+ROLE_SIDECAR = 'entry-roles.jsonl'
+ROLE_REVIEW_QUEUE = 'role-review-queue.jsonl'
 RISK_LEVELS = ('high', 'medium', 'low')
 # Information-only categories are never presented as repair judgement, so they carry no roles/risk.
 NON_DIAGNOSTIC_ENTRY_TYPES = {'系统适用边界', '资料索引', '资料核验', '机型资料', '资料缺口'}
@@ -399,7 +401,46 @@ class ArchiveAudit:
                         self.emit('index.json', str(error), path=self.relative(path), line=line)
         except (ValueError, OSError) as error:
             self.emit('index.json', str(error), path=self.relative(path))
+        self.merge_role_sidecar(entries)
         return sources, entries
+
+    def merge_role_sidecar(self, entries):
+        """entries.jsonl 有字节锁定的基线测试，角色/风险字段改存旁路文件 entry-roles.jsonl（字段与 PR #63 架构相同），
+        加载时并入内存条目，再按同一 check_roles 规则校验；role-review-queue.jsonl 为待人工核对队列。"""
+        by_id = {e.get('entry_id'): e for _, e in entries if isinstance(e, dict)}
+        tagged = set()
+        for name, allowed in [(ROLE_SIDECAR, {'entry_id', 'roles', 'role_basis', 'risk_level', 'risk_basis'}),
+                              (ROLE_REVIEW_QUEUE, None)]:
+            path = self.index / name
+            if not path.exists():
+                continue
+            self.track(path)
+            seen = set()
+            for line, text in enumerate(path.read_text('utf8').splitlines(), 1):
+                if not text.strip():
+                    continue
+                try:
+                    record = json.loads(text)
+                    identity = record.get('entry_id') if isinstance(record, dict) else None
+                    require(identity in by_id, 'entry.roles', f'{name}引用的条目不存在', 'entry_id')
+                    require(identity not in seen, 'entry.roles', f'{name}条目编号重复', 'entry_id')
+                    seen.add(identity)
+                    entry = by_id[identity]
+                    if allowed is not None:
+                        extra = set(record) - allowed
+                        require(not extra, 'entry.roles', f"{name}含未知字段：{'、'.join(sorted(extra))}", 'entry_id')
+                        clash = [k for k in record if k != 'entry_id' and k in entry]
+                        require(not clash, 'entry.roles', f"{name}与entries.jsonl重复填写：{'、'.join(clash)}", 'entry_id')
+                        entry.update({k: v for k, v in record.items() if k != 'entry_id'})
+                        tagged.add(identity)
+                    else:
+                        require(identity not in tagged and 'roles' not in entry, 'entry.roles',
+                                '已标注角色的条目不得仍在人工核对队列', 'entry_id')
+                        require(record.get('status') in ('pending', 'reviewed'), 'entry.roles',
+                                '人工核对队列status须为pending或reviewed', 'status')
+                except (ValueError, TypeError) as error:
+                    self.emit(getattr(error, 'rule', 'index.json'), str(error), path=self.relative(path), line=line,
+                              field=getattr(error, 'field', ''))
 
     def run(self):
         started = time.perf_counter()

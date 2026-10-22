@@ -6,6 +6,13 @@
 
 2026-10-13按用户最新要求，将原3.3.0和原3.4.0的两批累计800条知识扩充合并为3.3.0，原3.5.0功能整合调整为3.4.0，后续主题修复和开发网关修复原3.5.1、3.5.2对应协调为3.4.1、3.4.2，本阶段项目版本上限为3.4.9。历史提交、采集过程及原始验证输出保留当时实际编号，本轮编号协调不另升版。
 
+## 3.8.2 — 2026-10-22
+
+- 知识库分阶段计划第3步：按 ROLE_MARKERS 原文字段标签为 2014 条条目自动标注角色（role_basis=原文标记），其余 2329 条可标注条目列入人工核对队列；角色存于旁路文件 entry-roles.jsonl，entries.jsonl 与 Markdown 正文未改动
+- 标注分布：symptom+cause+check+action 1000 条、symptom+cause+action 1000 条、其余部分组合 14 条；正文均无 retest 标签，未标注 risk_level。标注只依据正文已有字段标签，不新增或改写任何知识内容。
+- `entries.jsonl` 受字节锁定基线测试保护，故字段与 PR #63 架构相同但存于旁路文件 `entry-roles.jsonl`；`校验索引.py` 加载时并入并按同一 `check_roles` 规则逐项核对原文标记，同时校验 `role-review-queue.jsonl`。`scripts/kb-version.mjs` 将两份文件纳入内容哈希，`kb_version` 2026.10.1 → 2026.10.2。新增 `tests/knowledge-entry-roles-sidecar-20261022.test.mjs`，规范见 `知识库/条目整理规范.md`。服务端检索暂不读取角色。
+- 更新类型：knowledge；批次：kb-roles-bulk-tagging-20261022。验证：本地（Node 24）`npm run verify` 通过，测试 438 项，436 通过、2 项跳过、0 失败；`校验索引.py` 28 来源、4877 条、0 错误、0 警告，`entries_with_roles` 2014；`tests/knowledge_quality_test.py` 35 项通过。本提交未部署。
+
 ## 3.8.1 — 2026-10-22
 
 - 版本上限由 3.8.0 提高到 3.9.0：同步 docs/version-policy.md、AGENTS.md、CONTRIBUTING.md、README、scripts/version-update.mjs 的 MAXIMUM_VERSION、scripts/check-version.mjs 上限检查及 tests/version-update.test.mjs；用户（昶捷）已于 2026-10-22 明确批准上限调整
