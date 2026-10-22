@@ -2,6 +2,7 @@ import { useCallback, useState, type ChangeEvent } from 'react';
 import { Camera, Download, Upload, X } from 'lucide-react';
 import { useReducedMotion } from 'framer-motion';
 import DeferredScene from '@/components/DeferredScene';
+import { PREMIUM_MOTION_ENABLED } from '@/components/motion/flag';
 import { BorderBeam } from '@/components/motion/BorderBeam';
 import { MorphingPanel } from '@/components/motion/MorphingPanel';
 import { TiltCard } from '@/components/motion/TiltCard';
@@ -137,8 +138,8 @@ export default function PartsStudio({ onImport }: { onImport: (event: ChangeEven
               const selectedModel = modelId === id;
               return (
                 <TiltCard key={id} className="studio-tilt">
-                  <button type="button" className={`studio-chip${selectedModel ? ' is-beamed' : ''}`} aria-pressed={selectedModel} onClick={() => switchModel(id)}>
-                    {selectedModel && <BorderBeam />}
+                  <button type="button" className={`studio-chip${selectedModel && PREMIUM_MOTION_ENABLED ? ' is-beamed' : ''}`} aria-pressed={selectedModel} onClick={() => switchModel(id)}>
+                    {selectedModel && PREMIUM_MOTION_ENABLED && <BorderBeam />}
                     {t(item.titleZh, item.titleEn)}
                   </button>
                 </TiltCard>
@@ -155,7 +156,7 @@ export default function PartsStudio({ onImport }: { onImport: (event: ChangeEven
               <button key={item.id} type="button" className="studio-chip" aria-pressed={presentation === item.id} onClick={() => setPresentation(item.id)}>{t(item.zh, item.en)}</button>
             ))}
           </div>
-          <button type="button" className="studio-save glass-press" data-motion="glass-press" disabled={!ready || graphics} onClick={() => { void saveIllustration(); }}>
+          <button type="button" className={PREMIUM_MOTION_ENABLED ? 'studio-save glass-press' : 'studio-save'} data-motion={PREMIUM_MOTION_ENABLED ? 'glass-press' : undefined} disabled={!ready || graphics} onClick={() => { void saveIllustration(); }}>
             <Camera size={16} />{t('保存结构示意', 'Save structure illustration')}
           </button>
           <p className="studio-share-note" aria-live="polite">{shareNote}</p>
@@ -176,7 +177,7 @@ export default function PartsStudio({ onImport }: { onImport: (event: ChangeEven
                 <p className="text-xs">{fallback.hint}</p>
               </div>
             ) : (
-              <DeferredScene fallback={<TwinQuery label={t('正在打开孪生视图…', 'Opening the twin view…')} />}>
+              <DeferredScene fallback={PREMIUM_MOTION_ENABLED ? <TwinQuery label={t('正在打开孪生视图…', 'Opening the twin view…')} /> : <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground" role="status"><span>{t('正在打开孪生视图…', 'Opening the twin view…')}</span></div>}>
                 <PartsTractorScene
                   url={modelUrl}
                   selection={selection}
@@ -194,7 +195,7 @@ export default function PartsStudio({ onImport }: { onImport: (event: ChangeEven
                 />
               </DeferredScene>
             )}
-            {!graphics && !ready && !error && <div className="parts-loading"><TwinQuery label={t(`正在打开${spec.titleZh}…`, `Opening ${spec.titleEn}…`)} /></div>}
+            {!graphics && !ready && !error && <div className="parts-loading">{PREMIUM_MOTION_ENABLED ? <TwinQuery label={t(`正在打开${spec.titleZh}…`, `Opening ${spec.titleEn}…`)} /> : <span>{t(`正在打开${spec.titleZh}…`, `Opening ${spec.titleEn}…`)}</span>}</div>}
             <ol className="parts-event-log" aria-label={t('示例记录', 'Example log')}>
               {timeline.map(item => <li key={item.id}>{language === 'zh' ? item.zh : item.en}</li>)}
             </ol>
@@ -230,7 +231,7 @@ export default function PartsStudio({ onImport }: { onImport: (event: ChangeEven
               <p>{t('部件详情', 'Part detail')}<span className="parts-chip">{t('示例数据', 'Example data')}</span></p>
               <button type="button" className="parts-drawer-close" onClick={() => choose(null)} aria-label={t('关闭部件详情', 'Close part detail')}><X size={16} /></button>
             </div>
-            {resolved && example && (
+            {resolved && example && (PREMIUM_MOTION_ENABLED ? (
               <>
                 <div className="morph-steps" role="tablist" aria-label={t('部件详情步骤', 'Part detail steps')}>
                   {([
@@ -264,7 +265,13 @@ export default function PartsStudio({ onImport }: { onImport: (event: ChangeEven
                   )}
                 </MorphingPanel>
               </>
-            )}
+            ) : (
+              <div className="parts-detail">
+                <h2>{partTitle(resolved.node, language, modelId)}</h2>
+                <p className="parts-status">{t('示例状态', 'Example status')} · {t(example.statusZh, example.statusEn)}</p>
+                {example.faults.length > 0 && <ul>{example.faults.map(fault => <li key={fault.zh}>{t(fault.zh, fault.en)}</li>)}</ul>}
+              </div>
+            ))}
           </aside>
         </div>
         <div className="parts-explode">

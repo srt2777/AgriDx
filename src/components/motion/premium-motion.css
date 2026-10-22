@@ -218,7 +218,7 @@
 }
 
 @media (min-width: 1024px) {
-  .parts-studio .parts-drawer {
+  [data-premium-motion='on'] .parts-studio .parts-drawer {
     top: auto;
     height: auto;
     max-height: calc(100% - 68px);
@@ -334,7 +334,7 @@
   .glass-press::after { display: none; }
 }
 
-.parts-studio { overflow-x: clip; }
+[data-premium-motion='on'] .parts-studio { overflow-x: clip; }
 
 @media (max-width: 720px) {
   .thinking-orbs-label { font-size: 11px; }

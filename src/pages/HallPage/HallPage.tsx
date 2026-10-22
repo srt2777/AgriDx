@@ -22,6 +22,7 @@ import { preloadPage } from '@/lib/page-loaders';
 import { beginSharedTransition, sharedTransitionName } from '@/lib/shared-transition';
 import { StatTicker } from '@/components/StatTicker';
 import { BorderBeam } from '@/components/motion/BorderBeam';
+import { PREMIUM_MOTION_ENABLED } from '@/components/motion/flag';
 import { SpringDrawer } from '@/components/motion/SpringDrawer';
 import { RING_DRAW_MS, zoneSweep } from '@/lib/delight';
 import { easeOutCubic, MOTION } from '@/lib/motion-tokens';
@@ -291,14 +292,14 @@ export default function HallPage() {
                 <button
                   key={item.id}
                   type="button"
-                  className={`hall-zone nv-corners${active ? ' is-on is-beamed' : ''}${hovered === item.id ? ' is-hover' : ''}`}
+                  className={`hall-zone nv-corners${active ? ' is-on' : ''}${active && PREMIUM_MOTION_ENABLED ? ' is-beamed' : ''}${hovered === item.id ? ' is-hover' : ''}`}
                   aria-pressed={active}
                   style={{ '--zone-color': item.color } as CSSProperties}
                   onClick={() => choose(item.id)}
                   onPointerEnter={() => setHovered(item.id)}
                   onPointerLeave={() => setHovered(null)}
                 >
-                  {active && <BorderBeam />}
+                  {active && PREMIUM_MOTION_ENABLED && <BorderBeam />}
                   <span className="hall-zone-mark"><Icon size={16} strokeWidth={1.6} /></span>
                   <span>
                     <small>{item.id} {t('展区', 'ZONE')}</small>
@@ -360,7 +361,7 @@ export default function HallPage() {
                   ))}
                 </ul>
                 <p className="hall-drawer-note">{t('规格是示例数据，不是铭牌或实测。', 'Specs are example data, not a plate or a measurement.')}</p>
-                <Link className="glass-press" data-motion="glass-press" to="/knowledge" onPointerEnter={() => preloadPage('/knowledge')} onFocus={() => preloadPage('/knowledge')} onClick={(event) => {
+                <Link className={PREMIUM_MOTION_ENABLED ? 'glass-press' : undefined} data-motion={PREMIUM_MOTION_ENABLED ? 'glass-press' : undefined} to="/knowledge" onPointerEnter={() => preloadPage('/knowledge')} onFocus={() => preloadPage('/knowledge')} onClick={(event) => {
                   if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return;
                   event.preventDefault();
                   beginSharedTransition(sharedTransitionName('hall', selected), () => navigate('/knowledge'), document.getElementById('hall-drawer-title'));

@@ -52,6 +52,7 @@ import { ShortcutButton } from '@/components/NewVersionDelight';
 import { StatTicker } from '@/components/StatTicker';
 import { SiteStatusBar } from '@/components/SiteStatusBar';
 import { beginSharedTransition, sharedTransitionName } from '@/lib/shared-transition';
+import { PREMIUM_MOTION_ENABLED } from '@/components/motion/flag';
 import { campusIntroPlan } from './intro-timing';
 import {
   initialDriveState,
@@ -493,7 +494,7 @@ export default function ExhibitionPage() {
                 'Use the zones to see structure, open the catalog, and start a diagnosis.',
               )}
             </p>
-            <button type="button" className="expo-start-button glass-press" data-motion="glass-press" onClick={startDrive}>
+            <button type="button" className={PREMIUM_MOTION_ENABLED ? 'expo-start-button glass-press' : 'expo-start-button'} data-motion={PREMIUM_MOTION_ENABLED ? 'glass-press' : undefined} onClick={startDrive}>
               <Navigation size={16} />
               {mode === 'drive' ? t('继续漫游', 'Continue exploring') : t('开始漫游', 'Start exploring')}
               <ArrowUpRight size={16} />
@@ -527,9 +528,9 @@ export default function ExhibitionPage() {
             <FloatingPanel
               key={selectedZone.id}
               as="aside"
-              className="expo-zone-card is-beamed"
+              className={PREMIUM_MOTION_ENABLED ? 'expo-zone-card is-beamed' : 'expo-zone-card'}
               glass
-              beam
+              beam={PREMIUM_MOTION_ENABLED}
               style={{ '--zone-color': selectedZone.color } as CSSProperties}
               label={t('当前展区', 'Selected zone')}
             >
@@ -562,13 +563,13 @@ export default function ExhibitionPage() {
                 ))}
               </div>
               <div className="expo-zone-actions">
-                <button type="button" className="glass-press" data-motion="glass-press" onPointerEnter={() => preloadPage(selectedZone.path ?? '/', selectedZone.path ? 'new' : 'old')} onFocus={() => preloadPage(selectedZone.path ?? '/', selectedZone.path ? 'new' : 'old')} onClick={(event) => enterZone(selectedZone.id, event.currentTarget.closest('.expo-zone-card')?.querySelector('h2') ?? event.currentTarget)}>
+                <button type="button" className={PREMIUM_MOTION_ENABLED ? 'glass-press' : undefined} data-motion={PREMIUM_MOTION_ENABLED ? 'glass-press' : undefined} onPointerEnter={() => preloadPage(selectedZone.path ?? '/', selectedZone.path ? 'new' : 'old')} onFocus={() => preloadPage(selectedZone.path ?? '/', selectedZone.path ? 'new' : 'old')} onClick={(event) => enterZone(selectedZone.id, event.currentTarget.closest('.expo-zone-card')?.querySelector('h2') ?? event.currentTarget)}>
                   {t('进入展区', 'Open zone')}
                   <ArrowRight size={15} />
                 </button>
                 <button
                   type="button"
-                  className="expo-visit-button glass-press"
+                  className={PREMIUM_MOTION_ENABLED ? 'expo-visit-button glass-press' : 'expo-visit-button'}
                   onClick={() => visitZone(selectedZone.id)}
                 >
                   <MoveUpRight size={14} />
