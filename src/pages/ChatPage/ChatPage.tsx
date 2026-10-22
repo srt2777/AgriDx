@@ -28,6 +28,7 @@ import { useChatSession } from '@/features/chat/useChatSession';
 import { useLlmHealth } from '@/features/chat/useLlmHealth';
 import { useUpdateBlocker } from '@/features/updates/useUpdateBlocker';
 import { hasUnsavedProfile } from '@/features/updates/update-safety';
+import { PREMIUM_MOTION_ENABLED } from '@/components/motion/flag';
 import { MorphingPanel } from '@/components/motion/MorphingPanel';
 import { ThinkingOrbs } from '@/components/motion/ThinkingOrbs';
 import { useDiagnosisOrb } from '@/components/motion/useDiagnosisOrb';
@@ -55,8 +56,8 @@ export default function ChatPage() {
     machineType, setMachineType, brand, setBrand, model, setModel,
     sendMessage, stopRequest, handleClear, memory, profile,
     diagnosisMode, setDiagnosisMode, deviceName, setDeviceName, hours, setHours, deviceNotes, setDeviceNotes, progress, setProgress,
-  } = useChatSession({ handoff, translate: t, focusInput, minLoadingMs: version === 'new' ? 900 : 0 });
-  const orb = useDiagnosisOrb(version === 'new' && isLoading);
+  } = useChatSession({ handoff, translate: t, focusInput, minLoadingMs: version === 'new' && PREMIUM_MOTION_ENABLED ? 900 : 0 });
+  const orb = useDiagnosisOrb(PREMIUM_MOTION_ENABLED && version === 'new' && isLoading);
   useUpdateBlocker('/chat', isLoading || memory.busy || !memory.ready || !!input.trim()
     || progress.trim() !== (memory.session?.progress ?? '')
     || hasUnsavedProfile(profile, memory.devices.find(device => device.id === memory.deviceId)));
@@ -202,7 +203,7 @@ export default function ChatPage() {
           {isEmpty && (
             <div className="chat-empty flex flex-col items-center py-8 text-center">
               <div className="mb-4 flex items-center justify-center">
-                {version === 'new'
+                {version === 'new' && PREMIUM_MOTION_ENABLED
                   ? <ThinkingOrbs state="listening" label={t('待命', 'Listening')} />
                   : <span className="flex h-14 w-14 items-center justify-center rounded-full bg-primary/10 text-primary"><Sparkles className="h-7 w-7" /></span>}
               </div>
@@ -252,7 +253,7 @@ export default function ChatPage() {
                 }`}
               >
                 {msg.role === 'loading' ? (
-                  version === 'new' ? (
+                  version === 'new' && PREMIUM_MOTION_ENABLED ? (
                     <ThinkingOrbs
                       state={orb === 'listening' ? 'searching' : orb}
                       label={orb === 'solving' ? t('整理判断…', 'Sorting the answer…') : t('检索资料…', 'Searching evidence…')}
@@ -323,8 +324,8 @@ export default function ChatPage() {
               type="submit"
               size="icon"
               disabled={!input.trim() || input.trim().length > 2000}
-              className={version === 'new' ? 'shrink-0 glass-press' : 'shrink-0'}
-              data-motion={version === 'new' ? 'glass-press' : undefined}
+              className={version === 'new' && PREMIUM_MOTION_ENABLED ? 'shrink-0 glass-press' : 'shrink-0'}
+              data-motion={version === 'new' && PREMIUM_MOTION_ENABLED ? 'glass-press' : undefined}
               aria-label={t('发送', 'Send')}
             >
               <Send className="h-4 w-4" />
@@ -381,7 +382,7 @@ function MachineContext({
   ] as const;
   return (
     <div className={framed ? 'mb-6 w-full rounded-xl border border-border/60 bg-card p-4 text-left' : 'text-left'}>
-      {!framed && (
+      {!framed && PREMIUM_MOTION_ENABLED && (
         <section className="chat-hud" aria-label={t('诊断步骤', 'Diagnosis steps')}>
           <div className="morph-steps" role="tablist" aria-label={t('诊断步骤', 'Diagnosis steps')}>
             {hudSteps.map(([id, label]) => (

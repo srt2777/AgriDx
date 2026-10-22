@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import { PREMIUM_MOTION_ENABLED } from '@/components/motion/flag';
 
 /** Spring-in glass drawer. The scrim does not take clicks, so the twin stage stays usable. */
 export function SpringDrawer({
@@ -16,6 +17,10 @@ export function SpringDrawer({
   children: ReactNode;
 }) {
   const reduced = useReducedMotion() === true;
+  if (!PREMIUM_MOTION_ENABLED) {
+    if (!open) return null;
+    return <aside className={className} aria-labelledby={labelledBy}>{children}</aside>;
+  }
   const fade = reduced ? { duration: 0 } : { duration: 0.22 };
   const spring = reduced
     ? { duration: 0 }

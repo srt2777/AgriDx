@@ -12,6 +12,7 @@ import { SiteStatusBar } from '@/components/SiteStatusBar';
 import VersionSwitch from '@/components/VersionSwitch';
 import ThemeSwitch from '@/components/ThemeSwitch';
 import { beginSharedTransition } from '@/lib/shared-transition';
+import { PREMIUM_MOTION_ENABLED } from '@/components/motion/flag';
 import './new-version-shell.css';
 
 const NAV_ZH = [
@@ -73,8 +74,8 @@ export function NewVersionShell() {
         </nav>
 
         <div className="new-version-tools">
-          <CommandButton className="glass-press" />
-          <ShortcutButton className="glass-press" />
+          <CommandButton className={PREMIUM_MOTION_ENABLED ? 'glass-press' : undefined} />
+          <ShortcutButton className={PREMIUM_MOTION_ENABLED ? 'glass-press' : undefined} />
           <DemoNote />
           <VersionSwitch exhibition onChange={() => navigate('/')} />
           <ThemeSwitch />

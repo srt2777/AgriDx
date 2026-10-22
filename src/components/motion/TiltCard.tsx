@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type PointerEvent, type ReactNode } from 'react';
 import { motion, useMotionTemplate, useMotionValue, useReducedMotion, useSpring } from 'framer-motion';
+import { PREMIUM_MOTION_ENABLED } from '@/components/motion/flag';
 
 /** Subtle cursor tilt and glare. Touch and reduced motion stay flat. */
 export function TiltCard({ children, className = '' }: { children: ReactNode; className?: string }) {
@@ -21,7 +22,8 @@ export function TiltCard({ children, className = '' }: { children: ReactNode; cl
     return () => media.removeEventListener('change', apply);
   }, []);
 
-  const flat = reduced || !fine;
+  const flat = reduced || !fine || !PREMIUM_MOTION_ENABLED;
+  if (!PREMIUM_MOTION_ENABLED) return <>{children}</>;
 
   function move(event: PointerEvent<HTMLDivElement>) {
     if (flat || event.pointerType !== 'mouse') return;
