@@ -16,7 +16,7 @@ export function createKnowledgeSnapshot(root = rootDir) {
     }
     snapshot[`/${relative.replace(/\\/g, '/')}`] = readFileSync(file, 'utf8');
   };
-  for (const file of [entriesFile, `${index}/sources.json`, `${index}/hierarchy.json`, `${index}/通用框架.json`]) add(file);
+  for (const file of [entriesFile, `${index}/entry-roles.jsonl`, `${index}/sources.json`, `${index}/hierarchy.json`, `${index}/通用框架.json`]) add(file);
   for (const file of new Set(entries.map((entry) => entry.knowledge_path))) {
     if (!file.startsWith('知识库/整理后的知识库/') || !file.endsWith('.md')) throw new Error(`Unexpected knowledge document: ${file}`);
     add(file);

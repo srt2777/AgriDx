@@ -266,6 +266,13 @@
       "base": "3.8.2",
       "version": "3.8.3",
       "date": "2026-10-22"
+    },
+    {
+      "id": "knowledge-roles-api-20261022",
+      "kind": "feature",
+      "base": "3.8.3",
+      "version": "3.9.0",
+      "date": "2026-10-22"
     }
   ]
 }

@@ -6,6 +6,14 @@
 
 2026-10-13按用户最新要求，将原3.3.0和原3.4.0的两批累计800条知识扩充合并为3.3.0，原3.5.0功能整合调整为3.4.0，后续主题修复和开发网关修复原3.5.1、3.5.2对应协调为3.4.1、3.4.2，本阶段项目版本上限为3.4.9。历史提交、采集过程及原始验证输出保留当时实际编号，本轮编号协调不另升版。
 
+## 3.9.0 — 2026-10-22
+
+- 服务端使用条目角色：`server/knowledge/archive.ts` 加载 `entry-roles.jsonl`（校验未知字段、重复、引用不存在的条目和角色结构），每条知识带上 `roles`/`roleBasis`/`riskLevel`、来源书名 `sourceTitle` 和从定位原文提取的 `pages`。`role-review-queue.jsonl` 的 AI 建议不加载。
+- 目录：品牌/型号/组件/零部件每个节点新增 `roleCoverage`（各角色条目数、`tagged`、`untagged`）；条目返回角色、书名、页码。资料库搜索新增 `role` 筛选。
+- 诊断：`ChatResponse` 新增 `roleFlow`，按 现象 → 原因／检查 → 处理 → 复检 分组展示证据，附书名和页码；`knowledgeSources[]` 同样返回角色字段。本地回复附加【按角色整理】段落；模型提示的来源说明加入资料标题和内容角色。开发预览快照纳入 `entry-roles.jsonl`。
+- API 说明见 `docs/api-knowledge-roles.md`；新增 `tests/knowledge-roles-api-20261022.test.ts`。未改知识内容，`kb_version` 仍为 2026.10.3。
+- 更新类型：feature（新增可用的角色检索与展示接口，向后兼容，只增加字段）；批次：knowledge-roles-api-20261022。验证：本地（Node 24）`npm run verify` 通过，测试 446 项，444 通过、2 项跳过、0 失败；类型、lint（0 错误，1 条既有警告）与构建通过。本提交未部署。
+
 ## 3.8.3 — 2026-10-22
 
 - 人工核对队列 `role-review-queue.jsonl` 全部 2329 条写入 DeepSeek 角色建议 `ai_suggestion`（模型 `deepseek-chat`，2026-10-22）；`status` 仍为 `pending`，AI 建议不写入 `entry-roles.jsonl`，由人工确认。

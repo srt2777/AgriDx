@@ -1,5 +1,6 @@
 import { describeSource, type KnowledgeChunk } from './retriever';
 import { resolveScope, type RetrievalContext } from './scope';
+import { buildRoleFlow, formatRoleFlow, hasRoleFlow } from './roles';
 
 /** Without a model service, report retrieved evidence instead of synthesizing a diagnosis. */
 export function generateLocalKnowledgeReply(
@@ -79,6 +80,10 @@ ${describeSource(primary)}
     : '已找到该品牌／系列的参考资料，具体车辆适用性待核实。不能直接套用操作步骤或参数。';
   const background = ['机型资料', '资料缺口', '资料索引', '资料核验', '系统适用边界'].includes(primary.entryType ?? '');
 
+  const flow = buildRoleFlow(retrieved);
+  const roleBlock = !background && hasRoleFlow(flow)
+    ? `\n\n**【按角色整理（现象 → 原因／检查 → 处理）】**\n${formatRoleFlow(flow)}\n角色依据正文字段标签或人工核对；未标注条目不代表缺少该内容。`
+    : '';
   // Show the best matching entry intact so its safety conditions and evidence stay together.
   return `${serviceNotice}**【故障现象分析】**
 针对「${machineDesc}」的咨询：“${displayQuery}”。
@@ -88,7 +93,7 @@ ${scopeNotice}${background ? '该资料仅用于来源、适用范围或资料�
 
 **【检索到的知识】**
 ### ${primary.heading}
-${primary.text}${learningBlock}
+${primary.text}${roleBlock}${learningBlock}
 
 **【知识依据】**
 ${describeSource(primary)}

@@ -29,6 +29,15 @@ export interface KnowledgeChunk {
   scopeBoundary?: string;
   status?: string;
   entryType?: string;
+  /** Book/web title from sources.json; recorded as on the cover, never translated. */
+  sourceTitle?: string;
+  /** Page numbers parsed verbatim from the locator. */
+  pages?: { pdf?: string; printed?: string };
+  /** Reviewed roles from entry-roles.jsonl; absent = not yet tagged (never "none"). */
+  roles?: ('symptom' | 'cause' | 'check' | 'action' | 'retest')[];
+  roleBasis?: '原文标记' | '人工核对';
+  riskLevel?: 'high' | 'medium' | 'low';
+  riskBasis?: string;
   /** General principles may inform analysis, but never prove model-specific repairs. */
   diagnosticEvidence?: false;
   applicability?: 'matched' | 'pending';

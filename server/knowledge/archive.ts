@@ -57,6 +57,38 @@ export function entryRoleSchemaError(entry: ArchiveEntry): string | undefined {
   return undefined;
 }
 
+const SIDECAR_FIELDS = new Set(['entry_id', 'roles', 'role_basis', 'risk_level', 'risk_basis']);
+type RoleFields = Pick<ArchiveEntry, 'roles' | 'role_basis' | 'risk_level' | 'risk_basis'>;
+
+/** entry-roles.jsonl (2026-10-22 sidecar): reviewed roles only; the AI review queue is never loaded. */
+export function loadRoleSidecar(indexRoot: string): Map<string, RoleFields> {
+  const file = path.join(indexRoot, 'entry-roles.jsonl');
+  const result = new Map<string, RoleFields>();
+  let text: string;
+  try { text = fs.readFileSync(file, 'utf8'); } catch (error) {
+    if ((error as { code?: string }).code === 'ENOENT') return result;
+    throw error;
+  }
+  for (const line of text.split(/\r?\n/)) {
+    if (!line.trim()) continue;
+    const record: unknown = JSON.parse(line);
+    if (!record || typeof record !== 'object') throw new Error('entry-roles.jsonl行必须是对象');
+    const { entry_id: id, ...fields } = record as { entry_id?: unknown } & RoleFields;
+    if (typeof id !== 'string' || !isArchiveId(id)) throw new Error('entry-roles.jsonl条目编号无效');
+    if (Object.keys(record).some((key) => !SIDECAR_FIELDS.has(key))) throw new Error(`entry-roles.jsonl含未知字段：${id}`);
+    if (result.has(id)) throw new Error(`entry-roles.jsonl条目编号重复：${id}`);
+    result.set(id, fields);
+  }
+  return result;
+}
+
+/** Page numbers exactly as written in the locator; absent when the locator gives none. */
+export function parsePages(locator: string): { pdf?: string; printed?: string } | undefined {
+  const pdf = locator.match(/PDF\s*(?:物理)?\s*第?\s*(\d[\d、，,～~\-–\s]*?)\s*页/)?.[1]?.trim();
+  const printed = locator.match(/印刷(?:页码)?\s*第?\s*(\d[\d、，,～~\-–]*)/)?.[1]?.trim();
+  return pdf || printed ? { ...(pdf ? { pdf } : {}), ...(printed ? { printed } : {}) } : undefined;
+}
+
 export interface ArchiveSource {
   brand?: string;
   sub_brand?: string;
@@ -117,6 +149,7 @@ export function loadArchive(archiveRoot = ARCHIVE_ROOT, options: { configureMode
     sourceMap.set(source.source_id, source);
   }
 
+  const sidecar = loadRoleSidecar(INDEX_ROOT);
   const documents = new Map<string, Map<string, { heading: string; text: string }>>();
   const chunks: KnowledgeChunk[] = [];
   const ids = new Set<string>();
@@ -125,6 +158,12 @@ export function loadArchive(archiveRoot = ARCHIVE_ROOT, options: { configureMode
     const value: unknown = JSON.parse(line);
     requireStrings(value, ['entry_id', 'source_id', 'brand', 'model', 'title', 'knowledge_path', 'locator', 'status', 'entry_type'], 'entries.jsonl');
     const entry = value as ArchiveEntry;
+    const tagged = sidecar.get((entry as { entry_id?: string }).entry_id ?? '');
+    if (tagged) {
+      const clash = Object.keys(tagged).filter((key) => key in entry);
+      if (clash.length) throw new Error(`entry-roles.jsonl与entries.jsonl重复填写：${entry.entry_id}`);
+      Object.assign(entry, tagged);
+    }
     if (!isArchiveId(entry.entry_id) || !isArchiveId(entry.source_id)) throw new Error(`知识条目编号无效：${entry.entry_id}`);
     if (!ENTRY_TYPES.includes(entry.entry_type!)) throw new Error(`知识条目类别无效：${entry.entry_id}`);
     if (entry.emission_stage !== undefined && !['国三', '国四'].includes(entry.emission_stage)) {
@@ -199,8 +238,13 @@ export function loadArchive(archiveRoot = ARCHIVE_ROOT, options: { configureMode
       scopeBoundary: [source.scope_boundary, inheritedScope, entry.scope_boundary, entry.use].filter(Boolean).join('\n'),
       status: entry.status,
       entryType: entry.entry_type,
+      sourceTitle: source.title,
+      pages: parsePages(entry.locator),
+      ...(entry.roles ? { roles: [...entry.roles], roleBasis: entry.role_basis } : {}),
+      ...(entry.risk_level ? { riskLevel: entry.risk_level, riskBasis: entry.risk_basis } : {}),
     });
   }
+  for (const id of sidecar.keys()) if (!ids.has(id)) throw new Error(`entry-roles.jsonl引用的条目不存在：${id}`);
   if (options.configureModels !== false) configureIndexedModels(chunks);
   return { chunks, fileCount: documents.size, sources: [...sourceMap.values()] };
 }
