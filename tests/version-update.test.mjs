@@ -11,7 +11,9 @@ test('知识扩充和修复均升补丁，功能和不兼容变化受当前上�
   assert.equal(nextVersion('3.3.9', 'feature'), '3.4.0');
   assert.equal(nextVersion('3.4.9', 'knowledge'), '3.4.10');
   assert.equal(nextVersion('3.7.9', 'feature'), '3.8.0');
-  for (const [version, kind] of [['3.8.0', 'knowledge'], ['3.8.0', 'feature'], ['3.4.4', 'breaking']]) assert.throws(() => nextVersion(version, kind), /上限/);
+  assert.equal(nextVersion('3.8.0', 'knowledge'), '3.8.1');
+  assert.equal(nextVersion('3.8.9', 'feature'), '3.9.0');
+  for (const [version, kind] of [['3.9.0', 'knowledge'], ['3.9.0', 'feature'], ['3.4.4', 'breaking']]) assert.throws(() => nextVersion(version, kind), /上限/);
   assert.throws(() => nextVersion('3.4.4', 'unknown'), /类型/);
 });
 
