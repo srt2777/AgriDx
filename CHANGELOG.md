@@ -6,6 +6,14 @@
 
 2026-10-13按用户最新要求，将原3.3.0和原3.4.0的两批累计800条知识扩充合并为3.3.0，原3.5.0功能整合调整为3.4.0，后续主题修复和开发网关修复原3.5.1、3.5.2对应协调为3.4.1、3.4.2，本阶段项目版本上限为3.4.9。历史提交、采集过程及原始验证输出保留当时实际编号，本轮编号协调不另升版。
 
+## 3.8.3 — 2026-10-22
+
+- 人工核对队列 `role-review-queue.jsonl` 全部 2329 条写入 DeepSeek 角色建议 `ai_suggestion`（模型 `deepseek-chat`，2026-10-22）；`status` 仍为 `pending`，AI 建议不写入 `entry-roles.jsonl`，由人工确认。
+- 新增 `scripts/role-suggester-deepseek.mjs`（仿 `dedup-reviewer-deepseek.mjs`）：每批 20 条发送条目正文，429/5xx 指数退避，校验 JSON；每个角色须附正文逐字引文，引文不在正文中则丢弃该角色，无明确角色记为 `none`。密钥只读环境变量 `DEEPSEEK_API_KEY`，未入库。本次约 52.8 万输入 / 19.2 万输出 token。
+- 建议分布：action 2118、check 535、cause 489、symptom 469、retest 46；`none` 99 条；risk_level high 275、medium 189。最常见组合：仅 action 1169、check+action 282、cause+action 169。
+- 队列文件在知识库哈希内，`kb_version` 2026.10.2 → 2026.10.3；规范补充见 `知识库/条目整理规范.md`，新增 `tests/knowledge-role-ai-suggestions-20261022.test.mjs`。
+- 更新类型：knowledge；批次：kb-role-ai-suggestions-20261022。验证：本地（Node 24）`npm run verify` 通过，测试 440 项，438 通过、2 项跳过、0 失败；`校验索引.py` 28 来源、4877 条、0 错误、0 警告。本提交未部署。
+
 ## 3.8.2 — 2026-10-22
 
 - 知识库分阶段计划第3步：按 ROLE_MARKERS 原文字段标签为 2014 条条目自动标注角色（role_basis=原文标记），其余 2329 条可标注条目列入人工核对队列；角色存于旁路文件 entry-roles.jsonl，entries.jsonl 与 Markdown 正文未改动

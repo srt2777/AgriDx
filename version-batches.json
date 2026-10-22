@@ -259,6 +259,13 @@
       "base": "3.8.1",
       "version": "3.8.2",
       "date": "2026-10-22"
+    },
+    {
+      "id": "kb-role-ai-suggestions-20261022",
+      "kind": "knowledge",
+      "base": "3.8.2",
+      "version": "3.8.3",
+      "date": "2026-10-22"
     }
   ]
 }
