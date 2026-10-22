@@ -1,5 +1,6 @@
 import type { MemorySession, PriorDeviceReport } from './memory';
 import type { CoordinationDecision, DiagnosisMode } from './diagnosis';
+import type { KnowledgePages, KnowledgeRole } from './knowledge-catalog';
 /** Public chat protocol. Provider prompts and credentials remain server-only. */
 export type ChatProvider = 'gemini' | 'deepseek' | 'knowledge-base';
 export type AnswerMode = 'knowledge-grounded' | 'general-guidance' | 'local-evidence';
@@ -41,7 +42,23 @@ export interface ChatKnowledgeSource {
   status?: string;
   referenceVerification?: 'verified' | 'pending' | 'unverified' | 'unspecified' | 'failed';
   sourceIndexed?: boolean;
+  sourceTitle?: string;
+  pages?: KnowledgePages;
+  roles?: KnowledgeRole[];
+  roleBasis?: '原文标记' | '人工核对';
+  riskLevel?: 'high' | 'medium' | 'low';
 }
+
+export interface ChatRoleFlowStep {
+  entryId: string;
+  heading: string;
+  sourceId?: string;
+  sourceTitle?: string;
+  pages?: KnowledgePages;
+  locator?: string;
+}
+/** Displayed evidence grouped as symptom -> cause/check -> action -> retest (reviewed roles only). */
+export type ChatRoleFlow = Record<KnowledgeRole, ChatRoleFlowStep[]> & { untaggedEntryIds: string[] };
 
 export interface ChatResponse {
   diagnosisTrace?: DiagnosisTrace;
@@ -57,6 +74,7 @@ export interface ChatResponse {
   fellBack: boolean;
   knowledgeChunks: number;
   knowledgeSources: ChatKnowledgeSource[];
+  roleFlow?: ChatRoleFlow;
   fallbackReason?: FallbackReason;
 }
 

@@ -33,7 +33,7 @@ function responseWithoutTimings(response: ChatResponse) {
 test('开发快照只包含已索引资料，路径不会暴露本机文件或原始说明书', () => {
   const snapshot = createKnowledgeSnapshot();
   assert.ok(Object.keys(snapshot).length > 3);
-  assert.ok(Object.keys(snapshot).every((file) => file.endsWith('.md') || /\/(entries.jsonl|index.jsonl|sources.json|hierarchy.json|通用框架.json)$/.test(file)));
+  assert.ok(Object.keys(snapshot).every((file) => file.endsWith('.md') || /\/(entries.jsonl|entry-roles.jsonl|index.jsonl|sources.json|hierarchy.json|通用框架.json)$/.test(file)));
   assert.ok(snapshot['/docs/tractor-knowledge/01.md']);
   assert.ok(snapshot['/docs/tractor-knowledge/expansion-5000/60.md']);
   assert.ok(Object.keys(snapshot).every((file) => !/\.env|原始农机说明书|00_说明/.test(file)));

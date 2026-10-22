@@ -4,6 +4,8 @@ export interface CatalogCounts {
   entryCount: number;
   faultCount: number;
   sourceCount: number;
+  /** Entries per reviewed role (entry-roles.jsonl) in this node; untagged entries are only in `untagged`. */
+  roleCoverage: RoleCoverage;
 }
 
 export interface CatalogPart extends CatalogCounts {
@@ -33,6 +35,17 @@ export interface CatalogBrand extends CatalogCounts {
   models: CatalogModel[];
 }
 
+export type KnowledgeRole = 'symptom' | 'cause' | 'check' | 'action' | 'retest';
+export const KNOWLEDGE_ROLES: readonly KnowledgeRole[] = ['symptom', 'cause', 'check', 'action', 'retest'];
+export interface RoleCoverage {
+  symptom: number; cause: number; check: number; action: number; retest: number;
+  /** Entries with at least one role. */
+  tagged: number;
+  /** Diagnostic entries not yet tagged (pending human review); not the same as "no role". */
+  untagged: number;
+}
+export interface KnowledgePages { pdf?: string; printed?: string }
+
 export interface CatalogEntry {
   entryId: string;
   title: string;
@@ -46,6 +59,11 @@ export interface CatalogEntry {
   scopeBoundary: string;
   status: string;
   knowledgePath: string;
+  sourceTitle?: string;
+  pages?: KnowledgePages;
+  roles?: KnowledgeRole[];
+  roleBasis?: '原文标记' | '人工核对';
+  riskLevel?: 'high' | 'medium' | 'low';
   configuration?: 'CAB' | 'ROPS';
   driveConfiguration?: '2WD' | '4WD';
   emissionStage?: '国三' | '国四';
@@ -123,14 +141,17 @@ export interface CatalogFilters {
   collection?: KnowledgeLibrary['collection'];
   q?: string;
   page?: string;
+  /** Library search: only entries tagged with this role. */
+  role?: KnowledgeRole;
 }
 
-export const CATALOG_FILTER_KEYS = ['brand', 'model', 'component', 'part', 'symptom', 'configuration', 'driveConfiguration', 'emissionStage', 'collection', 'q', 'page'] as const;
+export const CATALOG_FILTER_KEYS = ['brand', 'model', 'component', 'part', 'symptom', 'configuration', 'driveConfiguration', 'emissionStage', 'collection', 'q', 'page', 'role'] as const;
 export function validCatalogCondition(key: typeof CATALOG_FILTER_KEYS[number], value: string): boolean {
   if (key === 'configuration') return ['CAB', 'ROPS'].includes(value);
   if (key === 'driveConfiguration') return ['2WD', '4WD'].includes(value);
   if (key === 'emissionStage') return ['国三', '国四'].includes(value);
   if (key === 'collection') return ['all', 'archive', 'learning'].includes(value);
+  if (key === 'role') return (KNOWLEDGE_ROLES as readonly string[]).includes(value);
   if (key === 'page') return /^[1-9]\d{0,5}$/.test(value);
   return true;
 }

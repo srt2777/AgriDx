@@ -7,6 +7,7 @@ import { buildSystemPrompt, hasDiagnosticEvidence } from '../knowledge/systemPro
 import { decideCoordination, ROUTE_MESSAGES } from '../knowledge/coordination';
 import { hasIndexedReference, referenceVerification } from '../knowledge/evidence';
 import { retrieve, selectPromptChunks, formatForPrompt } from '../knowledge/retriever';
+import { buildRoleFlow } from '../knowledge/roles';
 import { memoryPrompt, recentMessages } from '../memory/context';
 import type { LlmRouter } from '../llm/router';
 import { ProviderError } from '../llm/types';
@@ -71,7 +72,11 @@ export function createDiagnosticService(llm: DiagnosticProvider, dependencies: D
       entryType: chunk.entryType, diagnosticEvidence: chunk.diagnosticEvidence,
       locator: chunk.locator, version: chunk.version, applicability: chunk.applicability, status: chunk.status,
       referenceVerification: referenceVerification(chunk.status), sourceIndexed: hasIndexedReference(chunk),
-    })) });
+      ...(chunk.sourceTitle ? { sourceTitle: chunk.sourceTitle } : {}),
+      ...(chunk.pages ? { pages: { ...chunk.pages } } : {}),
+      ...(chunk.roles ? { roles: [...chunk.roles], roleBasis: chunk.roleBasis } : {}),
+      ...(chunk.riskLevel ? { riskLevel: chunk.riskLevel } : {}),
+    })), roleFlow: buildRoleFlow(displayed) });
     const finish = (payload: ChatResponse): ChatResponse => {
       trace.timings.totalMs = now() - started;
       payload.diagnosisTrace = trace;

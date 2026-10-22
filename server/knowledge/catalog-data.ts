@@ -1,7 +1,7 @@
 import type {
   CatalogBrand, CatalogComponent, CatalogCounts, CatalogEntry, CatalogFilters,
   CatalogModel, CatalogPart, KnowledgeCatalog,
-  KnowledgeLibrary, LearningEntry, LibraryEntry,
+  KnowledgeLibrary, LearningEntry, LibraryEntry, RoleCoverage,
 } from '../../shared/knowledge-catalog';
 import { canonicalCatalogBrand } from '../../shared/knowledge-catalog';
 import type { ArchiveSource } from './archive';
@@ -33,8 +33,20 @@ interface CatalogState {
   library: { entry: LibraryEntry; searchable: string }[];
 }
 
+function roleCoverage(chunks: KnowledgeChunk[]): RoleCoverage {
+  const result: RoleCoverage = { symptom: 0, cause: 0, check: 0, action: 0, retest: 0, tagged: 0, untagged: 0 };
+  for (const chunk of new Map(chunks.map((c) => [c.entryId, c])).values()) {
+    if (chunk.roles?.length) {
+      result.tagged++;
+      for (const role of chunk.roles) result[role]++;
+    } else if (!INFORMATION_TYPES.has(chunk.entryType!)) result.untagged++;
+  }
+  return result;
+}
+
 function counts(chunks: KnowledgeChunk[]): CatalogCounts {
   return {
+    roleCoverage: roleCoverage(chunks),
     entryCount: new Set(chunks.map((chunk) => chunk.entryId)).size,
     faultCount: chunks.filter((chunk) => chunk.entryType === '维护/故障知识').length,
     sourceCount: new Set(chunks.map((chunk) => chunk.sourceId)).size,
@@ -186,7 +198,7 @@ export function buildKnowledgeCatalog(chunks: KnowledgeChunk[], sourceRecords: A
   const state = { catalog, chunks, links, sources, commonDefinition, library };
   return (filters = {}) => {
     const selected = selectKnowledgeCatalog(state, filters);
-    return filters.collection || filters.q || filters.page
+    return filters.collection || filters.q || filters.page || filters.role
       ? { ...selected, library: selectLibrary(state, filters) } : selected;
   };
 }
@@ -198,7 +210,8 @@ function selectLibrary(state: CatalogState, filters: CatalogFilters): KnowledgeL
   const query = filters.q?.trim() ?? '';
   const terms = normalizeSearch(query).split(/\s+/).filter(Boolean);
   const matches = state.library.filter(({ entry, searchable }) =>
-    (collection === 'all' || entry.collection === collection) && terms.every(term => searchable.includes(term)));
+    (collection === 'all' || entry.collection === collection) &&
+    (!filters.role || (entry.collection === 'archive' && Boolean(entry.roles?.includes(filters.role)))) && terms.every(term => searchable.includes(term)));
   const pageSize = 20;
   const requested = Number(filters.page ?? '1');
   const page = Math.min(Number.isSafeInteger(requested) && requested > 0 ? requested : 1, Math.max(1, Math.ceil(matches.length / pageSize)));
@@ -212,6 +225,10 @@ function asEntry(chunk: KnowledgeChunk): CatalogEntry {
     entryType: chunk.entryType!, content: chunk.text, sourceId: chunk.sourceId!,
     sourceUrl: chunk.sourceUrl!, locator: chunk.locator!, version: chunk.version!,
     scopeBoundary: chunk.scopeBoundary!, status: chunk.status!, knowledgePath: chunk.source,
+    ...(chunk.sourceTitle ? { sourceTitle: chunk.sourceTitle } : {}),
+    ...(chunk.pages ? { pages: { ...chunk.pages } } : {}),
+    ...(chunk.roles ? { roles: [...chunk.roles], roleBasis: chunk.roleBasis } : {}),
+    ...(chunk.riskLevel ? { riskLevel: chunk.riskLevel } : {}),
     configuration: chunk.configuration, driveConfiguration: chunk.driveConfiguration, emissionStage: chunk.emissionStage,
   };
 }
