@@ -11,8 +11,11 @@ import KnowledgeCoverage from '@/components/KnowledgeCoverage';
 import { ChevronDown } from 'lucide-react';
 import { useLang } from '@/hooks/useLang';
 import { MotionConfig } from 'framer-motion';
-import { useEffect } from 'react';
+import { lazy, Suspense, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
+import './home-stage.css';
+
+const HomeStage = lazy(() => import('./HomeStage'));
 
 export default function HomePage() {
   const location = useLocation();
@@ -32,14 +35,15 @@ export default function HomePage() {
   }, [location.state]);
 
   return (
-    <MotionConfig reducedMotion="user"><div className="glass-home min-h-screen">
+    <MotionConfig reducedMotion="user"><div className="glass-home home-immersive min-h-screen">
+      <Suspense fallback={null}><HomeStage /></Suspense>
       <HeroSection />
       <PainPointsSection />
       <KnowledgeCoverage />
       <TechRouteSection />
       <ResearchSection />
       <ScenariosSection />
-      <div className="page-container"><details className="capability-details"><summary><span>{lang === 'zh' ? '进一步了解当前能力与研究方向' : 'Explore current capabilities and research directions'}</span><ChevronDown size={20} /></summary><ArchitectureSection /><SimulationSection /><MultimodalSection /></details></div>
+      <div className="page-container" data-home-beat="details" data-home-side="center"><details className="capability-details"><summary><span>{lang === 'zh' ? '进一步了解当前能力与研究方向' : 'Explore current capabilities and research directions'}</span><ChevronDown size={20} /></summary><ArchitectureSection /><SimulationSection /><MultimodalSection /></details></div>
       <ClosingSection />
     </div></MotionConfig>
   );
