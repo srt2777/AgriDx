@@ -15,6 +15,7 @@ import { preloadPage } from '@/lib/page-loaders';
 import { NewVersionShell } from '@/components/NewVersionShell';
 import { useTheme } from '@/hooks/useTheme';
 import ThemeSwitch from '@/components/ThemeSwitch';
+import { SiteStatusBar } from '@/components/SiteStatusBar';
 
 const NAV_ZH = [
   { label: '首页', path: '/' },
@@ -216,6 +217,7 @@ export function Layout() {
       <main id="main-content" tabIndex={-1} className="flex-1 w-full">
         <Outlet />
       </main>
+      {location.pathname !== '/' && <SiteStatusBar />}
     </div>
   );
 }

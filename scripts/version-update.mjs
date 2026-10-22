@@ -3,7 +3,7 @@ import path from 'node:path';
 import { isMain, main, rootDir } from './lib/process.mjs';
 import { validateVersionState } from './check-version.mjs';
 
-export const MAXIMUM_VERSION = '3.10.3';
+export const MAXIMUM_VERSION = '3.11.0';
 const pattern = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/;
 
 export function nextVersion(version, kind) {
@@ -51,7 +51,7 @@ export function updateVersion({ directory = rootDir, kind, batch, summary, dryRu
   lock.version = version;
   lock.packages[''].version = version;
   const updatedReadme = readme.replace(/(当前项目版本[：:]\s*\*\*)\d+\.\d+\.\d+(\*\*)/, `$1${version}$2`);
-  const section = `## ${version} — ${day}\n\n- ${summary.trim()}\n- 更新类型：${kind}；批次：${batch}。验证结果与 GitHub 保存、部署状态由执行者按实际结果补充。\n\n`;
+  const section = `## ${version} — ${day}\n\n- ${summary.trim()}\n- 更新类型：${kind}；批次：${batch}。\n\n### 详细改动\n\n- ${summary.trim()}\n\n### 知识库变化\n\n- 未记录\n\n### 兼容性\n\n- 未记录\n\n### 验证结果\n\n- 未记录\n\n### 关联 PR\n\n- 未记录\n\n### 部署记录\n\n- 未记录；GitHub 保存、开发站与正式站分别验收。\n\n`;
   const updatedChangelog = changelog.replace(/^##\s+\d+\.\d+\.\d+\b/m, match => section + match);
   ledger.batches.push({ id: batch, kind, base: current, version, date: day });
   const updated = new Map([
