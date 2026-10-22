@@ -8,6 +8,7 @@ import content, { pick } from '@/data/content';
 import { useLang } from '@/hooks/useLang';
 import { LiquidGlass } from '@/components/ui/liquid-glass';
 import { preloadPage } from '@/lib/page-loaders';
+import { HONGHU_T70_PARTS_URL } from '@/components/tractor-model-info';
 
 const TractorViewer = lazy(() => import('@/components/TractorViewer'));
 
@@ -42,9 +43,9 @@ export default function HeroSection() {
             <div className="hero-evidence-note"><span className="status-dot" />{t('以资料适用范围为边界 · 缺口明确标注', 'Source-aware guidance · visible knowledge gaps')}</div>
           </div>
           <figure className="hero-model-visual">
-            <div className="hero-model-stage"><DeferredScene fallback={<SceneLoading />}><TractorViewer /></DeferredScene></div>
+            <div className="hero-model-stage"><DeferredScene fallback={<SceneLoading />}><TractorViewer modelUrl={HONGHU_T70_PARTS_URL} /></DeferredScene></div>
             <figcaption className="hero-model-caption">
-              <span>{t('农业装备 · 交互式结构示意', 'Agricultural machinery · Interactive structure')}</span>
+              <span>{t('鸿鹄 T70 · 照片色部件示意', 'Honghu T70 · Photo-colored parts')}</span>
               <LiquidGlass variant="regular" lens displacementScale={40} className="hero-model-entry" contentClassName="hero-model-entry-content">
                 <Link to="/models" onPointerEnter={() => preloadPage('/models')} onFocus={() => preloadPage('/models')} className="hero-model-entry-link press-control"><span>{t('进入模型工坊', 'Model studio')}</span><ArrowRight size={15} /></Link>
               </LiquidGlass>
