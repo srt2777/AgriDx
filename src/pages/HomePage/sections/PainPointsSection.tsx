@@ -6,7 +6,7 @@ const ICON_MAP = { AlertTriangle, Brain, ScanLine };
 export default function PainPointsSection() {
   const lang = useLang();
   return (
-    <section id="painpoints" className="w-full">
+    <section id="painpoints" className="w-full" data-home-beat="painpoints" data-home-side="start">
       <div className="page-container">
         <div className="challenge-layout">
           <div className="challenge-intro">

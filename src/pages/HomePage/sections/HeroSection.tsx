@@ -1,16 +1,10 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { ArrowRight, Database, ShieldCheck, Box, Wheat } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { lazy } from 'react';
-import DeferredScene from '@/components/DeferredScene';
-import SceneLoading from '@/components/SceneLoading';
 import content, { pick } from '@/data/content';
 import { useLang } from '@/hooks/useLang';
 import { LiquidGlass } from '@/components/ui/liquid-glass';
 import { preloadPage } from '@/lib/page-loaders';
-import { HONGHU_T70_PARTS_URL } from '@/components/tractor-model-info';
-
-const TractorViewer = lazy(() => import('@/components/TractorViewer'));
 
 export default function HeroSection() {
   const navigate = useNavigate();
@@ -19,7 +13,7 @@ export default function HeroSection() {
   const t = (zh: string, en: string) => lang === 'zh' ? zh : en;
   return (
     <>
-      <section className="glass-hero w-full">
+      <section className="glass-hero w-full" data-home-beat="hero" data-home-side="start">
         <div className="hero-layout page-container">
           <div className="hero-copy">
             <div className="hero-affiliation">
@@ -42,18 +36,17 @@ export default function HeroSection() {
             </div>
             <div className="hero-evidence-note"><span className="status-dot" />{t('以资料适用范围为边界 · 缺口明确标注', 'Source-aware guidance · visible knowledge gaps')}</div>
           </div>
-          <figure className="hero-model-visual">
-            <div className="hero-model-stage"><DeferredScene fallback={<SceneLoading />}><TractorViewer modelUrl={HONGHU_T70_PARTS_URL} /></DeferredScene></div>
-            <figcaption className="hero-model-caption">
-              <span>{t('鸿鹄 T70 · 照片色部件示意', 'Honghu T70 · Photo-colored parts')}</span>
-              <LiquidGlass variant="regular" lens displacementScale={40} className="hero-model-entry" contentClassName="hero-model-entry-content">
-                <Link to="/models" onPointerEnter={() => preloadPage('/models')} onFocus={() => preloadPage('/models')} className="hero-model-entry-link press-control"><span>{t('进入模型工坊', 'Model studio')}</span><ArrowRight size={15} /></Link>
-              </LiquidGlass>
-            </figcaption>
-          </figure>
         </div>
+        <figure className="hero-stage-note">
+          <figcaption className="hero-model-caption">
+            <span>{t('鸿鹄 T70 · 照片色部件示意', 'Honghu T70 · Photo-colored parts')}</span>
+            <LiquidGlass variant="regular" lens displacementScale={40} className="hero-model-entry" contentClassName="hero-model-entry-content">
+              <Link to="/models" onPointerEnter={() => preloadPage('/models')} onFocus={() => preloadPage('/models')} className="hero-model-entry-link press-control"><span>{t('进入模型工坊', 'Model studio')}</span><ArrowRight size={15} /></Link>
+            </LiquidGlass>
+          </figcaption>
+        </figure>
       </section>
-      <div className="capability-strip page-container" aria-label={t('系统能力', 'Platform capabilities')}>
+      <div className="capability-strip page-container" data-home-beat="capabilities" data-home-side="band" aria-label={t('系统能力', 'Platform capabilities')}>
         {[
           { icon: Database, title: t('知识有依据', 'Grounded knowledge'), detail: t('本地维修资料辅助检索', 'Retrieval from local repair documents') },
           { icon: ShieldCheck, title: t('诊断可解释', 'Explainable diagnosis'), detail: t('原因分析与分步排查建议', 'Causes and step-by-step troubleshooting') },

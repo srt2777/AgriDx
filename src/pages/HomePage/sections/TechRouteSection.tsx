@@ -16,7 +16,7 @@ export default function TechRouteSection() {
   const lang = useLang();
   const t = (zh: string, en: string) => (lang === 'zh' ? zh : en);
   return (
-    <section id="techroute" className="w-full py-16 md:py-20">
+    <section id="techroute" className="w-full py-16 md:py-20" data-home-beat="techroute" data-home-side="start">
       <div className="mx-auto max-w-6xl px-4 md:px-6 lg:px-8">
         {/* 标题 */}
         <div className="section-heading mb-12">

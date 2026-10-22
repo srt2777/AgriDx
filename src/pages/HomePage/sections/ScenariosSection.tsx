@@ -9,7 +9,7 @@ export default function ScenariosSection() {
   const lang = useLang();
   const t = (zh: string, en: string) => lang === 'zh' ? zh : en;
   return (
-    <section id="scenarios" className="w-full">
+    <section id="scenarios" className="w-full" data-home-beat="scenarios" data-home-side="start">
       <div className="page-container">
         <div className="section-heading mb-12">
           <h2>{t('面向真实的农业作业。', 'Made for agricultural work.')}</h2>

@@ -11,7 +11,7 @@ export default function ClosingSection() {
   const t = (zh: string, en: string) => (lang === 'zh' ? zh : en);
 
   return (
-    <section className="w-full pt-16 pb-0 md:pt-20">
+    <section className="w-full pt-16 pb-0 md:pt-20" data-home-beat="closing" data-home-side="start">
       <div className="mx-auto max-w-6xl px-4 md:px-6 lg:px-8">
         {/* CTA 区 */}
         <div className="closing-panel relative overflow-hidden rounded-2xl border border-primary/20 p-8 text-left md:p-12">
