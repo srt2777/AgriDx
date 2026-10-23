@@ -122,7 +122,7 @@
 
 .new-version-shell .catalog-stats strong {
   display: inline-block;
-  min-width: 4.6em;
+  min-width: 0;
   font-variant-numeric: tabular-nums;
 }
 
