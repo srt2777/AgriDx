@@ -1,6 +1,6 @@
 # v3 架构与维护
 
-> 核对于 3.7.3 / 2026-10-21。改动模块边界（新增 `server/`、`src/features/`、`src/pages/` 顶层目录或新的数据链路）须同步更新本文档。
+> 知识快照版次链路核对于 3.11.1 / 2026-10-22。改动模块边界（新增 `server/`、`src/features/`、`src/pages/` 顶层目录或新的数据链路）须同步更新本文档。
 
 项目保留 React/Vite/Express 和现有本地知识检索、双模型回退。3.0.1 将界面、请求边界、诊断用例、外部模型与运行初始化拆开，便于协作者独立修改和验证。
 
@@ -75,7 +75,7 @@ flowchart LR
 
 ## 版本与发布链路
 
-`npm run version:update` 同步项目版本、批次与 CHANGELOG 骨架；`check:version` 校验一致性、3.8.0 上限及最新日志节的批次 ID、更新类型与验证。知识内容变化另运行 `node scripts/kb-version.mjs --bump`。PR 合入 main 且 CI 通过后，开发站与腾讯正式站按[开发预览](deployment/dev-preview.md)与[腾讯主干同步](deployment/tencent-production-sync.md)更新；部署结果单独验收。规则见[版本规则](version-policy.md)。
+`npm run version:update` 同步项目版本、批次与 CHANGELOG 骨架；`check:version` 校验一致性、现行版本上限（见版本规则）及最新日志节的批次 ID、更新类型与验证。知识内容变化另运行 `node scripts/kb-version.mjs --bump`。PR 合入 main 且 CI 通过后，开发站与腾讯正式站按[开发预览](deployment/dev-preview.md)与[腾讯主干同步](deployment/tencent-production-sync.md)更新；部署结果单独验收。规则见[版本规则](version-policy.md)。
 
 ## 初始化与入口
 
@@ -128,3 +128,8 @@ npm.cmd run sync
 ```
 
 同步拒绝 main/master/远端默认分支和 detached HEAD，明确禁用附带标签；不会自动暂存、提交、拉取覆盖或部署。旧 `bash scripts/build.sh` 与 `bash scripts/sync.sh` 转发到同一 Node 实现。暂停的 `cloud-pull.sh` 明确退出，历史服务器准备脚本仅保留作资料，不安排执行。合入前按[贡献指南](../CONTRIBUTING.md)审阅 PR。
+
+
+### 知识库版次与快照原子发布（3.11.1）
+
+目录的kbVersion在快照初始化时读取一次并随数据代际冻结，HTTP路由不再独立读文件或永久缓存；开发预览携带同一可选公开版本记录。重载失败保留旧数据与旧版本，元数据不可用仍返回null。详见[问题、边界与回归](architecture-snapshot-version.md)。

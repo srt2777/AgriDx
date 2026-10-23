@@ -315,6 +315,13 @@
       "base": "3.10.3",
       "version": "3.11.0",
       "date": "2026-10-22"
+    },
+    {
+      "id": "arch-kb-snapshot-version-20261022",
+      "kind": "maintenance",
+      "base": "3.11.0",
+      "version": "3.11.1",
+      "date": "2026-10-22"
     }
   ]
 }

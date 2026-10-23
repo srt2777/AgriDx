@@ -18,7 +18,7 @@ test('知识扩充和修复均升补丁，功能和不兼容变化受当前上�
   assert.equal(nextVersion('3.9.1', 'feature'), '3.10.0');
   assert.equal(nextVersion('3.10.0', 'knowledge'), '3.10.1');
   assert.equal(nextVersion('3.10.1', 'maintenance'), '3.10.2');
-  for (const [version, kind] of [['3.11.0', 'knowledge'], ['3.11.0', 'feature'], ['3.9.10', 'breaking'], ['3.4.4', 'breaking']]) assert.throws(() => nextVersion(version, kind), /上限/);
+  for (const [version, kind] of [['3.11.1', 'knowledge'], ['3.11.0', 'feature'], ['3.9.10', 'breaking'], ['3.4.4', 'breaking']]) assert.throws(() => nextVersion(version, kind), /上限/);
   assert.throws(() => nextVersion('3.4.4', 'unknown'), /类型/);
 });
 
@@ -77,6 +77,7 @@ test('版本上限按整数分段比较：3.10.0 大于 3.9.x，而非按字符�
   assert.equal(nextVersion('3.10.1', 'maintenance'), '3.10.2');
   assert.equal(nextVersion('3.10.2', 'maintenance'), '3.10.3');
   assert.equal(nextVersion('3.10.2', 'feature'), '3.11.0');
-  assert.throws(() => nextVersion('3.11.0', 'maintenance'), /上限 3\.11\.0/);
-  assert.throws(() => nextVersion('3.11.0', 'feature'), /上限 3\.11\.0/);
+  assert.equal(nextVersion('3.11.0', 'maintenance'), '3.11.1');
+  assert.throws(() => nextVersion('3.11.1', 'maintenance'), /上限 3\.11\.1/);
+  assert.throws(() => nextVersion('3.11.0', 'feature'), /上限 3\.11\.1/);
 });

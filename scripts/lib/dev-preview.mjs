@@ -1,4 +1,4 @@
-import { readFileSync, readdirSync, realpathSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync, realpathSync } from 'node:fs';
 import path from 'node:path';
 import { rootDir } from './process.mjs';
 
@@ -17,6 +17,8 @@ export function createKnowledgeSnapshot(root = rootDir) {
     snapshot[`/${relative.replace(/\\/g, '/')}`] = readFileSync(file, 'utf8');
   };
   for (const file of [entriesFile, `${index}/entry-roles.jsonl`, `${index}/sources.json`, `${index}/hierarchy.json`, `${index}/通用框架.json`]) add(file);
+  // The optional public release record travels with the same immutable data.
+  if (existsSync(path.join(root, index, 'kb-version.json'))) add(`${index}/kb-version.json`);
   for (const file of new Set(entries.map((entry) => entry.knowledge_path))) {
     if (!file.startsWith('知识库/整理后的知识库/') || !file.endsWith('.md')) throw new Error(`Unexpected knowledge document: ${file}`);
     add(file);

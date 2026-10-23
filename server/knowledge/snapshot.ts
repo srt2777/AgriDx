@@ -8,6 +8,8 @@ import type { KnowledgeChunk } from './types';
 import type { CatalogFilters, KnowledgeCatalog } from '../../shared/knowledge-catalog';
 
 export interface KnowledgeSnapshot {
+  /** Optional release metadata belongs to the same published generation as its data. */
+  readonly kbVersion: string | null;
   readonly chunks: readonly KnowledgeChunk[];
   readonly fileCount: number;
   readonly archivedEntries: number;
@@ -18,6 +20,14 @@ export interface KnowledgeSnapshot {
 const KB_ROOT = path.resolve(process.cwd(), 'server/knowledge');
 const INDEX_ROOT = path.resolve(process.cwd(), '知识库/整理后的知识库/农用拖拉机知识库');
 let current: KnowledgeSnapshot | undefined;
+
+/** Preserve the catalog's nullable metadata contract without request-time file reads. */
+function readVersionMetadata(): string | null {
+  try {
+    const value: unknown = JSON.parse(fs.readFileSync(path.join(INDEX_ROOT, 'kb-version.json'), 'utf8')).kb_version;
+    return typeof value === 'string' ? value : null;
+  } catch { return null; }
+}
 
 /** Freeze plain data recursively so response consumers cannot corrupt cached evidence. */
 function freezeData<T>(value: T): T {
@@ -86,11 +96,16 @@ export function reloadKnowledgeSnapshot(): KnowledgeSnapshot {
   const selectCatalog = buildKnowledgeCatalog(archive.chunks, archive.sources, hierarchy, commonData, learning);
   chunks.push(...archive.chunks, ...learningChunks(learning));
   freezeData(chunks);
-  freezeData(selectCatalog());
+  const baseCatalog = freezeData(selectCatalog());
+  const kbVersion = readVersionMetadata();
+  const catalog = freezeData({ ...baseCatalog, kbVersion });
   const next: KnowledgeSnapshot = Object.freeze({
-    chunks, fileCount: fileCount + archive.fileCount + new Set(learning.map(entry => entry.knowledgePath)).size, archivedEntries: archive.chunks.length,
+    kbVersion, chunks, fileCount: fileCount + archive.fileCount + new Set(learning.map(entry => entry.knowledgePath)).size, archivedEntries: archive.chunks.length,
     learningEntries: learning.length,
-    getCatalog: (filters: CatalogFilters = {}) => freezeData(selectCatalog(filters)),
+    getCatalog: (filters: CatalogFilters = {}) => {
+      const selected = selectCatalog(filters);
+      return selected === baseCatalog ? catalog : freezeData({ ...selected, kbVersion });
+    },
   });
   // The archive loader's standalone API still configures models by default. Here it
   // is deferred until hierarchy/catalog validation succeeds, preserving old scope

@@ -32,7 +32,7 @@ test('检索、目录和统计初始化共用一次归档读取，重复入口�
   assert.equal(stats().learningEntries, catalog.totals.learningEntries);
   assert.equal(catalog.totals.mappedEntries, stats().archivedEntries);
   assert.equal([...reads.values()].reduce((a, b) => a + b, 0), initialReadCount);
-  for (const name of ['entries.jsonl', 'sources.json', 'hierarchy.json']) assert.equal(reads.get(path.join(index, name)), 1, name);
+  for (const name of ['entries.jsonl', 'sources.json', 'hierarchy.json', 'kb-version.json']) assert.equal(reads.get(path.join(index, name)), 1, name);
   for (const [file, count] of reads) assert.equal(count, 1, `repeated read: ${file}`);
 });
 
