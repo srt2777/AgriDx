@@ -7,6 +7,7 @@ import { sphereNodes, sphereLevel, type SphereNode } from './knowledge-sphere-da
 import './knowledge-sphere.css';
 import { useKnowledgeCatalog } from '@/hooks/useKnowledgeCatalog';
 import EvidenceEntry from './EvidenceEntry';
+import type { KnowledgeGalaxyRenderer, GalaxyOrb } from './KnowledgeGalaxyRenderer';
 
 const colors = { root: '#9ddbcf', brand: '#e7c47d', model: '#76cbbb', component: '#8daff0', part: '#d9a4db' };
 export default function KnowledgeSphere({ catalog, lang }: { catalog: KnowledgeCatalog; lang: string }) {
@@ -24,7 +25,7 @@ export default function KnowledgeSphere({ catalog, lang }: { catalog: KnowledgeC
     return groups;
   }, [allNodes]);
   const [selected, setSelected] = useState<SphereNode | null>(null);
-  const [running, setRunning] = useState(false);
+  const [running, setRunning] = useState(true);
   const [field, setField] = useState<'repel' | 'attract'>('repel');
   const [search, setSearch] = useState('');
   const rootNode = useMemo<SphereNode>(
@@ -57,8 +58,22 @@ export default function KnowledgeSphere({ catalog, lang }: { catalog: KnowledgeC
   const canvas = useRef<HTMLCanvasElement>(null);
   const buttons = useRef(new Map<string, HTMLButtonElement>());
   const reveal = useRef(0);
+  const galaxyRef = useRef<KnowledgeGalaxyRenderer | null>(null);
+  const lastInteraction = useRef(0);
+  const noteInteraction = () => {
+    lastInteraction.current = performance.now();
+  };
   const camera = useRef({ yaw: 0.2, pitch: -0.15, zoom: 1, targetZoom: 1, vx: 0, vy: 0 });
-  const pointer = useRef({ x: -10000, y: -10000, down: false, lastX: 0, lastY: 0 });
+  const pointer = useRef({
+    x: -10000,
+    y: -10000,
+    down: false,
+    dragged: false,
+    startX: 0,
+    startY: 0,
+    lastX: 0,
+    lastY: 0,
+  });
   const enter = (node: SphereNode) => {
     const hasChildren = node.kind === 'root' || !!childrenByParent.get(node.id)?.length;
     setSelected(node.kind === 'root' ? null : node);
@@ -103,6 +118,38 @@ export default function KnowledgeSphere({ catalog, lang }: { catalog: KnowledgeC
     [expanded, allNodes, region, rootNode],
   );
   useEffect(() => {
+    const host = stage.current,
+      surface = canvas.current;
+    if (!host || !surface) return;
+    let disposed = false;
+    host.dataset.renderer = 'canvas';
+    const fallback = () => {
+      galaxyRef.current?.dispose();
+      galaxyRef.current = null;
+      if (!disposed) {
+        surface.style.opacity = '1';
+        host.dataset.renderer = 'canvas';
+      }
+    };
+    void import('./KnowledgeGalaxyRenderer')
+      .then(({ KnowledgeGalaxyRenderer: Renderer }) => {
+        if (disposed) return;
+        try {
+          galaxyRef.current = new Renderer(host, fallback);
+          surface.style.opacity = '0';
+          host.dataset.renderer = 'webgl';
+        } catch {
+          fallback();
+        }
+      })
+      .catch(fallback);
+    return () => {
+      disposed = true;
+      galaxyRef.current?.dispose();
+      galaxyRef.current = null;
+    };
+  }, []);
+  useEffect(() => {
     const host = stage.current;
     const surface = canvas.current;
     if (!host || !surface) return;
@@ -127,23 +174,27 @@ export default function KnowledgeSphere({ catalog, lang }: { catalog: KnowledgeC
     };
     host.addEventListener('wheel', wheel, { passive: false });
     const draw = (time: number) => {
+      const galaxy = galaxyRef.current;
       const step = Math.min((time - last) / 16.67 || 1, 3);
       last = time;
       const c = camera.current,
         p = pointer.current;
+      const idle = running && !reduced && !p.down && time - lastInteraction.current > 4000;
+      const drift = idle ? Math.sin(time * 0.00012) * 0.12 : 0;
       if (selected && selected.id !== region.id && !p.down) {
         const [x, y, z] = nodes.find((node) => node.id === selected.id)?.position ?? selected.position;
-        const yaw = -Math.atan2(x, z),
-          pitch = Math.atan2(y, Math.hypot(x, z));
+        const yaw = -Math.atan2(x, z) + drift,
+          pitch = Math.atan2(y, Math.hypot(x, z)) + drift * 0.35;
         c.yaw += Math.atan2(Math.sin(yaw - c.yaw), Math.cos(yaw - c.yaw)) * (reduced ? 1 : 0.075 * step);
         c.pitch += (pitch - c.pitch) * (reduced ? 1 : 0.075 * step);
       } else if (!p.down) {
-        c.yaw += c.vx * step + (running && !reduced ? 0.0015 * step : 0);
+        c.yaw += c.vx * step + (idle ? 0.0022 * step : 0);
         c.pitch = Math.max(-1.4, Math.min(1.4, c.pitch + c.vy * step));
+        if (idle) c.pitch += (Math.sin(time * 0.00017) * 0.24 - c.pitch) * 0.003 * step;
         c.vx *= Math.pow(0.93, step);
         c.vy *= Math.pow(0.93, step);
       }
-      c.zoom += (c.targetZoom - c.zoom) * (reduced ? 1 : 0.1 * step);
+      c.zoom += (c.targetZoom * (idle ? 1 + Math.sin(time * 0.0002) * 0.035 : 1) - c.zoom) * (reduced ? 1 : 0.1 * step);
       reveal.current += ((expanded ? 1 : 0) - reveal.current) * (reduced ? 1 : 0.075 * step);
       const radius = Math.min(width * 0.3, height * 0.31) * c.zoom * reveal.current;
       const projected = nodes.map((node) => {
@@ -168,6 +219,26 @@ export default function KnowledgeSphere({ catalog, lang }: { catalog: KnowledgeC
       });
       const map = new Map(projected.map((item) => [item.node.id, item]));
       ctx.clearRect(0, 0, width, height);
+      if (!galaxy) {
+        // A parallax star field gives even an untouched scene a visible depth cue.
+        const nebula = ctx.createRadialGradient(width * 0.35, height * 0.38, 0, width * 0.5, height * 0.5, width * 0.6);
+        nebula.addColorStop(0, '#15595a55');
+        nebula.addColorStop(0.5, '#172b5150');
+        nebula.addColorStop(1, '#02081300');
+        ctx.fillStyle = nebula;
+        ctx.fillRect(0, 0, width, height);
+        for (let index = 0; index < 135; index++) {
+          const depth = 0.25 + (index % 7) / 7;
+          const sx = (((index * 137.508 + Math.sin(c.yaw) * 34 * depth) % width) + width) % width;
+          const sy = (((index * 79.71 + c.pitch * 38 * depth) % height) + height) % height;
+          const twinkle = reduced ? 0.55 : 0.45 + Math.sin(time * 0.0007 + index) * 0.2;
+          ctx.fillStyle = `rgba(185,221,243,${twinkle * depth})`;
+          ctx.beginPath();
+          ctx.arc(sx, sy, index % 11 === 0 ? 1.5 : 0.65, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+      const orbs: GalaxyOrb[] = [];
       // Each child is a small sphere containing its own next-level stars.
       for (const item of [...projected].sort((a, b) => a.z - b.z)) {
         const button = buttons.current.get(item.node.id);
@@ -181,61 +252,110 @@ export default function KnowledgeSphere({ catalog, lang }: { catalog: KnowledgeC
             );
         ctx.globalAlpha = centre ? 1 : reveal.current;
         const color = colors[item.node.kind];
-        const glow = ctx.createRadialGradient(
-          item.x - ballRadius * 0.25,
-          item.y - ballRadius * 0.3,
-          0,
-          item.x,
-          item.y,
-          ballRadius,
-        );
-        glow.addColorStop(0, color + '55');
-        glow.addColorStop(0.6, color + '18');
-        glow.addColorStop(1, color + '08');
-        ctx.fillStyle = glow;
-        ctx.strokeStyle = color + (centre ? 'aa' : '66');
-        ctx.lineWidth = centre ? 1.2 : 0.8;
-        ctx.beginPath();
-        ctx.arc(item.x, item.y, ballRadius, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.stroke();
-        ctx.save();
-        ctx.translate(item.x, item.y);
-        ctx.rotate(-0.35);
-        ctx.strokeStyle = color + '35';
-        ctx.beginPath();
-        ctx.ellipse(0, 0, ballRadius * 0.96, ballRadius * 0.31, 0, 0, Math.PI * 2);
-        ctx.stroke();
-        ctx.restore();
-        const children = childrenByParent.get(item.node.id) ?? [];
-        const stars = Math.min(40, children.length);
-        for (let index = 0; index < stars; index++) {
-          const sy = 1 - (2 * (index + 0.5)) / stars,
-            rr = Math.sqrt(1 - sy * sy);
-          const angle = index * 2.39996 + c.yaw;
-          const sx = Math.cos(angle) * rr,
-            sz = Math.sin(angle) * rr;
-          const starY = sy * Math.cos(c.pitch) - sz * Math.sin(c.pitch);
-          const starZ = sy * Math.sin(c.pitch) + sz * Math.cos(c.pitch);
-          ctx.fillStyle = color + (starZ > 0 ? 'cc' : '55');
+        orbs.push({
+          id: item.node.id,
+          x: item.x,
+          y: item.y,
+          z: item.z,
+          radius: ballRadius,
+          color,
+          children: childrenByParent.get(item.node.id)?.length ?? 0,
+          centre,
+        });
+        if (!galaxy) {
+          // Opaque shadow hemisphere, bright key light and a soft atmospheric rim.
+          const halo = ctx.createRadialGradient(item.x, item.y, ballRadius * 0.75, item.x, item.y, ballRadius * 1.65);
+          halo.addColorStop(0, color + '00');
+          halo.addColorStop(0.42, color + '42');
+          halo.addColorStop(1, color + '00');
+          ctx.globalCompositeOperation = 'screen';
+          ctx.fillStyle = halo;
           ctx.beginPath();
-          ctx.arc(
-            item.x + sx * ballRadius * 0.8,
-            item.y + starY * ballRadius * 0.8,
-            centre && !expanded ? 2.8 : 1.4,
-            0,
-            Math.PI * 2,
-          );
+          ctx.arc(item.x, item.y, ballRadius * 1.65, 0, Math.PI * 2);
           ctx.fill();
-        }
-        if (expanded && !centre) {
-          const parent = map.get(region.id);
-          if (parent) {
-            ctx.strokeStyle = color + '18';
+          ctx.globalCompositeOperation = 'source-over';
+          const glow = ctx.createRadialGradient(
+            item.x - ballRadius * 0.4,
+            item.y - ballRadius * 0.42,
+            ballRadius * 0.04,
+            item.x + ballRadius * 0.25,
+            item.y + ballRadius * 0.3,
+            ballRadius * 1.2,
+          );
+          glow.addColorStop(0, '#d6fff1');
+          glow.addColorStop(0.16, color);
+          glow.addColorStop(0.46, color + 'bb');
+          glow.addColorStop(0.76, '#102e39');
+          glow.addColorStop(1, '#020712');
+          ctx.fillStyle = glow;
+          ctx.strokeStyle = color + 'bb';
+          ctx.lineWidth = centre ? 1.5 : 1;
+          ctx.beginPath();
+          ctx.arc(item.x, item.y, ballRadius, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.stroke();
+          ctx.save();
+          ctx.beginPath();
+          ctx.arc(item.x, item.y, ballRadius, 0, Math.PI * 2);
+          ctx.clip();
+          ctx.strokeStyle = color + '28';
+          ctx.lineWidth = 0.7;
+          for (let band = -2; band <= 2; band++) {
             ctx.beginPath();
-            ctx.moveTo(parent.x, parent.y);
-            ctx.quadraticCurveTo(item.x, parent.y, item.x, item.y);
+            ctx.ellipse(
+              item.x,
+              item.y + ballRadius * band * 0.28,
+              ballRadius * Math.sqrt(1 - Math.pow(band * 0.28, 2)),
+              ballRadius * 0.17,
+              -0.25,
+              0,
+              Math.PI * 2,
+            );
             ctx.stroke();
+          }
+          ctx.restore();
+          ctx.save();
+          ctx.translate(item.x, item.y);
+          ctx.rotate(-0.35);
+          ctx.strokeStyle = color + '35';
+          ctx.beginPath();
+          ctx.ellipse(0, 0, ballRadius * 0.96, ballRadius * 0.31, 0, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.restore();
+          const children = childrenByParent.get(item.node.id) ?? [];
+          const stars = Math.min(40, children.length);
+          for (let index = 0; index < stars; index++) {
+            const sy = 1 - (2 * (index + 0.5)) / stars,
+              rr = Math.sqrt(1 - sy * sy);
+            const angle = index * 2.39996 + c.yaw;
+            const sx = Math.cos(angle) * rr,
+              sz = Math.sin(angle) * rr;
+            const starY = sy * Math.cos(c.pitch) - sz * Math.sin(c.pitch);
+            const starZ = sy * Math.sin(c.pitch) + sz * Math.cos(c.pitch);
+            if (starZ < 0) continue;
+            ctx.shadowColor = color;
+            ctx.shadowBlur = centre ? 12 : 7;
+            ctx.fillStyle = '#e2fff8';
+            ctx.beginPath();
+            ctx.arc(
+              item.x + sx * ballRadius * 0.8,
+              item.y + starY * ballRadius * 0.8,
+              centre && !expanded ? 2.8 : 1.4,
+              0,
+              Math.PI * 2,
+            );
+            ctx.fill();
+            ctx.shadowBlur = 0;
+          }
+          if (expanded && !centre) {
+            const parent = map.get(region.id);
+            if (parent) {
+              ctx.strokeStyle = color + '18';
+              ctx.beginPath();
+              ctx.moveTo(parent.x, parent.y);
+              ctx.quadraticCurveTo(item.x, parent.y, item.x, item.y);
+              ctx.stroke();
+            }
           }
         }
         button.style.transform = `translate(${item.x}px, ${item.y}px) translate(-50%, -50%)`;
@@ -246,6 +366,14 @@ export default function KnowledgeSphere({ catalog, lang }: { catalog: KnowledgeC
         button.style.zIndex = String(Math.round((item.z + 1) * 100));
       }
       ctx.globalAlpha = 1;
+      try {
+        galaxy?.render(width, height, orbs, reduced ? 0 : time, c.yaw, c.pitch, reduced);
+      } catch {
+        galaxyRef.current?.dispose();
+        galaxyRef.current = null;
+        surface.style.opacity = '1';
+        host.dataset.renderer = 'canvas';
+      }
       frame = requestAnimationFrame(draw);
     };
     frame = requestAnimationFrame(draw);
@@ -261,7 +389,14 @@ export default function KnowledgeSphere({ catalog, lang }: { catalog: KnowledgeC
       )
     : [];
   return (
-    <section className="knowledge-universe" aria-label={t('球形知识图谱', 'Spherical knowledge graph')}>
+    <section
+      className="knowledge-universe"
+      onPointerDownCapture={noteInteraction}
+      onPointerMoveCapture={noteInteraction}
+      onWheelCapture={noteInteraction}
+      onKeyDownCapture={noteInteraction}
+      aria-label={t('球形知识图谱', 'Spherical knowledge graph')}
+    >
       <div className="universe-heading">
         <div>
           <span>KNOWLEDGE ORBIT / 01</span>
@@ -291,12 +426,13 @@ export default function KnowledgeSphere({ catalog, lang }: { catalog: KnowledgeC
           {field === 'repel' ? t('力场 · 远离', 'Field · repel') : t('力场 · 靠近', 'Field · attract')}
         </button>
         <button
-          aria-label={t('自动旋转', 'Auto rotate')}
+          aria-label={t('空闲自动漫游', 'Idle camera roam')}
           aria-pressed={running}
           disabled={reduced}
           onClick={() => setRunning(!running)}
         >
           {running ? <Pause size={16} /> : <Play size={16} />}
+          <span>{t('自动漫游', 'Auto roam')}</span>
         </button>
         <button aria-label={t('缩小', 'Zoom out')} onClick={() => zoom(-0.3)}>
           <Minus size={17} />
@@ -348,15 +484,21 @@ export default function KnowledgeSphere({ catalog, lang }: { catalog: KnowledgeC
             'Drag to rotate, scroll to zoom; arrow keys rotate, select a node for details',
           )}
           onPointerDown={(e) => {
-            if ((e.target as HTMLElement).closest('button')) return;
-            e.preventDefault();
-            e.currentTarget.focus({ preventScroll: true });
+            const onNode = !!(e.target as HTMLElement).closest('button');
+            const gesture = pointer.current;
+            gesture.dragged = false;
+            gesture.startX = e.clientX;
+            gesture.startY = e.clientY;
+            if (!onNode) e.preventDefault();
+            if (!onNode) e.currentTarget.focus({ preventScroll: true });
             const p = pointer.current;
             p.down = true;
             p.lastX = e.clientX;
             p.lastY = e.clientY;
-            e.currentTarget.setPointerCapture(e.pointerId);
-            setSelected(null);
+            if (!onNode) {
+              e.currentTarget.setPointerCapture(e.pointerId);
+              setSelected(null);
+            }
           }}
           onPointerMove={(e) => {
             const p = pointer.current,
@@ -364,6 +506,12 @@ export default function KnowledgeSphere({ catalog, lang }: { catalog: KnowledgeC
             p.x = e.clientX - rect.left;
             p.y = e.clientY - rect.top;
             if (p.down) {
+              if (!p.dragged && Math.hypot(e.clientX - p.startX, e.clientY - p.startY) < 5) return;
+              if (!p.dragged) {
+                p.dragged = true;
+                setSelected(null);
+                e.currentTarget.setPointerCapture(e.pointerId);
+              }
               const dx = e.clientX - p.lastX,
                 dy = e.clientY - p.lastY;
               camera.current.vx = dx * 0.004;
@@ -402,7 +550,10 @@ export default function KnowledgeSphere({ catalog, lang }: { catalog: KnowledgeC
               style={{ color: colors[node.kind] }}
               aria-pressed={selected?.id === node.id}
               aria-label={`${node.label} · ${node.count} ${t('条资料', 'entries')}`}
-              onClick={() => enter(node)}
+              onClick={(event) => {
+                if (event.detail !== 0 && pointer.current.dragged) return;
+                enter(node);
+              }}
             >
               <i />
               <span>{node.label}</span>

@@ -527,3 +527,4 @@
   background: #e7c47d09;
   font-size: 11px;
 }
+.universe-stage .universe-webgl{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}.knowledge-universe{background:radial-gradient(ellipse at 45% 45%,#102f39 0%,#081423 50%,#030710 100%)}
