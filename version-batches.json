@@ -378,6 +378,13 @@
       "base": "3.13.3",
       "version": "3.13.4",
       "date": "2026-10-23"
+    },
+    {
+      "id": "knowledge-taxonomy-20261023",
+      "kind": "maintenance",
+      "base": "3.13.4",
+      "version": "3.13.5",
+      "date": "2026-10-23"
     }
   ]
 }
