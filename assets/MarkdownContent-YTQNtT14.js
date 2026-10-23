@@ -1,0 +1,1 @@
+import{j as o}from"./r3f-B9tXwj3X.js";import{M as t,r as a}from"./index-tuKj3leI.js";import"./three-CzVmVvzI.js";function e({children:r}){return o.jsx(t,{remarkPlugins:[a],children:r})}export{e as default};
