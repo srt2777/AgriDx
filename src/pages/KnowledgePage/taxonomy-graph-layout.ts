@@ -18,4 +18,3 @@ export function graphPositions(nodes: TaxonomyNode[]) {
   for (const point of positions.values()) point.x = (point.x / Math.max(1, leaf - 1) - .5) * 5.5;
   return positions;
 }
-

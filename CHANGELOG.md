@@ -33,7 +33,7 @@
 
 ### 关联 PR
 
-- 未记录
+- [PR #96](https://github.com/srt2777/AgriDx/pull/96)，实现提交 `3130dfc`。
 
 ### 部署记录
 
