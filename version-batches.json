@@ -338,9 +338,16 @@
       "date": "2026-10-23"
     },
     {
+      "id": "fix-webgl-preview-20261023",
+      "kind": "fix",
+      "base": "3.12.1",
+      "version": "3.12.2",
+      "date": "2026-10-23"
+    },
+    {
       "id": "engine-motion-20261023",
       "kind": "feature",
-      "base": "3.12.1",
+      "base": "3.12.2",
       "version": "3.13.0",
       "date": "2026-10-23"
     }

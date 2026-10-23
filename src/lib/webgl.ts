@@ -1,11 +1,11 @@
 export type GraphicsReason = 'loading' | 'unsupported' | 'lost';
 
-/** True when a throwaway canvas can create a WebGL context. The probe is released immediately. */
+/** True when a throwaway canvas can create the WebGL 2 context required by Three.js. The probe is released immediately. */
 export function probeWebGL(): boolean {
   if (typeof document === 'undefined') return false;
   try {
     const canvas = document.createElement('canvas');
-    const context = canvas.getContext('webgl2') || canvas.getContext('webgl');
+    const context = canvas.getContext('webgl2');
     if (!context) return false;
     context.getExtension('WEBGL_lose_context')?.loseContext();
     return true;
