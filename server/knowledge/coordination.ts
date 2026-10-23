@@ -27,6 +27,7 @@ export function decideCoordination(input: DiagnosisRouterInput): CoordinationDec
 }
 
 export const ROUTE_MESSAGES: Record<RouteReason, string> = {
+  output_rejected: '外部生成未通过来源或安全检查，已退回本地依据与追问。',
   llm_config_invalid: '模型供应商配置无效，暂时返回本地资料，请管理员检查配置。',
   identity_conflict: '机型信息有冲突，先确认设备，本次不调用外部 AI。',
   identity_required: '解释专用故障码或参数需要品牌和完整型号，本次先追问。',

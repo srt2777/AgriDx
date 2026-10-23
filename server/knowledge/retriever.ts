@@ -13,7 +13,7 @@ import type { KnowledgeChunk, DiagnosticMetadata } from './types';
 export type { KnowledgeChunk, DiagnosticMetadata } from './types';
 import { loadKnowledgeSnapshot, peekKnowledgeSnapshot, type KnowledgeSnapshot } from './snapshot';
 import { archiveApplicability, queryWithoutIdentity, resolveScope, type RetrievalContext } from './scope';
-import { mentionsEntryId } from './evidence';
+import { mentionsEntryId, referenceVerification, requiredDiagnosticCoverage } from './evidence';
 
 interface IndexedChunk {
   chunk: KnowledgeChunk;
@@ -33,10 +33,12 @@ let chunks: KnowledgeChunk[] = [];
 let index: IndexedChunk[] = [];
 let generation = 0;
 let preparedSnapshot: KnowledgeSnapshot | undefined;
+let manualScopes: KnowledgeChunk[] = [];
 let retrievalRequests = 0;
 let cacheHits = 0;
 let scoringPasses = 0;
 const retrievalCache = new Map<string, { expiresAt: number; chunks: KnowledgeChunk[] }>();
+const manualAvailabilityCache = new Map<string, { available: boolean | undefined }>();
 
 /** Import-time parsing handles both current six-field cards and older bullet labels. */
 function diagnosticFields(text: string): Map<string, string> {
@@ -117,6 +119,7 @@ function cloneChunk(chunk: KnowledgeChunk): KnowledgeChunk {
     diagnosticMetadata: chunk.diagnosticMetadata ? { ...chunk.diagnosticMetadata,
       coverage: { ...chunk.diagnosticMetadata.coverage } } : undefined,
     relevance: chunk.relevance ? { ...chunk.relevance } : undefined,
+    retrieval: chunk.retrieval ? { ...chunk.retrieval, basis: [...chunk.retrieval.basis] } : undefined,
   };
 }
 
@@ -127,8 +130,47 @@ function prepareSnapshot(snapshot: KnowledgeSnapshot): void {
   index = nextIndex;
   chunks = nextIndex.map(item => item.chunk);
   preparedSnapshot = snapshot;
+  const manualIds = new Set(snapshot.manualSourceIds);
+  manualScopes = [...new Map(nextIndex.filter(item => item.chunk.sourceId && manualIds.has(item.chunk.sourceId))
+    .map(item => [item.applicabilityKey, item.chunk])).values()];
   generation++;
   retrievalCache.clear();
+  manualAvailabilityCache.clear();
+}
+
+function availabilityKey(query: string, context: RetrievalContext): string | undefined {
+  return typeof crypto.createHash === 'function'
+    ? crypto.createHash('sha256').update(JSON.stringify([query, context])).digest('hex') : undefined;
+}
+
+function rememberManualAvailability(query: string, context: RetrievalContext, scope: ReturnType<typeof resolveScope>): boolean | undefined {
+  const available = scope.identityConflict || scope.ambiguous || !scope.tractorArchive ||
+    !scope.models.some(model => !['国三', '国四'].includes(model))
+    ? undefined : manualScopes.some(chunk => archiveApplicability(chunk, scope) !== undefined);
+  const key = availabilityKey(query, context);
+  if (key) {
+    if (manualAvailabilityCache.size >= CACHE_MAX_ENTRIES) manualAvailabilityCache.delete(manualAvailabilityCache.keys().next().value!);
+    manualAvailabilityCache.set(key, { available });
+  }
+  return available;
+}
+
+/** Source availability is independent of topic ranking; never infer "no manual" from zero hits. */
+export function hasApplicableManual(query: string, context: RetrievalContext = {}): boolean | undefined {
+  const snapshot = peekKnowledgeSnapshot();
+  if (!snapshot) return undefined;
+  prepareSnapshot(snapshot);
+  const key = availabilityKey(query, context);
+  const cached = key ? manualAvailabilityCache.get(key) : undefined;
+  return cached ? cached.available : rememberManualAvailability(query, context, resolveScope(query, context));
+}
+
+/** Same one retrieval, plus independently checked source availability. Coverage belongs to the router. */
+export function retrieveWithDiagnostics(query: string, k = MAX_CHUNKS_IN_PROMPT, context: RetrievalContext = {}) {
+  const found = retrieve(query, k, context);
+  const manualAvailable = hasApplicableManual(query, context);
+  const outcome = manualAvailable === false ? 'no_manual' as const : found.length ? 'insufficient_evidence' as const : 'no_results' as const;
+  return { chunks: found, manualAvailable, outcome };
 }
 
 /** Compatibility entry: retrieval, catalog and health share one validated generation. */
@@ -243,6 +285,13 @@ export function retrieve(query: string, k = MAX_CHUNKS_IN_PROMPT, context: Retri
   if (cached) retrievalCache.delete(cacheKey!);
   const { tokens: qTokens, groups } = symptomTokens(query);
   const scope = resolveScope(query, context);
+  rememberManualAvailability(query, context, scope);
+  const namedScope = Boolean(scope.brand || scope.models.some(model => !['国三', '国四'].includes(model)));
+  const organization = snapshot.retrievalOrganization;
+  const symptomText = queryWithoutIdentity(query);
+  const symptomMatches = organization.symptoms.filter(symptom => symptom.terms.some(term => symptomText.includes(term)));
+  const componentIds = new Set(symptomMatches.flatMap(symptom => symptom.componentIds));
+  const generalAllowed = scope.tractorArchive && !scope.electric && !scope.identityConflict && !scope.ambiguous;
   const lookupText = query.replace(/\[[^\]]*\]\([^)]+\)|https?:\/\/\S+/gi, ' ');
   const idPattern = /(?<![a-z0-9_-])(?:TK-\d{4}|(?:KB|KB2000|TF1000|NH|ZL|LV|DF|HH)-[A-Z0-9-]+)(?![a-z0-9_-])/gi;
   const lookup = /查阅|查找|查看|查询|摘录|解释|解读|学习/.test(lookupText) || !lookupText.replace(idPattern, '').replace(/[\s\p{P}]/gu, '');
@@ -251,10 +300,13 @@ export function retrieve(query: string, k = MAX_CHUNKS_IN_PROMPT, context: Retri
 
   scoringPasses++;
   const scored: KnowledgeChunk[] = [];
+  const componentCandidates: KnowledgeChunk[] = [];
   // Many sections share one source/configuration scope. Resolve each distinct scope once.
   const applicabilityByScope = new Map<string, KnowledgeChunk['applicability']>();
   for (const indexed of index) {
     const c = indexed.chunk;
+    // A failed review cannot consume a top-k slot or reach either answer path.
+    if (referenceVerification(c.status) === 'failed') continue;
     if (requestedIds.size && (!c.entryId || !requestedIds.has(c.entryId) || !mentionsEntryId(query, c.entryId))) continue;
     // The local file preamble describes editing the sample, not diagnostic evidence.
     if (!c.entryId && c.heading === '(概述)') continue;
@@ -263,19 +315,42 @@ export function retrieve(query: string, k = MAX_CHUNKS_IN_PROMPT, context: Retri
       applicabilityByScope.set(indexed.applicabilityKey, archiveApplicability(c, scope));
     }
     const applicability = learning ? undefined : applicabilityByScope.get(indexed.applicabilityKey);
-    // 2026-10-22: 通识 joins diagnosis only for open questions; a named brand/model searches its archive only.
-    // An explicit TK-xxxx lookup still opens that entry, but never as evidence.
-    if (learning ? !(scope.openArchive || (requestedIds.size && scope.tractorArchive && !scope.electric && !scope.identityConflict && !scope.ambiguous))
+    // A named machine may receive explicitly labelled general references when
+    // its applicable documents do not cover this question. Explicit IDs remain isolated lookups.
+    if (learning ? !(scope.openArchive || generalAllowed && namedScope || (requestedIds.size && generalAllowed))
       : c.entryId ? !applicability : !scope.genericKnowledge) continue;
     const score = requestedIds.size ? 100 : scoreChunk(indexed, qTokens, groups);
+    if (!learning && c.entryId && applicability && namedScope && !requestedIds.size && componentIds.size &&
+      organization.entryComponents[c.entryId]?.some(component => componentIds.has(component)) && score === 0 &&
+      !NON_DIAGNOSTIC_TYPES.has(c.entryType ?? '')) {
+      // Structural recall is a reference, not a fabricated symptom match score.
+      componentCandidates.push({ ...c, applicability,
+        retrieval: { tier: 'component', referenceOnly: true,
+          basis: [`本机适用资料中的关联组件：${organization.entryComponents[c.entryId].filter(id => componentIds.has(id)).join('、')}`,
+            `运行表现关联：${symptomMatches.map(symptom => symptom.id).join('、')}`] },
+        relevance: { score: scoreChunk(indexed, qTokens, []), method: 'keyword-weighted-overlap', calibrated: false } });
+    }
     if (score > 0) scored.push({ ...c, applicability, ...(learning && scope.openArchive ? { generalEvidence: true as const } : {}),
+      retrieval: learning || !c.entryId
+        ? { tier: 'general', basis: ['通用知识；无具体机型手册适用证明'], referenceOnly: true }
+        : { tier: c.models && c.models.length > 1 ? 'series' : 'exact',
+          basis: [c.models && c.models.length > 1 ? '来源明确列出的车型范围覆盖当前选择；未通过前缀推断' : '归档品牌与明确型号适用性筛选',
+            ...(applicability === 'pending' ? ['具体机型或配置仍待核对'] : [])], referenceOnly: applicability !== 'matched' },
       relevance: { score, method: 'keyword-weighted-overlap', calibrated: false } });
   }
   // Manual-specific hits take precedence; sample parameters must not contradict their instructions.
   const byScore = (a: KnowledgeChunk, b: KnowledgeChunk) => b.relevance!.score - a.relevance!.score;
   const learning = scored.filter(chunk => chunk.entryType === '通识学习').sort(byScore);
   const archived = scored.filter(chunk => chunk.entryId && chunk.entryType !== '通识学习').sort(byScore);
-  const primary = archived.length ? archived : scored.filter(chunk => !chunk.entryId).sort(byScore);
+  const requiredCoverage = requiredDiagnosticCoverage(query);
+  const topicCovered = archived.some(chunk => !NON_DIAGNOSTIC_TYPES.has(chunk.entryType ?? '') &&
+    chunk.applicability === 'matched' && referenceVerification(chunk.status) === 'verified' &&
+    requiredCoverage.every(key => chunk.diagnosticMetadata?.coverage[key] === true));
+  // Supplement real content gaps, not just empty results. Structural references
+  // preserve exact/declared-series order and can never cross a scope boundary.
+  const needsSupplement = namedScope && !requestedIds.size && !topicCovered;
+  const scopedArchive = needsSupplement ? [...archived, ...componentCandidates.sort(byScore)] : archived;
+  const primary = scopedArchive.length ? scopedArchive : scored.filter(chunk => !chunk.entryId).sort(byScore);
   let result: KnowledgeChunk[];
   if (scope.openArchive && !requestedIds.size && archived.length && learning.length) {
     // Open question: archive and 通识 compete in one ranking. The best hit of each kind always keeps a
@@ -293,8 +368,18 @@ export function retrieve(query: string, k = MAX_CHUNKS_IN_PROMPT, context: Retri
     result = merged.sort(byScore);
   } else {
     // Keep manual references first and reserve context for relevant general principles.
-    const primaryLimit = learning.length && limit > 1 ? limit - 1 : limit;
-    result = [...primary.slice(0, primaryLimit), ...learning.slice(0, Math.max(0, limit - Math.min(primary.length, primaryLimit)))];
+    const supplemental = namedScope && !needsSupplement && !requestedIds.size ? [] : learning;
+    if (needsSupplement) {
+      const references = componentCandidates.sort(byScore);
+      const reserve = Number(references.length > 0) + Number(supplemental.length > 0);
+      result = archived.slice(0, archived.length ? Math.max(1, limit - reserve) : 0);
+      const componentLimit = Math.max(0, limit - result.length - Number(supplemental.length > 0 && limit > result.length + 1));
+      result.push(...references.slice(0, Math.min(2, componentLimit)));
+      result.push(...supplemental.slice(0, Math.min(1, Math.max(0, limit - result.length))));
+    } else {
+      const primaryLimit = supplemental.length && limit > 1 ? limit - 1 : limit;
+      result = [...primary.slice(0, primaryLimit), ...supplemental.slice(0, Math.max(0, limit - Math.min(primary.length, primaryLimit)))];
+    }
   }
   // Opportunistic expiration bounds memory as well as reuse time.
   for (const [key, entry] of retrievalCache) {
@@ -349,6 +434,7 @@ export function describeSource(chunk: KnowledgeChunk): string {
     `原文定位：${chunk.locator}`,
     ...(chunk.roles?.length ? [`内容角色：${chunk.roles.join('/')}（${chunk.roleBasis}）`] : []),
     `核验状态：${chunk.status}｜资料类别：${chunk.entryType}`,
+    ...(chunk.retrieval ? [`检索层级：${chunk.retrieval.tier}；${chunk.retrieval.basis.join('；')}。${chunk.retrieval.referenceOnly ? '仅作参考，不证明当前症状的原因、操作许可或专用参数。' : ''}`] : []),
     `适用性：${chunk.applicability === 'matched' ? '品牌／型号匹配，市场、配置及手册版本仍需核对' : '具体机型适用性待核实，不直接套用操作或参数'}`,
     `适用限制：${chunk.scopeBoundary}`,
   ].join('\n');

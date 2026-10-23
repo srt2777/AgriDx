@@ -4,6 +4,10 @@ import { isCommonDefinition, KNOWLEDGE_STAGES, type CommonFrameworkDefinition, t
 import type { KnowledgeChunk } from './retriever';
 
 interface HierarchyRecord { entry_id: string; components: { component_id: string; part_ids: string[] }[] }
+export interface RetrievalOrganization {
+  entryComponents: Readonly<Record<string, readonly string[]>>;
+  symptoms: readonly { id: string; terms: readonly string[]; componentIds: readonly string[] }[];
+}
 const INDEX_ROOT = path.resolve(process.cwd(), '知识库/整理后的知识库/农用拖拉机知识库');
 const INFORMATION_TYPES = new Set(['资料索引', '资料核验', '机型资料', '资料缺口', '系统适用边界']);
 
@@ -64,6 +68,19 @@ export function loadCommonDefinition(chunks: KnowledgeChunk[], hierarchy: Hierar
 export function commonEntryIds(definition: CommonFrameworkDefinition, symptomId: string): Set<string> {
   if (!definition.symptoms.some(x => x.id === symptomId)) throw new RangeError('当前通用框架没有该运行表现');
   return new Set(definition.links.filter(x => x.symptomIds.includes(symptomId)).map(x => x.entryId));
+}
+
+/** Called only after the catalog has validated these same hierarchy/framework inputs. */
+export function buildRetrievalOrganization(hierarchy: HierarchyRecord[], definition: CommonFrameworkDefinition): RetrievalOrganization {
+  const systems = new Map(definition.systems.map(system => [system.id, system]));
+  return {
+    entryComponents: Object.fromEntries(hierarchy.map(record => [record.entry_id,
+      record.components.map(link => link.component_id)])),
+    symptoms: definition.symptoms.map(symptom => ({ id: symptom.id,
+      terms: [symptom.name, ...symptom.aliases],
+      componentIds: [...new Set(symptom.systemIds.flatMap(id => systems.get(id)!.componentIds))],
+    })),
+  };
 }
 
 /** Reference presence is a collection gap measure, never an accuracy or performance coverage score. */

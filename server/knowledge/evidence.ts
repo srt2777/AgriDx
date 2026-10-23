@@ -1,5 +1,14 @@
 import type { KnowledgeChunk } from './retriever';
-import type { ReferenceVerification } from '../../shared/diagnosis';
+import type { DiagnosticCoverageKey, ReferenceVerification } from '../../shared/diagnosis';
+
+/** Shared by retrieval supplementation and routing; labels never invent source coverage. */
+export function requiredDiagnosticCoverage(question: string): DiagnosticCoverageKey[] {
+  if (/原因|为什么|为何/.test(question) && !/怎么办|怎么修|维修|处理|排查|检查/.test(question)) return ['symptom', 'causes'];
+  if (/怎么判断|如何判断|检查|排查|诊断|检测/.test(question) && !/维修|修理|怎么修|处理|怎么办/.test(question)) return ['symptom', 'checks'];
+  if (/维修|修理|怎么修|处理|怎么办|修复/.test(question)) return ['symptom', 'checks', 'repair'];
+  if (/故障现象|症状|有什么表现/.test(question)) return ['symptom'];
+  return ['symptom', 'causes', 'checks', 'repair'];
+}
 
 /** IDs are exact index keys, not fuzzy search terms. */
 export function isArchiveId(value: unknown): value is string {

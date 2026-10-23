@@ -2,7 +2,7 @@ import type { MemorySession } from '../../../shared/memory';
 import { isDiagnosisMode } from '../../../shared/diagnosis';
 import type { ChatRequest, LlmHealth } from '../../../shared/chat';
 import { ApiError, isRecord, requestJson, type FetchImplementation } from '../../lib/api-client';
-import { isAnswerMode, isChatProvider, isFallbackReason, isKnowledgeChunkCount, type ChatMessage } from './session';
+import { isAnswerMode, isChatProvider, isFallbackReason, isKnowledgeChunkCount, parseChatMetadata, type ChatMessage } from './session';
 
 export type ChatReply = Omit<ChatMessage, 'id'> & { memory?: MemorySession };
 
@@ -14,6 +14,7 @@ export function parseChatResponse(value: unknown): ChatReply {
     throw new Error('Empty chat response');
   }
   return {
+    ...parseChatMetadata(value),
     role: 'assistant',
     localSummary: value.provider === 'knowledge-base' && typeof value.localSummary === 'string' && value.localSummary.length <= 4000 ? value.localSummary : undefined,
     coordinationMessage: typeof value.coordinationMessage === 'string' && value.coordinationMessage.length <= 500 ? value.coordinationMessage : undefined,

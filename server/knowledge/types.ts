@@ -1,3 +1,5 @@
+import type { RetrievalBasis } from '../../shared/diagnosis';
+
 export interface KnowledgeChunk {
   /** 通用文档相对 server/knowledge；归档文档相对仓库根目录 */
   source: string;
@@ -50,6 +52,8 @@ export interface KnowledgeChunk {
   diagnosticMetadata?: DiagnosticMetadata;
   /** This is a raw lexical match score, not a percentage or diagnostic probability. */
   relevance?: { score: number; method: 'keyword-weighted-overlap'; calibrated: false };
+  /** Runtime retrieval provenance; never changes the archived scope or review status. */
+  retrieval?: RetrievalBasis;
 }
 
 export interface DiagnosticMetadata {
