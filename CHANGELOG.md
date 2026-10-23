@@ -33,7 +33,7 @@
 
 ### 关联 PR
 
-- 未记录
+- [PR #86](https://github.com/srt2777/AgriDx/pull/86)；实现提交 `166bf14`。
 
 ### 部署记录
 
