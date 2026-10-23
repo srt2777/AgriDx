@@ -34,6 +34,7 @@ import { ThinkingOrbs } from '@/components/motion/ThinkingOrbs';
 import { useDiagnosisOrb } from '@/components/motion/useDiagnosisOrb';
 
 export default function ChatPage() {
+  const [contextExpanded, setContextExpanded] = useState(false);
   const location = useLocation();
   const handoff: unknown = location.state;
   const lang = useLang();
@@ -74,11 +75,11 @@ export default function ChatPage() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, []);
   useEffect(() => {
-    scrollToBottom();
+    if (messages.length) scrollToBottom();
   }, [messages, scrollToBottom]);
 
   useEffect(() => {
-    const timer = window.setTimeout(() => textareaRef.current?.focus(), 100);
+    const timer = window.setTimeout(() => textareaRef.current?.focus({ preventScroll: true }), 100);
     return () => window.clearTimeout(timer);
   }, []);
 
@@ -340,7 +341,8 @@ export default function ChatPage() {
       </div>
       {version === 'new' && (
         <aside className="chat-context" aria-label={t('机具上下文', 'Machine context')}>
-          <MachineContext framed={false} {...contextProps} />
+          <button type="button" className="fluid-context-toggle" aria-expanded={contextExpanded} aria-controls="machine-context-fields" onClick={() => setContextExpanded(!contextExpanded)}>{t('机具信息与诊断记忆', 'Machine details & memory')}<span>{contextExpanded ? '−' : '+'}</span></button>
+          <div id="machine-context-fields" className={contextExpanded ? 'fluid-context-fields is-expanded' : 'fluid-context-fields'}><MachineContext framed={false} {...contextProps} /></div>
         </aside>
       )}
       </div>

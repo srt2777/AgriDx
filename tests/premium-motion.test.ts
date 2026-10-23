@@ -10,7 +10,7 @@ const studio = read('../src/components/parts-tractor/PartsStudio.tsx');
 const chat = read('../src/pages/ChatPage/ChatPage.tsx');
 const campus = read('../src/pages/ExhibitionPage/ExhibitionPage.tsx');
 const fallback = read('../src/components/SceneFallback.tsx');
-const shell = read('../src/components/NewVersionShell.tsx');
+const shell = read('../src/ui/WorkspaceShell.tsx');
 const beam = read('../src/components/motion/BorderBeam.tsx');
 const tilt = read('../src/components/motion/TiltCard.tsx');
 const drawer = read('../src/components/motion/SpringDrawer.tsx');
@@ -41,9 +41,10 @@ test('layout rules that change the studio only apply when the flag is on', () =>
 });
 
 test('新版 surfaces keep the five animations behind the flag and restore the quiet UI', () => {
-  for (const source of [campus, hall, studio, chat, fallback, shell]) {
+  for (const source of [campus, hall, studio, chat, fallback]) {
     assert.match(source, /PREMIUM_MOTION_ENABLED/);
   }
+  assert.doesNotMatch(shell, /glass-press|from ['"]framer-motion['"]/);
   assert.match(campus, /expo-start-button glass-press/);
   assert.match(campus, /expo-zone-card is-beamed/);
   assert.match(hall, /SpringDrawer/);

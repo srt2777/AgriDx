@@ -66,8 +66,7 @@ export function Layout() {
   // The exhibition home owns its complete chrome. Secondary routes keep the
   // same blue version through a shared shell instead of falling back to the
   // classic green navigation.
-  if (uiVersion === 'new' && location.pathname !== '/') return <NewVersionShell />;
-  if (location.pathname === '/' && uiVersion === 'new') return <Outlet />;
+  if (uiVersion === 'new') return <NewVersionShell />;
 
   return (
     <div
