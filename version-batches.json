@@ -331,10 +331,17 @@
       "date": "2026-10-23"
     },
     {
-      "id": "fix-webgl-preview-20261023",
-      "kind": "fix",
+      "id": "spherical-graph-20261023",
+      "kind": "maintenance",
       "base": "3.12.0",
       "version": "3.12.1",
+      "date": "2026-10-23"
+    },
+    {
+      "id": "fix-webgl-preview-20261023",
+      "kind": "fix",
+      "base": "3.12.1",
+      "version": "3.12.2",
       "date": "2026-10-23"
     }
   ]

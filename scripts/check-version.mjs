@@ -8,13 +8,8 @@ export function validateVersionState({ packageJson, lockJson, readme, changelog,
     throw new Error('package.json 必须使用规范的 X.Y.Z 项目版本。');
   }
   const versionParts = version.split('.').map(Number);
-  const maximumParts = [3, 12, 1];
-  for (let index = 0; index < maximumParts.length; index += 1) {
-    if (versionParts[index] > maximumParts[index]) {
-      throw new Error('当前阶段项目版本不得超过 3.12.1；版本上限按用户最新要求调整。');
-    }
-    if (versionParts[index] < maximumParts[index]) break;
-  }
+  if (!versionParts.every(Number.isSafeInteger)) throw new Error('版本整数超出安全范围。');
+  if (versionParts[0] >= 4) throw new Error('当前阶段版本上限为 3.x.x；4.0.0 及更高版本需用户明确授权。');
   const recorded = [
     ['package-lock.json', lockJson.version],
     ['package-lock.json 根包', lockJson.packages?.['']?.version],
