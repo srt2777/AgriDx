@@ -234,3 +234,11 @@
   .parts-studio.is-part-open .parts-drawer { display: block; }
   .parts-stage-card { overflow: visible; }
 }
+
+.parts-preview-fallback { height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding: 64px 20px 86px; color: var(--muted-foreground); }
+.parts-preview-fallback > img, .parts-preview-fallback > svg { width: min(100%, 560px); min-height: 0; max-height: 65%; object-fit: contain; }
+.parts-preview-message { text-align: center; font-size: 12px; line-height: 1.6; }
+.parts-preview-message strong { color: var(--foreground); }
+.parts-preview-message p { margin: 4px 0; }
+.parts-preview-message button { margin-top: 8px; padding: 0 16px; }
+@media (min-width: 1024px) { .parts-preview-fallback { padding-left: 294px; padding-right: 24px; } }
