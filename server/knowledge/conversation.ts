@@ -46,7 +46,7 @@ function withoutSelection(text: string): string {
 
 function identityOnly(text: string, model?: string): boolean {
   const remainder = withoutSelection(text).replace(
-    /我的|我这台|这台|那台|这辆|那辆|品牌|牌子|型号|机型|系列|平台|欧豹|具体|就是|是|为|用的|换成|换一台|另外一台|另一台|不是|而是|不对|的|[\s，,。.!！?？:：;；/]/g,
+    /尚未核对|尚未确认|待核对|待确认|未核对|未确认|暂时不知道|不清楚|未知|铭牌|发动机(?:型号)?|排放(?:标准|阶段)?|完整|信息|我的|我这台|这台|那台|这辆|那辆|品牌|牌子|型号|机型|系列|平台|欧豹|具体|就是|是|为|用的|换成|换一台|另外一台|另一台|不是|而是|不对|的|[\s，,。.!！?？:：;；/]/g,
     '',
   );
   // Unknown model families are not removed by the indexed identity tokenizer.

@@ -13,7 +13,7 @@ import type { KnowledgeChunk, DiagnosticMetadata } from './types';
 export type { KnowledgeChunk, DiagnosticMetadata } from './types';
 import { loadKnowledgeSnapshot, peekKnowledgeSnapshot, type KnowledgeSnapshot } from './snapshot';
 import { archiveApplicability, queryWithoutIdentity, resolveScope, type RetrievalContext } from './scope';
-import { mentionsEntryId } from './evidence';
+import { mentionsEntryId, referenceVerification } from './evidence';
 
 interface IndexedChunk {
   chunk: KnowledgeChunk;
@@ -255,6 +255,8 @@ export function retrieve(query: string, k = MAX_CHUNKS_IN_PROMPT, context: Retri
   const applicabilityByScope = new Map<string, KnowledgeChunk['applicability']>();
   for (const indexed of index) {
     const c = indexed.chunk;
+    // A failed review cannot consume a top-k slot or reach either answer path.
+    if (referenceVerification(c.status) === 'failed') continue;
     if (requestedIds.size && (!c.entryId || !requestedIds.has(c.entryId) || !mentionsEntryId(query, c.entryId))) continue;
     // The local file preamble describes editing the sample, not diagnostic evidence.
     if (!c.entryId && c.heading === '(概述)') continue;

@@ -3,7 +3,7 @@ import path from 'node:path';
 import { isMain, main, rootDir } from './lib/process.mjs';
 import { validateVersionState } from './check-version.mjs';
 
-export const MAXIMUM_VERSION = '3.11.1';
+export const MAXIMUM_VERSION = '3.11.2';
 const pattern = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/;
 
 export function nextVersion(version, kind) {

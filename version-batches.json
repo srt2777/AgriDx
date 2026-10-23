@@ -322,6 +322,13 @@
       "base": "3.11.0",
       "version": "3.11.1",
       "date": "2026-10-22"
+    },
+    {
+      "id": "migration-v3-work-20261023",
+      "kind": "maintenance",
+      "base": "3.11.1",
+      "version": "3.11.2",
+      "date": "2026-10-23"
     }
   ]
 }
