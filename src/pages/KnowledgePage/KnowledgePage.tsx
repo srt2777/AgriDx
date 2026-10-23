@@ -1,6 +1,7 @@
 import { Link, useSearchParams } from 'react-router-dom';
 import { useReducedMotion } from 'framer-motion';
 import { ArrowLeft, ArrowRight, BookOpen, Check, ChevronRight, Layers, Loader2, Search, TriangleAlert } from 'lucide-react';
+import KnowledgeGraph from './KnowledgeGraph';
 import EvidenceEntry from './EvidenceEntry';
 import CommonFrameworkBrowser from './CommonFrameworkBrowser';
 import KnowledgeLibraryBrowser from './KnowledgeLibraryBrowser';
@@ -21,11 +22,12 @@ export default function KnowledgePage() {
   const reducedMotion = !!useReducedMotion();
   const t = (zh: string, en: string) => lang === 'zh' ? zh : en;
   const [params, setParams] = useSearchParams();
-  const machineView = params.get('view') === 'machine' || ['brand', 'model', 'component', 'part', 'symptom', 'configuration', 'driveConfiguration', 'emissionStage'].some(key => params.has(key));
+  const graphView = params.get('view') === 'graph';
+  const machineView = !graphView && (params.get('view') === 'machine' || ['brand', 'model', 'component', 'part', 'symptom', 'configuration', 'driveConfiguration', 'emissionStage'].some(key => params.has(key)));
   const filters = ['brand', 'model', 'component', 'part'] as const;
   const query = new URLSearchParams();
   CATALOG_FILTER_KEYS.forEach(key => { const value = params.get(key); if (value) query.set(key, value); });
-  if (!machineView) query.set('collection', params.get('collection') || 'all');
+  if (!machineView && !graphView) query.set('collection', params.get('collection') || 'all');
   else ['collection', 'q', 'page'].forEach(key => query.delete(key));
   const { catalog, loading, failed, retry } = useKnowledgeCatalog(query.toString());
   const brand = catalog?.brands.find(item => item.id === params.get('brand'));
@@ -50,11 +52,11 @@ export default function KnowledgePage() {
   });
   const scopeLabel = model?.scope === 'exact' ? t('具体型号目录 · 配置仍需核对', 'Specific-model directory · check configuration') : model?.scope === 'series' ? t('系列资料 · 不等同于全部型号', 'Series documents · not every individual model') : t('完整型号待核实', 'Complete model needs verification');
 
-  return <div className="knowledge-page">
+  return <div className={`knowledge-page ${graphView ? 'knowledge-workbench-page' : ''}`}>
     <div className="page-container">
       <Link to="/" className="knowledge-back"><ArrowLeft size={15} />{t('返回首页', 'Back to home')}</Link>
       <header className="knowledge-page-heading">
-        <div><div className="section-eyebrow">{t('耕知 · 知识目录', 'GENGZHI · CATALOG')}</div><h1 data-shared-target={version === 'new' ? 'knowledge' : undefined}>{t('归档与通识，同一个目录。', 'Archives and learning, one catalog.')}</h1><p>{t('按品牌、机型和部件查找。条数是已索引记录；每条保留来源、核验和适用范围。', 'Search by brand, model, and part. Counts are indexed records. Each entry keeps its source, check, and scope.')}</p>{version === 'new' && <span className="wheat-line" aria-hidden="true" />}</div>
+        <div><div className="section-eyebrow">{t('耕知 · 知识目录', 'GENGZHI · CATALOG')}</div><h1 data-shared-target={version === 'new' ? 'knowledge' : undefined}>{t('知识检索与诊断支持', 'Knowledge & diagnostic support')}</h1><p>{t('按品牌、机型和部件查找。条数是已索引记录；每条保留来源、核验和适用范围。', 'Search by brand, model, and part. Counts are indexed records. Each entry keeps its source, check, and scope.')}</p>{version === 'new' && <span className="wheat-line" aria-hidden="true" />}</div>
         <div className="knowledge-heading-icon" aria-hidden="true"><Layers size={38} strokeWidth={1.15} /><span>01 — 04</span></div>
       </header>
 
@@ -70,12 +72,14 @@ export default function KnowledgePage() {
       <nav className="library-collections" aria-label={t('知识浏览方式', 'Knowledge browsing mode')}>
         {[
           ['all', t('全部知识', 'All knowledge')], ['archive', t('来源归档', 'Source archives')],
-          ['learning', t('通识学习', 'General learning')], ['machine', t('按机型与部件浏览', 'Browse models and parts')],
-        ].map(([id, label]) => <button key={id} aria-pressed={machineView ? id === 'machine' : id === (params.get('collection') || 'all')}
-          onClick={() => setParams(id === 'machine' ? { view: 'machine' } : { collection: id })}>{label}</button>)}
+          ['learning', t('通识学习', 'General learning')], ['graph', t('知识图谱', 'Knowledge graph')], ['machine', t('按机型与部件浏览', 'Browse models and parts')],
+        ].map(([id, label]) => <button key={id} aria-pressed={graphView ? id === 'graph' : machineView ? id === 'machine' : id === (params.get('collection') || 'all')}
+          onClick={() => setParams(id === 'machine' || id === 'graph' ? { view: id } : { collection: id })}>{label}</button>)}
       </nav>
 
-      {!loading && !failed && !machineView && catalog?.library && <KnowledgeLibraryBrowser library={catalog.library} lang={lang} onChange={values => {
+      {graphView && !loading && !failed && catalog && <KnowledgeGraph catalog={catalog} lang={lang} />}
+
+      {!loading && !failed && !graphView && !machineView && catalog?.library && <KnowledgeLibraryBrowser library={catalog.library} lang={lang} onChange={values => {
         const next = new URLSearchParams(params);
         next.delete('page');
         for (const [key, value] of Object.entries(values)) { if (value) next.set(key, value); else next.delete(key); }
@@ -135,7 +139,7 @@ export default function KnowledgePage() {
         </section>
       </>}
 
-      <aside className="catalog-boundaries"><div className="section-eyebrow">{t('覆盖可以核对', 'COVERAGE CAN BE CHECKED')}</div><h2>{t('先标清缺口，再谈覆盖。', 'Name the gaps before claiming coverage.')}</h2><p>{t('条数是已索引的归档和通识。通识不是维修证据，也不等于已核验的机型覆盖。', 'Counts are indexed archives and learning notes. Learning notes are not repair evidence, and they are not verified model coverage.')}</p>{catalog?.limitations.length ? <ul>{catalog.limitations.map(limit => <li key={limit}>{limit}</li>)}</ul> : null}</aside>
+      {!graphView && <aside className="catalog-boundaries"><div className="section-eyebrow">{t('覆盖可以核对', 'COVERAGE CAN BE CHECKED')}</div><h2>{t('先标清缺口，再谈覆盖。', 'Name the gaps before claiming coverage.')}</h2><p>{t('条数是已索引的归档和通识。通识不是维修证据，也不等于已核验的机型覆盖。', 'Counts are indexed archives and learning notes. Learning notes are not repair evidence, and they are not verified model coverage.')}</p>{catalog?.limitations.length ? <ul>{catalog.limitations.map(limit => <li key={limit}>{limit}</li>)}</ul> : null}</aside>}
     </div>
   </div>;
 }
