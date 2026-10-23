@@ -13,6 +13,7 @@ import { useUpdateBlocker } from '@/features/updates/useUpdateBlocker';
 import ModelGeneration from '@/features/modeling/ModelGeneration';
 
 const TractorViewer = lazy(() => import('@/components/TractorViewer'));
+const EngineDemo = lazy(() => import('@/components/engine-demo/EngineDemo'));
 const PartsStudio = lazy(() => import('@/components/parts-tractor/PartsStudio'));
 
 const ANGLES = [
@@ -100,10 +101,11 @@ export default function ModelPage() {
       <p className="text-xs font-semibold tracking-[.14em] text-primary">{t('耕知 · 模型工坊', 'GENGZHI · MODEL STUDIO')}</p>
       <h1 className="mt-3 text-3xl font-semibold tracking-tight text-foreground md:text-4xl" data-shared-target={version === 'new' ? 'models' : undefined}>{t('看清结构，再对资料。', 'See the structure, then check the evidence.')}</h1>
       <p className="mt-4 text-sm leading-7 text-muted-foreground">{version === 'new'
-        ? t('新版默认打开鸿鹄 T70 部件模型，也可切回柴油部件机。整机和部件都是示意。维修结论仍要回到对应机型的资料。', 'The new studio opens on the Honghu T70 parts model, and the diesel parts tractor stays available. The machine and its parts are a schematic. Repair decisions still follow model-specific evidence.')
+        ? t('先观察四缸机构联动与拆解，再查看鸿鹄 T70 或柴油部件机。模型用于结构示意，维修结论仍需核对对应机型资料。', 'Explore four-cylinder motion and exploded views, then inspect the Honghu T70 or diesel tractor parts. These are structural illustrations; repair decisions require model-specific evidence.')
         : t('整机和部件都是示意。维修结论仍要回到对应机型的资料。', 'The machine and its parts are a schematic. Repair decisions still follow model-specific evidence.')}</p>
       {version === 'new' && <span className="wheat-line mt-5 w-56" aria-hidden="true" />}
     </div>
+    {version === 'new' && !customModel && <Suspense fallback={<SceneLoading />}><EngineDemo /></Suspense>}
     {version === 'new' && !customModel ? <Suspense fallback={PREMIUM_MOTION_ENABLED ? <TwinQuery label={t('正在打开孪生视图…', 'Opening the twin view…')} /> : <SceneLoading />}><PartsStudio onImport={selectModel} /></Suspense> : <div className="grid gap-5 lg:grid-cols-[1.65fr_1fr]">
       <section className="min-w-0 overflow-hidden rounded-3xl border border-border bg-card">
         <div className="flex items-center justify-between border-b border-border px-5 py-4">
