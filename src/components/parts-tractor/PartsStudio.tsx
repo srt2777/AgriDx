@@ -33,6 +33,8 @@ export default function PartsStudio({ onImport }: { onImport: (event: ChangeEven
   const [ready, setReady] = useState(false);
   const [selection, setSelection] = useState<string | null>(null);
   const [explode, setExplode] = useState(0);
+  const [engineRunning, setEngineRunning] = useState(false);
+  const [engineSpeed, setEngineSpeed] = useState(2);
   const [light, setLight] = useState<StudioLight>('studio');
   const [presentation, setPresentation] = useState<StudioPresentation>('solid');
   const [faultPartId, setFaultPartId] = useState<string | null>(null);
@@ -83,7 +85,15 @@ export default function PartsStudio({ onImport }: { onImport: (event: ChangeEven
     setReady(false);
     setError('');
     setShareNote('');
+    setEngineRunning(false);
     pushLog(`切换机型 · ${item.titleZh}`, `Model · ${item.titleEn}`);
+  }
+  function toggleEngineMotion() {
+    if (modelId === 'diesel' && engineRunning) { setEngineRunning(false); return; }
+    if (modelId !== 'diesel') switchModel('diesel');
+    setSelection(null);
+    setPresentation('xray');
+    setEngineRunning(true);
   }
   function toggleFault(partId: string) {
     const next = faultPartId === partId ? null : partId;
@@ -164,12 +174,14 @@ export default function PartsStudio({ onImport }: { onImport: (event: ChangeEven
               <button key={item.id} type="button" className="studio-chip" aria-pressed={presentation === item.id} onClick={() => setPresentation(item.id)}>{t(item.zh, item.en)}</button>
             ))}
           </div>
+          <button type="button" className="studio-chip" disabled={reduced || graphics} aria-pressed={modelId === 'diesel' && engineRunning} onClick={toggleEngineMotion}>{modelId === 'diesel' && engineRunning ? t('暂停发动机', 'Pause engine') : t('发动机联动', 'Engine motion')}</button>
+          {modelId === 'diesel' && <label className="studio-bar-group text-xs">{t('发动机转速', 'Engine speed')}<select aria-label={t('发动机转速', 'Engine speed')} value={engineSpeed} onChange={event => setEngineSpeed(Number(event.target.value))} className="studio-chip"><option value={1}>0.5×</option><option value={2}>1×</option><option value={4}>2×</option></select></label>}
           <button type="button" className={PREMIUM_MOTION_ENABLED ? 'studio-save glass-press' : 'studio-save'} data-motion={PREMIUM_MOTION_ENABLED ? 'glass-press' : undefined} disabled={!ready || graphics} onClick={() => { void saveIllustration(); }}>
             <Camera size={16} />{t('保存结构示意', 'Save structure illustration')}
           </button>
           <p className="studio-share-note" aria-live="polite">{shareNote}</p>
         </div>
-        <div className="model-stage parts-stage" data-model={modelId} data-component={selection ?? 'all'} data-fault={faultPartId ?? ''} data-explode={explode >= 1 ? 'open' : 'closed'}>
+        <div className="model-stage parts-stage" data-model={modelId} data-engine={modelId === 'diesel' && engineRunning && !reduced ? 'running' : 'paused'} data-component={selection ?? 'all'} data-fault={faultPartId ?? ''} data-explode={explode >= 1 ? 'open' : 'closed'}>
           <div className="parts-viewport">
             <div className="parts-kpi" aria-label={t('示例概览', 'Example overview')}>
               <TiltCard className="parts-kpi-card"><span className="parts-chip">{t('示例数据', 'Example data')}</span></TiltCard>
@@ -188,6 +200,8 @@ export default function PartsStudio({ onImport }: { onImport: (event: ChangeEven
                   url={modelUrl}
                   selection={selection}
                   explode={explode}
+                  engineRunning={engineRunning && modelId === 'diesel'}
+                  engineSpeed={engineSpeed}
                   presentation={presentation}
                   light={light}
                   faultPartId={faultPartId}

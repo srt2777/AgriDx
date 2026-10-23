@@ -4,6 +4,7 @@ import { Html, Line, OrbitControls } from '@react-three/drei';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
 import * as THREE from 'three';
+import IntegratedEngine from './IntegratedEngine';
 import { bindContextLoss } from '@/lib/webgl';
 import { catalogByName, hoverLabel, type PartsModelId } from './parts-catalog';
 import { loadPartsTractor, partOwner, type PartRecord, type PreparedTractor } from './load-parts-tractor';
@@ -67,6 +68,8 @@ function selectedRecord(record: PartRecord, selection: string | null) {
 
 function TractorBody({
   prepared,
+  engineRunning,
+  engineSpeed,
   selection,
   explode,
   presentation,
@@ -77,6 +80,8 @@ function TractorBody({
   onSelect,
 }: {
   prepared: PreparedTractor;
+  engineRunning: boolean;
+  engineSpeed: number;
   selection: string | null;
   explode: number;
   presentation: StudioPresentation;
@@ -110,6 +115,7 @@ function TractorBody({
   const outward = useMemo(() => new THREE.Vector3(), []);
   const hoveredRecord = prepared.records.find(record => record.name === hovered) ?? null;
   const showcase = PARTS_SHOWCASE[modelId];
+  const engineRecord = modelId === 'diesel' ? prepared.records.find(record => record.partId === 'engine') : undefined;
   const sets = useMemo(() => visualSets(modelId), [modelId]);
 
   useEffect(() => {
@@ -169,9 +175,12 @@ function TractorBody({
         occluding: sets.occluding,
         internal: sets.internal,
       }));
+      if (modelId === 'diesel' && record.partId === 'engine') {
+        for (const edge of record.edges) edge.visible = false;
+      }
     }
     invalidate();
-  }, [faultPartId, hovered, invalidate, prepared.records, presentation, reduced, selection, sets]);
+  }, [faultPartId, hovered, invalidate, prepared.records, presentation, reduced, selection, sets, modelId]);
 
   useEffect(() => {
     if (!orbit) return;
@@ -243,6 +252,7 @@ function TractorBody({
           if (record) onSelect(record.name);
         }}
       />
+      {engineRecord && <IntegratedEngine record={engineRecord} running={engineRunning && !reduced} speed={engineSpeed} explode={explode} presentation={presentation} visible={presentation !== 'isolate' || !selection || selectedRecord(engineRecord, selection)} />}
       {hoveredRecord && createPortal(
         <Html center zIndexRange={[30, 0]} wrapperClass="part-tip-wrap" style={{ pointerEvents: 'none' }}>
           <div className="part-tip" role="tooltip">{hoverLabel(hoveredRecord.labelZh, lang, hoveredRecord.name, modelId)}</div>
@@ -292,6 +302,8 @@ function buildLeaders(records: PartRecord[], length: number): Leader[] {
 
 export default function PartsTractorScene({
   url,
+  engineRunning = false,
+  engineSpeed = 2,
   selection,
   explode,
   presentation,
@@ -306,6 +318,8 @@ export default function PartsTractorScene({
   onError,
 }: {
   url: string;
+  engineRunning?: boolean;
+  engineSpeed?: number;
   selection: string | null;
   explode: number;
   presentation: StudioPresentation;
@@ -354,7 +368,7 @@ export default function PartsTractorScene({
   return (
     <Canvas
       className="tractor-canvas"
-      frameloop="demand"
+      frameloop={engineRunning && modelId === 'diesel' && !reduced ? 'always' : 'demand'}
       shadows
       camera={{ position: [showcase.camera[0], showcase.camera[1], showcase.camera[2]], fov: 38 }}
       gl={GL}
@@ -374,6 +388,8 @@ export default function PartsTractorScene({
       </mesh>
       <TractorBody
         prepared={prepared}
+        engineRunning={engineRunning}
+        engineSpeed={engineSpeed}
         selection={selection}
         explode={explode}
         presentation={presentation}
