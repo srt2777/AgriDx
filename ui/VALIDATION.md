@@ -21,4 +21,4 @@
 
 ## 保存与部署
 
-任务分支通过 PR 保存；本轮不合入 main、不发布开发站或正式站、不连接腾讯、不修改 DNS。GitHub 保存不代表线上 UI 已更新。
+实现提交 [`b4df114`](https://github.com/srt2777/AgriDx/commit/b4df114)，草稿 [PR #97](https://github.com/srt2777/AgriDx/pull/97) 保存；本轮不合入 main、不发布开发站或正式站、不连接腾讯、不修改 DNS。GitHub 保存不代表线上 UI 已更新。

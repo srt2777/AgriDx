@@ -33,7 +33,7 @@
 
 ### 关联 PR
 
-- 本轮通过 `codex/fluid-ui-20261023` 分支保存，提交见该分支历史；PR 链接随创建后补充。
+- 实现提交 [`b4df114`](https://github.com/srt2777/AgriDx/commit/b4df114)；草稿 [PR #97](https://github.com/srt2777/AgriDx/pull/97)，分支 `codex/fluid-ui-20261023`。未合入 main。
 
 ### 部署记录
 
