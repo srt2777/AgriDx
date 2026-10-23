@@ -1,4 +1,5 @@
 import { useCallback, useState, type ChangeEvent } from 'react';
+import { ErrorBoundary } from 'react-error-boundary';
 import { Camera, Download, Upload, X } from 'lucide-react';
 import { useReducedMotion } from 'framer-motion';
 import DeferredScene from '@/components/DeferredScene';
@@ -7,7 +8,7 @@ import { BorderBeam } from '@/components/motion/BorderBeam';
 import { MorphingPanel } from '@/components/motion/MorphingPanel';
 import { TiltCard } from '@/components/motion/TiltCard';
 import { TwinQuery } from '@/components/motion/ThinkingOrbs';
-import { modelPreviewFallback } from '@/lib/scene-fallback-copy';
+import PartsPreviewFallback from './PartsPreviewFallback';
 import { publicAsset } from '@/lib/public-asset';
 import { probeWebGL } from '@/lib/webgl';
 import { useLang } from '@/hooks/useLang';
@@ -25,7 +26,8 @@ export default function PartsStudio({ onImport }: { onImport: (event: ChangeEven
   const lang = useLang();
   const reduced = useReducedMotion() === true;
   const t = (zh: string, en: string) => lang === 'zh' ? zh : en;
-  const [supported] = useState(probeWebGL);
+  const [supported, setSupported] = useState(probeWebGL);
+  const [sceneAttempt, setSceneAttempt] = useState(0);
   const [lost, setLost] = useState(false);
   const [error, setError] = useState('');
   const [ready, setReady] = useState(false);
@@ -115,8 +117,14 @@ export default function PartsStudio({ onImport }: { onImport: (event: ChangeEven
     setShareNote(t('已保存结构示意', 'Structure illustration saved'));
   }
 
-  const fallback = modelPreviewFallback(lang === 'zh' ? 'zh' : 'en');
-  const graphics = !supported || lost;
+  const graphics = !supported || lost || !!error;
+  function retryGraphics() {
+    setReady(false);
+    setError('');
+    setLost(false);
+    setSupported(probeWebGL());
+    setSceneAttempt(value => value + 1);
+  }
 
   const selectedLabel = resolved ? partTitle(resolved.node, language, modelId) : t('整机', 'Whole machine');
   const timeline = [...log].reverse();
@@ -171,14 +179,12 @@ export default function PartsStudio({ onImport }: { onImport: (event: ChangeEven
               <TiltCard className="parts-kpi-card"><span><b>{faultLabel}</b> {t('故障', 'Fault')}</span></TiltCard>
             </div>
             {graphics ? (
-              <div className="flex h-full flex-col items-center justify-center gap-2 text-center text-muted-foreground">
-                <p className="text-sm font-medium text-foreground">{fallback.title}</p>
-                <p className="text-xs">{fallback.note}</p>
-                <p className="text-xs">{fallback.hint}</p>
-              </div>
+              <PartsPreviewFallback modelId={modelId} exploded={explode >= 1} reason={lost ? 'lost' : error ? 'error' : 'unsupported'} onRetry={retryGraphics} />
             ) : (
+              <ErrorBoundary key={sceneAttempt} fallback={<PartsPreviewFallback modelId={modelId} exploded={explode >= 1} reason="error" onRetry={retryGraphics} />} onError={error => onError(error instanceof Error ? error.message : String(error))}>
               <DeferredScene fallback={PREMIUM_MOTION_ENABLED ? <TwinQuery label={t('正在打开孪生视图…', 'Opening the twin view…')} /> : <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground" role="status"><span>{t('正在打开孪生视图…', 'Opening the twin view…')}</span></div>}>
                 <PartsTractorScene
+                  key={sceneAttempt}
                   url={modelUrl}
                   selection={selection}
                   explode={explode}
@@ -194,6 +200,7 @@ export default function PartsStudio({ onImport }: { onImport: (event: ChangeEven
                   onError={onError}
                 />
               </DeferredScene>
+              </ErrorBoundary>
             )}
             {!graphics && !ready && !error && <div className="parts-loading">{PREMIUM_MOTION_ENABLED ? <TwinQuery label={t(`正在打开${spec.titleZh}…`, `Opening ${spec.titleEn}…`)} /> : <span>{t(`正在打开${spec.titleZh}…`, `Opening ${spec.titleEn}…`)}</span>}</div>}
             <ol className="parts-event-log" aria-label={t('示例记录', 'Example log')}>
