@@ -119,7 +119,7 @@ export interface KnowledgeCatalog {
     faultEntries: number;
     mappedEntries: number;
   };
-  /** Knowledge-base release from kb-version.json (YYYY.MM.N), added by the catalog route. */
+  /** Knowledge-base release from the same immutable snapshot; null if metadata is unavailable. */
   kbVersion?: string | null;
   expansion: { targetLabel: '1w+'; countingUnit: 'indexed-entry'; status: 'planned' | 'reached' };
   brands: CatalogBrand[];
