@@ -14,6 +14,20 @@ function user(content: string) {
   return { role: 'user', content };
 }
 
+test('补充完整型号和铭牌待核对信息保留之前的症状，但新症状仍可开启新主题', () => {
+  const context = resolveDiagnosticContext([
+    user('拖拉机水温过高'), user('东方红，完整型号LF1504，国三，发动机铭牌尚未核对'),
+  ]);
+  assert.match(context.symptomQuery, /水温过高/);
+  assert.equal(context.scope.brand, '东方红');
+  assert.match(context.scope.model ?? '', /lf1504/i);
+  const next = resolveDiagnosticContext([
+    user('拖拉机水温过高'), user('东方红，完整型号LF1504，发动机无法起动'),
+  ]);
+  assert.match(next.symptomQuery, /无法起动/);
+  assert.doesNotMatch(next.symptomQuery, /水温过高/);
+});
+
 function retrieveConversation(messages: { role: string; content: string }[]) {
   const resolved = resolveDiagnosticContext(messages);
   return { resolved, found: retrieve(resolved.query, 100, resolved.scope) };

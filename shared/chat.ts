@@ -49,6 +49,10 @@ export interface ChatKnowledgeSource {
   referenceVerification?: 'verified' | 'pending' | 'unverified' | 'unspecified' | 'failed';
   sourceIndexed?: boolean;
   sourceTitle?: string;
+  scopeBoundary?: string;
+  models?: string[];
+  engineModel?: string;
+  faultCodes?: string[];
   pages?: KnowledgePages;
   roles?: KnowledgeRole[];
   roleBasis?: '原文标记' | '人工核对';

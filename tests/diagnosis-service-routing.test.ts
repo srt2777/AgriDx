@@ -232,6 +232,8 @@ test('仅知识库模式禁止外部生成；AI模式保留来源和预算内上
     assert.equal(h.generations.length, mode === 'ai_assisted' ? 1 : 0);
     assert.deepEqual(response.knowledgeSources.map(source => [source.entryId, source.sourceId, source.locator, source.version, source.referenceVerification]),
       [['TEST-ROUTER-001', 'SRC-TEST-ROUTER', '合成资料PDF第3页；印刷页2', '合成测试版1', 'verified']]);
+    assert.equal(response.knowledgeSources[0].scopeBoundary, '仅限合成测试台LF904S；不能用于真实车辆。');
+    assert.deepEqual(response.knowledgeSources[0].models, ['LF904S']);
     if (mode === 'ai_assisted') assert.deepEqual(response.diagnosisTrace?.sentKnowledgeIds, ['TEST-ROUTER-001']);
   }
 });
@@ -256,6 +258,8 @@ test('结构化发动机与故障码输入参与匹配并传入一次AI生成的
   const response = await h.diagnose(request('ai_assisted', question, { engineModel: 'ENGINE-A', faultCodes: ['E001'] }));
   assertOneRetrieval(response, h);
   assert.equal(response.coordination?.candidates?.[0].modelMatch, 'exact');
+  assert.equal(response.knowledgeSources[0].engineModel, 'ENGINE-A');
+  assert.deepEqual(response.knowledgeSources[0].faultCodes, ['E001']);
   assert.equal(h.generations.length, 1);
   assert.match(h.generations[0][0].content, /发动机[^\n]*ENGINE-A/);
   assert.match(h.generations[0][0].content, /故障码[^\n]*E001/);
