@@ -329,6 +329,13 @@
       "base": "3.11.1",
       "version": "3.12.0",
       "date": "2026-10-23"
+    },
+    {
+      "id": "spherical-graph-20261023",
+      "kind": "maintenance",
+      "base": "3.12.0",
+      "version": "3.12.1",
+      "date": "2026-10-23"
     }
   ]
 }

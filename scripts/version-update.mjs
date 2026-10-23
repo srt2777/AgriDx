@@ -3,7 +3,7 @@ import path from 'node:path';
 import { isMain, main, rootDir } from './lib/process.mjs';
 import { validateVersionState } from './check-version.mjs';
 
-export const MAXIMUM_VERSION = '3.12.0';
+export const MAXIMUM_VERSION = '3.x.x';
 const pattern = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/;
 
 export function nextVersion(version, kind) {
@@ -14,10 +14,9 @@ export function nextVersion(version, kind) {
   else if (kind === 'feature') { parts[1] += 1; parts[2] = 0; }
   else if (kind === 'breaking') { parts[0] += 1; parts[1] = 0; parts[2] = 0; }
   else throw new Error('类型必须是 knowledge、fix、maintenance、feature 或 breaking。');
-  const maximum = MAXIMUM_VERSION.split('.').map(Number);
-  const first = parts.findIndex((value, index) => value !== maximum[index]);
-  if (first !== -1 && parts[first] > maximum[first]) {
-    throw new Error(`目标 ${parts.join('.')} 超过当前上限 ${MAXIMUM_VERSION}，需用户明确调整上限；不会自动降级更新类型。`);
+  if (!parts.every(Number.isSafeInteger)) throw new Error('版本整数超出安全范围。');
+  if (parts[0] >= 4) {
+    throw new Error(`目标 ${parts.join('.')} 超过当前上限 ${MAXIMUM_VERSION}，4.0.0 及更高版本需用户明确授权；不会自动降级更新类型。`);
   }
   return parts.join('.');
 }
