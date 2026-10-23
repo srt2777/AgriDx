@@ -347,6 +347,32 @@ export default function KnowledgeSphere({ catalog, lang }: { catalog: KnowledgeC
             ctx.fill();
             ctx.shadowBlur = 0;
           }
+          // Dense boundary grains drifting outward; the WebGL path runs the same idea on the GPU.
+          const grains = centre ? 150 : 70;
+          const drift = reduced ? 0 : time * 0.00006;
+          ctx.globalCompositeOperation = 'screen';
+          for (let index = 0; index < grains; index++) {
+            const seed = (index * 0.6180339887) % 1;
+            const travel = (seed + drift * (0.5 + (index % 9) / 9)) % 1;
+            const spread = 1 + Math.pow(travel, 2.6) * (centre ? 0.9 : 0.7);
+            const angle = index * 2.39996 + c.yaw * 0.6;
+            const edge = Math.sin(angle) * Math.cos(c.pitch) < 0 ? 0.32 : 1;
+            const alpha = Math.pow(1 - travel, 1.6) * (centre ? 0.8 : 0.52) * edge;
+            if (alpha < 0.02) continue;
+            ctx.fillStyle = `${color}${Math.round(Math.min(1, alpha) * 255)
+              .toString(16)
+              .padStart(2, '0')}`;
+            ctx.beginPath();
+            ctx.arc(
+              item.x + Math.cos(angle) * ballRadius * spread,
+              item.y + Math.sin(angle) * ballRadius * spread * 0.92,
+              (centre ? 1.8 : 1.15) * (0.6 + (1 - travel) * 0.8),
+              0,
+              Math.PI * 2,
+            );
+            ctx.fill();
+          }
+          ctx.globalCompositeOperation = 'source-over';
           if (expanded && !centre) {
             const parent = map.get(region.id);
             if (parent) {

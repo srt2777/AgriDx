@@ -20,6 +20,7 @@ interface OrbVisual {
   halo: THREE.Mesh;
   stars: THREE.Points;
   orbit: THREE.Mesh;
+  shell: THREE.Points;
 }
 
 /** Browser-native WebGL renderer. No UE runtime or remote streaming is involved. */
@@ -199,8 +200,81 @@ export class KnowledgeGalaxyRenderer {
     );
     orbit.rotation.set(1.1, 0.25, -0.35);
     group.add(orbit);
+    const shell = this.shell(item);
+    group.add(shell);
     this.scene.add(group);
-    return { group, surface, halo, stars, orbit };
+    return { group, surface, halo, stars, orbit, shell };
+  }
+
+  /**
+   * Boundary particle layer: dense on the sphere surface, thinning as the grains drift outward.
+   * The whole diffusion runs in the vertex shader, so no per-frame CPU work is added.
+   */
+  private shell(item: GalaxyOrb) {
+    const count = item.centre ? 3000 : 1200;
+    const geometry = new THREE.BufferGeometry();
+    const dirs = new Float32Array(count * 3);
+    const seeds = new Float32Array(count);
+    const speeds = new Float32Array(count);
+    const sizes = new Float32Array(count);
+    for (let i = 0; i < count; i++) {
+      const y = 1 - (2 * (i + 0.5)) / count;
+      const radius = Math.sqrt(Math.max(0, 1 - y * y));
+      const angle = i * 2.39996 + Math.sin(i * 12.9898) * 0.4;
+      dirs.set([Math.cos(angle) * radius, y, Math.sin(angle) * radius], i * 3);
+      seeds[i] = (i * 0.6180339887) % 1;
+      speeds[i] = 0.45 + (((i * 37) % 17) / 17) * 0.95;
+      sizes[i] = 0.9 + (((i * 53) % 11) / 11) * 1.7;
+    }
+    geometry.setAttribute('position', new THREE.BufferAttribute(dirs, 3));
+    geometry.setAttribute('aDir', new THREE.BufferAttribute(dirs, 3));
+    geometry.setAttribute('aSeed', new THREE.BufferAttribute(seeds, 1));
+    geometry.setAttribute('aSpeed', new THREE.BufferAttribute(speeds, 1));
+    geometry.setAttribute('aSize', new THREE.BufferAttribute(sizes, 1));
+    const material = new THREE.ShaderMaterial({
+      transparent: true,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+      uniforms: {
+        uPhase: { value: 0 },
+        uSpread: { value: item.centre ? 0.9 : 0.7 },
+        uOpacity: { value: item.centre ? 0.9 : 0.68 },
+        uPixelRatio: { value: Math.min(window.devicePixelRatio || 1, 1.5) },
+        uColor: { value: new THREE.Color(item.color).lerp(new THREE.Color('#e8fffb'), 0.45) },
+      },
+      vertexShader: [
+        'uniform float uPhase; uniform float uSpread; uniform float uPixelRatio;',
+        'attribute vec3 aDir; attribute float aSeed; attribute float aSpeed; attribute float aSize;',
+        'varying float vFade;',
+        'void main(){',
+        '  float t = fract(aSeed + uPhase * aSpeed);',
+        '  float d = pow(t, 3.0) * uSpread;',
+        '  float ang = d * 4.2;',
+        '  float c = cos(ang); float s = sin(ang);',
+        '  vec3 dir = vec3(c * aDir.x - s * aDir.z, aDir.y, s * aDir.x + c * aDir.z);',
+        '  vec3 p = dir * (1.0 + d);',
+        '  vec4 mv = modelViewMatrix * vec4(p, 1.0);',
+        '  gl_Position = projectionMatrix * mv;',
+        '  vec3 nView = normalize(normalMatrix * dir);',
+        '  float rim = 1.0 - smoothstep(0.06, 0.7, abs(nView.z));',
+        '  float front = nView.z > 0.0 ? 1.0 : 0.42;',
+        '  vFade = pow(1.0 - t, 1.35) * rim * front;',
+        '  gl_PointSize = aSize * uPixelRatio * (0.45 + 1.6 * vFade);',
+        '}',
+      ].join('\n'),
+      fragmentShader: [
+        'uniform vec3 uColor; uniform float uOpacity;',
+        'varying float vFade;',
+        'void main(){',
+        '  vec2 q = gl_PointCoord - 0.5;',
+        '  float r2 = dot(q, q);',
+        '  if (r2 > 0.25) discard;',
+        '  float soft = 1.0 - smoothstep(0.0, 0.25, r2);',
+        '  gl_FragColor = vec4(uColor * (0.85 + vFade * 1.7), soft * vFade * uOpacity);',
+        '}',
+      ].join('\n'),
+    });
+    return new THREE.Points(geometry, material);
   }
 
   render(
@@ -236,6 +310,8 @@ export class KnowledgeGalaxyRenderer {
       visual.group.scale.setScalar(item.radius);
       visual.surface.rotation.set(pitch, yaw, 0.15);
       visual.stars.rotation.set(pitch, yaw, 0.15);
+      visual.shell.rotation.set(pitch, yaw, 0.15);
+      (visual.shell.material as THREE.ShaderMaterial).uniforms.uPhase.value = reduced ? 0.34 : time * 0.00011;
       visual.orbit.rotation.z = -0.35 + (reduced ? 0 : Math.sin(time * 0.00015) * 0.12);
     }
     this.field.rotation.y = yaw * 0.035;
@@ -250,6 +326,8 @@ export class KnowledgeGalaxyRenderer {
     (visual.halo.material as THREE.Material).dispose();
     visual.stars.geometry.dispose();
     (visual.stars.material as THREE.Material).dispose();
+    visual.shell.geometry.dispose();
+    (visual.shell.material as THREE.Material).dispose();
     (visual.orbit.material as THREE.Material).dispose();
   }
 
