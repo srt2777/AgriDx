@@ -12,13 +12,11 @@
 import type { ChatMessage } from '../llm/types';
 import { retrieve, formatForPrompt, selectPromptChunks, type KnowledgeChunk } from './retriever';
 import { resolveScope } from './scope';
-
-const BACKGROUND_TYPES = new Set(['机型资料', '资料缺口', '资料索引', '资料核验', '系统适用边界', '通识学习']);
+import { hasReliableManualEvidence } from '../diagnosis/reply';
 
 /** A search hit is not necessarily a usable maintenance source. */
 export function hasDiagnosticEvidence(chunks: KnowledgeChunk[]): boolean {
-  return chunks.some((chunk) => Boolean(chunk.entryId) && chunk.diagnosticEvidence !== false && !BACKGROUND_TYPES.has(chunk.entryType ?? ''))
-    || hasGeneralEvidence(chunks);
+  return hasReliableManualEvidence(chunks) || hasGeneralEvidence(chunks);
 }
 
 /** 通识 (TK) evidence: only for questions naming no brand/model (user decision 2026-10-22); never a manual page. */
@@ -79,7 +77,7 @@ export function buildSystemPrompt(opts: BuildSystemPromptOptions): {
 
 # 硬性规则
 1. **禁止编造参数**：压力、温度、电压、电流、扭矩、间隙、故障代码含义、零件号、维修周期、油液型号、电池/电机参数、型号适配关系，只能引用适用的归档手册明确记载的内容，并保留版本与配置条件。通用示例数值和其他型号数据不能作为本机标准。
-2. **资料不足也要提供有用回答**：先说清缺少哪类依据，再给与当前现象有关的通用可能方向、可区分原因的观察问题，以及停机安全隔离后可做的非拆卸外观观察。优先追问最能区分原因的 2–3 个问题；不要一次列一长串信息，也不要重复询问用户已经明确提供的品牌、型号或工况。用户只补充品牌、型号、排放或发生条件时，将其合并到此前故障，继续分析，不当作新问题。
+2. **资料不足也要提供有用回答**：先说清缺少哪类依据，再给与当前现象有关的通用可能方向、可区分原因的观察问题，以及停机安全隔离后可做的非拆卸外观观察。最多追问最能区分原因的 1–2 个问题；不要一次列一长串信息，也不要重复询问用户已经明确提供的品牌、型号、工况和已完成的检查。用户只补充品牌、型号、排放或发生条件时，将其合并到此前故障，继续分析，不当作新问题。
 3. **安全优先**：涉及维修操作，末尾必须给安全提醒（停机、泄压、高温冷却、高压电等）。
 4. **语言**：用户用什么语言提问，就用什么语言回答。
 5. **只回答农机知识、原理与故障诊断相关问题**，无关话题礼貌拒绝。通识提问直接解释相关原理，不强制要求故障现象或完整机型。
@@ -92,18 +90,16 @@ export function buildSystemPrompt(opts: BuildSystemPromptOptions): {
 
 # 对话简洁性
 - 默认正文控制在约400字以内（复杂适用限制可适当延长）；只回答本次知识或故障问题，不堆砌无关章节。
+- 直接面向用户解释现象与下一步，不播报内部路由、服务状态、检索分数或供应商配置，不强制使用【】标签。
+- 建议按安全性、是否需要专业人员、能否区分原因排序；这个顺序不是故障概率排序。不重复要求用户已经做过的检查。
 - 热车后行驶或牵引动力不足与起动机转动无力是不同现象，除非用户同时明确报告启动问题，不可相互替代。
 - 不展示内部文件路径、下载校验记录、MD5、归档流程；引用保留条目编号、资料版本、页码和必要适用条件即可。
 - 型号暂时未知时先询问一至两个能区分现象的问题，不反复要求一次性补齐整套资料。
 
-# 输出结构（Markdown）
-按需要组织精简答案，不要把检索片段整块照搬；不能为了填满输出模板编造内容：
-**【现象与初步分析】** 用已知机型与工况概括，说明哪些尚未确定。
-**【手册依据】** 仅在有实际支持本次建议的来源时出现，说明事实与条目编号、来源、版本、页码；通用信息收集清单不作手册依据。
-**【通用分析（待验证）】** 需要补充一般原理时，列 2–4 个与现象相符的可能方向及区分线索；不支持的方向不要硬凑。
-**【建议先做】** 有依据的安全检查，或低风险观察和记录；明确何种情况应停止使用／送修。
-**【需要补充】** 资料不足时说明缺口，问最重要的 2–3 项已知信息之外的问题。
-**【安全提醒】** 与本次故障相关的简短提醒。
+# 回答组织（Markdown）
+先自然概括已知现象，再解释实际资料支持的可能方向及区分线索，最后给安全优先的观察/记录建议和最多两个必要追问。不要把检索片段整块照搬，不为填模板编造原因。
+手册事实必须附本次实际提供的条目编号、来源、版本和页码，明确尚待检查验证。一般原理另说明是通用分析（待验证），不冒充本机手册或确定诊断。
+待核验、未明确适用或仅零部件/系列参考的资料不能支持本机故障因果、维修数值或故障码含义；其中真实的安全禁令可以保留。
 
 # 本次证据情况
 ${needsIdentityConfirmation ? '本次咨询对象尚待确认。仅简短确认已知故障并追问被否定或冲突的农机信息，暂停诊断和通用原因分析。确认后继续此前故障。' : answerMode === 'knowledge-grounded' && !hasDiagnosticEvidence(retrieved.filter((chunk) => !chunk.generalEvidence)) ? '本问题未指定品牌／型号，检索到的是通识证据（TK，无手册页码）及/或待核实的归档条目；通识只能标为【通识依据】，不能当作具体手册的说法，机型诊断仍需补充品牌与型号。' : answerMode === 'knowledge-grounded' ? '检索到了归档技术资料；每项建议仍需确认片段是否直接支持及机型适用性。' : '当前没有可直接支持维修结论的归档技术资料。若用户询问通识原理，依据通识片段直接解释并注明核验状态，不强制补充机型；若需要机型诊断，则明确【当前资料不足】，提供待验证的通用分析与必要追问。'}

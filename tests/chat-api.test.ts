@@ -116,7 +116,7 @@ test('rejects non-object JSON bodies with a JSON bad-request response', async ()
   }
 });
 
-test('the chat API returns uncertain references with source IDs, pages and applicability limits without repair instructions', async () => {
+test('uncertain references retain provenance and limits while only reviewed matching alternatives support local facts', async () => {
   const response = await chat({ messages, ...identity });
   assert.equal(response.status, 200);
   assert.equal(response.body.provider, 'knowledge-base');
@@ -129,11 +129,20 @@ test('the chat API returns uncertain references with source IDs, pages and appli
   assert.match(source?.locator ?? '', /175/);
   assert.match(source?.scopeBoundary ?? '', /不适用于.*25S/);
   assert.equal(source?.referenceVerification, 'unspecified');
-  assert.equal(response.body.diagnosticReply?.supportLevel, 'reference_only');
+  assert.equal(source?.usage, 'reference-only');
+  assert.equal(response.body.diagnosticReply?.supportLevel, 'manual');
+  assert.ok(response.body.diagnosticReply?.causes.length);
+  for (const cause of response.body.diagnosticReply?.causes ?? []) {
+    assert.ok(!cause.evidenceIds.includes('NH-WM25-003'), 'uncertain source cannot authorize a cause');
+    assert.ok(cause.evidenceIds.every(entryId => response.body.coordination?.candidates?.some(candidate =>
+      candidate.entryId === entryId && candidate.sourceIndexed && !candidate.excluded &&
+      candidate.referenceVerification === 'verified' && candidate.modelMatch === 'exact')));
+  }
   assert.ok(response.body.diagnosticReply?.suggestions.length);
   assert.ok(response.body.diagnosticReply?.questions.length);
   assert.doesNotMatch(reply, /SRC-NH-|PDF 第 175 页|【手册依据】|【通用分析/);
-  assert.doesNotMatch(reply, /启动联锁条件未满足/);
+  assert.ok(response.body.diagnosticReply?.suggestions.every(suggestion => suggestion.kind !== 'observe' ||
+    !suggestion.evidenceIds.includes('NH-WM25-003')));
 });
 
 test('source-rich local replies remain usable as assistant history in the next turn', async () => {
@@ -185,9 +194,11 @@ test('questions without applicable evidence still call the LLM with general-guid
   assert.equal(response.status, 200);
   assert.equal(response.body.provider, 'gemini');
   assert.equal(response.body.answerMode, 'general-guidance');
-  // 2026-10-22: a named (unknown) model searches its archive only; TK is not used.
-  assert.equal(response.body.knowledgeChunks, 0);
-  assert.ok(!response.body.knowledgeSources?.some(source => source.entryType === '通识学习'));
+  // A named unknown model can fall back to general references, never a matching manual.
+  assert.ok(response.body.knowledgeSources?.every(source => source.entryType === '通识学习' &&
+    source.retrieval?.tier === 'general' && source.retrieval.referenceOnly && !source.sourceId));
+  assert.equal(response.body.diagnosticReply?.supportLevel, 'none');
+  assert.equal(response.body.coordination?.retrievalOutcome, 'no_manual');
   assert.equal(response.body.fellBack, false);
   assert.match(response.body.choices?.[0]?.message.content ?? '', /通用分析/);
   assert.equal(fetch.mock.callCount(), 1);
@@ -246,7 +257,10 @@ test('LLM responses carry archived source metadata and receive the server prompt
   });
   const response = await chat({ ...identity, messages: history }, '198.51.100.2');
   assert.equal(response.status, 200);
-  assert.equal(response.body.answerMode, 'general-guidance');
+  assert.equal(response.body.answerMode, 'knowledge-grounded');
+  assert.ok(response.body.coordination?.candidates?.some(candidate => candidate.sourceIndexed &&
+    candidate.referenceVerification === 'verified' && candidate.modelMatch === 'exact' && !candidate.excluded &&
+    response.body.diagnosisTrace?.sentKnowledgeIds.includes(candidate.entryId ?? '')));
   assert.equal(response.body.provider, 'gemini');
   assert.equal(response.body.model, 'integration-test-model');
   assert.ok((response.body.knowledgeChunks ?? 0) > 0);
@@ -279,7 +293,10 @@ test('a failed primary LLM routes through the secondary and returns its answer',
   assert.equal(response.body.provider, 'deepseek');
   assert.equal(response.body.model, 'integration-secondary-model');
   assert.equal(response.body.fellBack, true);
-  assert.equal(response.body.answerMode, 'general-guidance');
+  assert.equal(response.body.answerMode, 'knowledge-grounded');
+  assert.ok(response.body.coordination?.candidates?.some(candidate => candidate.sourceIndexed &&
+    candidate.referenceVerification === 'verified' && candidate.modelMatch === 'exact' && !candidate.excluded &&
+    response.body.diagnosisTrace?.sentKnowledgeIds.includes(candidate.entryId ?? '')));
   assert.equal(response.body.diagnosticReply?.aiSupplement, '备用模型结合手册给出的回答');
   assert.ok(response.body.diagnosticReply?.suggestions.length);
   assert.match(response.body.choices?.[0]?.message.content ?? '', /备用模型结合手册给出的回答/);
@@ -325,7 +342,10 @@ test('brand and model supplements retrieve the original fault across multiple co
   });
   const response = await chat({ messages: history }, '198.51.100.5');
   assert.equal(response.status, 200);
-  assert.equal(response.body.answerMode, 'general-guidance');
+  assert.equal(response.body.answerMode, 'knowledge-grounded');
+  assert.ok(response.body.coordination?.candidates?.some(candidate => candidate.sourceIndexed &&
+    candidate.referenceVerification === 'verified' && candidate.modelMatch === 'exact' && !candidate.excluded &&
+    response.body.diagnosisTrace?.sentKnowledgeIds.includes(candidate.entryId ?? '')));
   assert.ok(response.body.knowledgeSources?.some((source) => source.entryId === 'NH-WM25-003'));
   assert.ok(response.body.knowledgeSources?.every((source) => source.sourceId === 'SRC-NH-WM25-92157408' ||
     source.entryType === '通识学习' && source.diagnosticEvidence === false && !source.sourceId));

@@ -1,5 +1,13 @@
 /* Premium chat and knowledge chrome for the new shell only. */
 
+.chat-current-context { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 16px; border-bottom: 1px solid var(--border); font-size: 12px; }
+.chat-current-context p { margin: 0; }
+.chat-answer { overflow-wrap: anywhere; }
+.chat-input-glass { flex-shrink: 0; }
+.chat-follow-up-option { min-height: 40px; }
+.chat-context[hidden] { display: none; }
+.new-version-shell .chat-workspace.is-context-closed { grid-template-columns: minmax(0, 1fr); }
+
 .new-version-shell .chat-glass.is-premium {
   height: calc(100dvh - 148px);
 }
@@ -173,8 +181,11 @@
 }
 
 @media (max-width: 1100px) {
-  .new-version-shell .chat-workspace { grid-template-columns: 1fr; }
-  .new-version-shell .chat-context { order: -1; max-height: 240px; margin: 8px 12px 0; }
+  .new-version-shell .chat-workspace { grid-template-columns: 1fr; grid-template-rows: auto minmax(0, 1fr); }
+  .new-version-shell .chat-workspace.is-context-closed { grid-template-rows: minmax(0, 1fr); }
+  .new-version-shell .chat-context { order: -1; max-height: min(280px, 35dvh); margin: 8px 12px 0; }
+  .chat-input-glass { max-height: 50dvh; overflow-y: auto; }
+  .chat-current-context { padding: 6px 12px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

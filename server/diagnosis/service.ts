@@ -108,7 +108,7 @@ export function createDiagnosticService(llm: DiagnosticProvider, dependencies: D
       return payload;
     };
     const replyPlan = (route = coordination) => buildDiagnosticReply({
-      query, currentQuery, chunks: displayed, scope, coordination: route,
+      query, currentQuery, symptomQuery, chunks: displayed, scope, coordination: route,
       // User observations guide follow-up selection; they are not verified repair evidence.
       progress: [memory?.session.progress, ...history.filter(message => message.role === 'user').map(message => message.content)].filter(Boolean).join('\n'),
       priorReports: memory?.priorReports,

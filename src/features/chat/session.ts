@@ -144,17 +144,18 @@ export function parseChatMetadata(value: unknown): Pick<ChatMessage, 'diagnostic
     }
   }
   const trace = value.diagnosisTrace;
-  if (isRecord(trace) && isRecord(trace.timings) && ['retrievalCount', 'aiAttempts', 'aiSuccesses', 'contextChars'].every(key => finite(trace[key]))
+  const timings = isRecord(trace) ? trace.timings : undefined;
+  if (isRecord(trace) && isRecord(timings) && finite(trace.retrievalCount) && finite(trace.aiAttempts) && finite(trace.aiSuccesses) && finite(trace.contextChars)
     && (trace.aiProvider === null || oneOf(trace.aiProvider, ['gemini', 'deepseek'])) && trace.scoreMethod === 'keyword-weighted-overlap'
-    && texts(trace.sentKnowledgeIds, 40) && ['retrievalMs', 'decisionMs', 'externalAiMs', 'totalMs'].every(key => finite(trace.timings[key]))) {
+    && texts(trace.sentKnowledgeIds, 40) && finite(timings.retrievalMs) && finite(timings.decisionMs) && finite(timings.externalAiMs) && finite(timings.totalMs)) {
     result.diagnosisTrace = { retrievalCount: trace.retrievalCount, aiAttempts: trace.aiAttempts, aiSuccesses: trace.aiSuccesses, contextChars: trace.contextChars,
       aiProvider: trace.aiProvider, scoreMethod: trace.scoreMethod, sentKnowledgeIds: [...trace.sentKnowledgeIds],
-      timings: { retrievalMs: trace.timings.retrievalMs, decisionMs: trace.timings.decisionMs, externalAiMs: trace.timings.externalAiMs, totalMs: trace.timings.totalMs } };
+      timings: { retrievalMs: timings.retrievalMs, decisionMs: timings.decisionMs, externalAiMs: timings.externalAiMs, totalMs: timings.totalMs } };
   }
   const flow = value.roleFlow;
   if (isRecord(flow) && texts(flow.untaggedEntryIds, 40) && KNOWLEDGE_ROLES.every(role => Array.isArray(flow[role]) && flow[role].length <= 40)) {
     const roleFlow = { untaggedEntryIds: [...flow.untaggedEntryIds], ...(texts(flow.generalKnowledgeIds, 40) ? { generalKnowledgeIds: [...flow.generalKnowledgeIds] } : {}) } as NonNullable<ChatResponse['roleFlow']>;
-    for (const role of KNOWLEDGE_ROLES) roleFlow[role] = flow[role].filter((item: unknown) => isRecord(item) && text(item.entryId, 100) && text(item.heading))
+    for (const role of KNOWLEDGE_ROLES) roleFlow[role] = (flow[role] as Record<string, unknown>[]).filter((item: unknown) => isRecord(item) && text(item.entryId, 100) && text(item.heading))
       .map((item: Record<string, unknown>) => ({ entryId: item.entryId as string, heading: item.heading as string,
         ...(text(item.sourceId, 100) ? { sourceId: item.sourceId } : {}), ...(text(item.sourceTitle) ? { sourceTitle: item.sourceTitle } : {}),
         ...(text(item.locator) ? { locator: item.locator } : {}), ...(isRecord(item.pages) ? { pages: { ...(text(item.pages.pdf, 100) ? { pdf: item.pages.pdf } : {}), ...(text(item.pages.printed, 100) ? { printed: item.pages.printed } : {}) } } : {}) }));
@@ -164,7 +165,7 @@ export function parseChatMetadata(value: unknown): Pick<ChatMessage, 'diagnostic
 }
 
 export function parseFaultCodes(value: string): string[] {
-  const codes = value.split(/[\s,，;；]+/).filter(Boolean);
+  const codes = value.split(/[\s,，;；、]+/).filter(Boolean);
   if (codes.length > 20 || codes.some(code => code.length > 32)) throw new Error('故障码最多20个，每个不超过32字符');
   return [...new Set(codes)];
 }
@@ -239,8 +240,8 @@ export function loadChatSession(handoff: unknown, storage?: SessionStorage): Cha
       machineType: typeof imported.machineType === 'string' ? suppliedContext.machineType : context.machineType,
       brand: typeof imported.brand === 'string' ? suppliedContext.brand : context.brand,
       model: typeof imported.model === 'string' ? suppliedContext.model : context.model,
-      engineModel: typeof imported.engineModel === 'string' ? suppliedContext.engineModel : context.engineModel,
-      faultCodes: Array.isArray(imported.faultCodes) ? suppliedContext.faultCodes : context.faultCodes,
+      ...((typeof imported.engineModel === 'string' ? suppliedContext.engineModel : context.engineModel) !== undefined ? { engineModel: typeof imported.engineModel === 'string' ? suppliedContext.engineModel : context.engineModel } : {}),
+      ...((Array.isArray(imported.faultCodes) ? suppliedContext.faultCodes : context.faultCodes) !== undefined ? { faultCodes: Array.isArray(imported.faultCodes) ? suppliedContext.faultCodes : context.faultCodes } : {}),
     },
     draft: typeof imported.question === 'string' ? imported.question.slice(0, MAX_QUESTION_LENGTH) : '',
   };

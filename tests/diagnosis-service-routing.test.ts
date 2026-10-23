@@ -89,7 +89,7 @@ test('高原始相关分、完整且适用的文献直接回复；一次检索�
   assert.ok(response.diagnosticReply?.causes.some(cause => cause.evidenceIds.includes('TEST-ROUTER-001')));
   assert.ok(response.diagnosticReply?.suggestions.length);
   assert.match(response.knowledgeSources[0].status ?? '', /未实车验证/);
-  assert.doesNotMatch(reply(response), /TEST-ROUTER-001|【手册依据】/);
+  assert.doesNotMatch(reply(response), /【手册依据】|【通用分析/);
 });
 
 test('高相关但检查和维修内容缺失时使用同一次检索上下文，仅生成一次', async () => {
@@ -184,6 +184,32 @@ test('AI安全检查拒绝危险输出后保留本地计划与引用，不泄露
   assert.doesNotMatch(JSON.stringify(response), /请绕过启动联锁/);
 });
 
+test('AI虚构品牌归档编号仍会被拒绝，不能只检查TEST或KB前缀', async () => {
+  for (const entryId of ['NH-WM25-999', 'DF-LX904-999']) {
+    const h = harness([document()], { answer: `参照${entryId}即可。` });
+    const response = await h.diagnose(request('ai_assisted'));
+    assertOneRetrieval(response, h);
+    assert.equal(h.generations.length, 1);
+    assert.equal(response.coordination?.reason, 'output_rejected');
+    assert.ok(response.coordination?.outputIssues?.includes('unknown_reference'));
+    assert.equal(response.diagnosticReply?.aiSupplement, undefined);
+    assert.ok(!reply(response).includes(entryId));
+  }
+});
+
+test('AI参数必须精确匹配数值和单位，不能以12MPa子串授权2MPa', async () => {
+  const h = harness([document({ text: '合成试验台压力为12 MPa；不得用于真实车辆。' })],
+    { answer: '压力为2 MPa。' });
+  const response = await h.diagnose(request('ai_assisted'));
+  assertOneRetrieval(response, h);
+  assert.equal(h.generations.length, 1);
+  assert.equal(response.coordination?.candidates?.[0].modelMatch, 'exact');
+  assert.equal(response.coordination?.reason, 'output_rejected');
+  assert.ok(response.coordination?.outputIssues?.includes('unsupported_parameter'));
+  assert.equal(response.diagnosticReply?.aiSupplement, undefined);
+  assert.doesNotMatch(reply(response), /压力为2 MPa/);
+});
+
 test('无相关资料的一般原因咨询可AI辅助，不因缺少车型阻塞', async () => {
   const h = harness([]);
   const response = await h.diagnose(request('auto', '拖拉机冷车与热车时噪声不同，可能是什么原因', { brand: undefined, model: undefined }));
@@ -204,7 +230,9 @@ test('制动、转向、PTO和高压液压资料不足时所有模式均安全�
       assert.equal(response.coordination?.riskLevel, 'high');
       assert.equal(h.generations.length, 0);
       assert.match(reply(response), /停止危险作业/);
-      assert.match(reply(response), /不提供拆解、调压或试操作步骤/);
+      assert.match(reply(response), /不安排试车、拆检或调压|不提供拆解、调压或试操作步骤/);
+      assert.equal(response.diagnosticReply?.causes.length, 0);
+      assert.ok(response.diagnosticReply?.suggestions.every(suggestion => suggestion.kind === 'professional'));
     }
   }
 });

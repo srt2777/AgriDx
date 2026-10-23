@@ -1,4 +1,4 @@
-import type { CoordinationDecision, DiagnosisCandidateAssessment, DiagnosticRiskLevel, DiagnosisMode, RouteReason } from '../../shared/diagnosis';
+import type { CoordinationDecision, DiagnosisCandidateAssessment, DiagnosticCoverageKey, DiagnosticRiskLevel, DiagnosisMode, RouteReason } from '../../shared/diagnosis';
 import type { KnowledgeChunk } from '../knowledge/retriever';
 import { archiveApplicability, queryWithoutIdentity, resolveScope, type RetrievalContext, type ResolvedScope } from '../knowledge/scope';
 import { hasIndexedReference, mentionsEntryId, referenceVerification, requiredDiagnosticCoverage } from '../knowledge/evidence';
