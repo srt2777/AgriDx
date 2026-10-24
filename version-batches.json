@@ -427,6 +427,13 @@
       "base": "3.13.10",
       "version": "3.14.0",
       "date": "2026-10-24"
+    },
+    {
+      "id": "tractor-web-visuals-20261024",
+      "kind": "maintenance",
+      "base": "3.14.0",
+      "version": "3.14.1",
+      "date": "2026-10-24"
     }
   ]
 }
