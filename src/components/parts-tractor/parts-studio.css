@@ -28,7 +28,7 @@
 .parts-fault button,
 .parts-tree button,
 .parts-whole {
-  min-height: 36px;
+  min-height: 44px;
   border: 1px solid var(--border);
   border-radius: 999px;
   padding: 0 12px;
@@ -179,8 +179,8 @@
   display: grid;
   place-items: center;
   flex: none;
-  width: 36px;
-  height: 36px;
+  width: 44px;
+  height: 44px;
   border-radius: 12px;
   background: transparent;
   cursor: pointer;
@@ -190,7 +190,7 @@
 .parts-drawer .parts-detail ul { color: rgb(214 232 244 / 82%); }
 .parts-studio:not(.is-part-open) .parts-drawer { display: none; }
 .parts-studio .studio-chip,
-.parts-studio .studio-save { min-height: 32px; }
+.parts-studio .studio-save { min-height: 44px; }
 
 @media (min-width: 1024px) {
   .parts-stage { overflow: hidden; }
@@ -254,4 +254,19 @@
 .parts-preview-message strong { color: var(--foreground); }
 .parts-preview-message p { margin: 4px 0; }
 .parts-preview-message button { margin-top: 8px; padding: 0 16px; }
+.parts-studio :is(button, select, input[type='range']) { min-height: 44px; }
+.parts-studio :is(button, a, select, input):focus-visible { outline: 2px solid var(--primary); outline-offset: 3px; }
+.parts-viewport:focus-visible { outline: 2px solid var(--primary); outline-offset: -2px; }
+.parts-studio.is-reduced .parts-drawer { transition: none; }
+.parts-studio .parts-stage-foot :is(a, label) { min-height: 44px; }
+.parts-studio.is-list-view .parts-stage { display: grid; gap: 12px; padding: 12px; overflow: visible; }
+.parts-studio.is-list-view .parts-viewport { min-height: 0; height: 420px; }
+.parts-studio.is-list-view .parts-preview-fallback { padding: 72px 16px 16px; }
+.parts-studio.is-list-view .parts-panel, .parts-studio.is-list-view .parts-drawer { position: static; width: auto; margin: 0; max-height: none; overflow: visible; transform: none; }
+.parts-studio.is-list-view .parts-drawer { grid-column: 1 / -1; }
+.parts-studio.is-list-view:not(.is-part-open) .parts-drawer { display: none; }
+.parts-studio.is-list-view .parts-kpi { max-width: calc(100% - 24px); }
+.parts-studio.is-list-view .parts-event-log { display: none; }
+.parts-studio.is-list-view .parts-tree-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); max-height: none; }
+.parts-studio.is-list-view .parts-group > button { width: 100%; }
 @media (min-width: 1024px) { .parts-preview-fallback { padding-left: 294px; padding-right: 24px; } }

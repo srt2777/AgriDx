@@ -532,6 +532,13 @@
       "base": "3.17.0",
       "version": "3.18.0",
       "date": "2026-10-25"
+    },
+    {
+      "id": "ui-parts-interaction-20261025",
+      "kind": "fix",
+      "base": "3.18.0",
+      "version": "3.18.1",
+      "date": "2026-10-25"
     }
   ]
 }

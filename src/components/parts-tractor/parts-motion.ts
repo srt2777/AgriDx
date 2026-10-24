@@ -58,13 +58,14 @@ export function partVisual(input: {
   hasSelection: boolean;
   presentation: StudioPresentation;
   faultPartId: string | null;
+  outlineEnabled?: boolean;
   occluding?: ReadonlySet<string>;
   internal?: ReadonlySet<string>;
 }): PartVisual {
   const { partId, selected, hovered, hasSelection, presentation, faultPartId } = input;
   const occluding = input.occluding ?? OCCLUDING_PARTS;
   const internal = input.internal ?? INTERNAL_PARTS;
-  const outline = selected || hovered;
+  const outline = input.outlineEnabled !== false && (selected || hovered);
   if (faultPartId) {
     const faulted = partId === faultPartId;
     const open = internal.has(faultPartId) && occluding.has(partId) && !faulted;
@@ -79,7 +80,7 @@ export function partVisual(input: {
     };
   }
   if (presentation === 'isolate' && hasSelection) {
-    return { opacity: selected ? 1 : 0, depthWrite: selected, desaturate: 0, pulse: false, outline: selected || hovered };
+    return { opacity: selected ? 1 : 0, depthWrite: selected, desaturate: 0, pulse: false, outline };
   }
   if (presentation === 'xray') {
     const solid = !hasSelection || selected;
