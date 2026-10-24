@@ -1,9 +1,20 @@
 {
-  "version": "3.16.6",
+  "version": "3.16.7",
   "date": "2026-10-25",
   "origin": "local development server",
   "route": "/#/models",
+  "baseCommit": "92815ab383e12e717fe6ba3407f73606fbef253a",
   "cases": [
+    {
+      "label": "new-zh-desktop-dark",
+      "contentWidth": 1425,
+      "manuals": true,
+      "noInternalNote": true,
+      "schematic": true,
+      "theme": "dark",
+      "viewport": 1425,
+      "width": 1440
+    },
     {
       "label": "new-en-desktop-dark",
       "contentWidth": 1425,
@@ -73,18 +84,8 @@
       "theme": "dark",
       "viewport": 1425,
       "width": 1440
-    },
-    {
-      "label": "new-zh-desktop-dark",
-      "contentWidth": 1425,
-      "manuals": true,
-      "noInternalNote": true,
-      "schematic": true,
-      "theme": "dark",
-      "viewport": 1425,
-      "width": 1440
     }
   ],
   "errors": [],
-  "scope": "Copy and layout checks only; no external modeling service or real-device validation."
+  "scope": "Copy and layout checks after integrating main PR #115; no external modeling service or real-device validation."
 }

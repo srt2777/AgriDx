@@ -506,10 +506,17 @@
       "date": "2026-10-25"
     },
     {
-      "id": "ui-model-copy-20261025",
-      "kind": "maintenance",
+      "id": "nav-toggle-placement-20261025",
+      "kind": "fix",
       "base": "3.16.5",
       "version": "3.16.6",
+      "date": "2026-10-25"
+    },
+    {
+      "id": "ui-model-copy-20261025",
+      "kind": "maintenance",
+      "base": "3.16.6",
+      "version": "3.16.7",
       "date": "2026-10-25"
     }
   ]
