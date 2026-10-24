@@ -47,18 +47,19 @@ export default function TaxonomyGraphCanvas({ nodes, selectedId, onSelect, lang 
       element.width = width * dpr; element.height = height * dpr;
       context.setTransform(dpr, 0, 0, dpr, 0, 0);
       context.clearRect(0, 0, width, height);
-      const projected = new Map<string, { x: number; y: number; scale: number }>();
+      const projected = new Map<string, { x: number; y: number; scale: number; depth: number }>();
       const focus = branchOnly && selectedId ? positions.get(selectedId) : undefined;
       const extent = branchOnly && shown.length ? Math.max(.7, ...shown.map(node => Math.abs(positions.get(node.id)!.x - (focus?.x ?? 0)))) : 2.9;
-      const scale = Math.min(width / (extent * 2 + 1), height / 4.7) * camera.current.zoom;
+      const scale = Math.min(width / (extent * 2 + 1), height / 5.5) * camera.current.zoom;
       for (const node of shown) {
         const point = positions.get(node.id)!;
         const x = point.x - (focus?.x ?? 0);
         const rx = x * Math.cos(camera.current.yaw) + point.z * Math.sin(camera.current.yaw);
         const rz = -x * Math.sin(camera.current.yaw) + point.z * Math.cos(camera.current.yaw);
         const ry = point.y * Math.cos(camera.current.pitch) - rz * Math.sin(camera.current.pitch);
-        const perspective = 6 / (6 + rz * Math.cos(camera.current.pitch) + point.y * Math.sin(camera.current.pitch));
-        projected.set(node.id, { x: width / 2 + rx * scale * perspective, y: height / 2 - ry * scale * perspective, scale: perspective });
+        const depth = rz * Math.cos(camera.current.pitch) + point.y * Math.sin(camera.current.pitch);
+        const perspective = 6 / (6 + depth);
+        projected.set(node.id, { x: width / 2 + rx * scale * perspective, y: height / 2 - ry * scale * perspective, scale: perspective, depth });
       }
       shown.forEach(node => {
         const point = projected.get(node.id)!;
@@ -70,11 +71,12 @@ export default function TaxonomyGraphCanvas({ nodes, selectedId, onSelect, lang 
         context.beginPath(); context.moveTo(parent.x, parent.y); context.lineTo(point.x, point.y); context.stroke();
       });
       hits.current = [];
-      shown.forEach(node => {
+      const depthOrdered = [...shown].sort((a, b) => projected.get(b.id)!.depth - projected.get(a.id)!.depth);
+      depthOrdered.forEach(node => {
         const point = projected.get(node.id)!;
         const active = selectedId === node.id;
         const radius = (active ? 7 : node.level === 'brand' ? 5.5 : node.level === 'model' ? 3.5 : 2.5) * point.scale;
-        context.globalAlpha = classic ? 1 : selectedId && !related.has(node.id) ? .2 : .95;
+        context.globalAlpha = selectedId && !related.has(node.id) ? .16 : Math.max(.35, Math.min(1, .75 - point.depth * .17));
         context.fillStyle = positions.get(node.id)!.color;
         context.beginPath(); context.arc(point.x, point.y, radius, 0, Math.PI * 2); context.fill();
         if (active) { context.strokeStyle = classic ? grass.grass8 : '#ffffff'; context.lineWidth = classic ? .5 : 2; context.stroke(); }
@@ -99,6 +101,6 @@ export default function TaxonomyGraphCanvas({ nodes, selectedId, onSelect, lang 
       onPointerCancel={() => { drag.current = null; }} onWheel={event => { zoom(event.deltaY < 0 ? 1.08 : .92); }}
       onKeyDown={event => { if (event.key === '+' || event.key === '=') zoom(1.2); else if (event.key === '-') zoom(.8); else if (['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(event.key)) { event.preventDefault(); camera.current.yaw += event.key === 'ArrowLeft' ? -.1 : event.key === 'ArrowRight' ? .1 : 0; camera.current.pitch += event.key === 'ArrowUp' ? -.1 : event.key === 'ArrowDown' ? .1 : 0; redraw(value => value + 1); } }} />
     <div className="taxonomy-map-legend">{nodes.filter(node => node.level === 'brand').map((node, index) => <button key={node.id} aria-pressed={selectedId === node.id} onClick={() => onSelect(node.id)}><i style={{ background: graphPalette[index % graphPalette.length] }} />{node.label}</button>)}</div>
-    <p>{t('拖动旋转 · 滚轮或按钮缩放 · 点击节点查看关联与原文 · 高度表示分类层级，非维修步骤', 'Drag to rotate · Zoom · Select a node for evidence · Height indicates classification, not repair sequence')}</p>
+    <p>{t('拖动旋转 · 滚轮或按钮缩放 · 点击节点查看关联与原文 · 球面仅改变布局，知识结构不变', 'Drag to rotate · Zoom · Select a node for evidence · Spherical layout; knowledge structure unchanged')}</p>
   </div>;
 }
