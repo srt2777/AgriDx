@@ -113,6 +113,7 @@
 .engine-child small{display:block;color:#c4d0bf;font-size:12px}
 .engine-controls button,.engine-directory-nav button,.engine-evidence-action,.engine-queue button{min-width:44px;min-height:44px}
 .engine-evidence-action{display:inline-flex;align-items:center;gap:6px;margin:4px 6px 4px 0}
+.engine-primary-action{background:#25382f;border-color:#a8c995;font-weight:600}
 .engine-expanded{position:fixed!important;inset:8px!important;z-index:10000;overflow:auto;background:#0e1211;box-shadow:0 0 0 20px #060c15}
 .engine-stage{aspect-ratio:auto;height:620px;min-width:0}
 .engine-panel{height:auto;max-height:460px;min-height:220px}
