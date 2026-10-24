@@ -1,11 +1,14 @@
 import type { KnowledgeCatalog } from '../../../shared/knowledge-catalog';
 import { isCommonFramework } from '../../../shared/common-knowledge';
 import { isRecord, requestJson } from '../../lib/api-client';
+import { isRiskCoverage, isRoleCoverage } from './catalog-distributions';
 
 const isCount = (value: unknown) => typeof value === 'number' && Number.isSafeInteger(value) && value >= 0;
 const isStrings = (value: unknown) => Array.isArray(value) && value.every(item => typeof item === 'string');
 const hasCounts = (value: Record<string, unknown>) =>
-  ['entryCount', 'faultCount', 'sourceCount'].every(key => isCount(value[key]));
+  ['entryCount', 'faultCount', 'sourceCount'].every(key => isCount(value[key])) &&
+  (value.roleCoverage === undefined || isRoleCoverage(value.roleCoverage, Number(value.entryCount))) &&
+  (value.riskCoverage === undefined || isRiskCoverage(value.riskCoverage, Number(value.entryCount)));
 const hasIdentity = (value: Record<string, unknown>) => typeof value.id === 'string' && typeof value.name === 'string';
 
 function isPart(value: unknown): boolean {

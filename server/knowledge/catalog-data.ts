@@ -1,7 +1,7 @@
 import type {
   CatalogBrand, CatalogComponent, CatalogCounts, CatalogEntry, CatalogFilters,
   CatalogModel, CatalogPart, KnowledgeCatalog,
-  KnowledgeLibrary, LearningEntry, LibraryEntry, RoleCoverage,
+  KnowledgeLibrary, LearningEntry, LibraryEntry, RoleCoverage, RiskCoverage,
 } from '../../shared/knowledge-catalog';
 import { canonicalCatalogBrand } from '../../shared/knowledge-catalog';
 import type { ArchiveSource } from './archive';
@@ -45,8 +45,18 @@ function roleCoverage(chunks: KnowledgeChunk[]): RoleCoverage {
 }
 
 function counts(chunks: KnowledgeChunk[]): CatalogCounts {
+  const riskCoverage: RiskCoverage = { high: 0, medium: 0, low: 0, reviewed: 0, unreviewed: 0 };
+  for (const chunk of new Map(chunks.map(chunk => [chunk.entryId, chunk])).values()) {
+    if (INFORMATION_TYPES.has(chunk.entryType!) || chunk.diagnosticEvidence === false) continue;
+    // Only archive metadata with a recorded basis counts. Runtime risk heuristics are not annotations.
+    if (chunk.riskLevel && chunk.riskBasis?.trim()) {
+      riskCoverage[chunk.riskLevel]++;
+      riskCoverage.reviewed++;
+    } else riskCoverage.unreviewed++;
+  }
   return {
     roleCoverage: roleCoverage(chunks),
+    riskCoverage,
     entryCount: new Set(chunks.map((chunk) => chunk.entryId)).size,
     faultCount: chunks.filter((chunk) => chunk.entryType === '维护/故障知识').length,
     sourceCount: new Set(chunks.map((chunk) => chunk.sourceId)).size,
