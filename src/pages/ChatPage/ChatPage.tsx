@@ -209,13 +209,13 @@ export default function ChatPage() {
                   ? <ThinkingOrbs state="listening" label={t('待命', 'Listening')} />
                   : <span className="flex h-14 w-14 items-center justify-center rounded-full bg-primary/10 text-primary"><Sparkles className="h-7 w-7" /></span>}
               </div>
-              <h2 className="font-serif text-xl font-bold text-foreground">{version === 'new' ? t('描述现象，从资料里找起点。', 'Describe the symptom. Start from the evidence.') : pick(content.CHAT_WELCOME.title, lang)}</h2>
-              <p className="mt-2 max-w-md text-sm text-muted-foreground">{version === 'new' ? t('带上机型更好。回答依据是已索引资料，适用范围仍需核对。', 'A model helps. Answers follow indexed evidence, and scope still needs a check.') : pick(content.CHAT_WELCOME.desc, lang)}</p>
+              <h2 className="font-serif text-xl font-bold text-foreground">{version === 'new' ? t('描述现象，从资料里找起点。', 'Describe the symptom. Start from the evidence.') : t('描述故障现象', 'Describe the fault')}</h2>
+              <p className="mt-2 max-w-md text-sm text-muted-foreground">{version === 'new' ? t('带上机型更好。回答依据是已索引资料，适用范围仍需核对。', 'A model helps. Answers follow indexed evidence, and scope still needs a check.') : t('可填写品牌、型号和发生工况。', 'Include the brand, model and operating conditions.')}</p>
 
 
               {/* 快捷提问按钮 */}
               <div className="mt-6 w-full">
-                <div className="mb-3 text-xs font-medium text-wheat">{version === 'new' ? t('可以这样问', 'You can ask') : t('您可以这样问', 'Try asking')}</div>
+                <div className="mb-3 text-xs font-medium text-wheat">{version === 'new' ? t('可以这样问', 'You can ask') : t('示例问题', 'Example questions')}</div>
                 <div className="grid gap-2 md:grid-cols-2">
                   {content.CHAT_QUICK_QUESTIONS.map((q) => (
                     <button

@@ -38,6 +38,10 @@
 
 ![旧版知识页](screenshots/knowledge-light.png)
 
+旧版模型工坊：
+
+![旧版模型工坊](screenshots/model-classic.png)
+
 手机导航与诊断：
 
 ![手机导航](screenshots/mobile-navigation.png)

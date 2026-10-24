@@ -39,7 +39,7 @@ export default function HomePage() {
       <Suspense fallback={null}><HomeStage /></Suspense>
       <HeroSection />
       <KnowledgeCoverage />
-      <div className="page-container"><details className="capability-details"><summary><span>{lang === 'zh' ? '项目与研究' : 'Project and research'}</span><ChevronDown size={20} /></summary><ResearchSection /><PainPointsSection /><TechRouteSection /><ScenariosSection /><ArchitectureSection /><SimulationSection /><MultimodalSection /><ClosingSection /></details></div>
+      <div className="page-container" data-home-beat="details" data-home-side="center"><details className="capability-details"><summary><span>{lang === 'zh' ? '项目与研究' : 'Project and research'}</span><ChevronDown size={20} /></summary><ResearchSection /><PainPointsSection /><TechRouteSection /><ScenariosSection /><ArchitectureSection /><SimulationSection /><MultimodalSection /><ClosingSection /></details></div>
     </div></MotionConfig>
   );
 }
