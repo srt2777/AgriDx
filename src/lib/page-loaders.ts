@@ -5,7 +5,6 @@ export const pageLoaders = {
   history: () => import('@/pages/VersionHistoryPage/VersionHistoryPage'),
   classic: () => import('@/pages/HomePage/HomePage'),
   exhibition: () => import('@/pages/ExhibitionPage/ExhibitionPage'),
-  hall: () => import('@/pages/HallPage/HallPage'),
   knowledge: () => import('@/pages/KnowledgePage/KnowledgePage'),
   chat: () => import('@/pages/ChatPage/ChatPage'),
   models: () => import('@/pages/ModelPage/ModelPage'),
@@ -17,10 +16,11 @@ const prefetched = new Set<keyof typeof pageLoaders>();
 export function preloadPage(path: string, version: UiVersion = 'new') {
   const connection = (navigator as Navigator & { connection?: { saveData?: boolean; effectiveType?: string } }).connection;
   if (connection?.saveData || ['slow-2g', '2g'].includes(connection?.effectiveType ?? '')) return;
-  const pathname = path.split(/[?#]/, 1)[0];
+  const requested = path.split(/[?#]/, 1)[0];
+  const pathname = requested === '/hall' ? '/' : requested;
   const page = pathname === '/' ? version === 'new' ? 'exhibition' : 'classic'
     : pathname === '/knowledge' ? 'knowledge' : pathname === '/chat' ? 'chat'
-      : pathname === '/fault-detection' ? 'faultDetection' : pathname === '/version-history' ? 'history' : pathname === '/models' ? 'models' : pathname === '/hall' ? 'hall' : null;
+      : pathname === '/fault-detection' ? 'faultDetection' : pathname === '/version-history' ? 'history' : pathname === '/models' ? 'models' : null;
   if (!page || prefetched.has(page)) return;
   prefetched.add(page);
   void pageLoaders[page]().catch(() => prefetched.delete(page));

@@ -24,8 +24,8 @@ test('克制后不再保留跟手倾斜、扫描线和磁吸光标', () => {
     'src/components/delight.css',
     'src/components/NewVersionDelight.tsx',
     'src/new-version-polish.css',
-    'src/pages/HallPage/hall.css',
-    'src/pages/HallPage/HallPage.tsx',
+    'src/features/campus-equipment/campus-equipment.css',
+    'src/features/campus-equipment/CampusEquipmentCatalog.tsx',
     'src/components/NewVersionShell.tsx',
     'src/pages/ExhibitionPage/ExhibitionPage.tsx',
   ].map((file) => readFileSync(path.join(root, file), 'utf8')).join('\n');
@@ -41,12 +41,9 @@ test('展厅交互跟一次动作走，不循环', () => {
   assert.equal(PRESS_SCALE, 0.98);
   assert.equal(zoneSweep('A', 'A'), false);
   assert.equal(zoneSweep('A', 'B'), true);
-  const hall = readFileSync(path.join(root, 'src/pages/HallPage/hall.css'), 'utf8');
+  const hall = readFileSync(path.join(root, 'src/features/campus-equipment/campus-equipment.css'), 'utf8');
   const delight = readFileSync(path.join(root, 'src/components/delight.css'), 'utf8');
-  assert.match(hall, /animation: hall-scan-once 1100ms[^;]* 1 forwards/);
   assert.equal(hall.includes('infinite'), false);
-  assert.match(hall, /translateY\(-2px\)/);
-  assert.match(hall, /\.hall-stage-light/);
   assert.match(delight, /scale\(0\.98\)/);
 });
 

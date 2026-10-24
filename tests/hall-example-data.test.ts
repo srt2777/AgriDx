@@ -9,7 +9,7 @@ import {
   devicesInZone,
   exampleDataLabel,
   hallStatusCount,
-} from '../src/pages/HallPage/hall-example-data';
+} from '../src/features/campus-equipment/hall-example-data';
 
 test('展厅示例环的四段状态合计为 12，并与设备表逐项一致', () => {
   assert.equal(HALL_EXAMPLE_TOTAL, 12);

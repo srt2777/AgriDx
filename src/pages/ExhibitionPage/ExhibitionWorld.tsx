@@ -14,8 +14,10 @@ import { useTheme } from '@/hooks/useTheme';
 import { frameEase, MOTION, rateFor } from '@/lib/motion-tokens';
 import { bindContextLoss, probeWebGL } from '@/lib/webgl';
 import { campusSky } from './campus-sky';
+import { equipmentCamera } from '@/features/campus-equipment/campus-layout';
 
 const CampusGlow = lazy(() => import('@/components/SceneGlow').then((mod) => ({ default: mod.CampusGlow })));
+const CampusEquipment = lazy(() => import('@/features/campus-equipment/CampusEquipment'));
 useGLTF.preload(TRACTOR_MODEL_URL);
 import {
   initialDriveState,
@@ -46,6 +48,9 @@ interface WorldProps {
   onCinematicEnd: () => void;
   onSelect: (id: ZoneId) => void;
   onTractorSelect?: () => void;
+  equipmentFocus?: string | null;
+  equipmentMoving?: boolean;
+  onEquipmentSelect?: (id: string) => void;
   onPosition: (state: DriveState) => void;
   onNearby: (id: ZoneId | null) => void;
   onLive?: () => void;
@@ -550,7 +555,7 @@ function CampusFloor() {
         </group>
       ))}
       {WORLD_ZONES.map((zone) => (
-        <group key={zone.id} position={[zone.x * 1.4, 0, zone.z * 1.75]}>
+        <group key={zone.id} position={[Math.sign(zone.x) * 13, 0, Math.sign(zone.z) * 4]}>
           <Block size={[1.7, 0.3, 0.75]} position={[0, 0.14, 0]} color="#293e48" />
           {[-0.5, 0, 0.5].map((x) => (
             <mesh key={x} position={[x, 0.48, 0]} castShadow>
@@ -686,6 +691,9 @@ function WorldScene({
   onCinematicEnd,
   onSelect,
   onTractorSelect,
+  equipmentFocus = null,
+  equipmentMoving = false,
+  onEquipmentSelect,
   onPosition,
   onNearby,
   onLoaded,
@@ -765,11 +773,11 @@ function WorldScene({
       input.actions.clear();
     }
     invalidate();
-  }, [mode, focus, size.width, size.height, input, invalidate]);
+  }, [mode, focus, equipmentFocus, size.width, size.height, input, invalidate]);
   useEffect(() => {
     const canvas = gl.domElement;
     const move = (event: PointerEvent) => {
-      if (reducedMotion || mode !== 'overview' || focus || steered.current || event.buttons) return;
+      if (reducedMotion || mode !== 'overview' || focus || equipmentFocus || steered.current || event.buttons) return;
       const rect = canvas.getBoundingClientRect();
       if (rect.width < 1 || rect.height < 1) return;
       const nextX = ((event.clientX - rect.left) / rect.width) * 2 - 1;
@@ -791,7 +799,7 @@ function WorldScene({
       canvas.removeEventListener('pointermove', move);
       canvas.removeEventListener('pointerleave', leave);
     };
-  }, [gl, invalidate, mode, focus, reducedMotion]);
+  }, [gl, invalidate, mode, focus, equipmentFocus, reducedMotion]);
 
   useFrame((state, elapsed) => {
     if (!announced.current) {
@@ -839,6 +847,10 @@ function WorldScene({
         viewTarget.set(current.x, 0.5, current.z);
         viewPosition.set(current.x + 8, 7, current.z + 10);
         if (size.width < 650) viewPosition.set(current.x + 8, 11, current.z + 14);
+      } else if (equipmentFocus && equipmentCamera(equipmentFocus, size.width < 650)) {
+        const goal = equipmentCamera(equipmentFocus, size.width < 650)!;
+        viewTarget.set(...goal.look);
+        viewPosition.set(...goal.position);
       } else if (focus) {
         const zone = WORLD_ZONES.find((item) => item.id === focus)!;
         viewTarget.set(zone.x, 0.8, zone.z);
@@ -879,7 +891,7 @@ function WorldScene({
       const cameraMoving =
         camera.position.distanceToSquared(viewPosition) > 0.0008 ||
         (orbit.current?.target.distanceToSquared(viewTarget) ?? 0) > 0.0008;
-      const parallaxMoving = mode === 'overview' && !focus && parallax.current.distanceToSquared(parallaxGoal.current) > 0.0004;
+      const parallaxMoving = mode === 'overview' && !focus && !equipmentFocus && parallax.current.distanceToSquared(parallaxGoal.current) > 0.0004;
       if (cameraMoving || moving || parallaxMoving) invalidate();
       else {
         settling.current = false;
@@ -926,6 +938,7 @@ function WorldScene({
       <directionalLight position={[8, 6, -12]} intensity={1.8} color="#80caff" />
       <LocalEnvironment />
       <CampusFloor />
+      {onEquipmentSelect && <Suspense fallback={null}><CampusEquipment selected={equipmentFocus} onSelect={onEquipmentSelect} moving={equipmentMoving} reduced={reducedMotion} /></Suspense>}
       <GroundSweep play={cinematic} reducedMotion={reducedMotion} />
       <Pollen live={live} reducedMotion={reducedMotion} />
       <WheatPatch position={[-11.2, 0.45, 3.2]} rotation={0.4} live={live} reducedMotion={reducedMotion} />

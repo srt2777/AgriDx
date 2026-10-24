@@ -3,7 +3,6 @@ export const PAVILION_TRANSITION = {
   knowledge: 'pavilion-knowledge',
   diagnosis: 'pavilion-diagnosis',
   models: 'pavilion-models',
-  hall: 'pavilion-hall',
 } as const;
 
 export const HALL_ZONE_TRANSITION = 'hall-knowledge';
@@ -13,7 +12,6 @@ const TARGETS: Record<string, string> = {
   'hall-knowledge': 'knowledge',
   'pavilion-diagnosis': 'diagnosis',
   'pavilion-models': 'models',
-  'pavilion-hall': 'hall',
 };
 
 export function sharedTransitionName(kind: 'pavilion' | 'hall', id: string): string | null {

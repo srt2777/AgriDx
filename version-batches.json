@@ -469,6 +469,13 @@
       "base": "3.15.0",
       "version": "3.16.0",
       "date": "2026-10-24"
+    },
+    {
+      "id": "campus-equipment-merge-20261024",
+      "kind": "maintenance",
+      "base": "3.16.0",
+      "version": "3.16.1",
+      "date": "2026-10-24"
     }
   ]
 }
