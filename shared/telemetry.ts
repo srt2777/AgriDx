@@ -84,3 +84,30 @@ export interface TelemetryFrame {
   points: TelemetryPoint[];
   alerts: TelemetryAlert[];
 }
+export const TELEMETRY_WINDOWS = { '5m': 300000, '15m': 900000, '1h': 3600000 } as const;
+export type TelemetryWindow = keyof typeof TELEMETRY_WINDOWS;
+export interface TelemetryHistory {
+  schemaVersion: 1;
+  source: 'simulated';
+  watermark: typeof TELEMETRY_WATERMARK;
+  runId: string;
+  channel: TelemetryChannel;
+  window: TelemetryWindow;
+  from: number;
+  to: number;
+  points: TelemetryPoint[];
+}
+export type TelemetryResetReason = 'server_restart' | 'history_expired' | 'cursor_ahead';
+export interface TelemetryHeartbeat {
+  schemaVersion: 1;
+  source: 'simulated';
+  watermark: typeof TELEMETRY_WATERMARK;
+  at: number;
+}
+/** Only new samples update receivedAt; SSE heartbeats must not hide stale measurements. */
+export function telemetryConnectionState(source: TelemetrySource, connected: boolean, receivedAt: number | null, now: number, staleAfterMs: number): 'simulated' | 'live' | 'delayed' | 'offline' {
+  if (!connected) return 'offline';
+  if (receivedAt === null || !Number.isFinite(receivedAt) || !Number.isFinite(now) || !Number.isFinite(staleAfterMs)
+    || staleAfterMs <= 0 || now < receivedAt || now - receivedAt > staleAfterMs) return 'delayed';
+  return source === 'device' ? 'live' : 'simulated';
+}

@@ -546,6 +546,13 @@
       "base": "3.18.1",
       "version": "3.18.2",
       "date": "2026-10-25"
+    },
+    {
+      "id": "ui-telemetry-stream-20261025",
+      "kind": "feature",
+      "base": "3.18.2",
+      "version": "3.19.0",
+      "date": "2026-10-25"
     }
   ]
 }

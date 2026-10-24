@@ -7,6 +7,7 @@ import { createCatalogRoutes } from './routes/catalog';
 import { createChatRoutes } from './routes/chat';
 import { createStatusRoutes } from './routes/status';
 import { createModelingRoutes } from './routes/modeling';
+import { createTelemetryRoutes } from './routes/telemetry';
 import type { ServerRuntime } from './runtime';
 
 /** Assemble HTTP only; callers control initialization and listening. */
@@ -21,6 +22,7 @@ export function createApp(runtime: ServerRuntime): express.Express {
   app.use('/api/chat', createChatRateLimiter());
   const memory = runtime.getMemoryStore ?? getMemoryStore;
   app.use('/api/memory', createMemoryRoutes(memory));
+  app.use('/api', createTelemetryRoutes(runtime.telemetry));
   app.use('/api', createStatusRoutes(runtime), createCatalogRoutes(runtime.getCatalog), createChatRoutes(runtime.diagnose, memory));
   app.use('/api', apiNotFound);
   app.use(errorHandler);
