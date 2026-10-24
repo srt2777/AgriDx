@@ -40,7 +40,7 @@ export default function KnowledgeGraph({ catalog, lang }: { catalog: KnowledgeCa
     { level: 'part', label: t('零部件', 'Part'), parent: selectedComponent?.id },
   ];
   return <section className="knowledge-taxonomy" aria-labelledby="taxonomy-heading">
-    <header className="taxonomy-heading"><div><span>TAXONOMY / EVIDENCE</span><h2 id="taxonomy-heading">{t('沿知识结构，找到依据。', 'Follow the knowledge structure to evidence.')}</h2><p>{t('三维知识引擎展示真实知识库，保留现有目录与原始证据，连线仅表示归属。', 'The 3D knowledge engine preserves real catalog identities, parent edges and original evidence.')}</p></div><strong>{nodes.length.toLocaleString()}<small>{t('目录节点 · 非独立知识条数', 'catalog nodes · not unique entries')}</small></strong></header>
+    <header className="taxonomy-heading"><div><h2 id="taxonomy-heading">{t('知识图谱', 'Knowledge graph')}</h2><p>{t('连线表示目录归属，资料以原文为准。', 'Links show catalog membership. Refer to original evidence.')}</p></div><strong>{nodes.length.toLocaleString()}<small>{t('目录节点 · 非独立知识条数', 'catalog nodes · not unique entries')}</small></strong></header>
     <div className="taxonomy-search"><label htmlFor="taxonomy-search">{t('定位知识节点', 'Find a knowledge node')}</label><input id="taxonomy-search" type="search" value={search} onChange={event => setSearch(event.target.value)} placeholder={t('搜索品牌、机型、系统或零件', 'Search brand, model, system or part')} />{searchTerm && <div className="taxonomy-results"><p>{t(`找到 ${results.length} 个节点，显示前 50 个`, `${results.length} matches; showing the first 50`)}</p>{results.slice(0, 50).map(node => <button key={node.id} onClick={() => { setSelected(node.id); setSearch(''); }}>{node.label}<small>{pathLabel(node)}</small></button>)}{!results.length && <p>{t('无匹配节点；未生成推测知识。', 'No matches; no knowledge inferred.')}</p>}</div>}</div>
     <nav className="taxonomy-trail" aria-label={t('当前知识路径', 'Current knowledge path')}><button onClick={() => setSelected('')}>{t('全部归档', 'All archives')}</button>{path.map(node => <span key={node.id}><span aria-hidden="true"> → </span><button onClick={() => setSelected(node.id)} aria-current={selected?.id === node.id ? 'location' : undefined}>{node.label}</button></span>)}</nav>
     <TaxonomyGraphCanvas catalog={catalog} nodes={nodes} selectedId={selectedId} onSelect={setSelected} lang={lang} />
@@ -57,6 +57,6 @@ export default function KnowledgeGraph({ catalog, lang }: { catalog: KnowledgeCa
         {!details.loading && !details.failed && <><p>{details.catalog?.selected?.entries.length ?? 0} {t('条匹配资料', 'matching entries')}</p>{details.catalog?.selected?.gaps.map(gap => <p className="taxonomy-gap-note" key={gap}>{gap}</p>)}{details.catalog?.selected?.entries.map(entry => <EvidenceEntry key={entry.entryId} entry={entry} diagnosisState={state} />)}{!details.catalog?.selected?.entries.length && <p>{t('暂无匹配资料，不补造关系。', 'No matching evidence; no relations invented.')}</p>}</>}
       </>}
     </section>
-    <footer>{t('分类组织参考 os-taxonomy；节点、顺序与归属全部来自 AgriDx 已有知识库。未导入教育课程数据，未添加无证据的先修关系。', 'Organization inspired by os-taxonomy. Nodes, order and membership come from the AgriDx catalog; no curriculum data or unsupported prerequisites are imported.')} <a href="https://github.com/withmarbleapp/os-taxonomy" target="_blank" rel="noreferrer">os-taxonomy ↗</a></footer>
+
   </section>;
 }
