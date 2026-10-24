@@ -101,3 +101,24 @@
   .engine-panel { height: 300px; }
   .engine-stage { aspect-ratio: .94; }
 }
+
+/* Keep the existing canvas and directory; expose relations beside it at wide widths. */
+.knowledge-engine{display:grid;grid-template-columns:minmax(0,1fr) 310px;align-items:start}
+.engine-dashboard{display:flex;flex-direction:column;gap:16px;padding:12px}
+.engine-legend{grid-column:1/-1;padding:12px;font-size:13px;line-height:1.7;border-top:1px solid #495347}
+.engine-legend summary{min-height:44px;cursor:pointer}
+.engine-legend button,.engine-child{min-height:44px;padding:8px;border:1px solid #495347;background:transparent;color:inherit;cursor:pointer;font:inherit}
+.engine-legend i{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:6px}
+.engine-child{display:block;width:100%;text-align:left;margin-block:6px}
+.engine-child small{display:block;color:#c4d0bf;font-size:12px}
+.engine-controls button,.engine-directory-nav button,.engine-evidence-action,.engine-queue button{min-width:44px;min-height:44px}
+.engine-evidence-action{display:inline-flex;align-items:center;gap:6px;margin:4px 6px 4px 0}
+.engine-primary-action{background:#25382f;border-color:#a8c995;font-weight:600}
+.engine-expanded{position:fixed!important;inset:8px!important;z-index:10000;overflow:auto;background:#0e1211;box-shadow:0 0 0 20px #060c15}
+.engine-stage{aspect-ratio:auto;height:620px;min-width:0}
+.engine-panel{height:auto;max-height:460px;min-height:220px}
+.engine-inspector h5{font-size:13px;margin:16px 0 6px}
+@media(max-width:1100px){.knowledge-engine{grid-template-columns:minmax(0,1fr)}.engine-dashboard{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.engine-legend{grid-column:1}.engine-stage{height:520px}}
+@media(max-width:600px){.engine-dashboard{grid-template-columns:minmax(0,1fr)}.engine-stage{height:460px}.engine-expanded{inset:4px!important}.engine-panel{max-height:400px}}
+@media(prefers-reduced-transparency:reduce){.knowledge-engine-shell,.engine-node-card,.engine-expanded{background:#0e1211;backdrop-filter:none;opacity:1}}
+@media(forced-colors:active){.knowledge-engine-shell,.engine-controls,.engine-panel,.engine-expanded{background:Canvas;color:CanvasText;border-color:CanvasText}.engine-legend button,.engine-child,.engine-evidence-action,.engine-controls button{color:ButtonText;background:ButtonFace;border-color:ButtonText}.engine-inspector p,.engine-child small,.engine-empty,.engine-node-path{color:CanvasText}.engine-node-card{background:Canvas;color:CanvasText;border:2px solid CanvasText}.engine-node-card p{color:CanvasText}}

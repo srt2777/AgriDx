@@ -1,60 +1,74 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { useUiVersion } from '@/hooks/useUiVersion';
+import { classicGraphPalette } from '@/ui/graph-palette';
+import { palette } from './taxonomy-graph-layout';
+import { selectGraphHit } from './graph-gestures';
+import { useGraphGestures } from './useGraphGestures';
+import { useGraphOverlay } from './useGraphOverlay';
+import { focusEnginePoint, clearGraphFocus } from './graph-visuals';
 import { useReducedMotion } from 'framer-motion';
 import { useUiCopy } from '@/ui/useUiCopy';
 import type { KnowledgeCatalog } from '@shared/knowledge-catalog';
 import type { TaxonomyNode } from './knowledge-taxonomy-data';
 import { createGraphFlowLoop } from './graph-flow-loop';
-import { cameraMoving, createGraphCamera, fitGraph, stepGraphCamera, zoomGraph } from './graph-interaction';
+import { cameraMoving, createGraphCamera, fitGraph, stepGraphCamera, graphNeighborhood, zoomGraph } from './graph-interaction';
 import { indexEngineCatalog, selectEngineCatalog } from './knowledge-engine-catalog';
 import { catalogNetwork } from './knowledge-engine-model';
 import { KnowledgeEngineRenderer } from './knowledge-engine-renderer';
 import './knowledge-engine.css';
 const levelLabels = { brand: ['品牌', 'Brand'], model: ['机型 / 系列', 'Model / series'], component: ['系统 / 组件', 'System / component'], part: ['零部件', 'Part'] } as const;
-export default function KnowledgeEngine({ nodes, selectedId, onSelect, lang, onRelations }: {
+export default function KnowledgeEngine({ nodes, selectedId, onSelect, lang, onRelations, onEvidence, diagnosisState }: {
     nodes: TaxonomyNode[];
     selectedId: string;
     onSelect: (id: string) => void;
     catalog: KnowledgeCatalog;
     lang: string;
     onRelations: () => void;
+    onEvidence: () => void;
+    diagnosisState?: {brand?:string;model:string;question:string};
 }) {
     const { t } = useUiCopy(lang);
     const reduced = !!useReducedMotion();
+    const classic=useUiVersion()==='old';
+    const colors=classic?classicGraphPalette:palette;
+    const [hover,setHover]=useState(-1), [focusMode,setFocusMode]=useState(false), [expanded,setExpanded]=useState(false);
+    useEffect(()=>setFocusMode(!!selectedId),[selectedId]);
+    const closeOverlay=useCallback(()=>setExpanded(false),[]);
     const [running, setRunning] = useState(!reduced);
     const [zoomPercent, setZoomPercent] = useState(100);
     const root = useRef<HTMLDivElement>(null), canvas = useRef<HTMLCanvasElement>(null), tooltip = useRef<HTMLElement>(null);
     const camera = useRef(createGraphCamera()), clock = useRef(0), wake = useRef(() => { });
     const renderer = useRef<KnowledgeEngineRenderer | null>(null);
     const directory = useRef<HTMLDivElement>(null);
-    const pointers = useRef(new Map<number, {
-        x: number;
-        y: number;
-    }>());
-    const gesture = useRef({ startX: 0, startY: 0, x: 0, y: 0, moved: false, pinched: false, distance: 0, pan: false });
-    const network = useMemo(() => catalogNetwork(nodes), [nodes]);
+    const network = useMemo(() => catalogNetwork(nodes,colors), [nodes,colors]);
     const active = useMemo(() => network.nodes.findIndex(node => node.id === selectedId), [network, selectedId]);
     const activeNode = network.nodes[active];
+    const neighborhood=useMemo(()=>graphNeighborhood(nodes,selectedId,Infinity),[nodes,selectedId]);
+    const related=useMemo(()=>new Set(neighborhood.shown.map(n=>n.id)),[neighborhood]);
+    const tooltipNode=nodes[hover];
+    const lastFocused=useRef('');
+    const detailsPanel=useRef<HTMLDivElement>(null);
+    const gestures=useGraphGestures(canvas,camera,{reduced,revision:expanded,wake:()=>wake.current(),pick:p=>{
+      const box=canvas.current?.getBoundingClientRect();if(!box)return;
+      const hit=renderer.current?.pick(p.x+box.width/2,p.y+box.height/2);
+      if(!hit)fitGraph(camera.current);
+      selectGraphHit(selectedId,hit?network.nodes[hit.index].id:undefined,onSelect);wake.current();
+    },hover:p=>{
+      const box=canvas.current?.getBoundingClientRect();const hit=p&&box?renderer.current?.pick(p.x+box.width/2,p.y+box.height/2):undefined;
+      setHover(hit?.index??-1);if(canvas.current)canvas.current.style.cursor=hit?'pointer':'grab';
+    }});
+    useGraphOverlay(expanded,root,canvas,closeOverlay);
+    useEffect(()=>{const media=matchMedia('(forced-colors: active)');const change=()=>wake.current();media.addEventListener('change',change);return()=>media.removeEventListener('change',change);},[]);
     const index = useMemo(() => indexEngineCatalog(nodes), [nodes]);
     const view = useMemo(() => selectEngineCatalog(index, selectedId), [index, selectedId]);
     const activeTaxonomy = view.selected;
     const scopeLabel = activeTaxonomy?.scope === 'exact' ? t('具体型号', 'Specific model') : activeTaxonomy?.scope === 'series' ? t('系列范围', 'Series scope') : activeTaxonomy?.scope === 'pending' ? t('待核实', 'Unconfirmed') : t('目录分类', 'Catalog');
-    const latest = useRef({ running, active, reduced });
-    useLayoutEffect(() => { latest.current = { running, active, reduced }; wake.current(); }, [running, active, reduced]);
-    useEffect(() => {
-        const escape = (event: KeyboardEvent) => {
-            if (event.key === 'Escape' && document.fullscreenElement === root.current?.parentElement)
-                void document.exitFullscreen();
-        };
-        document.addEventListener('keydown', escape);
-        return () => document.removeEventListener('keydown', escape);
-    }, []);
+    const latest = useRef({ running, active, reduced, hover, related, focusMode, selectedId });
+    useLayoutEffect(() => { latest.current = { running, active, reduced, hover, related, focusMode, selectedId }; wake.current(); }, [running, active, reduced, hover, related, focusMode, selectedId]);
     const zoom = (factor: number) => { zoomGraph(camera.current, factor); setZoomPercent(Math.round(camera.current.targetZoom * 100)); wake.current(); };
     const reset = () => { fitGraph(camera.current); setZoomPercent(100); wake.current(); };
-    const selectIndex = (index: number) => {
-        const id = network.nodes[index]?.taxonomyId;
-        if (id)
-            onSelect(id);
-    };
     useEffect(() => {
         const element = canvas.current;
         if (!element?.getContext('2d'))
@@ -64,10 +78,16 @@ export default function KnowledgeEngine({ nodes, selectedId, onSelect, lang, onR
         let visible = true, dirty = true, lastReport = 0;
         const render = (delta = 0) => {
             const state = latest.current;
-            if (state.running && !state.reduced && !pointers.current.size)
+            if (state.running && !state.reduced && !gestures.controller.active())
                 clock.current = clock.current + delta;
+            if(state.selectedId!==lastFocused.current) {
+              const box=element.getBoundingClientRect(),node=network.nodes[state.active];
+              if(node)focusEnginePoint(camera.current,node,box.width,box.height,engine.extent);else clearGraphFocus(camera.current);
+              lastFocused.current=state.selectedId;
+            }
+            if(state.running&&!state.reduced&&state.active<0&&!gestures.controller.active())camera.current.targetYaw+=delta*.017;
             stepGraphCamera(camera.current, Math.max(delta, 1 / 60), state.reduced);
-            engine.draw({ time: clock.current, active: state.active, animate: !state.reduced, camera: camera.current, tooltip: tooltip.current });
+            engine.draw({ time: clock.current, active: state.active, hover:state.hover,related:state.related,focusMode:state.focusMode,animate: state.running && !state.reduced, camera: camera.current, tooltip: tooltip.current });
             dirty = false;
             if (performance.now() - lastReport > 250) {
                 setZoomPercent(Math.round(camera.current.zoom * 100));
@@ -75,7 +95,7 @@ export default function KnowledgeEngine({ nodes, selectedId, onSelect, lang, onR
             }
         };
         const loop = createGraphFlowLoop({ active: () => visible && !document.hidden && (dirty || cameraMoving(camera.current) || latest.current.running && !latest.current.reduced), render, request: requestAnimationFrame, cancel: cancelAnimationFrame });
-        wake.current = () => { dirty = true; render(); loop.start(); };
+        wake.current = () => { dirty = true; if(visible&&!document.hidden) loop.start(); };
         const resize = new ResizeObserver(() => wake.current());
         resize.observe(element);
         const intersection = new IntersectionObserver(entries => { visible = entries[0]?.isIntersecting ?? false; if (visible)
@@ -88,94 +108,30 @@ export default function KnowledgeEngine({ nodes, selectedId, onSelect, lang, onR
         else
             wake.current(); };
         document.addEventListener('visibilitychange', visibility);
-        const wheel = (event: WheelEvent) => {
-            event.preventDefault();
-            const rect = element.getBoundingClientRect();
-            zoomGraph(camera.current, Math.exp(-Math.max(-180, Math.min(180, event.deltaY * (event.deltaMode === 1 ? 16 : 1))) * .0025), { x: event.clientX - rect.left - rect.width / 2, y: event.clientY - rect.top - rect.height / 2 });
-                wake.current();
-        };
-        element.addEventListener('wheel', wheel, { passive: false });
         wake.current();
-        return () => { resize.disconnect(); intersection.disconnect(); loop.stop(); document.removeEventListener('visibilitychange', visibility); element.removeEventListener('wheel', wheel); wake.current = () => { }; renderer.current = null; };
+        return () => { resize.disconnect(); intersection.disconnect(); loop.stop(); document.removeEventListener('visibilitychange', visibility); wake.current = () => { }; renderer.current = null; };
         // Selection is read from latest so changing a card does not rebuild the 3k-node network.
-    }, [network]);
-    const pointerDown = (event: React.PointerEvent<HTMLCanvasElement>) => {
-        event.currentTarget.setPointerCapture(event.pointerId);
-        pointers.current.set(event.pointerId, { x: event.clientX, y: event.clientY });
-        const g = gesture.current;
-        if (pointers.current.size === 1)
-            Object.assign(g, { startX: event.clientX, startY: event.clientY, x: event.clientX, y: event.clientY, moved: false, pinched: false, pan: event.shiftKey || event.button === 2 });
-        else {
-            const [a, b] = [...pointers.current.values()];
-            g.distance = Math.hypot(a.x - b.x, a.y - b.y);
-            g.pinched = true;
-        }
-    };
-    const pointerMove = (event: React.PointerEvent<HTMLCanvasElement>) => {
-        if (!pointers.current.has(event.pointerId)) {
-            const rect = event.currentTarget.getBoundingClientRect();
-            const hit = renderer.current?.pick(event.clientX - rect.left, event.clientY - rect.top);
-            event.currentTarget.style.cursor = hit ? 'pointer' : 'grab';
-            return;
-        }
-        pointers.current.set(event.pointerId, { x: event.clientX, y: event.clientY });
-        const g = gesture.current;
-        if (pointers.current.size > 1) {
-            const [a, b] = [...pointers.current.values()], distance = Math.hypot(a.x - b.x, a.y - b.y), rect = event.currentTarget.getBoundingClientRect();
-            if (g.distance > 0)
-                zoomGraph(camera.current, distance / g.distance, { x: (a.x + b.x) / 2 - rect.left - rect.width / 2, y: (a.y + b.y) / 2 - rect.top - rect.height / 2 });
-            g.distance = distance;
-            g.pinched = true;
-            wake.current();
-            return;
-        }
-        if (g.pinched)
-            return;
-        const dx = event.clientX - g.x, dy = event.clientY - g.y;
-        if (Math.hypot(event.clientX - g.startX, event.clientY - g.startY) > 4)
-            g.moved = true;
-        if (g.pan) {
-            camera.current.targetPanX += dx;
-            camera.current.targetPanY += dy;
-        }
-        else {
-            camera.current.targetYaw += dx * .005;
-            camera.current.targetPitch = Math.max(-1.2, Math.min(1.2, camera.current.targetPitch + dy * .005));
-        }
-        g.x = event.clientX;
-        g.y = event.clientY;
-        wake.current();
-    };
-    const pointerUp = (event: React.PointerEvent<HTMLCanvasElement>) => {
-        pointers.current.delete(event.pointerId);
-        if (gesture.current.moved || gesture.current.pinched)
-            return;
-        const rect = event.currentTarget.getBoundingClientRect();
-        const hit = renderer.current?.pick(event.clientX - rect.left, event.clientY - rect.top);
-        if (hit)
-            selectIndex(hit.index);
-    };
+    }, [network,gestures.controller,expanded]);
     const selectDirectory = (id: string, keyboard: boolean) => {
         onSelect(id);
         if (keyboard) requestAnimationFrame(() => directory.current?.focus());
     };
     const sourceTitle = activeNode?.label ?? t('选择一个节点', 'Select a node');
-    const fullScreen = async () => { if (document.fullscreenElement)
-        await document.exitFullscreen();
-    else
-        await root.current?.parentElement?.requestFullscreen?.(); };
-    return <div className="knowledge-engine-shell">
+    const graphic = <div ref={root} className={`knowledge-engine-shell${expanded?' engine-expanded':''}`} role={expanded?'dialog':undefined} aria-modal={expanded||undefined} aria-label={expanded?t('放大的知识图谱画布','Expanded knowledge graph'):undefined}>
     <div className="engine-controls" aria-label={t('图谱控制', 'Graph controls')}>
       <button aria-pressed={running && !reduced} disabled={reduced} onClick={() => setRunning(value => !value)}>{reduced ? t('减少动态', 'Reduced motion') : running ? t('暂停', 'Pause') : t('播放', 'Play')}</button>
       <button onClick={() => zoom(1.4)} aria-label={t('放大图谱', 'Zoom in')}>＋</button><output aria-label={t('当前缩放比例', 'Current zoom')}>{zoomPercent}%</output><button onClick={() => zoom(1 / 1.4)} aria-label={t('缩小图谱', 'Zoom out')}>−</button>
-      <button onClick={reset}>{t('复位', 'Reset')}</button><button onClick={() => { void fullScreen().catch(() => { }); }}>{t('全屏', 'Fullscreen')}</button>
-      <button onClick={onRelations}>{t('关系聚焦', 'Focus relations')}</button>
+      <button onClick={reset}>{t('复位', 'Reset')}</button><button onClick={()=>{onSelect('');setFocusMode(false);reset();}}>{t('全部','All')}</button>
+      <button data-overlay-toggle aria-pressed={expanded} onClick={()=>setExpanded(v=>!v)}>{expanded?t('收起画布','Collapse canvas'):t('放大画布','Expand canvas')}</button>
+      <button disabled={!selectedId} aria-pressed={focusMode} onClick={()=>setFocusMode(v=>!v)}>{focusMode?t('全图上下文','Full context'):t('关系聚焦','Focus relations')}</button>
+      <button onClick={()=>{setExpanded(false);onRelations();}}>{t('备用关系画布','Alternative relation view')}</button>
     </div>
-    <div className="knowledge-engine" ref={root} data-mode="catalog" data-phase={'CATALOG'}>
-      <div className="engine-stage">
-        <canvas ref={canvas} tabIndex={0} role="img" aria-label={t('三维知识网络：拖动旋转，Shift拖动平移，滚轮或双指缩放，点击节点查看详情。', '3D knowledge network: drag to rotate, Shift-drag to pan, wheel or pinch to zoom; select a node for details.')} onPointerDown={pointerDown} onPointerMove={pointerMove} onPointerUp={pointerUp} onPointerCancel={event => { pointers.current.delete(event.pointerId); gesture.current.moved = true; }} onContextMenu={event => event.preventDefault()} onDoubleClick={event => { const box = event.currentTarget.getBoundingClientRect(); zoomGraph(camera.current, 1.8, { x: event.clientX - box.left - box.width / 2, y: event.clientY - box.top - box.height / 2 }); wake.current(); }} onKeyDown={event => {
-            if (['+', '=', '-', 'Home', 'Escape', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', ' '].includes(event.key))
+    <div className="knowledge-engine" data-mode="catalog" data-phase={'CATALOG'}>
+      <div className="engine-stage" style={{minHeight:Math.max(460,related.size*50+32)}}>
+        <canvas ref={canvas} tabIndex={0} role="img" aria-label={t('三维知识网络：单指拖动旋转，双指平移与缩放；点击节点查看资料，点空白或Esc返回全部。方向键旋转，加减缩放，Home复位，Enter打开资料。', '3D knowledge graph: drag to rotate, use two fingers to pan and zoom. Select a node for details, blank space or Escape clears selection. Arrows rotate, +/- zoom, Home resets, Enter opens details.')} {...gestures.bindings} onKeyDown={event => {
+            if (['+', '=', '-', 'Home', 'Escape', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', ' ', 'Enter'].includes(event.key) && !event.ctrlKey && !event.metaKey && !event.altKey)
                 event.preventDefault();
+            if(event.ctrlKey||event.metaKey||event.altKey)return;
             if (event.key === '+' || event.key === '=')
                 zoom(1.4);
             else if (event.key === '-')
@@ -184,16 +140,15 @@ export default function KnowledgeEngine({ nodes, selectedId, onSelect, lang, onR
                 reset();
             else if (event.key === ' ')
                 setRunning(value => !value);
-            else if (event.key === 'Escape') {
-                onSelect('');
-            }
+            else if(event.key==='Enter')detailsPanel.current?.focus();
+            else if (event.key === 'Escape') { onSelect('');fitGraph(camera.current);wake.current(); }
             else if (event.key.startsWith('Arrow')) {
                         camera.current.targetYaw += event.key === 'ArrowLeft' ? -.12 : event.key === 'ArrowRight' ? .12 : 0;
                 camera.current.targetPitch = Math.max(-1.2, Math.min(1.2, camera.current.targetPitch + (event.key === 'ArrowUp' ? -.12 : event.key === 'ArrowDown' ? .12 : 0)));
                 wake.current();
             }
         }}/>
-        <aside ref={tooltip} className="engine-node-card" style={{ display: activeNode ? undefined : 'none' }} aria-label={t('节点详情', 'Node details')}><strong>{sourceTitle}</strong><p>{activeTaxonomy && t(`${activeTaxonomy.count} 条关联资料`, `${activeTaxonomy.count} linked entries`)}</p></aside>
+        <aside ref={tooltip} className="engine-node-card" style={{display:tooltipNode?undefined:'none'}} aria-label={t('节点提示','Node tooltip')}><strong>{tooltipNode?.label}</strong><p>{tooltipNode&&t(levelLabels[tooltipNode.level][0],levelLabels[tooltipNode.level][1])}</p><p>{tooltipNode?t(`${tooltipNode.count} 条关联资料${tooltipNode.count?'':' · 待补资料'}`,`${tooltipNode.count} linked entries${tooltipNode.count?'':' · Evidence gap'}`):''}</p></aside>
       </div>
       <div className="engine-dashboard">
         <Panel title={t('目录', 'Directory')} count={view.children.length}>
@@ -202,12 +157,18 @@ export default function KnowledgeEngine({ nodes, selectedId, onSelect, lang, onR
           {!view.children.length && <p className="engine-empty">{t('已到末级目录，请查看节点资料。', 'End of this branch. Review the node details.')}</p>}
         </Panel>
         <Panel title={t('节点资料', 'Node details')}>
-          {activeTaxonomy ? <div className="engine-inspector"><h4>{sourceTitle}</h4><p className="engine-node-path">{view.path.map(node => node.label).join(' / ')}</p><dl><dt>{t('关联资料', 'Linked entries')}</dt><dd>{activeTaxonomy.count.toLocaleString()}</dd><dt>{t('层级', 'Level')}</dt><dd>{t(levelLabels[activeTaxonomy.level][0], levelLabels[activeTaxonomy.level][1])}</dd><dt>{t('适用范围', 'Scope')}</dt><dd>{scopeLabel}</dd></dl>{activeTaxonomy.scope === 'series' && <p>{t('系列资料需核对具体型号与配置。', 'Check the specific model and configuration for series evidence.')}</p>}{!activeTaxonomy.count && <p>{t('此目录暂未关联资料。', 'No evidence linked to this node yet.')}</p>}<button className="engine-evidence-action" onClick={onRelations}>{t('查看原文与关系', 'View evidence and relations')}</button></div> : <p className="engine-empty">{t('选择图谱节点或目录，查看关联资料。', 'Select a graph node or directory to review evidence.')}</p>}
+          <div ref={detailsPanel} tabIndex={-1}>
+          {activeTaxonomy ? <div className="engine-inspector"><h4>{sourceTitle}</h4><p className="engine-node-path">{view.path.map(node => node.label).join(' / ')}</p><dl><dt>{t('关联资料', 'Linked entries')}</dt><dd>{activeTaxonomy.count.toLocaleString()}</dd><dt>{t('层级', 'Level')}</dt><dd>{t(levelLabels[activeTaxonomy.level][0], levelLabels[activeTaxonomy.level][1])}</dd><dt>{t('适用范围', 'Scope')}</dt><dd>{scopeLabel}</dd></dl>{activeTaxonomy.scope === 'series' && <p>{t('系列资料需核对具体型号与配置。', 'Check the specific model and configuration for series evidence.')}</p>}{!activeTaxonomy.count && <p>{t('此目录暂未关联资料。', 'No evidence linked to this node yet.')}</p>}<button className="engine-evidence-action engine-primary-action" onClick={()=>{setExpanded(false);onEvidence();}}>{t('查看原文','View source evidence')}</button>{diagnosisState&&<Link className="engine-evidence-action engine-primary-action" to="/chat" state={diagnosisState}>{t('带机型去诊断','Diagnose with this model')}</Link>}
+          <h5>{t('上级路径','Parent path')}</h5>{neighborhood.ancestors.map(n=><button className="engine-evidence-action" key={n.id} onClick={()=>onSelect(n.id)}>{n.label}</button>)}
+          <h5>{t('直接下级','Direct children')}</h5>{view.children.map(n=><button className="engine-child" key={n.id} onClick={()=>onSelect(n.id)}>{n.label}<small>{n.count?t(`${n.count} 条资料`,`${n.count} entries`):t('待补资料','Evidence gap')}</small></button>)}</div> : <p className="engine-empty">{t('选择图谱节点或目录，查看关联资料。', 'Select a graph node or directory to review evidence.')}</p>}
+          </div>
         </Panel>
       </div>
+      <details className="engine-legend"><summary>{t('图例','Legend')}</summary><p>{t('颜色表示品牌，大小与形状表示层级；空心虚线表示待补资料，计数不可按层级相加。','Color shows brand; size and shape show level. Hollow dashed nodes have no linked evidence. Do not sum counts across levels.')}</p><p>{t('圆形：品牌 · 菱形：机型 · 圆角方形：系统 · 三角形：零件','Circle: brand · Diamond: model · Rounded square: system · Triangle: part')}</p>{index.brands.map((n,i)=><button key={n.id} onClick={()=>onSelect(n.id)}><i style={{background:colors[i%colors.length]}}/>{n.label}</button>)}</details>
     </div>
 
   </div>;
+  return expanded ? createPortal(graphic,document.body) : graphic;
 }
 function Panel({ title, count, children }: { title: string; count?: number; children: React.ReactNode }) {
     return <section className="engine-panel"><header><h4>{title}</h4>{count !== undefined && <span>{count}</span>}</header><div className="engine-panel-body">{children}</div></section>;

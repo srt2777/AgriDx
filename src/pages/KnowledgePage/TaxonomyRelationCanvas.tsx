@@ -1,3 +1,7 @@
+import { selectGraphHit } from './graph-gestures';
+import { useGraphGestures } from './useGraphGestures';
+import { useGraphOverlay } from './useGraphOverlay';
+import { useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { sage, sageDark } from '@radix-ui/colors';
 import { useUiCopy } from '@/ui/useUiCopy';
@@ -34,32 +38,19 @@ export default function TaxonomyRelationCanvas({ nodes, selectedId, onSelect, la
   const wake = useRef<() => void>(() => {});
   const screenPositions = useRef(new Map<string, ScreenPoint>());
   const hits = useRef<{ id: string; x: number; y: number; radius: number; halfWidth?: number; halfHeight?: number }[]>([]);
-  const pointers = useRef(new Map<number, Pointer>());
-  const gesture = useRef({ startX: 0, startY: 0, lastX: 0, lastY: 0, lastTime: 0, moved: false, pinched: false, pinchDistance: 0, pan: false, vx: 0, vy: 0 });
+  const closeOverlay=useCallback(()=>setExpanded(false),[]);
+  useGraphOverlay(expanded,container,canvas,closeOverlay);
+  const gestures=useGraphGestures(canvas,camera,{reduced,panOnly:focusMode,revision:expanded,wake:()=>wake.current(),pick:p=>{
+    const rect=canvas.current?.getBoundingClientRect();if(!rect)return;
+    const x=p.x+rect.width/2,y=p.y+rect.height/2;
+    const found=[...hits.current].reverse().filter(point=>point.halfWidth?Math.abs(point.x-x)<=point.halfWidth&&Math.abs(point.y-y)<=Math.max(22,point.halfHeight!):Math.hypot(point.x-x,point.y-y)<=Math.max(22,point.radius+6)).sort((a,b)=>Math.hypot(a.x-x,a.y-y)-Math.hypot(b.x-x,b.y-y))[0];
+    selectGraphHit(selectedId,found?.id,onSelect);
+  }});
   const reportZoom = useRef(0);
 
   const zoom = (factor: number, anchor?: Pointer) => { zoomGraph(camera.current, factor, anchor); setZoomPercent(Math.round(camera.current.targetZoom * 100)); wake.current(); };
   const reset = () => { fitGraph(camera.current); setZoomPercent(100); wake.current(); };
   useEffect(() => { fitGraph(camera.current); setZoomPercent(100); wake.current(); }, [selectedId, focusMode]);
-  useEffect(() => {
-    if (!expanded) return;
-    const previous = document.body.style.overflow;
-    const previousFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-    document.body.style.overflow = 'hidden';
-    canvas.current?.focus({ preventScroll: true });
-    const escape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setExpanded(false);
-      if (event.key !== 'Tab') return;
-      const controls = [...(container.current?.querySelectorAll<HTMLElement>('button:not(:disabled),canvas[tabindex],a[href]') ?? [])];
-      const first = controls[0], last = controls.at(-1);
-      if (!first || !last) return;
-      if (event.shiftKey && (document.activeElement === first || !container.current?.contains(document.activeElement))) { event.preventDefault(); last.focus(); }
-      else if (!event.shiftKey && (document.activeElement === last || !container.current?.contains(document.activeElement))) { event.preventDefault(); first.focus(); }
-    };
-    document.addEventListener('keydown', escape);
-    return () => { document.body.style.overflow = previous; document.removeEventListener('keydown', escape); previousFocus?.focus({ preventScroll: true }); };
-  }, [expanded]);
-
   useEffect(() => {
     const element = canvas.current;
     const context = element?.getContext('2d');
@@ -69,9 +60,10 @@ export default function TaxonomyRelationCanvas({ nodes, selectedId, onSelect, la
     const directIds = new Set(neighborhood.children.map(node => node.id));
     const related = new Set([...pathIds, ...directIds]);
     const shown = focusMode ? neighborhood.shown : nodes;
-    let visible = true, layoutMoving = true;
-    const hitNode = (x: number, y: number) => [...hits.current].reverse().filter(point => point.halfWidth ? Math.abs(point.x - x) <= point.halfWidth && Math.abs(point.y - y) <= point.halfHeight! : Math.hypot(point.x - x, point.y - y) <= point.radius + 6).sort((a, b) => Math.hypot(a.x - x, a.y - y) - Math.hypot(b.x - x, b.y - y))[0];
+    let visible = true, layoutMoving = true, dirty = true;
+    const hitNode = (x: number, y: number) => [...hits.current].reverse().filter(point => point.halfWidth ? Math.abs(point.x - x) <= point.halfWidth && Math.abs(point.y - y) <= Math.max(22,point.halfHeight!) : Math.hypot(point.x - x, point.y - y) <= Math.max(22,point.radius+6)).sort((a, b) => Math.hypot(a.x - x, a.y - y) - Math.hypot(b.x - x, b.y - y))[0];
     const draw = (delta = 1 / 30) => {
+      dirty = false;
       stepGraphCamera(camera.current, delta, reduced);
       const { width, height } = element.getBoundingClientRect();
       if (!width || !height) return;
@@ -172,58 +164,20 @@ export default function TaxonomyRelationCanvas({ nodes, selectedId, onSelect, la
       if (performance.now() - reportZoom.current > 120) { reportZoom.current = performance.now(); setZoomPercent(Math.round(view.zoom * 100)); }
     };
     const loop = createGraphFlowLoop({
-      active: () => visible && !document.hidden && (cameraMoving(camera.current) || layoutMoving || flowing && !reduced && !selectedId),
-      render: delta => { if (!pointers.current.size && flowing && !reduced && !selectedId) clock.current += delta; draw(delta); },
+      active: () => visible && !document.hidden && (dirty || cameraMoving(camera.current) || layoutMoving || flowing && !reduced && !selectedId),
+      render: delta => { if (!gestures.controller.active() && flowing && !reduced && !selectedId) clock.current += delta; draw(delta); },
       request: callback => requestAnimationFrame(callback), cancel: id => cancelAnimationFrame(id),
     });
-    wake.current = () => { if (reduced) draw(); loop.start(); };
-    const observer = new ResizeObserver(() => { layoutMoving = true; draw(); loop.start(); }); observer.observe(element);
-    const intersection = new IntersectionObserver(entries => { visible = entries[0]?.isIntersecting ?? false; if (visible) loop.start(); else loop.stop(); }); intersection.observe(element);
-    const visibility = () => { if (document.hidden) loop.stop(); else loop.start(); };
-    const wheel = (event: WheelEvent) => {
-      event.preventDefault(); const rect = element.getBoundingClientRect();
-      zoomGraph(camera.current, Math.exp(-Math.max(-180, Math.min(180, event.deltaY * (event.deltaMode === 1 ? 16 : 1))) * .0025), { x: event.clientX - rect.left - rect.width / 2, y: event.clientY - rect.top - rect.height / 2 });
-      loop.start();
-    };
-    const hover = (event: PointerEvent) => { if (pointers.current.size) return; const rect = element.getBoundingClientRect(); element.style.cursor = hitNode(event.clientX - rect.left, event.clientY - rect.top) ? 'pointer' : 'grab'; };
-    element.addEventListener('wheel', wheel, { passive: false }); element.addEventListener('pointermove', hover);
-    document.addEventListener('visibilitychange', visibility); draw(); loop.start();
-    return () => { wake.current = () => {}; loop.stop(); observer.disconnect(); intersection.disconnect(); document.removeEventListener('visibilitychange', visibility); element.removeEventListener('wheel', wheel); element.removeEventListener('pointermove', hover); };
-  }, [nodes, selectedId, focusMode, neighborhood, classic, colors, neutral, theme, flowing, reduced, expanded, t]);
+    wake.current = () => { dirty = true; loop.start(); };
+    const observer = new ResizeObserver(() => { layoutMoving = true; wake.current(); }); observer.observe(element);
+    const intersection = new IntersectionObserver(entries => { visible = entries[0]?.isIntersecting ?? false; if (visible) wake.current(); else loop.stop(); }); intersection.observe(element);
+    const visibility = () => { if (document.hidden) loop.stop(); else wake.current(); };
+    const hover = (event: PointerEvent) => { if (gestures.controller.active()) return; const rect = element.getBoundingClientRect(); element.style.cursor = hitNode(event.clientX - rect.left, event.clientY - rect.top) ? 'pointer' : 'grab'; };
+    element.addEventListener('pointermove', hover);
+    document.addEventListener('visibilitychange', visibility); loop.start();
+    return () => { wake.current = () => {}; loop.stop(); observer.disconnect(); intersection.disconnect(); document.removeEventListener('visibilitychange', visibility); element.removeEventListener('pointermove', hover); };
+  }, [nodes, selectedId, focusMode, neighborhood, classic, colors, neutral, theme, flowing, reduced, expanded, t, gestures.controller]);
 
-  const pointerDown = (event: React.PointerEvent<HTMLCanvasElement>) => {
-    event.currentTarget.setPointerCapture(event.pointerId);
-    pointers.current.set(event.pointerId, { x: event.clientX, y: event.clientY });
-    camera.current.velocityYaw = 0; camera.current.velocityPitch = 0;
-    camera.current.targetYaw = camera.current.yaw; camera.current.targetPitch = camera.current.pitch;
-    const points = [...pointers.current.values()];
-    if (points.length === 2) { gesture.current.pinched = true; gesture.current.moved = true; gesture.current.pinchDistance = Math.hypot(points[0].x - points[1].x, points[0].y - points[1].y); }
-    else gesture.current = { startX: event.clientX, startY: event.clientY, lastX: event.clientX, lastY: event.clientY, lastTime: event.timeStamp, moved: false, pinched: false, pinchDistance: 0, pan: focusMode || event.shiftKey || event.button === 2, vx: 0, vy: 0 };
-  };
-  const pointerMove = (event: React.PointerEvent<HTMLCanvasElement>) => {
-    if (!pointers.current.has(event.pointerId)) return;
-    pointers.current.set(event.pointerId, { x: event.clientX, y: event.clientY });
-    const g = gesture.current, points = [...pointers.current.values()];
-    if (points.length === 2) {
-      const distance = Math.hypot(points[0].x - points[1].x, points[0].y - points[1].y), rect = event.currentTarget.getBoundingClientRect();
-      if (g.pinchDistance > 0) zoom(distance / g.pinchDistance, { x: (points[0].x + points[1].x) / 2 - rect.left - rect.width / 2, y: (points[0].y + points[1].y) / 2 - rect.top - rect.height / 2 });
-      g.pinchDistance = distance; g.moved = true; return;
-    }
-    if (g.pinched) return;
-    const dx = event.clientX - g.lastX, dy = event.clientY - g.lastY, dt = Math.max(.008, (event.timeStamp - g.lastTime) / 1000);
-    if (Math.hypot(event.clientX - g.startX, event.clientY - g.startY) > 4) g.moved = true;
-    if (g.pan) { camera.current.targetPanX += dx; camera.current.targetPanY += dy; }
-    else { camera.current.targetYaw += dx * .005; camera.current.targetPitch = Math.max(-1.2, Math.min(1.2, camera.current.targetPitch + dy * .005)); g.vx = Math.max(-2, Math.min(2, dx * .005 / dt)); g.vy = Math.max(-2, Math.min(2, dy * .005 / dt)); }
-    g.lastX = event.clientX; g.lastY = event.clientY; g.lastTime = event.timeStamp; wake.current();
-  };
-  const pointerUp = (event: React.PointerEvent<HTMLCanvasElement>) => {
-    pointers.current.delete(event.pointerId);
-    const g = gesture.current;
-    if (g.moved || g.pinched) { if (!pointers.current.size && !g.pan && !g.pinched && !reduced) { camera.current.velocityYaw = g.vx * .32; camera.current.velocityPitch = g.vy * .32; wake.current(); } return; }
-    const rect = event.currentTarget.getBoundingClientRect(), x = event.clientX - rect.left, y = event.clientY - rect.top;
-    const found = [...hits.current].reverse().filter(point => point.halfWidth ? Math.abs(point.x - x) <= point.halfWidth && Math.abs(point.y - y) <= point.halfHeight! : Math.hypot(point.x - x, point.y - y) <= point.radius + 6).sort((a, b) => Math.hypot(a.x - x, a.y - y) - Math.hypot(b.x - x, b.y - y))[0];
-    if (found) onSelect(found.id);
-  };
   const graphic = <div ref={container} role={expanded ? 'dialog' : undefined} aria-modal={expanded || undefined} aria-label={expanded ? t('放大的知识图谱画布', 'Expanded knowledge graph') : undefined} className={`taxonomy-map ${expanded ? 'taxonomy-map-expanded' : ''}`} data-classic={classic ? 'true' : 'false'} style={classic ? { background: neutral.sage2, color: neutral.sage12 } : undefined}>
     <div className="taxonomy-map-tools"><span>{t('品牌 → 机型 → 系统 → 零件', 'Brand → Model → System → Part')}</span>
       <div className="graph-zoom-controls" role="group" aria-label={t('图谱缩放', 'Graph zoom')}><button onClick={() => zoom(1.4)} aria-label={t('放大图谱', 'Zoom in')}>＋ {t('放大', 'Zoom in')}</button><output aria-label={t('当前缩放比例', 'Current zoom')}>{zoomPercent}%</output><button onClick={() => zoom(1 / 1.4)} aria-label={t('缩小图谱', 'Zoom out')}>− {t('缩小', 'Zoom out')}</button></div>
@@ -232,9 +186,8 @@ export default function TaxonomyRelationCanvas({ nodes, selectedId, onSelect, la
       {!selectedId && <button aria-pressed={flowing && !reduced} disabled={reduced} onClick={() => setFlowing(value => !value)}>{reduced ? t('减少动态已启用', 'Reduced motion') : flowing ? t('暂停流动', 'Pause flow') : t('继续流动', 'Resume flow')}</button>}
     </div>
     <div className="graph-focus-layout"><canvas ref={canvas} tabIndex={0} role="img" aria-label={t('知识图谱：滚轮或双指缩放，双击放大；选中节点自动展开上下级关系。', 'Knowledge graph: wheel or pinch to zoom, double-click to enlarge; selection reveals parent and child relations.')} style={{ touchAction: 'none' }}
-      onPointerDown={pointerDown} onPointerMove={pointerMove} onPointerUp={pointerUp} onPointerCancel={event => { pointers.current.delete(event.pointerId); }} onContextMenu={event => event.preventDefault()}
-      onDoubleClick={event => { const rect = event.currentTarget.getBoundingClientRect(); zoom(1.8, { x: event.clientX - rect.left - rect.width / 2, y: event.clientY - rect.top - rect.height / 2 }); }}
-      onKeyDown={event => { if (['+','=','-','ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Home','Escape'].includes(event.key)) event.preventDefault(); if (event.key === '+' || event.key === '=') zoom(1.4); else if (event.key === '-') zoom(1 / 1.4); else if (event.key === 'Home') reset(); else if (event.key === 'Escape') { if (expanded) setExpanded(false); else onSelect(''); } else if (event.key.startsWith('Arrow')) { if (focusMode) { camera.current.targetPanX += event.key === 'ArrowLeft' ? -24 : event.key === 'ArrowRight' ? 24 : 0; camera.current.targetPanY += event.key === 'ArrowUp' ? -24 : event.key === 'ArrowDown' ? 24 : 0; } else { camera.current.targetYaw += event.key === 'ArrowLeft' ? -.15 : event.key === 'ArrowRight' ? .15 : 0; camera.current.targetPitch = Math.max(-1.2, Math.min(1.2, camera.current.targetPitch + (event.key === 'ArrowUp' ? -.15 : event.key === 'ArrowDown' ? .15 : 0))); } wake.current(); } }} />
+      {...gestures.bindings}
+      onKeyDown={event => { if(event.ctrlKey||event.metaKey||event.altKey)return; if (['+','=','-','ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Home','Escape'].includes(event.key)) event.preventDefault(); if (event.key === '+' || event.key === '=') zoom(1.4); else if (event.key === '-') zoom(1 / 1.4); else if (event.key === 'Home') reset(); else if (event.key === 'Escape') { if (expanded) setExpanded(false); else onSelect(''); } else if (event.key.startsWith('Arrow')) { if (focusMode) { camera.current.targetPanX += event.key === 'ArrowLeft' ? -24 : event.key === 'ArrowRight' ? 24 : 0; camera.current.targetPanY += event.key === 'ArrowUp' ? -24 : event.key === 'ArrowDown' ? 24 : 0; } else { camera.current.targetYaw += event.key === 'ArrowLeft' ? -.15 : event.key === 'ArrowRight' ? .15 : 0; camera.current.targetPitch = Math.max(-1.2, Math.min(1.2, camera.current.targetPitch + (event.key === 'ArrowUp' ? -.15 : event.key === 'ArrowDown' ? .15 : 0))); } wake.current(); } }} />
     {neighborhood.selected && <aside className="graph-relations-panel" aria-label={t('选中节点的联系', 'Selected node relations')}><h3>{neighborhood.selected.label}</h3><p>{t('连线表示目录归属', 'Edges show catalog membership')}</p><h4>{t('上级路径', 'Parent path')}</h4>{neighborhood.ancestors.map(node => <button key={node.id} onClick={() => onSelect(node.id)}>{node.label}<span> →</span></button>)}{!neighborhood.ancestors.length && <p>{t('当前为品牌层级', 'Brand level')}</p>}<h4>{t(`直接下级（${neighborhood.children.length}）`, `Direct children (${neighborhood.children.length})`)}</h4>{neighborhood.children.map(node => <button key={node.id} onClick={() => onSelect(node.id)}>{node.label}<small>{node.count ? `${node.count} ${t('条资料', 'entries')}` : t('资料缺口', 'Evidence gap')}</small></button>)}{!neighborhood.children.length && <p>{t('无已归档下级，查看当前节点证据。', 'No archived children; review this node’s evidence.')}</p>}{neighborhood.children.length > neighborhood.visibleChildren.length && <p>{t(`画布显示前${neighborhood.visibleChildren.length}项，完整下级见此列表。`, `Canvas shows the first ${neighborhood.visibleChildren.length}; this list includes all children.`)}</p>}<button className="graph-evidence-jump" onClick={() => { setExpanded(false); requestAnimationFrame(() => document.getElementById('taxonomy-evidence-heading')?.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'start' })); }}>{t('查看此节点原始证据 ↓', 'View source evidence ↓')}</button></aside>}
     </div>
     {!selectedId && <div className="taxonomy-map-legend">{nodes.filter(node => node.level === 'brand').map((node, index) => <button key={node.id} onClick={() => onSelect(node.id)}><i style={{ background: colors[index % colors.length] }} />{node.label}</button>)}</div>}
