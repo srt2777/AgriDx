@@ -54,7 +54,6 @@ import {
   type ZoneId,
 } from './world-navigation';
 import type { WorldInput } from './ExhibitionWorld';
-import CampusEquipmentCatalog from '@/features/campus-equipment/CampusEquipmentCatalog';
 import { HALL_EXAMPLE_DEVICES, HALL_ZONES, HALL_STATUS_EXAMPLE } from '@/features/campus-equipment/hall-example-data';
 import { exhibitForDevice } from '@/features/campus-equipment/campus-layout';
 import './exhibition.css';
@@ -113,7 +112,7 @@ export default function ExhibitionPage() {
   const [landed, setLanded] = useState(false);
   const endFlight = useCallback(() => setFlight(false), []);
   const endIntro = useCallback(() => {
-    const skipFocused = document.activeElement instanceof HTMLElement && !!document.activeElement.closest('.expo-hero, .expo-intro-skip');
+    const skipFocused = document.activeElement instanceof HTMLElement && !!document.activeElement.closest('.expo-intro-skip');
     try { sessionStorage.setItem('agridx-campus-intro', '1'); } catch { /* private mode keeps the intro for this load only */ }
     setFlight(false);
     setIntro(false);
@@ -153,10 +152,8 @@ export default function ExhibitionPage() {
   const [catalogOpen, setCatalogOpen] = useState(false);
   const [tractorOpen, setTractorOpen] = useState(false);
   const [equipmentId, setEquipmentId] = useState<string | null>(null);
-  const [equipmentMoving, setEquipmentMoving] = useState(false);
   const equipmentClose = useRef<HTMLButtonElement>(null);
   const equipmentTrigger = useRef<HTMLElement | null>(null);
-  const equipmentCatalogTrigger = useRef<HTMLButtonElement>(null);
   useEffect(() => {
     if (equipmentId) equipmentClose.current?.focus({ preventScroll: true });
   }, [equipmentId]);
@@ -314,14 +311,14 @@ export default function ExhibitionPage() {
   }, [stopInput]);
   function closeEquipment() {
     setEquipmentId(null);
-    const target = equipmentTrigger.current?.isConnected ? equipmentTrigger.current : equipmentCatalogTrigger.current;
+    const target = equipmentTrigger.current?.isConnected ? equipmentTrigger.current : stage.current;
     target?.focus();
   }
   useEffect(() => {
     if (!equipmentRequest) return;
     endIntro();
     if (equipmentRequest === 'all') {
-      document.getElementById('campus-equipment-catalog')?.scrollIntoView({ behavior: 'instant', block: 'start' });
+      stage.current?.scrollIntoView({ behavior: 'instant', block: 'start' });
     } else {
       const device = HALL_EXAMPLE_DEVICES.find(item => item.id === equipmentRequest || item.zone === equipmentRequest);
       if (device) openEquipment(device.id);
@@ -373,32 +370,6 @@ export default function ExhibitionPage() {
   return (
     <div className={`expo-page${landed ? ' is-landed' : ''}`} data-ui-version="new" data-intro={intro ? '' : undefined} data-flight={flight ? '' : undefined}>
       <div className="expo-main">
-        <div className="expo-scene-bar">
-          <button type="button" className="expo-icon-button expo-fullscreen" onClick={() => void fullscreen()} aria-label={t('切换全屏', 'Toggle full screen')}><Maximize size={17} /></button>
-          <span>
-            <i />
-            {t('三维园区 · 四个展区', '3D CAMPUS · FOUR ZONES')}
-          </span>
-          <button ref={equipmentCatalogTrigger} type="button" className="expo-catalog-trigger" onClick={() => document.getElementById('campus-equipment-catalog')?.scrollIntoView({ behavior: reducedMotion ? 'instant' : 'smooth', block: 'start' })}>
-            <Tractor size={15} />{t('装备陈列', 'Equipment')}
-          </button>
-          <button
-            ref={catalogTrigger}
-            type="button"
-            className="expo-catalog-trigger"
-            aria-expanded={catalogOpen}
-            aria-controls="world-catalog"
-            onClick={() => {
-              stopInput();
-              setMode('overview');
-              setCatalogOpen(!catalogOpen);
-            }}
-          >
-            <Search size={15} />
-            {t('查找资料', 'Find evidence')}
-            <kbd>/</kbd>
-          </button>
-        </div>
         <section
           ref={stage}
           className="expo-world-stage"
@@ -415,12 +386,6 @@ export default function ExhibitionPage() {
           data-tractor-x={position.x.toFixed(2)}
           data-tractor-z={position.z.toFixed(2)}
         >
-          {intro && (
-            <div className="expo-hero" aria-hidden="true">
-              <p>{t('知识 · 结构 · 诊断', 'KNOWLEDGE · STRUCTURE · DIAGNOSIS')}</p>
-              <strong>{t('农机知识，在同一片园区', 'One campus for machinery knowledge')}</strong>
-            </div>
-          )}
           {intro && (
             <button type="button" className="expo-intro-skip" onClick={endIntro} autoFocus>
               {t('跳过', 'Skip')}
@@ -446,7 +411,7 @@ export default function ExhibitionPage() {
                 onLost={onLost}
                 onSelect={selectZone}
                 equipmentFocus={equipmentId}
-                equipmentMoving={equipmentMoving && !reducedMotion}
+                equipmentMoving={false}
                 onEquipmentSelect={openEquipment}
                 onTractorSelect={() => {
                   setEquipmentId(null);
@@ -458,10 +423,6 @@ export default function ExhibitionPage() {
             </DeferredScene>}
           </div>
           <div className="expo-world-vignette" aria-hidden="true" />
-          <div className="expo-world-coordinate" aria-hidden="true">
-            <span>AGRIDX CAMPUS / 001</span>
-            <small>{t('结构与空间示意', 'SCHEMATIC WORLD')}</small>
-          </div>
           <AnimatePresence initial={false}>{selectedZone && detail && !catalogOpen && !equipmentId && (
             <FloatingPanel
               key={selectedZone.id}
@@ -520,7 +481,7 @@ export default function ExhibitionPage() {
             </FloatingPanel>
           )}</AnimatePresence>
           <AnimatePresence initial={false}>{equipment && !catalogOpen && <FloatingPanel key={`equipment-${equipment.id}`} as="aside" className="expo-zone-card campus-equipment-detail" glass label={t('装备示例详情', 'Example equipment detail')}>
-            <div className="expo-zone-card-top"><span>{equipment.zone} / {t('装备陈列', 'EQUIPMENT')}</span><button ref={equipmentClose} type="button" className="expo-icon-button" aria-label={t('关闭装备详情', 'Close equipment detail')} onClick={closeEquipment}><X size={16} /></button></div>
+            <div className="expo-zone-card-top"><span>{t('装备详情', 'Equipment details')}</span><button ref={equipmentClose} type="button" className="expo-icon-button" aria-label={t('关闭装备详情', 'Close equipment detail')} onClick={closeEquipment}><X size={16} /></button></div>
             <h2>{equipment.name}</h2><p>{t('示例数据 · 未接实车与传感器。陈列为结构示意，不是该型号的精确模型。', 'Example data · no physical machine or sensors. The exhibit is a schematic, not an exact model.')}</p>
             <dl><dt>{t('分类', 'Category')}</dt><dd>{equipmentZone && t(equipmentZone.zh, equipmentZone.en)}</dd><dt>{t('示例状态', 'Example status')}</dt><dd>{equipmentStatus && t(equipmentStatus.zh, equipmentStatus.en)}</dd><dt>{t('示例规格', 'Example specs')}</dt><dd>{t(equipment.specZh, equipment.specEn)}</dd><dt>{t('示例管理人', 'Example manager')}</dt><dd>{equipment.manager}</dd></dl>
             {exhibitForDevice(equipment.id)?.id !== equipment.id && <p>{t('本记录没有独立模型，镜头定位到同分类代表示意。', 'No dedicated model for this record; the camera shows a representative of its category.')}</p>}
@@ -693,6 +654,8 @@ export default function ExhibitionPage() {
                 <RotateCcw size={16} />
                 <span>{t('回到起点', 'Reset')}</span>
               </button>
+              <button ref={catalogTrigger} type="button" aria-expanded={catalogOpen} aria-controls="world-catalog" aria-label={t('查找资料', 'Find evidence')} title={t('查找资料', 'Find evidence')} onClick={() => { stopInput(); setMode('overview'); setCatalogOpen(value => !value); }}><Search size={17} /></button>
+              <button type="button" onClick={() => void fullscreen()} aria-label={t('切换全屏', 'Toggle full screen')} title={t('切换全屏', 'Toggle full screen')}><Maximize size={17} /></button>
             </LiquidGlass>
             <div className="expo-world-hint" aria-live="polite">
               {nearby ? (
@@ -766,33 +729,6 @@ export default function ExhibitionPage() {
             </div>
           )}
         </section>
-        <CampusEquipmentCatalog onSelect={openEquipment} moving={equipmentMoving && !reducedMotion} onMotion={() => setEquipmentMoving(value => !value)} reduced={reducedMotion} />
-        <div className="expo-evidence-strip">
-          <div>
-            <span className="expo-strip-label">BUILT ON EVIDENCE</span>
-            <strong>{t('探索有空间，知识有依据。', 'Explore with depth. Act with evidence.')}</strong>
-          </div>
-          <dl>
-            <div>
-              <dt>{t('知识条目合计', 'KNOWLEDGE ENTRIES')}</dt>
-              <dd><StatTicker value={totals?.entries} reduced={reducedMotion} /></dd>
-            </div>
-            <div>
-              <dt>{t('资料来源', 'SOURCES')}</dt>
-              <dd><StatTicker value={totals?.sources} reduced={reducedMotion} /></dd>
-            </div>
-            <div>
-              <dt>{t('品牌目录', 'BRANDS')}</dt>
-              <dd><StatTicker value={totals?.brands} reduced={reducedMotion} /></dd>
-            </div>
-          </dl>
-          <p>
-            {t(
-              '原创模型与空间示意；真实传感器与实车孪生尚未接入。',
-              'Original schematics. Sensors and physical twins are not integrated.',
-            )}
-          </p>
-        </div>
       </div>
       {notice && (
         <div className="expo-notice" role="status">

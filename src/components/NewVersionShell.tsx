@@ -6,9 +6,7 @@ import { publicAsset } from '@/lib/public-asset';
 import { Globe } from 'lucide-react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useLang, setLang } from '@/hooks/useLang';
-import DemoNote from '@/components/DemoNote';
 import { CommandButton } from '@/components/CommandPalette';
-import { ShortcutButton } from '@/components/NewVersionDelight';
 import { SiteStatusBar } from '@/components/SiteStatusBar';
 import VersionSwitch from '@/components/VersionSwitch';
 import ThemeSwitch from '@/components/ThemeSwitch';
@@ -48,8 +46,6 @@ export function NewVersionShell() {
 
         <div className="new-version-tools">
           <CommandButton className={PREMIUM_MOTION_ENABLED ? 'glass-press' : undefined} />
-          <ShortcutButton className={PREMIUM_MOTION_ENABLED ? 'glass-press' : undefined} />
-          <DemoNote />
           <VersionSwitch exhibition onChange={() => navigate('/')} />
           <ThemeSwitch />
           <button type="button" className="new-version-language" onClick={() => setLang(lang === 'zh' ? 'en' : 'zh')} aria-label={t('切换语言', 'Switch language')}>
