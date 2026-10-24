@@ -420,6 +420,13 @@
       "base": "3.13.9",
       "version": "3.13.10",
       "date": "2026-10-24"
+    },
+    {
+      "id": "knowledge-engine-replica-20261024",
+      "kind": "feature",
+      "base": "3.13.10",
+      "version": "3.14.0",
+      "date": "2026-10-24"
     }
   ]
 }
