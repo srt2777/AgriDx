@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { createGraphCamera, zoomGraph, fitGraph, stepGraphCamera, cameraMoving, graphNeighborhood, relationCoordinates } from '../src/pages/KnowledgePage/graph-interaction';
+import { createGraphCamera, zoomGraph, fitGraph, stepGraphCamera, cameraMoving, graphNeighborhood, relationCoordinates, graphNodeScale, graphLabelScale } from '../src/pages/KnowledgePage/graph-interaction';
 import { taxonomyNodes } from '../src/pages/KnowledgePage/knowledge-taxonomy-data';
 import { loadKnowledgeCatalog } from '../server/knowledge/catalog';
 
@@ -8,6 +8,9 @@ test('zoom buttons and pinch share clamped targets, anchoring and smooth converg
   const camera = createGraphCamera();
   zoomGraph(camera, 1.4, { x: 120, y: 60 });
   assert.equal(camera.targetZoom, 1.4);
+  assert.ok(graphNodeScale(1.4) > graphNodeScale(1));
+  assert.ok(graphLabelScale(1.4) > graphLabelScale(1));
+  assert.ok(graphNodeScale(12) <= 2.5 && graphLabelScale(12) <= 2.2);
   assert.ok(camera.targetPanX < 0 && camera.targetPanY < 0);
   assert.equal(camera.zoom, 1);
   stepGraphCamera(camera, 1 / 30);

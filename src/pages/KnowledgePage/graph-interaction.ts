@@ -8,6 +8,8 @@ export interface GraphCamera {
 export function createGraphCamera(): GraphCamera {
   return { yaw: -.13, pitch: -.08, zoom: 1, panX: 0, panY: 0, targetYaw: -.13, targetPitch: -.08, targetZoom: 1, targetPanX: 0, targetPanY: 0, velocityYaw: 0, velocityPitch: 0 };
 }
+export const graphNodeScale = (zoom: number) => Math.min(2.5, Math.sqrt(Math.max(.4, zoom)));
+export const graphLabelScale = (zoom: number) => Math.min(2.2, Math.max(.75, zoom));
 export const clampZoom = (value: number) => Math.max(.4, Math.min(12, value));
 export function zoomGraph(camera: GraphCamera, factor: number, anchor = { x: 0, y: 0 }) {
   const next = clampZoom(camera.targetZoom * factor), ratio = next / camera.targetZoom;

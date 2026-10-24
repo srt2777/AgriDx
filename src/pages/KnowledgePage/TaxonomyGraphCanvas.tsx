@@ -9,7 +9,7 @@ import { useReducedMotion } from 'framer-motion';
 import type { TaxonomyNode } from './knowledge-taxonomy-data';
 import { createGraphFlowLoop } from './graph-flow-loop';
 import { graphPositions, palette, fluidPosition, diffusionParticle } from './taxonomy-graph-layout';
-import { createGraphCamera, zoomGraph, fitGraph, cameraMoving, stepGraphCamera, graphNeighborhood, relationCoordinates } from './graph-interaction';
+import { createGraphCamera, zoomGraph, fitGraph, cameraMoving, stepGraphCamera, graphNeighborhood, relationCoordinates, graphNodeScale, graphLabelScale } from './graph-interaction';
 
 type ScreenPoint = { x: number; y: number; scale: number; depth: number };
 type Pointer = { x: number; y: number };
@@ -141,16 +141,17 @@ export default function TaxonomyGraphCanvas({ nodes, selectedId, onSelect, lang 
       const ordered = [...shown].sort((a, b) => Number(related.has(a.id)) - Number(related.has(b.id)) || projected.get(b.id)!.depth - projected.get(a.id)!.depth);
       ordered.forEach(node => {
         const point = projected.get(node.id)!, active = selectedId === node.id, relevant = related.has(node.id);
-        const radius = (active ? 8 : relevant && selectedId ? 5 : node.level === 'brand' ? 3.5 : 1.2) * point.scale;
+        const radius = (active ? 8 : relevant && selectedId ? 5 : node.level === 'brand' ? 3.5 : 1.2) * point.scale * (focusMode ? 1 : graphNodeScale(view.zoom));
         context.globalAlpha = focusMode || relevant ? 1 : selectedId ? .045 : Math.max(.3, Math.min(1, .75 - point.depth * .17));
         const color = positions.get(node.id)!.color;
         if (focusMode) {
-          const fontSize = width < 600 ? 11 : 13;
+          const labelScale = graphLabelScale(view.zoom);
+          const fontSize = (width < 600 ? 11 : 13) * labelScale;
           context.font = `${active ? '600' : '400'} ${fontSize}px system-ui`;
-          const maxWidth = Math.min(width < 600 ? width * .42 : width * .24, 210) * Math.min(point.scale, 1.6);
+          const maxWidth = Math.min(width < 600 ? width * .42 : width * .24, 210) * labelScale;
           let label = node.label;
-          while (label.length > 2 && context.measureText(label).width > maxWidth - 24) label = label.slice(0, -2) + '…';
-          const cardWidth = Math.max(62, Math.min(maxWidth, context.measureText(label).width + 26)), cardHeight = active ? 42 : 32;
+          while (label.length > 2 && context.measureText(label).width > maxWidth - 24 * labelScale) label = label.slice(0, -2) + '…';
+          const cardWidth = Math.max(62 * labelScale, Math.min(maxWidth, context.measureText(label).width + 26 * labelScale)), cardHeight = (active ? 42 : 32) * labelScale;
           context.fillStyle = classic ? (active ? '#d6efdd' : theme === 'dark' ? '#1e302b' : '#ffffff') : active ? '#244d67' : '#162738';
           context.strokeStyle = active ? (classic ? '#16834b' : '#b1e5ff') : color; context.lineWidth = active ? 2.5 : 1.1;
           context.beginPath(); context.roundRect(point.x - cardWidth / 2, point.y - cardHeight / 2, cardWidth, cardHeight, 7); context.fill(); context.stroke();
@@ -161,7 +162,7 @@ export default function TaxonomyGraphCanvas({ nodes, selectedId, onSelect, lang 
           context.beginPath(); context.arc(point.x, point.y, radius, 0, Math.PI * 2); context.fill(); context.shadowBlur = 0;
           if (active) { context.strokeStyle = classic ? '#146e42' : '#ffffff'; context.lineWidth = 2; context.stroke(); }
           if (active || selectedId && relevant || !selectedId && node.level === 'brand') {
-            context.font = `${active ? '600 14' : '12'}px system-ui`; context.fillStyle = classic ? neutral.sage12 : '#edf3ff';
+            context.font = `${active ? '600 ' : ''}${(active ? 14 : 12) * Math.min(1.8, graphNodeScale(view.zoom))}px system-ui`; context.fillStyle = classic ? neutral.sage12 : '#edf3ff';
             context.fillText(node.label, point.x + radius + 6, point.y + 4);
           }
           if (!selectedId || relevant) hits.current.push({ id: node.id, x: point.x, y: point.y, radius });
