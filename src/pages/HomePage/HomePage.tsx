@@ -38,13 +38,8 @@ export default function HomePage() {
     <MotionConfig reducedMotion="user"><div className="glass-home home-immersive min-h-screen">
       <Suspense fallback={null}><HomeStage /></Suspense>
       <HeroSection />
-      <PainPointsSection />
       <KnowledgeCoverage />
-      <TechRouteSection />
-      <ResearchSection />
-      <ScenariosSection />
-      <div className="page-container" data-home-beat="details" data-home-side="center"><details className="capability-details"><summary><span>{lang === 'zh' ? '进一步了解当前能力与研究方向' : 'Explore current capabilities and research directions'}</span><ChevronDown size={20} /></summary><ArchitectureSection /><SimulationSection /><MultimodalSection /></details></div>
-      <ClosingSection />
+      <div className="page-container" data-home-beat="details" data-home-side="center"><details className="capability-details"><summary><span>{lang === 'zh' ? '项目与研究' : 'Project and research'}</span><ChevronDown size={20} /></summary><ResearchSection /><PainPointsSection /><TechRouteSection /><ScenariosSection /><ArchitectureSection /><SimulationSection /><MultimodalSection /><ClosingSection /></details></div>
     </div></MotionConfig>
   );
 }

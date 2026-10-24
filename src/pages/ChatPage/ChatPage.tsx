@@ -1,3 +1,4 @@
+import { useUiCopy } from '@/ui/useUiCopy';
 import type { DiagnosisMode } from '../../../shared/diagnosis';
 import { useRef, useEffect, useCallback, useState, type FormEvent, type KeyboardEvent } from 'react';
 import { Send, Trash2, Loader2, Bot, User, Sparkles, Cpu, Square } from 'lucide-react';
@@ -38,7 +39,7 @@ export default function ChatPage() {
   const handoff: unknown = location.state;
   const lang = useLang();
   const version = useUiVersion();
-  const t = useCallback((zh: string, en: string) => (lang === 'zh' ? zh : en), [lang]);
+  const { t, format, separator } = useUiCopy(lang);
   const providerLabel = (provider?: ChatProvider) =>
     provider === 'knowledge-base' ? t('本地知识库', 'Local knowledge base') :
     provider === 'gemini' ? 'Gemini' : provider === 'deepseek' ? 'DeepSeek' : '';
@@ -74,13 +75,14 @@ export default function ChatPage() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, []);
   useEffect(() => {
+    if (version === 'old' && messages.length === 0) return;
     scrollToBottom();
-  }, [messages, scrollToBottom]);
+  }, [messages, scrollToBottom, version]);
 
   useEffect(() => {
-    const timer = window.setTimeout(() => textareaRef.current?.focus(), 100);
+    const timer = window.setTimeout(() => textareaRef.current?.focus(version === 'old' ? { preventScroll: true } : undefined), 100);
     return () => window.clearTimeout(timer);
-  }, []);
+  }, [version]);
 
   const handleSubmit = useCallback(
     (e: FormEvent) => {
@@ -144,7 +146,7 @@ export default function ChatPage() {
             <Bot className="h-4 w-4" />
           </div>
           <div className="min-w-0">
-            <div className="truncate text-sm font-semibold text-foreground" data-shared-target={version === 'new' ? 'diagnosis' : undefined}>耕知·耘诊 · {t('诊断工作台', 'Diagnosis workspace')}</div>
+            <div className="truncate text-sm font-semibold text-foreground" data-shared-target={version === 'new' ? 'diagnosis' : undefined}>{format('耕知·耘诊')}{separator}{t('诊断工作台', 'Diagnosis workspace')}</div>
             <div className="flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground" role="status">
               <span title={configurationHint}>{serviceStatus}</span>
               {currentProvider && (
@@ -169,7 +171,7 @@ export default function ChatPage() {
               <span className="hidden sm:inline">{t('清空对话', 'Clear')}</span>
             </Button>
           </AlertDialogTrigger>
-          <AlertDialogContent>
+          <AlertDialogContent portalContainer={version === 'old' ? document.querySelector<HTMLElement>('.classic-version-shell .fluid-body') ?? undefined : undefined}>
             <AlertDialogHeader>
               <AlertDialogTitle>{t('确认清空对话？', 'Clear all messages?')}</AlertDialogTitle>
               <AlertDialogDescription>
@@ -197,7 +199,7 @@ export default function ChatPage() {
       {/* 消息列表 */}
       <div className="min-h-0 flex-1 overflow-y-auto" role="log" aria-label={t('诊断对话', 'Diagnosis conversation')} aria-live="polite">
         <div className="mx-auto max-w-3xl px-4 py-6 md:px-6">
-              {version !== 'new' && <MachineContext framed {...contextProps} />}
+              {version !== 'new' && <details className="fluid-machine-context"><summary>{t('机具信息与诊断记忆', 'Machine details & memory')}</summary><MachineContext framed {...contextProps} /></details>}
 
           {/* 空状态 / 欢迎态 */}
           {isEmpty && (
@@ -207,13 +209,13 @@ export default function ChatPage() {
                   ? <ThinkingOrbs state="listening" label={t('待命', 'Listening')} />
                   : <span className="flex h-14 w-14 items-center justify-center rounded-full bg-primary/10 text-primary"><Sparkles className="h-7 w-7" /></span>}
               </div>
-              <h2 className="font-serif text-xl font-bold text-foreground">{version === 'new' ? t('描述现象，从资料里找起点。', 'Describe the symptom. Start from the evidence.') : pick(content.CHAT_WELCOME.title, lang)}</h2>
-              <p className="mt-2 max-w-md text-sm text-muted-foreground">{version === 'new' ? t('带上机型更好。回答依据是已索引资料，适用范围仍需核对。', 'A model helps. Answers follow indexed evidence, and scope still needs a check.') : pick(content.CHAT_WELCOME.desc, lang)}</p>
+              <h2 className="font-serif text-xl font-bold text-foreground">{version === 'new' ? t('描述现象，从资料里找起点。', 'Describe the symptom. Start from the evidence.') : t('描述故障现象', 'Describe the fault')}</h2>
+              <p className="mt-2 max-w-md text-sm text-muted-foreground">{version === 'new' ? t('带上机型更好。回答依据是已索引资料，适用范围仍需核对。', 'A model helps. Answers follow indexed evidence, and scope still needs a check.') : t('可填写品牌、型号和发生工况。', 'Include the brand, model and operating conditions.')}</p>
 
 
               {/* 快捷提问按钮 */}
               <div className="mt-6 w-full">
-                <div className="mb-3 text-xs font-medium text-wheat">{version === 'new' ? t('可以这样问', 'You can ask') : t('您可以这样问', 'Try asking')}</div>
+                <div className="mb-3 text-xs font-medium text-wheat">{version === 'new' ? t('可以这样问', 'You can ask') : t('示例问题', 'Example questions')}</div>
                 <div className="grid gap-2 md:grid-cols-2">
                   {content.CHAT_QUICK_QUESTIONS.map((q) => (
                     <button
@@ -276,7 +278,7 @@ export default function ChatPage() {
                         <div className="flex flex-wrap gap-x-2 gap-y-1">
                           {msg.answerMode && <span>{answerModeLabel(msg.answerMode)}</span>}
                           {msg.knowledgeChunks !== undefined && <span>{t(`知识库命中 ${msg.knowledgeChunks} 条`, `${msg.knowledgeChunks} knowledge snippets retrieved`)}</span>}
-                          {(msg.model || msg.provider) && <span>{[providerLabel(msg.provider), msg.model].filter(Boolean).join(' · ')}</span>}
+                          {(msg.model || msg.provider) && <span>{[providerLabel(msg.provider), msg.model].filter(Boolean).join(separator)}</span>}
                         </div>
                         {msg.fallbackReason && <div className="mt-1">{fallbackLabel(msg.fallbackReason)}</div>}
                       </div>
@@ -373,8 +375,10 @@ function MachineContext({
   progress: string;
   setProgress: (value: string) => void;
 }) {
+  const version = useUiVersion();
+  const separator = version === 'old' ? ' ' : ' · ';
   const [hud, setHud] = useState<'machine' | 'scope' | 'progress'>('machine');
-  const plate = [machineType, brand, model].filter(Boolean).join(' · ');
+  const plate = [machineType, brand, model].filter(Boolean).join(separator);
   const hudSteps = [
     ['machine', t('机具', 'Machine')],
     ['scope', t('边界', 'Scope')],
@@ -412,17 +416,17 @@ function MachineContext({
       </div>
       <p className="mt-3 text-xs leading-relaxed text-muted-foreground">{framed ? t('完整型号与配置帮助限定资料范围；系列资料不能直接代替具体机型。带入的问题仅预填，由你确认后发送。', 'The complete model and configuration define applicability. Series documents do not replace specific-model evidence. Imported questions are drafts for you to review and send.') : t('核对铭牌上的完整型号。系列资料不能代替具体机型。', 'Check the full model on the plate. Series documents do not replace a specific model.')}</p>
       <details className="chat-evidence mt-4 border-t border-border/60 pt-3">
-        <summary className="cursor-pointer text-sm font-medium">{t('诊断记忆', 'Diagnosis memory')} · {memory.ready ? t('已连接', 'Connected') : t('未就绪', 'Not ready')}</summary>
+        <summary className="cursor-pointer text-sm font-medium">{t('诊断记忆', 'Diagnosis memory')}{separator}{memory.ready ? t('已连接', 'Connected') : t('未就绪', 'Not ready')}</summary>
         <div className="chat-evidence-body">
           <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{typeof __AGRIDX_DEV_PREVIEW__ !== 'undefined' && __AGRIDX_DEV_PREVIEW__ ? t('开发预览的档案与对话仅保存在当前浏览器，清除网站数据会删除。检查结果是用户报告。', 'Preview profiles and chats stay in this browser. Clearing site data deletes them. Checks are user reports.') : t('档案与对话保存到后端，同一浏览器重新打开可继续。清除浏览器身份后无法自动恢复；检查结果是用户报告。', 'Profiles and chats are saved on the server for this browser. Clearing browser identity prevents automatic recovery; checks are user reports.')}</p>
           <div className="mt-3 grid gap-2 sm:grid-cols-2">
             <select aria-label={t('选择设备档案', 'Select device profile')} value={memory.deviceId} disabled={isLoading || memory.busy || !memory.ready} onChange={(event) => memory.selectDevice(event.target.value)} className="h-10 min-w-0 rounded-md border border-border bg-background px-3 text-sm">
               <option value="">{t('新设备（独立档案）', 'New device (separate profile)')}</option>
-              {memory.devices.map((device) => <option key={device.id} value={device.id}>{device.name} · {device.model || device.brand}</option>)}
+              {memory.devices.map((device) => <option key={device.id} value={device.id}>{device.name}{separator}{device.model || device.brand}</option>)}
             </select>
             <select aria-label={t('继续历史诊断', 'Resume diagnosis')} value={memory.session?.id || ''} disabled={isLoading || memory.busy || !memory.ready} onChange={(event) => { if (event.target.value) void memory.restore(event.target.value); }} className="h-10 min-w-0 rounded-md border border-border bg-background px-3 text-sm">
               <option value="">{t('继续历史诊断…', 'Resume a diagnosis…')}</option>
-              {memory.sessions.map((session) => <option key={session.id} value={session.id}>{memory.devices.find((device) => device.id === session.deviceId)?.name} · {session.title}</option>)}
+              {memory.sessions.map((session) => <option key={session.id} value={session.id}>{memory.devices.find((device) => device.id === session.deviceId)?.name}{separator}{session.title}</option>)}
             </select>
             <label className="text-xs">{t('设备名称（区分不同车辆）', 'Device name (identify the vehicle)')}<input maxLength={100} value={deviceName} onChange={(event) => setDeviceName(event.target.value)} disabled={isLoading || memory.busy} className="mt-1 h-10 w-full rounded-md border border-border bg-background px-3 text-sm" /></label>
             <label className="text-xs">{t('使用小时数（选填）', 'Operating hours (optional)')}<input type="number" min="0" max="1000000" step="any" value={hours} onChange={(event) => setHours(event.target.value)} disabled={isLoading || memory.busy} className="mt-1 h-10 w-full rounded-md border border-border bg-background px-3 text-sm" /></label>

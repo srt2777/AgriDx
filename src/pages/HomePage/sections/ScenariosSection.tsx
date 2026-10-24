@@ -18,14 +18,14 @@ export default function ScenariosSection() {
         <div className="scenario-layout">
           <figure className="scenario-image">
             <img src={publicAsset('images/agri-fields.webp')} alt={t('稻田与田间作业拖拉机的农业场景插图', 'Illustration of rice fields and a tractor at work')} width="1400" height="933" loading="lazy" />
-            <figcaption>{t('农业作业场景示意 · AI 生成', 'Agricultural scene illustration · AI generated')}</figcaption>
+            <figcaption>{t('农业作业场景示意 AI 生成', 'Agricultural scene illustration AI generated')}</figcaption>
           </figure>
           <div className="scenario-list">
             {content.SCENARIOS.map(scenario => {
               const Icon = ICON_MAP[scenario.icon as keyof typeof ICON_MAP] || Tractor;
               return <article key={pick(scenario.name, lang)} className="scenario-item">
                 <div className="scenario-title"><Icon size={23} strokeWidth={1.5} /><h3>{pick(scenario.name, lang)}</h3></div>
-                <p>{scenario.parts.map(p => pick(p, lang)).join(' · ')}</p>
+                <p>{scenario.parts.map(p => pick(p, lang)).join(' ')}</p>
                 <ul>{scenario.faults.map(f => <li key={pick(f, lang)}>{pick(f, lang)}</li>)}</ul>
               </article>;
             })}

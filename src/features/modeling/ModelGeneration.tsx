@@ -1,3 +1,4 @@
+import { useUiCopy } from '@/ui/useUiCopy';
 import { useEffect, useRef, useState } from 'react';
 import { Download, Loader2, Sparkles } from 'lucide-react';
 import { useLang } from '@/hooks/useLang';
@@ -36,7 +37,7 @@ export default function ModelGeneration({ photos, identity, onModel, onBusy }: {
   onModel: (file: File) => Promise<void>;
   onBusy: (busy: boolean) => void;
 }) {
-  const lang = useLang(); const t = (zh: string, en: string) => lang === 'zh' ? zh : en;
+  const lang = useLang(); const { t } = useUiCopy(lang);
   const [capability, setCapability] = useState<ModelingCapability | null>(null);
   const [job, setJob] = useState<ModelingStatus | null>(null);
   const [submitting, setSubmitting] = useState(false);

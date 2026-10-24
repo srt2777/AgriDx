@@ -1,3 +1,4 @@
+import { useUiCopy } from '@/ui/useUiCopy';
 import { lazy, Suspense, useState, useEffect, useRef, useCallback, useId } from 'react';
 import { Canvas, useThree } from '@react-three/fiber';
 import { Bounds, OrbitControls, Grid } from '@react-three/drei';
@@ -138,6 +139,7 @@ export default function TractorViewer({ component = 'all', exploded = false, mod
 }) {
   const selectionGroup = useId();
   const lang = useLang();
+  const { format } = useUiCopy(lang);
   const reducedMotion = useReducedMotion();
   const [view, setView] = useState<TractorView>('isometric');
   const [showHotspots, setShowHotspots] = useState(true);
@@ -443,11 +445,11 @@ export default function TractorViewer({ component = 'all', exploded = false, mod
       )}
 
       <div className="tractor-model-badge absolute left-3 top-3 rounded-full border border-border/50 bg-card/85 px-3 py-1.5 text-[10px] text-muted-foreground backdrop-blur">
-        {modelUrl === TRACTOR_MODEL_URL
+        {format(modelUrl === TRACTOR_MODEL_URL
           ? lang === 'zh' ? '原创结构示意 · 非实机 CAD' : 'Original schematic · Not machine CAD'
           : modelUrl === HONGHU_T70_PARTS_URL
             ? lang === 'zh' ? '鸿鹄 T70 · 照片色' : 'Honghu T70 · Photo colors'
-            : lang === 'zh' ? '本地模型 · 尺寸待核验' : 'Local model · Dimensions unverified'}
+            : lang === 'zh' ? '本地模型 · 尺寸待核验' : 'Local model · Dimensions unverified')}
       </div>
       {interactive && <div className="tractor-viewer-tools" role="group" aria-label={lang === 'zh' ? '模型标注与描边' : 'Model annotations and outline'}>
         <button type="button" className="tractor-tool-button" aria-label={lang === 'zh' ? '显示部件热点' : 'Show component hotspots'}
@@ -476,11 +478,11 @@ export default function TractorViewer({ component = 'all', exploded = false, mod
         <button type="button" aria-label={lang === 'zh' ? '恢复模型视角' : 'Reset model view'} onClick={() => { setView('isometric'); handleComponentSelect('all'); }} className="model-icon-button"><RotateCcw size={16} /></button>
       </LiquidGlass></div>}
       <div className="pointer-events-none absolute bottom-3 left-1/2 -translate-x-1/2 whitespace-nowrap text-[10px] text-muted-foreground/70">
-        {lang === 'zh' ? '拖动旋转 · 滚轮缩放' : 'Drag to rotate · Scroll to zoom'}
+        {format(lang === 'zh' ? '拖动旋转 · 滚轮缩放' : 'Drag to rotate · Scroll to zoom')}
       </div>
       {showStudio && span && <aside className="studio-hud" aria-label={hud.title}>
         <strong>{hud.title}</strong>
-        <p className="studio-hud-span">{lang === 'zh' ? `宽 ${span.width} · 高 ${span.height} · 长 ${span.length}` : `W ${span.width} · H ${span.height} · L ${span.length}`}</p>
+        <p className="studio-hud-span">{format(lang === 'zh' ? `宽 ${span.width} · 高 ${span.height} · 长 ${span.length}` : `W ${span.width} · H ${span.height} · L ${span.length}`)}</p>
         <small>{hud.note}</small>
       </aside>}
       </div>

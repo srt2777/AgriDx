@@ -1,3 +1,8 @@
+import { sage, sageDark, grass } from '@radix-ui/colors';
+import { useUiCopy } from '@/ui/useUiCopy';
+import { useUiVersion } from '@/hooks/useUiVersion';
+import { useTheme } from '@/hooks/useTheme';
+import { classicGraphPalette } from '@/ui/graph-palette';
 import { useEffect, useRef, useState } from 'react';
 import type { TaxonomyNode } from './knowledge-taxonomy-data';
 
@@ -10,7 +15,11 @@ export default function TaxonomyGraphCanvas({ nodes, selectedId, onSelect, lang 
   const camera = useRef({ yaw: -.13, pitch: -.08, zoom: 1 });
   const drag = useRef<{ x: number; y: number; moved: boolean } | null>(null);
   const hits = useRef<{ id: string; x: number; y: number; radius: number }[]>([]);
-  const t = (zh: string, en: string) => lang === 'zh' ? zh : en;
+  const { t } = useUiCopy(lang);
+  const classic = useUiVersion() === 'old';
+  const theme = useTheme();
+  const graphPalette = classic ? classicGraphPalette : palette;
+  const neutral = theme === 'dark' ? sageDark : sage;
   useEffect(() => {
     const element = canvas.current;
     const stopPageScroll = (event: WheelEvent) => event.preventDefault();
@@ -22,7 +31,7 @@ export default function TaxonomyGraphCanvas({ nodes, selectedId, onSelect, lang 
     if (!element) return;
     const context = element.getContext('2d');
     if (!context) return;
-    const positions = graphPositions(nodes);
+    const positions = graphPositions(nodes, graphPalette);
     const byId = new Map(nodes.map(node => [node.id, node]));
     const ancestors = new Set<string>();
     let current = byId.get(selectedId);
@@ -56,8 +65,8 @@ export default function TaxonomyGraphCanvas({ nodes, selectedId, onSelect, lang 
         const parent = node.parent && projected.get(node.parent);
         if (!parent) return;
         const highlighted = ancestors.has(node.id) || node.parent === selectedId;
-        context.strokeStyle = highlighted ? '#e2f0ffb0' : selectedId ? '#8da7c217' : '#8da7c230';
-        context.lineWidth = highlighted ? 1.8 : .6;
+        context.strokeStyle = classic ? (highlighted ? neutral.sage8 : neutral.sage6) : highlighted ? '#e2f0ffb0' : selectedId ? '#8da7c217' : '#8da7c230';
+        context.lineWidth = classic ? .5 : highlighted ? 1.8 : .6;
         context.beginPath(); context.moveTo(parent.x, parent.y); context.lineTo(point.x, point.y); context.stroke();
       });
       hits.current = [];
@@ -65,12 +74,12 @@ export default function TaxonomyGraphCanvas({ nodes, selectedId, onSelect, lang 
         const point = projected.get(node.id)!;
         const active = selectedId === node.id;
         const radius = (active ? 7 : node.level === 'brand' ? 5.5 : node.level === 'model' ? 3.5 : 2.5) * point.scale;
-        context.globalAlpha = selectedId && !related.has(node.id) ? .2 : .95;
+        context.globalAlpha = classic ? 1 : selectedId && !related.has(node.id) ? .2 : .95;
         context.fillStyle = positions.get(node.id)!.color;
         context.beginPath(); context.arc(point.x, point.y, radius, 0, Math.PI * 2); context.fill();
-        if (active) { context.strokeStyle = '#ffffff'; context.lineWidth = 2; context.stroke(); }
+        if (active) { context.strokeStyle = classic ? grass.grass8 : '#ffffff'; context.lineWidth = classic ? .5 : 2; context.stroke(); }
         if (active || node.level === 'brand' || branchOnly && (ancestors.has(node.id) || node.parent === selectedId)) {
-          context.font = `${active ? 13 : 11}px system-ui`; context.fillStyle = '#edf3ff';
+          context.font = `${classic ? 12 : active ? 13 : 11}px system-ui`; context.fillStyle = classic ? neutral.sage12 : '#edf3ff';
           context.fillText(node.label, point.x + radius + 5, point.y + 4);
         }
         hits.current.push({ id: node.id, x: point.x, y: point.y, radius });
@@ -79,7 +88,7 @@ export default function TaxonomyGraphCanvas({ nodes, selectedId, onSelect, lang 
     };
     const observer = new ResizeObserver(draw); observer.observe(element); draw();
     return () => observer.disconnect();
-  }, [nodes, selectedId, branchOnly, revision]);
+  }, [nodes, selectedId, branchOnly, revision, classic, graphPalette, neutral]);
   const zoom = (factor: number) => { camera.current.zoom = Math.min(8, Math.max(.4, camera.current.zoom * factor)); redraw(value => value + 1); };
   return <div className="taxonomy-map">
     <div className="taxonomy-map-tools"><span>{t('品牌 → 机型 → 系统 → 零件', 'Brand → Model → System → Part')}</span><button onClick={() => zoom(1.25)} aria-label={t('放大图谱', 'Zoom in')}>＋</button><button onClick={() => zoom(.8)} aria-label={t('缩小图谱', 'Zoom out')}>−</button><button onClick={() => { camera.current = { yaw: -.13, pitch: -.08, zoom: 1 }; redraw(value => value + 1); }}>{t('复位', 'Reset')}</button><button disabled={!selectedId} aria-pressed={branchOnly} onClick={() => setBranchOnly(value => !value)}>{t('仅选中分支', 'Selected branch')}</button></div>
@@ -89,7 +98,7 @@ export default function TaxonomyGraphCanvas({ nodes, selectedId, onSelect, lang 
       onPointerUp={event => { const pointer = drag.current; drag.current = null; if (!pointer || pointer.moved) return; const box = event.currentTarget.getBoundingClientRect(); const x = event.clientX - box.left, y = event.clientY - box.top; const nearest = hits.current.map(point => ({ ...point, distance: Math.hypot(point.x - x, point.y - y) })).filter(point => point.distance <= point.radius + 7).sort((a, b) => a.distance - b.distance)[0]; if (nearest) onSelect(nearest.id); }}
       onPointerCancel={() => { drag.current = null; }} onWheel={event => { zoom(event.deltaY < 0 ? 1.08 : .92); }}
       onKeyDown={event => { if (event.key === '+' || event.key === '=') zoom(1.2); else if (event.key === '-') zoom(.8); else if (['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(event.key)) { event.preventDefault(); camera.current.yaw += event.key === 'ArrowLeft' ? -.1 : event.key === 'ArrowRight' ? .1 : 0; camera.current.pitch += event.key === 'ArrowUp' ? -.1 : event.key === 'ArrowDown' ? .1 : 0; redraw(value => value + 1); } }} />
-    <div className="taxonomy-map-legend">{nodes.filter(node => node.level === 'brand').map((node, index) => <button key={node.id} aria-pressed={selectedId === node.id} onClick={() => onSelect(node.id)}><i style={{ background: palette[index % palette.length] }} />{node.label}</button>)}</div>
+    <div className="taxonomy-map-legend">{nodes.filter(node => node.level === 'brand').map((node, index) => <button key={node.id} aria-pressed={selectedId === node.id} onClick={() => onSelect(node.id)}><i style={{ background: graphPalette[index % graphPalette.length] }} />{node.label}</button>)}</div>
     <p>{t('拖动旋转 · 滚轮或按钮缩放 · 点击节点查看关联与原文 · 高度表示分类层级，非维修步骤', 'Drag to rotate · Zoom · Select a node for evidence · Height indicates classification, not repair sequence')}</p>
   </div>;
 }
