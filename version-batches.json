@@ -539,6 +539,13 @@
       "base": "3.18.0",
       "version": "3.18.1",
       "date": "2026-10-25"
+    },
+    {
+      "id": "ui-telemetry-core-20261025",
+      "kind": "maintenance",
+      "base": "3.18.1",
+      "version": "3.18.2",
+      "date": "2026-10-25"
     }
   ]
 }

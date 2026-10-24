@@ -1,0 +1,135 @@
+{
+  "schemaVersion": 1,
+  "source": "demo",
+  "note": "仿真演示阈值,非厂家标准",
+  "seed": 2777,
+  "sampleMs": 1000,
+  "heartbeatMs": 15000,
+  "staleAfterMs": 5000,
+  "capacity": 3600,
+  "devices": [
+    { "id": "diesel-demo", "modelId": "diesel", "name": { "zh": "柴油结构示意（仿真）", "en": "Diesel schematic (simulated)" }, "source": "simulated" },
+    { "id": "t70-demo", "modelId": "t70", "name": { "zh": "T70结构示意（仿真）", "en": "T70 schematic (simulated)" }, "source": "simulated" }
+  ],
+  "channels": [
+    {
+      "id": "diesel.engine.rpm", "deviceId": "diesel-demo", "partId": "engine", "name": { "zh": "转速", "en": "Engine speed" }, "unit": "rpm", "source": "simulated", "kind": "measurement",
+      "range": { "min": 0, "max": 4000 }, "precision": 0, "baseline": 900, "noise": { "amplitude": 45, "periodMs": 12000 }, "dailyAmplitude": 80, "threshold": null
+    },
+    {
+      "id": "diesel.engine.coolant", "deviceId": "diesel-demo", "partId": "engine", "name": { "zh": "冷却液温度", "en": "Coolant temperature" }, "unit": "°C", "source": "simulated", "kind": "measurement",
+      "range": { "min": -20, "max": 140 }, "precision": 1, "baseline": 35, "noise": { "amplitude": 1.5, "periodMs": 15000 }, "dailyAmplitude": 4,
+      "threshold": { "source": "demo", "note": "仿真演示阈值,非厂家标准", "attention": { "above": 65 }, "alarm": { "above": 85 } }
+    },
+    {
+      "id": "diesel.engine.oil-pressure", "deviceId": "diesel-demo", "partId": "engine", "name": { "zh": "机油压力", "en": "Oil pressure" }, "unit": "kPa", "source": "simulated", "kind": "measurement",
+      "range": { "min": 0, "max": 800 }, "precision": 1, "baseline": 150, "noise": { "amplitude": 8, "periodMs": 14000 }, "dailyAmplitude": 10,
+      "threshold": { "source": "demo", "note": "仿真演示阈值,非厂家标准", "attention": { "below": 80 }, "alarm": { "below": 40 } }
+    },
+    {
+      "id": "diesel.radiator.temperature", "deviceId": "diesel-demo", "partId": "radiator", "name": { "zh": "散热器温度", "en": "Radiator temperature" }, "unit": "°C", "source": "simulated", "kind": "measurement",
+      "range": { "min": -20, "max": 140 }, "precision": 1, "baseline": 30, "noise": { "amplitude": 1.2, "periodMs": 16000 }, "dailyAmplitude": 4,
+      "threshold": { "source": "demo", "note": "仿真演示阈值,非厂家标准", "attention": { "above": 60 }, "alarm": { "above": 80 } }
+    },
+    {
+      "id": "diesel.battery.voltage", "deviceId": "diesel-demo", "partId": "battery", "name": { "zh": "蓄电池电压", "en": "Battery voltage" }, "unit": "V", "source": "simulated", "kind": "measurement",
+      "range": { "min": 0, "max": 60 }, "precision": 2, "baseline": 24, "noise": { "amplitude": 0.2, "periodMs": 18000 }, "dailyAmplitude": 0.3, "threshold": null
+    },
+    {
+      "id": "diesel.gearbox.temperature", "deviceId": "diesel-demo", "partId": "gearbox", "name": { "zh": "变速箱温度", "en": "Gearbox temperature" }, "unit": "°C", "source": "simulated", "kind": "measurement",
+      "range": { "min": -20, "max": 140 }, "precision": 1, "baseline": 28, "noise": { "amplitude": 1, "periodMs": 20000 }, "dailyAmplitude": 3, "threshold": null
+    },
+    {
+      "id": "diesel.hydraulic-lift.response", "deviceId": "diesel-demo", "partId": "hydraulic_lift", "name": { "zh": "提升响应时间", "en": "Lift response time" }, "unit": "s", "source": "simulated", "kind": "measurement",
+      "range": { "min": 0, "max": 20 }, "precision": 2, "baseline": 2, "noise": { "amplitude": 0.1, "periodMs": 12000 }, "dailyAmplitude": 0.1,
+      "threshold": { "source": "demo", "note": "仿真演示阈值,非厂家标准", "attention": { "above": 5 }, "alarm": { "above": 9 } }
+    },
+    {
+      "id": "diesel.front-axle.temperature", "deviceId": "diesel-demo", "partId": "front_axle", "name": { "zh": "前桥温度", "en": "Front axle temperature" }, "unit": "°C", "source": "simulated", "kind": "measurement",
+      "range": { "min": -20, "max": 120 }, "precision": 1, "baseline": 24, "noise": { "amplitude": 1, "periodMs": 18000 }, "dailyAmplitude": 3, "threshold": null
+    },
+    {
+      "id": "diesel.rear-axle.temperature", "deviceId": "diesel-demo", "partId": "rear_axle", "name": { "zh": "后桥温度", "en": "Rear axle temperature" }, "unit": "°C", "source": "simulated", "kind": "measurement",
+      "range": { "min": -20, "max": 120 }, "precision": 1, "baseline": 25, "noise": { "amplitude": 1, "periodMs": 19000 }, "dailyAmplitude": 3, "threshold": null
+    },
+    {
+      "id": "diesel.fuel-tank.level", "deviceId": "diesel-demo", "partId": "fuel_tank", "name": { "zh": "油量比例", "en": "Fuel level" }, "unit": "%", "source": "simulated", "kind": "measurement",
+      "range": { "min": 0, "max": 100 }, "precision": 1, "baseline": 55, "noise": { "amplitude": 0.5, "periodMs": 22000 }, "dailyAmplitude": 5, "threshold": null
+    },
+    {
+      "id": "t70.battery-box.temperature", "deviceId": "t70-demo", "partId": "battery_box", "name": { "zh": "电池舱温度", "en": "Battery bay temperature" }, "unit": "°C", "source": "simulated", "kind": "measurement",
+      "range": { "min": -20, "max": 100 }, "precision": 1, "baseline": 22, "noise": { "amplitude": 1, "periodMs": 17000 }, "dailyAmplitude": 3,
+      "threshold": { "source": "demo", "note": "仿真演示阈值,非厂家标准", "attention": { "above": 50 }, "alarm": { "above": 65 } }
+    },
+    {
+      "id": "t70.battery-box.voltage", "deviceId": "t70-demo", "partId": "battery_box", "name": { "zh": "总电压", "en": "Total voltage" }, "unit": "V", "source": "simulated", "kind": "measurement",
+      "range": { "min": 0, "max": 600 }, "precision": 2, "baseline": 120, "noise": { "amplitude": 0.5, "periodMs": 18000 }, "dailyAmplitude": 1, "threshold": null
+    },
+    {
+      "id": "t70.battery-box.spread", "deviceId": "t70-demo", "partId": "battery_box", "name": { "zh": "电池压差", "en": "Battery voltage spread" }, "unit": "V", "source": "simulated", "kind": "measurement",
+      "range": { "min": 0, "max": 4 }, "precision": 3, "baseline": 0.1, "noise": { "amplitude": 0.02, "periodMs": 12000 }, "dailyAmplitude": 0.02,
+      "threshold": { "source": "demo", "note": "仿真演示阈值,非厂家标准", "attention": { "above": 0.6 }, "alarm": { "above": 1 } }
+    },
+    {
+      "id": "t70.gps.status", "deviceId": "t70-demo", "partId": "gps_antenna", "name": { "zh": "定位状态", "en": "Position status" }, "unit": "", "source": "simulated", "kind": "state",
+      "range": { "min": 0, "max": 2 }, "precision": 0, "baseline": 1, "noise": { "amplitude": 0, "periodMs": 10000 }, "dailyAmplitude": 0, "threshold": null,
+      "valueLabels": [ { "value": 0, "label": { "zh": "无定位", "en": "No position" } }, { "value": 1, "label": { "zh": "定位保持", "en": "Position held" } }, { "value": 2, "label": { "zh": "定位漂移", "en": "Position drift" } } ]
+    },
+    {
+      "id": "t70.gps.drift", "deviceId": "t70-demo", "partId": "gps_antenna", "name": { "zh": "定位偏移量", "en": "Position offset" }, "unit": "m", "source": "simulated", "kind": "measurement",
+      "range": { "min": 0, "max": 20 }, "precision": 2, "baseline": 0.3, "noise": { "amplitude": 0.1, "periodMs": 14000 }, "dailyAmplitude": 0.1,
+      "threshold": { "source": "demo", "note": "仿真演示阈值,非厂家标准", "attention": { "above": 3 }, "alarm": { "above": 8 } }
+    },
+    {
+      "id": "t70.sensor-roof-l.echo", "deviceId": "t70-demo", "partId": "sensor_roof_l", "name": { "zh": "左顶回波状态", "en": "Left roof echo status" }, "unit": "", "source": "simulated", "kind": "state",
+      "range": { "min": 0, "max": 1 }, "precision": 0, "baseline": 1, "noise": { "amplitude": 0, "periodMs": 10000 }, "dailyAmplitude": 0, "threshold": null,
+      "valueLabels": [ { "value": 0, "label": { "zh": "未见回波", "en": "No echo" } }, { "value": 1, "label": { "zh": "回波可见", "en": "Echo visible" } } ]
+    },
+    {
+      "id": "t70.sensor-roof-r.echo", "deviceId": "t70-demo", "partId": "sensor_roof_r", "name": { "zh": "右顶回波状态", "en": "Right roof echo status" }, "unit": "", "source": "simulated", "kind": "state",
+      "range": { "min": 0, "max": 1 }, "precision": 0, "baseline": 1, "noise": { "amplitude": 0, "periodMs": 10000 }, "dailyAmplitude": 0, "threshold": null,
+      "valueLabels": [ { "value": 0, "label": { "zh": "未见回波", "en": "No echo" } }, { "value": 1, "label": { "zh": "回波可见", "en": "Echo visible" } } ]
+    },
+    {
+      "id": "t70.hub-fl.temperature", "deviceId": "t70-demo", "partId": "hub_fl", "name": { "zh": "左前轮毂温度", "en": "Front-left hub temperature" }, "unit": "°C", "source": "simulated", "kind": "measurement",
+      "range": { "min": -20, "max": 100 }, "precision": 1, "baseline": 22, "noise": { "amplitude": 1, "periodMs": 18000 }, "dailyAmplitude": 3, "threshold": null
+    },
+    {
+      "id": "t70.hub-fr.temperature", "deviceId": "t70-demo", "partId": "hub_fr", "name": { "zh": "右前轮毂温度", "en": "Front-right hub temperature" }, "unit": "°C", "source": "simulated", "kind": "measurement",
+      "range": { "min": -20, "max": 100 }, "precision": 1, "baseline": 22, "noise": { "amplitude": 1, "periodMs": 19000 }, "dailyAmplitude": 3, "threshold": null
+    },
+    {
+      "id": "t70.hub-rl.temperature", "deviceId": "t70-demo", "partId": "hub_rl", "name": { "zh": "左后轮毂温度", "en": "Rear-left hub temperature" }, "unit": "°C", "source": "simulated", "kind": "measurement",
+      "range": { "min": -20, "max": 100 }, "precision": 1, "baseline": 23, "noise": { "amplitude": 1, "periodMs": 20000 }, "dailyAmplitude": 3, "threshold": null
+    },
+    {
+      "id": "t70.hub-rr.temperature", "deviceId": "t70-demo", "partId": "hub_rr", "name": { "zh": "右后轮毂温度", "en": "Rear-right hub temperature" }, "unit": "°C", "source": "simulated", "kind": "measurement",
+      "range": { "min": -20, "max": 100 }, "precision": 1, "baseline": 23, "noise": { "amplitude": 1, "periodMs": 21000 }, "dailyAmplitude": 3, "threshold": null
+    }
+  ],
+  "scenarios": [
+    { "id": "normal", "name": { "zh": "正常运行（仿真场景）", "en": "Normal operation (simulation)" }, "durationMs": 120000, "tracks": [] },
+    {
+      "id": "coolant-rise", "name": { "zh": "冷却液温度缓慢爬升", "en": "Slow coolant temperature rise" }, "durationMs": 120000,
+      "tracks": [
+        { "channelId": "diesel.engine.coolant", "keyframes": [ [0, 0], [20000, 0], [80000, 60], [100000, 60], [120000, 0] ] },
+        { "channelId": "diesel.radiator.temperature", "keyframes": [ [0, 0], [25000, 0], [85000, 55], [100000, 55], [120000, 0] ] }
+      ]
+    },
+    {
+      "id": "battery-spread", "name": { "zh": "电池压差扩大", "en": "Increasing battery voltage spread" }, "durationMs": 120000,
+      "tracks": [ { "channelId": "t70.battery-box.spread", "keyframes": [ [0, 0], [20000, 0], [80000, 1.2], [100000, 1.2], [120000, 0] ] } ]
+    },
+    {
+      "id": "position-drift", "name": { "zh": "定位漂移", "en": "Position drift" }, "durationMs": 120000,
+      "tracks": [
+        { "channelId": "t70.gps.drift", "keyframes": [ [0, 0], [20000, 0], [80000, 10], [100000, 10], [120000, 0] ] },
+        { "channelId": "t70.gps.status", "keyframes": [ [0, 0], [20000, 0], [80000, 1], [100000, 1], [120000, 0] ] }
+      ]
+    },
+    {
+      "id": "slow-lift", "name": { "zh": "液压提升缓慢", "en": "Slow hydraulic lift" }, "durationMs": 120000,
+      "tracks": [ { "channelId": "diesel.hydraulic-lift.response", "keyframes": [ [0, 0], [20000, 0], [80000, 10], [100000, 10], [120000, 0] ] } ]
+    }
+  ]
+}
