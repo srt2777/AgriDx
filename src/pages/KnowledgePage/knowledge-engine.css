@@ -5,3 +5,64 @@
 .knowledge-workbench-page .library-collections{position:static!important}.knowledge-engine :is(h3,h4,button,code,strong){font-family:inherit}.knowledge-engine .engine-panel>footer{padding:.2cqw .65cqw;border-top:1px solid #364032;font-size:.71cqw;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#9ca393;letter-spacing:0;background:transparent;opacity:1;flex-shrink:0}@media(max-width:600px){.knowledge-engine .engine-panel>footer{font-size:1.2cqw}}
 
 .knowledge-engine-shell:fullscreen{background:#050807;overflow-y:auto;display:flex;flex-direction:column;align-items:center;padding:0 8px}.knowledge-engine-shell:fullscreen>.knowledge-engine{width:min(100%,calc((100dvh - 130px)*.8));flex-shrink:0}.knowledge-engine-shell:fullscreen>:is(.engine-controls,.engine-timeline,.engine-caption){width:min(100%,calc((100dvh - 130px)*.8));flex-shrink:0}
+
+/* Keep the terminal grid readable and every real catalog row reachable. */
+.engine-controls-label{margin-right:auto;color:#e8c693;font-size:12px;font-weight:600}
+.engine-controls button{min-height:36px}
+.engine-masthead{height:auto;min-height:58px;gap:12px;padding:10px}
+.engine-masthead h3{font-size:clamp(14px,1.65cqw,22px)}
+.engine-masthead p{font-size:clamp(10px,.88cqw,13px);line-height:1.5;overflow-wrap:anywhere}
+.engine-clock{min-width:130px;font-size:10px;gap:8px}
+.engine-clock strong{font-size:12px;white-space:nowrap}
+.engine-agents{height:auto;min-height:44px;font-size:clamp(10px,.85cqw,13px);padding:8px;gap:12px;grid-template-columns:repeat(3,minmax(0,1fr)) 1.6fr}
+.engine-agents>div{gap:8px;flex-wrap:wrap;padding-bottom:6px}
+.engine-agents span{font-size:clamp(10px,.8cqw,12px)}
+.engine-stage-heading{font-size:clamp(10px,1cqw,14px)}
+.engine-stage-heading>span:last-child,.engine-stage-log{font-size:clamp(10px,.88cqw,12px)}
+.engine-node-card{padding:10px;line-height:1.4;box-sizing:border-box}
+.engine-node-card>strong{font-size:13px;margin-bottom:8px}
+.engine-node-card small{font-size:10px;margin:6px 0}
+.engine-node-card p{font-size:12px;margin-bottom:6px}
+.engine-node-card>div{font-size:11px}
+.engine-command{min-height:38px;height:auto;padding:8px 12px;font-size:clamp(11px,1.16cqw,15px)}
+.engine-command b{font-size:11px}
+.engine-dashboard{gap:8px;padding-bottom:10px}
+.engine-panel{height:clamp(240px,23cqw,320px)}
+.engine-panel>header{margin:10px 10px 0;padding-bottom:8px;gap:8px}
+.engine-panel>header h4{font-size:clamp(12px,.97cqw,15px);line-height:1.3;white-space:normal}
+.engine-panel>header>span{font-size:10px}
+.engine-panel-body{padding:10px;overflow:auto;scrollbar-width:thin;scrollbar-color:#68745d #101710;overscroll-behavior:contain}
+.knowledge-engine .engine-panel>footer{padding:6px 10px;font-size:10px;line-height:1.4}
+.engine-chat{font-size:12px;line-height:1.5}
+.engine-chat>div{gap:8px;margin-bottom:9px}
+.engine-chat>div>small{font-size:10px}
+.engine-chat p{overflow-wrap:anywhere;min-width:0}
+.engine-directory-nav{display:flex;align-items:center;gap:8px;margin-bottom:8px;border-bottom:1px solid #364032;padding-bottom:8px}
+.engine-directory-nav>span{min-width:0;overflow-wrap:anywhere;font-size:11px;color:#b8c1ae}
+.engine-directory-nav button,.engine-empty button,.engine-evidence-action{font:inherit;font-size:11px;background:#151e16;border:1px solid #65725b;color:#e9c58f;cursor:pointer;min-height:36px;padding:6px 8px;flex-shrink:0}
+.engine-directory-nav button:disabled{opacity:.4;cursor:default}
+.engine-queue{gap:4px}
+.engine-queue button{height:auto;min-height:36px;font-size:12px;gap:7px;line-height:1.4;border-bottom:1px solid #263026!important}
+.engine-queue small{width:20px;font-size:10px;flex-shrink:0}
+.engine-queue button>span{white-space:normal;overflow-wrap:anywhere}
+.engine-queue button>b{width:auto;min-width:28px;font-size:11px;text-align:right;flex-shrink:0;color:#d8b57d}
+.engine-empty{font-size:12px;line-height:1.6;color:#aab69e}
+.engine-inspector h4{font-size:13px;line-height:1.5;margin-bottom:10px}
+.engine-inspector small{font-size:10px}
+.engine-inspector p{font-size:12px;line-height:1.6;margin:4px 0 12px}
+.engine-index dt{font-size:10px}.engine-index dd{font-size:16px;margin-bottom:16px}
+.engine-raw{font-size:12px;line-height:1.5}.engine-raw>div{margin-bottom:16px}
+.engine-raw small,.engine-raw>div>b{font-size:10px;line-height:1.6;overflow-wrap:anywhere}
+.engine-coverage{display:flex;flex-direction:column;gap:4px}
+.engine-coverage button,.engine-brand-counts button{display:flex;align-items:center;gap:8px;width:100%;min-height:36px;padding:6px 0;border:0;border-bottom:1px solid #263026;border-radius:0;background:transparent;color:#c9d0bf;text-align:left;font:inherit;font-size:12px;cursor:pointer}
+.engine-coverage button>i{width:9px;height:9px;border:1px solid #828f73;flex-shrink:0}
+.engine-coverage [data-filled=true]>i{background:#ee9b83;border-color:#ee9b83}
+.engine-coverage button>span,.engine-brand-counts button>span{flex:1;min-width:0;overflow-wrap:anywhere}
+.engine-coverage button>small{font-size:11px;flex-shrink:0}
+.engine-brand-counts [aria-pressed=true],.engine-coverage [aria-pressed=true]{color:#f3c97d;background:#242c20}
+.engine-checker>strong{font-size:12px;padding-bottom:8px;line-height:1.5}
+.engine-histogram{height:60px;gap:4px;margin-top:8px;padding-top:4px}
+.engine-histogram i{min-height:0}
+.engine-brand-counts{margin-top:10px}.engine-brand-counts button>b{font-size:11px}
+@media(max-width:900px){.engine-dashboard{grid-template-columns:repeat(2,minmax(0,1fr))}.engine-agents{grid-template-columns:repeat(3,minmax(0,1fr))}.engine-agents code{grid-column:1/-1}.engine-clock{min-width:114px}.engine-masthead{align-items:flex-start}.engine-queue button,.engine-coverage button,.engine-brand-counts button,.engine-controls button,.engine-directory-nav button,.engine-empty button,.engine-evidence-action{min-height:44px}}
+@media(max-width:480px){.engine-dashboard{grid-template-columns:minmax(0,1fr)}.engine-panel{height:280px}.engine-masthead{flex-wrap:wrap}.engine-clock{flex-direction:row;align-items:center;gap:12px;width:100%}.engine-clock>span{gap:8px}.engine-agents{gap:8px}.engine-agents b{font-size:10px}.engine-controls{padding:10px}.engine-controls-label{width:100%;margin-bottom:4px}.engine-node-card>strong{font-size:13px}.engine-node-card small{font-size:10px}.engine-node-card p{font-size:12px}.engine-node-card>div{font-size:11px}}

@@ -5,11 +5,12 @@ import type { KnowledgeCatalog } from '@shared/knowledge-catalog';
 import type { TaxonomyNode } from './knowledge-taxonomy-data';
 import { createGraphFlowLoop } from './graph-flow-loop';
 import { cameraMoving, createGraphCamera, fitGraph, stepGraphCamera, zoomGraph } from './graph-interaction';
+import { indexEngineCatalog, selectEngineCatalog } from './knowledge-engine-catalog';
 import { catalogNetwork } from './knowledge-engine-model';
 import { KnowledgeEngineRenderer } from './knowledge-engine-renderer';
 import './knowledge-engine.css';
 const pad = (n: number) => String(n).padStart(2, '0');
-const levelLabels = { brand: '品牌', model: '机型 / 系列', component: '系统 / 组件', part: '零部件' };
+const levelLabels = { brand: ['品牌', 'Brand'], model: ['机型 / 系列', 'Model / series'], component: ['系统 / 组件', 'System / component'], part: ['零部件', 'Part'] } as const;
 export default function KnowledgeEngine({ nodes, selectedId, onSelect, catalog, lang, onRelations }: {
     nodes: TaxonomyNode[];
     selectedId: string;
@@ -27,6 +28,7 @@ export default function KnowledgeEngine({ nodes, selectedId, onSelect, catalog, 
     const root = useRef<HTMLDivElement>(null), canvas = useRef<HTMLCanvasElement>(null), tooltip = useRef<HTMLElement>(null);
     const camera = useRef(createGraphCamera()), clock = useRef(0), wake = useRef(() => { });
     const renderer = useRef<KnowledgeEngineRenderer | null>(null);
+    const directory = useRef<HTMLDivElement>(null);
     const pointers = useRef(new Map<number, {
         x: number;
         y: number;
@@ -34,9 +36,13 @@ export default function KnowledgeEngine({ nodes, selectedId, onSelect, catalog, 
     const gesture = useRef({ startX: 0, startY: 0, x: 0, y: 0, moved: false, pinched: false, distance: 0, pan: false });
     const [cinematic, setCinematic] = useState(true);
     const network = useMemo(() => catalogNetwork(nodes), [nodes]);
-    const active = network.nodes.findIndex(node => node.id === selectedId);
+    const overviewEdges = useMemo(() => network.edges.filter(edge => network.nodes[edge.from].hub).slice(0, 70), [network]);
+    const active = useMemo(() => network.nodes.findIndex(node => node.id === selectedId), [network, selectedId]);
     const activeNode = network.nodes[active];
-    const activeTaxonomy = nodes.find(node => node.id === activeNode?.id);
+    const index = useMemo(() => indexEngineCatalog(nodes), [nodes]);
+    const view = useMemo(() => selectEngineCatalog(index, selectedId), [index, selectedId]);
+    const activeTaxonomy = view.selected;
+    const scopeLabel = activeTaxonomy?.scope === 'exact' ? t('具体型号', 'Specific model') : activeTaxonomy?.scope === 'series' ? t('系列范围', 'Series scope') : activeTaxonomy?.scope === 'pending' ? t('待核实', 'Unconfirmed') : t('目录分类', 'Catalog');
     const latest = useRef({ running, cinematic, active, reduced });
     useLayoutEffect(() => { latest.current = { running, cinematic, active, reduced }; wake.current(); }, [running, cinematic, active, reduced]);
     useEffect(() => {
@@ -68,8 +74,8 @@ export default function KnowledgeEngine({ nodes, selectedId, onSelect, catalog, 
             stepGraphCamera(camera.current, Math.max(delta, 1 / 60), state.reduced);
             engine.draw({ time: clock.current, reference: false, active: state.active, animate: !state.reduced, cinematic: state.cinematic, conflict: false, camera: camera.current, tooltip: tooltip.current });
             dirty = false;
-            if (performance.now() - lastReport > 100) {
-                setSeconds(clock.current);
+            if (performance.now() - lastReport > 250) {
+                setSeconds(Math.floor(clock.current));
                 setZoomPercent(Math.round(camera.current.zoom * 100));
                 setAzimuth(Math.round((camera.current.yaw + clock.current * .017) * 180 / Math.PI));
                 lastReport = performance.now();
@@ -158,30 +164,33 @@ export default function KnowledgeEngine({ nodes, selectedId, onSelect, catalog, 
         if (hit)
             selectIndex(hit.index);
     };
+    const selectDirectory = (id: string, keyboard: boolean) => {
+        onSelect(id);
+        if (keyboard) requestAnimationFrame(() => directory.current?.focus());
+    };
     const visibleNodes = network.nodes.length;
     const visibleEdges = network.edges.length;
     const source = activeTaxonomy ? Object.values(activeTaxonomy.query).join(' / ') : 'AgriDx / api/knowledge/catalog';
     const sourceTitle = activeNode?.label ?? t('选择节点查看目录', 'Select a catalog node');
-    const claim = activeNode?.claim ?? t('品牌 → 机型 → 系统 → 零件', 'Brand → Model → System → Part');
-    const queue = nodes.filter(node => node.parent === selectedId || !selectedId && node.level === 'brand').slice(0, 12).map((node, index) => ({ id: node.id, label: node.label, progress: node.count ? 1 : 0, index }));
+    const claim = activeTaxonomy ? t(`${activeTaxonomy.count} 条关联资料 · ${activeTaxonomy.count ? '目录归属' : '待补资料'}`, `${activeTaxonomy.count} linked entries · ${activeTaxonomy.count ? 'Catalog membership' : 'Evidence gap'}`) : t('品牌 → 机型 → 系统 → 零件', 'Brand → Model → System → Part');
+
     const command = activeTaxonomy ? `> catalog select ${Object.values(activeTaxonomy.query).join(' / ')}` : '> catalog browse --source archived-index --read-only';
     const fullScreen = async () => { if (document.fullscreenElement)
         await document.exitFullscreen();
     else
         await root.current?.parentElement?.requestFullscreen?.(); };
-    const brandNodes = nodes.filter(node => node.level === 'brand');
-    const archiveCount = brandNodes.reduce((sum, node) => sum + node.count, 0);
-    const entries = archiveCount;
+    const entries = index.entries;
     return <div className="knowledge-engine-shell">
     <div className="engine-controls" aria-label={t('图谱控制', 'Graph controls')}>
+      <span className="engine-controls-label">{t('真实知识库', 'Knowledge catalog')}</span>
       <button aria-pressed={running && !reduced} disabled={reduced} onClick={() => setRunning(value => !value)}>{reduced ? t('减少动态', 'Reduced motion') : running ? t('暂停', 'Pause') : t('播放', 'Play')}</button>
       <button onClick={() => zoom(1.4)} aria-label={t('放大图谱', 'Zoom in')}>＋</button><output aria-label={t('当前缩放比例', 'Current zoom')}>{zoomPercent}%</output><button onClick={() => zoom(1 / 1.4)} aria-label={t('缩小图谱', 'Zoom out')}>−</button>
       <button onClick={reset}>{t('复位', 'Reset')}</button><button onClick={() => { void fullScreen().catch(() => { }); }}>{t('全屏', 'Fullscreen')}</button>
-      <button onClick={() => { onRelations(); }}>{t('关系聚焦', 'Focus relations')}</button>
+      <button onClick={onRelations}>{t('关系聚焦', 'Focus relations')}</button>
     </div>
     <div className="knowledge-engine" ref={root} data-mode="catalog" data-phase={'CATALOG'}>
-      <header className="engine-masthead"><div><h3>{'AGRIDX / KNOWLEDGE ENGINE'}</h3><p>{`KB ${catalog.kbVersion ?? 'ARCHIVE'}`} / {entries.toLocaleString('en-US')} {'ENTRIES'} / {visibleNodes} NODES / {visibleEdges} LINKS</p></div><div className="engine-clock"><span>{'CATALOG / READ ONLY'} <i /></span><strong>00:{pad(Math.floor(seconds))}:{pad(Math.floor(seconds % 1 * 60))} <small>30FPS</small></strong></div></header>
-      <div className="engine-agents">{['READER', 'LIBRARIAN', 'CHECKER'].map((name, index) => <div key={name} data-agent={index} data-active={false}><b>● {name}</b><span>{['INDEX / LOADED', 'READ ONLY', 'SOURCE SCOPE'][index]}</span><i style={{ width: `${100}%` }}/></div>)}<code>{command}</code></div>
+      <header className="engine-masthead"><div><h3>{'AGRIDX / KNOWLEDGE ENGINE'}</h3><p>{`KB ${catalog.kbVersion ?? 'ARCHIVE'}`} / {entries.toLocaleString('en-US')} {'ENTRIES'} / {visibleNodes} NODES / {visibleEdges} LINKS</p></div><div className="engine-clock"><span>{'CATALOG / READ ONLY'} <i /></span><strong>{pad(Math.floor(seconds / 3600))}:{pad(Math.floor(seconds / 60) % 60)}:{pad(seconds % 60)} <small>{running && !reduced ? t('旋转中', 'ROTATING') : t('已暂停', 'PAUSED')}</small></strong></div></header>
+      <div className="engine-agents">{[t('目录', 'CATALOG'), t('原文', 'SOURCE'), t('范围', 'SCOPE')].map((name, index) => <div key={name} data-agent={index} data-active={false}><b>● {name}</b><span>{[t('已加载', 'LOADED'), t('只读', 'READ ONLY'), t('需核对', 'VERIFY')][index]}</span><i style={{ width: `${100}%` }}/></div>)}<code>{command}</code></div>
       <div className="engine-stage"><div className="engine-stage-heading"><span>GRAPH / {visibleNodes.toLocaleString('en-US')} RECORDS · {visibleEdges.toLocaleString('en-US')} LINKS</span><span>AZ {azimuth}° Z {zoomPercent}</span></div>
         <canvas ref={canvas} tabIndex={0} role="img" aria-label={t('三维知识网络：拖动旋转，Shift拖动平移，滚轮或双指缩放，点击节点查看详情。', '3D knowledge network: drag to rotate, Shift-drag to pan, wheel or pinch to zoom; select a node for details.')} onPointerDown={pointerDown} onPointerMove={pointerMove} onPointerUp={pointerUp} onPointerCancel={event => { pointers.current.delete(event.pointerId); gesture.current.moved = true; }} onContextMenu={event => event.preventDefault()} onDoubleClick={event => { const box = event.currentTarget.getBoundingClientRect(); zoomGraph(camera.current, 1.8, { x: event.clientX - box.left - box.width / 2, y: event.clientY - box.top - box.height / 2 }); setCinematic(false); wake.current(); }} onKeyDown={event => {
             if (['+', '=', '-', 'Home', 'Escape', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', ' '].includes(event.key))
@@ -204,19 +213,32 @@ export default function KnowledgeEngine({ nodes, selectedId, onSelect, catalog, 
                 wake.current();
             }
         }}/>
-        <aside ref={tooltip} className="engine-node-card" style={{ display: activeNode ? undefined : 'none' }} aria-label={t('节点详情', 'Node details')}><strong>{sourceTitle}</strong><small>CLAIM</small><p>{claim}</p><small>SOURCE</small><p>{source}</p><div><small>{'SCOPE'}</small><span>{activeTaxonomy?.scope ?? 'CATALOG'}</span></div><i style={{ width: `${100}%` }}/></aside>
+        <aside ref={tooltip} className="engine-node-card" style={{ display: activeNode ? undefined : 'none' }} aria-label={t('节点详情', 'Node details')}><strong>{sourceTitle}</strong><small>{t('目录信息', 'CATALOG')}</small><p>{claim}</p><small>{t('目录标识', 'CATALOG QUERY')}</small><p>{source}</p><div><small>{t('范围', 'SCOPE')}</small><span>{scopeLabel}</span></div><i style={{ width: `${100}%` }}/></aside>
         <div className="engine-stage-log">{seconds.toFixed(2)} {'catalog'} :: {t('连线仅表示目录归属', 'Edges show catalog membership only')}</div>
       </div>
       <div className="engine-command"><code>{command}</code><b>{'CATALOG'}</b></div>
       <div className="engine-dashboard">
-        <Panel title="01 SHARED CHAT" status={'READ ONLY'} footer={'CATALOG / ORIGINAL PRESERVED'}><div className="engine-chat">{([['INDEX', `${archiveCount} linked archive entries`], ['SOURCE', 'Archived catalog snapshot'], ['CATALOG', `${nodes.length} directory nodes`], ['SELECT', activeNode?.label ?? 'Choose a node in the graph'], ['SCOPE', 'Edges show catalog membership']]).slice(-5).map(([role, text], i) => <div key={`${role}-${i}`}><small>{pad(i + 1)}</small><p><b data-role={role}>{role}</b><br />{text}</p></div>)}</div></Panel>
-        <Panel title={'02 DIRECTORY'} status={'BROWSE'} footer={'ORIGINAL ORDER / SELECT TO EXPLORE'}><div className="engine-queue">{queue.map(item => <button key={item.id} onClick={() => onSelect(item.id)}><small>{pad(item.index + 1)}</small><span>{item.label}</span><i><em style={{ width: `${item.progress * 100}%` }}/></i><b>{item.progress ? '●' : '?'}</b></button>)}</div></Panel>
-        <Panel title="03 PAGE INSPECTOR" status="TRACE" footer={'CATALOG MEMBERSHIP / NOT CAUSALITY'}><div className="engine-inspector"><h4>{sourceTitle}</h4><small>CLAIM</small><p>{claim}</p><small>SOURCE / TRACE · {'ARCHIVED INDEX'}</small><p>{source}</p><small>{'LEVEL'}</small><p>{activeTaxonomy ? levelLabels[activeTaxonomy.level] : '—'}</p></div></Panel>
-        <Panel title="04 GRAPH INDEX" status={running && !reduced ? 'LIVE' : 'PAUSED'} footer={`${visibleNodes} NODES / ${visibleEdges} PARENT EDGES`}><div className="engine-index"><svg viewBox="0 0 160 120" aria-label={t('图谱缩略图', 'Graph overview')}><g stroke="#73796b" strokeWidth=".55">{network.edges.filter(edge => network.nodes[edge.from].hub).slice(0, 70).map(({ from, to }) => <line key={`${from}-${to}`} x1={80 + network.nodes[from].x * 26} y1={60 - network.nodes[from].y * 22} x2={80 + network.nodes[to].x * 26} y2={60 - network.nodes[to].y * 22}/>)}</g>{network.hubs.slice(0, 14).map((i, j) => <g key={i}><circle cx={80 + network.nodes[i].x * 26} cy={60 - network.nodes[i].y * 22} r={i === active ? 3 : 1.6} fill={i === active ? '#ebc568' : '#e99a89'}/><text x={84 + network.nodes[i].x * 26} y={61 - network.nodes[i].y * 22}>{pad(j + 1)}</text></g>)}</svg><dl><dt>{'ENTRIES'}</dt><dd>{entries}</dd><dt>LINKS</dt><dd>{visibleEdges}</dd></dl></div></Panel>
-        <Panel title="05 RAW / IMMUTABLE" status="LOCK" footer={'READ ONLY / NO KNOWLEDGE WRITES'}><div className="engine-raw">{(['catalog / archived index', `kb-version / ${catalog.kbVersion ?? 'unknown'}`, 'parent / membership only']).map(name => <div key={name}><span>{name}</span><b>RO</b><small>{'FROM EXISTING KNOWLEDGE SNAPSHOT'}</small></div>)}<p>0 MUTATIONS <b>{'READ ONLY'}</b></p></div></Panel>
-        <Panel title="06 NODE SCOPE" status={'SCOPE'} footer={'NO DOCUMENT MODIFICATION'}><div className="engine-diff"><b>{sourceTitle}</b><small>CATALOG / ORIGINAL EVIDENCE</small>{(['## catalog node', activeNode?.label ?? 'select a node', 'membership only', 'model scope must be checked', 'original evidence stays linked', 'no inferred fault causality']).map((line, i) => <div key={i} data-change={false}><small>{18 + i}</small><span>{' '} {line}</span></div>)}</div></Panel>
-        <Panel title={'07 DIRECTORY COVERAGE'} status={'INDEX'} footer={'■ HAS ENTRIES □ EVIDENCE GAP'}><div className="engine-matrix"><div className="engine-matrix-head"><span>DOC</span>{Array.from({ length: 12 }, (_, i) => <small key={i}>{pad(i + 1)}</small>)}</div>{Array.from({ length: 7 }, (_, row) => <div key={row}><span>{pad(row + 1)}</span>{Array.from({ length: 12 }, (_, col) => <i key={col} data-filled={!!nodes[row * 12 + col]?.count} data-current={false}/>)}</div>)}</div></Panel>
-        <Panel title={'08 CATALOG PROFILE'} status={'SNAPSHOT'} footer={'NO DIAGNOSIS INFERRED'}><div className="engine-checker"><small>{'ARCHIVE / CURRENT SNAPSHOT'}</small><strong>{`${brandNodes.length} BRANDS / ${nodes.filter(node => node.level === 'model').length} MODELS`}</strong><div className="engine-histogram">{Array.from({ length: 42 }, (_, i) => <i key={i} data-hot={i % 3 === 0} data-flag={false} style={{ height: `${8 + ((nodes[i]?.count ?? 0) % 42)}%` }}/>)}</div><div className="engine-histogram-label"><span>{'BRANDS'}</span><span>{'ENTRY COUNTS'}</span></div><p>{`${archiveCount} LINKED ENTRIES`}</p></div></Panel>
+        <Panel title={t('01 目录概览', '01 CATALOG OVERVIEW')} status={t('只读', 'READ ONLY')} footer={t('保留原始目录与来源', 'ORIGINAL CATALOG & SOURCES')}>
+          <div className="engine-chat">{[
+            [t('归档', 'ARCHIVE'), t(`${entries.toLocaleString()} 条关联资料`, `${entries.toLocaleString()} linked entries`)],
+            [t('目录', 'CATALOG'), t(`${nodes.length.toLocaleString()} 个节点`, `${nodes.length.toLocaleString()} nodes`)],
+            [t('当前', 'SELECTED'), sourceTitle],
+            [t('路径', 'PATH'), view.path.map(node => node.label).join(' / ') || t('全部归档', 'All archives')],
+          ].map(([role, text], i) => <div key={role}><small>{pad(i + 1)}</small><p><b>{role}</b><br />{text}</p></div>)}</div>
+        </Panel>
+        <Panel title={t('02 下级目录', '02 DIRECTORY')} status={String(view.children.length)} footer={t('完整列表 · 按原目录顺序', 'ALL CHILDREN / ORIGINAL ORDER')}>
+          <div className="engine-directory-nav" ref={directory} tabIndex={-1} role="group" aria-label={t('当前下级目录', 'Current directory')}><button onClick={event => selectDirectory(activeTaxonomy?.parent ?? '', event.detail === 0)} disabled={!activeTaxonomy}>{t('↑ 返回上级', '↑ Parent')}</button><span>{activeTaxonomy?.label ?? t('全部品牌', 'All brands')}</span></div>
+          <div className="engine-queue">{view.children.map((node, i) => <button key={node.id} onClick={event => selectDirectory(node.id, event.detail === 0)} title={node.label}><small>{pad(i + 1)}</small><span>{node.label}</span><b>{node.count ? node.count.toLocaleString() : t('待补', 'GAP')}</b></button>)}</div>
+          {!view.children.length && <div className="engine-empty"><p>{t('已到本级末端，可查看当前范围的原始资料。', 'End of this branch. Review evidence for this scope.')}</p><button onClick={onRelations}>{t('查看关系与原文', 'View relations & evidence')}</button></div>}
+        </Panel>
+        <Panel title={t('03 节点详情', '03 NODE INSPECTOR')} status={t('溯源', 'TRACE')} footer={t('目录归属不等于故障因果', 'MEMBERSHIP / NOT CAUSALITY')}>
+          <div className="engine-inspector"><h4>{sourceTitle}</h4><small>{t('关联资料', 'LINKED ENTRIES')}</small><p>{activeTaxonomy ? t(`${activeTaxonomy.count} 条`, `${activeTaxonomy.count} entries`) : t('请选择图谱或目录中的节点', 'Select a graph or directory node')}</p><small>{t('目录路径', 'CATALOG PATH')}</small><p>{view.path.map(node => node.label).join(' → ') || '—'}</p><small>{t('层级 / 适用范围', 'LEVEL / SCOPE')}</small><p>{activeTaxonomy ? t(levelLabels[activeTaxonomy.level][0], levelLabels[activeTaxonomy.level][1]) : '—'} / {scopeLabel}</p>{activeTaxonomy && <button className="engine-evidence-action" onClick={onRelations}>{t('查看关系与原文 ↗', 'Relations & evidence ↗')}</button>}</div>
+        </Panel>
+        <Panel title={t('04 图谱索引', '04 GRAPH INDEX')} status={running && !reduced ? t('旋转', 'ROTATING') : t('暂停', 'PAUSED')} footer={t(`${visibleNodes} 个节点 / ${visibleEdges} 条父子边`, `${visibleNodes} NODES / ${visibleEdges} PARENT EDGES`)}><div className="engine-index"><svg viewBox="0 0 160 120" aria-label={t('图谱缩略图', 'Graph overview')}><g stroke="#73796b" strokeWidth=".55">{overviewEdges.map(({ from, to }) => <line key={`${from}-${to}`} x1={80 + network.nodes[from].x * 26} y1={60 - network.nodes[from].y * 22} x2={80 + network.nodes[to].x * 26} y2={60 - network.nodes[to].y * 22}/>)}</g>{network.hubs.map((i, j) => <g key={i}><circle cx={80 + network.nodes[i].x * 26} cy={60 - network.nodes[i].y * 22} r={i === active ? 3 : 1.6} fill={i === active ? '#ebc568' : '#e99a89'}/><text x={84 + network.nodes[i].x * 26} y={61 - network.nodes[i].y * 22}>{pad(j + 1)}</text></g>)}</svg><dl><dt>{t('关联资料', 'ENTRIES')}</dt><dd>{entries.toLocaleString()}</dd><dt>{t('归属连线', 'LINKS')}</dt><dd>{visibleEdges.toLocaleString()}</dd></dl></div></Panel>
+        <Panel title={t('05 原始资料', '05 ORIGINAL SOURCE')} status={t('只读', 'LOCK')} footer={t('原始手册及知识条目保持不变', 'ORIGINAL KNOWLEDGE PRESERVED')}><div className="engine-raw"><div><span>{t('知识库快照', 'Knowledge snapshot')}</span><b>RO</b><small>{catalog.kbVersion ?? t('未提供版本', 'Version unavailable')}</small></div><div><span>{t('目录来源', 'Catalog source')}</span><small>AgriDx / knowledge catalog</small></div><div><span>{t('原始编号', 'ORIGINAL ID')}</span><small>{activeTaxonomy?.id ?? t('选择节点后查看', 'Select a node')}</small></div></div></Panel>
+        <Panel title={t('06 适用边界', '06 NODE SCOPE')} status={scopeLabel} footer={t('请核对完整机型及配置', 'CHECK MODEL & CONFIGURATION')}><div className="engine-inspector"><h4>{sourceTitle}</h4><small>{t('范围', 'SCOPE')}</small><p>{scopeLabel}</p><small>{t('证据状态', 'EVIDENCE')}</small><p>{activeTaxonomy ? activeTaxonomy.count ? t('已有相关资料，具体依据请查看原文及页码。', 'Linked evidence available. Check original text and pages.') : t('此目录暂无关联资料，保留缺口。', 'No linked evidence for this node.') : t('先选择品牌、机型、系统或零件。', 'Select a brand, model, system or part.')}</p><p>{t('目录连线仅表示归属；系列资料不可直接套用到所有具体型号。', 'Edges show membership. Series evidence does not establish applicability to every model.')}</p></div></Panel>
+        <Panel title={t('07 当前目录覆盖', '07 DIRECTORY COVERAGE')} status={String(view.coverage.length)} footer={t('实心：有关联资料 / 空心：待补资料', 'FILLED: LINKED ENTRIES / OUTLINED: GAP')}><div className="engine-coverage">{view.coverage.map(node => <button key={node.id} data-filled={node.count > 0} aria-pressed={node.id === selectedId} onClick={event => selectDirectory(node.id, event.detail === 0)} title={`${node.label} · ${node.count}`}><i aria-hidden="true"/><span>{node.label}</span><small>{node.count}</small></button>)}</div>{!view.coverage.length && <p className="engine-empty">{t('暂无已定位目录', 'No catalog nodes')}</p>}</Panel>
+        <Panel title={t('08 归档分布', '08 CATALOG PROFILE')} status={t('快照', 'SNAPSHOT')} footer={t('关联条目计数 · 不代表维修覆盖率', 'ENTRY COUNTS / NOT REPAIR COVERAGE')}><div className="engine-checker"><strong>{t(`${index.brands.length} 个品牌 / ${index.models} 个机型目录`, `${index.brands.length} BRANDS / ${index.models} MODELS`)}</strong><div className="engine-histogram" role="img" aria-label={t('各品牌关联资料数量，按最大值同比例显示', 'Brand entry counts scaled to the largest count')}>{index.distribution.map(({ node, percent }) => <i key={node.id} data-hot={view.path[0]?.id === node.id} title={`${node.label}: ${node.count}`} style={{ height: `${percent}%` }}/>)}</div><div className="engine-brand-counts">{index.brands.map(node => <button key={node.id} aria-pressed={view.path[0]?.id === node.id} onClick={event => selectDirectory(node.id, event.detail === 0)}><span>{node.label}</span><b>{node.count.toLocaleString()}</b></button>)}</div></div></Panel>
       </div>
     </div>
     <p className="engine-caption">{t('实际目录快照；节点与连线来自已有知识库。连线表示目录归属，不能解释为故障因果。', 'Real catalog snapshot. Nodes and parent edges come from the existing knowledge base; edges do not imply fault causality.')}</p>
