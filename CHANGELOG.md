@@ -35,7 +35,7 @@
 
 ### 关联 PR
 
-- 未记录
+- [PR #101](https://github.com/srt2777/AgriDx/pull/101)，实现提交 `2a5f5de`。
 
 ### 部署记录
 
