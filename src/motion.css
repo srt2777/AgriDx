@@ -25,8 +25,7 @@ html:active-view-transition :is(.route-content-reveal, .route-home-reveal, .rout
 html[data-shared='pavilion-knowledge'] [data-shared-target='knowledge'],
 html[data-shared='hall-knowledge'] [data-shared-target='knowledge'],
 html[data-shared='pavilion-diagnosis'] [data-shared-target='diagnosis'],
-html[data-shared='pavilion-models'] [data-shared-target='models'],
-html[data-shared='pavilion-hall'] [data-shared-target='hall'] { view-transition-name: route-shared; }
+html[data-shared='pavilion-models'] [data-shared-target='models'] { view-transition-name: route-shared; }
 ::view-transition-old(route-shared),
 ::view-transition-new(route-shared) {
   animation-duration: var(--motion-enter, 520ms);

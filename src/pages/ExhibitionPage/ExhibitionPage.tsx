@@ -10,7 +10,7 @@ import {
   type KeyboardEvent,
   type PointerEvent,
 } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import {
   ArrowDown,
   ArrowLeft,
@@ -64,6 +64,9 @@ import {
   type ZoneId,
 } from './world-navigation';
 import type { WorldInput } from './ExhibitionWorld';
+import CampusEquipmentCatalog from '@/features/campus-equipment/CampusEquipmentCatalog';
+import { HALL_EXAMPLE_DEVICES, HALL_ZONES, HALL_STATUS_EXAMPLE } from '@/features/campus-equipment/hall-example-data';
+import { exhibitForDevice } from '@/features/campus-equipment/campus-layout';
 import './exhibition.css';
 
 const ExhibitionWorld = lazy(() => import('./ExhibitionWorld'));
@@ -108,6 +111,8 @@ export default function ExhibitionPage() {
   const lang = useLang();
   const t = (zh: string, en: string) => (lang === 'zh' ? zh : en);
   const navigate = useNavigate();
+  const [params] = useSearchParams();
+  const equipmentRequest = params.get('equipment');
   const reducedMotion = !!useReducedMotion();
   const stage = useRef<HTMLElement>(null);
   const [flight, setFlight] = useState(() => {
@@ -158,6 +163,14 @@ export default function ExhibitionPage() {
   const [position, setPosition] = useState(initialDriveState);
   const [catalogOpen, setCatalogOpen] = useState(false);
   const [tractorOpen, setTractorOpen] = useState(false);
+  const [equipmentId, setEquipmentId] = useState<string | null>(null);
+  const [equipmentMoving, setEquipmentMoving] = useState(false);
+  const equipmentClose = useRef<HTMLButtonElement>(null);
+  const equipmentTrigger = useRef<HTMLElement | null>(null);
+  const equipmentCatalogTrigger = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    if (equipmentId) equipmentClose.current?.focus({ preventScroll: true });
+  }, [equipmentId]);
   const [search, setSearch] = useState('');
   const [notice, setNotice] = useState('');
   const [input] = useState<WorldInput>(() => ({ actions: new Map() }));
@@ -181,6 +194,7 @@ export default function ExhibitionPage() {
   }, []);
   const selectZone = useCallback(
     (id: ZoneId) => {
+      setEquipmentId(null);
       setTractorOpen(false);
       setSelected(id);
       setFocus(id);
@@ -245,6 +259,8 @@ export default function ExhibitionPage() {
   function handleDriveKey(event: KeyboardEvent<HTMLElement>) {
     const target = event.target as HTMLElement;
     if (event.key === 'Escape') {
+      if (equipmentId) { closeEquipment(); return; }
+      setEquipmentId(null);
       setTractorOpen(false);
       stopInput();
       if (catalogOpen) {
@@ -275,6 +291,7 @@ export default function ExhibitionPage() {
     }
   }
   function startDrive() {
+    setEquipmentId(null);
     setTractorOpen(false);
     setMode('drive');
     setFocus(null);
@@ -288,6 +305,7 @@ export default function ExhibitionPage() {
     setDestination((value) => ({ id, revision: (value?.revision ?? 0) + 1 }));
   }
   function overview() {
+    setEquipmentId(null);
     stopInput();
     setMode('overview');
     setFocus(null);
@@ -299,6 +317,27 @@ export default function ExhibitionPage() {
     setSelected(null);
     setReset((value) => value + 1);
   }
+  const openEquipment = useCallback((id: string) => {
+    if (!HALL_EXAMPLE_DEVICES.some(item => item.id === id)) return;
+    if (document.activeElement instanceof HTMLElement && document.activeElement !== document.body) equipmentTrigger.current = document.activeElement;
+    stopInput(); setMode('overview'); setFocus(null); setSelected(null); setTractorOpen(false); setCatalogOpen(false); setEquipmentId(id);
+    stage.current?.scrollIntoView({ behavior: 'instant', block: 'start' });
+  }, [stopInput]);
+  function closeEquipment() {
+    setEquipmentId(null);
+    const target = equipmentTrigger.current?.isConnected ? equipmentTrigger.current : equipmentCatalogTrigger.current;
+    target?.focus();
+  }
+  useEffect(() => {
+    if (!equipmentRequest) return;
+    endIntro();
+    if (equipmentRequest === 'all') {
+      document.getElementById('campus-equipment-catalog')?.scrollIntoView({ behavior: 'instant', block: 'start' });
+    } else {
+      const device = HALL_EXAMPLE_DEVICES.find(item => item.id === equipmentRequest || item.zone === equipmentRequest);
+      if (device) openEquipment(device.id);
+    }
+  }, [equipmentRequest, endIntro, openEquipment]);
   function enterZone(id: ZoneId, source?: Element | null) {
     stopInput();
     const destination = pavilionDestination(id);
@@ -334,6 +373,9 @@ export default function ExhibitionPage() {
     }
   }
   const selectedZone = WORLD_ZONES.find((zone) => zone.id === selected);
+  const equipment = HALL_EXAMPLE_DEVICES.find(item => item.id === equipmentId);
+  const equipmentZone = HALL_ZONES.find(item => item.id === equipment?.zone);
+  const equipmentStatus = HALL_STATUS_EXAMPLE.find(item => item.id === equipment?.status);
   const detail = selected ? ZONE_DETAILS[selected] : null;
   const ActiveIcon = selected ? ZONE_ICONS[selected] : Compass;
   const totals = !failed ? catalog?.totals : undefined;
@@ -413,6 +455,9 @@ export default function ExhibitionPage() {
             <i />
             {t('三维园区 · 四个展区', '3D CAMPUS · FOUR ZONES')}
           </span>
+          <button ref={equipmentCatalogTrigger} type="button" className="expo-catalog-trigger" onClick={() => document.getElementById('campus-equipment-catalog')?.scrollIntoView({ behavior: reducedMotion ? 'instant' : 'smooth', block: 'start' })}>
+            <Tractor size={15} />{t('装备陈列', 'Equipment')}
+          </button>
           <button
             ref={catalogTrigger}
             type="button"
@@ -477,7 +522,11 @@ export default function ExhibitionPage() {
                 onLive={onLive}
                 onLost={onLost}
                 onSelect={selectZone}
+                equipmentFocus={equipmentId}
+                equipmentMoving={equipmentMoving && !reducedMotion}
+                onEquipmentSelect={openEquipment}
                 onTractorSelect={() => {
+                  setEquipmentId(null);
                   stopInput(); setMode('overview'); setCatalogOpen(false); setSelected(null); setFocus(null); setTractorOpen(true);
                 }}
                 onPosition={setPosition}
@@ -532,7 +581,7 @@ export default function ExhibitionPage() {
             <span>AGRIDX CAMPUS / 001</span>
             <small>{t('结构与空间示意', 'SCHEMATIC WORLD')}</small>
           </div>
-          <AnimatePresence initial={false}>{selectedZone && detail && !catalogOpen && (
+          <AnimatePresence initial={false}>{selectedZone && detail && !catalogOpen && !equipmentId && (
             <FloatingPanel
               key={selectedZone.id}
               as="aside"
@@ -589,6 +638,13 @@ export default function ExhibitionPage() {
               </div>
             </FloatingPanel>
           )}</AnimatePresence>
+          <AnimatePresence initial={false}>{equipment && !catalogOpen && <FloatingPanel key={`equipment-${equipment.id}`} as="aside" className="expo-zone-card campus-equipment-detail" glass label={t('装备示例详情', 'Example equipment detail')}>
+            <div className="expo-zone-card-top"><span>{equipment.zone} / {t('装备陈列', 'EQUIPMENT')}</span><button ref={equipmentClose} type="button" className="expo-icon-button" aria-label={t('关闭装备详情', 'Close equipment detail')} onClick={closeEquipment}><X size={16} /></button></div>
+            <h2>{equipment.name}</h2><p>{t('示例数据 · 未接实车与传感器。陈列为结构示意，不是该型号的精确模型。', 'Example data · no physical machine or sensors. The exhibit is a schematic, not an exact model.')}</p>
+            <dl><dt>{t('分类', 'Category')}</dt><dd>{equipmentZone && t(equipmentZone.zh, equipmentZone.en)}</dd><dt>{t('示例状态', 'Example status')}</dt><dd>{equipmentStatus && t(equipmentStatus.zh, equipmentStatus.en)}</dd><dt>{t('示例规格', 'Example specs')}</dt><dd>{t(equipment.specZh, equipment.specEn)}</dd><dt>{t('示例管理人', 'Example manager')}</dt><dd>{equipment.manager}</dd></dl>
+            {exhibitForDevice(equipment.id)?.id !== equipment.id && <p>{t('本记录没有独立模型，镜头定位到同分类代表示意。', 'No dedicated model for this record; the camera shows a representative of its category.')}</p>}
+            <div className="expo-zone-actions"><Link className="expo-fault-link" to={`/knowledge?${new URLSearchParams({ collection: 'archive', q: equipment.name })}`}>{t('按名称查找资料', 'Search evidence by name')}<ArrowRight size={15} /></Link><Link className="expo-fault-link" to="/models">{t('打开模型工坊', 'Open model studio')}<ArrowRight size={15} /></Link><Link className="expo-fault-link" to="/fault-detection">{t('故障检测演示', 'Fault detection demo')}<ArrowRight size={15} /></Link></div>
+          </FloatingPanel>}</AnimatePresence>
           <AnimatePresence initial={false}>{tractorOpen && !catalogOpen && <FloatingPanel key="tractor-preview" as="aside" className="expo-zone-card" glass label={t('中央拖拉机预览', 'Central tractor preview')}>
             <div className="expo-zone-card-top"><span>{t('中央拖拉机', 'CENTRAL TRACTOR')}</span><button type="button" className="expo-icon-button" aria-label={t('关闭拖拉机预览', 'Close tractor preview')} onClick={() => setTractorOpen(false)}><X size={16} /></button></div>
             <h2>{t('从结构到故障排查', 'Structure to fault checks')}</h2>
@@ -829,6 +885,7 @@ export default function ExhibitionPage() {
             </div>
           )}
         </section>
+        <CampusEquipmentCatalog onSelect={openEquipment} moving={equipmentMoving && !reducedMotion} onMotion={() => setEquipmentMoving(value => !value)} reduced={reducedMotion} />
         <div className="expo-evidence-strip">
           <div>
             <span className="expo-strip-label">BUILT ON EVIDENCE</span>
@@ -863,14 +920,6 @@ export default function ExhibitionPage() {
               <ChevronRight size={14} />
             </button>
           ))}
-          <Link className="expo-hall-link" to="/hall" onPointerEnter={() => preloadPage('/hall')} onFocus={() => preloadPage('/hall')} onClick={(event) => {
-            if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return;
-            event.preventDefault();
-            beginSharedTransition(sharedTransitionName('pavilion', 'hall'), () => navigate('/hall'), event.currentTarget);
-          }}>
-            {t('数字展厅', 'Digital hall')}
-            <ChevronRight size={14} />
-          </Link>
         </nav>
       </main>
       <SiteStatusBar />

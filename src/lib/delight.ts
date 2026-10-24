@@ -50,7 +50,6 @@ export function shortcutRows(lang: 'zh' | 'en'): { keys: string; label: string }
       { keys: '?', label: 'Open or close this list' },
       { keys: 'Ctrl K / ⌘K', label: 'Quick navigation' },
       { keys: 'Esc', label: 'Close a layer, the intro, or a zone drawer' },
-      { keys: '← →', label: 'Move between hall zones' },
       { keys: '/', label: 'Open campus evidence search' },
     ];
   }
@@ -58,7 +57,6 @@ export function shortcutRows(lang: 'zh' | 'en'): { keys: string; label: string }
     { keys: '?', label: '打开或关闭这张表' },
     { keys: 'Ctrl K / ⌘K', label: '快速前往' },
     { keys: 'Esc', label: '关闭浮层、片头或展区抽屉' },
-    { keys: '← →', label: '切换数字展厅展区' },
     { keys: '/', label: '打开园区资料搜索' },
   ];
 }

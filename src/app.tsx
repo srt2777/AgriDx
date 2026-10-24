@@ -1,5 +1,5 @@
-import { lazy, Suspense, type ReactNode } from 'react';
-import { Routes, Route, useLocation } from 'react-router-dom';
+import { lazy, Suspense, useLayoutEffect, type ReactNode } from 'react';
+import { Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import { Layout } from '@/components/Layout';
 import PageLoading from '@/components/PageLoading';
 import { pageLoaders } from '@/lib/page-loaders';
@@ -14,9 +14,8 @@ import NotFoundPage from '@/pages/NotFoundPage/NotFoundPage';
 import CommandPalette from '@/components/CommandPalette';
 import { NewVersionDelight } from '@/components/NewVersionDelight';
 import { ThemedToaster } from '@/components/ThemedToaster';
-import { useUiVersion } from '@/hooks/useUiVersion';
+import { setUiVersion, useUiVersion } from '@/hooks/useUiVersion';
 const ExhibitionPage = lazy(pageLoaders.exhibition);
-const HallPage = lazy(pageLoaders.hall);
 const PreviewStatus = typeof __AGRIDX_DEV_PREVIEW__ !== 'undefined' && __AGRIDX_DEV_PREVIEW__
   ? lazy(() => import('./dev-preview/PreviewStatus')) : null;
 const DeveloperPage = typeof __AGRIDX_DEV_PREVIEW__ !== 'undefined' && __AGRIDX_DEV_PREVIEW__
@@ -49,6 +48,12 @@ function VersionedHomePage() {
   return version === 'new' ? <ExhibitionPage /> : <HomePage />;
 }
 
+/** Bookmarks open the merged campus collection even when the classic UI was saved. */
+function LegacyHallRedirect() {
+  useLayoutEffect(() => { setUiVersion('new'); }, []);
+  return <Navigate to="/?equipment=all" replace />;
+}
+
 export default function App() {
   return (
     <>
@@ -60,7 +65,7 @@ export default function App() {
         <Route path="models" element={<PageContent><ModelPage /></PageContent>} />
         <Route path="fault-detection" element={<PageContent><FaultDetectionPage /></PageContent>} />
         <Route path="version-history" element={<PageContent><VersionHistoryPage /></PageContent>} />
-        <Route path="hall" element={<PageContent><HallPage /></PageContent>} />
+        <Route path="hall" element={<LegacyHallRedirect />} />
       </Route>
       {DeveloperPage && <Route path="developer" element={<PageContent><DeveloperPage /></PageContent>} />}
       <Route path="*" element={<NotFoundPage />} />

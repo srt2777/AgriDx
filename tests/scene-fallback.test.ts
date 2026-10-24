@@ -17,7 +17,7 @@ test('运动时长只定义一次，样式和三维缓动都引用它', () => {
   assert.equal(frameEase(rateFor(MOTION.ms.enter), 0.05, true), 1);
   assert.equal(easeOutCubic(0), 0);
   assert.equal(easeOutCubic(1), 1);
-  const hall = readFileSync(path.join(root, 'src/pages/HallPage/hall.css'), 'utf8');
+  const hall = readFileSync(path.join(root, 'src/features/campus-equipment/campus-equipment.css'), 'utf8');
   const polish = readFileSync(path.join(root, 'src/new-version-polish.css'), 'utf8');
   assert.match(hall, /var\(--motion-enter/);
   assert.match(polish, /var\(--motion-rise/);

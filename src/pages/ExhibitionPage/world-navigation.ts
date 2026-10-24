@@ -1,3 +1,5 @@
+import { CAMPUS_EXHIBITS } from '../../features/campus-equipment/campus-layout';
+
 export type ZoneId = 'knowledge' | 'diagnosis' | 'models' | 'research';
 export type DriveAction = 'forward' | 'backward' | 'left' | 'right' | 'brake';
 export type WorldMode = 'overview' | 'drive';
@@ -82,7 +84,8 @@ export function isWalkable(x: number, z: number): boolean {
     Number.isFinite(z) &&
     Math.abs(x) <= 12.4 &&
     Math.abs(z) <= 10 &&
-    WORLD_ZONES.every((zone) => Math.hypot(x - zone.x, z - zone.z) >= 3.1)
+    WORLD_ZONES.every((zone) => Math.hypot(x - zone.x, z - zone.z) >= 3.1) &&
+    CAMPUS_EXHIBITS.every(item => Math.hypot(x - item.position[0], z - item.position[2]) >= 1.55)
   );
 }
 

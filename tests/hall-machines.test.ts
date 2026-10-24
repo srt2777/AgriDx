@@ -11,16 +11,13 @@ import {
   exhibitStatus,
   floorAoUv,
   idleMotionAllowed,
-} from '../src/pages/HallPage/hall-machines';
+} from '../src/features/campus-equipment/hall-machines';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
 test('展厅光环颜色和状态表一致，机具零件写在模型里', () => {
-  const css = readFileSync(path.join(root, 'src/pages/HallPage/hall.css'), 'utf8');
-  const models = readFileSync(path.join(root, 'src/pages/HallPage/hall-exhibits.tsx'), 'utf8');
-  for (const [status, color] of Object.entries(STATUS_HALO)) {
-    assert.match(css, new RegExp(`\\.hall-tip em\\.is-${status} \\{ color: ${color};`));
-  }
+  const models = readFileSync(path.join(root, 'src/features/campus-equipment/hall-exhibits.tsx'), 'utf8');
+  assert.equal(new Set(Object.values(STATUS_HALO)).size, 4);
   assert.match(models, /name="cab"/);
   assert.match(models, /name="wheel"/);
   assert.match(models, /name="exhaust"/);
