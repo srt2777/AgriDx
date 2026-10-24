@@ -434,6 +434,13 @@
       "base": "3.14.0",
       "version": "3.14.1",
       "date": "2026-10-24"
+    },
+    {
+      "id": "knowledge-catalog-only-20261024",
+      "kind": "fix",
+      "base": "3.14.1",
+      "version": "3.14.2",
+      "date": "2026-10-24"
     }
   ]
 }
