@@ -157,6 +157,7 @@ export default function ExhibitionPage() {
   const [reset, setReset] = useState(0);
   const [position, setPosition] = useState(initialDriveState);
   const [catalogOpen, setCatalogOpen] = useState(false);
+  const [tractorOpen, setTractorOpen] = useState(false);
   const [search, setSearch] = useState('');
   const [notice, setNotice] = useState('');
   const [input] = useState<WorldInput>(() => ({ actions: new Map() }));
@@ -180,6 +181,7 @@ export default function ExhibitionPage() {
   }, []);
   const selectZone = useCallback(
     (id: ZoneId) => {
+      setTractorOpen(false);
       setSelected(id);
       setFocus(id);
       setMode('overview');
@@ -243,6 +245,7 @@ export default function ExhibitionPage() {
   function handleDriveKey(event: KeyboardEvent<HTMLElement>) {
     const target = event.target as HTMLElement;
     if (event.key === 'Escape') {
+      setTractorOpen(false);
       stopInput();
       if (catalogOpen) {
         setCatalogOpen(false);
@@ -272,6 +275,7 @@ export default function ExhibitionPage() {
     }
   }
   function startDrive() {
+    setTractorOpen(false);
     setMode('drive');
     setFocus(null);
     setCatalogOpen(false);
@@ -290,6 +294,7 @@ export default function ExhibitionPage() {
     setDestination(null);
   }
   function resetWorld() {
+    setTractorOpen(false);
     overview();
     setSelected(null);
     setReset((value) => value + 1);
@@ -472,6 +477,9 @@ export default function ExhibitionPage() {
                 onLive={onLive}
                 onLost={onLost}
                 onSelect={selectZone}
+                onTractorSelect={() => {
+                  stopInput(); setMode('overview'); setCatalogOpen(false); setSelected(null); setFocus(null); setTractorOpen(true);
+                }}
                 onPosition={setPosition}
                 onNearby={onNearby}
               />
@@ -563,6 +571,9 @@ export default function ExhibitionPage() {
                 ))}
               </div>
               <div className="expo-zone-actions">
+                {selectedZone.id === 'diagnosis' && <Link className="expo-fault-link" to="/fault-detection" onPointerEnter={() => preloadPage('/fault-detection')} onFocus={() => preloadPage('/fault-detection')}>
+                  {t('故障检测演示工作台', 'Fault detection demo workbench')}<ArrowRight size={15} />
+                </Link>}
                 <button type="button" className={PREMIUM_MOTION_ENABLED ? 'glass-press' : undefined} data-motion={PREMIUM_MOTION_ENABLED ? 'glass-press' : undefined} onPointerEnter={() => preloadPage(selectedZone.path ?? '/', selectedZone.path ? 'new' : 'old')} onFocus={() => preloadPage(selectedZone.path ?? '/', selectedZone.path ? 'new' : 'old')} onClick={(event) => enterZone(selectedZone.id, event.currentTarget.closest('.expo-zone-card')?.querySelector('h2') ?? event.currentTarget)}>
                   {t('进入展区', 'Open zone')}
                   <ArrowRight size={15} />
@@ -578,6 +589,12 @@ export default function ExhibitionPage() {
               </div>
             </FloatingPanel>
           )}</AnimatePresence>
+          <AnimatePresence initial={false}>{tractorOpen && !catalogOpen && <FloatingPanel key="tractor-preview" as="aside" className="expo-zone-card" glass label={t('中央拖拉机预览', 'Central tractor preview')}>
+            <div className="expo-zone-card-top"><span>{t('中央拖拉机', 'CENTRAL TRACTOR')}</span><button type="button" className="expo-icon-button" aria-label={t('关闭拖拉机预览', 'Close tractor preview')} onClick={() => setTractorOpen(false)}><X size={16} /></button></div>
+            <h2>{t('从结构到故障排查', 'Structure to fault checks')}</h2>
+            <p>{t('园区车辆仅用于导航。故障工作台使用独立柴油结构示意与模拟数据，不是此车的实测数据。', 'The campus vehicle is for navigation. The workbench uses a separate diesel schematic and simulated data, not measurements from this vehicle.')}</p>
+            <div className="expo-zone-actions"><Link className="expo-fault-link" to="/fault-detection">{t('故障检测演示', 'Fault detection demo')}<ArrowRight size={15} /></Link><Link className="expo-fault-link" to="/models">{t('查看模型结构', 'View model structure')}<ArrowRight size={15} /></Link><button type="button" onClick={startDrive}>{t('继续园区漫游', 'Continue campus exploration')}<Navigation size={15} /></button></div>
+          </FloatingPanel>}</AnimatePresence>
           <AnimatePresence initial={false}>{catalogOpen && (
             <FloatingPanel
               key="catalog"

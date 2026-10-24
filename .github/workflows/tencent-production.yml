@@ -19,6 +19,7 @@ concurrency:
 jobs:
   deploy:
     if: >-
+      (!contains(github.event.workflow_run.head_commit.message, '[dev-only]')) &&
       vars.TENCENT_DEPLOY_ENABLED != 'false' &&
       github.repository == 'srt2777/AgriDx' &&
       ((github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') ||

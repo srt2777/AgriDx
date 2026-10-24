@@ -20,7 +20,7 @@ export function canAutoReload(route: string) {
   if (active.some(guard => guard.blocked)) return false;
   if (route === '/' || route === '/knowledge') return true;
   // Do not reload lazy protected pages before their safety guard has mounted.
-  return (route === '/chat' || route === '/models') && active.length > 0;
+  return (route === '/chat' || route === '/models' || route === '/fault-detection') && active.length > 0;
 }
 
 /** Read the live hash, not an effect's previous route during a navigation commit. */
