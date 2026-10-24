@@ -419,7 +419,6 @@ export default function ExhibitionPage() {
             <div className="expo-hero" aria-hidden="true">
               <p>{t('知识 · 结构 · 诊断', 'KNOWLEDGE · STRUCTURE · DIAGNOSIS')}</p>
               <strong>{t('农机知识，在同一片园区', 'One campus for machinery knowledge')}</strong>
-              <i />
             </div>
           )}
           {intro && (

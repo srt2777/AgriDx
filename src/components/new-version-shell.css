@@ -190,3 +190,12 @@ html.theme-dark .new-version-shell .model-stage {
   .new-version-tools { justify-content: flex-start; }
 }
 .new-version-shell > .new-version-header { position: sticky; }
+
+.new-version-nav-toggle { flex: none; min-height: 44px; padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; color: var(--foreground); background: var(--card); font: inherit; font-size: 12px; cursor: pointer; }
+.new-version-nav-toggle:focus-visible { outline: 2px solid var(--ring); outline-offset: 3px; }
+.new-version-navigation-rail[hidden] { display: none; }
+.new-version-workspace.is-nav-collapsed { grid-template-columns: minmax(0,1fr); gap: 0; }
+@media (max-width: 900px) {
+  .new-version-workspace.is-nav-collapsed { padding-bottom: env(safe-area-inset-bottom,0px); }
+  .new-version-brand { flex-wrap: wrap; }
+}

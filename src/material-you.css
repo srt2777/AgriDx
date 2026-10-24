@@ -89,7 +89,6 @@
 :root .model-control-glass { --lg-radius: 28px; }
 :root .catalog-browser.catalog-filter-glass { --lg-radius: 28px; border-color: var(--md-outline-variant); }
 :root .chat-bar-glass, :root .chat-input-glass { --lg-radius: 28px; --glass-control-tint: color-mix(in srgb, var(--md-surface-container) 88%, transparent); }
-:root .new-version-header::after { box-shadow: none; }
 
 :root .ui-version-switch {
   border-color: transparent;

@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { LiquidGlass } from '@/components/ui/liquid-glass';
 import { LiquidSelection } from '@/components/ui/liquid-selection';
 import { preloadPage } from '@/lib/page-loaders';
@@ -18,6 +19,12 @@ import './new-version-shell.css';
 
 /** The blue exhibition chrome used by every page while the new UI is selected. */
 export function NewVersionShell() {
+  const [navigationCollapsed, setNavigationCollapsed] = useState(() => {
+    try { return localStorage.getItem('agridx-modern-navigation-collapsed') === 'true'; } catch { return false; }
+  });
+  useEffect(() => {
+    try { localStorage.setItem('agridx-modern-navigation-collapsed', String(navigationCollapsed)); } catch { /* The toggle also works without storage. */ }
+  }, [navigationCollapsed]);
   const lang = useLang();
   const location = useLocation();
   const navigate = useNavigate();
@@ -29,6 +36,7 @@ export function NewVersionShell() {
       <a className="new-version-skip-link" href="#main-content" onClick={event => { event.preventDefault(); const main = document.getElementById('main-content'); main?.focus(); main?.scrollIntoView({ block: 'start' }); }}>{t('跳到主要内容', 'Skip to content')}</a>
       <header className="new-version-header"><LiquidGlass lens className="new-version-header-glass" contentClassName="new-version-header-content">
         <div className="new-version-brand">
+          <button type="button" className="new-version-nav-toggle" aria-expanded={!navigationCollapsed} aria-controls="modern-primary-navigation" onClick={() => setNavigationCollapsed(value => !value)}>{navigationCollapsed ? t('展开导航', 'Show navigation') : t('收起导航', 'Hide navigation')}</button>
           <a href="https://coe.njau.edu.cn/" target="_blank" rel="noopener noreferrer" className="new-version-college-mark" aria-label={t('南京农业大学工学院官网首页', 'College of Engineering, NAU official homepage')}>
             <img src={publicAsset('images/njau-engineering-mark.jpg')} alt={t('南京农业大学工学院院徽', 'College of Engineering, NAU emblem')} width="857" height="411" />
           </a>
@@ -50,8 +58,8 @@ export function NewVersionShell() {
           </button>
         </div>
       </LiquidGlass></header>
-      <div className="new-version-workspace">
-        <aside className="new-version-navigation-rail">
+      <div className={`new-version-workspace${navigationCollapsed ? ' is-nav-collapsed' : ''}`}>
+        <aside id="modern-primary-navigation" className="new-version-navigation-rail" hidden={navigationCollapsed}>
           <nav className="new-version-navigation" aria-label={t('主要功能', 'Main navigation')}>
             {MODERN_DESTINATIONS.map(item => {
               const active = place.sectionPath === item.path;
