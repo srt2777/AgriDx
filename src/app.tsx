@@ -9,6 +9,7 @@ const ChatPage = lazy(pageLoaders.chat);
 const KnowledgePage = lazy(pageLoaders.knowledge);
 const ModelPage = lazy(pageLoaders.models);
 const VersionHistoryPage = lazy(pageLoaders.history);
+const FaultDetectionPage = lazy(pageLoaders.faultDetection);
 import NotFoundPage from '@/pages/NotFoundPage/NotFoundPage';
 import CommandPalette from '@/components/CommandPalette';
 import { NewVersionDelight } from '@/components/NewVersionDelight';
@@ -57,6 +58,7 @@ export default function App() {
         <Route path="chat" element={<PageContent><ChatPage /></PageContent>} />
         <Route path="knowledge" element={<PageContent><KnowledgePage /></PageContent>} />
         <Route path="models" element={<PageContent><ModelPage /></PageContent>} />
+        <Route path="fault-detection" element={<PageContent><FaultDetectionPage /></PageContent>} />
         <Route path="version-history" element={<PageContent><VersionHistoryPage /></PageContent>} />
         <Route path="hall" element={<PageContent><HallPage /></PageContent>} />
       </Route>
