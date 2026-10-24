@@ -4,6 +4,8 @@ import { loadArchive } from './archive';
 import { buildKnowledgeCatalog } from './catalog-data';
 import { configureIndexedModels } from './scope';
 import { loadLearningEntries, learningChunks } from './learning';
+import { buildRetrievalOrganization, type RetrievalOrganization } from './common';
+import type { CommonFrameworkDefinition } from '../../shared/common-knowledge';
 import type { KnowledgeChunk } from './types';
 import type { CatalogFilters, KnowledgeCatalog } from '../../shared/knowledge-catalog';
 
@@ -15,6 +17,9 @@ export interface KnowledgeSnapshot {
   readonly archivedEntries: number;
   readonly learningEntries: number;
   readonly getCatalog: (filters?: CatalogFilters) => KnowledgeCatalog;
+  readonly retrievalOrganization: RetrievalOrganization;
+  /** Real source classifications, independent of whether the current topic retrieves a hit. */
+  readonly manualSourceIds: readonly string[];
 }
 
 const KB_ROOT = path.resolve(process.cwd(), 'server/knowledge');
@@ -94,6 +99,14 @@ export function reloadKnowledgeSnapshot(): KnowledgeSnapshot {
   const learning = loadLearningEntries();
   freezeData(learning);
   const selectCatalog = buildKnowledgeCatalog(archive.chunks, archive.sources, hierarchy, commonData, learning);
+  // buildKnowledgeCatalog already validates both structures. Reuse that generation,
+  // without additional disk reads or an independent hierarchy/alias registry.
+  const retrievalOrganization = freezeData(buildRetrievalOrganization(
+    (hierarchy as { entries: { entry_id: string; components: { component_id: string; part_ids: string[] }[] }[] }).entries,
+    commonData as CommonFrameworkDefinition));
+  const manualSourceIds = freezeData(archive.sources.filter(source =>
+    /整机|使用.*(?:说明|手册)|维修手册|保养说明书|保养手册/.test(source.document_type ?? ''))
+    .map(source => source.source_id));
   chunks.push(...archive.chunks, ...learningChunks(learning));
   freezeData(chunks);
   const baseCatalog = freezeData(selectCatalog());
@@ -102,6 +115,7 @@ export function reloadKnowledgeSnapshot(): KnowledgeSnapshot {
   const next: KnowledgeSnapshot = Object.freeze({
     kbVersion, chunks, fileCount: fileCount + archive.fileCount + new Set(learning.map(entry => entry.knowledgePath)).size, archivedEntries: archive.chunks.length,
     learningEntries: learning.length,
+    retrievalOrganization, manualSourceIds,
     getCatalog: (filters: CatalogFilters = {}) => {
       const selected = selectCatalog(filters);
       return selected === baseCatalog ? catalog : freezeData({ ...selected, kbVersion });

@@ -41,6 +41,10 @@ test('共享证据保留正文、引用、型号与配置，调用方不能污�
   const catalog = getKnowledgeCatalog();
   assert.throws(() => { catalog.totals.entries = 0; }, TypeError);
   assert.throws(() => { snapshot.chunks[0].text = 'corrupted'; }, TypeError);
+  const symptom = snapshot.retrievalOrganization.symptoms.find(item => item.id === 'coolant-hot')!;
+  assert.ok(symptom.componentIds.includes('cooling'));
+  assert.throws(() => { (symptom.terms as string[]).push('corrupted'); }, TypeError);
+  assert.throws(() => { (snapshot.manualSourceIds as string[]).push('corrupted'); }, TypeError);
   const selected = getKnowledgeCatalog({ brand: '东方红', model: 'LF804S' }).selected!;
   for (const entry of selected.entries) {
     const original = snapshot.chunks.find(chunk => chunk.entryId === entry.entryId)!;

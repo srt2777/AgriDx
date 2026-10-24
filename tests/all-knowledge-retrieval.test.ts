@@ -38,12 +38,12 @@ test('6000条通识逐条可按编号检索，保留唯一正文、主题、核�
   assert.deepEqual(retrieve('KB-YTO-LF-MANUAL-007', 6, { brand: '久保田', model: 'LX2620' }), []);
 });
 
-test('已知型号只检索匹配手册（不用通识），未知型号不套用手册，身份冲突和非拖拉机不召回', () => {
+test('已知型号优先匹配手册，覆盖不足的通识仅参考，未知型号不套用手册', () => {
   const found = retrieve('东方红 LF804S 启动机不转');
   assert.equal(found[0].entryId, 'KB-YTO-LF-MANUAL-007');
-  assert.ok(!found.some(chunk => chunk.entryType === '通识学习'), '2026-10-22: named model excludes TK');
+  assert.ok(found.filter(chunk => chunk.entryType === '通识学习').every(chunk => chunk.retrieval?.referenceOnly && !chunk.generalEvidence && !chunk.sourceId));
   const unknown = retrieve('发动机启动困难', 6, { machineType: '拖拉机', brand: '久保田', model: 'LX9999' });
-  assert.deepEqual(unknown, []);
+  assert.ok(unknown.every(chunk => chunk.entryType === '通识学习' && chunk.retrieval?.referenceOnly));
   assert.deepEqual(retrieve('东方红 LF804S 启动困难', 6, { brand: '久保田', model: 'LX2620' }), []);
   assert.deepEqual(retrieve('TK-1001', 6, { machineType: '联合收割机' }), []);
   assert.deepEqual(retrieve('电动拖拉机 柴油机启动困难'), []);

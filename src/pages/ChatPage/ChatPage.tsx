@@ -1,7 +1,7 @@
 import { useUiCopy } from '@/ui/useUiCopy';
 import type { DiagnosisMode } from '../../../shared/diagnosis';
 import { useRef, useEffect, useCallback, useState, type FormEvent, type KeyboardEvent } from 'react';
-import { Send, Trash2, Loader2, Bot, User, Sparkles, Cpu, Square } from 'lucide-react';
+import { Send, Trash2, Loader2, Bot, User, Sparkles, Square, Paperclip, X, Settings2 } from 'lucide-react';
 import DeferredMarkdown from '@/components/DeferredMarkdown';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -23,8 +23,8 @@ import content, { pick } from '@/data/content';
 import { useLang } from '@/hooks/useLang';
 import { useUiVersion } from '@/hooks/useUiVersion';
 
-import type { AnswerMode, ChatProvider, FallbackReason } from '@shared/chat';
-import { MACHINE_TYPES_ZH, MACHINE_TYPES_EN } from '@/features/chat/session';
+import type { ChatProvider } from '@shared/chat';
+import { MACHINE_TYPES_ZH, MACHINE_TYPES_EN, composeDiagnosticQuestion, readDiagnosticTextAttachment, type ChatMessage } from '@/features/chat/session';
 import { useChatSession } from '@/features/chat/useChatSession';
 import { useLlmHealth } from '@/features/chat/useLlmHealth';
 import { useUpdateBlocker } from '@/features/updates/useUpdateBlocker';
@@ -43,23 +43,35 @@ export default function ChatPage() {
   const providerLabel = (provider?: ChatProvider) =>
     provider === 'knowledge-base' ? t('本地知识库', 'Local knowledge base') :
     provider === 'gemini' ? 'Gemini' : provider === 'deepseek' ? 'DeepSeek' : '';
-  const answerModeLabel = (mode?: AnswerMode) =>
-    mode === 'knowledge-grounded' ? t('知识库依据 + LLM', 'Knowledge-grounded LLM answer') :
-    mode === 'general-guidance' ? t('LLM 通用建议 · 需核实', 'General LLM guidance · verify applicability') :
-    mode === 'local-evidence' ? t('本地资料答复', 'Local evidence answer') : '';
-  const fallbackLabel = (reason?: FallbackReason) =>
-    reason === 'not_configured' ? t('LLM 未配置，仅使用本地资料', 'LLM not configured; using local evidence') :
-    reason === 'provider_unavailable' ? t('模型服务暂不可用，已使用本地资料', 'Model service unavailable; using local evidence') : '';
+  const workspaceRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const focusInput = useCallback(() => textareaRef.current?.focus(), []);
+  useEffect(() => {
+    const node = workspaceRef.current;
+    if (!node || version !== 'new') return;
+    const fit = () => {
+      const viewport = window.visualViewport;
+      const available = Math.max(240, (viewport?.height ?? window.innerHeight) + (viewport?.offsetTop ?? 0) - node.getBoundingClientRect().top - 12);
+      node.style.setProperty('--chat-available-height', `${available}px`);
+    };
+    fit();
+    const observer = new ResizeObserver(fit);
+    if (node.parentElement) observer.observe(node.parentElement);
+    window.addEventListener('resize', fit);
+    window.visualViewport?.addEventListener('resize', fit);
+    return () => { observer.disconnect(); window.removeEventListener('resize', fit); window.visualViewport?.removeEventListener('resize', fit); node.style.removeProperty('--chat-available-height'); };
+  }, [version]);
+  const focusInput = useCallback(() => {
+    if (window.matchMedia('(pointer: fine)').matches) textareaRef.current?.focus({ preventScroll: true });
+  }, []);
   const {
     messages, input, setInput, isLoading, currentModel, currentProvider, currentFallbackReason,
     machineType, setMachineType, brand, setBrand, model, setModel,
     sendMessage, stopRequest, handleClear, memory, profile,
     diagnosisMode, setDiagnosisMode, deviceName, setDeviceName, hours, setHours, deviceNotes, setDeviceNotes, progress, setProgress,
+    engineModel, setEngineModel, faultCodeInput, setFaultCodeInput, attachment, setAttachment, sendError,
   } = useChatSession({ handoff, translate: t, focusInput, minLoadingMs: version === 'new' && PREMIUM_MOTION_ENABLED ? 900 : 0 });
   const orb = useDiagnosisOrb(PREMIUM_MOTION_ENABLED && version === 'new' && isLoading);
-  useUpdateBlocker('/chat', isLoading || memory.busy || !memory.ready || !!input.trim()
+  useUpdateBlocker('/chat', isLoading || memory.busy || !memory.ready || !!input.trim() || !!attachment
     || progress.trim() !== (memory.session?.progress ?? '')
     || hasUnsavedProfile(profile, memory.devices.find(device => device.id === memory.deviceId)));
   const llmHealth = useLlmHealth();
@@ -70,9 +82,12 @@ export default function ChatPage() {
     }
   }, [llmHealth, setDiagnosisMode]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const threadRef = useRef<HTMLDivElement>(null);
+  const followThread = useRef(true);
+  const [contextOpen, setContextOpen] = useState(() => typeof window !== 'undefined' && window.matchMedia('(min-width: 1101px)').matches);
 
   const scrollToBottom = useCallback(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (followThread.current) messagesEndRef.current?.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'nearest' });
   }, []);
   useEffect(() => {
     if (version === 'old' && messages.length === 0) return;
@@ -80,13 +95,14 @@ export default function ChatPage() {
   }, [messages, scrollToBottom, version]);
 
   useEffect(() => {
-    const timer = window.setTimeout(() => textareaRef.current?.focus(version === 'old' ? { preventScroll: true } : undefined), 100);
+    const timer = window.setTimeout(focusInput, 100);
     return () => window.clearTimeout(timer);
-  }, [version]);
+  }, [focusInput, version]);
 
   const handleSubmit = useCallback(
     (e: FormEvent) => {
       e.preventDefault();
+      followThread.current = true;
       sendMessage(input);
     },
     [input, sendMessage],
@@ -94,8 +110,9 @@ export default function ChatPage() {
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent<HTMLTextAreaElement>) => {
-      if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing && e.keyCode !== 229) {
+      if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing && e.keyCode !== 229 && window.matchMedia('(pointer: fine)').matches) {
         e.preventDefault();
+        followThread.current = true;
         sendMessage(input);
       }
     },
@@ -104,12 +121,17 @@ export default function ChatPage() {
 
   const handleQuickQuestion = useCallback(
     (question: string) => {
-      sendMessage(question);
+      followThread.current = true;
+      void sendMessage(question, false);
     },
     [sendMessage],
   );
 
   const isEmpty = messages.length === 0;
+  const composedLength = composeDiagnosticQuestion(input, attachment).length;
+  const plate = [machineType, brand, model].filter(Boolean).join(' · ');
+  const topic = messages.filter(message => message.role === 'assistant').at(-1)?.diagnosticReply?.topic
+    || messages.filter(message => message.role === 'user').at(-1)?.content.split('\n')[0] || input.trim().split('\n')[0];
   const typeOptions = lang === 'zh' ? MACHINE_TYPES_ZH : MACHINE_TYPES_EN;
   const serviceStatus = currentFallbackReason === 'provider_unavailable'
     ? t('本地知识库 · LLM 暂不可用', 'Local KB · LLM temporarily unavailable')
@@ -134,7 +156,7 @@ export default function ChatPage() {
   };
 
   return (
-    <div className={`flex h-[calc(100dvh-5.625rem)] flex-col chat-glass${version === 'new' ? ' is-premium' : ''}`}>
+    <div ref={workspaceRef} className={`flex h-[calc(100dvh-5.625rem)] flex-col chat-glass${version === 'new' ? ' is-premium' : ''}`}>
       {/* 顶部工具栏 */}
       <LiquidGlass
         variant="regular"
@@ -149,18 +171,6 @@ export default function ChatPage() {
             <div className="truncate text-sm font-semibold text-foreground" data-shared-target={version === 'new' ? 'diagnosis' : undefined}>{format('耕知·耘诊')}{separator}{t('诊断工作台', 'Diagnosis workspace')}</div>
             <div className="flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground" role="status">
               <span title={configurationHint}>{serviceStatus}</span>
-              {currentProvider && (
-                <span className="inline-flex items-center gap-1 rounded-full border border-border/60 bg-accent/60 px-1.5 py-0.5 text-[11px] text-foreground">
-                  <Cpu className="h-3 w-3 text-primary" />
-                  {providerLabel(currentProvider)}
-                </span>
-              )}
-              {currentModel && (
-                <span className="hidden sm:inline-flex items-center gap-1 rounded-full border border-border/60 bg-accent/60 px-1.5 py-0.5 text-[11px] text-muted-foreground">
-                  <Sparkles className="h-3 w-3" />
-                  {currentModel}
-                </span>
-              )}
             </div>
           </div>
         </div>
@@ -194,12 +204,16 @@ export default function ChatPage() {
           <option value="ai_assisted" disabled={typeof llmHealth !== 'object' || !llmHealth.configured || llmHealth.allowExternalAi === false}>{t('AI 辅助分析', 'AI-assisted analysis')}</option>
         </select>
       </div>
-      <div className={version === 'new' ? 'chat-workspace' : 'flex min-h-0 flex-1 flex-col'}>
+      <div className="chat-current-context">
+        <div className="min-w-0"><p className="truncate font-medium">{plate || t('尚未指定车型 · 可先描述现象', 'No model specified · describe the symptom first')}</p>{topic && <p className="truncate text-muted-foreground">{t('当前问题：', 'Current topic: ')}{topic.slice(0, 100)}</p>}</div>
+        <Button type="button" variant="ghost" size="sm" className="shrink-0 gap-1" aria-expanded={contextOpen} aria-controls="chat-machine-context" onClick={() => setContextOpen(open => !open)}><Settings2 className="h-4 w-4" />{t('车型与记录', 'Machine & history')}</Button>
+      </div>
+      <div className={version === 'new' ? `chat-workspace${contextOpen ? '' : ' is-context-closed'}` : 'flex min-h-0 flex-1 flex-col'}>
       <div className={version === 'new' ? 'chat-thread' : 'contents'}>
       {/* 消息列表 */}
-      <div className="min-h-0 flex-1 overflow-y-auto" role="log" aria-label={t('诊断对话', 'Diagnosis conversation')} aria-live="polite">
+      <div ref={threadRef} onScroll={() => { const node = threadRef.current; if (node) followThread.current = node.scrollHeight - node.scrollTop - node.clientHeight < 100; }} className="min-h-0 flex-1 overflow-y-auto" role="log" aria-label={t('诊断对话', 'Diagnosis conversation')} aria-live="polite">
         <div className="mx-auto max-w-3xl px-4 py-6 md:px-6">
-              {version !== 'new' && <details className="fluid-machine-context"><summary>{t('机具信息与诊断记忆', 'Machine details & memory')}</summary><MachineContext framed {...contextProps} /></details>}
+              {version !== 'new' && contextOpen && <div id="chat-machine-context"><MachineContext framed {...contextProps} /></div>}
 
           {/* 空状态 / 欢迎态 */}
           {isEmpty && (
@@ -244,7 +258,7 @@ export default function ChatPage() {
                 </div>
               )}
               <div
-                className={`min-w-0 break-words max-w-[85%] rounded-2xl px-4 py-3 text-sm leading-relaxed md:max-w-[75%] ${
+                className={`min-w-0 break-words ${msg.role === 'user' ? 'max-w-[85%] md:max-w-[75%]' : 'w-full'} rounded-2xl px-4 py-3 text-sm leading-relaxed ${
                   msg.role === 'user'
                     ? 'rounded-tr-sm bg-primary text-primary-foreground'
                     : msg.role === 'error'
@@ -269,21 +283,7 @@ export default function ChatPage() {
                 ) : msg.role === 'user' ? (
                   <div className="whitespace-pre-wrap">{msg.content}</div>
                 ) : (
-                  <div className="prose prose-sm max-w-none overflow-x-auto dark:prose-invert">
-                    {msg.coordinationMessage && <p className="text-xs text-muted-foreground">{msg.coordinationMessage}</p>}
-                    <DeferredMarkdown>{msg.localSummary || msg.content}</DeferredMarkdown>
-                    {msg.localSummary && <details className="chat-evidence mt-3"><summary className="cursor-pointer text-xs">{t('展开完整资料与适用限制', 'Full evidence and applicability')}</summary><div className="chat-evidence-body"><DeferredMarkdown>{msg.content}</DeferredMarkdown></div></details>}
-                    {msg.role === 'assistant' && (msg.model || msg.provider || msg.answerMode || msg.fallbackReason || msg.knowledgeChunks !== undefined) && (
-                      <div className="chat-source mt-2 border-t border-border/40 pt-2 text-[11px] leading-relaxed text-muted-foreground">
-                        <div className="flex flex-wrap gap-x-2 gap-y-1">
-                          {msg.answerMode && <span>{answerModeLabel(msg.answerMode)}</span>}
-                          {msg.knowledgeChunks !== undefined && <span>{t(`知识库命中 ${msg.knowledgeChunks} 条`, `${msg.knowledgeChunks} knowledge snippets retrieved`)}</span>}
-                          {(msg.model || msg.provider) && <span>{[providerLabel(msg.provider), msg.model].filter(Boolean).join(separator)}</span>}
-                        </div>
-                        {msg.fallbackReason && <div className="mt-1">{fallbackLabel(msg.fallbackReason)}</div>}
-                      </div>
-                    )}
-                  </div>
+                  <DiagnosticAnswer message={msg} t={t} onAnswer={handleQuickQuestion} disabled={isLoading || memory.busy} />
                 )}
               </div>
               {msg.role === 'user' && (
@@ -304,11 +304,20 @@ export default function ChatPage() {
         contentClassName="border-t border-border/60 px-4 py-4 md:px-6"
       >
         <form onSubmit={handleSubmit} className="chat-composer mx-auto max-w-3xl">
+          <details className="chat-input-extras mb-2 text-xs"><summary className="cursor-pointer py-1">{t('补充发动机、故障码或文本报告（选填）', 'Add engine, fault codes or a text report (optional)')}</summary>
+            <div className="mt-2 grid gap-2 sm:grid-cols-2">
+              <label>{t('发动机型号', 'Engine model')}<input value={engineModel} onChange={event => setEngineModel(event.target.value)} maxLength={100} disabled={isLoading || memory.busy} className="mt-1 h-10 w-full rounded-md border border-border bg-background px-3 text-sm" /></label>
+              <label>{t('故障码原文（逗号分隔）', 'Fault codes (comma separated)')}<input value={faultCodeInput} onChange={event => setFaultCodeInput(event.target.value)} maxLength={660} disabled={isLoading || memory.busy} className="mt-1 h-10 w-full rounded-md border border-border bg-background px-3 text-sm" /></label>
+            </div>
+            <label className="mt-2 inline-flex cursor-pointer items-center gap-1 rounded-md border border-border px-3 py-2"><Paperclip className="h-3.5 w-3.5" />{t('添加故障文本', 'Add fault text')}<input type="file" accept=".txt,.log,.csv,.json,text/plain,text/csv,application/json" disabled={isLoading || memory.busy} className="sr-only" aria-label={t('添加故障信息文本文件', 'Add a fault information text file')} onChange={async event => { const file = event.target.files?.[0]; event.target.value = ''; if (!file) return; try { setAttachment(await readDiagnosticTextAttachment(file)); } catch (error) { toast.error(error instanceof Error ? error.message : t('读取文本失败', 'Could not read text')); } }} /></label>
+            <p className="mt-1 text-muted-foreground">{t('仅UTF-8的txt/log/csv/json，最多16KB；发送时文字随问题提交。暂不支持照片识别，请勿包含密钥或个人资料。', 'UTF-8 txt/log/csv/json only, up to 16KB. Text is submitted with your question when sent. Photo recognition is unavailable; omit secrets and personal information.')}</p>
+          </details>
+          {attachment && <div className="chat-attachment mb-2 rounded-md border border-border p-2 text-xs"><div className="flex items-center justify-between gap-2"><span className="truncate">{attachment.name} · {attachment.text.length} {t('字符', 'characters')}</span><Button type="button" variant="ghost" size="icon" className="h-8 w-8" disabled={isLoading} aria-label={t('移除文本报告', 'Remove text report')} onClick={() => setAttachment(undefined)}><X className="h-3.5 w-3.5" /></Button></div><details><summary className="cursor-pointer">{t('预览将发送的文本', 'Preview text to send')}</summary><pre className="mt-2 max-h-32 overflow-auto whitespace-pre-wrap break-words">{attachment.text}</pre></details></div>}
           <div className="flex items-end gap-2">
             <Textarea
               aria-label={t('故障描述', 'Fault description')}
               aria-describedby="chat-input-help"
-              aria-invalid={input.trim().length > 2000}
+              aria-invalid={composedLength > 2000}
               ref={textareaRef}
               value={input}
               onChange={(e) => setInput(e.target.value)}
@@ -325,7 +334,7 @@ export default function ChatPage() {
             ) : <Button
               type="submit"
               size="icon"
-              disabled={!input.trim() || input.trim().length > 2000}
+              disabled={(!input.trim() && !attachment) || composedLength > 2000 || memory.busy}
               className={version === 'new' && PREMIUM_MOTION_ENABLED ? 'shrink-0 glass-press' : 'shrink-0'}
               data-motion={version === 'new' && PREMIUM_MOTION_ENABLED ? 'glass-press' : undefined}
               aria-label={t('发送', 'Send')}
@@ -334,20 +343,66 @@ export default function ChatPage() {
             </Button>}
           </div>
           <div id="chat-input-help" className="mt-2 flex justify-between gap-3 text-xs text-muted-foreground">
-            <span>{t('按 Enter 发送，Shift + Enter 换行', 'Enter to send, Shift+Enter for newline')}</span>
-            <span className={input.trim().length > 2000 ? 'text-destructive' : ''}>{input.trim().length} / 2000</span>
+            <span><span className="hidden sm:inline">{t('Enter发送，Shift + Enter换行', 'Enter to send, Shift+Enter for newline')}</span><span className="sm:hidden">{t('点击发送；回车换行', 'Tap send; Enter adds a line')}</span></span>
+            <span className={composedLength > 2000 ? 'text-destructive' : ''}>{composedLength} / 2000</span>
           </div>
+          {sendError && <p role="alert" className="mt-2 text-xs text-destructive">{sendError}</p>}
         </form>
       </LiquidGlass>
       </div>
       {version === 'new' && (
-        <aside className="chat-context" aria-label={t('机具上下文', 'Machine context')}>
+        <aside id="chat-machine-context" hidden={!contextOpen} className="chat-context" aria-label={t('机具上下文', 'Machine context')}>
           <MachineContext framed={false} {...contextProps} />
         </aside>
       )}
       </div>
     </div>
   );
+}
+
+function DiagnosticAnswer({ message, t, onAnswer, disabled }: {
+  message: ChatMessage; t: (zh: string, en: string) => string; onAnswer: (answer: string) => void; disabled: boolean;
+}) {
+  const reply = message.diagnosticReply;
+  const sources = message.knowledgeSources || [];
+  const sourceLabel = (source: typeof sources[number]) => source.evidenceKind === 'general-knowledge' || source.entryType === '通识学习'
+    ? t('通识（无手册页码）', 'General knowledge (no manual pages)')
+    : source.evidenceKind === 'prompt' ? t('信息收集提示（非手册）', 'Information prompt (not a manual)')
+    : [source.sourceTitle || source.sourceId || source.source, source.pages?.pdf ? t(`PDF第${source.pages.pdf}页`, `PDF p. ${source.pages.pdf}`) : '', source.pages?.printed ? t(`印刷第${source.pages.printed}页`, `Printed p. ${source.pages.printed}`) : ''].filter(Boolean).join(' · ');
+  const used = sources.filter(source => source.usage === 'answer-evidence');
+  return <div className="chat-answer">
+    {reply ? <>
+      <p className="whitespace-pre-wrap">{reply.understanding}</p>
+      {!!reply.background?.length && <section className="mt-4"><h3 className="mb-2 font-semibold">{t('通用原理参考（非本机结论，需核对）', 'General principles (not a vehicle diagnosis; verify)')}</h3>{reply.background.map((item, index) => <p key={index} className="mt-2">{item.text}</p>)}</section>}
+      {reply.causes.length > 0 && <section className="mt-4"><h3 className="mb-2 font-semibold">{t('可能原因，仍需核实', 'Possible causes to verify')}</h3><ul className="space-y-2 pl-4 list-disc">{reply.causes.map((cause, index) => <li key={index}>{cause.text}{cause.basis === 'general_hypothesis' && <span className="ml-1 text-xs text-muted-foreground">{t('（通用分析，非本机结论）', ' (general analysis, not a vehicle diagnosis)')}</span>}</li>)}</ul></section>}
+      {reply.suggestions.length > 0 && <section className="mt-4"><h3 className="mb-2 font-semibold">{t('建议先做', 'Suggested next steps')}</h3><ol className="list-decimal space-y-2 pl-5">{[...reply.suggestions].sort((a, b) => a.priority - b.priority).map((suggestion, index) => <li key={index}>{suggestion.text}</li>)}</ol></section>}
+      {reply.aiSupplement && <section className="mt-4"><h3 className="mb-2 font-semibold">{t('AI 补充分析（推断，需核对）', 'AI analysis (inference, verify before use)')}</h3><div className="prose prose-sm max-w-none overflow-x-auto dark:prose-invert"><DeferredMarkdown>{reply.aiSupplement}</DeferredMarkdown></div></section>}
+      {reply.sourceNote && <p className="mt-3 text-xs leading-relaxed text-muted-foreground">{reply.sourceNote}</p>}
+      {reply.questions.length > 0 && <section className="chat-follow-up mt-4"><h3 className="mb-2 font-semibold">{t('再确认一下', 'A couple of questions')}</h3>{reply.questions.slice(0, 2).map((question, index) => <div key={index} className="mt-3"><p>{question.text}</p>{question.options?.length ? <div className="mt-2 flex flex-wrap gap-2">{question.options.slice(0, 6).map((option, optionIndex) => <button key={optionIndex} type="button" disabled={disabled} className="chat-follow-up-option rounded-lg border border-border bg-background px-3 py-2 text-left text-sm hover:border-primary disabled:opacity-50" onClick={() => onAnswer(`补充：${option}`)}>{option}</button>)}</div> : null}</div>)}</section>}
+    </> : <div className="prose prose-sm max-w-none overflow-x-auto dark:prose-invert"><DeferredMarkdown>{message.localSummary || message.content}</DeferredMarkdown></div>}
+    {used.length > 0 && <p className="mt-4 border-t border-border/50 pt-2 text-xs text-muted-foreground">{t('依据：', 'Evidence: ')}{used.slice(0, 2).map(sourceLabel).join('；')}{used.length > 2 ? t(`，另${used.length - 2}条见详情`, `; ${used.length - 2} more in details`) : ''}</p>}
+    {message.role === 'assistant' && <details className="chat-evidence mt-4 border-t border-border/50 pt-3">
+      <summary className="cursor-pointer text-xs font-medium">{t('诊断依据与技术详情', 'Evidence and technical details')}{sources.length ? ` · ${sources.length}` : ''}</summary>
+      <div className="chat-evidence-body mt-3 space-y-4 text-xs leading-relaxed text-muted-foreground">
+        {sources.length ? <ol className="space-y-4">{sources.map((source, index) => <li key={`${source.entryId || source.source}-${index}`} className="rounded-md border border-border/60 p-3">
+          <p className="font-medium text-foreground">{index + 1}. {source.heading}</p><p>{sourceLabel(source)}</p>
+          <p>{[source.entryId, source.sourceId, source.version].filter(Boolean).join(' · ')}</p>
+          {source.usage && <p>{source.usage === 'answer-evidence' ? t('用于当前资料分析；不代表已确诊', 'Used for evidence analysis; not a confirmed diagnosis') : source.usage === 'prompt-context' ? t('提供给AI的参考上下文，不表示每项生成内容均获支持', 'Context supplied to AI; not proof for every generated claim') : t('仅供参考，不作为本机操作依据', 'Reference only; not an instruction for this machine')}</p>}
+          {source.scopeBoundary && <p>{t('适用范围：', 'Scope: ')}{source.scopeBoundary}</p>}
+          {!!source.models?.length && <p>{t('型号：', 'Models: ')}{source.models.join('、')}</p>}
+          {source.engineModel && <p>{t('发动机：', 'Engine: ')}{source.engineModel}</p>}{!!source.faultCodes?.length && <p>{t('故障码：', 'Codes: ')}{source.faultCodes.join('、')}</p>}
+          {source.locator && <p>{t('原文位置：', 'Location: ')}{source.locator}</p>}
+          {source.status && <p>{t('原始核验说明：', 'Original review status: ')}{source.status}</p>}
+          {source.retrieval && <p>{t('检索层级：', 'Retrieval tier: ')}{source.retrieval.tier} · {source.retrieval.basis.join('；')}{source.retrieval.referenceOnly ? t('；仅参考', '; reference only') : ''}</p>}
+        </li>)}</ol> : <p>{t('这条对话没有保存结构化来源；不从历史文字推造证据。', 'This message has no saved structured sources; evidence is not inferred from older text.')}</p>}
+        {message.coordinationMessage && <p>{message.coordinationMessage}</p>}
+        <p>{[message.provider, message.model, message.answerMode].filter(Boolean).join(' · ')}{message.knowledgeChunks !== undefined ? t(` · 检索${message.knowledgeChunks}条`, ` · ${message.knowledgeChunks} snippets`) : ''}</p>
+        {message.fallbackReason && <p>{message.fallbackReason === 'not_configured' ? t('外部AI未配置，本次使用本地资料。', 'External AI is not configured; using local evidence.') : t('外部AI暂不可用，本次回退本地资料。', 'External AI was unavailable; using local evidence.')}</p>}
+        {(message.coordination || message.diagnosisTrace || message.roleFlow) && <><p>{t('相关性分数是未标定的检索匹配，不是诊断准确率。', 'Relevance scores are uncalibrated retrieval matches, not diagnostic accuracy.')}</p><pre className="max-h-80 overflow-auto whitespace-pre-wrap break-words rounded-md bg-muted/50 p-3">{JSON.stringify({ coordination: message.coordination, trace: message.diagnosisTrace, roleFlow: message.roleFlow }, null, 2)}</pre></>}
+        <details><summary className="cursor-pointer">{t('查看保存的完整答复', 'Saved full answer')}</summary><div className="prose prose-sm mt-2 max-w-none overflow-x-auto dark:prose-invert"><DeferredMarkdown>{message.content}</DeferredMarkdown></div></details>
+      </div>
+    </details>}
+  </div>;
 }
 
 function MachineContext({

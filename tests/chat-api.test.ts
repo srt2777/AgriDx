@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import http from 'node:http';
 import { after, afterEach, before, beforeEach, test } from 'node:test';
 import type { LlmStatus } from '../server/llm/router';
+import type { ChatResponse as DiagnosticChatResponse } from '../shared/chat';
 
 // Keep this suite local even when the developer has configured model credentials.
 process.env.NODE_ENV = 'test';
@@ -13,20 +14,7 @@ const { default: app } = await import('../server/index');
 let server: http.Server;
 let port: number;
 
-interface ChatResponse {
-  code?: string;
-  localSummary?: string;
-  coordination?: { route: string; reason: string; requestedMode: string; effectiveMode: string; evidenceLevel: string };
-  coordinationMessage?: string;
-  provider?: string;
-  model?: string;
-  fellBack?: boolean;
-  fallbackReason?: string;
-  answerMode?: string;
-  knowledgeChunks?: number;
-  knowledgeSources?: { entryId?: string; sourceId?: string; locator?: string; entryType?: string; diagnosticEvidence?: false }[];
-  choices?: { message: { role: string; content: string } }[];
-}
+type ChatResponse = Partial<DiagnosticChatResponse> & { code?: string };
 
 const identity = { machineType: '拖拉机', brand: '纽荷兰', model: 'WORKMASTER25' };
 const messages = [{ role: 'user', content: '钥匙在 START，启动电机不转' }];
@@ -128,7 +116,7 @@ test('rejects non-object JSON bodies with a JSON bad-request response', async ()
   }
 });
 
-test('the chat API returns uncertain references with source IDs, pages and applicability limits without repair instructions', async () => {
+test('uncertain references retain provenance and limits while only reviewed matching alternatives support local facts', async () => {
   const response = await chat({ messages, ...identity });
   assert.equal(response.status, 200);
   assert.equal(response.body.provider, 'knowledge-base');
@@ -136,13 +124,25 @@ test('the chat API returns uncertain references with source IDs, pages and appli
   assert.ok(response.body.knowledgeChunks && response.body.knowledgeChunks > 0);
   const reply = response.body.choices?.[0]?.message.content;
   assert.ok(reply);
-  assert.match(reply, /NH-WM25-003/);
-  assert.match(reply, /SRC-NH-WM25-92157408/);
-  assert.match(reply, /PDF 第 175 页/);
-  assert.match(reply, /不适用于.*25S/);
-  assert.match(reply, /核验.*待确认|核验状态.*沿用既有/);
-  assert.match(reply, /不展示.*操作步骤或参数/);
-  assert.doesNotMatch(reply, /启动联锁条件未满足/);
+  const source = response.body.knowledgeSources?.find(item => item.entryId === 'NH-WM25-003');
+  assert.equal(source?.sourceId, 'SRC-NH-WM25-92157408');
+  assert.match(source?.locator ?? '', /175/);
+  assert.match(source?.scopeBoundary ?? '', /不适用于.*25S/);
+  assert.equal(source?.referenceVerification, 'unspecified');
+  assert.equal(source?.usage, 'reference-only');
+  assert.equal(response.body.diagnosticReply?.supportLevel, 'manual');
+  assert.ok(response.body.diagnosticReply?.causes.length);
+  for (const cause of response.body.diagnosticReply?.causes ?? []) {
+    assert.ok(!cause.evidenceIds.includes('NH-WM25-003'), 'uncertain source cannot authorize a cause');
+    assert.ok(cause.evidenceIds.every(entryId => response.body.coordination?.candidates?.some(candidate =>
+      candidate.entryId === entryId && candidate.sourceIndexed && !candidate.excluded &&
+      candidate.referenceVerification === 'verified' && candidate.modelMatch === 'exact')));
+  }
+  assert.ok(response.body.diagnosticReply?.suggestions.length);
+  assert.ok(response.body.diagnosticReply?.questions.length);
+  assert.doesNotMatch(reply, /SRC-NH-|PDF 第 175 页|【手册依据】|【通用分析/);
+  assert.ok(response.body.diagnosticReply?.suggestions.every(suggestion => suggestion.kind !== 'observe' ||
+    !suggestion.evidenceIds.includes('NH-WM25-003')));
 });
 
 test('source-rich local replies remain usable as assistant history in the next turn', async () => {
@@ -151,7 +151,9 @@ test('source-rich local replies remain usable as assistant history in the next t
   const first = await chat({ ...identity, messages: [{ role: 'user', content: query }] });
   assert.equal(first.status, 200);
   const reply = first.body.choices?.[0]?.message.content;
-  assert.ok(reply && reply.length > 2000 && reply.length <= 16_000);
+  assert.ok(reply && reply.length > 0 && reply.length <= 16_000);
+  assert.ok(first.body.diagnosticReply?.understanding);
+  assert.ok((first.body.knowledgeSources?.length ?? 0) > 0);
 
   const next = await chat({
     ...identity,
@@ -162,7 +164,8 @@ test('source-rich local replies remain usable as assistant history in the next t
     ],
   });
   assert.equal(next.status, 200);
-  assert.match(next.body.choices?.[0]?.message.content ?? '', /NH-WM25-003/);
+  assert.ok(next.body.knowledgeSources?.some(source => source.entryId === 'NH-WM25-003'));
+  assert.ok(next.body.diagnosticReply?.suggestions.length);
 });
 
 test('user and system messages keep their 2000-character limit and assistant history remains bounded', async () => {
@@ -191,9 +194,12 @@ test('questions without applicable evidence still call the LLM with general-guid
   assert.equal(response.status, 200);
   assert.equal(response.body.provider, 'gemini');
   assert.equal(response.body.answerMode, 'general-guidance');
-  // 2026-10-22: a named (unknown) model searches its archive only; TK is not used.
-  assert.equal(response.body.knowledgeChunks, 0);
-  assert.ok(!response.body.knowledgeSources?.some(source => source.entryType === '通识学习'));
+  // A named unknown model can fall back to general references, never a matching manual.
+  assert.ok(response.body.knowledgeSources?.every(source => source.entryType === '通识学习' &&
+    source.retrieval?.tier === 'general' && source.retrieval.referenceOnly && !source.sourceId));
+  assert.equal(response.body.diagnosticReply?.supportLevel, 'general');
+  assert.ok(response.body.diagnosticReply?.causes.every(cause => cause.basis !== 'source_candidate'));
+  assert.equal(response.body.coordination?.retrievalOutcome, 'no_manual');
   assert.equal(response.body.fellBack, false);
   assert.match(response.body.choices?.[0]?.message.content ?? '', /通用分析/);
   assert.equal(fetch.mock.callCount(), 1);
@@ -217,7 +223,8 @@ test('denied identity pauses retrieval and diagnosis even when stale form fields
   const local = await chat(body, '198.51.100.21');
   assert.equal(local.status, 200);
   assert.equal(local.body.knowledgeChunks, 0);
-  assert.match(local.body.choices?.[0]?.message.content ?? '', /需要确认机型/);
+  assert.equal(local.body.coordination?.reason, 'identity_conflict');
+  assert.ok(local.body.diagnosticReply?.questions.some(question => /品牌|型号/.test(question.text)));
   assert.doesNotMatch(local.body.choices?.[0]?.message.content ?? '', /NH-WM25-003/);
 
   process.env.GEMINI_API_KEY = 'integration-gemini-secret';
@@ -232,7 +239,8 @@ test('denied identity pauses retrieval and diagnosis even when stale form fields
   assert.deepEqual(assisted.body.knowledgeSources, []);
   assert.equal(sent, undefined, 'identity conflict must never call external AI');
   assert.equal(assisted.body.provider, 'knowledge-base');
-  assert.match(assisted.body.choices?.[0]?.message.content ?? '', /需要确认机型/);
+  assert.equal(assisted.body.coordination?.reason, 'identity_conflict');
+  assert.ok(assisted.body.diagnosticReply?.questions.some(question => /品牌|型号/.test(question.text)));
 });
 
 test('LLM responses carry archived source metadata and receive the server prompt plus history', async (t) => {
@@ -251,12 +259,16 @@ test('LLM responses carry archived source metadata and receive the server prompt
   const response = await chat({ ...identity, messages: history }, '198.51.100.2');
   assert.equal(response.status, 200);
   assert.equal(response.body.answerMode, 'knowledge-grounded');
+  assert.ok(response.body.coordination?.candidates?.some(candidate => candidate.sourceIndexed &&
+    candidate.referenceVerification === 'verified' && candidate.modelMatch === 'exact' && !candidate.excluded &&
+    response.body.diagnosisTrace?.sentKnowledgeIds.includes(candidate.entryId ?? '')));
   assert.equal(response.body.provider, 'gemini');
   assert.equal(response.body.model, 'integration-test-model');
   assert.ok((response.body.knowledgeChunks ?? 0) > 0);
   const source = response.body.knowledgeSources?.find((item) => item.entryId === 'NH-WM25-003');
   assert.equal(source?.sourceId, 'SRC-NH-WM25-92157408');
   assert.match(source?.locator ?? '', /175/);
+  assert.match(source?.scopeBoundary ?? '', /不适用于.*25S/);
   assert.equal(fetch.mock.callCount(), 1);
   assert.ok(sent);
   assert.equal(sent.messages[0].role, 'system');
@@ -283,7 +295,13 @@ test('a failed primary LLM routes through the secondary and returns its answer',
   assert.equal(response.body.model, 'integration-secondary-model');
   assert.equal(response.body.fellBack, true);
   assert.equal(response.body.answerMode, 'knowledge-grounded');
-  assert.equal(response.body.choices?.[0]?.message.content, '备用模型结合手册给出的回答');
+  assert.ok(response.body.coordination?.candidates?.some(candidate => candidate.sourceIndexed &&
+    candidate.referenceVerification === 'verified' && candidate.modelMatch === 'exact' && !candidate.excluded &&
+    response.body.diagnosisTrace?.sentKnowledgeIds.includes(candidate.entryId ?? '')));
+  assert.equal(response.body.diagnosticReply?.aiSupplement, '备用模型结合手册给出的回答');
+  assert.ok(response.body.diagnosticReply?.suggestions.length);
+  assert.match(response.body.choices?.[0]?.message.content ?? '', /备用模型结合手册给出的回答/);
+  assert.notEqual(response.body.choices?.[0]?.message.content, response.body.diagnosticReply?.aiSupplement);
   assert.equal(fetch.mock.callCount(), 2);
   assert.doesNotMatch(JSON.stringify(response.body), /sensitive-upstream-error|integration-.*-secret/);
 });
@@ -302,7 +320,8 @@ test('two unavailable LLMs return a source-grounded local response with an expli
   assert.equal(response.body.coordination?.route, 'local');
   assert.equal(response.body.coordination?.reason, 'provider_unavailable');
   assert.ok((response.body.knowledgeChunks ?? 0) > 0);
-  assert.match(response.body.choices?.[0]?.message.content ?? '', /NH-WM25-003/);
+  assert.ok(response.body.knowledgeSources?.some(source => source.entryId === 'NH-WM25-003'));
+  assert.ok(response.body.diagnosticReply?.suggestions.length);
   assert.ok(response.body.knowledgeSources?.some((source) => source.sourceId === 'SRC-NH-WM25-92157408'));
   assert.equal(fetch.mock.callCount(), 2);
   assert.doesNotMatch(JSON.stringify(response.body), /sensitive-upstream-error|integration-.*-secret/);
@@ -325,6 +344,9 @@ test('brand and model supplements retrieve the original fault across multiple co
   const response = await chat({ messages: history }, '198.51.100.5');
   assert.equal(response.status, 200);
   assert.equal(response.body.answerMode, 'knowledge-grounded');
+  assert.ok(response.body.coordination?.candidates?.some(candidate => candidate.sourceIndexed &&
+    candidate.referenceVerification === 'verified' && candidate.modelMatch === 'exact' && !candidate.excluded &&
+    response.body.diagnosisTrace?.sentKnowledgeIds.includes(candidate.entryId ?? '')));
   assert.ok(response.body.knowledgeSources?.some((source) => source.entryId === 'NH-WM25-003'));
   assert.ok(response.body.knowledgeSources?.every((source) => source.sourceId === 'SRC-NH-WM25-92157408' ||
     source.entryType === '通识学习' && source.diagnosticEvidence === false && !source.sourceId));
@@ -389,7 +411,8 @@ test('invalid provider preference is visible in health and gracefully serves loc
   assert.equal(response.status, 200);
   assert.equal(response.body.provider, 'knowledge-base');
   assert.equal(response.body.answerMode, 'local-evidence');
-  assert.match(response.body.choices?.[0]?.message.content ?? '', /NH-WM25-003/);
+  assert.ok(response.body.knowledgeSources?.some(source => source.entryId === 'NH-WM25-003'));
+  assert.ok(response.body.diagnosticReply?.suggestions.length);
   assert.equal(fetch.mock.callCount(), 0);
 });
 
@@ -493,7 +516,8 @@ for (const [index, failure] of failures.entries()) {
     assert.equal(response.body.fallbackReason, 'provider_unavailable');
     assert.equal(response.body.coordination?.reason, 'provider_unavailable');
     assert.equal(response.body.answerMode, 'local-evidence');
-    assert.match(response.body.choices?.[0]?.message.content ?? '', /SRC-NH-WM25-92157408/);
+    assert.ok(response.body.knowledgeSources?.some(source => source.sourceId === 'SRC-NH-WM25-92157408'));
+    assert.ok(response.body.diagnosticReply?.suggestions.length);
     assert.ok(response.body.localSummary);
     assert.equal(spy.mock.callCount(), 1);
     assert.doesNotMatch(JSON.stringify(response.body) + warnings.join(' '), /sensitive-upstream-detail|integration-failure-secret/);

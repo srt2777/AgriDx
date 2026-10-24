@@ -1,3 +1,5 @@
+import type { ChatKnowledgeSource, ChatRoleFlow, DiagnosisTrace } from './chat';
+import type { CoordinationDecision, DiagnosticReply } from './diagnosis';
 /** Business memory is user-reported data, never verified repair evidence. */
 export interface DeviceProfile {
   name: string;
@@ -12,6 +14,11 @@ export interface MemoryDevice extends DeviceProfile {
   updatedAt: string;
 }
 export interface MemoryMessage {
+  diagnosticReply?: DiagnosticReply;
+  knowledgeSources?: ChatKnowledgeSource[];
+  coordination?: CoordinationDecision;
+  diagnosisTrace?: DiagnosisTrace;
+  roleFlow?: ChatRoleFlow;
   id: string;
   role: 'user' | 'assistant';
   content: string;

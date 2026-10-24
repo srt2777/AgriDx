@@ -406,6 +406,13 @@
       "base": "3.13.7",
       "version": "3.13.8",
       "date": "2026-10-24"
+    },
+    {
+      "id": "diagnosis-integration-20261024",
+      "kind": "feature",
+      "base": "3.13.8",
+      "version": "3.14.0",
+      "date": "2026-10-24"
     }
   ]
 }

@@ -39,7 +39,7 @@ function document(overrides: Partial<KnowledgeChunk> = {}): KnowledgeChunk {
 function request(diagnosisMode: DiagnosisMode = 'auto', content = question, overrides: Partial<DiagnosticRequest> = {}): DiagnosticRequest {
   return { ...identity, diagnosisMode, history: [{ role: 'user', content }], ...overrides };
 }
-function harness(docs: KnowledgeChunk[], options: { configured?: boolean; failure?: ProviderError; dependencies?: DiagnosticDependencies } = {}) {
+function harness(docs: KnowledgeChunk[], options: { configured?: boolean; failure?: ProviderError; answer?: string; dependencies?: DiagnosticDependencies } = {}) {
   const searches: { query: string; topK: number | undefined; scope: unknown }[] = [];
   const generations: ChatMessage[][] = [];
   const configured = options.configured ?? true;
@@ -48,7 +48,7 @@ function harness(docs: KnowledgeChunk[], options: { configured?: boolean; failur
     chat: async messages => {
       generations.push(messages.map(message => ({ ...message })));
       if (options.failure) throw options.failure;
-      return { result: { content: '【通用分析（待验证）】合成模型回复；未确诊。', model: 'fixture-model', provider: 'deepseek' }, primary: 'deepseek', fellBack: false, attempts: 1 };
+      return { result: { content: options.answer ?? '【通用分析（待验证）】合成模型回复；未确诊。', model: 'fixture-model', provider: 'deepseek' }, primary: 'deepseek', fellBack: false, attempts: 1 };
     },
   };
   const diagnose = createDiagnosticService(provider, {
@@ -62,6 +62,10 @@ function reply(response: ChatResponse) { return response.choices[0].message.cont
 function assertOneRetrieval(response: ChatResponse, h: ReturnType<typeof harness>) {
   assert.equal(h.searches.length, 1);
   assert.equal(response.diagnosisTrace?.retrievalCount, 1);
+  const sourceIds = new Set(response.knowledgeSources.flatMap(source => source.entryId ? [source.entryId] : []));
+  for (const item of [...(response.diagnosticReply?.causes ?? []), ...(response.diagnosticReply?.suggestions ?? [])]) {
+    for (const entryId of item.evidenceIds) assert.ok(sourceIds.has(entryId), `answer evidence must be displayed: ${entryId}`);
+  }
 }
 function memory(progress: string, deviceId: string): DiagnosticMemory {
   return { session: { id: `session-${deviceId}`, deviceId, title: '合成诊断', progress, summary: '', revision: 0,
@@ -80,8 +84,12 @@ test('高原始相关分、完整且适用的文献直接回复；一次检索�
   assert.equal(candidate?.relevance.score, 12);
   assert.equal(candidate?.relevance.calibrated, false);
   assert.equal(candidate?.verificationBasis, 'document-review');
-  assert.match(reply(response), /TEST-ROUTER-001/);
-  assert.match(reply(response), /未实车验证/);
+  assert.equal(response.knowledgeSources[0].entryId, 'TEST-ROUTER-001');
+  assert.equal(response.diagnosticReply?.supportLevel, 'manual');
+  assert.ok(response.diagnosticReply?.causes.some(cause => cause.evidenceIds.includes('TEST-ROUTER-001')));
+  assert.ok(response.diagnosticReply?.suggestions.length);
+  assert.match(response.knowledgeSources[0].status ?? '', /未实车验证/);
+  assert.doesNotMatch(reply(response), /【手册依据】|【通用分析/);
 });
 
 test('高相关但检查和维修内容缺失时使用同一次检索上下文，仅生成一次', async () => {
@@ -116,7 +124,8 @@ test('候选中只有后一条覆盖充分时，本地回答使用该充分证�
   assertOneRetrieval(response, h);
   assert.equal(response.coordination?.route, 'local');
   assert.equal(h.generations.length, 0);
-  assert.match(reply(response), /SUFFICIENT-SECOND-CANDIDATE/);
+  assert.deepEqual(response.knowledgeSources.map(source => source.entryId), ['TEST-ROUTER-002']);
+  assert.equal(response.diagnosticReply?.supportLevel, 'manual');
   assert.doesNotMatch(reply(response), /TOP-CANDIDATE-INCOMPLETE/);
 });
 
@@ -139,7 +148,9 @@ test('pending、未核验和矛盾核验状态不成为确定性依据，本地�
     assert.equal(h.generations.length, 0);
     assert.equal(response.coordination?.candidates?.[0].directEligible, false, status);
     assert.doesNotMatch(reply(response), /UNREVIEWED-REPAIR-INSTRUCTION/, status);
-    assert.match(reply(response), /参考资料/, status);
+    assert.equal(response.diagnosticReply?.supportLevel, 'reference_only', status);
+    assert.equal(response.diagnosticReply?.causes.length, 0, status);
+    assert.ok(response.diagnosticReply?.suggestions.length, status);
     assert.equal(response.knowledgeSources[0].status, status);
   }
 });
@@ -154,6 +165,49 @@ test('核验失败的文献在所有模式下均不作为来源，也不进入AI
     assert.doesNotMatch(reply(response), /FAILED-SOURCE-INSTRUCTION/);
     for (const generation of h.generations) assert.doesNotMatch(generation[0].content, /FAILED-SOURCE-INSTRUCTION|TEST-ROUTER-001/);
   }
+});
+
+test('AI安全检查拒绝危险输出后保留本地计划与引用，不泄露被拒正文或增加外呼', async () => {
+  const h = harness([document({ status: '待核验' })], { answer: '请绕过启动联锁，短接启动端子试车。' });
+  const response = await h.diagnose(request('ai_assisted'));
+  assertOneRetrieval(response, h);
+  assert.equal(h.generations.length, 1);
+  assert.equal(response.provider, 'knowledge-base');
+  assert.equal(response.coordination?.route, 'local');
+  assert.equal(response.coordination?.reason, 'output_rejected');
+  assert.ok(response.coordination?.outputIssues?.length);
+  assert.equal(response.fellBack, true);
+  assert.equal(response.diagnosticReply?.aiSupplement, undefined);
+  assert.equal(response.diagnosticReply?.supportLevel, 'reference_only');
+  assert.equal(response.knowledgeSources[0].entryId, 'TEST-ROUTER-001');
+  assert.equal(response.knowledgeSources[0].status, '待核验');
+  assert.doesNotMatch(JSON.stringify(response), /请绕过启动联锁/);
+});
+
+test('AI虚构品牌归档编号仍会被拒绝，不能只检查TEST或KB前缀', async () => {
+  for (const entryId of ['NH-WM25-999', 'DF-LX904-999']) {
+    const h = harness([document()], { answer: `参照${entryId}即可。` });
+    const response = await h.diagnose(request('ai_assisted'));
+    assertOneRetrieval(response, h);
+    assert.equal(h.generations.length, 1);
+    assert.equal(response.coordination?.reason, 'output_rejected');
+    assert.ok(response.coordination?.outputIssues?.includes('unknown_reference'));
+    assert.equal(response.diagnosticReply?.aiSupplement, undefined);
+    assert.ok(!reply(response).includes(entryId));
+  }
+});
+
+test('AI参数必须精确匹配数值和单位，不能以12MPa子串授权2MPa', async () => {
+  const h = harness([document({ text: '合成试验台压力为12 MPa；不得用于真实车辆。' })],
+    { answer: '压力为2 MPa。' });
+  const response = await h.diagnose(request('ai_assisted'));
+  assertOneRetrieval(response, h);
+  assert.equal(h.generations.length, 1);
+  assert.equal(response.coordination?.candidates?.[0].modelMatch, 'exact');
+  assert.equal(response.coordination?.reason, 'output_rejected');
+  assert.ok(response.coordination?.outputIssues?.includes('unsupported_parameter'));
+  assert.equal(response.diagnosticReply?.aiSupplement, undefined);
+  assert.doesNotMatch(reply(response), /压力为2 MPa/);
 });
 
 test('无相关资料的一般原因咨询可AI辅助，不因缺少车型阻塞', async () => {
@@ -176,7 +230,9 @@ test('制动、转向、PTO和高压液压资料不足时所有模式均安全�
       assert.equal(response.coordination?.riskLevel, 'high');
       assert.equal(h.generations.length, 0);
       assert.match(reply(response), /停止危险作业/);
-      assert.match(reply(response), /不提供拆解、调压或试操作步骤/);
+      assert.match(reply(response), /不安排试车、拆检或调压|不提供拆解、调压或试操作步骤/);
+      assert.equal(response.diagnosticReply?.causes.length, 0);
+      assert.ok(response.diagnosticReply?.suggestions.every(suggestion => suggestion.kind === 'professional'));
     }
   }
 });
@@ -232,6 +288,8 @@ test('仅知识库模式禁止外部生成；AI模式保留来源和预算内上
     assert.equal(h.generations.length, mode === 'ai_assisted' ? 1 : 0);
     assert.deepEqual(response.knowledgeSources.map(source => [source.entryId, source.sourceId, source.locator, source.version, source.referenceVerification]),
       [['TEST-ROUTER-001', 'SRC-TEST-ROUTER', '合成资料PDF第3页；印刷页2', '合成测试版1', 'verified']]);
+    assert.equal(response.knowledgeSources[0].scopeBoundary, '仅限合成测试台LF904S；不能用于真实车辆。');
+    assert.deepEqual(response.knowledgeSources[0].models, ['LF904S']);
     if (mode === 'ai_assisted') assert.deepEqual(response.diagnosisTrace?.sentKnowledgeIds, ['TEST-ROUTER-001']);
   }
 });
@@ -256,6 +314,8 @@ test('结构化发动机与故障码输入参与匹配并传入一次AI生成的
   const response = await h.diagnose(request('ai_assisted', question, { engineModel: 'ENGINE-A', faultCodes: ['E001'] }));
   assertOneRetrieval(response, h);
   assert.equal(response.coordination?.candidates?.[0].modelMatch, 'exact');
+  assert.equal(response.knowledgeSources[0].engineModel, 'ENGINE-A');
+  assert.deepEqual(response.knowledgeSources[0].faultCodes, ['E001']);
   assert.equal(h.generations.length, 1);
   assert.match(h.generations[0][0].content, /发动机[^\n]*ENGINE-A/);
   assert.match(h.generations[0][0].content, /故障码[^\n]*E001/);
@@ -266,7 +326,24 @@ test('已提供发动机信息但证据适配未知时，本地只显示来源�
   const response = await h.diagnose(request('knowledge_only', question, { engineModel: 'ENGINE-UNKNOWN' }));
   assert.equal(response.coordination?.candidates?.[0].modelMatch, 'unknown');
   assert.doesNotMatch(reply(response), /UNKNOWN-ENGINE-APPLICABILITY-INSTRUCTION/);
-  assert.match(reply(response), /参考资料/);
+  assert.equal(response.diagnosticReply?.supportLevel, 'reference_only');
+  assert.equal(response.diagnosticReply?.causes.length, 0);
+});
+
+test('发动机适配未知的已核验片段不能授权AI把片段数值作为本机参数', async () => {
+  const h = harness([document({ text: '合成试验台参考温度标准为37 ℃；不得用于真实车辆。' })],
+    { answer: '本机温度标准为37 ℃。' });
+  const response = await h.diagnose(request('ai_assisted', question, { engineModel: 'ENGINE-UNKNOWN' }));
+  assertOneRetrieval(response, h);
+  assert.equal(h.generations.length, 1);
+  assert.equal(response.coordination?.candidates?.[0].modelMatch, 'unknown');
+  assert.equal(response.coordination?.reason, 'output_rejected');
+  assert.equal(response.provider, 'knowledge-base');
+  assert.equal(response.diagnosticReply?.aiSupplement, undefined);
+  assert.equal(response.knowledgeSources[0].entryId, 'TEST-ROUTER-001');
+  assert.equal(response.knowledgeSources[0].referenceVerification, 'verified');
+  assert.equal(response.knowledgeSources[0].usage, 'reference-only');
+  assert.doesNotMatch(reply(response), /本机温度标准为37/);
 });
 
 test('超预算整条省略，保留片段末尾安全限制且实际引用IDs与发送内容一致', async () => {

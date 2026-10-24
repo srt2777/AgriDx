@@ -1,7 +1,8 @@
 import type { CoordinationDecision, DiagnosisCandidateAssessment, DiagnosticCoverageKey, DiagnosticRiskLevel, DiagnosisMode, RouteReason } from '../../shared/diagnosis';
 import type { KnowledgeChunk } from '../knowledge/retriever';
 import { archiveApplicability, queryWithoutIdentity, resolveScope, type RetrievalContext, type ResolvedScope } from '../knowledge/scope';
-import { hasIndexedReference, mentionsEntryId, referenceVerification } from '../knowledge/evidence';
+import { hasIndexedReference, mentionsEntryId, referenceVerification, requiredDiagnosticCoverage } from '../knowledge/evidence';
+export { requiredDiagnosticCoverage } from '../knowledge/evidence';
 
 export interface DiagnosisRouterConfig {
   defaultMode: DiagnosisMode;
@@ -26,6 +27,8 @@ export interface DiagnosisRouterInput {
   llmConfigValid?: boolean;
   /** Explicit conflicts discovered by the caller; no model is used to invent one. */
   evidenceConflict?: boolean;
+  /** Independently checked against the active source snapshot; undefined for injected/unknown stores. */
+  manualAvailable?: boolean;
 }
 const TECHNICAL = new Set(['维护/故障知识', '操作/维护知识', '安全操作', '系统安装/调试']);
 const UNCERTAIN_SCOPE = /待核实|待核验|待确认|未确认|未核实|未核验|未知|不明确/;
@@ -34,20 +37,12 @@ const OPERATION_REQUEST = /(?:how\s+to\s+|steps?\s+to\s+)(?:repair|disassemble|r
 const PARAMETER_REQUEST = /故障码.*(?:含义|意思|解释)|(?:含义|解释).*故障码|(?:压力|扭矩|间隙|电压|温度).*(?:标准|多少|参数)|(?:标准|规定).*(?:压力|扭矩|间隙|电压|温度)/;
 const SYNTHESIS_REQUEST = /综合|比较|对比|多种故障|多个故障|一起分析/;
 
-/** Select only the dimensions required by this question, without runtime text analysis of documents. */
-export function requiredDiagnosticCoverage(question: string): DiagnosticCoverageKey[] {
-  if (/原因|为什么|为何/.test(question) && !/怎么办|怎么修|维修|处理|排查|检查/.test(question)) return ['symptom', 'causes'];
-  if (/怎么判断|如何判断|检查|排查|诊断|检测/.test(question) && !/维修|修理|怎么修|处理|怎么办/.test(question)) return ['symptom', 'checks'];
-  if (/维修|修理|怎么修|处理|怎么办|修复/.test(question)) return ['symptom', 'checks', 'repair'];
-  if (/故障现象|症状|有什么表现/.test(question)) return ['symptom'];
-  return ['symptom', 'causes', 'checks', 'repair'];
-}
-
 function exactLookup(question: string, found: KnowledgeChunk[], scope: RetrievalContext, resolved: ResolvedScope): KnowledgeChunk | undefined {
   if (!/查阅|查找|查看|原文|摘录|手册|资料|说明书/.test(question) || /为什么|原因|分析|比较|综合|诊断|怎么办/.test(question) || !scope.brand || !scope.model || resolved.identityConflict) return;
   const normalize = (s: string) => queryWithoutIdentity(s).toLowerCase().replace(/[\s\p{P}]/gu, '');
   const normalizedQuestion = normalize(question);
-  const direct = found.filter(c => hasIndexedReference(c) && TECHNICAL.has(c.entryType ?? '') && c.applicability === 'matched' &&
+  const direct = found.filter(c => !c.retrieval?.referenceOnly && !['component', 'general'].includes(c.retrieval?.tier ?? '') &&
+    hasIndexedReference(c) && TECHNICAL.has(c.entryType ?? '') && c.applicability === 'matched' &&
     [c.locator, c.version, c.scopeBoundary].every(v => v?.trim()) && referenceVerification(c.status) === 'verified' && !UNCERTAIN_SCOPE.test(c.scopeBoundary ?? '') &&
     (mentionsEntryId(question, c.entryId!) || (() => {
       const heading = c.heading.split('｜').at(-1) ?? c.heading;
@@ -73,6 +68,7 @@ function candidateMatch(chunk: KnowledgeChunk, input: DiagnosisRouterInput, reso
   if (input.scope.engineModel && !chunk.engineModel) return 'unknown';
   if ((input.scope.faultCodes?.length || /故障码.*(?:含义|意思|解释)/.test(input.currentQuery)) && !chunk.faultCodes?.length) return 'unknown';
   if (UNCERTAIN_SCOPE.test(chunk.scopeBoundary ?? '')) return 'unknown';
+  if (chunk.retrieval?.referenceOnly || chunk.retrieval?.tier === 'component' || chunk.retrieval?.tier === 'general') return 'compatible';
   if (chunk.applicability === 'matched') return 'exact';
   // General documents without an identity may be useful context, but their
   // lack of indexed provenance prevents a deterministic direct repair answer.
@@ -108,12 +104,15 @@ export function decideDiagnosisRoute(input: DiagnosisRouterInput, config: Readon
     const coverageSufficient = requiredCoverage.every(key => coverage[key] === true);
     const level = score === null ? 'unknown' : score >= config.highRelevanceThreshold ? 'high' : score >= config.mediumRelevanceThreshold ? 'medium' : 'low';
     const learningReference = chunk.entryType === '通识学习' && chunk.diagnosticEvidence === false;
-    const excluded = invalidScore || verification === 'failed' || modelMatch === 'conflict' || level === 'low' || Boolean(chunk.entryId && !sourceIndexed && !learningReference);
-    const directEligible = !isAssisted && !excluded && sourceIndexed && TECHNICAL.has(chunk.entryType ?? '') && modelMatch === 'exact' && verification === 'verified' &&
+    const structuralReference = chunk.retrieval?.referenceOnly && ['component', 'general'].includes(chunk.retrieval.tier);
+    const excluded = invalidScore || verification === 'failed' || modelMatch === 'conflict' || level === 'low' && !structuralReference || Boolean(chunk.entryId && !sourceIndexed && !learningReference);
+    const directEligible = !isAssisted && !excluded && !chunk.retrieval?.referenceOnly &&
+      !['component', 'general'].includes(chunk.retrieval?.tier ?? '') && sourceIndexed && TECHNICAL.has(chunk.entryType ?? '') && modelMatch === 'exact' && verification === 'verified' &&
       [chunk.locator, chunk.version, chunk.scopeBoundary].every(v => v?.trim()) && (chunk === exact || level === 'high' && coverageSufficient && chunk.diagnosticMetadata?.riskLevel === 'low');
     return { entryId: chunk.entryId, sourceId: chunk.sourceId, relevance: { score, method: score === null ? 'unavailable' : 'keyword-weighted-overlap', calibrated: false, level },
       coverage, coverageSufficient, modelMatch, referenceVerification: verification, verificationBasis: verification === 'verified' ? 'document-review' : 'none',
-      sourceIndexed, riskLevel: chunk.diagnosticMetadata?.riskLevel ?? 'unknown', directEligible, excluded };
+      sourceIndexed, riskLevel: chunk.diagnosticMetadata?.riskLevel ?? 'unknown', directEligible, excluded,
+      ...(chunk.retrieval ? { retrieval: { ...chunk.retrieval, basis: [...chunk.retrieval.basis] } } : {}) };
   });
   for (const candidate of candidates) {
     if (candidate.entryId && conflictingEntryIds.has(candidate.entryId)) {
@@ -137,10 +136,16 @@ export function decideDiagnosisRoute(input: DiagnosisRouterInput, config: Readon
   const evidenceLevel: CoordinationDecision['evidenceLevel'] = !hasDiagnosticEvidence ? 'none'
     : !isAssisted && direct.length === 1 && !SYNTHESIS_REQUEST.test(input.currentQuery) && !evidenceConflict ? 'direct_reference' : 'partial';
   const ids = (selected: DiagnosisCandidateAssessment[]) => [...new Set(selected.flatMap(candidate => candidate.entryId ? [candidate.entryId] : []))];
+  const sufficient = !evidenceConflict && usable.some(candidate => candidate.sourceIndexed && candidate.referenceVerification === 'verified' &&
+    candidate.modelMatch === 'exact' && candidate.relevance.level === 'high' && candidate.coverageSufficient &&
+    !candidate.retrieval?.referenceOnly && !['component', 'general'].includes(candidate.retrieval?.tier ?? ''));
+  const retrievalOutcome = sufficient ? 'sufficient' as const : input.manualAvailable === false ? 'no_manual' as const
+    : usable.length ? 'insufficient_evidence' as const : 'no_results' as const;
   const result = (route: CoordinationDecision['route'], reason: RouteReason): CoordinationDecision => ({
     requestedMode, effectiveMode, route, reason, evidenceLevel, llmConfigured: input.llmConfigured,
     knowledgeIds: ids(usable), aiRequired: route === 'ai', riskLevel, requiredCoverage, candidates,
     directEligibleIds: ids(direct), referenceOnlyIds: ids(usable.filter(candidate => !candidate.directEligible)), excludedKnowledgeIds: ids(candidates.filter(candidate => candidate.excluded)),
+    retrievalOutcome,
   });
   // A reviewed manual still does not authorize dangerous disassembly. High-risk
   // paths deliberately remain limited safety replies in every public mode.

@@ -163,6 +163,29 @@ test('multiple complete references require synthesis rather than assuming differ
   assert.equal(decision.reason, 'synthesis_requested');
 });
 
+test('retrieval outcomes distinguish source absence, a topic miss and incomplete usable content', () => {
+  assert.equal(decide({ retrieved: [], manualAvailable: false }).retrievalOutcome, 'no_manual');
+  assert.equal(decide({ retrieved: [], manualAvailable: true }).retrievalOutcome, 'no_results');
+  assert.equal(decide({ manualAvailable: true }, { diagnosticMetadata: {
+    coverage: { symptom: true, causes: false, checks: false, repair: false }, riskLevel: 'low',
+  } }).retrievalOutcome, 'insufficient_evidence');
+  assert.equal(decide({ manualAvailable: true }).retrievalOutcome, 'sufficient');
+  assert.equal(decide({ manualAvailable: true, requestedMode: 'ai_assisted' }).retrievalOutcome, 'sufficient');
+  assert.equal(decide({ manualAvailable: true, evidenceConflict: true }).retrievalOutcome, 'insufficient_evidence');
+  // Injected stores need not pretend that a missing search hit means a missing manual.
+  assert.equal(decide({ retrieved: [] }).retrievalOutcome, 'no_results');
+});
+
+test('zero lexical score can retain a structural component reference without authorizing direct repairs', () => {
+  const decision = decide({}, { retrieval: { tier: 'component', basis: ['合成组件关联'], referenceOnly: true },
+    relevance: { score: 0, method: 'keyword-weighted-overlap', calibrated: false } });
+  assert.equal(decision.candidates?.[0].excluded, false);
+  assert.equal(decision.candidates?.[0].relevance.score, 0);
+  assert.equal(decision.candidates?.[0].directEligible, false);
+  assert.equal(decision.retrievalOutcome, 'insufficient_evidence');
+  assert.deepEqual(decision.referenceOnlyIds, ['TEST-001']);
+});
+
 test('environment raw threshold configuration fails closed for malformed or reversed values', () => {
   const fields = ['DIAGNOSIS_MODE', 'ALLOW_EXTERNAL_AI', 'DIAGNOSIS_RAW_HIGH_THRESHOLD', 'DIAGNOSIS_RAW_MEDIUM_THRESHOLD'] as const;
   const previous = fields.map(field => process.env[field]);
