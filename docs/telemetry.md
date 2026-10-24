@@ -1,6 +1,6 @@
 # 仿真监测协议与后端生成器
 
-仿真是正式功能，始终明示来源。当前没有真实传感器输入；本批仅新增共享协议、配置与后端纯生成器，尚未挂载HTTP接口或接入前端。下一批实现内存环形缓冲、SSE/history后，再迁移现有监测页面到统一数据流。
+仿真是正式功能，始终明示来源。当前没有真实传感器输入。共享协议、配置与后端纯生成器已接入有上限的内存运行时及SSE/history；前端迁移仍是下一批工作，现有监测页面尚未消费新接口。
 
 ## 来源与隔离
 
@@ -42,11 +42,36 @@
 
 调用方可以独立传`scenarioElapsedMs`触发场景，同时保留总采样时钟；`loop=true`按配置周期循环，默认不循环。切回`normal`不重置噪声序列。UI场景选择与授权的场景控制留到后续PR，不在当前批新增操作接口。
 
-## 后续接口边界
+## 读取接口与运行时
 
-后续独立PR将提供 `GET /api/telemetry/stream` 与 `GET /api/telemetry/history?channel=&window=`，由同一后端运行时产生采样，使用有上限的内存环形缓冲，无数据库。运行模式默认`TELEMETRY_MODE=simulated`，关闭时拒绝遥测读取；SSE需有心跳、重连/受限重放与慢客户端处理，history严格校验通道与时间窗。沿用既有限流和错误脱敏，不让原始异常或配置内容进入响应。接口详细帧与错误约定在实际实现后补充，本批不声称端点已可用。
+`server/telemetry/runtime.ts`由服务器运行时创建，每个应用共用一个生产者。默认`TELEMETRY_MODE=simulated`；`off`或未知模式均关闭读取且不加载仿真配置。可通过`TELEMETRY_SEED`指定无符号32位十进制种子，默认2777，非法种子拒绝初始化。配置示例见根目录`.env.example`，不增加真实设备令牌或ingest路由。
 
-前端统一`useTelemetry`负责连接、重连、延迟（超过目录`staleAfterMs`）与降采样；图表只消费该流。状态显示仿真/延迟/离线，不能将模拟来源标为实时。既有`FaultDetectionPage/demo.ts`仍有独立前端仿真，必须在前端遥测阶段迁移，不能长期保留第二条造数路径。
+导入模块和构造生产者不启动计时器。首次读取/订阅时生成采样并启动可清理的后台计时器；帧由所有SSE客户端与history共用，不按连接重新造数。内存环形缓冲默认3600帧，配置硬上限3600，每帧含21路当前采样；长时间暂停后的补帧同样最多保留一圈，时钟回退不产生倒序点。无数据库或磁盘遥测文件。重启会丢弃历史并生成新`runId`。
+
+### GET /api/telemetry/history
+
+必须传单个`channel`（全局通道ID）。`window`仅支持`5m`、`15m`、`1h`，省略默认`5m`；空值、重复/数组值、非法通道格式或未知参数为400，未知通道为404。只返回所选通道及窗口中缓冲现有的点，不补造启动前的历史。
+
+响应为`TelemetryHistory`，含`schemaVersion`、`source=simulated`、`watermark`、`runId`、公开通道描述、`window`、`from/to`和`points`；设置`Cache-Control: no-store`。采样含来源，导出此响应须保留水印或来源字段；前端自行生成图片仍须另加可见水印。
+
+### GET /api/telemetry/stream
+
+SSE不接受查询参数；HEAD明确返回405/Allow: GET，避免被Express自动转到持续GET连接。`Content-Type: text/event-stream`，禁缓存/变换，`X-Accel-Buffering: no`。首个`catalog`事件附`retry: 3000`（原生EventSource的重试间隔），提供公开通道、种子、时长与固定仿真水印，不提供噪声或脚本。
+
+| SSE事件 | 内容及游标 |
+| --- | --- |
+| `catalog` | 每次连接的`TelemetryCatalog`，无id |
+| `telemetry` | `TelemetryFrame`，id为`runId:sequence`，同一run递增，含固定水印和仅simulated采样/仿真告警 |
+| `heartbeat` | 按目录`heartbeatMs`发送（默认15秒），含schemaVersion/source/watermark/当前Unix毫秒，无id，不前移采样游标或刷新采样新鲜度 |
+| `reset` | 含schemaVersion/source/watermark/runId及reason：`server_restart`、`history_expired`、`cursor_ahead`；客户端应清理旧run并重新读history，无id |
+
+首次连接发送最新一帧。断线重连使用标准`Last-Event-ID`：只接受有上限的`runId:正整数sequence`，不回显非法输入；游标仍在缓冲且落后不超过30帧时只重放后续帧。更早游标、不同run或超前游标先发送reset，再发送最新帧；大缺口由history补读，不无限重放。相同最新游标可只接收心跳，直到新采样产生。
+
+限流沿用既有每IP每分钟30次中间件，history与SSE握手共用该配额；SSE同时限制每IP4条、应用共32条连接。每条SSE遵守drain背压，待写事件最多64条，待写数据及Node写缓冲合计最多256KiB；超限直接销毁慢连接并释放订阅/心跳/连接名额，不能把待刷新响应无限留在内存。正常断开同样清理。
+
+两端点关闭时返回503/`telemetry_disabled`；限流429/`rate_limited`，连接上限429/`telemetry_connection_limit`，未知通道404/`telemetry_channel_not_found`，无效输入400/`bad_request`。意外错误复用既有脱敏500响应，不把内部路径、异常或配置传给客户端。`POST /api/telemetry/ingest`仍为未实现的404。
+
+前端统一`useTelemetry`负责连接、重连、延迟（超过目录`staleAfterMs`）与降采样；图表只消费该流。共享`telemetryConnectionState`只按新采样收到时间判断新鲜度，心跳不重置它：连接断开为离线，超过N秒无新点为延迟，simulated新点为仿真；仅未来device来源允许实时标签。每次加载/失败/无数据仍须单独显示。既有`FaultDetectionPage/demo.ts`仍有独立前端仿真，必须在前端遥测阶段迁移，不能长期保留第二条造数路径。纯静态预览没有后端时应显示不可用，不得转为前端自产数。
 
 ## 未来真实设备接入（本阶段不实现）
 
@@ -56,4 +81,4 @@
 
 ## 验证
 
-运行 `node --import tsx --test tests/telemetry-simulator.test.ts`。测试覆盖实际部件引用、同种子/调用顺序复现、平滑与日周期、时间轴与独立触发/循环、多个种子与全场景有限量程、状态枚举、阈值唯一来源/无配置空结论、来源隔离、公开目录裁剪与错误配置拒绝。完整项目仍须`npm run verify`通过，GitHub CI、合并与未部署证据分别记于PR。
+运行 `node --import tsx --test tests/telemetry-simulator.test.ts tests/telemetry-runtime.test.ts tests/telemetry-api.test.ts`。测试覆盖实际部件引用、确定性/场景/有限量程/阈值/源隔离，以及环形缓冲上限、窗口校验、重放/重置、定时采样、心跳、新鲜度、背压/断开清理、限流、关闭模式及脱敏。完整项目仍须`npm run verify`通过，GitHub CI、合并与未部署证据分别记于PR。

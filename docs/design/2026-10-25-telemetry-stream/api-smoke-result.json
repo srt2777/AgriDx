@@ -1,0 +1,14 @@
+{
+  "source": "simulated",
+  "watermark": "仿真数据 / Simulated data",
+  "seed": 2777,
+  "channels": 21,
+  "framesObserved": 15,
+  "heartbeat": true,
+  "resumed": true,
+  "reset": "server_restart",
+  "historyPoints": 24,
+  "invalidWindow": 400,
+  "ingestNotImplemented": 404,
+  "deployment": "not deployed"
+}

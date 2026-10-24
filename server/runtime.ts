@@ -6,6 +6,7 @@ import { createDiagnosticService, type DiagnosticService } from './diagnosis/ser
 import { getKnowledgeCatalog, loadKnowledgeCatalog } from './knowledge/catalog';
 import { loadKnowledgeBase, stats } from './knowledge/retriever';
 import { getLlmRouter, type LlmStatus } from './llm/router';
+import { telemetryFromEnvironment, type TelemetryRuntime } from './telemetry/runtime';
 
 export interface ServerRuntime {
   rootDirectory: string;
@@ -15,6 +16,7 @@ export interface ServerRuntime {
   getLlmStatus: () => LlmStatus;
   getCatalog: typeof getKnowledgeCatalog;
   getMemoryStore?: typeof getMemoryStore;
+  telemetry?: TelemetryRuntime;
 }
 
 /** Explicit startup composition; importing the app factory performs no initialization. */
@@ -27,6 +29,7 @@ export function createServerRuntime(): ServerRuntime {
   const version: string = JSON.parse(fs.readFileSync(path.resolve(rootDirectory, 'package.json'), 'utf8')).version;
   return {
     rootDirectory, version, getMemoryStore,
+    telemetry: telemetryFromEnvironment(rootDirectory),
     diagnose: createDiagnosticService(llm),
     getKnowledgeStats: stats,
     getLlmStatus: () => llm.getStatus(),
