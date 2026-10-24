@@ -45,6 +45,7 @@ interface WorldProps {
   cinematic: boolean;
   onCinematicEnd: () => void;
   onSelect: (id: ZoneId) => void;
+  onTractorSelect?: () => void;
   onPosition: (state: DriveState) => void;
   onNearby: (id: ZoneId | null) => void;
   onLive?: () => void;
@@ -684,10 +685,12 @@ function WorldScene({
   cinematic,
   onCinematicEnd,
   onSelect,
+  onTractorSelect,
   onPosition,
   onNearby,
   onLoaded,
 }: WorldProps & { onLoaded: () => void }) {
+  const lang = useLang();
   const actor = useRef<THREE.Group>(null);
   const orbit = useRef<OrbitControlsImpl>(null);
   const vehicle = useRef(initialDriveState());
@@ -932,12 +935,17 @@ function WorldScene({
       {WORLD_ZONES.map((zone) => (
         <Pavilion key={zone.id} zone={zone} selected={selected === zone.id} reducedMotion={reducedMotion} onSelect={onSelect} />
       ))}
-      <group ref={actor}>
+      <group ref={actor} onClick={event => { event.stopPropagation(); onTractorSelect?.(); }}>
         <ErrorBoundary FallbackComponent={WorldLost}>
           <Suspense fallback={null}>
             <TractorModel />
           </Suspense>
         </ErrorBoundary>
+          {onTractorSelect && <Html position={[0, 2, 0]} center zIndexRange={[8, 4]} className="world-label-wrap">
+            <button type="button" className="world-zone-label" onClick={onTractorSelect} aria-label={lang === 'zh' ? '中央拖拉机：查看结构与故障检测演示' : 'Central tractor: structure and fault detection demo'}>
+              <span>{lang === 'zh' ? '中央拖拉机' : 'TRACTOR'}</span><strong>{lang === 'zh' ? '结构 / 故障演示' : 'Structure / fault demo'}</strong>
+            </button>
+          </Html>}
       </group>
       <group ref={streaks} visible={false}>
         {[-0.42, 0, 0.42].map((x) => (

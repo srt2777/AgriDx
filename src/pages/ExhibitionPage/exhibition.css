@@ -1631,4 +1631,6 @@
 }
 
 .expo-title > span, .expo-guide-eyebrow { color: var(--wheat); }
+.expo-zone-actions > .expo-fault-link { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 44px; padding: 11px 15px; border: 1px solid var(--border); border-radius: 7px; background: var(--accent); color: var(--foreground); font-size: 12px; }
+.expo-zone-card { max-height: calc(100% - 180px); overflow-y: auto; overscroll-behavior: contain; }
 .expo-header { border-bottom-color: color-mix(in srgb, var(--wheat) 35%, var(--border)); }
