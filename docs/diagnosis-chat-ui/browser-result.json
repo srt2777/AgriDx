@@ -1,0 +1,19 @@
+{
+  "passed": true,
+  "testType": "Real Chromium + HTTP, simulated provider (not real DeepSeek/Gemini)",
+  "first": "以下是通用分析，尚无匹配手册支持，不能据此确诊或确定本机参数。\n\nLF1504旋耕时水温过高，通常表示散热能力暂时不能覆盖负荷。常见待核实方向包括散热器外部堵塞、冷却液不足或风扇传动异常。\n\n先安全停机冷却，只作已有外部观察；不开热盖、不拆检。\n\n空载或轻负荷时是否也出现，是否已有报警原文？\n\n1. 不要在热机或带压时打开冷却系统盖，也不要接近高温蒸汽；先按本机规程安全停机并交由合格人员处理。\n2. 安全停机并完全冷却后，只从外部观察散热器表面有无草屑遮挡、地面有无液体痕迹；不触碰风扇、不打开盖、不拆洗或加液。",
+  "desktop": true,
+  "mobile": true,
+  "classic": true,
+  "historyRestored": true,
+  "evidenceOutsideBubble": true,
+  "evidenceOpensWithoutModelCall": true,
+  "errors": [],
+  "question": "东方红 LF1504 旋耕时水温过高是什么原因",
+  "baselineCommit": "a928a451692589ec991bc493b23f7f2a066f3074",
+  "viewports": {
+    "desktop": "1440x1000",
+    "mobile": "390x844"
+  },
+  "servedBuild": "production client bundle (local only)"
+}
