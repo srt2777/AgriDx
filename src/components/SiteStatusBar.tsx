@@ -1,3 +1,4 @@
+import { useUiVersion } from '@/hooks/useUiVersion';
 import { version } from '../../package.json';
 import { useLang } from '@/hooks/useLang';
 import { statusPlace } from '@/lib/command-routes';
@@ -7,8 +8,10 @@ import './site-status.css';
 /** Same identity and place line on the campus, the shell, and the new 404. */
 export function SiteStatusBar() {
   const lang = useLang();
+  const uiVersion = useUiVersion();
   const { pathname } = useLocation();
   const place = statusPlace(pathname, lang);
+  if (uiVersion === 'old') return <footer className="site-status-bar"><span>耕知耘诊</span><Link to="/version-history">{lang === 'zh' ? '版本' : 'Version'} {version}</Link></footer>;
   return (
     <footer className="site-status-bar">
       <span>

@@ -1,3 +1,4 @@
+import { useUiCopy } from '@/ui/useUiCopy';
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import type { KnowledgeCatalog } from '@shared/knowledge-catalog';
@@ -7,7 +8,7 @@ import EvidenceEntry from './EvidenceEntry';
 import './knowledge-taxonomy.css';
 
 export default function KnowledgeGraph({ catalog, lang }: { catalog: KnowledgeCatalog; lang: string }) {
-  const t = (zh: string, en: string) => lang === 'zh' ? zh : en;
+  const { t, format, separator } = useUiCopy(lang);
   const nodes = useMemo(() => taxonomyNodes(catalog), [catalog]);
   const [selectedId, setSelected] = useState('');
   const [search, setSearch] = useState('');
@@ -43,7 +44,7 @@ export default function KnowledgeGraph({ catalog, lang }: { catalog: KnowledgeCa
     <nav className="taxonomy-trail" aria-label={t('当前知识路径', 'Current knowledge path')}><button onClick={() => setSelected('')}>{t('全部归档', 'All archives')}</button>{path.map(node => <span key={node.id}><span aria-hidden="true"> → </span><button onClick={() => setSelected(node.id)} aria-current={selected?.id === node.id ? 'location' : undefined}>{node.label}</button></span>)}</nav>
     <div className="taxonomy-columns">{levels.map(({ level, label, parent }, index) => {
       const children = nodes.filter(node => node.level === level && (level === 'brand' || !!parent && node.parent === parent));
-      return <section className="taxonomy-column" key={level} aria-label={label}><h3><span>{String(index + 1).padStart(2, '0')}</span>{label}<small>{children.length}</small></h3><div className="taxonomy-node-list">{children.map(node => <button className={node.count ? '' : 'taxonomy-gap'} key={node.id} aria-pressed={path.some(item => item.id === node.id)} onClick={() => setSelected(node.id)}><span>{node.label}</span><small>{node.count ? t(`${node.count} 条关联资料`, `${node.count} linked entries`) : t('待补资料', 'Evidence gap')}{node.scope && ` · ${node.scope === 'exact' ? t('具体型号范围', 'Specific model') : node.scope === 'series' ? t('系列范围', 'Series scope') : t('待核实', 'Unconfirmed')}`}</small></button>)}{!children.length && <p>{parent ? t('本层尚无已定位节点；保留在上层查看资料。', 'No identified nodes; review evidence at the parent level.') : t('先选择左侧上级目录。', 'Select a parent to continue.')}</p>}</div></section>;
+      return <section className="taxonomy-column" key={level} aria-label={label}><h3><span>{String(index + 1).padStart(2, '0')}</span>{label}<small>{children.length}</small></h3><div className="taxonomy-node-list">{children.map(node => <button className={node.count ? '' : 'taxonomy-gap'} key={node.id} aria-pressed={path.some(item => item.id === node.id)} onClick={() => setSelected(node.id)}><span>{node.label}</span><small>{node.count ? t(`${node.count} 条关联资料`, `${node.count} linked entries`) : t('待补资料', 'Evidence gap')}{node.scope && `${separator}${node.scope === 'exact' ? t('具体型号范围', 'Specific model') : node.scope === 'series' ? t('系列范围', 'Series scope') : t('待核实', 'Unconfirmed')}`}</small></button>)}{!children.length && <p>{parent ? t('本层尚无已定位节点；保留在上层查看资料。', 'No identified nodes; review evidence at the parent level.') : t('先选择左侧上级目录。', 'Select a parent to continue.')}</p>}</div></section>;
     })}</div>
     <section className="taxonomy-evidence" aria-labelledby="taxonomy-evidence-heading"><header><h3 id="taxonomy-evidence-heading">{t('原始知识与来源', 'Original knowledge & sources')}{selected && ` / ${selected.label}`}</h3>{selectedModel && <Link to="/chat" className="catalog-action" state={state}>{t('带机型去诊断', 'Diagnose with this model')}</Link>}</header>
       {!selectedModel ? <p>{t('请选择机型，再查看原始条目、页码与核验状态。品牌只是分类入口，不自动选择机型。', 'Select a model to review entries, page references and verification. A brand does not select a model automatically.')}</p> : <>

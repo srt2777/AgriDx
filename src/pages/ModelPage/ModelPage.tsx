@@ -1,3 +1,4 @@
+import { useUiCopy } from '@/ui/useUiCopy';
 import { lazy, Suspense, useEffect, useRef, useState, type ChangeEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Box, Download, ExternalLink, Focus, ImagePlus, Layers3, Upload, X } from 'lucide-react';
@@ -24,7 +25,7 @@ type ReferencePhoto = { angle: string; url: string; name: string; size: number }
 export default function ModelPage() {
   const lang = useLang();
   const version = useUiVersion();
-  const t = (zh: string, en: string) => lang === 'zh' ? zh : en;
+  const { t, format, separator } = useUiCopy(lang);
   const [component, setComponent] = useState<TractorComponent>('all');
   const [focusRequest, setFocusRequest] = useState(0);
   const [exploded, setExploded] = useState(false);
@@ -108,7 +109,7 @@ export default function ModelPage() {
       <section className="min-w-0 overflow-hidden rounded-3xl border border-border bg-card">
         <div className="flex items-center justify-between border-b border-border px-5 py-4">
           <span className="flex min-w-0 items-center gap-2 text-sm font-medium"><Box className="size-4 text-primary" /><span className="truncate">{customModel?.name ?? t('原创拖拉机结构示意', 'Original tractor schematic')}</span></span>
-          <span className="shrink-0 rounded-full bg-primary/10 px-2.5 py-1 text-[10px] text-primary">{customModel ? t('本地预览', 'Local preview') : 'GLB · 0.65 MB'}</span>
+          <span className="shrink-0 rounded-full bg-primary/10 px-2.5 py-1 text-[10px] text-primary">{customModel ? t('本地预览', 'Local preview') : format('GLB · 0.65 MB')}</span>
         </div>
         <div className="model-stage h-[350px] sm:h-[420px] lg:h-[480px]" data-component={component}><DeferredScene fallback={<SceneLoading />}><TractorViewer controls studio={version === 'new'} modelUrl={customModel?.url ?? TRACTOR_MODEL_URL} component={component} exploded={exploded} onComponentChange={setComponent} focusRequest={focusRequest} /></DeferredScene></div>
         <div className="flex flex-wrap items-center gap-3 border-t border-border px-5 py-4 text-xs">
@@ -143,15 +144,15 @@ export default function ModelPage() {
             {photo ? <img src={photo.url} alt={`${t(angle.zh, angle.en)} ${t('参考照片', 'reference photo')}`} className="h-full w-full object-contain" /> : <><ImagePlus className="size-6 text-primary/50" /><span>{t(angle.zh, angle.en)}</span><span className="text-[10px]">{t('选择照片', 'Choose photo')}</span></>}
             <input className="sr-only" type="file" accept="image/jpeg,image/png,image/webp" aria-label={`${t('选择', 'Choose')} ${t(angle.zh, angle.en)} ${t('照片', 'photo')}`} onChange={event => selectPhoto(angle.id, event)} />
           </label>
-          {photo && <><span className="block truncate px-3 py-2 text-[10px] text-muted-foreground">{t(angle.zh, angle.en)} · {photo.name}</span><button type="button" onClick={() => removePhoto(angle.id)} aria-label={`${t('移除', 'Remove')} ${t(angle.zh, angle.en)} ${t('照片', 'photo')}`} className="absolute right-2 top-2 rounded-full bg-card/90 p-1.5"><X className="size-3" /></button></>}
+          {photo && <><span className="block truncate px-3 py-2 text-[10px] text-muted-foreground">{t(angle.zh, angle.en)}{separator}{photo.name}</span><button type="button" onClick={() => removePhoto(angle.id)} aria-label={`${t('移除', 'Remove')} ${t(angle.zh, angle.en)} ${t('照片', 'photo')}`} className="absolute right-2 top-2 rounded-full bg-card/90 p-1.5"><X className="size-3" /></button></>}
         </div>;
       })}</div>
       <div className="mt-5 flex flex-wrap items-center gap-3 text-xs"><button type="button" disabled={!photos.length} onClick={exportPlan} className="flex items-center gap-2 rounded-full bg-primary px-4 py-2.5 text-primary-foreground disabled:opacity-40"><Download className="size-3.5" />{t('导出视角清单', 'Export view checklist')}</button><span className="text-muted-foreground">{photos.length} / 4 {t('视角已整理', 'views prepared')}</span></div>
       <ModelGeneration photos={photos} identity={identity} onModel={loadModel} onBusy={setGenerating} />
       <div className="mt-7 grid gap-3 border-t border-border pt-5 text-xs leading-6 md:grid-cols-3">
-        <a href="https://github.com/img2threejs/img2threejs" target="_blank" rel="noreferrer" className="text-muted-foreground hover:text-primary"><span className="flex items-center gap-1.5 font-medium text-foreground">01 · {t('img2threejs 建模流程', 'img2threejs reconstruction')}<ExternalLink className="size-3" /></span>{t('按参考图生成可编辑的 Three.js 代码，并保留分阶段校验记录。', 'Generate editable Three.js code with staged review evidence.')}</a>
-        <a href="https://docs.blender.org/manual/en/5.1/addons/import_export/scene_gltf2.html" target="_blank" rel="noreferrer" className="text-muted-foreground hover:text-primary"><span className="flex items-center gap-1.5 font-medium text-foreground">02 · {t('Blender 修整', 'Refine in Blender')}<ExternalLink className="size-3" /></span>{t('核对网格、材质与尺寸，修整后导出资源内嵌的 GLB。', 'Review geometry, materials and dimensions, then export an embedded GLB.')}</a>
-        <div className="text-muted-foreground"><span className="font-medium text-foreground">03 · {t('预览与核验', 'Preview and verify')}</span><p>{t('导入生成结果并检查各个视角。AI 生成几何不能代替实测 CAD，magic 的具体工具仍待确认。', 'Import the result and inspect every view. AI geometry does not replace measured CAD; the specific magic tool remains unconfirmed.')}</p></div>
+        <a href="https://github.com/img2threejs/img2threejs" target="_blank" rel="noreferrer" className="text-muted-foreground hover:text-primary"><span className="flex items-center gap-1.5 font-medium text-foreground">{format('01 · ')}{t('img2threejs 建模流程', 'img2threejs reconstruction')}<ExternalLink className="size-3" /></span>{t('按参考图生成可编辑的 Three.js 代码，并保留分阶段校验记录。', 'Generate editable Three.js code with staged review evidence.')}</a>
+        <a href="https://docs.blender.org/manual/en/5.1/addons/import_export/scene_gltf2.html" target="_blank" rel="noreferrer" className="text-muted-foreground hover:text-primary"><span className="flex items-center gap-1.5 font-medium text-foreground">{format('02 · ')}{t('Blender 修整', 'Refine in Blender')}<ExternalLink className="size-3" /></span>{t('核对网格、材质与尺寸，修整后导出资源内嵌的 GLB。', 'Review geometry, materials and dimensions, then export an embedded GLB.')}</a>
+        <div className="text-muted-foreground"><span className="font-medium text-foreground">{format('03 · ')}{t('预览与核验', 'Preview and verify')}</span><p>{t('导入生成结果并检查各个视角。AI 生成几何不能代替实测 CAD，magic 的具体工具仍待确认。', 'Import the result and inspect every view. AI geometry does not replace measured CAD; the specific magic tool remains unconfirmed.')}</p></div>
       </div>
     </section>
   </div>;

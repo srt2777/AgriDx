@@ -1,3 +1,4 @@
+import { useUiCopy } from '@/ui/useUiCopy';
 import { Link } from 'react-router-dom';
 import { ArrowRight, ClipboardList } from 'lucide-react';
 import { buildCommonDiagnosisQuestion, type CommonKnowledgeFramework } from '@shared/common-knowledge';
@@ -11,7 +12,7 @@ interface Props {
 }
 
 export default function CommonFrameworkBrowser({ framework, lang, onSymptomChange, diagnosisState }: Props) {
-  const t = (zh: string, en: string) => lang === 'zh' ? zh : en;
+  const { t, format, separator } = useUiCopy(lang);
   const symptom = framework.symptoms.find(x => x.id === framework.selectedSymptom);
   const relevantTargets = symptom ? new Set(symptom.performanceIds) : undefined;
   const systems = framework.systems.filter(x => !relevantTargets || x.performanceTargets.some(p => relevantTargets.has(p.id)));

@@ -26,6 +26,7 @@
     "history:check": "node scripts/version-history.mjs"
   },
   "dependencies": {
+    "@radix-ui/colors": "^3.0.0",
     "@radix-ui/react-alert-dialog": "^1.1.14",
     "@radix-ui/react-slot": "^1.2.3",
     "@react-three/drei": "^10.7.8",

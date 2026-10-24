@@ -18,14 +18,10 @@ export default function HeroSection() {
           <div className="hero-copy">
             <div className="hero-affiliation">
               <Wheat size={18} strokeWidth={1.5} />
-              <span>{t('南京农业大学工学院 · 农机智能诊断', 'College of Engineering, NAU · Machinery diagnosis')}</span>
+              <span>{t('南京农业大学工学院 农机智能诊断', 'College of Engineering, NAU Machinery diagnosis')}</span>
             </div>
-            <h1 className="hero-title text-foreground">
-              <span>{pick(h.title1, lang)}</span>
-              <span>{pick(h.titleHighlight, lang)}</span>
-              <span>{pick(h.title2, lang)}</span>
-            </h1>
-            <p className="hero-description">{pick(h.desc, lang)}</p>
+            <h1 className="hero-title text-foreground">{t('农机故障诊断', 'Machinery diagnosis')}</h1>
+            <p className="hero-description">{t('按机型查阅资料，结合故障现象寻找排查依据。', 'Find machine-specific documents and evidence for troubleshooting.')}</p>
             <div className="hero-actions">
               <Button size="lg" onPointerEnter={() => preloadPage('/chat')} onFocus={() => preloadPage('/chat')} onClick={() => navigate('/chat')} className="hero-cta-primary gap-3">
                 {pick(h.ctaPrimary, lang)}<ArrowRight size={17} />
@@ -34,12 +30,12 @@ export default function HeroSection() {
                 {pick(h.ctaSecondary, lang)}<ArrowRight size={16} />
               </Link>
             </div>
-            <div className="hero-evidence-note"><span className="status-dot" />{t('以资料适用范围为边界 · 缺口明确标注', 'Source-aware guidance · visible knowledge gaps')}</div>
+            <div className="hero-evidence-note"><span className="status-dot" />{t('以资料适用范围为边界 缺口明确标注', 'Source-aware guidance visible knowledge gaps')}</div>
           </div>
         </div>
         <figure className="hero-stage-note">
           <figcaption className="hero-model-caption">
-            <span>{t('鸿鹄 T70 · 照片色部件示意', 'Honghu T70 · Photo-colored parts')}</span>
+            <span>{t('鸿鹄 T70 照片色部件示意', 'Honghu T70 Photo-colored parts')}</span>
             <LiquidGlass variant="regular" lens displacementScale={40} className="hero-model-entry" contentClassName="hero-model-entry-content">
               <Link to="/models" onPointerEnter={() => preloadPage('/models')} onFocus={() => preloadPage('/models')} className="hero-model-entry-link press-control"><span>{t('进入模型工坊', 'Model studio')}</span><ArrowRight size={15} /></Link>
             </LiquidGlass>

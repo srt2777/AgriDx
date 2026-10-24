@@ -402,7 +402,7 @@ export default function ExhibitionPage() {
           </button>
         </LiquidGlass>
       </header>
-      <section id="expo-main" className="expo-main">
+      <main id="expo-main" className="expo-main">
         <div className="expo-scene-bar">
           <span>
             <i />
@@ -855,7 +855,7 @@ export default function ExhibitionPage() {
             <ChevronRight size={14} />
           </Link>
         </nav>
-      </section>
+      </main>
       <SiteStatusBar />
       {notice && (
         <div className="expo-notice" role="status">

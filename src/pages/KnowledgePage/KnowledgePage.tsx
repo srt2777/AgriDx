@@ -1,3 +1,5 @@
+import { ClassicDisclosure } from '@/ui/ClassicDisclosure';
+import { useUiCopy } from '@/ui/useUiCopy';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useReducedMotion } from 'framer-motion';
 import { ArrowLeft, ArrowRight, BookOpen, Check, ChevronRight, Layers, Loader2, Search, TriangleAlert } from 'lucide-react';
@@ -20,7 +22,7 @@ export default function KnowledgePage() {
   const lang = useLang();
   const version = useUiVersion();
   const reducedMotion = !!useReducedMotion();
-  const t = (zh: string, en: string) => lang === 'zh' ? zh : en;
+  const { t, format, separator } = useUiCopy(lang);
   const [params, setParams] = useSearchParams();
   const graphView = params.get('view') === 'graph';
   const machineView = !graphView && (params.get('view') === 'machine' || ['brand', 'model', 'component', 'part', 'symptom', 'configuration', 'driveConfiguration', 'emissionStage'].some(key => params.has(key)));
@@ -99,10 +101,10 @@ export default function KnowledgePage() {
         <LiquidGlass variant="regular" className="catalog-browser catalog-filter-glass" contentClassName="catalog-filter-content">
         <div className="catalog-browser-top"><h2 id="catalog-select-heading"><Search size={18} />{t('找到你的农机', 'Find your machine')}</h2><button onClick={() => setParams({ view: 'machine' })} className="catalog-reset">{t('重置选择', 'Reset selection')}</button></div>
         <div className="catalog-selectors">
-          <label><span>01 {t('品牌', 'Brand')}</span><select aria-label={t('知识浏览品牌', 'Knowledge brand')} value={brand?.id || ''} onChange={event => updateFilter('brand', event.target.value)} disabled={loading}><option value="">{t('选择品牌', 'Choose a brand')}</option>{catalog?.brands.map(item => <option key={item.id} value={item.id}>{item.name} · {item.entryCount}{t(' 条', ' entries')}</option>)}</select></label>
+          <label><span>01 {t('品牌', 'Brand')}</span><select aria-label={t('知识浏览品牌', 'Knowledge brand')} value={brand?.id || ''} onChange={event => updateFilter('brand', event.target.value)} disabled={loading}><option value="">{t('选择品牌', 'Choose a brand')}</option>{catalog?.brands.map(item => <option key={item.id} value={item.id}>{item.name}{separator}{item.entryCount}{t(' 条', ' entries')}</option>)}</select></label>
           <label><span>02 {t('型号 / 系列', 'Model / series')}</span><select aria-label={t('知识浏览型号', 'Knowledge model')} value={model?.id || ''} onChange={event => updateFilter('model', event.target.value)} disabled={!brand || loading}><option value="">{t('选择目录，核对范围', 'Choose & check scope')}</option>{brand?.models.map(item => <option key={item.id} value={item.id}>{item.name}{item.scope === 'series' ? t('（系列）', ' (series)') : item.scope === 'pending' ? t('（待核实）', ' (unconfirmed)') : ''}</option>)}</select></label>
-          <label><span>03 {t('组件', 'Component')}</span><select aria-label={t('知识浏览组件', 'Knowledge component')} value={component?.id || ''} onChange={event => updateFilter('component', event.target.value)} disabled={!model || loading}><option value="">{t('查看全部组件', 'All components')}</option>{model?.components.map(item => <option key={item.id} value={item.id}>{item.name} · {item.entryCount ? t(`${item.entryCount} 条`, `${item.entryCount} entries`) : t('待补资料', 'Missing evidence')}</option>)}</select></label>
-          <label><span>04 {t('零部件', 'Part')}</span><select aria-label={t('知识浏览零部件', 'Knowledge part')} value={part?.id || ''} onChange={event => updateFilter('part', event.target.value)} disabled={!component || !component.parts.length || loading}><option value="">{component && !component.parts.length ? t('待细分零部件', 'Parts not yet identified') : t('查看全部零部件', 'All identified parts')}</option>{component?.parts.map(item => <option key={item.id} value={item.id}>{item.name} · {item.entryCount}{t(' 条', ' entries')}</option>)}</select></label>
+          <label><span>03 {t('组件', 'Component')}</span><select aria-label={t('知识浏览组件', 'Knowledge component')} value={component?.id || ''} onChange={event => updateFilter('component', event.target.value)} disabled={!model || loading}><option value="">{t('查看全部组件', 'All components')}</option>{model?.components.map(item => <option key={item.id} value={item.id}>{item.name}{separator}{item.entryCount ? t(`${item.entryCount} 条`, `${item.entryCount} entries`) : t('待补资料', 'Missing evidence')}</option>)}</select></label>
+          <label><span>04 {t('零部件', 'Part')}</span><select aria-label={t('知识浏览零部件', 'Knowledge part')} value={part?.id || ''} onChange={event => updateFilter('part', event.target.value)} disabled={!component || !component.parts.length || loading}><option value="">{component && !component.parts.length ? t('待细分零部件', 'Parts not yet identified') : t('查看全部零部件', 'All identified parts')}</option>{component?.parts.map(item => <option key={item.id} value={item.id}>{item.name}{separator}{item.entryCount}{t(' 条', ' entries')}</option>)}</select></label>
         </div>
         {model && <div className="catalog-selectors common-conditions">
           {[
@@ -139,7 +141,7 @@ export default function KnowledgePage() {
         </section>
       </>}
 
-      {!graphView && <aside className="catalog-boundaries"><div className="section-eyebrow">{t('覆盖可以核对', 'COVERAGE CAN BE CHECKED')}</div><h2>{t('先标清缺口，再谈覆盖。', 'Name the gaps before claiming coverage.')}</h2><p>{t('条数是已索引的归档和通识。通识不是维修证据，也不等于已核验的机型覆盖。', 'Counts are indexed archives and learning notes. Learning notes are not repair evidence, and they are not verified model coverage.')}</p>{catalog?.limitations.length ? <ul>{catalog.limitations.map(limit => <li key={limit}>{limit}</li>)}</ul> : null}</aside>}
+      {!graphView && <aside className="catalog-boundaries"><ClassicDisclosure><div className="section-eyebrow">{t('覆盖可以核对', 'COVERAGE CAN BE CHECKED')}</div><h2>{t('先标清缺口，再谈覆盖。', 'Name the gaps before claiming coverage.')}</h2><p>{t('条数是已索引的归档和通识。通识不是维修证据，也不等于已核验的机型覆盖。', 'Counts are indexed archives and learning notes. Learning notes are not repair evidence, and they are not verified model coverage.')}</p>{catalog?.limitations.length ? <ul>{catalog.limitations.map(limit => <li key={limit}>{limit}</li>)}</ul> : null}</ClassicDisclosure></aside>}
     </div>
   </div>;
 }

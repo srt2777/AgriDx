@@ -1,41 +1,49 @@
-# AgriDx UI
+# UI 专区
 
-此目录是 GitHub 上的界面设计与验收入口。当前迭代以简洁工作空间为方向：完整文字侧边栏、轻量选中态、清楚的内容层级与克制的色彩。项目继续保留农业品牌、学院署名、经典版切换以及现有知识/模型/诊断功能。
+本轮仅更新旧版，新版保留原首页、展厅和顶栏。此目录集中保存设计规范、来源、验证记录和截图；业务代码继续沿用现有架构。
 
-## 文件导航
+## 文件
 
-- [界面实现](../src/ui/WorkspaceShell.tsx)：新版所有主路由的共享侧边栏、工具栏及移动抽屉。
-- [样式与令牌](../src/ui/workspace.css)：浅/深色、中性画布、农业绿强调色、响应式和减少动态。
-- [本轮验证记录](VALIDATION.md)：检查结果、复跑原因与未验收范围。
-- [验证截图](screenshots/)：本轮本地浏览器实看结果。
-- [项目日志](../CHANGELOG.md)：版本、实际检查与 GitHub 保存状态。
+- [旧版外框](../src/ui/WorkspaceShell.tsx)：侧栏、搜索、主题语言切换、手机抽屉。
+- [布局](../src/ui/workspace.css)和[视觉规范](../src/ui/classic-system.css)：仅作用于旧版。
+- [Radix 色阶](../src/ui/radix-tokens.css)：来自 `@radix-ui/colors`，用 `node ui/generate-colors.mjs` 重新生成。
+- [文案规则](../src/ui/copy.ts)：简化旧版界面文案；共享页面的新版文字不变，原始知识和版本日志不改写。
+- [验证记录](VALIDATION.md)与[截图](screenshots/)。
 
-现有业务页面继续放在 `src/pages/`；公共界面改动优先放入 `src/ui/`，不复制后端、知识库或整个应用。参考产品名只用于本目录的来源说明，不进入用户使用流程。
+## 设计约定
 
-## 本轮参考
+| 项目 | 本轮约定 |
+| --- | --- |
+| 文案 | 移除旧版界面中点；使用“农机知识”“设备信息”等常用名称；去掉重复说明 |
+| 配色 | Radix Sage 中性色、Grass 强调色；Red 错误、Amber 警告、Blue 链接 |
+| 色阶用途 | 1–2 底色、3–5 控件状态、6–8 边线与焦点、9–10 实色操作、11–12 文字 |
+| 字号 | 12、14、24px 三档；以字重和间距表达层级 |
+| 线条 | 需要时使用 0.5px；不使用卡片左侧彩色竖线 |
+| 圆角和阴影 | 容器 8px、常规控件 4px；对齐嵌套间距；移除装饰阴影 |
+| 动效 | 关闭旧版装饰性动画和过渡，减少动态设置始终生效；保留用户操作的模型查看 |
+| 信息组织 | 常用功能直接进入；设备信息、资料边界、项目研究在相应位置展开，无新增确认步骤 |
+| 新旧版隔离 | 旧版外框标记 `data-ui-version="old"`；所有配色与视觉覆盖限定在该外框 |
 
-1. [Michael Filipiuk — Cleaning up a slop sidebar](https://x.com/michaelfilipiuk/status/2113239967006855524)：已打开并查看视频部分画面；用于导航整理方向，不宣称逐帧复刻。
-2. [Fluid Functionalism Sidebar · 用户指定 preset](https://www.fluidfunctionalism.com/docs/sidebar?preset=sa1FQfCxG4)：已查看页面、布局与 API 说明。借鉴分组、文字标签、淡选中态和手机抽屉；未移植其组件源码，也不宣称已包含该组件所有功能（如拖动调整宽度、悬停预览）。
-3. [Open Claude UI](https://openclaudeui.com/)：已查看社区设计分析手册入口；借鉴中性底色、8/12/14px圆角层级与内容优先的节奏。保留农业绿，不使用 Claude 品牌或专有字体/图标，不宣称官方合作。
+学院标识、说明书图片和三维模型保留原资源与署名，未把原始资料改写为界面配色或文案。语义色规范见 [Radix 官方用途说明](https://www.radix-ui.com/colors/docs/palette-composition/understanding-the-scale)和[配色组合](https://www.radix-ui.com/colors/docs/palette-composition/composing-a-palette)，许可证见 [MIT](licenses/radix-colors-MIT.txt)。
 
-本轮组件与 CSS 为项目内原创实现，复用现有 React、React Router、Lucide 和主题/语言状态，无新增 UI 依赖。
+## 用户指定参考
 
-## 验收范围
+- [Michael Filipiuk 侧栏整理](https://x.com/michaelfilipiuk/status/2113239967006855524)：已看部分视频画面，参考分组和视觉节奏。
+- [Fluid Functionalism Sidebar](https://www.fluidfunctionalism.com/docs/sidebar?preset=sa1FQfCxG4)：参考文字导航、分组、轻选中态和手机抽屉；未移植源码，未加入拖动改宽或悬停预览。
+- [Open Claude UI](https://openclaudeui.com/)：参考内容优先和控件层级，未使用其品牌或专有字体。最终色阶按用户后续要求统一为 Radix。
 
-- 新版首页、诊断、知识、模型、展厅与历史页共用同一导航；经典版继续通过原入口切换。
-- 桌面侧栏可收起并保存偏好，分组可折叠；搜索沿用现有命令菜单。
-- 手机使用原生模态抽屉，支持 Escape、焦点限制与关闭后焦点返回；进入页面后关闭抽屉。
-- 主题与语言切换沿用原状态；正文、资料出处、适用边界不改动。
-- 本轮不合入主线、不发布网站、不连接腾讯或修改 DNS。测试与截图以最终 CHANGELOG 为准。
+## 截图
 
-## 本地界面截图
+旧版知识页：
 
-桌面知识页（浅色）：
+![旧版知识页](screenshots/knowledge-light.png)
 
-![桌面知识页](screenshots/knowledge-light.png)
-
-手机导航与诊断输入：
+手机导航与诊断：
 
 ![手机导航](screenshots/mobile-navigation.png)
 
 ![手机诊断](screenshots/chat-mobile.png)
+
+新版保留核对：
+
+![新版原界面](screenshots/new-interface-unchanged.png)

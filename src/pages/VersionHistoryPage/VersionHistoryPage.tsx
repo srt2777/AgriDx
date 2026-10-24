@@ -1,3 +1,4 @@
+import { useUiCopy } from '@/ui/useUiCopy';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
@@ -28,7 +29,7 @@ export default function VersionHistoryPage() {
   const lang = useLang();
   const [includeLegacy, setIncludeLegacy] = useState(false);
   const [expanded, setExpanded] = useState<Set<string>>(() => new Set());
-  const t = (zh: string, en: string) => lang === 'zh' ? zh : en;
+  const { t, format, separator } = useUiCopy(lang);
   const missing = t('未记录', 'Not recorded');
   const commit = typeof __AGRIDX_BUILD_COMMIT__ !== 'undefined' ? __AGRIDX_BUILD_COMMIT__ : '';
   const releases = history.releases.filter(item => !item.draft && (includeLegacy || !item.legacy));
@@ -36,7 +37,7 @@ export default function VersionHistoryPage() {
   return <section className="version-history-page" aria-labelledby="history-title">
     <Link className="history-back" to="/"><ArrowLeft size={18} />{t('返回首页', 'Back to home')}</Link>
     <header className="history-heading">
-      <span className="history-eyebrow"><History size={16} />AGRIDX · CHANGELOG</span>
+      <span className="history-eyebrow"><History size={16} />{format('AGRIDX · CHANGELOG')}</span>
       <h1 id="history-title">{t('版本历史记录', 'Version history')}</h1>
       <p>{t('每次更新的内容、资料变化与验证记录，按版本完整保留。', 'Changes, knowledge updates and recorded verification for each version.')}</p>
     </header>
@@ -48,7 +49,7 @@ export default function VersionHistoryPage() {
       <p>{t('日期为日志记录日期（上海时区），不等同于实际上线时间。部署文字仅为当时记录；当前构建不证明正式站已更新。', 'Dates follow the recorded Shanghai date, not a verified go-live time. Deployment notes are historical evidence; this build does not prove production is updated.')}</p>
     </div>
     <div className="history-toolbar">
-      <span>{t('版本从新到旧', 'Newest first')} · {releases.length}</span>
+      <span>{t('版本从新到旧', 'Newest first')}{separator}{releases.length}</span>
       <label><input type="checkbox" checked={includeLegacy} onChange={event => setIncludeLegacy(event.target.checked)} />{t('包含 v2 历史', 'Include v2 history')}</label>
     </div>
     <div className="history-list">{releases.map(item => <article className="history-entry" key={item.id}>
@@ -79,7 +80,7 @@ export default function VersionHistoryPage() {
       <summary>{t('历史编号说明与草稿', 'Historical numbering and drafts')}</summary>
       <p>{t('v2 是保留的前代项目记录。草稿分支不计入正式版本列表；版本协调及改号说明以 CHANGELOG 原文为准。', 'v2 records belong to the preceding project. Draft branches are excluded from the release list. See the original changelog for historical renumbering.')}</p>
       <a href={'https://github.com/' + history.repository + '/blob/' + (commit || 'main') + '/CHANGELOG.md'} target="_blank" rel="noopener noreferrer">{t('查看完整 CHANGELOG', 'Read full CHANGELOG')} <ExternalLink size={14} /></a>
-      {drafts.map(item => <details key={item.id}><summary>{t('历史草稿', 'Historical draft')} {item.version} · {item.date || missing}</summary><div className="history-markdown"><Markdown>{item.details}</Markdown></div></details>)}
+      {drafts.map(item => <details key={item.id}><summary>{t('历史草稿', 'Historical draft')} {item.version}{separator}{item.date || missing}</summary><div className="history-markdown"><Markdown>{item.details}</Markdown></div></details>)}
     </details>
   </section>;
 }

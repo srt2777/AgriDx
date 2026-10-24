@@ -1,3 +1,4 @@
+import { useUiCopy } from '@/ui/useUiCopy';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, ChevronRight, FileText, ShieldCheck } from 'lucide-react';
@@ -17,19 +18,19 @@ interface DiagnosisState {
 export default function EvidenceEntry({ entry, diagnosisState }: { entry: CatalogEntry; diagnosisState: DiagnosisState }) {
   const lang = useLang();
   const version = useUiVersion();
-  const t = (zh: string, en: string) => lang === 'zh' ? zh : en;
+  const { t, format, separator } = useUiCopy(lang);
   const [open, setOpen] = useState(false);
   return <details className="evidence-entry" onToggle={event => setOpen(event.currentTarget.open)}>
     <summary>
       <FileText size={20} strokeWidth={1.4} />
-      <div><h3>{entry.title}</h3><span>{entry.entryId} · {entry.entryType} · {entry.locator || t('定位待核实', 'Locator unconfirmed')} · {entry.status}</span></div>
+      <div><h3>{format(entry.title)}</h3><span>{entry.entryId}{separator}{entry.entryType}{separator}{entry.locator || t('定位待核实', 'Locator unconfirmed')}{separator}{entry.status}</span></div>
       {version === 'new' && <KnowledgePeek kind="archive" caption={entry.entryType} />}
       <ChevronRight size={18} className="evidence-toggle" />
     </summary>
     {open && <div className="evidence-entry-body">
       <dl className="evidence-provenance">
         <div><dt>{t('资料来源', 'Source')}</dt><dd>{entry.sourceUrl ? <a href={entry.sourceUrl} target="_blank" rel="noreferrer">{entry.sourceId}</a> : entry.sourceId}</dd></div>
-        <div><dt>{t('版次 / 定位', 'Version / locator')}</dt><dd>{entry.version || t('版次待核实', 'Version unconfirmed')} · {entry.locator}</dd></div>
+        <div><dt>{t('版次 / 定位', 'Version / locator')}</dt><dd>{entry.version || t('版次待核实', 'Version unconfirmed')}{separator}{entry.locator}</dd></div>
         <div><dt>{t('适用范围', 'Applicability')}</dt><dd>{entry.scopeBoundary || t('待核实', 'Needs verification')}</dd></div>
       </dl>
       <div className="prose prose-sm max-w-none overflow-x-auto dark:prose-invert"><DeferredMarkdown>{entry.content}</DeferredMarkdown></div>

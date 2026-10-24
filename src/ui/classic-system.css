@@ -1,0 +1,137 @@
+/* Classic UI only. Radix roles: 1–2 surfaces, 3–5 states, 6–8 edges, 9–10 actions, 11–12 text. */
+:root .fluid-workspace[data-ui-version='old'] {
+  --primary: var(--radix-grass-9);
+  --primary-foreground: var(--radix-white-a-12);
+  --background: var(--radix-sage-1);
+  --foreground: var(--radix-sage-12);
+  --muted: var(--radix-sage-3);
+  --muted-foreground: var(--radix-sage-11);
+  --card: var(--radix-sage-2);
+  --card-foreground: var(--radix-sage-12);
+  --popover: var(--radix-sage-2);
+  --popover-foreground: var(--radix-sage-12);
+  --accent: var(--radix-grass-5);
+  --accent-foreground: var(--radix-grass-12);
+  --secondary: var(--radix-sage-3);
+  --secondary-foreground: var(--radix-sage-12);
+  --border: var(--radix-sage-6);
+  --input: var(--radix-sage-7);
+  --ring: var(--radix-grass-8);
+  --destructive: var(--radix-red-9);
+  --wheat: var(--radix-grass-11);
+  --md-surface: var(--radix-sage-1);
+  --md-surface-container: var(--radix-sage-3);
+  --md-surface-container-low: var(--radix-sage-2);
+  --md-surface-container-high: var(--radix-sage-4);
+  --md-primary: var(--radix-grass-9);
+  --md-on-primary: var(--radix-white-a-12);
+  --md-primary-container: var(--radix-grass-3);
+  --md-secondary-container: var(--radix-grass-5);
+  --md-on-secondary-container: var(--radix-grass-12);
+  --md-on-surface: var(--radix-sage-12);
+  --md-on-surface-variant: var(--radix-sage-11);
+  --md-outline-variant: var(--radix-sage-6);
+  --md-gold-container: var(--radix-sage-3);
+  --md-on-gold-container: var(--radix-sage-12);
+  --agri-forest: var(--radix-grass-11);
+  --agri-leaf: var(--radix-grass-9);
+}
+/* A bounded reset prevents legacy utility sizes, shadows and material effects leaking into the classic system. */
+.fluid-workspace[data-ui-version='old'] :where(*, *::before, *::after) {
+  font-size: 14px !important;
+  border-width: 0 !important;
+  border-color: var(--radix-sage-6) !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+  background-image: none !important;
+  animation: none !important;
+  transition: none !important;
+}
+.fluid-workspace[data-ui-version='old'] :where(h1, h2, .hero-title, .hero-title span, .catalog-stats strong, .model-page-title) { font-size: 24px !important; line-height: 1.35 !important; letter-spacing: 0 !important; }
+.fluid-workspace[data-ui-version='old'] :where(small, kbd, .section-eyebrow, .fluid-group summary, .fluid-search, .fluid-breadcrumb, .fluid-language, .site-status-bar, .site-status-bar *, [class*='text-xs'], [class*='text-[10px]'], .evidence-entry summary span, .evidence-provenance dt, .catalog-stats span) { font-size: 12px !important; line-height: 1.6 !important; letter-spacing: 0 !important; }
+.fluid-workspace[data-ui-version='old'] :where(h3, h4, h5, h6) { font-size: 14px !important; font-weight: 600; }
+.fluid-workspace[data-ui-version='old'] :where(input, select, textarea, .fluid-search, .fluid-machine-context, .evidence-entry, .catalog-browser, .research-paper, .classic-disclosure, .model-stage, .chat-chip, .ui-version-switch, pre, .catalog-state) { border: 0.5px solid var(--radix-sage-7) !important; border-radius: 8px !important; }
+.fluid-workspace[data-ui-version='old'] :where(.fluid-sidebar, .fluid-topbar, .fluid-sidebar-bottom, .site-status-bar, .catalog-stats) { border: 0 !important; }
+.fluid-workspace[data-ui-version='old'] .fluid-sidebar { border-right: 0.5px solid var(--radix-sage-6) !important; }
+.fluid-workspace[data-ui-version='old'] .fluid-topbar { border-bottom: 0.5px solid var(--radix-sage-6) !important; }
+.fluid-workspace[data-ui-version='old'] .fluid-drawer { border-right: 0.5px solid var(--radix-sage-6) !important; }
+.fluid-workspace[data-ui-version='old'] .catalog-stats { border-block: 0.5px solid var(--radix-sage-6) !important; }
+.fluid-workspace[data-ui-version='old'] :where(.fluid-row, .fluid-icon, .fluid-language, .theme-switch, .library-collections button, button, .catalog-action) { border-radius: 4px !important; }
+.fluid-workspace[data-ui-version='old'] :where(.fluid-search, .fluid-row, .fluid-brand, .fluid-topbar, .catalog-evidence-heading, .catalog-browser-top, .hero-actions) { align-items: center; }
+.fluid-workspace[data-ui-version='old'] .fluid-brand { gap: 12px; padding-inline: 4px; }
+.fluid-workspace[data-ui-version='old'] .fluid-brand strong { font-size: 14px !important; letter-spacing: 0; }
+.fluid-workspace[data-ui-version='old'] .fluid-row { gap: 12px; padding: 10px 12px; min-height: 40px; }
+.fluid-workspace[data-ui-version='old'] .fluid-row > svg { flex: none; width: 16px; height: 16px; }
+.fluid-workspace[data-ui-version='old'] .fluid-group { margin-bottom: 24px; }
+.fluid-workspace[data-ui-version='old'] .fluid-group summary { margin-inline: 12px; }
+.fluid-workspace[data-ui-version='old'] .fluid-search { padding: 8px; gap: 8px; }
+.fluid-workspace[data-ui-version='old'] .fluid-sidebar-bottom { padding: 12px 4px 0; }
+.fluid-workspace[data-ui-version='old'] .fluid-breadcrumb { font-size: 14px !important; }
+.fluid-workspace[data-ui-version='old'] :where(.agri-liquid-glass, .glass-hero, .chat-glass, .catalog-state, .catalog-empty, .library-collections, .model-control-glass) { background: var(--radix-sage-1) !important; }
+.fluid-workspace[data-ui-version='old'] :where(.evidence-entry, .research-paper, .catalog-browser, .fluid-machine-context, pre) { background: var(--radix-sage-2) !important; }
+.fluid-workspace[data-ui-version='old'] :where(input, textarea, select) { background: var(--radix-sage-1) !important; color: var(--radix-sage-12) !important; min-height: 40px; padding: 10px 12px; }
+.fluid-workspace[data-ui-version='old'] :where(input, textarea)::placeholder { color: var(--radix-sage-11) !important; opacity: 1; }
+.fluid-workspace[data-ui-version='old'] :where(button, .catalog-action) { background-color: var(--radix-sage-3); color: var(--radix-sage-12); }
+.fluid-workspace[data-ui-version='old'] :where(button:hover, .catalog-action:hover) { background-color: var(--radix-sage-4) !important; }
+.fluid-workspace[data-ui-version='old'] :where(.fluid-row.is-active, [aria-pressed='true'], [aria-selected='true'], .selected) { background: var(--radix-grass-5) !important; color: var(--radix-grass-12) !important; }
+.fluid-workspace[data-ui-version='old'] :where(.hero-cta-primary, .catalog-action, [class*='bg-primary']:not([class*='/'])) { background: var(--radix-grass-9) !important; color: var(--radix-white-a-12) !important; }
+.fluid-workspace[data-ui-version='old'] :where(.hero-cta-primary:hover, .catalog-action:hover, [class*='bg-primary']:not([class*='/']):hover) { background: var(--radix-grass-10) !important; }
+.fluid-workspace[data-ui-version='old'] :where([class*='text-primary'], a:not([class]), .hero-title > span:nth-child(2)) { color: var(--radix-grass-11) !important; }
+.fluid-workspace[data-ui-version='old'] :where([class*='text-muted'], .section-eyebrow, .fluid-group summary, small, kbd) { color: var(--radix-sage-11) !important; }
+.fluid-workspace[data-ui-version='old'] :where([class*='text-destructive'], [role='alert']) { color: var(--radix-red-11) !important; }
+.fluid-workspace[data-ui-version='old'] :where(.catalog-gaps, .coverage-gap) { background: var(--radix-amber-3) !important; color: var(--radix-amber-12) !important; }
+.fluid-workspace[data-ui-version='old'] :where(.liquid-glass-shine, .liquid-glass-lens, .wheat-line, .wheat-divider, .knowledge-heading-icon, .knowledge-back, .knowledge-page-heading > div > p, .hero-evidence-note, .hero-affiliation, .hero-stage-note, .history-eyebrow) { display: none !important; }
+.fluid-workspace[data-ui-version='old'] .knowledge-page-heading { margin-block: 24px; }
+.fluid-workspace[data-ui-version='old'] .catalog-stats { padding-block: 16px; margin-bottom: 24px; }
+.fluid-workspace[data-ui-version='old'] .library-collections { display: flex; align-items: center; gap: 4px; border-radius: 8px !important; padding: 4px; background: var(--radix-sage-3) !important; }
+.fluid-workspace[data-ui-version='old'] .library-collections button { min-height: 36px; padding: 8px 12px; }
+.fluid-workspace[data-ui-version='old'] .evidence-entry { margin-block: 8px; }
+.fluid-workspace[data-ui-version='old'] .evidence-entry summary { padding: 16px; gap: 12px; }
+.fluid-workspace[data-ui-version='old'] .evidence-entry-body { padding: 0 16px 16px; }
+.fluid-workspace[data-ui-version='old'] .classic-disclosure { padding: 0 16px; margin-top: 24px; }
+.fluid-workspace[data-ui-version='old'] .classic-disclosure > summary { min-height: 44px; display: flex; align-items: center; cursor: pointer; font-weight: 500; }
+.fluid-workspace[data-ui-version='old'] .classic-disclosure :where(h2, .section-eyebrow) { display: none; }
+.fluid-workspace[data-ui-version='old'] .catalog-boundaries { margin-top: 24px; padding-top: 0; }
+.fluid-workspace[data-ui-version='old'] :where(.home-immersive [data-home-side='start'] > :first-child, .home-immersive [data-home-side='end'] > :first-child, .home-immersive [data-home-side='center']) { border-radius: 0 !important; background: var(--radix-sage-1) !important; backdrop-filter: none !important; }
+.fluid-workspace[data-ui-version='old'] .home-immersive .glass-hero { min-height: calc(100svh - 64px); padding-block: 48px; }
+.fluid-workspace[data-ui-version='old'] .glass-home .hero-title { line-height: 1.5 !important; }
+.fluid-workspace[data-ui-version='old'] :focus-visible { outline: 0.5px solid var(--radix-grass-8) !important; outline-offset: 3px; }
+.fluid-workspace[data-ui-version='old'] .fluid-drawer::backdrop { background: var(--radix-black-a-7); }
+@media (max-width: 899px) {
+  .fluid-workspace[data-ui-version='old'] .library-collections { overflow-x: auto; flex-wrap: nowrap; }
+  .fluid-workspace[data-ui-version='old'] .library-collections button { flex-shrink: 0; }
+  .fluid-workspace[data-ui-version='old'] .knowledge-page .page-container { padding-inline: 16px; }
+}
+@media (pointer: coarse) { .fluid-workspace[data-ui-version='old'] :where(button, a.fluid-row, .fluid-group summary, select) { min-height: 44px; } }
+
+.fluid-workspace[data-ui-version='old'] .fluid-topbar { padding-inline: 32px; }
+.fluid-workspace[data-ui-version='old'] .fluid-row:not(.is-active),
+.fluid-workspace[data-ui-version='old'] :where(.fluid-icon, .theme-switch) { background: transparent !important; }
+.fluid-workspace[data-ui-version='old'] :where(.fluid-row:not(.is-active):hover, .fluid-icon:hover, .theme-switch:hover) { background: var(--radix-sage-3) !important; }
+@media (max-width: 899px) { .fluid-workspace[data-ui-version='old'] .fluid-topbar { padding-inline: 16px; } }
+.fluid-workspace[data-ui-version='old'] .knowledge-page-heading .section-eyebrow { display: none; }
+.fluid-workspace[data-ui-version='old'] .prose {
+  --tw-prose-body: var(--radix-sage-12);
+  --tw-prose-headings: var(--radix-sage-12);
+  --tw-prose-lead: var(--radix-sage-11);
+  --tw-prose-links: var(--radix-blue-11);
+  --tw-prose-bold: var(--radix-sage-12);
+  --tw-prose-counters: var(--radix-sage-11);
+  --tw-prose-bullets: var(--radix-sage-8);
+  --tw-prose-hr: var(--radix-sage-6);
+  --tw-prose-quotes: var(--radix-sage-12);
+  --tw-prose-quote-borders: var(--radix-sage-6);
+  --tw-prose-captions: var(--radix-sage-11);
+  --tw-prose-code: var(--radix-sage-12);
+  --tw-prose-pre-code: var(--radix-sage-12);
+  --tw-prose-pre-bg: var(--radix-sage-2);
+  --tw-prose-th-borders: var(--radix-sage-7);
+  --tw-prose-td-borders: var(--radix-sage-6);
+}
+.fluid-workspace[data-ui-version='old'] .glass-home .page-container { max-width: 1080px; }
+.fluid-workspace[data-ui-version='old'] .capability-details > summary { min-height: 48px; padding-block: 12px; }
+.fluid-workspace[data-ui-version='old'] .fluid-main > .route-content-reveal > div > .mb-8 > p:first-child { display: none; }
+.fluid-workspace[data-ui-version='old'] :where([class*='rounded-2xl'], [class*='rounded-3xl']) { border-radius: 8px !important; }
+.fluid-workspace[data-ui-version='old'] :where(.model-control-glass, .catalog-filter-glass, .chat-bar-glass, .chat-input-glass) { --lg-radius: 8px; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
+.fluid-workspace[data-ui-version='old'] :where(.liquid-glass-tint, .liquid-glass-blur) { display: none !important; }
+.fluid-workspace[data-ui-version='old'] :where([class*='rounded-full'], [class*='rounded-xl'], [class*='rounded-lg'], [class*='rounded-md']) { border-radius: 4px !important; }

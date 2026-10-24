@@ -10,7 +10,7 @@ import { parseKnowledgeCatalog } from '../src/features/knowledge/catalog-api';
 
 const layoutSource = readFileSync(new URL('../src/components/Layout.tsx', import.meta.url), 'utf8');
 const appSource = readFileSync(new URL('../src/app.tsx', import.meta.url), 'utf8');
-const newShellSource = readFileSync(new URL('../src/ui/WorkspaceShell.tsx', import.meta.url), 'utf8');
+const oldShellSource = readFileSync(new URL('../src/ui/WorkspaceShell.tsx', import.meta.url), 'utf8');
 
 function memoryStorage(initial: Record<string, string> = {}) {
   const values = new Map(Object.entries(initial));
@@ -176,13 +176,15 @@ test('四级目录拒绝畸形嵌套数组与选择结果，不让成功HTTP造�
   assert.throws(() => parseKnowledgeCatalog({ ...catalog, totals: { ...catalog.totals, sources: -1 } }));
 });
 
-test('新版首页与功能路由统一进入工作空间 shell，并标记为新版', () => {
-  for (const route of ['/knowledge', '/chat', '/models', '/hall', '/version-history']) {
-    assert.match(appSource, new RegExp(`path="${route.slice(1)}"`), `missing secondary route ${route}`);
-    assert.ok(newShellSource.includes(route), `new shell does not link ${route}`);
+test('侧栏只用于旧版，新版首页与功能路由保留原外框', () => {
+  for (const route of ['/knowledge', '/chat', '/models', '/version-history']) {
+    assert.match(appSource, new RegExp(`path="${route.slice(1)}"`), `missing route ${route}`);
+    assert.ok(oldShellSource.includes(route), `classic shell does not link ${route}`);
   }
-  assert.match(layoutSource, /if \(uiVersion === 'new'\) return <NewVersionShell \/>/);
-  assert.match(layoutSource, /<NewVersionShell \/>/);
-  assert.match(newShellSource, /data-ui-version="new"/);
-  assert.match(newShellSource, /<Outlet \/>/);
+  assert.match(layoutSource, /if \(uiVersion === 'new' && location\.pathname !== '\/'\) return <NewVersionShell \/>/);
+  assert.match(layoutSource, /if \(uiVersion === 'new'\) return <Outlet \/>/);
+  assert.match(layoutSource, /return <WorkspaceShell \/>/);
+  assert.match(oldShellSource, /data-ui-version="old"/);
+  assert.doesNotMatch(oldShellSource, /data-ui-version="new"|new-version-shell/);
+  assert.match(oldShellSource, /<Outlet \/>/);
 });
