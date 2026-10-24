@@ -1,0 +1,26 @@
+.catalog-distributions { display: grid; gap: 16px; margin: -12px 0 28px; min-width: 0; }
+.catalog-distribution { margin: 0; min-width: 0; padding: 20px; border: 1px solid var(--border); border-radius: 18px; background: var(--card); color: var(--foreground); }
+.catalog-distribution h2 { display: flex; align-items: center; gap: 8px; margin: 0; font-size: 16px; font-weight: 600; }
+.catalog-distribution figcaption p, .distribution-summary, .distribution-note { color: var(--muted-foreground); font-size: 12px; line-height: 1.7; }
+.catalog-distribution figcaption p { margin: 8px 0 12px; }
+.distribution-summary { min-height: 2em; margin: 0 0 8px; }
+.distribution-note { margin: 12px 0 0; }
+.distribution-rows { margin: 0; padding: 0; list-style: none; }
+.distribution-rows li > a, .distribution-rows li > div { display: grid; grid-template-columns: minmax(48px, auto) minmax(30px, 1fr) minmax(80px, auto); align-items: center; gap: 12px; min-height: 44px; padding: 4px 6px; border-radius: 8px; font-size: 12px; text-decoration: none; color: var(--primary); }
+.distribution-rows li > a:hover, .distribution-rows li > a[aria-current] { background: color-mix(in srgb, var(--primary) 8%, transparent); }
+.distribution-rows li > a:focus-visible, .distribution-clear:focus-visible, .distribution-state button:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+.distribution-rows strong { display: flex; align-items: center; justify-content: flex-end; gap: 4px; font-weight: 500; text-align: right; font-variant-numeric: tabular-nums; }
+.distribution-rows li > a > span, .distribution-rows li > div > span { color: var(--foreground); }
+.distribution-bar { display: block; width: 100%; height: 8px; overflow: visible; }
+.distribution-track { fill: color-mix(in srgb, var(--muted-foreground) 12%, transparent); }
+.distribution-fill { fill: currentColor; }
+.distribution-rows [data-gap='true'] > a, .distribution-rows [data-gap='true'] > div { color: var(--muted-foreground); }
+.distribution-rows [data-gap='true'] .distribution-track { fill: transparent; stroke: var(--border); stroke-dasharray: 2 2; }
+.distribution-rows .distribution-risk-high:not([data-gap='true']) > div { color: var(--destructive); }
+.distribution-rows .distribution-risk-medium:not([data-gap='true']) > div { color: var(--muted-foreground); }
+.distribution-clear, .distribution-state button { display: inline-flex; align-items: center; min-height: 44px; padding: 8px; color: var(--primary); font-size: 12px; text-decoration: underline; text-underline-offset: 3px; }
+.distribution-state { min-height: 160px; color: var(--muted-foreground); font-size: 13px; line-height: 1.7; }
+.distribution-state p { margin: 8px 0; }
+@media (min-width: 1000px) { .catalog-distributions { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 480px) { .catalog-distribution { padding: 16px; } .distribution-rows li > a, .distribution-rows li > div { gap: 8px; } }
+@media (forced-colors: active) { .distribution-fill { fill: CanvasText; } .distribution-track { stroke: GrayText; fill: Canvas; } }

@@ -6,6 +6,8 @@ export interface CatalogCounts {
   sourceCount: number;
   /** Entries per reviewed role (entry-roles.jsonl) in this node; untagged entries are only in `untagged`. */
   roleCoverage: RoleCoverage;
+  /** Reviewed risk labels only; absent in older catalog responses. Never inferred from roles or symptoms. */
+  riskCoverage?: RiskCoverage;
 }
 
 export interface CatalogPart extends CatalogCounts {
@@ -43,6 +45,14 @@ export interface RoleCoverage {
   tagged: number;
   /** Diagnostic entries not yet tagged (pending human review); not the same as "no role". */
   untagged: number;
+}
+export interface RiskCoverage {
+  high: number;
+  medium: number;
+  low: number;
+  reviewed: number;
+  /** Diagnostic archive entries with no reviewed risk label; not equivalent to low risk. */
+  unreviewed: number;
 }
 export interface KnowledgePages { pdf?: string; printed?: string }
 

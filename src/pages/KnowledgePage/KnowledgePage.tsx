@@ -14,8 +14,13 @@ import type { CatalogEntry } from '@shared/knowledge-catalog';
 import { CATALOG_FILTER_KEYS } from '@shared/knowledge-catalog';
 import { LiquidGlass } from '@/components/ui/liquid-glass';
 import { StatTicker } from '@/components/StatTicker';
+import { lazy, Suspense } from 'react';
+import { ErrorBoundary } from 'react-error-boundary';
+import { catalogDistributions } from '@/features/knowledge/catalog-distributions';
 import '@/control-glass.css';
+import './catalog-distributions.css';
 
+const CatalogDistributions = lazy(() => import('./CatalogDistributions'));
 const INFORMATION_TYPES = new Set(['资料索引', '资料核验', '机型资料', '资料缺口', '系统适用边界']);
 
 export default function KnowledgePage() {
@@ -37,6 +42,7 @@ export default function KnowledgePage() {
   const component = model?.components.find(item => item.id === params.get('component'));
   const part = component?.parts.find(item => item.id === params.get('part'));
   const selected = catalog?.selected;
+  const distributions = catalog ? catalogDistributions(catalog) : { roles: null, risk: null };
   const updateFilter = (key: typeof filters[number], value: string) => {
     const next = new URLSearchParams(params);
     next.set('view', 'machine');
@@ -70,6 +76,12 @@ export default function KnowledgePage() {
           [catalog?.totals.models, t('型号 / 系列目录', 'Model / series directories')],
         ].map(([value, label]) => <div key={String(label)}><strong>{version === 'new' ? <StatTicker value={typeof value === 'number' ? value : undefined} reduced={reducedMotion} /> : (typeof value === 'number' ? value.toLocaleString() : '—')}</strong><span>{label}</span></div>)}
       </div>
+
+      <ErrorBoundary fallback={<p role="alert">{t('分布图加载失败，请刷新后重试。目录仍可继续浏览。', 'Distribution charts failed to load. Refresh to retry; the catalog remains available.')}</p>}>
+        <Suspense fallback={<p role="status">{t('正在加载标注分布…', 'Loading annotation distributions…')}</p>}>
+          <CatalogDistributions {...distributions} loading={loading} failed={failed} retry={retry} lang={lang} params={params} />
+        </Suspense>
+      </ErrorBoundary>
 
       <nav className="library-collections" aria-label={t('知识浏览方式', 'Knowledge browsing mode')}>
         {[

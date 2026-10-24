@@ -518,6 +518,13 @@
       "base": "3.16.6",
       "version": "3.16.7",
       "date": "2026-10-25"
+    },
+    {
+      "id": "ui-knowledge-distributions-20261025",
+      "kind": "feature",
+      "base": "3.16.7",
+      "version": "3.17.0",
+      "date": "2026-10-25"
     }
   ]
 }
