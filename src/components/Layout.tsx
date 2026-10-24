@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Outlet, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { useLang } from '@/hooks/useLang';
 import { useUiVersion } from '@/hooks/useUiVersion';
 import { NewVersionShell } from '@/components/NewVersionShell';
@@ -18,9 +18,7 @@ export function Layout() {
     document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
   }, [lang]);
 
-  // The modern campus keeps its own chrome; modern feature routes keep the
-  // existing exhibition shell. This redesign belongs to the classic UI only.
-  if (uiVersion === 'new' && location.pathname !== '/') return <NewVersionShell />;
-  if (uiVersion === 'new') return <Outlet />;
+  // Keep modern navigation mounted while moving between the hall and features.
+  if (uiVersion === 'new') return <NewVersionShell />;
   return <WorkspaceShell />;
 }
