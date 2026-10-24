@@ -504,6 +504,13 @@
       "base": "3.16.4",
       "version": "3.16.5",
       "date": "2026-10-25"
+    },
+    {
+      "id": "nav-toggle-placement-20261025",
+      "kind": "fix",
+      "base": "3.16.5",
+      "version": "3.16.6",
+      "date": "2026-10-25"
     }
   ]
 }
