@@ -399,6 +399,13 @@
       "base": "3.13.6",
       "version": "3.13.7",
       "date": "2026-10-24"
+    },
+    {
+      "id": "taxonomy-sphere-20261024",
+      "kind": "maintenance",
+      "base": "3.13.7",
+      "version": "3.13.8",
+      "date": "2026-10-24"
     }
   ]
 }
