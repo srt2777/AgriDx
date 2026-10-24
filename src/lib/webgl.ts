@@ -14,9 +14,11 @@ export function probeWebGL(): boolean {
   }
 }
 
-export function bindContextLoss(canvas: HTMLCanvasElement, onLost: () => void): void {
-  canvas.addEventListener('webglcontextlost', (event) => {
+export function bindContextLoss(canvas: HTMLCanvasElement, onLost: () => void): () => void {
+  const handleLoss = (event: Event) => {
     event.preventDefault();
     onLost();
-  });
+  };
+  canvas.addEventListener('webglcontextlost', handleLoss);
+  return () => canvas.removeEventListener('webglcontextlost', handleLoss);
 }
