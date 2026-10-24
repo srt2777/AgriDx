@@ -1,11 +1,9 @@
-import { publicAsset } from '@/lib/public-asset';
 import {
   lazy,
   useCallback,
   useEffect,
   useRef,
   useState,
-  useId,
   type CSSProperties,
   type KeyboardEvent,
   type PointerEvent,
@@ -22,7 +20,6 @@ import {
   ChevronRight,
   Compass,
   Cpu,
-  Globe,
   Layers3,
   Map as MapIcon,
   Maximize,
@@ -33,24 +30,17 @@ import {
   Tractor,
   X,
 } from 'lucide-react';
-import { AnimatePresence, LayoutGroup, useReducedMotion } from 'framer-motion';
-import VersionSwitch from '@/components/VersionSwitch';
-import ThemeSwitch from '@/components/ThemeSwitch';
+import { AnimatePresence, useReducedMotion } from 'framer-motion';
 import FloatingPanel from '@/components/FloatingPanel';
 import { LiquidSelection } from '@/components/ui/liquid-selection';
 import { LiquidGlass } from '@/components/ui/liquid-glass';
 import DeferredScene from '@/components/DeferredScene';
-import DemoNote from '@/components/DemoNote';
 import SceneFallback from '@/components/SceneFallback';
 import { preloadPage } from '@/lib/page-loaders';
 import { probeWebGL, type GraphicsReason } from '@/lib/webgl';
-import { useLang, setLang } from '@/hooks/useLang';
-import { setUiVersion } from '@/hooks/useUiVersion';
+import { useLang } from '@/hooks/useLang';
 import { useKnowledgeCatalog } from '@/hooks/useKnowledgeCatalog';
-import { CommandButton } from '@/components/CommandPalette';
-import { ShortcutButton } from '@/components/NewVersionDelight';
 import { StatTicker } from '@/components/StatTicker';
-import { SiteStatusBar } from '@/components/SiteStatusBar';
 import { beginSharedTransition, sharedTransitionName } from '@/lib/shared-transition';
 import { PREMIUM_MOTION_ENABLED } from '@/components/motion/flag';
 import { campusIntroPlan } from './intro-timing';
@@ -107,7 +97,6 @@ const ZONE_DETAILS = {
 };
 
 export default function ExhibitionPage() {
-  const zoneSelection = useId();
   const lang = useLang();
   const t = (zh: string, en: string) => (lang === 'zh' ? zh : en);
   const navigate = useNavigate();
@@ -341,12 +330,7 @@ export default function ExhibitionPage() {
   function enterZone(id: ZoneId, source?: Element | null) {
     stopInput();
     const destination = pavilionDestination(id);
-    const go = () => {
-      if (destination.classicResearch) {
-        setUiVersion('old');
-        navigate('/', { state: { scrollTo: 'research' } });
-      } else navigate(destination.path);
-    };
+    const go = () => navigate(destination.path);
     const name = sharedTransitionName('pavilion', id);
     if (!name) {
       go();
@@ -388,69 +372,9 @@ export default function ExhibitionPage() {
 
   return (
     <div className={`expo-page${landed ? ' is-landed' : ''}`} data-ui-version="new" data-intro={intro ? '' : undefined} data-flight={flight ? '' : undefined}>
-      <a
-        className="skip-link"
-        href="#expo-main"
-        onClick={(event) => {
-          event.preventDefault();
-          stage.current?.focus({ preventScroll: true });
-          stage.current?.scrollIntoView({ block: 'start' });
-        }}
-      >
-        {t('跳到主要内容', 'Skip to content')}
-      </a>
-      <header className="expo-header">
-        <div className="expo-brand">
-          <a
-            href="https://coe.njau.edu.cn/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="expo-college-mark"
-            aria-label={t('南京农业大学工学院官网首页', 'College of Engineering, NAU official homepage')}
-          >
-            <img
-              src={publicAsset('images/njau-engineering-mark.jpg')}
-              alt={t('南京农业大学工学院院徽', 'College of Engineering, NAU emblem')}
-              width="857"
-              height="411"
-            />
-          </a>
-          <Link to="/" className="expo-wordmark">
-            <strong>耕知 · 耘诊</strong>
-            <small>{t('数字园区', 'DIGITAL CAMPUS')}</small>
-          </Link>
-        </div>
-        <div className="expo-title">
-          <span>{t('知识 · 结构 · 诊断', 'KNOWLEDGE · STRUCTURE · DIAGNOSIS')}</span>
-          <h1>{t('农机知识，在同一片园区', 'One campus for machinery knowledge')}</h1>
-        </div>
-        <LiquidGlass lens variant="clear" displacementScale={24} className="expo-header-glass" contentClassName="expo-header-tools">
-          <CommandButton />
-          <ShortcutButton />
-          <DemoNote />
-          <VersionSwitch exhibition />
-          <ThemeSwitch />
-          <button
-            type="button"
-            className="expo-icon-button"
-            onClick={() => setLang(lang === 'zh' ? 'en' : 'zh')}
-            aria-label={t('切换语言', 'Switch language')}
-          >
-            <Globe size={17} />
-            <span>{lang === 'zh' ? 'EN' : '中'}</span>
-          </button>
-          <button
-            type="button"
-            className="expo-icon-button expo-fullscreen"
-            onClick={() => void fullscreen()}
-            aria-label={t('切换全屏', 'Toggle full screen')}
-          >
-            <Maximize size={17} />
-          </button>
-        </LiquidGlass>
-      </header>
-      <main id="expo-main" className="expo-main">
+      <div className="expo-main">
         <div className="expo-scene-bar">
+          <button type="button" className="expo-icon-button expo-fullscreen" onClick={() => void fullscreen()} aria-label={t('切换全屏', 'Toggle full screen')}><Maximize size={17} /></button>
           <span>
             <i />
             {t('三维园区 · 四个展区', '3D CAMPUS · FOUR ZONES')}
@@ -535,48 +459,6 @@ export default function ExhibitionPage() {
             </DeferredScene>}
           </div>
           <div className="expo-world-vignette" aria-hidden="true" />
-          <aside className="expo-world-guide">
-            <div className="expo-guide-eyebrow">
-              <Compass size={15} />
-              <span>{t('数字园区', 'THE CAMPUS')}</span>
-            </div>
-            <h2>
-              {t('把资料，', 'Evidence,')}
-              <br />
-              <span>{t('放进三维。', 'in three dimensions.')}</span>
-            </h2>
-            <p>
-              {t(
-                '沿展区看结构、查目录、做诊断。',
-                'Use the zones to see structure, open the catalog, and start a diagnosis.',
-              )}
-            </p>
-            <button type="button" className={PREMIUM_MOTION_ENABLED ? 'expo-start-button glass-press' : 'expo-start-button'} data-motion={PREMIUM_MOTION_ENABLED ? 'glass-press' : undefined} onClick={startDrive}>
-              <Navigation size={16} />
-              {mode === 'drive' ? t('继续漫游', 'Continue exploring') : t('开始漫游', 'Start exploring')}
-              <ArrowUpRight size={16} />
-            </button>
-            <LiquidGlass lens displacementScale={24} className="expo-guide-glass"><LayoutGroup id={zoneSelection}><nav className="expo-zone-nav" aria-label={t('展区导览', 'Zone guide')}>
-              {WORLD_ZONES.map((zone) => {
-                const Icon = ZONE_ICONS[zone.id];
-                return (
-                  <button
-                    type="button"
-                    key={zone.id}
-                    onClick={() => selectZone(zone.id)}
-                    aria-pressed={selected === zone.id}
-                    style={{ '--zone-color': zone.color } as CSSProperties}
-                  >
-                    {selected === zone.id && <LiquidSelection className="expo-zone-selection" />}
-                    <span>{zone.number}</span>
-                    <Icon size={17} strokeWidth={1.5} />
-                    <strong>{t(zone.zh, zone.en)}</strong>
-                    <ArrowUpRight size={13} />
-                  </button>
-                );
-              })}
-            </nav></LayoutGroup></LiquidGlass>
-          </aside>
           <div className="expo-world-coordinate" aria-hidden="true">
             <span>AGRIDX CAMPUS / 001</span>
             <small>{t('结构与空间示意', 'SCHEMATIC WORLD')}</small>
@@ -912,17 +794,7 @@ export default function ExhibitionPage() {
             )}
           </p>
         </div>
-        <nav className="expo-direct-links" aria-label={t('直接进入功能', 'Direct feature access')}>
-          <span>{t('也可以直接出发', 'OR GO DIRECTLY')}</span>
-          {WORLD_ZONES.map((zone) => (
-            <button type="button" key={zone.id} onPointerEnter={() => preloadPage(zone.path ?? '/', zone.path ? 'new' : 'old')} onFocus={() => preloadPage(zone.path ?? '/', zone.path ? 'new' : 'old')} onClick={(event) => enterZone(zone.id, event.currentTarget)}>
-              {t(zone.zh, zone.en)}
-              <ChevronRight size={14} />
-            </button>
-          ))}
-        </nav>
-      </main>
-      <SiteStatusBar />
+      </div>
       {notice && (
         <div className="expo-notice" role="status">
           {notice}

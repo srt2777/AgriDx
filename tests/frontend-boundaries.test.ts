@@ -176,13 +176,13 @@ test('四级目录拒绝畸形嵌套数组与选择结果，不让成功HTTP造�
   assert.throws(() => parseKnowledgeCatalog({ ...catalog, totals: { ...catalog.totals, sources: -1 } }));
 });
 
-test('侧栏只用于旧版，新版首页与功能路由保留原外框', () => {
+test('旧版独立侧栏，新版大厅与功能路由共用同一外框', () => {
   for (const route of ['/knowledge', '/chat', '/models', '/version-history']) {
     assert.match(appSource, new RegExp(`path="${route.slice(1)}"`), `missing route ${route}`);
     assert.ok(oldShellSource.includes(route), `classic shell does not link ${route}`);
   }
-  assert.match(layoutSource, /if \(uiVersion === 'new' && location\.pathname !== '\/'\) return <NewVersionShell \/>/);
-  assert.match(layoutSource, /if \(uiVersion === 'new'\) return <Outlet \/>/);
+  assert.match(layoutSource, /if \(uiVersion === 'new'\) return <NewVersionShell \/>/);
+  assert.doesNotMatch(layoutSource, /return <Outlet \/>/);
   assert.match(layoutSource, /return <WorkspaceShell \/>/);
   assert.match(oldShellSource, /data-ui-version="old"/);
   assert.doesNotMatch(oldShellSource, /data-ui-version="new"|new-version-shell/);

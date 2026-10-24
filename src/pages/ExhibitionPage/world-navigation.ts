@@ -47,15 +47,14 @@ export const WORLD_ZONES = [
     x: 7.5,
     z: 5.6,
     arrival: [4.1, 3.4],
-    path: null,
+    path: '/research',
   },
 ] as const;
 
-/** New-version pavilion routes. Research stays on the classic home. */
-export function pavilionDestination(id: ZoneId): { path: '/knowledge' | '/chat' | '/models' | '/'; classicResearch: boolean } {
-  const zone = WORLD_ZONES.find((item) => item.id === id)!;
-  if (zone.path) return { path: zone.path, classicResearch: false };
-  return { path: '/', classicResearch: true };
+/** All pavilion destinations stay inside the modern workspace. */
+export function pavilionDestination(id: ZoneId): { path: '/knowledge' | '/chat' | '/models' | '/research'; classicResearch: false } {
+  const zone = WORLD_ZONES.find(item => item.id === id)!;
+  return { path: zone.path, classicResearch: false };
 }
 
 export interface DriveState {

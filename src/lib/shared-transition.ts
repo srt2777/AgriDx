@@ -1,4 +1,4 @@
-/** Names shared by a campus pavilion and the page it opens. Research stays on the classic home. */
+/** Names shared by a campus pavilion and the page it opens. Research uses the normal route transition. */
 export const PAVILION_TRANSITION = {
   knowledge: 'pavilion-knowledge',
   diagnosis: 'pavilion-diagnosis',

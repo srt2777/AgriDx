@@ -3,7 +3,7 @@ import { LiquidSelection } from '@/components/ui/liquid-selection';
 import { preloadPage } from '@/lib/page-loaders';
 import { publicAsset } from '@/lib/public-asset';
 import { Globe } from 'lucide-react';
-import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useLang, setLang } from '@/hooks/useLang';
 import DemoNote from '@/components/DemoNote';
 import { CommandButton } from '@/components/CommandPalette';
@@ -13,32 +13,20 @@ import VersionSwitch from '@/components/VersionSwitch';
 import ThemeSwitch from '@/components/ThemeSwitch';
 import { beginSharedTransition } from '@/lib/shared-transition';
 import { PREMIUM_MOTION_ENABLED } from '@/components/motion/flag';
+import { MODERN_DESTINATIONS, modernLocation } from '@/lib/modern-navigation';
 import './new-version-shell.css';
-
-const NAV_ZH = [
-  { path: '/', label: '大厅' },
-  { path: '/knowledge', label: '农机知识' },
-  { path: '/models', label: '模型工坊' },
-  { path: '/chat', label: '智能诊断' },
-];
-const NAV_EN = [
-  { path: '/', label: 'Hub' },
-  { path: '/knowledge', label: 'Knowledge' },
-  { path: '/models', label: 'Model studio' },
-  { path: '/chat', label: 'Diagnosis' },
-];
 
 /** The blue exhibition chrome used by every page while the new UI is selected. */
 export function NewVersionShell() {
   const lang = useLang();
   const location = useLocation();
   const navigate = useNavigate();
-  const navItems = lang === 'zh' ? NAV_ZH : NAV_EN;
+  const place = modernLocation(location.pathname);
   const t = (zh: string, en: string) => lang === 'zh' ? zh : en;
 
   return (
     <div className="new-version-shell" data-ui-version="new" data-route={location.pathname}>
-      <a className="new-version-skip-link" href="#main-content">{t('跳到主要内容', 'Skip to content')}</a>
+      <a className="new-version-skip-link" href="#main-content" onClick={event => { event.preventDefault(); const main = document.getElementById('main-content'); main?.focus(); main?.scrollIntoView({ block: 'start' }); }}>{t('跳到主要内容', 'Skip to content')}</a>
       <header className="new-version-header"><LiquidGlass lens className="new-version-header-glass" contentClassName="new-version-header-content">
         <div className="new-version-brand">
           <a href="https://coe.njau.edu.cn/" target="_blank" rel="noopener noreferrer" className="new-version-college-mark" aria-label={t('南京农业大学工学院官网首页', 'College of Engineering, NAU official homepage')}>
@@ -49,27 +37,6 @@ export function NewVersionShell() {
             <small>AGRIDX · DIGITAL HUB</small>
           </Link>
         </div>
-
-        <nav className="new-version-navigation" aria-label={t('新版功能导航', 'New interface navigation')}>
-          {navItems.map(item => (
-            <NavLink
-              key={item.path}
-              to={item.path}
-              end={item.path === '/'}
-              onPointerEnter={() => preloadPage(item.path, 'new')}
-              onFocus={() => preloadPage(item.path, 'new')}
-              onClick={(event) => {
-                if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return;
-                if (event.currentTarget.getAttribute('aria-current') === 'page') return;
-                event.preventDefault();
-                beginSharedTransition(null, () => navigate(item.path));
-              }}
-              className={({ isActive }) => `new-version-nav-item${isActive ? ' is-active' : ''}`}
-            >
-              {({ isActive }) => <>{isActive && <LiquidSelection className="new-version-nav-indicator" layoutId="new-shell-navigation" />}<span className="new-version-nav-label">{item.label}</span></>}
-            </NavLink>
-          ))}
-        </nav>
 
         <div className="new-version-tools">
           <CommandButton className={PREMIUM_MOTION_ENABLED ? 'glass-press' : undefined} />
@@ -83,14 +50,33 @@ export function NewVersionShell() {
           </button>
         </div>
       </LiquidGlass></header>
-      <div className="new-version-subheader">
-        <span><i aria-hidden="true" />{t('探索装备 · 连接知识 · 辅助诊断', 'EXPLORE EQUIPMENT · CONNECT KNOWLEDGE · GUIDE DIAGNOSIS')}</span>
-        <span className="new-version-route-label">{location.pathname === '/version-history' ? t('版本历史记录', 'VERSION HISTORY') : location.pathname === '/knowledge' ? t('知识目录', 'CATALOG') : location.pathname === '/models' ? t('模型工坊', 'MODEL STUDIO') : t('智能诊断', 'DIAGNOSIS')}</span>
+      <div className="new-version-workspace">
+        <aside className="new-version-navigation-rail">
+          <nav className="new-version-navigation" aria-label={t('主要功能', 'Main navigation')}>
+            {MODERN_DESTINATIONS.map(item => {
+              const active = place.sectionPath === item.path;
+              return <Link key={item.path} to={item.path}
+                aria-current={active ? location.pathname === item.path ? 'page' : 'location' : undefined}
+                onPointerEnter={() => preloadPage(item.path, 'new')}
+                onFocus={() => preloadPage(item.path, 'new')}
+                onClick={event => {
+                  if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0 || location.pathname === item.path) return;
+                  event.preventDefault();
+                  beginSharedTransition(null, () => navigate(item.path));
+                }}
+                className={`new-version-nav-item${active ? ' is-active' : ''}`}>
+                {active && <LiquidSelection className="new-version-nav-indicator" layoutId="new-shell-navigation" />}
+                <span className="new-version-nav-label">{t(item.zh, item.en)}</span>
+              </Link>;
+            })}
+          </nav>
+        </aside>
+        <div className="new-version-content">
+          <nav className="new-version-breadcrumb" aria-label={t('当前位置', 'Breadcrumb')}><ol>{place.breadcrumbs.map((crumb, index) => <li key={crumb.path}>{index === place.breadcrumbs.length - 1 ? <span aria-current="page">{t(crumb.zh, crumb.en)}</span> : <Link to={crumb.path}>{t(crumb.zh, crumb.en)}</Link>}</li>)}</ol></nav>
+          <main id="main-content" className="new-version-main" tabIndex={-1}><Outlet /></main>
+          <SiteStatusBar />
+        </div>
       </div>
-      <main id="main-content" key={location.pathname} className="new-version-main" tabIndex={-1}>
-        <Outlet />
-      </main>
-      <SiteStatusBar />
     </div>
   );
 }

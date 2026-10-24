@@ -11,9 +11,10 @@ export interface CommandRoute {
 export const COMMAND_ROUTES: readonly CommandRoute[] = [
   { id: 'hub', path: '/', zh: '大厅', en: 'Hub', hintZh: '园区', hintEn: 'Campus', words: 'home campus hall equipment twin 园区 首页 装备 展厅 孪生' },
   { id: 'knowledge', path: '/knowledge', zh: '农机知识', en: 'Knowledge', hintZh: '知识目录', hintEn: 'Catalog', words: 'catalog 目录 资料' },
-  { id: 'models', path: '/models', zh: '模型工坊', en: 'Model studio', hintZh: '结构示意', hintEn: 'Structure illustration', words: 'model tractor 模型 结构' },
-  { id: 'history', path: '/version-history', zh: '版本历史记录', en: 'Version history', hintZh: '更新日志', hintEn: 'Changelog', words: 'version history changelog 更新 版本 日志' },
   { id: 'chat', path: '/chat', zh: '智能诊断', en: 'Diagnosis', hintZh: '诊断', hintEn: 'Diagnosis', words: 'chat 诊断' },
+  { id: 'models', path: '/models', zh: '模型工坊', en: 'Model studio', hintZh: '结构示意', hintEn: 'Structure illustration', words: 'model tractor 模型 结构' },
+  { id: 'research', path: '/research', zh: '研究依据', en: 'Research', hintZh: '论文与边界', hintEn: 'Papers and scope', words: 'research paper references 研究 论文 依据' },
+  { id: 'history', path: '/version-history', zh: '版本历史记录', en: 'Version history', hintZh: '更新日志', hintEn: 'Changelog', words: 'version history changelog 更新 版本 日志' },
 ];
 
 export function filterCommands(query: string, routes: readonly CommandRoute[] = COMMAND_ROUTES): CommandRoute[] {
@@ -30,6 +31,8 @@ export function statusPlace(pathname: string, lang: 'zh' | 'en'): string {
     '/models': ['模型工坊', 'MODEL STUDIO'],
     '/version-history': ['版本历史记录', 'VERSION HISTORY'],
     '/chat': ['智能诊断', 'DIAGNOSIS'],
+    '/research': ['研究依据', 'RESEARCH'],
+    '/fault-detection': ['故障检测演示', 'FAULT DETECTION'],
   };
   const pair = places[pathname] ?? ['未找到', 'NOT FOUND'];
   return lang === 'zh' ? pair[0] : pair[1];

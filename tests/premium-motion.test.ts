@@ -44,7 +44,7 @@ test('新版 surfaces keep the five animations behind the flag and restore the q
   for (const source of [campus, studio, chat, fallback, shell]) {
     assert.match(source, /PREMIUM_MOTION_ENABLED/);
   }
-  assert.match(campus, /expo-start-button glass-press/);
+  assert.match(campus, /onClick=\{startDrive\}/);
   assert.match(campus, /expo-zone-card is-beamed/);
   assert.doesNotMatch(equipment, /infinite|hall-scan/);
   assert.match(studio, /MorphingPanel/);

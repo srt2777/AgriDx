@@ -8,6 +8,7 @@ const HomePage = lazy(pageLoaders.classic);
 const ChatPage = lazy(pageLoaders.chat);
 const KnowledgePage = lazy(pageLoaders.knowledge);
 const ModelPage = lazy(pageLoaders.models);
+const ResearchPage = lazy(pageLoaders.research);
 const VersionHistoryPage = lazy(pageLoaders.history);
 const FaultDetectionPage = lazy(pageLoaders.faultDetection);
 import NotFoundPage from '@/pages/NotFoundPage/NotFoundPage';
@@ -62,6 +63,7 @@ export default function App() {
         <Route index element={<PageContent><VersionedHomePage /></PageContent>} />
         <Route path="chat" element={<PageContent><ChatPage /></PageContent>} />
         <Route path="knowledge" element={<PageContent><KnowledgePage /></PageContent>} />
+        <Route path="research" element={<PageContent><ResearchPage /></PageContent>} />
         <Route path="models" element={<PageContent><ModelPage /></PageContent>} />
         <Route path="fault-detection" element={<PageContent><FaultDetectionPage /></PageContent>} />
         <Route path="version-history" element={<PageContent><VersionHistoryPage /></PageContent>} />
