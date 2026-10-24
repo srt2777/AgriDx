@@ -2,6 +2,7 @@ import type { ChatMessage } from './session';
 
 type Translate = (zh: string, en: string) => string;
 const technicalHeading = /^(?:服务状态|协调决策|协调路由|检索过程|检索结果|检索到的知识|知识依据|来源与适用信息|来源追踪|本地资料|诊断依据与技术详情|调试信息|模型调用记录|通识依据(?:（[^）]*）)?|提示来源)$/;
+const narrativeHeading = /^(?:故障现象分析|初步判断|继续确认|先确认两点|需要补充(?:的资料)?|咨询现象|农机知识参考|手册依据|通用分析(?:（待验证）)?|通识参考(?:（待验证）)?)$/;
 const technicalLine = /^(?:知识库命中(?:数)?|命中数量|相似度(?:评分)?|检索分数|协调路由|路由决策|模型调用状态|模型名称|知识编号|来源编号|原文位置|资料版本|核验状态|检索层级|debug|traceId)\s*[:：]/i;
 
 /** Display projection only: never change stored text, evidence, decisions or provider requests. */
@@ -26,7 +27,8 @@ export function cleanAnswerText(text: string): string {
         if (/不要|禁止|不得|切勿|严禁/.test(heading[2])) result.push(heading[2]);
         continue;
       }
-      // Known diagnosis labels lose their mechanical chrome, keeping their actual content.
+      // Remove only template labels. Unknown labels may contain a code or a safety prohibition.
+      if (!narrativeHeading.test(heading[1])) result.push(`**${heading[1]}**`);
       if (heading[2]) result.push(heading[2]);
       continue;
     }

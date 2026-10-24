@@ -88,3 +88,9 @@ test('legacy replies without metadata still disclose AI failure or disabled serv
     assert.doesNotMatch(body, /【服务状态】/);
   }
 });
+
+test('unknown bracket labels retain fault identifiers and safety meaning', () => {
+  const body = cleanAnswerText('【P0117】请记录此报警原文。\n\n【禁止启动】等待合格维修人员核对。');
+  assert.match(body, /P0117/); assert.match(body, /禁止启动/);
+  assert.match(body, /等待合格维修人员/); assert.doesNotMatch(body, /【/);
+});
