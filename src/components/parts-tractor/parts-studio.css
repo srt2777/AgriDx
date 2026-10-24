@@ -1,4 +1,17 @@
 .parts-studio { position: relative; display: grid; gap: 12px; }
+.parts-knowledge { margin-top: 12px; padding: 12px; border: 1px solid var(--border); border-radius: 14px; background: var(--card); color: var(--foreground); font-size: 12px; line-height: 1.6; }
+.parts-knowledge h3 { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 0; font-size: 14px; font-weight: 600; }
+.parts-knowledge h3 > span { font-size: 10px; font-weight: 500; color: var(--muted-foreground); }
+.parts-knowledge p { margin: 8px 0; }
+.parts-knowledge-selectors { display: grid; gap: 8px; }
+.parts-knowledge label { display: grid; gap: 4px; }
+.parts-knowledge select { min-height: 44px; width: 100%; min-width: 0; padding: 8px; border: 1px solid var(--border); border-radius: 8px; color: var(--foreground); background: var(--background); }
+.parts-knowledge button, .parts-knowledge > a { display: inline-flex; align-items: center; min-height: 44px; padding: 8px; border: 1px solid var(--border); border-radius: 8px; color: var(--primary); text-decoration: underline; text-underline-offset: 3px; }
+.parts-knowledge :is(a, button, select):focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+.parts-knowledge-gap { color: var(--muted-foreground); }
+.parts-knowledge-gap > svg, .parts-knowledge [role='alert'] svg { display: inline-block; vertical-align: middle; margin-right: 4px; }
+.parts-knowledge-count { display: flex; align-items: baseline; gap: 8px; margin: 12px 0; }
+.parts-knowledge-count > strong { font-size: 22px; font-variant-numeric: tabular-nums; }
 .parts-stage-card,
 .parts-panel { border: 1px solid color-mix(in srgb, var(--hub-primary, var(--primary)) 28%, var(--border)); border-radius: 18px; background: color-mix(in srgb, var(--card) 86%, transparent); min-width: 0; }
 .parts-stage-head,
