@@ -1,6 +1,6 @@
 /* Generated from @radix-ui/colors 3.0.0. MIT, Copyright (c) 2021 Radix.
    Regenerate: node ui/generate-colors.mjs. Scope: classic UI only. */
-.fluid-workspace[data-ui-version='old'] {
+.fluid-workspace[data-ui-version='old'], html[data-ui-version='old'] {
   --radix-sage-1: #fbfdfc;
   --radix-sage-2: #f7f9f8;
   --radix-sage-3: #eef1f0;
@@ -86,7 +86,7 @@
   --radix-white-a-11: rgba(255, 255, 255, 0.9);
   --radix-white-a-12: rgba(255, 255, 255, 0.95);
 }
-html.theme-dark .fluid-workspace[data-ui-version='old'] {
+html.theme-dark .fluid-workspace[data-ui-version='old'], html.theme-dark[data-ui-version='old'] {
   --radix-sage-1: #101211;
   --radix-sage-2: #171918;
   --radix-sage-3: #202221;
