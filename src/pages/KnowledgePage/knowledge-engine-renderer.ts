@@ -73,7 +73,7 @@ export class KnowledgeEngineRenderer {
     });
     c.lineWidth = Math.max(.35, .55 * unit);
     for (let group = 0; group < 2; group++) {
-      c.beginPath(); c.strokeStyle = group ? '#b8beb32e' : '#e0837036';
+      c.beginPath(); c.strokeStyle = group ? '#b8beb366' : '#e0837078';
       for (const edge of network.edges) {
         if (scene.reference && edge.born > time) continue;
         if ((network.nodes[edge.from].color === 'ivory' ? 1 : 0) !== group) continue;
@@ -81,6 +81,17 @@ export class KnowledgeEngineRenderer {
         c.moveTo(a.x, a.y); c.lineTo(b.x, b.y);
       }
       c.stroke();
+    }
+    // Moving markers follow real parent edges; they encode no new relationships.
+    if (scene.animate) {
+      c.fillStyle = '#f1cd85';
+      network.edges.forEach((edge, index) => {
+        if (index % Math.max(1, Math.ceil(network.edges.length / 120)) !== 0) return;
+        const a = points[edge.from], b = points[edge.to];
+        if (!a.visible || !b.visible) return;
+        const progress = (time * .22 + index * .618) % 1;
+        c.beginPath(); c.arc(a.x + (b.x - a.x) * progress, a.y + (b.y - a.y) * progress, Math.max(1, unit * 1.8), 0, Math.PI * 2); c.fill();
+      });
     }
     const activeNode = network.nodes[scene.active];
     if (activeNode && points[scene.active].visible) {
