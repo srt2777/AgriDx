@@ -141,3 +141,16 @@
 .fluid-workspace[data-ui-version='old'] :where(.command-palette, [data-slot='alert-dialog-overlay']) { background: var(--radix-black-a-7) !important; }
 .fluid-workspace[data-ui-version='old'] :where(.command-palette-panel, [data-slot='alert-dialog-content']) { background: var(--radix-sage-2) !important; border: 0.5px solid var(--radix-sage-7) !important; border-radius: 8px !important; backdrop-filter: none; }
 .fluid-workspace[data-ui-version='old'] .command-palette-results [role='option'][aria-selected='true'] { background: var(--radix-grass-5); color: var(--radix-grass-12); }
+
+html[data-ui-version='old'] .dev-preview-status { gap: 12px; padding: 8px 12px; background: var(--radix-sage-2) !important; color: var(--radix-sage-12) !important; border: 0.5px solid var(--radix-sage-6) !important; border-radius: 8px !important; }
+html[data-ui-version='old'] .dev-preview-status :where(span, a, button, p) { font-size: 12px !important; }
+html[data-ui-version='old'] .dev-preview-status :where(a, button) { color: var(--radix-grass-11) !important; }
+html[data-ui-version='old'] .preview-privacy { background: var(--radix-sage-2) !important; color: var(--radix-sage-12) !important; border: 0.5px solid var(--radix-sage-7) !important; border-radius: 8px !important; }
+/* App-level notices live outside Layout; the existing theme host scopes them to classic mode. */
+html[data-ui-version='old'] .nv-toast,
+html[data-ui-version='old'] .nv-toast * { font-size: 14px !important; box-shadow: none !important; animation: none !important; transition: none !important; }
+html[data-ui-version='old'] .nv-toast { background: var(--radix-sage-2) !important; color: var(--radix-sage-12) !important; border: 0.5px solid var(--radix-sage-7) !important; border-radius: 8px !important; }
+html[data-ui-version='old'] .nv-toast[data-type='error'] { color: var(--radix-red-11) !important; }
+.fluid-workspace[data-ui-version='old'] .classic-not-found-code { font-size: 24px !important; }
+
+html[data-ui-version='old'] .dev-preview-status { position: relative; inset: auto; flex-shrink: 0; align-self: flex-end; margin: 4px 16px 8px; max-width: calc(100% - 32px); }

@@ -21,3 +21,14 @@ test('mobile quality lowers pixel and shadow cost while retaining texture filter
   assert.ok(mobile.shadowSize < desktop.shadowSize);
   assert.ok(mobile.anisotropy >= 1 && mobile.anisotropy < desktop.anisotropy);
 });
+
+test('unmounted canvases stop forwarding context-loss events to the next machine', async () => {
+  const { bindContextLoss } = await import('../src/lib/webgl');
+  const canvas = new EventTarget(); let losses = 0;
+  const unbind = bindContextLoss(canvas as unknown as HTMLCanvasElement, () => losses++);
+  const activeLoss = new Event('webglcontextlost', { cancelable: true });
+  canvas.dispatchEvent(activeLoss);
+  assert.equal(losses, 1); assert.equal(activeLoss.defaultPrevented, true);
+  unbind(); canvas.dispatchEvent(new Event('webglcontextlost', { cancelable: true }));
+  assert.equal(losses, 1);
+});

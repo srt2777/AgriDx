@@ -1,0 +1,29 @@
+{
+  "date": "2026-10-24",
+  "url": "http://localhost:3118/#/knowledge?view=graph",
+  "checks": [
+    "pause holds the playhead",
+    "resume advances the playhead",
+    "0s timeline: READER",
+    "5s timeline: LIBRARIAN",
+    "12s timeline: ANSWER",
+    "18s timeline: CHECKER",
+    "24s timeline: REVIEW",
+    "button zoom settles above 100%",
+    "fit resets camera",
+    "real mode has 3984 original directory identities",
+    "Qianxun navigation brand is excluded from the graph",
+    "real directory button selects the corresponding graph node",
+    "existing relation focus remains usable",
+    "keyboard zoom works",
+    "wheel zoom handled without page error",
+    "375px mobile has no horizontal page overflow",
+    "all 8 dashboard panels remain present on mobile",
+    "reduced motion prevents autoplay; timeline still works",
+    "no browser runtime errors",
+    "native two-finger pinch increases zoom",
+    "wheel increases zoom at the pointer",
+    "canvas pixels change during animation"
+  ],
+  "errors": []
+}

@@ -21,6 +21,12 @@ const HOT = new THREE.Color('#ff5a2a');
 
 type Leader = { key: string; label: string; start: [number, number, number]; end: [number, number, number] };
 
+function ContextGuard({ onLost }: { onLost: () => void }) {
+  const { gl } = useThree();
+  useEffect(() => bindContextLoss(gl.domElement, onLost), [gl, onLost]);
+  return null;
+}
+
 function EnvironmentLight() {
   const { scene, gl, invalidate } = useThree();
   useEffect(() => {
@@ -346,11 +352,9 @@ export default function PartsTractorScene({
   const quality = studioQuality(constrained);
   const showcase = PARTS_SHOWCASE[modelId];
   const [prepared, setPrepared] = useState<PreparedTractor | null>(null);
-  const lost = useRef(onLost);
   const ready = useRef(onReady);
   const fail = useRef(onError);
   useEffect(() => {
-    lost.current = onLost;
     ready.current = onReady;
     fail.current = onError;
   }, [onLost, onReady, onError]);
@@ -388,12 +392,12 @@ export default function PartsTractorScene({
         gl.toneMappingExposure = 1;
         gl.outputColorSpace = THREE.SRGBColorSpace;
         gl.shadowMap.type = THREE.PCFSoftShadowMap;
-        bindContextLoss(gl.domElement, () => lost.current());
       }}
     >
       <color attach="background" args={[look.background]} />
       <fog attach="fog" args={[look.fog, 24, 70]} />
       <StudioLighting prepared={prepared} light={light} constrained={constrained} />
+      <ContextGuard onLost={onLost} />
       <EnvironmentLight />
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]} receiveShadow>
         <planeGeometry args={[2000, 2000]} />
