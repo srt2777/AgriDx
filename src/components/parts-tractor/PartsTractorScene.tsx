@@ -4,6 +4,8 @@ import { Html, Line, OrbitControls } from '@react-three/drei';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
 import * as THREE from 'three';
+import StudioLighting from './StudioLighting';
+import { studioQuality } from './studio-rendering';
 import IntegratedEngine from './IntegratedEngine';
 import { bindContextLoss } from '@/lib/webgl';
 import { catalogByName, hoverLabel, type PartsModelId } from './parts-catalog';
@@ -57,6 +59,12 @@ function applyVisual(record: PartRecord, visual: ReturnType<typeof partVisual>) 
     paint.color.copy(slot.color);
     if (visual.desaturate > 0) paint.color.lerp(GREY, visual.desaturate);
   }
+  // Ghosted or isolated-away shells must not leave an opaque shadow over internals.
+  record.object.traverse(object => {
+    if (!(object instanceof THREE.Mesh)) return;
+    const materials = Array.isArray(object.material) ? object.material : [object.material];
+    object.castShadow = visual.opacity >= .98 && materials.some(material => material.visible && material.opacity >= .98);
+  });
   for (const edge of record.edges) edge.visible = visual.outline && !visual.pulse;
 }
 
@@ -334,6 +342,8 @@ export default function PartsTractorScene({
   onError: (message: string) => void;
 }) {
   const look = STUDIO_LIGHT_LOOK[light];
+  const [constrained] = useState(() => window.matchMedia('(pointer: coarse)').matches || navigator.hardwareConcurrency <= 4);
+  const quality = studioQuality(constrained);
   const showcase = PARTS_SHOWCASE[modelId];
   const [prepared, setPrepared] = useState<PreparedTractor | null>(null);
   const lost = useRef(onLost);
@@ -372,19 +382,22 @@ export default function PartsTractorScene({
       shadows
       camera={{ position: [showcase.camera[0], showcase.camera[1], showcase.camera[2]], fov: 38 }}
       gl={GL}
-      dpr={[1, 1.5]}
-      onCreated={({ gl }) => bindContextLoss(gl.domElement, () => lost.current())}
+      dpr={quality.dpr}
+      onCreated={({ gl }) => {
+        gl.toneMapping = THREE.ACESFilmicToneMapping;
+        gl.toneMappingExposure = 1;
+        gl.outputColorSpace = THREE.SRGBColorSpace;
+        gl.shadowMap.type = THREE.PCFSoftShadowMap;
+        bindContextLoss(gl.domElement, () => lost.current());
+      }}
     >
       <color attach="background" args={[look.background]} />
       <fog attach="fog" args={[look.fog, 24, 70]} />
-      <ambientLight intensity={look.ambient} />
-      <hemisphereLight args={[look.hemiSky, look.hemiGround, look.hemi]} />
-      <directionalLight position={[5, 8, 4]} intensity={look.key} color={look.keyColor} castShadow shadow-mapSize={[1024, 1024]} />
-      <directionalLight position={[-4, 3, -2]} intensity={look.fill} color={look.fillColor} />
+      <StudioLighting prepared={prepared} light={light} constrained={constrained} />
       <EnvironmentLight />
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]} receiveShadow>
-        <circleGeometry args={[14, 64]} />
-        <meshStandardMaterial color={look.cell} roughness={0.92} metalness={0.04} />
+        <planeGeometry args={[2000, 2000]} />
+        <meshStandardMaterial color={look.background} roughness={0.88} metalness={0.02} />
       </mesh>
       <TractorBody
         prepared={prepared}
