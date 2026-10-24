@@ -415,10 +415,31 @@
       "date": "2026-10-24"
     },
     {
+      "id": "graph-interaction-20261024",
+      "kind": "fix",
+      "base": "3.13.9",
+      "version": "3.13.10",
+      "date": "2026-10-24"
+    },
+    {
       "id": "diagnosis-integration-20261024",
       "kind": "feature",
       "base": "3.13.9",
       "version": "3.14.0",
+      "date": "2026-10-24"
+    },
+    {
+      "id": "knowledge-engine-replica-20261024",
+      "kind": "feature",
+      "base": "3.13.10",
+      "version": "3.14.0",
+      "date": "2026-10-24"
+    },
+    {
+      "id": "diagnosis-coordination-20261024",
+      "kind": "feature",
+      "base": "3.14.0",
+      "version": "3.15.0",
       "date": "2026-10-24"
     }
   ]

@@ -4,7 +4,7 @@ import type { SessionDetail, PriorDeviceReport } from '../../shared/memory';
 import { resolveDiagnosticContext } from '../knowledge/conversation';
 import { buildSystemPrompt } from '../knowledge/systemPrompt';
 import { buildDiagnosticReply, renderDiagnosticReply } from './reply';
-import { validateDiagnosticAnswer } from './answerGuard';
+import { filterDiagnosticAnswer } from './answerGuard';
 import { decideCoordination, ROUTE_MESSAGES } from '../knowledge/coordination';
 import { hasIndexedReference, referenceVerification } from '../knowledge/evidence';
 import { retrieve, selectPromptChunks, formatForPrompt, hasApplicableManual } from '../knowledge/retriever';
@@ -113,7 +113,7 @@ export function createDiagnosticService(llm: DiagnosticProvider, dependencies: D
       progress: [memory?.session.progress, ...history.filter(message => message.role === 'user').map(message => message.content)].filter(Boolean).join('\n'),
       priorReports: memory?.priorReports,
     });
-    const localResponse = (failed = false, outputIssues: string[] = []): ChatResponse => {
+    const localResponse = (failed = false, outputIssues: string[] = [], failureKind?: string): ChatResponse => {
       const rejected = outputIssues.length > 0;
       const route = failed || rejected ? { ...coordination, route: 'local' as const,
         reason: rejected ? 'output_rejected' as const : 'provider_unavailable' as const,
@@ -124,6 +124,12 @@ export function createDiagnosticService(llm: DiagnosticProvider, dependencies: D
         displayed = admissible.filter(chunk => chunk.entryId && directIds.has(chunk.entryId));
       }
       const diagnosticReply = replyPlan(route);
+      const unavailable = failed ? failureKind === 'timeout' ? '已尝试外部 AI，但请求超时；本次先提供本地安全观察建议。' : '已尝试外部 AI，但服务暂不可用；本次先提供本地安全观察建议。'
+        : rejected ? '外部 AI 已返回，但内容未通过来源或安全检查；本次保留本地安全建议。'
+        : route.reason === 'llm_not_configured' ? '当前服务端未配置外部 AI 密钥，本次没有调用外部模型。'
+        : route.reason === 'server_local_only' ? '当前环境只启用本地知识检索，本次没有调用外部模型。'
+        : route.reason === 'llm_config_invalid' || route.reason === 'invalid_config' ? '当前 AI 配置无效，本次没有调用外部模型。' : '';
+      if (unavailable) diagnosticReply.understanding += unavailable;
       const content = renderDiagnosticReply(diagnosticReply);
       return finish({
         choices: [{ message: { role: 'assistant', content } }], diagnosticReply,
@@ -156,12 +162,19 @@ export function createDiagnosticService(llm: DiagnosticProvider, dependencies: D
       const trustedEvidenceIds = promptChunks.flatMap(chunk => chunk.entryId && !chunk.retrieval?.referenceOnly &&
         coordination.candidates?.some(candidate => candidate.entryId === chunk.entryId && !candidate.excluded &&
           candidate.modelMatch === 'exact' && candidate.sourceIndexed && candidate.referenceVerification === 'verified') ? [chunk.entryId] : []);
-      const validation = validateDiagnosticAnswer(outcome.result.content, promptChunks, { trustedEvidenceIds });
-      if (!validation.ok) {
+      const filtered = filterDiagnosticAnswer(outcome.result.content, promptChunks, { trustedEvidenceIds, model: scope.model });
+      if (!filtered.content) {
         displayed = admissible;
-        return localResponse(false, [...new Set(validation.issues.map(issue => issue.code))]);
+        return localResponse(false, [...new Set(filtered.removedIssues)]);
       }
-      const diagnosticReply = { ...replyPlan(), aiSupplement: outcome.result.content };
+      const diagnosticReply = { ...replyPlan(), aiSupplement: filtered.content };
+      // Let a useful AI analysis lead; local facts and inferred analysis remain separate.
+      diagnosticReply.understanding = `${[scope.brand, scope.model].filter(Boolean).join(' ')}${scope.model ? '：' : ''}${(symptomQuery || currentQuery).replace(/[。！？?!]+$/u, '')}。下面区分已有资料与通用分析，原因尚待检查验证。`;
+      if (/[？?]|请.{0,12}(?:补充|确认)/.test(filtered.content)) diagnosticReply.questions = [];
+      if (filtered.removedIssues.length) {
+        diagnosticReply.aiSupplement = '已移除未通过来源或安全检查的段落，以下保留通用分析：\n\n' + filtered.content;
+        coordination.outputIssues = [...new Set(filtered.removedIssues)];
+      }
       const content = renderDiagnosticReply(diagnosticReply);
       if (content.length > 16000) {
         displayed = admissible;
@@ -176,7 +189,7 @@ export function createDiagnosticService(llm: DiagnosticProvider, dependencies: D
       trace.aiAttempts = error.attempts || 1;
       console.warn(`[chat] provider error: ${error.provider}/${error.kind}`);
       displayed = admissible;
-      return localResponse(true);
+      return localResponse(true, [], error.kind);
     }
   };
 }

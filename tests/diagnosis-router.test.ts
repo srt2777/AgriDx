@@ -38,7 +38,7 @@ test('coverage follows the question and never invents missing diagnostic fields'
   assert.equal(decide({}, partial).route, 'ai');
   assert.equal(decide({ query: '为什么起动困难', currentQuery: '为什么起动困难' }, partial).route, 'local');
   assert.deepEqual(requiredDiagnosticCoverage('如何排查起动困难'), ['symptom', 'checks']);
-  assert.equal(decide({}, { diagnosticMetadata: undefined }).reason, 'unknown_operation_risk');
+  assert.equal(decide({}, { diagnosticMetadata: undefined }).route, 'ai');
 });
 
 test('raw score thresholds are configurable; absent and fractional raw scores are never percentages', () => {
@@ -116,7 +116,7 @@ test('high-risk queries return restricted safety replies before all modes, ident
 
 test('unknown operation risk remains conservative while ordinary missing-identity symptoms may use AI', () => {
   assert.equal(decide({ retrieved: [], currentQuery: '怎么拆卸这个零件' }).reason, 'unknown_operation_risk');
-  assert.equal(decide({ retrieved: [], currentQuery: '坏了怎么办' }).reason, 'unknown_operation_risk');
+  assert.equal(decide({ retrieved: [], currentQuery: '坏了怎么办' }).route, 'ai');
   const general = decide({ query: '热车后没劲', currentQuery: '热车后没劲', scope: {}, retrieved: [] });
   assert.equal(general.route, 'ai');
   assert.equal(general.riskLevel, 'unknown');

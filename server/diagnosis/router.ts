@@ -33,7 +33,9 @@ export interface DiagnosisRouterInput {
 const TECHNICAL = new Set(['维护/故障知识', '操作/维护知识', '安全操作', '系统安装/调试']);
 const UNCERTAIN_SCOPE = /待核实|待核验|待确认|未确认|未核实|未核验|未知|不明确/;
 const HIGH_RISK = /制动|刹车|刹不住|刹不灵|转向|方向盘|方向重|方向失灵|动力输出|\bpto\b|传动轴|万向节|高压(?:液压|油|管|燃油|共轨|电)|液压油喷射|油液喷射|油管(?:喷油|破裂|爆裂)|\bhydraulic\b[^.?!\n]{0,24}(?:pressure|hose|line|spray|inject|leak)|热(?:车|机|水箱)[^。！？\n]{0,12}(?:开|拧|拆)[^。！？\n]{0,8}(?:盖|散热器)|发动机飞车|飞车|失控|自行加速|发动机超速|超速运转|\b(?:brakes?|braking|steering|runaway|overspeed)\b|high[ -]pressure[^。！？\n]{0,16}(?:hydraulics?|fuel|oil|line)|液压[^。！？\n]{0,16}(?:拆|松|卸|接头|压力)|共轨|喷油器[^。！？\n]{0,12}(?:拆|卸|松)|(?:带压|运转中|未熄火|不停机)[^。！？\n]{0,16}(?:拆|松|卸|检修|维修|检查)|短接|绕过[^。！？\n]{0,12}(?:安全|联锁)|解除[^。！？\n]{0,12}(?:安全|联锁)/i;
-const OPERATION_REQUEST = /(?:how\s+to\s+|steps?\s+to\s+)(?:repair|disassemble|replace|adjust)|怎么(?:修|拆|换|调|操作|处理)|如何(?:修|拆|换|调|操作|处理)|怎么办|维修(?:步骤|建议|方法)|修理步骤|拆装|拆卸|修复|操作步骤/i;
+// A request for help is not permission for intrusive repair. Only these explicit
+// actions stop an otherwise ordinary, unknown-risk diagnostic discussion.
+const INTRUSIVE_REQUEST = /拆卸|拆装|怎么拆|如何拆|怎么换|如何换|怎么调|如何调|调压|带电测量|拆解|disassembl|dismantl/i;
 const PARAMETER_REQUEST = /故障码.*(?:含义|意思|解释)|(?:含义|解释).*故障码|(?:压力|扭矩|间隙|电压|温度).*(?:标准|多少|参数)|(?:标准|规定).*(?:压力|扭矩|间隙|电压|温度)/;
 const SYNTHESIS_REQUEST = /综合|比较|对比|多种故障|多个故障|一起分析/;
 
@@ -150,7 +152,7 @@ export function decideDiagnosisRoute(input: DiagnosisRouterInput, config: Readon
   // A reviewed manual still does not authorize dangerous disassembly. High-risk
   // paths deliberately remain limited safety replies in every public mode.
   if (riskLevel === 'high') return result('safe', reliable ? 'high_risk_restricted' : 'high_risk_insufficient_evidence');
-  if (riskLevel === 'unknown' && OPERATION_REQUEST.test(`${input.query}\n${input.currentQuery}`)) return result('safe', 'unknown_operation_risk');
+  if (riskLevel === 'unknown' && INTRUSIVE_REQUEST.test(`${input.query}\n${input.currentQuery}`)) return result('safe', 'unknown_operation_risk');
   if (input.clarificationNeeded || resolved.identityConflict || resolved.ambiguous) return result('clarify', 'identity_conflict');
   if (evidenceConflict) return result('clarify', 'knowledge_conflict');
   if ((!resolved.brand || !resolved.models.length) && PARAMETER_REQUEST.test(input.currentQuery)) return result('clarify', 'identity_required');

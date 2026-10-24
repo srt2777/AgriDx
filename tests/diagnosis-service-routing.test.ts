@@ -135,8 +135,9 @@ test('明确车型冲突的文献不进入AI上下文或实际来源', async () 
   assertOneRetrieval(response, h);
   assert.equal(response.coordination?.candidates?.[0].modelMatch, 'conflict');
   assert.equal(response.knowledgeSources.length, 0);
-  assert.ok(['clarify', 'safe'].includes(response.coordination?.route ?? ''));
-  assert.equal(h.generations.length, 0);
+  assert.equal(response.coordination?.route, 'ai');
+  assert.equal(h.generations.length, 1);
+  assert.doesNotMatch(h.generations[0][0].content, /WRONG-MODEL-INSTRUCTION/);
   assert.doesNotMatch(reply(response), /WRONG-MODEL-INSTRUCTION|TEST-ROUTER-001/);
 });
 
@@ -303,8 +304,9 @@ test('发动机与故障码metadata明确冲突时即使相同车型也排除全
     const response = await h.diagnose(request('ai_assisted', question, mismatch.req));
     assert.equal(response.coordination?.candidates?.[0].modelMatch, 'conflict');
     assert.equal(response.knowledgeSources.length, 0);
-    assert.ok(['clarify', 'safe'].includes(response.coordination?.route ?? ''));
-    assert.equal(h.generations.length, 0);
+    assert.equal(response.coordination?.route, 'ai');
+    assert.equal(h.generations.length, 1);
+    assert.doesNotMatch(h.generations[0][0].content, /INCOMPATIBLE-ENGINE-OR-CODE/);
     assert.doesNotMatch(reply(response), /INCOMPATIBLE-ENGINE-OR-CODE|TEST-ROUTER-001/);
   }
 });

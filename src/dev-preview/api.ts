@@ -39,6 +39,7 @@ function diagnose(request: DiagnosticRequest, memory?: { session: SessionDetail;
     chunks: displayed, scope, coordination,
     progress: [memory?.session.progress, ...request.history.filter(message => message.role === 'user').map(message => message.content)].filter(Boolean).join('\n'),
     priorReports: memory?.priorReports });
+  diagnosticReply.understanding += '当前为仅本地检索的开发预览，本次没有调用外部 AI。';
   const content = renderDiagnosticReply(diagnosticReply);
   const used = new Set([...(diagnosticReply.background ?? []), ...diagnosticReply.causes, ...diagnosticReply.suggestions].flatMap(item => item.evidenceIds));
   coordination.knowledgeIds = displayed.flatMap(chunk => chunk.entryId ? [chunk.entryId] : []);

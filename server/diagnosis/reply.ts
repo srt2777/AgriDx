@@ -60,11 +60,11 @@ function contradictedByReport(cause: string, progress: string): boolean {
 
 function observedQuestion(query: string, progress: string): DiagnosticReply['questions'][number] {
   if (/水温|冷却|过热|温度.*高/.test(query)) {
-    if (!/冷车|热车|启动后|作业.{0,8}(?:分钟|小时)|带负荷|负载/.test(progress)) return {
+    if (!/冷车|热车|启动后|作业.{0,8}(?:分钟|小时)|旋耕|带负荷|负荷|负载/.test(progress)) return {
       text: '水温异常是在冷车刚启动时，还是已经作业一段时间后出现？只说已经观察到的情况即可。',
       options: ['冷车刚启动', '作业一段时间后', '还不确定'],
     };
-    return { text: '同时有没有看到报警原文、蒸汽或外部液体痕迹？不必为回答再启动或开盖。', options: ['有，补充原文或现象', '未观察到', '不确定'] };
+    return { text: '是否已有空载或轻负荷时的水温表现记录，以及报警原文？只补充已有观察，不要为此试车或开盖。', options: ['有，补充原文或现象', '未观察到', '不确定'] };
   }
   if (/动力不足|没劲|没力气|无力/.test(query)) return {
     text: '无力时是发动机转速也上不去，还是转速正常但行驶或牵引无力？只描述已有现象。',
@@ -180,6 +180,10 @@ export function buildDiagnosticReply(input: DiagnosticReplyInput): DiagnosticRep
     text: '不要在热机或带压时打开冷却系统盖，也不要接近高温蒸汽；先按本机规程安全停机并交由合格人员处理。',
     kind: 'professional', evidenceIds: [], priority: 0,
   });
+  if (/水温|冷却|过热|水箱/.test(query) && coordination.route !== 'safe') reply.suggestions.push({
+    text: '安全停机并完全冷却后，只从外部观察散热器表面有无草屑遮挡、地面有无液体痕迹；不触碰风扇、不打开盖、不拆洗或加液。',
+    kind: 'observe', evidenceIds: [], priority: 1,
+  });
   reply.suggestions = reply.suggestions.sort((a, b) => a.priority - b.priority).filter((item, index, all) => all.findIndex(other => other.text === item.text) === index).slice(0, 3);
   const observation = observedQuestion(query, progress);
   if (!scope.model && !/型号.{0,5}(?:不知|未知|不知道|不清楚)|暂时不知道型号/.test(progress)) reply.questions.push({ text: '铭牌上的完整型号是什么？暂时不知道也可以，先描述已有现象。' });
@@ -194,9 +198,9 @@ export function renderDiagnosticReply(reply: DiagnosticReply): string {
   const sections = [reply.understanding];
   if (reply.background?.length) sections.push('通用原理参考（非本机结论，尚需核对）：\n' + reply.background.map(item => `- ${item.text}（${item.evidenceIds.join('、')}，无手册页码）`).join('\n'));
   if (reply.causes.length) sections.push('资料中列出的可能方向：\n' + reply.causes.map(cause => `- ${cause.text}（${cause.evidenceIds.join('、')}，待验证）`).join('\n'));
+  if (reply.aiSupplement) sections.push('AI补充分析（推断，需核对）：\n' + reply.aiSupplement);
   if (reply.suggestions.length) sections.push('建议按以下顺序处理：\n' + reply.suggestions.map((suggestion, index) => `${index + 1}. ${suggestion.text}${suggestion.evidenceIds.length ? `（${suggestion.evidenceIds.join('、')}）` : ''}`).join('\n'));
   sections.push(reply.sourceNote);
-  if (reply.aiSupplement) sections.push('AI补充分析（推断，需核对）：\n' + reply.aiSupplement);
   if (reply.questions.length) sections.push('为了缩小范围，先确认：\n' + reply.questions.map((question, index) => `${index + 1}. ${question.text}`).join('\n'));
   return sections.filter(Boolean).join('\n\n');
 }

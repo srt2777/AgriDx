@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { assessSuggestedAction, validateDiagnosticAnswer } from '../server/diagnosis/answerGuard';
+import { assessSuggestedAction, validateDiagnosticAnswer, filterDiagnosticAnswer } from '../server/diagnosis/answerGuard';
 import type { KnowledgeChunk } from '../server/knowledge/types';
 
 const manual: KnowledgeChunk = {
@@ -87,4 +87,24 @@ test('a negative disclaimer about vehicle validation cannot hide an affirmative 
   assert.equal(accepted('未经实车验证，但资料已核验。', { ...manual, status: '待核验' }).ok, false);
   assert.equal(accepted('未实车验证，TEST-001已核验。', { ...manual, status: '核验失败' }).ok, false);
   assert.equal(accepted('不代表本机已验证。', { ...manual, status: '待核验' }).ok, true);
+});
+
+
+test('the known machine identity is not a fault code but actual code meanings remain guarded', () => {
+  for (const model of ['LF1504', 'lf1504']) {
+    assert.equal(validateDiagnosticAnswer('LF1504旋耕时水温过高通常表示散热负荷增加。', [], { model }).ok, true);
+  }
+  assert.equal(validateDiagnosticAnswer('P1234表示喷油泵损坏。', [], { model: 'LF1504' }).ok, false);
+  assert.equal(validateDiagnosticAnswer('故障码LF1504表示喷油泵损坏。', [], { model: 'LF1504' }).ok, false);
+  assert.equal(validateDiagnosticAnswer('P1234表示喷油泵损坏。', [], { model: 'P1234' }).ok, false);
+});
+
+test('partial output keeps independent causal explanation, not dangling repair steps or ungrounded certainty', () => {
+  const good = '旋耕时水温上升可能涉及负荷增加、散热器外部遮挡或冷却液不足，仍需核实。';
+  const result = filterDiagnosticAnswer(good + '\n\n维修压力标准为9MPa。\n\n然后把盖子打开。', []);
+  assert.equal(result.content, good);
+  assert.ok(result.removedIssues.includes('unsupported_parameter'));
+  assert.equal(filterDiagnosticAnswer('维修压力标准为9MPa。\n\n然后把盖子打开。', []).content, '');
+  assert.equal(validateDiagnosticAnswer('就是水泵坏了。', []).ok, false);
+  assert.equal(validateDiagnosticAnswer('不一定是水泵坏了，仍需核实。', []).ok, true);
 });

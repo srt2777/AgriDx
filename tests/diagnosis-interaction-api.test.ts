@@ -275,16 +275,104 @@ test('provider header timeout returns the same local evidence and source limitat
     entered();
   }));
   const chat = await serve(t);
-  const pending = chat(body('东方红 LF1504 水温过高，可能是什么原因？', 'ai_assisted'));
+  const pending = chat(body('东方红 LF1504 拖拉机旋耕时水温过高，可能是什么原因？', 'ai_assisted'));
   await started;
   t.mock.timers.tick(25_000);
   const response = await pending;
   assertNoInventedLfCause(response);
   assert.equal(response.provider, 'knowledge-base');
   assert.equal(response.fallbackReason, 'provider_unavailable');
+  assert.match(response.diagnosticReply?.understanding ?? '', /已尝试.*超时/);
   assert.equal(response.diagnosisTrace?.retrievalCount, 1);
   assert.equal(response.diagnosisTrace?.aiAttempts, 1);
   assert.equal(response.diagnosisTrace?.aiSuccesses, 0);
   assert.equal(fetch.mock.callCount(), 1);
   assert.doesNotMatch(JSON.stringify(response), /secret-upstream-detail|offline-timeout-key/);
+});
+
+
+const coordinationQuestion = '东方红 LF1504 拖拉机旋耕时水温过高，可能是什么原因？';
+const coolingAnalysis = 'LF1504旋耕时水温过高，通常表示散热能力暂时不能覆盖负荷。常见待核实方向包括散热器外部堵塞、冷却液不足或风扇传动异常。\n\n先安全停机冷却；只查看已有仪表记录和停机后可见的外部遮挡，不开热盖、不拆检。\n\n空载或轻负荷时是否也出现，是否已有报警原文？';
+
+test('coordination acceptance: the literal LF1504 question calls the provider once and keeps useful analysis', async t => {
+  process.env.GEMINI_API_KEY = 'offline-test-key';
+  const fetch = t.mock.method(globalThis, 'fetch', async () => upstream(coolingAnalysis));
+  const chat = await serve(t);
+  const response = await chat(body(coordinationQuestion, 'auto'));
+  assert.equal(fetch.mock.callCount(), 1);
+  assert.equal(response.provider, 'gemini');
+  assert.equal(response.diagnosisTrace?.aiAttempts, 1);
+  assert.equal(response.diagnosisTrace?.retrievalCount, 1);
+  assert.equal(response.coordination?.retrievalOutcome, 'insufficient_evidence');
+  assert.equal(response.diagnosticReply?.aiSupplement, coolingAnalysis);
+  assert.ok(response.knowledgeSources.some(source => source.entryId === 'KB2000-20261015-YTOLF1504-010'));
+  assert.match(response.choices[0].message.content, /常见待核实方向.*散热器外部堵塞/);
+  assert.ok(response.choices[0].message.content.indexOf('AI补充分析') < response.choices[0].message.content.indexOf('建议按以下顺序'));
+  assert.ok((response.choices[0].message.content.match(/[？?]/g) || []).length <= 2);
+  assert.deepEqual(response.diagnosticReply?.questions, []);
+});
+
+test('coordination acceptance: zero hits still call once; help wording is not an intrusive operation', async t => {
+  process.env.DEEPSEEK_API_KEY = 'offline-test-key';
+  process.env.LLM_PROVIDER = 'deepseek';
+  const fetch = t.mock.method(globalThis, 'fetch', async () => upstream(coolingAnalysis));
+  const chat = await serve(t, { retrieve: () => [] });
+  for (const question of [coordinationQuestion, '东方红 LF1504 水温过高怎么办？']) {
+    const before = fetch.mock.callCount();
+    const response = await chat(body(question, 'auto'));
+    assert.equal(fetch.mock.callCount(), before + 1);
+    assert.equal(response.provider, 'deepseek');
+    assert.deepEqual(response.knowledgeSources, []);
+    assert.match(response.diagnosticReply?.aiSupplement ?? '', /常见待核实方向/);
+    assert.equal(response.diagnosisTrace?.retrievalCount, 1);
+  }
+  const local = await chat(body(coordinationQuestion, 'knowledge_only'));
+  assert.equal(local.diagnosisTrace?.aiAttempts, 0);
+  assert.equal(fetch.mock.callCount(), 2);
+});
+
+test('coordination acceptance: unsafe paragraphs do not erase independent general causes or trigger a second generation', async t => {
+  process.env.GEMINI_API_KEY = 'offline-test-key';
+  const causes = '旋耕时水温升高可能涉及散热器外部堵塞、负荷增加或冷却液不足，不能直接确定部件故障。';
+  const fetch = t.mock.method(globalThis, 'fetch', async () => upstream(causes + '\n\n本机压力标准为9MPa。\n\n短接安全联锁继续试车。'));
+  const chat = await serve(t);
+  const response = await chat(body(coordinationQuestion, 'auto'));
+  assert.equal(fetch.mock.callCount(), 1);
+  assert.equal(response.provider, 'gemini');
+  assert.match(response.diagnosticReply?.aiSupplement ?? '', /旋耕时水温升高可能涉及/);
+  assert.doesNotMatch(response.choices[0].message.content, /9MPa|短接安全联锁继续试车/);
+  assert.ok(response.coordination?.outputIssues?.includes('unsafe_action'));
+  assert.ok(response.coordination?.outputIssues?.includes('unsupported_parameter'));
+});
+
+test('coordination acceptance: unconfigured AI is reported honestly with useful basic observations', async t => {
+  const fetch = t.mock.method(globalThis, 'fetch', () => { throw new Error('not configured'); });
+  const chat = await serve(t, { retrieve: () => [] });
+  const response = await chat(body(coordinationQuestion, 'auto'));
+  assert.equal(fetch.mock.callCount(), 0);
+  assert.match(response.diagnosticReply?.understanding ?? '', /未配置.*没有调用/);
+  assert.match(response.choices[0].message.content, /只从外部观察散热器/);
+  assert.equal(response.diagnosisTrace?.aiAttempts, 0);
+  assert.deepEqual(response.diagnosticReply?.causes, []);
+});
+
+test('coordination acceptance: a second-turn load and debris report reaches the same single-call context', async t => {
+  process.env.GEMINI_API_KEY = 'offline-test-key';
+  const followup = '冷车正常，旋耕十几分钟后升温；散热器外面有草屑，没看见漏液。';
+  const prompts: string[] = [];
+  const fetch = t.mock.method(globalThis, 'fetch', async (_url: unknown, init: RequestInit) => {
+    prompts.push(String(init.body));
+    return upstream(prompts.length === 1 ? coolingAnalysis : '冷车正常而持续旋耕后升温，加上已报告的外部草屑，散热受阻与负荷因素值得优先核实，但不能据此确定水泵故障。只保留停机冷却后的外部观察，不拆洗或试车。是否已有报警原文？');
+  });
+  const chat = await serve(t);
+  const first = await chat(body(coordinationQuestion, 'auto'));
+  const second = await chat({ ...lf, diagnosisMode: 'auto', messages: [
+    { role: 'user', content: coordinationQuestion }, { role: 'assistant', content: first.choices[0].message.content },
+    { role: 'user', content: followup },
+  ] });
+  assert.equal(fetch.mock.callCount(), 2);
+  assert.ok(prompts[1].includes('旋耕') && prompts[1].includes('草屑') && prompts[1].includes('LF1504'));
+  assert.match(second.diagnosticReply?.aiSupplement ?? '', /已报告的外部草屑/);
+  assert.ok((second.choices[0].message.content.match(/[？?]/g) || []).length <= 2);
+  assert.ok(second.diagnosticReply?.questions.every(question => !/品牌|完整型号|冷车刚启动/.test(question.text)));
 });

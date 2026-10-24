@@ -83,7 +83,7 @@ function citedPages(text: string) {
 
 /** A conservative local gate, not a claim that free text has been fact-checked. */
 export function validateDiagnosticAnswer(
-  content: string, chunks: readonly KnowledgeChunk[], options: { trustedEvidenceIds?: readonly string[] } = {},
+  content: string, chunks: readonly KnowledgeChunk[], options: { trustedEvidenceIds?: readonly string[]; model?: string } = {},
 ): AnswerValidation {
   // Normalize display-equivalent forms before applying rules; keep original output unchanged.
   content = content.normalize('NFKC').replace(/[\u200B-\u200D\uFEFF]/g, '');
@@ -134,6 +134,9 @@ export function validateDiagnosticAnswer(
     if (/(?:方法|维修|修理|措施|方案|故障|本机)[^。；;]{0,15}(?:已验证|验证有效|已核实有效|已经确认有效|保证有效)/.test(clause) && !/(?:未|不代表|未经|不能|尚未)[^。；;]{0,15}(?:验证|有效|确认)/.test(clause)) add('diagnosis_overclaim', '文献核对不证明维修方案有效');
     if (/实车(?:已)?验证|厂家(?:已)?(?:确认|验证)|已经确诊|已确诊|确定(?:是|为).*(?:故障|损坏)/.test(clause) && !/(?:未|不代表|未经|不能|尚未)[^，,。；;]{0,15}(?:实车|厂家|确诊|确定)/.test(clause)) add('diagnosis_overclaim', '资料审校不能变成实车确诊或厂家验证');
 
+    for (const certainty of clause.matchAll(/(?:肯定是|必然是|一定是|就是|已经确定|已经确认)[^，,。；;]{0,18}(?:损坏|故障|坏了|失效)/g)) {
+      if (!/(?:不|未|不能|无法|并非|不是)[^，,。；;]{0,5}$/.test(clause.slice(0, certainty.index))) add('diagnosis_overclaim', '现象不足以作确定性部件诊断');
+    }
     const allowedFacts = citedEntries.length ? trusted.filter(chunk => citedEntries.includes(chunk)) : citedSources.length
       ? trusted.filter(chunk => chunk.sourceId && citedSources.includes(chunk.sourceId.toUpperCase())) : trusted;
     if (/(?:根据|依据|按照|出自|参见)[^。；;]{0,20}(?:手册|说明书)|(?:手册|说明书)[^。；;]{0,12}(?:指出|表明|记载|明确说明|要求|规定)/.test(clause) && !hasExactProposition(clause, allowedFacts)) add('unsupported_source_claim', '未提供对应原文的手册归因不能作为事实');
@@ -144,12 +147,32 @@ export function validateDiagnosticAnswer(
         /(?:标准|规定值|设定值|调至|应为|必须为|不得超过|上限|下限)[为是：:\s]*[-+]?\d/.test(clause);
       if (numericalClaim && !hasExactProposition(clause, allowedFacts)) add('unsupported_parameter', '专用数值或设置没有对应可信手册的完整原文支持');
     }
-    if (/(?:故障码|fault\s*code|DTC|\b[PCBU]\d{4}\b|\b[A-Z]{1,5}[- ]?\d{2,6}\b)/i.test(clause.replace(ID_PATTERN, '')) && /含义|表示|代表|意味着|解释为|对应|即为|(?:[PCBU]\d{4}|[A-Z]{1,5}[- ]?\d{2,6})\s*(?:是|为|[:：])|means|indicates/i.test(clause) && !/含义.{0,8}(?:未知|待核实|不能|无法)|不能.{0,12}(?:解释|确定|推断)|未.{0,8}(?:提供|核对)/.test(clause)) {
-      const codes = [...clause.replace(ID_PATTERN, '').matchAll(/\b(?:[PCBU]\d{4}|[A-Z]{1,5}[- ]?\d{2,6})\b/gi)].map(match => normalize(match[0]));
+    const codeClause = options.model && !/^[PCBU]\d{4}$/i.test(options.model) && !/(?:故障码|fault\s*code|DTC)/i.test(clause)
+      ? clause.replace(new RegExp(options.model.normalize('NFKC').replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi'), '') : clause;
+    if (/(?:故障码|fault\s*code|DTC|\b[PCBU]\d{4}\b|\b[A-Z]{1,5}[- ]?\d{2,6}\b)/i.test(codeClause.replace(ID_PATTERN, '')) && /含义|表示|代表|意味着|解释为|对应|即为|(?:[PCBU]\d{4}|[A-Z]{1,5}[- ]?\d{2,6})\s*(?:是|为|[:：])|means|indicates/i.test(clause) && !/含义.{0,8}(?:未知|待核实|不能|无法)|不能.{0,12}(?:解释|确定|推断)|未.{0,8}(?:提供|核对)/.test(clause)) {
+      const codes = [...codeClause.replace(ID_PATTERN, '').matchAll(/\b(?:[PCBU]\d{4}|[A-Z]{1,5}[- ]?\d{2,6})\b/gi)].map(match => normalize(match[0]));
       if (!codes.length || codes.some(code => !allowedFacts.some(chunk => chunk.faultCodes?.some(known => normalize(known) === code))) || !hasExactProposition(clause, allowedFacts)) {
         add('unsupported_fault_code', '故障码含义缺少本机适配原文');
       }
     }
   }
   return { ok: issues.length === 0, issues };
+}
+
+
+/** Keep independently safe paragraphs. Never repair a risky paragraph by deleting
+ * its safety conditions, or make another model request to rewrite it. */
+export function filterDiagnosticAnswer(content: string, chunks: readonly KnowledgeChunk[], options: { trustedEvidenceIds?: readonly string[]; model?: string } = {}) {
+  const validation = validateDiagnosticAnswer(content, chunks, options);
+  if (validation.ok) return { content, removedIssues: [] as string[] };
+  if (validation.issues.some(issue => issue.code === 'answer_length')) return { content: '', removedIssues: validation.issues.map(issue => issue.code) };
+  const paragraphs = content.split(/\n\s*\n/);
+  const safe = paragraphs.filter(paragraph => validateDiagnosticAnswer(paragraph, chunks, options).ok &&
+    // After any rejected paragraph, only retain explanatory/observational prose;
+    // never retain a repair step whose preconditions may have been removed.
+    !/拆|更换|测量|检测|调压|清洗|清理|加注|加液|试车|启动|运行|松开|拧|短接|跨接|绕过|带电|开盖|(?:请|先|再|然后|接着|建议|应当|需要|将|把|执行|进行)/.test(paragraph) && /可能|常见|原因|涉及|导致|负荷|cause|because/i.test(paragraph));
+  const cleaned = safe.join('\n\n').trim();
+  // A heading or generic disclaimer alone is not a useful alternative analysis.
+  const substantive = safe.some(paragraph => /可能|常见|原因|散热|冷却|检查|观察|记录|负荷|温升|because|cause|check/i.test(paragraph.replace(/^#{1,6}[^\n]*$/gm, '')));
+  return { content: substantive && cleaned && validateDiagnosticAnswer(cleaned, chunks, options).ok ? cleaned : '', removedIssues: validation.issues.map(issue => issue.code) };
 }
