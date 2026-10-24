@@ -553,6 +553,13 @@
       "base": "3.18.2",
       "version": "3.19.0",
       "date": "2026-10-25"
+    },
+    {
+      "id": "ui-telemetry-hook-20261025",
+      "kind": "maintenance",
+      "base": "3.19.0",
+      "version": "3.19.1",
+      "date": "2026-10-25"
     }
   ]
 }

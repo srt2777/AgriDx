@@ -71,7 +71,15 @@ SSE不接受查询参数；HEAD明确返回405/Allow: GET，避免被Express自�
 
 两端点关闭时返回503/`telemetry_disabled`；限流429/`rate_limited`，连接上限429/`telemetry_connection_limit`，未知通道404/`telemetry_channel_not_found`，无效输入400/`bad_request`。意外错误复用既有脱敏500响应，不把内部路径、异常或配置传给客户端。`POST /api/telemetry/ingest`仍为未实现的404。
 
-前端统一`useTelemetry`负责连接、重连、延迟（超过目录`staleAfterMs`）与降采样；图表只消费该流。共享`telemetryConnectionState`只按新采样收到时间判断新鲜度，心跳不重置它：连接断开为离线，超过N秒无新点为延迟，simulated新点为仿真；仅未来device来源允许实时标签。每次加载/失败/无数据仍须单独显示。既有`FaultDetectionPage/demo.ts`仍有独立前端仿真，必须在前端遥测阶段迁移，不能长期保留第二条造数路径。纯静态预览没有后端时应显示不可用，不得转为前端自产数。
+前端基础位于`src/features/telemetry/`与`src/hooks/useTelemetry.ts`，生产监测组件尚待下一批接入。一个标签页共用一个按订阅计数的原生EventSource，原生重连保留Last-Event-ID，手动retry会丢弃旧连接与缓存；最后观察者离开后关闭连接、计时器与未完成历史请求，同一tick内重订阅复用连接以兼容Strict Mode。卸载后再进入会创建新EventSource，旧原生游标不再存在，因此主动重新读取选中通道历史，避免把未观察期间的缺口当连续数据。
+
+目录/帧/history都先校验schema、固定水印、simulated来源、设备/通道范围、有限数值与演示阈值出处；目前拒绝device数据，不能借预留类型伪造来源。无阈值通道不能接收告警。迟到的旧run历史、重复帧、重置前请求不会进入新run；数据不写localStorage、设备档案或统计。
+
+`useTelemetry({modelId, partId})`按部件自动选择通道，或通过`channelIds`选择最多4路。选中通道共用一次1h历史读取，前端可在本地切时间窗；每通道最多3600点，不按时间窗重复下载，避免消耗握手/历史共用限流配额。合并历史保留较新的流采样，图表用最多240点的分桶最小/最大值降采样，保留首尾及峰值，返回原采样而非插值/平均造数。文字表或数据导出仍可用原始有界点列，导出必须保留仿真标记。
+
+共享`telemetryConnectionState`只按新采样收到时间判断新鲜度，心跳不重置它：连接断开为离线，超过目录N秒无新点为延迟，simulated新点为仿真；仅未来device来源允许实时标签。hook同时提供loading/ready/empty/error及各通道历史状态和重试，图表需单独显示加载/失败/无数据及文字替代。纯静态开发预览明确不可用，不开流、不调用本地知识预览代替监测，也不在前端自产数。
+
+既有`FaultDetectionPage/demo.ts`仍有独立前端仿真，必须在监测组件/场景阶段迁移到同一流并保留功能，不能长期保留第二条造数路径。指标卡、趋势图、固定徽章/色带与图像导出等UI验收尚未完成。
 
 ## 未来真实设备接入（本阶段不实现）
 
