@@ -122,10 +122,11 @@ export class KnowledgeEngineRenderer {
       }
       if (scene.tooltip) {
         scene.tooltip.style.display = '';
-        const cardWidth = Math.min(width * .29, 290 * Math.max(.7, unit));
-        const x = Math.max(12 * unit, Math.min(width - cardWidth - 12 * unit, p.x + 20 * unit));
-        const y = Math.max(45 * unit, Math.min(height - 140 * unit, p.y - 150 * unit));
+        const cardWidth = Math.min(width - 24, Math.max(180, Math.min(width * .29, 290)));
         scene.tooltip.style.width = `${cardWidth}px`;
+        const cardHeight = scene.tooltip.offsetHeight;
+        const x = Math.max(12, Math.min(width - cardWidth - 12, p.x + 20 * unit));
+        const y = Math.max(36, Math.min(height - cardHeight - 12, p.y - cardHeight - 10));
         scene.tooltip.style.transform = `translate(${x}px,${y}px)`;
       }
     } else if (scene.tooltip) scene.tooltip.style.display = 'none';
