@@ -2,7 +2,7 @@ import { useUiCopy } from '@/ui/useUiCopy';
 import type { DiagnosisMode } from '../../../shared/diagnosis';
 import { useRef, useEffect, useCallback, useState, type FormEvent, type KeyboardEvent } from 'react';
 import { Send, Trash2, Loader2, Bot, User, Sparkles, Square, Paperclip, X, Settings2 } from 'lucide-react';
-import DeferredMarkdown from '@/components/DeferredMarkdown';
+import { DiagnosticAnswer, DiagnosticEvidence } from '@/features/chat/DiagnosticAnswer';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import {
@@ -23,8 +23,7 @@ import content, { pick } from '@/data/content';
 import { useLang } from '@/hooks/useLang';
 import { useUiVersion } from '@/hooks/useUiVersion';
 
-import type { ChatProvider } from '@shared/chat';
-import { MACHINE_TYPES_ZH, MACHINE_TYPES_EN, composeDiagnosticQuestion, readDiagnosticTextAttachment, type ChatMessage } from '@/features/chat/session';
+import { MACHINE_TYPES_ZH, MACHINE_TYPES_EN, composeDiagnosticQuestion, readDiagnosticTextAttachment } from '@/features/chat/session';
 import { useChatSession } from '@/features/chat/useChatSession';
 import { useLlmHealth } from '@/features/chat/useLlmHealth';
 import { useUpdateBlocker } from '@/features/updates/useUpdateBlocker';
@@ -40,9 +39,6 @@ export default function ChatPage() {
   const lang = useLang();
   const version = useUiVersion();
   const { t, format, separator } = useUiCopy(lang);
-  const providerLabel = (provider?: ChatProvider) =>
-    provider === 'knowledge-base' ? t('本地知识库', 'Local knowledge base') :
-    provider === 'gemini' ? 'Gemini' : provider === 'deepseek' ? 'DeepSeek' : '';
   const workspaceRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   useEffect(() => {
@@ -64,7 +60,7 @@ export default function ChatPage() {
     if (window.matchMedia('(pointer: fine)').matches) textareaRef.current?.focus({ preventScroll: true });
   }, []);
   const {
-    messages, input, setInput, isLoading, currentModel, currentProvider, currentFallbackReason,
+    messages, input, setInput, isLoading,
     machineType, setMachineType, brand, setBrand, model, setModel,
     sendMessage, stopRequest, handleClear, memory, profile,
     diagnosisMode, setDiagnosisMode, deviceName, setDeviceName, hours, setHours, deviceNotes, setDeviceNotes, progress, setProgress,
@@ -133,22 +129,6 @@ export default function ChatPage() {
   const topic = messages.filter(message => message.role === 'assistant').at(-1)?.diagnosticReply?.topic
     || messages.filter(message => message.role === 'user').at(-1)?.content.split('\n')[0] || input.trim().split('\n')[0];
   const typeOptions = lang === 'zh' ? MACHINE_TYPES_ZH : MACHINE_TYPES_EN;
-  const serviceStatus = currentFallbackReason === 'provider_unavailable'
-    ? t('本地知识库 · LLM 暂不可用', 'Local KB · LLM temporarily unavailable')
-    : currentFallbackReason === 'not_configured'
-    ? t('本地知识库 · LLM 未配置', 'Local KB · LLM not configured')
-    : currentProvider === 'gemini' || currentProvider === 'deepseek'
-    ? t('本地知识库 + LLM', 'Local KB + LLM')
-    : typeof llmHealth === 'object' && !llmHealth.configured
-    ? t('本地知识库 · LLM 未配置', 'Local KB · LLM not configured')
-    : typeof llmHealth === 'object' && llmHealth.configured
-    ? t('本地知识库 + LLM（已配置）', 'Local KB + LLM (configured)')
-    : llmHealth === 'checking'
-    ? t('本地知识库 · 正在检查 LLM 配置', 'Local KB · checking LLM configuration')
-    : t('本地知识库 · LLM 配置状态未知', 'Local KB · LLM configuration unknown');
-  const configurationHint = typeof llmHealth === 'object' && llmHealth.configured
-    ? `${llmHealth.primary ? `${t('首选模型', 'Preferred provider')}: ${providerLabel(llmHealth.primary)}. ` : ''}${t('已配置密钥；服务可用性以实际对话结果为准。', 'An API key is configured; availability is determined by actual chat requests.')}`
-    : undefined;
   const contextProps = {
     t, typeOptions, machineType, setMachineType, brand, setBrand, model, setModel,
     isLoading, memory, profile, deviceName, setDeviceName, hours, setHours,
@@ -168,10 +148,7 @@ export default function ChatPage() {
             <Bot className="h-4 w-4" />
           </div>
           <div className="min-w-0">
-            <div className="truncate text-sm font-semibold text-foreground" data-shared-target={version === 'new' ? 'diagnosis' : undefined}>{format('耕知·耘诊')}{separator}{t('诊断工作台', 'Diagnosis workspace')}</div>
-            <div className="flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground" role="status">
-              <span title={configurationHint}>{serviceStatus}</span>
-            </div>
+            <div className="truncate text-sm font-semibold text-foreground" data-shared-target={version === 'new' ? 'diagnosis' : undefined}>{format('耕知·耘诊')}{separator}{t('智能诊断', 'Diagnosis')}</div>
           </div>
         </div>
         <AlertDialog>
@@ -257,8 +234,9 @@ export default function ChatPage() {
                   <Bot className="h-4 w-4" />
                 </div>
               )}
+              <div className={msg.role === 'user' ? 'max-w-[85%] md:max-w-[75%]' : 'min-w-0 flex-1'}>
               <div
-                className={`min-w-0 break-words ${msg.role === 'user' ? 'max-w-[85%] md:max-w-[75%]' : 'w-full'} rounded-2xl px-4 py-3 text-sm leading-relaxed ${
+                className={`chat-bubble min-w-0 break-words w-full rounded-2xl px-4 py-3 text-sm leading-relaxed ${
                   msg.role === 'user'
                     ? 'rounded-tr-sm bg-primary text-primary-foreground'
                     : msg.role === 'error'
@@ -272,7 +250,7 @@ export default function ChatPage() {
                   version === 'new' && PREMIUM_MOTION_ENABLED ? (
                     <ThinkingOrbs
                       state={orb === 'listening' ? 'searching' : orb}
-                      label={orb === 'solving' ? t('整理判断…', 'Sorting the answer…') : t('检索资料…', 'Searching evidence…')}
+                      label={t('正在思考…', 'Thinking…')}
                     />
                   ) : (
                     <div className="flex items-center gap-2">
@@ -285,6 +263,8 @@ export default function ChatPage() {
                 ) : (
                   <DiagnosticAnswer message={msg} t={t} onAnswer={handleQuickQuestion} disabled={isLoading || memory.busy} />
                 )}
+              </div>
+              {msg.role === 'assistant' && <DiagnosticEvidence message={msg} t={t} />}
               </div>
               {msg.role === 'user' && (
                 <div className="ml-2 mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-primary/80 text-primary-foreground">
@@ -360,50 +340,6 @@ export default function ChatPage() {
   );
 }
 
-function DiagnosticAnswer({ message, t, onAnswer, disabled }: {
-  message: ChatMessage; t: (zh: string, en: string) => string; onAnswer: (answer: string) => void; disabled: boolean;
-}) {
-  const reply = message.diagnosticReply;
-  const sources = message.knowledgeSources || [];
-  const sourceLabel = (source: typeof sources[number]) => source.evidenceKind === 'general-knowledge' || source.entryType === '通识学习'
-    ? t('通识（无手册页码）', 'General knowledge (no manual pages)')
-    : source.evidenceKind === 'prompt' ? t('信息收集提示（非手册）', 'Information prompt (not a manual)')
-    : [source.sourceTitle || source.sourceId || source.source, source.pages?.pdf ? t(`PDF第${source.pages.pdf}页`, `PDF p. ${source.pages.pdf}`) : '', source.pages?.printed ? t(`印刷第${source.pages.printed}页`, `Printed p. ${source.pages.printed}`) : ''].filter(Boolean).join(' · ');
-  const used = sources.filter(source => source.usage === 'answer-evidence');
-  return <div className="chat-answer">
-    {reply ? <>
-      <p className="whitespace-pre-wrap">{reply.understanding}</p>
-      {!!reply.background?.length && <section className="mt-4"><h3 className="mb-2 font-semibold">{t('通用原理参考（非本机结论，需核对）', 'General principles (not a vehicle diagnosis; verify)')}</h3>{reply.background.map((item, index) => <p key={index} className="mt-2">{item.text}</p>)}</section>}
-      {reply.causes.length > 0 && <section className="mt-4"><h3 className="mb-2 font-semibold">{t('可能原因，仍需核实', 'Possible causes to verify')}</h3><ul className="space-y-2 pl-4 list-disc">{reply.causes.map((cause, index) => <li key={index}>{cause.text}{cause.basis === 'general_hypothesis' && <span className="ml-1 text-xs text-muted-foreground">{t('（通用分析，非本机结论）', ' (general analysis, not a vehicle diagnosis)')}</span>}</li>)}</ul></section>}
-      {reply.aiSupplement && <section className="mt-4"><h3 className="mb-2 font-semibold">{t('AI 补充分析（推断，需核对）', 'AI analysis (inference, verify before use)')}</h3><div className="prose prose-sm max-w-none overflow-x-auto dark:prose-invert"><DeferredMarkdown>{reply.aiSupplement}</DeferredMarkdown></div></section>}
-      {reply.suggestions.length > 0 && <section className="mt-4"><h3 className="mb-2 font-semibold">{t('建议先做', 'Suggested next steps')}</h3><ol className="list-decimal space-y-2 pl-5">{[...reply.suggestions].sort((a, b) => a.priority - b.priority).map((suggestion, index) => <li key={index}>{suggestion.text}</li>)}</ol></section>}
-      {reply.sourceNote && <p className="mt-3 text-xs leading-relaxed text-muted-foreground">{reply.sourceNote}</p>}
-      {reply.questions.length > 0 && <section className="chat-follow-up mt-4"><h3 className="mb-2 font-semibold">{t('再确认一下', 'A couple of questions')}</h3>{reply.questions.slice(0, 2).map((question, index) => <div key={index} className="mt-3"><p>{question.text}</p>{question.options?.length ? <div className="mt-2 flex flex-wrap gap-2">{question.options.slice(0, 6).map((option, optionIndex) => <button key={optionIndex} type="button" disabled={disabled} className="chat-follow-up-option rounded-lg border border-border bg-background px-3 py-2 text-left text-sm hover:border-primary disabled:opacity-50" onClick={() => onAnswer(`补充：${option}`)}>{option}</button>)}</div> : null}</div>)}</section>}
-    </> : <div className="prose prose-sm max-w-none overflow-x-auto dark:prose-invert"><DeferredMarkdown>{message.localSummary || message.content}</DeferredMarkdown></div>}
-    {used.length > 0 && <p className="mt-4 border-t border-border/50 pt-2 text-xs text-muted-foreground">{t('依据：', 'Evidence: ')}{used.slice(0, 2).map(sourceLabel).join('；')}{used.length > 2 ? t(`，另${used.length - 2}条见详情`, `; ${used.length - 2} more in details`) : ''}</p>}
-    {message.role === 'assistant' && <details className="chat-evidence mt-4 border-t border-border/50 pt-3">
-      <summary className="cursor-pointer text-xs font-medium">{t('诊断依据与技术详情', 'Evidence and technical details')}{sources.length ? ` · ${sources.length}` : ''}</summary>
-      <div className="chat-evidence-body mt-3 space-y-4 text-xs leading-relaxed text-muted-foreground">
-        {sources.length ? <ol className="space-y-4">{sources.map((source, index) => <li key={`${source.entryId || source.source}-${index}`} className="rounded-md border border-border/60 p-3">
-          <p className="font-medium text-foreground">{index + 1}. {source.heading}</p><p>{sourceLabel(source)}</p>
-          <p>{[source.entryId, source.sourceId, source.version].filter(Boolean).join(' · ')}</p>
-          {source.usage && <p>{source.usage === 'answer-evidence' ? t('用于当前资料分析；不代表已确诊', 'Used for evidence analysis; not a confirmed diagnosis') : source.usage === 'prompt-context' ? t('提供给AI的参考上下文，不表示每项生成内容均获支持', 'Context supplied to AI; not proof for every generated claim') : t('仅供参考，不作为本机操作依据', 'Reference only; not an instruction for this machine')}</p>}
-          {source.scopeBoundary && <p>{t('适用范围：', 'Scope: ')}{source.scopeBoundary}</p>}
-          {!!source.models?.length && <p>{t('型号：', 'Models: ')}{source.models.join('、')}</p>}
-          {source.engineModel && <p>{t('发动机：', 'Engine: ')}{source.engineModel}</p>}{!!source.faultCodes?.length && <p>{t('故障码：', 'Codes: ')}{source.faultCodes.join('、')}</p>}
-          {source.locator && <p>{t('原文位置：', 'Location: ')}{source.locator}</p>}
-          {source.status && <p>{t('原始核验说明：', 'Original review status: ')}{source.status}</p>}
-          {source.retrieval && <p>{t('检索层级：', 'Retrieval tier: ')}{source.retrieval.tier} · {source.retrieval.basis.join('；')}{source.retrieval.referenceOnly ? t('；仅参考', '; reference only') : ''}</p>}
-        </li>)}</ol> : <p>{t('这条对话没有保存结构化来源；不从历史文字推造证据。', 'This message has no saved structured sources; evidence is not inferred from older text.')}</p>}
-        {message.coordinationMessage && <p>{message.coordinationMessage}</p>}
-        <p>{[message.provider, message.model, message.answerMode].filter(Boolean).join(' · ')}{message.knowledgeChunks !== undefined ? t(` · 检索${message.knowledgeChunks}条`, ` · ${message.knowledgeChunks} snippets`) : ''}</p>
-        {message.fallbackReason && <p>{message.fallbackReason === 'not_configured' ? t('外部AI未配置，本次使用本地资料。', 'External AI is not configured; using local evidence.') : t('外部AI暂不可用，本次回退本地资料。', 'External AI was unavailable; using local evidence.')}</p>}
-        {(message.coordination || message.diagnosisTrace || message.roleFlow) && <><p>{t('相关性分数是未标定的检索匹配，不是诊断准确率。', 'Relevance scores are uncalibrated retrieval matches, not diagnostic accuracy.')}</p><pre className="max-h-80 overflow-auto whitespace-pre-wrap break-words rounded-md bg-muted/50 p-3">{JSON.stringify({ coordination: message.coordination, trace: message.diagnosisTrace, roleFlow: message.roleFlow }, null, 2)}</pre></>}
-        <details><summary className="cursor-pointer">{t('查看保存的完整答复', 'Saved full answer')}</summary><div className="prose prose-sm mt-2 max-w-none overflow-x-auto dark:prose-invert"><DeferredMarkdown>{message.content}</DeferredMarkdown></div></details>
-      </div>
-    </details>}
-  </div>;
-}
 
 function MachineContext({
   framed, t, typeOptions, machineType, setMachineType, brand, setBrand, model, setModel,
