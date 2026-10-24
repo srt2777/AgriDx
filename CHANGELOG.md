@@ -26,7 +26,7 @@
 
 ### 验证结果
 
-- 完整verify通过：532项，530通过、2平台跳过；Python、TypeScript、Lint、前后端构建和独立预览构建通过。
+- 专项首轮verify通过：532项，530通过、2平台跳过；Python、TypeScript、Lint、前后端构建和独立预览构建通过。最终集成提交的完整验证与CI结果见PR #102。
 - 指定LF1504案例的9组真实HTTP链路及两轮浏览器检查通过；供应商是明确模拟，不是实际模型验收。当前环境两家Key均未配置。证据与前后回答见docs/diagnosis-coordination-audit.md。
 
 ### 关联 PR

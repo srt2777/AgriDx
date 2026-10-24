@@ -1,3 +1,4 @@
+import { renderDiagnosticReply } from '../server/diagnosis/reply';
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { mkdtempSync, rmSync } from 'node:fs';
@@ -110,6 +111,13 @@ test('实际浏览器构建保持完整知识目录、诊断来源与型号隔�
       const body = { messages: [{ role: 'user', content: '发动机无法启动' }], machineType: '拖拉机', brand: '约翰迪尔', model };
       const actual = await (await previewFetch('/api/chat', { method: 'POST', body: JSON.stringify(body) })).json();
       const expected = await diagnose({ ...parseDiagnosticRequest(body), diagnosisMode: 'knowledge_only' });
+      // The preview must disclose its local-only environment; that is the only
+      // allowed display difference. Provenance, scope, routing and zero-call
+      // metadata remain subject to the original complete parity comparison.
+      assert.ok(expected.diagnosticReply);
+      expected.diagnosticReply.understanding += '当前为仅本地检索的开发预览，本次没有调用外部 AI。';
+      expected.localSummary = renderDiagnosticReply(expected.diagnosticReply);
+      expected.choices[0].message.content = expected.localSummary;
       assert.deepEqual(responseWithoutTimings(actual), responseWithoutTimings(expected));
       assert.equal(actual.provider, 'knowledge-base');
     }
