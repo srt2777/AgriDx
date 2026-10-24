@@ -228,17 +228,6 @@
   clip-path: inset(0 0 0 0);
   animation: expo-title-reveal 1400ms var(--motion-ease-out, cubic-bezier(.16, 1, .3, 1)) 180ms both;
 }
-.expo-hero i {
-  display: block;
-  width: 180px;
-  height: 12px;
-  margin-top: 18px;
-  background: var(--wheat);
-  mask: var(--wheat-ear) center / 180px 12px no-repeat;
-  -webkit-mask: var(--wheat-ear) center / 180px 12px no-repeat;
-  clip-path: inset(0 100% 0 0);
-  animation: expo-wheat-draw 1100ms var(--motion-ease-out, cubic-bezier(.16, 1, .3, 1)) 700ms forwards;
-}
 .expo-intro-skip {
   position: absolute;
   z-index: 7;
@@ -282,7 +271,6 @@
   from { clip-path: inset(0 0 100% 0); letter-spacing: 0.18em; }
   to { clip-path: inset(0 0 0 0); letter-spacing: 0.04em; }
 }
-@keyframes expo-wheat-draw { to { clip-path: inset(0 0 0 0); } }
 @keyframes expo-hero-hold {
   0% { opacity: 0; }
   10% { opacity: 1; }
