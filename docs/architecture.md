@@ -1,6 +1,6 @@
 # v3 架构与维护
 
-> 知识快照版次链路核对于 3.11.1 / 2026-10-22。改动模块边界（新增 `server/`、`src/features/`、`src/pages/` 顶层目录或新的数据链路）须同步更新本文档。
+> 知识快照版次链路核对于 3.11.1 / 2026-10-22。改动模块边界（新增 `server/`、`ui/src/features/`、`ui/src/pages/` 顶层目录或新的数据链路）须同步更新本文档。
 
 项目保留 React/Vite/Express 和现有本地知识检索、双模型回退。3.0.1 将界面、请求边界、诊断用例、外部模型与运行初始化拆开，便于协作者独立修改和验证。
 
@@ -8,10 +8,10 @@
 
 | 位置 | 职责 |
 | --- | --- |
-| `src/pages/` | 路由页面、布局、文案与交互呈现 |
-| `src/features/chat/` | 会话状态、请求生命周期、历史存储、健康状态 |
-| `src/features/knowledge/catalog-api.ts` | 知识目录请求与响应解析 |
-| `src/lib/api-client.ts` | HTTP/JSON 边界、错误与 AbortSignal |
+| `ui/src/pages/` | 路由页面、布局、文案与交互呈现 |
+| `ui/src/features/chat/` | 会话状态、请求生命周期、历史存储、健康状态 |
+| `ui/src/features/knowledge/catalog-api.ts` | 知识目录请求与响应解析 |
+| `ui/src/lib/api-client.ts` | HTTP/JSON 边界、错误与 AbortSignal |
 | `shared/chat.ts`、`shared/knowledge-catalog.ts` | 前后端协议纯类型，不导入服务端实现或密钥 |
 | `server/app.ts` | 注入运行依赖，装配 Express 与 API；每个实例独立限流状态 |
 | `server/routes/` | HTTP 路由、请求参数与响应状态，不承担模型回退算法 |
@@ -19,8 +19,8 @@
 | `server/knowledge/` | 原有索引、适用范围过滤、多轮上下文、目录和证据回复 |
 | `server/llm/` | 供应商协议、配置、超时和双模型顺序回退 |
 | `server/memory/` | 诊断记忆的上下文、存储与路由（见[诊断记忆](diagnostic-memory.md)） |
-| `src/features/updates/` | 客户端版本检查与自动更新提示（见[自动更新](deployment/automatic-client-update.md)） |
-| `src/pages/HallPage/`、`ExhibitionPage/`、`HomePage/`、`ModelPage/` | 数字展厅、园区首页与模型工坊；三维场景经 `DeferredScene` 延迟加载，WebGL 不可用时回退 `SceneFallback` |
+| `ui/src/features/updates/` | 客户端版本检查与自动更新提示（见[自动更新](deployment/automatic-client-update.md)） |
+| `ui/src/pages/HallPage/`、`ExhibitionPage/`、`HomePage/`、`ModelPage/` | 数字展厅、园区首页与模型工坊；三维场景经 `DeferredScene` 延迟加载，WebGL 不可用时回退 `SceneFallback` |
 | `server/config/`、`server/runtime.ts` | 读取环境、初始化知识索引与运行依赖 |
 | `server/http/` | 安全头、限流、JSON 错误、前端托管及监听/退出 |
 | `scripts/` | 跨平台检查、构建、测试和已提交工作分支同步 |

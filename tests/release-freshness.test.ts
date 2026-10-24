@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { once } from 'node:events';
 import { test } from 'node:test';
 import express from 'express';
-import { requestJson, type FetchImplementation } from '../src/lib/api-client';
+import { requestJson, type FetchImplementation } from '../ui/src/lib/api-client';
 import { createStatusRoutes } from '../server/routes/status';
 import { createCatalogRoutes } from '../server/routes/catalog';
 import type { ServerRuntime } from '../server/runtime';

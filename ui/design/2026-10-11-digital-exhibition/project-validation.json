@@ -1,0 +1,30 @@
+{
+  "checkedAt": "2026-10-11T08:27:25.120484+00:00",
+  "version": "3.1.0",
+  "command": "npm run verify (with a test-process preload routing only loopback fetch to a local Undici Agent)",
+  "loopbackRoutingReason": "Existing backend ProxyAgent forwards local HTTP tests to the network proxy, which returns 403. External requests retain the inherited environment proxy. No backend source or proxy configuration changed.",
+  "typecheck": [
+    "tsconfig.app.json",
+    "tsconfig.node.json",
+    "tsconfig.server.json"
+  ],
+  "tests": {
+    "total": 115,
+    "passed": 113,
+    "failed": 0,
+    "skipped": 2,
+    "skipReason": "Windows-only case/short-path tests on Linux"
+  },
+  "lint": {
+    "errors": 0,
+    "warnings": 1,
+    "warning": "Existing react-refresh/only-export-components in ui/src/components/ui/button.tsx"
+  },
+  "build": {
+    "client": "passed",
+    "server": "passed",
+    "warning": "Existing shared Three.js tractor chunk exceeds 500 kB"
+  },
+  "externalLlmCalls": 0,
+  "deployed": false
+}

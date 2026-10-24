@@ -1,6 +1,6 @@
 {
   "name": "agri-fault-diagnosis",
-  "version": "3.13.8",
+  "version": "3.13.9",
   "private": true,
   "type": "module",
   "scripts": {
@@ -20,7 +20,7 @@
     "sync": "node scripts/sync.mjs",
     "build:dev-preview": "node scripts/build-dev-preview.mjs",
     "preview:publish": "node scripts/publish-dev-preview.mjs",
-    "design:palette": "node --import tsx scripts/material-you-tokens.mjs",
+    "design:palette": "node --import tsx ui/tools/material-you-tokens.mjs",
     "version:update": "node scripts/version-update.mjs",
     "knowledge:dedup": "node scripts/knowledge-semantic.mjs",
     "history:check": "node scripts/version-history.mjs"

@@ -47,10 +47,10 @@ export function knowledgeSnapshotPlugin(snapshot = createKnowledgeSnapshot()) {
     name: 'agridx-development-knowledge', enforce: 'pre',
     resolveId(id) {
       if (id === 'node:fs') return fsModule;
-      if (id === 'node:path') return path.join(rootDir, 'src/dev-preview/path.mjs');
+      if (id === 'node:path') return path.join(rootDir, 'ui/src/dev-preview/path.mjs');
     },
     load(id) {
-      if (id === fsModule) return `import { createReadOnlyFileSystem } from ${JSON.stringify(path.join(rootDir, 'src/dev-preview/filesystem.mjs').replaceAll('\\', '/'))};\nexport default createReadOnlyFileSystem(${JSON.stringify(snapshot)});`;
+      if (id === fsModule) return `import { createReadOnlyFileSystem } from ${JSON.stringify(path.join(rootDir, 'ui/src/dev-preview/filesystem.mjs').replaceAll('\\', '/'))};\nexport default createReadOnlyFileSystem(${JSON.stringify(snapshot)});`;
     },
     transform(code, id) {
       if (id.startsWith(`${path.join(rootDir, 'server/knowledge').replaceAll('\\', '/')}/`)) {

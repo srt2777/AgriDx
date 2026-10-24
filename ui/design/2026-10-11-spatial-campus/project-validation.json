@@ -1,0 +1,39 @@
+{
+  "version": "3.2.0",
+  "date": "2026-10-11",
+  "environment": "Linux / Node 24.19.0 / npm 11.9.0",
+  "command": "npm run verify",
+  "loopbackTestPreload": {
+    "scope": "test processes only; local Undici fetch for localhost, 127.0.0.1 and ::1",
+    "externalRequests": "inherited environment proxy unchanged",
+    "applicationProxyConfiguration": "unchanged"
+  },
+  "checks": {
+    "versionConsistency": "passed",
+    "clientServerViteTypes": "passed",
+    "tests": {
+      "total": 129,
+      "passed": 127,
+      "failed": 0,
+      "skipped": 2,
+      "skipReason": "Windows-only maintenance cases on Linux"
+    },
+    "lint": {
+      "errors": 0,
+      "warnings": [
+        "Existing react-refresh/only-export-components warning in ui/src/components/ui/button.tsx"
+      ]
+    },
+    "clientAndServerBuild": "passed",
+    "existingBuildWarnings": [
+      "Three.js model chunk remains over 500kB"
+    ],
+    "sceneRuntime": {
+      "idleTelemetry": "only changed poses are published; stopped position is published immediately",
+      "webglProbe": "temporary context released after support detection",
+      "shadowType": "PCFShadowMap selected explicitly"
+    }
+  },
+  "externalLlmCalls": "not performed; keys disabled on local servers",
+  "deployment": "not performed"
+}

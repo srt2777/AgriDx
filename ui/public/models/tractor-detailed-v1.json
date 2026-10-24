@@ -1,0 +1,17 @@
+{
+  "name": "AgriDx schematic tractor",
+  "schematic": true,
+  "generator": "ui/tools/generate-tractor-model.mjs",
+  "components": [
+    "body",
+    "engine",
+    "drivetrain",
+    "hydraulics",
+    "electrical",
+    "wheels",
+    "cab"
+  ],
+  "meshes": 25,
+  "triangles": 26396,
+  "bytes": 646792
+}

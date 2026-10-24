@@ -14,7 +14,7 @@ export function createStatusRoutes(runtime: ServerRuntime): Router {
     });
   });
   router.get('/model/tractor', (_req, res, next) => {
-    res.sendFile(path.resolve(runtime.rootDirectory, 'public/models/tractor-detailed-v1.glb'), (error) => {
+    res.sendFile(path.resolve(runtime.rootDirectory, 'ui/public/models/tractor-detailed-v1.glb'), (error) => {
       if (!error) return;
       if (res.headersSent) return next(error);
       res.status(404).json({ error: '模型文件不存在' });

@@ -31,10 +31,10 @@ test('未知路径、密钥路径、编码路径绕过与POST不会产生外部�
 test('首屏依赖的公共初始化脚本可通过开发网关读取，并保持正确MIME与刷新策略', async () => {
   const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
   const scripts = [...html.matchAll(/<script\b[^>]*\bsrc="(\/[^"?]+)"/g)]
-    .map(match => match[1]).filter(src => !src.startsWith('/src/'));
+    .map(match => match[1]).filter(src => !src.startsWith('/ui/src/'));
   assert.ok(scripts.length > 0, 'The page must have its shared theme initializer.');
   for (const src of scripts) {
-    const source = readFileSync(new URL(`../public${src}`, import.meta.url), 'utf8');
+    const source = readFileSync(new URL(`../ui/public${src}`, import.meta.url), 'utf8');
     const response = await servePreview(new Request(`https://preview.example${src}`), async (url, options) => {
       assert.match(url, new RegExp(`^https://raw\\.githubusercontent\\.com/srt2777/AgriDx/dev-preview-built/${src.slice(1).replaceAll('.', '\\.')}\\?t=\\d+$`));
       assert.deepEqual(options, { redirect: 'manual' });

@@ -1,13 +1,31 @@
 # UI 专区
 
-本轮仅更新旧版，新版保留原首页、展厅和顶栏。此目录集中保存设计规范、来源、验证记录和截图；业务代码继续沿用现有架构。
+本目录统一管理新旧版前端代码、静态资源、设计资料与界面测试。目录整理保持原有界面和交互。服务端、共享协议与知识库仍在仓库各自目录。
+
+## 分类目录
+
+| 目录 | 内容 |
+| --- | --- |
+| `src/pages/` | 新旧版页面和三维场景 |
+| `src/components/` | 共用组件、基础控件和模型查看器 |
+| `src/ui/` | 旧版外框、Radix 色阶和文案规则 |
+| `src/styles/` 与 `src/*.css` | 全局样式、新版主题与动效 |
+| `src/features/`、`src/hooks/`、`src/lib/` | 前端交互、状态和接口适配 |
+| `public/` | 图片、模型、图标、主题初始化与资源许可 |
+| `design/` | 设计参考、历史方案、验收截图 |
+| `screenshots/` | 旧版改造验收截图 |
+| `tests/` | 前端组件、布局与交互的自动检查 |
+| `tools/` | 配色和展示模型生成工具 |
+| `licenses/` 与 `src/ATTRIBUTIONS` | UI 依赖许可与署名 |
+
+从仓库根目录运行原有 `npm run dev`、`npm run verify` 命令。`@/` 指向 `ui/src/`，静态资源的浏览器 URL 保持不变。混合前后端的集成测试保留在根目录 `tests/`。
 
 ## 文件
 
-- [旧版外框](../src/ui/WorkspaceShell.tsx)：侧栏、搜索、主题语言切换、手机抽屉。
-- [布局](../src/ui/workspace.css)和[视觉规范](../src/ui/classic-system.css)：仅作用于旧版。
-- [Radix 色阶](../src/ui/radix-tokens.css)：来自 `@radix-ui/colors`，用 `node ui/generate-colors.mjs` 重新生成。
-- [文案规则](../src/ui/copy.ts)：简化旧版界面文案；共享页面的新版文字不变，原始知识和版本日志不改写。
+- [旧版外框](src/ui/WorkspaceShell.tsx)：侧栏、搜索、主题语言切换、手机抽屉。
+- [布局](src/ui/workspace.css)和[视觉规范](src/ui/classic-system.css)：仅作用于旧版。
+- [Radix 色阶](src/ui/radix-tokens.css)：来自 `@radix-ui/colors`，用 `node ui/tools/generate-colors.mjs` 重新生成。
+- [文案规则](src/ui/copy.ts)：简化旧版界面文案；共享页面的新版文字不变，原始知识和版本日志不改写。
 - [验证记录](VALIDATION.md)与[截图](screenshots/)。
 
 ## 设计约定
