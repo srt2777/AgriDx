@@ -42,8 +42,10 @@
 - `src/premium-workspace.css`：两种页面外壳的聊天可读性、列表与触控入口。
 - `tests/chat-answer-presentation.test.ts`：正文内容、不可变性、失败/无证据、旧格式、数值/故障码、追问上限及安全禁令回归。
 
-执行 `npm run verify` 运行 Python 工具回归、TypeScript 测试、三份类型检查、Lint 和前后端构建。独立展示测试也可用 `node --import tsx --test --test-isolation=none tests/chat-answer-presentation.test.ts` 执行。
+完整 `npm run verify` 已通过：552项测试，550通过、2项平台跳过；运行 Python 工具回归、TypeScript 测试、三份类型检查、Lint 和前后端构建。最后补充的安全禁令附注用例与展示/答复专项共18项通过；最新类型检查和Lint复核通过。已有按钮Fast Refresh警告及大分包提示未扩大本批处理范围。独立展示测试也可用 `node --import tsx --test --test-isolation=none tests/chat-answer-presentation.test.ts` 执行。
 
 [浏览器验收记录](browser-result.json) 包含实际显示文字。已检查精确验收问题、第二轮补充草屑、历史恢复、新旧版页面、桌面/移动布局无横向溢出及输入框处于可视区；来源详情默认关闭、位于气泡外，展开后可见真实来源和模拟模型标识，展开不会新增模型调用。没有真实外部模型密钥，因此不声称完成真实模型质量验收。
 
 本批只改显示层；不能保证任意旧版自由文本都能可靠分离技术记录与维修正文。识别不到的内容不进行激进删改，管理员可展开原始答复核查。模型自身写出的长篇分析也不会通过前端任意截断，以免切断安全前提；后续若仍有冗长个例，应另行依据实际回复调整提示词，不在本批重写协调系统。
+
+提交审查：[PR #109](https://github.com/srt2777/AgriDx/pull/109)。未合并、未部署。
