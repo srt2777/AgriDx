@@ -9,6 +9,7 @@ import { MorphingPanel } from '@/components/motion/MorphingPanel';
 import { TiltCard } from '@/components/motion/TiltCard';
 import { TwinQuery } from '@/components/motion/ThinkingOrbs';
 import PartsPreviewFallback from './PartsPreviewFallback';
+import PartKnowledge from './PartKnowledge';
 import { publicAsset } from '@/lib/public-asset';
 import { probeWebGL } from '@/lib/webgl';
 import { useLang } from '@/hooks/useLang';
@@ -293,6 +294,7 @@ export default function PartsStudio({ onImport }: { onImport: (event: ChangeEven
                 {example.faults.length > 0 && <ul>{example.faults.map(fault => <li key={fault.zh}>{t(fault.zh, fault.en)}</li>)}</ul>}
               </div>
             ))}
+            {resolved && <PartKnowledge key={modelId} modelId={modelId} partId={resolved.node.partId} lang={language} />}
           </aside>
         </div>
         <div className="parts-explode">
