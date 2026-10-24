@@ -34,7 +34,7 @@
 
 ### 关联 PR
 
-- 待保存本批PR；不创建Release或标签。
+- PR [#104](https://github.com/srt2777/AgriDx/pull/104)；实现提交9e311fc，不创建Release或标签。
 
 ### 部署记录
 
