@@ -306,7 +306,7 @@ as_app env npm_config_cache="$NPM_CACHE" NPM_CONFIG_CACHE="$NPM_CACHE" bash -c \
   'cd "$1" && "$2" "$3" ci --cache "$4" --include=dev --no-audit --no-fund && "$2" "$3" run build --cache "$4" && "$2" "$3" prune --cache "$4" --omit=dev --no-audit --no-fund' \
   _ "$RELEASE" "$NODE_BIN" "$NPM_BIN" "$NPM_CACHE"
 [[ -s "$RELEASE/dist/index.html" && -s "$RELEASE/server.ts" &&
-   -s "$RELEASE/public/models/tractor-detailed-v1.glb" ]] || fail '构建或静态模型文件不完整。'
+   -s "$RELEASE/ui/public/models/tractor-detailed-v1.glb" ]] || fail '构建或静态模型文件不完整。'
 # Public metadata ties both backend and CDN-served frontend to this exact commit.
 # Only public file hashes are included; environment and credentials stay private.
 as_app "$NODE_BIN" -e '

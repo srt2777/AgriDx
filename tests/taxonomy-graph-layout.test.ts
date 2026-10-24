@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { loadKnowledgeCatalog } from '../server/knowledge/catalog';
-import { taxonomyNodes } from '../src/pages/KnowledgePage/knowledge-taxonomy-data';
-import { graphPositions, palette } from '../src/pages/KnowledgePage/taxonomy-graph-layout';
+import { taxonomyNodes } from '../ui/src/pages/KnowledgePage/knowledge-taxonomy-data';
+import { graphPositions, palette } from '../ui/src/pages/KnowledgePage/taxonomy-graph-layout';
 
 test('spherical positions preserve all taxonomy identities, parents, order and evidence queries', () => {
   const nodes = taxonomyNodes(loadKnowledgeCatalog());

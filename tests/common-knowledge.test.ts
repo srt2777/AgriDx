@@ -5,7 +5,7 @@ import { buildCommonDiagnosisQuestion, isCommonFramework, type CommonFrameworkDe
 import { loadArchive } from '../server/knowledge/archive';
 import { validateCommonDefinition } from '../server/knowledge/common';
 import { getKnowledgeCatalog, loadKnowledgeCatalog } from '../server/knowledge/catalog';
-import { parseKnowledgeCatalog } from '../src/features/knowledge/catalog-api';
+import { parseKnowledgeCatalog } from '../ui/src/features/knowledge/catalog-api';
 import { resolveScope } from '../server/knowledge/scope';
 import { resolveDiagnosticContext } from '../server/knowledge/conversation';
 

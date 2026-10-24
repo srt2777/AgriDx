@@ -172,14 +172,14 @@ if (name === 'id') {
   if (args[0] === 'clone') {
     const release = args[args.length - 1];
     fs.mkdirSync(path.join(release, 'server'), { recursive: true });
-    fs.mkdirSync(path.join(release, 'public', 'models'), { recursive: true });
+    fs.mkdirSync(path.join(release, 'ui/public', 'models'), { recursive: true });
     fs.writeFileSync(path.join(release, 'package.json'), JSON.stringify({ version: '3.1.0' }));
     const archive = path.join(release, '知识库', '整理后的知识库', '农用拖拉机知识库');
     fs.mkdirSync(archive, { recursive: true });
     const entries = process.env.AGRIDX_FIXTURE_EXPANDED === '1' ? 1213 : 212;
     fs.writeFileSync(path.join(archive, 'entries.jsonl'), Array.from({ length: entries }, (_, i) => JSON.stringify({ id: i })).join('\\n'));
     fs.writeFileSync(path.join(release, 'server.ts'), '// fixture application');
-    fs.writeFileSync(path.join(release, 'public', 'models', 'tractor-detailed-v1.glb'), 'fixture model');
+    fs.writeFileSync(path.join(release, 'ui/public', 'models', 'tractor-detailed-v1.glb'), 'fixture model');
   } else if (args[0] === '-C' && args[2] === 'checkout') {
     fs.writeFileSync(path.join(args[1], 'checked-out-commit'), args[args.length - 1]);
   } else if (args[0] === '-C' && args[2] === 'rev-parse') {

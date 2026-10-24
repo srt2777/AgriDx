@@ -15,6 +15,7 @@ function resolveBuildCommit() {
 const buildCommit = resolveBuildCommit();
 
 export default defineConfig({
+  publicDir: 'ui/public',
   define: { __AGRIDX_DEV_PREVIEW__: 'false', __AGRIDX_BUILD_COMMIT__: JSON.stringify(buildCommit) },
   plugins: [react(), tailwindcss(), versionHistoryPlugin(__dirname), {
     name: 'agridx-build-identity',
@@ -23,7 +24,7 @@ export default defineConfig({
   }],
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src/'),
+      '@': path.resolve(__dirname, './ui/src/'),
       '@shared': path.resolve(__dirname, './shared/'),
     },
   },

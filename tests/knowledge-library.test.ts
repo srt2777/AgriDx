@@ -6,7 +6,7 @@ import { getKnowledgeCatalog } from '../server/knowledge/catalog';
 import { loadKnowledgeSnapshot, reloadKnowledgeSnapshot } from '../server/knowledge/snapshot';
 import { LEARNING_INDEXES } from '../server/knowledge/learning';
 import { retrieve, stats } from '../server/knowledge/retriever';
-import { parseKnowledgeCatalog } from '../src/features/knowledge/catalog-api';
+import { parseKnowledgeCatalog } from '../ui/src/features/knowledge/catalog-api';
 
 const archiveCount = fs.readFileSync('知识库/整理后的知识库/农用拖拉机知识库/entries.jsonl', 'utf8').trim().split(/\r?\n/).length;
 const learningCount = LEARNING_INDEXES.reduce((count, file) => count + fs.readFileSync(file, 'utf8').trim().split(/\r?\n/).length, 0);

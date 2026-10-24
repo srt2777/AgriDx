@@ -1,0 +1,45 @@
+{
+  "version": "3.4.3",
+  "dateUtc": "2026-10-13T10:54:15.408717+00:00",
+  "commands": {
+    "npm ci": "passed",
+    "npm run verify": "passed",
+    "npm run build:dev-preview": "passed",
+    "npm run design:palette": "passed",
+    "git diff --check": "passed"
+  },
+  "nodeTests": {
+    "tests": 225,
+    "pass": 223,
+    "fail": 0,
+    "skipped": 2
+  },
+  "browserAssertions": {
+    "browser-report.json": 32,
+    "theme-report.json": 19,
+    "strict-mode-checks.json": 5,
+    "regression/report.json": 19
+  },
+  "opticalChunk": {
+    "before": {
+      "kb": 57.62,
+      "gzipKb": 34.98
+    },
+    "after": {
+      "kb": 4.57,
+      "gzipKb": 2.19
+    },
+    "scope": "Local production build, optical lazy chunk only"
+  },
+  "sourcesSha256": {
+    "ui/src/components/ui/glass-lens.tsx": "bd9837304613ca51849336520108cc3953487ff08ee0200f87faf735f7124966",
+    "ui/src/components/ui/liquid-glass.tsx": "cdb718d9630187b074d25e3b969d12713ceebe9554b069a44bf6057335d3408e",
+    "ui/src/components/ui/liquid-glass.css": "cd42e103588ca3bdb399a68c83fe8d21d20fac954e4383d6e5206b84a1a64169",
+    "ui/src/lib/glass-optics.ts": "5cd8d2cc7832ed6fb29eb2bb431eb2a866ba507d654c291524e053aac12bd6e5",
+    "ui/src/material-you.css": "e68a9cb9dbd6369729b9c836c22e61acbc8a7d8c5e0d6489f9f17ade7d298d16",
+    "ui/src/styles/material-you-tokens.css": "2f7bd95a636884c60df32161144b7ff099da82a687bdb2d38a04078ef58597f6",
+    "ui/tools/material-you-tokens.mjs": "04e1c9160ae40ed283e3acdffc88a134d363e052a9afb4429005755bc44987cb"
+  },
+  "scope": "Local validation; Chromium mobile/media emulation; no external LLM or Tencent deployment",
+  "browserReportProvenance": "75 assertions executed before metadata-only main version consolidation. Original report version 3.5.3 retained; application source hashes match final 3.4.3."
+}

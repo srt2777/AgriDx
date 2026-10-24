@@ -10,8 +10,8 @@ import { getKnowledgeCatalog, loadKnowledgeCatalog } from '../server/knowledge/c
 import { loadKnowledgeBase } from '../server/knowledge/retriever';
 import { createDiagnosticService } from '../server/diagnosis/service';
 import { parseDiagnosticRequest } from '../server/diagnosis/request';
-import { createReadOnlyFileSystem } from '../src/dev-preview/filesystem.mjs';
-import browserPath from '../src/dev-preview/path.mjs';
+import { createReadOnlyFileSystem } from '../ui/src/dev-preview/filesystem.mjs';
+import browserPath from '../ui/src/dev-preview/path.mjs';
 import type { ChatResponse } from '../shared/chat';
 const transported = (value: unknown) => JSON.parse(JSON.stringify(value));
 
@@ -54,7 +54,7 @@ test('实际浏览器构建保持完整知识目录、诊断来源与型号隔�
     await build({
       configFile: false, logLevel: 'silent', plugins: [knowledgeSnapshotPlugin()],
       define: { __AGRIDX_PREVIEW_RELEASE__: JSON.stringify({ version: 'test', commit: 'test' }) },
-      build: { outDir: directory, lib: { entry: path.resolve('src/dev-preview/api.ts'), formats: ['es'], fileName: () => 'api.mjs' } },
+      build: { outDir: directory, lib: { entry: path.resolve('ui/src/dev-preview/api.ts'), formats: ['es'], fileName: () => 'api.mjs' } },
     });
     const { previewFetch } = await import(pathToFileURL(path.join(directory, 'api.mjs')).href);
     loadKnowledgeBase();

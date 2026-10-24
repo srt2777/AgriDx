@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { loadKnowledgeCatalog, getKnowledgeCatalog } from '../server/knowledge/catalog';
-import { taxonomyNodes } from '../src/pages/KnowledgePage/knowledge-taxonomy-data';
+import { taxonomyNodes } from '../ui/src/pages/KnowledgePage/knowledge-taxonomy-data';
 const catalog = loadKnowledgeCatalog();
 const nodes = taxonomyNodes(catalog);
 test('taxonomy preserves catalog order, scoped identities and reviewed parent relationships', () => {
