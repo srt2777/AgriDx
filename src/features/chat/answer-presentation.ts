@@ -1,7 +1,7 @@
 import type { ChatMessage } from './session';
 
 type Translate = (zh: string, en: string) => string;
-const technicalHeading = /^(?:服务状态|协调决策|协调路由|检索过程|检索结果|检索到的知识|知识依据|来源与适用信息|来源追踪|诊断依据与技术详情|调试信息|模型调用记录|通识依据(?:（[^）]*）)?|提示来源)$/;
+const technicalHeading = /^(?:服务状态|协调决策|协调路由|检索过程|检索结果|检索到的知识|知识依据|来源与适用信息|来源追踪|本地资料|诊断依据与技术详情|调试信息|模型调用记录|通识依据(?:（[^）]*）)?|提示来源)$/;
 const technicalLine = /^(?:知识库命中(?:数)?|命中数量|相似度(?:评分)?|检索分数|协调路由|路由决策|模型调用状态|模型名称|知识编号|来源编号|原文位置|资料版本|核验状态|检索层级|debug|traceId)\s*[:：]/i;
 
 /** Display projection only: never change stored text, evidence, decisions or provider requests. */
@@ -42,8 +42,13 @@ export function cleanAnswerText(text: string): string {
 }
 
 function availabilityNote(message: ChatMessage, t: Translate): string {
-  if (message.fallbackReason === 'provider_unavailable') return t('AI 暂时无法连接，以下仅提供本地资料和安全建议。', 'AI could not be reached; the following uses local information and safety advice only.');
-  if (message.fallbackReason === 'not_configured') return t('目前未启用外部 AI，以下仅提供本地资料和安全建议。', 'External AI is not enabled; the following uses local information and safety advice only.');
+  // Older saved replies may predate structured failure metadata. Read only their explicit status line.
+  const legacyStatus = !message.diagnosticReply
+    ? (message.localSummary || message.content).match(/【服务状态】(?:\*\*)?\s*([^\n]*)/)?.[1] ?? '' : '';
+  const legacyUnavailable = /(?:大模型|外部\s*AI|LLM).*(?:连接失败|不可用|超时)/i.test(legacyStatus);
+  const legacyDisabled = /(?:未启用大模型|(?:外部\s*AI|LLM).*(?:未配置|未启用))/i.test(legacyStatus);
+  if (message.fallbackReason === 'provider_unavailable' || legacyUnavailable) return t('AI 暂时无法连接，以下仅提供本地资料和安全建议。', 'AI could not be reached; the following uses local information and safety advice only.');
+  if (message.fallbackReason === 'not_configured' || legacyDisabled) return t('目前未启用外部 AI，以下仅提供本地资料和安全建议。', 'External AI is not enabled; the following uses local information and safety advice only.');
   if (message.coordination?.reason === 'invalid_config' || message.coordination?.reason === 'llm_config_invalid') return t('AI 暂时无法使用，以下仅提供本地资料和安全建议。', 'AI is currently unavailable; the following uses local information and safety advice only.');
   if (message.coordination?.reason === 'output_rejected') return t('AI 回答未通过安全核查，以下仅保留可用资料和安全建议。', 'The AI answer did not pass safety review; only usable information and safety advice remain.');
   return '';

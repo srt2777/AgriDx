@@ -45,7 +45,7 @@ test('no evidence does not become a confident diagnosis or invented cause', () =
 });
 
 test('legacy technical sections are hidden but substantive advice and safety survive', () => {
-  const content = '**【服务状态】** 本地引擎\n命中数量：0\n\n**【故障现象分析】**\n水温偏高需要核实散热情况。\n\n**【知识依据】**\nKB-TEST-001 来源编号：SRC-TEST\n\n**【安全提醒】**\n不要打开热机水箱盖。\n\n**【继续确认】** 轻负荷也会发生吗？';
+  const content = '**【服务状态】** 本地引擎\n命中数量：0\n\n**【故障现象分析】**\n水温偏高需要核实散热情况。\n\n**【本地资料】** KB-TEST-002 来源摘要\n\n**【知识依据】**\nKB-TEST-001 来源编号：SRC-TEST\n\n**【安全提醒】**\n不要打开热机水箱盖。\n\n**【继续确认】** 轻负荷也会发生吗？';
   const body = cleanAnswerText(content);
   assert.match(body, /水温偏高/); assert.match(body, /不要打开热机水箱盖/); assert.match(body, /轻负荷也会发生/);
   assert.doesNotMatch(body, /本地引擎|命中|KB-TEST|SRC-TEST|【/);
@@ -77,4 +77,14 @@ test('legacy Markdown debug sections are folded but safety prohibitions stay vis
 test('safety instructions attached to metadata or citations are not removed', () => {
   assert.match(cleanAnswerText('【服务状态】AI不可用；不要在热机时开盖。'), /不要在热机时开盖/);
   assert.match(cleanAnswerText('观察前先冷却（KB-TEST-001，禁止靠近风扇）。'), /禁止靠近风扇/);
+});
+
+test('legacy replies without metadata still disclose AI failure or disabled service', () => {
+  for (const status of ['大模型本次连接失败，暂时展示本地检索结果。', '当前未启用大模型，本次只有本地检索，没有模型补充分析。']) {
+    const message: ChatMessage = { id: 'legacy', role: 'assistant', content: `**【服务状态】** ${status}\n\n**【当前资料不足】**\n目前缺少直接资料。\n\n**【安全提醒】**\n不要打开热盖。` };
+    const body = formatChatAnswer(message, t);
+    assert.match(body, /AI 暂时无法连接|未启用外部 AI/);
+    assert.match(body, /缺少直接资料/); assert.match(body, /不要打开热盖/);
+    assert.doesNotMatch(body, /【服务状态】/);
+  }
 });
