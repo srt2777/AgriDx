@@ -3,11 +3,12 @@ import { publicAsset } from '@/lib/public-asset';
 import type { PartsModelId } from './parts-catalog';
 
 /** Keep the workshop useful without a graphics context; never label a static drawing as live 3D. */
-export default function PartsPreviewFallback({ modelId, exploded, reason, onRetry }: {
+export default function PartsPreviewFallback({ modelId, exploded, reason, onRetry, onShowParts }: {
   modelId: PartsModelId;
   exploded: boolean;
-  reason: 'unsupported' | 'lost' | 'error';
+  reason: 'unsupported' | 'lost' | 'error' | 'manual';
   onRetry: () => void;
+  onShowParts?: () => void;
 }) {
   const lang = useLang();
   const zh = lang === 'zh';
@@ -33,10 +34,11 @@ export default function PartsPreviewFallback({ modelId, exploded, reason, onRetr
         </svg>
       )}
       <div className="parts-preview-message" role="status">
-        <strong>{zh ? '静态结构示意' : 'Static structure illustration'}</strong>
-        <p>{reason === 'lost' ? (zh ? '3D 显示已中断，可重试恢复。' : 'The 3D view was interrupted. Retry to restore it.') : reason === 'error' ? (zh ? '3D 模型加载失败，可重试。' : 'The 3D model failed to load. Try again.') : (zh ? '当前未能启动 3D。请启用浏览器图形加速后重试。' : '3D could not start. Enable browser graphics acceleration and retry.')}</p>
+        <strong>{reason === 'manual' ? (zh ? '二维部件浏览' : '2D parts browsing') : (zh ? '静态结构示意' : 'Static structure illustration')}</strong>
+        {reason !== 'manual' && <p>{reason === 'lost' ? (zh ? '3D 显示已中断，可重试恢复。' : 'The 3D view was interrupted. Retry to restore it.') : reason === 'error' ? (zh ? '3D 模型加载失败，可重试。' : 'The 3D model failed to load. Try again.') : (zh ? '当前未能启动 3D。请启用浏览器图形加速后重试。' : '3D could not start. Enable browser graphics acceleration and retry.')}</p>}
         <p>{zh ? '部件详情与故障示例仍可从部件列表查看。' : 'Part details and fault examples remain available in the parts list.'}</p>
-        <button type="button" className="tractor-tool-button" onClick={onRetry}>{zh ? '重试 3D' : 'Retry 3D'}</button>
+        {onShowParts && <button type="button" className="tractor-tool-button" onClick={onShowParts}>{zh ? '前往二维部件列表' : 'Go to the 2D parts list'}</button>}
+        <button type="button" className="tractor-tool-button" onClick={onRetry}>{reason === 'manual' ? (zh ? '返回三维' : 'Return to 3D') : (zh ? '重试 3D' : 'Retry 3D')}</button>
       </div>
     </div>
   );

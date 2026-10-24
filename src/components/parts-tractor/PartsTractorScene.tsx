@@ -6,6 +6,7 @@ import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
 import * as THREE from 'three';
 import StudioLighting from './StudioLighting';
 import { studioQuality } from './studio-rendering';
+import { bindPartFocusInterrupt, createPartGesture, partFocusDistance } from './parts-interaction';
 import IntegratedEngine from './IntegratedEngine';
 import { bindContextLoss } from '@/lib/webgl';
 import { catalogByName, hoverLabel, type PartsModelId } from './parts-catalog';
@@ -85,6 +86,8 @@ function TractorBody({
   engineRunning,
   engineSpeed,
   selection,
+  focusRequest,
+  outline,
   explode,
   presentation,
   faultPartId,
@@ -97,6 +100,8 @@ function TractorBody({
   engineRunning: boolean;
   engineSpeed: number;
   selection: string | null;
+  focusRequest: number;
+  outline: boolean;
   explode: number;
   presentation: StudioPresentation;
   faultPartId: string | null;
@@ -115,6 +120,7 @@ function TractorBody({
     recordsRef.current = prepared.records;
   }, [prepared.records]);
   const [hovered, setHovered] = useState<string | null>(null);
+  const gesture = useMemo(() => createPartGesture(), []);
   const fitted = useRef(false);
   const cam = useRef({
     active: false,
@@ -131,6 +137,8 @@ function TractorBody({
   const showcase = PARTS_SHOWCASE[modelId];
   const engineRecord = modelId === 'diesel' ? prepared.records.find(record => record.partId === 'engine') : undefined;
   const sets = useMemo(() => visualSets(modelId), [modelId]);
+
+  useEffect(() => orbit ? bindPartFocusInterrupt(orbit, cam.current) : undefined, [orbit]);
 
   useEffect(() => {
     target.current = explode;
@@ -153,7 +161,7 @@ function TractorBody({
       busy = current.current !== target.current;
       if (!busy) setLeaders(current.current >= 0.98 ? buildLeaders(records, showcase.leaderLength) : []);
     }
-    if (cam.current.active && orbit) {
+    if (cam.current.active && orbit && !reduced) {
       const step = Math.min(delta, 0.05) * 1.6;
       cam.current.t = Math.min(1, cam.current.t + step);
       const eased = smoothstep(cam.current.t);
@@ -186,6 +194,7 @@ function TractorBody({
         hasSelection,
         presentation,
         faultPartId,
+        outlineEnabled: outline,
         occluding: sets.occluding,
         internal: sets.internal,
       }));
@@ -194,7 +203,7 @@ function TractorBody({
       }
     }
     invalidate();
-  }, [faultPartId, hovered, invalidate, prepared.records, presentation, reduced, selection, sets, modelId]);
+  }, [faultPartId, hovered, invalidate, prepared.records, presentation, reduced, selection, sets, modelId, outline]);
 
   useEffect(() => {
     if (!orbit) return;
@@ -209,8 +218,8 @@ function TractorBody({
     if (box.isEmpty()) return;
     box.getCenter(cam.current.toTarget);
     box.getBoundingSphere(sphere);
-    const fov = ((camera instanceof THREE.PerspectiveCamera ? camera.fov : 38) * Math.PI) / 180;
-    const distance = THREE.MathUtils.clamp((sphere.radius / Math.sin(fov / 2)) * 1.35, showcase.frameMin, 80);
+    const distance = partFocusDistance(sphere.radius, camera instanceof THREE.PerspectiveCamera ? camera.fov : 38,
+      camera instanceof THREE.PerspectiveCamera ? camera.aspect : 1, showcase.frameMin);
     if (!fitted.current) outward.set(1, 0.72, 1);
     else outward.copy(camera.position).sub(orbit.target);
     if (outward.lengthSq() < 1e-4) outward.set(1, 0.72, 1);
@@ -237,7 +246,7 @@ function TractorBody({
     cam.current.t = 0;
     cam.current.active = true;
     invalidate();
-  }, [box, camera, invalidate, orbit, outward, prepared.records, prepared.root, reduced, selection, showcase.frameMin, sphere]);
+  }, [box, camera, invalidate, orbit, outward, prepared.records, prepared.root, reduced, selection, focusRequest, showcase.frameMin, sphere]);
 
   const pick = (event: ThreeEvent<PointerEvent>) => {
     const owner = partOwner(event.object);
@@ -248,6 +257,8 @@ function TractorBody({
     <>
       <primitive
         object={prepared.root}
+        onPointerDown={(event: ThreeEvent<PointerEvent>) => gesture.start(event.nativeEvent.pointerType !== 'touch' || event.nativeEvent.isPrimary !== false)}
+        onPointerCancel={() => gesture.cancel()}
         onPointerOver={(event: ThreeEvent<PointerEvent>) => {
           event.stopPropagation();
           const record = pick(event);
@@ -262,6 +273,7 @@ function TractorBody({
         }}
         onClick={(event: ThreeEvent<PointerEvent>) => {
           event.stopPropagation();
+          if (!gesture.accepts(event.delta, event.nativeEvent.button)) return;
           const record = pick(event);
           if (record) onSelect(record.name);
         }}
@@ -319,6 +331,8 @@ export default function PartsTractorScene({
   engineRunning = false,
   engineSpeed = 2,
   selection,
+  focusRequest = 0,
+  outline = true,
   explode,
   presentation,
   light,
@@ -327,6 +341,7 @@ export default function PartsTractorScene({
   lang,
   modelId,
   onSelect,
+  onClear,
   onReady,
   onLost,
   onError,
@@ -335,6 +350,8 @@ export default function PartsTractorScene({
   engineRunning?: boolean;
   engineSpeed?: number;
   selection: string | null;
+  focusRequest?: number;
+  outline?: boolean;
   explode: number;
   presentation: StudioPresentation;
   light: StudioLight;
@@ -343,6 +360,7 @@ export default function PartsTractorScene({
   lang: 'zh' | 'en';
   modelId: PartsModelId;
   onSelect: (name: string) => void;
+  onClear?: () => void;
   onReady: () => void;
   onLost: () => void;
   onError: (message: string) => void;
@@ -387,6 +405,7 @@ export default function PartsTractorScene({
       camera={{ position: [showcase.camera[0], showcase.camera[1], showcase.camera[2]], fov: 38 }}
       gl={GL}
       dpr={quality.dpr}
+      onPointerMissed={event => { if (event.button === 0) onClear?.(); }}
       onCreated={({ gl }) => {
         gl.toneMapping = THREE.ACESFilmicToneMapping;
         gl.toneMappingExposure = 1;
@@ -408,6 +427,8 @@ export default function PartsTractorScene({
         engineRunning={engineRunning}
         engineSpeed={engineSpeed}
         selection={selection}
+        focusRequest={focusRequest}
+        outline={outline}
         explode={explode}
         presentation={presentation}
         faultPartId={faultPartId}

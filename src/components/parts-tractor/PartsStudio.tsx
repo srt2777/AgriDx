@@ -1,4 +1,4 @@
-import { useCallback, useState, type ChangeEvent } from 'react';
+import { useCallback, useId, useRef, useState, type ChangeEvent, type KeyboardEvent } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import { Camera, Download, Upload, X } from 'lucide-react';
 import { useReducedMotion } from 'framer-motion';
@@ -13,6 +13,8 @@ import PartKnowledge from './PartKnowledge';
 import { publicAsset } from '@/lib/public-asset';
 import { probeWebGL } from '@/lib/webgl';
 import { useLang } from '@/hooks/useLang';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { partListIndex, partOutlines, restorePartFocus } from './parts-interaction';
 import { STUDIO_LIGHTS, STUDIO_PRESENTATIONS, type StudioLight, type StudioPresentation } from '@/components/studio-schematic';
 import PartsTractorScene from './PartsTractorScene';
 import { partTitle, resolveSelection, selectionForPart, type CatalogPart, type PartsModelId } from './parts-catalog';
@@ -33,6 +35,16 @@ export default function PartsStudio({ onImport }: { onImport: (event: ChangeEven
   const [error, setError] = useState('');
   const [ready, setReady] = useState(false);
   const [selection, setSelection] = useState<string | null>(null);
+  const [focusRequest, setFocusRequest] = useState(0);
+  const mobile = useIsMobile();
+  const [coarse] = useState(() => typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches);
+  const [outlineChoice, setOutlineChoice] = useState<boolean | null>(null);
+  const outline = partOutlines(mobile, coarse, outlineChoice);
+  const [listOnly, setListOnly] = useState(false);
+  const listRef = useRef<HTMLDivElement>(null);
+  const panelRef = useRef<HTMLElement>(null);
+  const returnFocus = useRef<HTMLElement | null>(null);
+  const listId = useId();
   const [explode, setExplode] = useState(0);
   const [engineRunning, setEngineRunning] = useState(false);
   const [engineSpeed, setEngineSpeed] = useState(2);
@@ -66,7 +78,11 @@ export default function PartsStudio({ onImport }: { onImport: (event: ChangeEven
   const onError = useCallback((message: string) => setError(message), []);
   const onLost = useCallback(() => setLost(true), []);
 
-  function choose(name: string | null) {
+  function choose(name: string | null, fromCanvas = false) {
+    if (name) {
+      returnFocus.current = !fromCanvas && panelRef.current?.contains(document.activeElement) ? document.activeElement as HTMLElement : null;
+      setFocusRequest(value => value + 1);
+    }
     setSelection(name);
     setDetailStep('overview');
     if (!name) return;
@@ -74,6 +90,28 @@ export default function PartsStudio({ onImport }: { onImport: (event: ChangeEven
     if (!next) return;
     const title = partTitle(next.node, language, modelId);
     pushLog(`点选 · ${title}`, `Selected · ${partTitle(next.node, 'en', modelId)}`);
+  }
+  function selectedListButton(name = selection ?? '') {
+    const buttons = Array.from(listRef.current?.querySelectorAll<HTMLButtonElement>('button[data-selection]') ?? []);
+    return buttons.find(button => button.dataset.selection === name) ?? buttons[0] ?? null;
+  }
+  function showParts() {
+    const button = selectedListButton();
+    button?.focus({ preventScroll: true });
+    button?.scrollIntoView({ behavior: reduced ? 'instant' : 'smooth', block: 'nearest' });
+  }
+  function closeDetails() {
+    const fallback = selectedListButton(resolved?.parent ? `group:${resolved.parent.name}` : selection ?? '');
+    const preferred = returnFocus.current;
+    choose(null);
+    window.requestAnimationFrame(() => restorePartFocus(preferred, fallback));
+  }
+  function navigateParts(event: KeyboardEvent<HTMLDivElement>) {
+    const buttons = Array.from(event.currentTarget.querySelectorAll<HTMLButtonElement>('button')).filter(button => !button.disabled);
+    const index = partListIndex(buttons.indexOf(document.activeElement as HTMLButtonElement), buttons.length, event.key);
+    if (index === null) return;
+    event.preventDefault();
+    buttons[index]?.focus();
   }
   function switchModel(next: PartsModelId) {
     if (next === modelId) return;
@@ -104,6 +142,8 @@ export default function PartsStudio({ onImport }: { onImport: (event: ChangeEven
       return;
     }
     setSelection(selectionForPart(next, modelId));
+    returnFocus.current = panelRef.current?.contains(document.activeElement) ? document.activeElement as HTMLElement : null;
+    setFocusRequest(value => value + 1);
     const node = parts.find(part => part.partId === next);
     const title = node ? partTitle(node, language, modelId) : next;
     const titleEn = node ? partTitle(node, 'en', modelId) : next;
@@ -129,7 +169,9 @@ export default function PartsStudio({ onImport }: { onImport: (event: ChangeEven
   }
 
   const graphics = !supported || lost || !!error;
+  const staticView = graphics || listOnly;
   function retryGraphics() {
+    setListOnly(false);
     setReady(false);
     setError('');
     setLost(false);
@@ -141,12 +183,17 @@ export default function PartsStudio({ onImport }: { onImport: (event: ChangeEven
   const timeline = [...log].reverse();
 
   return (
-    <div className={`parts-studio${resolved ? ' is-part-open' : ''}${reduced ? ' is-reduced' : ''}`}>
+    <div className={`parts-studio${resolved ? ' is-part-open' : ''}${reduced ? ' is-reduced' : ''}${staticView ? ' is-list-view' : ''}`} onKeyDown={event => {
+      if (event.key === 'Escape' && resolved && !['INPUT', 'SELECT', 'TEXTAREA'].includes((event.target as HTMLElement).tagName)) {
+        event.stopPropagation(); closeDetails();
+      }
+    }}>
       <section className="parts-stage-card" aria-label={t(spec.titleZh, spec.titleEn)}>
         <div className="parts-stage-head">
           <span className="min-w-0">
             <span className="block text-sm font-medium">{t(spec.titleZh, spec.titleEn)}</span>
             <span className="block text-[11px] text-muted-foreground">{t(spec.summaryZh, spec.summaryEn)}</span>
+            <span className="block text-[11px] text-muted-foreground">{t('结构示意，不代表实车 CAD', 'Structural schematic, not actual vehicle CAD')}</span>
           </span>
           <span className="shrink-0 rounded-full bg-primary/10 px-2.5 py-1 text-[10px] text-primary">GLB · Meshopt · WebP</span>
         </div>
@@ -175,15 +222,20 @@ export default function PartsStudio({ onImport }: { onImport: (event: ChangeEven
               <button key={item.id} type="button" className="studio-chip" aria-pressed={presentation === item.id} onClick={() => setPresentation(item.id)}>{t(item.zh, item.en)}</button>
             ))}
           </div>
-          <button type="button" className="studio-chip" disabled={reduced || graphics} aria-pressed={modelId === 'diesel' && engineRunning} onClick={toggleEngineMotion}>{modelId === 'diesel' && engineRunning ? t('暂停发动机', 'Pause engine') : t('发动机联动', 'Engine motion')}</button>
+          <button type="button" className="studio-chip" disabled={staticView} aria-pressed={outline} onClick={() => setOutlineChoice(!outline)}>{t('选中描边', 'Selection outline')}</button>
+          <button type="button" className="studio-chip" disabled={staticView || !ready || !resolved} onClick={() => setFocusRequest(value => value + 1)}>{t('聚焦选中', 'Focus selection')}</button>
+          <button type="button" className="studio-chip" aria-pressed={staticView} disabled={graphics} onClick={() => { setListOnly(value => !value); setEngineRunning(false); setReady(false); }}>{t('二维部件列表', '2D parts list')}</button>
+          <button type="button" className="studio-chip" disabled={reduced || staticView} aria-pressed={modelId === 'diesel' && engineRunning} onClick={toggleEngineMotion}>{modelId === 'diesel' && engineRunning ? t('暂停发动机', 'Pause engine') : t('发动机联动', 'Engine motion')}</button>
           {modelId === 'diesel' && <label className="studio-bar-group text-xs">{t('发动机转速', 'Engine speed')}<select aria-label={t('发动机转速', 'Engine speed')} value={engineSpeed} onChange={event => setEngineSpeed(Number(event.target.value))} className="studio-chip"><option value={1}>0.5×</option><option value={2}>1×</option><option value={4}>2×</option></select></label>}
-          <button type="button" className={PREMIUM_MOTION_ENABLED ? 'studio-save glass-press' : 'studio-save'} data-motion={PREMIUM_MOTION_ENABLED ? 'glass-press' : undefined} disabled={!ready || graphics} onClick={() => { void saveIllustration(); }}>
+          <button type="button" className={PREMIUM_MOTION_ENABLED ? 'studio-save glass-press' : 'studio-save'} data-motion={PREMIUM_MOTION_ENABLED ? 'glass-press' : undefined} disabled={!ready || staticView} onClick={() => { void saveIllustration(); }}>
             <Camera size={16} />{t('保存结构示意', 'Save structure illustration')}
           </button>
           <p className="studio-share-note" aria-live="polite">{shareNote}</p>
         </div>
-        <div className="model-stage parts-stage" data-model={modelId} data-engine={modelId === 'diesel' && engineRunning && !reduced ? 'running' : 'paused'} data-component={selection ?? 'all'} data-fault={faultPartId ?? ''} data-explode={explode >= 1 ? 'open' : 'closed'}>
-          <div className="parts-viewport">
+        <div className="model-stage parts-stage" data-model={modelId} data-outline={outline ? 'on' : 'off'} data-engine={modelId === 'diesel' && engineRunning && !reduced && !staticView ? 'running' : 'paused'} data-component={selection ?? 'all'} data-fault={faultPartId ?? ''} data-explode={explode >= 1 ? 'open' : 'closed'}>
+          <div className="parts-viewport" tabIndex={staticView ? -1 : 0} role="group" aria-label={t('结构示意视图；可用二维列表选择部件', 'Structure view; use the 2D list to select parts')} onPointerDownCapture={event => {
+            if ((event.target as HTMLElement).tagName === 'CANVAS') event.currentTarget.focus({ preventScroll: true });
+          }}>
             <div className="parts-kpi" aria-label={t('示例概览', 'Example overview')}>
               <TiltCard className="parts-kpi-card"><span className="parts-chip">{t('示例数据', 'Example data')}</span></TiltCard>
               <TiltCard className="parts-kpi-card"><span><b>{parts.length}</b> {t('部件', 'Parts')}</span></TiltCard>
@@ -191,15 +243,17 @@ export default function PartsStudio({ onImport }: { onImport: (event: ChangeEven
               <TiltCard className="parts-kpi-card"><span><b>{Math.round(explode * 100)}%</b> {t('爆炸', 'Explode')}</span></TiltCard>
               <TiltCard className="parts-kpi-card"><span><b>{faultLabel}</b> {t('故障', 'Fault')}</span></TiltCard>
             </div>
-            {graphics ? (
-              <PartsPreviewFallback modelId={modelId} exploded={explode >= 1} reason={lost ? 'lost' : error ? 'error' : 'unsupported'} onRetry={retryGraphics} />
+            {staticView ? (
+              <PartsPreviewFallback modelId={modelId} exploded={explode >= 1} reason={graphics ? lost ? 'lost' : error ? 'error' : 'unsupported' : 'manual'} onRetry={retryGraphics} onShowParts={showParts} />
             ) : (
-              <ErrorBoundary key={sceneAttempt} fallback={<PartsPreviewFallback modelId={modelId} exploded={explode >= 1} reason="error" onRetry={retryGraphics} />} onError={error => onError(error instanceof Error ? error.message : String(error))}>
+              <ErrorBoundary key={sceneAttempt} fallback={<PartsPreviewFallback modelId={modelId} exploded={explode >= 1} reason="error" onRetry={retryGraphics} onShowParts={showParts} />} onError={error => onError(error instanceof Error ? error.message : String(error))}>
               <DeferredScene fallback={PREMIUM_MOTION_ENABLED ? <TwinQuery label={t('正在打开孪生视图…', 'Opening the twin view…')} /> : <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground" role="status"><span>{t('正在打开孪生视图…', 'Opening the twin view…')}</span></div>}>
                 <PartsTractorScene
                   key={sceneAttempt}
                   url={modelUrl}
                   selection={selection}
+                  focusRequest={focusRequest}
+                  outline={outline}
                   explode={explode}
                   engineRunning={engineRunning && modelId === 'diesel'}
                   engineSpeed={engineSpeed}
@@ -209,7 +263,8 @@ export default function PartsStudio({ onImport }: { onImport: (event: ChangeEven
                   reduced={reduced}
                   lang={lang === 'zh' ? 'zh' : 'en'}
                   modelId={modelId}
-                  onSelect={choose}
+                  onSelect={name => choose(name, true)}
+                  onClear={() => choose(null)}
                   onReady={onReady}
                   onLost={onLost}
                   onError={onError}
@@ -217,14 +272,14 @@ export default function PartsStudio({ onImport }: { onImport: (event: ChangeEven
               </DeferredScene>
               </ErrorBoundary>
             )}
-            {!graphics && !ready && !error && <div className="parts-loading">{PREMIUM_MOTION_ENABLED ? <TwinQuery label={t(`正在打开${spec.titleZh}…`, `Opening ${spec.titleEn}…`)} /> : <span>{t(`正在打开${spec.titleZh}…`, `Opening ${spec.titleEn}…`)}</span>}</div>}
+            {!staticView && !ready && !error && <div className="parts-loading">{PREMIUM_MOTION_ENABLED ? <TwinQuery label={t(`正在打开${spec.titleZh}…`, `Opening ${spec.titleEn}…`)} /> : <span>{t(`正在打开${spec.titleZh}…`, `Opening ${spec.titleEn}…`)}</span>}</div>}
             <ol className="parts-event-log" aria-label={t('示例记录', 'Example log')}>
               {timeline.map(item => <li key={item.id}>{language === 'zh' ? item.zh : item.en}</li>)}
             </ol>
           </div>
-          <aside className="parts-panel">
+          <aside className="parts-panel" ref={panelRef}>
             <p>{t('部件', 'Parts')}<span className="parts-chip">{t('示例数据', 'Example data')}</span></p>
-            <p className="parts-panel-note">{t('点选部件后，详情从右侧滑出。状态和故障是示例，没有接入实车。', 'Select a part and the detail slides in from the right. Status and faults are examples, with no live machine attached.')}</p>
+            <p className="parts-panel-note">{staticView ? t('从列表选择部件，下方查看详情与知识目录。状态和故障是示例，没有接入实车。', 'Select a part from the list to see details and source links below. Status and faults are examples, with no live machine attached.') : t('点选部件后查看详情。状态和故障是示例，没有接入实车。', 'Select a part to view details. Status and faults are examples, with no live machine attached.')}</p>
             <div className="parts-fault">
               <p>{t('故障示意', 'Fault example')}</p>
               <div className="parts-fault-list" role="group" aria-label={t('带示例故障的部件', 'Parts with example faults')}>
@@ -240,9 +295,10 @@ export default function PartsStudio({ onImport }: { onImport: (event: ChangeEven
               </div>
             </div>
             <div className="parts-tree">
-              <p>{t('部件树', 'Part tree')}</p>
-              <div className="parts-tree-list">
-                <button type="button" className="parts-whole" aria-pressed={selection === null} onClick={() => choose(null)}>{t('整机', 'Whole machine')}</button>
+              <p id={listId}>{t('二维部件列表', '2D parts list')}</p>
+              <p className="parts-panel-note">{t('方向键移动，回车或空格选择；Esc 关闭详情。', 'Arrow keys move; Enter or Space selects; Esc closes details.')}</p>
+              <div className="parts-tree-list" role="group" aria-labelledby={listId} ref={listRef} onKeyDown={navigateParts}>
+                <button type="button" className="parts-whole" data-selection="" aria-pressed={selection === null} onClick={() => choose(null)}>{t('整机', 'Whole machine')}</button>
                 {parts.map(part => <TreeNode key={part.name} part={part} selection={selection} lang={language} model={modelId} onSelect={choose} />)}
               </div>
             </div>
@@ -251,7 +307,7 @@ export default function PartsStudio({ onImport }: { onImport: (event: ChangeEven
           <aside className="parts-drawer" aria-live="polite" aria-hidden={resolved ? undefined : true} inert={resolved ? undefined : true}>
             <div className="parts-drawer-head">
               <p>{t('部件详情', 'Part detail')}<span className="parts-chip">{t('示例数据', 'Example data')}</span></p>
-              <button type="button" className="parts-drawer-close" onClick={() => choose(null)} aria-label={t('关闭部件详情', 'Close part detail')}><X size={16} /></button>
+              <button type="button" className="parts-drawer-close" onClick={closeDetails} aria-label={t('关闭部件详情', 'Close part detail')}><X size={16} /></button>
             </div>
             {resolved && example && (PREMIUM_MOTION_ENABLED ? (
               <>
@@ -318,7 +374,7 @@ function TreeNode({ part, selection, lang, model, onSelect }: { part: CatalogPar
   const [opened, setOpened] = useState(false);
   if (!part.group) {
     return (
-      <button type="button" aria-pressed={selection === part.name} onClick={() => onSelect(part.name)}>
+      <button type="button" data-selection={part.name} aria-pressed={selection === part.name} onClick={() => onSelect(part.name)}>
         {partTitle(part, lang, model)}
       </button>
     );
@@ -326,13 +382,13 @@ function TreeNode({ part, selection, lang, model, onSelect }: { part: CatalogPar
   const open = opened || selection === `group:${part.name}` || part.children.some(child => child.name === selection);
   return (
     <div className="parts-group">
-      <button type="button" aria-expanded={open} aria-pressed={selection === `group:${part.name}`} onClick={() => { setOpened(true); onSelect(`group:${part.name}`); }}>
+      <button type="button" data-selection={`group:${part.name}`} aria-expanded={open} aria-pressed={selection === `group:${part.name}`} onClick={() => { setOpened(true); onSelect(`group:${part.name}`); }}>
         {partTitle(part, lang, model)}
       </button>
       {open && (
         <div className="parts-fault-list">
           {part.children.map(child => (
-            <button key={child.name} type="button" aria-pressed={selection === child.name} onClick={() => onSelect(child.name)}>
+            <button key={child.name} type="button" data-selection={child.name} aria-pressed={selection === child.name} onClick={() => onSelect(child.name)}>
               {partTitle(child, lang, model)}
             </button>
           ))}
