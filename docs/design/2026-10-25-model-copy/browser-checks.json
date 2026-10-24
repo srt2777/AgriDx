@@ -1,0 +1,90 @@
+{
+  "version": "3.16.6",
+  "date": "2026-10-25",
+  "origin": "local development server",
+  "route": "/#/models",
+  "cases": [
+    {
+      "label": "new-en-desktop-dark",
+      "contentWidth": 1425,
+      "manuals": true,
+      "noInternalNote": true,
+      "schematic": true,
+      "theme": "dark",
+      "viewport": 1425,
+      "width": 1440
+    },
+    {
+      "label": "new-en-mobile-light",
+      "contentWidth": 360,
+      "manuals": true,
+      "noInternalNote": true,
+      "schematic": true,
+      "theme": "light",
+      "viewport": 360,
+      "width": 375
+    },
+    {
+      "label": "new-zh-mobile-light",
+      "contentWidth": 360,
+      "manuals": true,
+      "noInternalNote": true,
+      "schematic": true,
+      "theme": "light",
+      "viewport": 360,
+      "width": 375
+    },
+    {
+      "label": "classic-zh-mobile-light",
+      "contentWidth": 360,
+      "manuals": true,
+      "noInternalNote": true,
+      "schematic": true,
+      "theme": "light",
+      "viewport": 360,
+      "width": 375
+    },
+    {
+      "label": "classic-en-mobile-light",
+      "contentWidth": 360,
+      "manuals": true,
+      "noInternalNote": true,
+      "schematic": true,
+      "theme": "light",
+      "viewport": 360,
+      "width": 375
+    },
+    {
+      "label": "classic-en-desktop-dark",
+      "contentWidth": 1425,
+      "manuals": true,
+      "noInternalNote": true,
+      "schematic": true,
+      "theme": "dark",
+      "viewport": 1425,
+      "width": 1440
+    },
+    {
+      "label": "classic-zh-desktop-dark",
+      "contentWidth": 1425,
+      "manuals": true,
+      "noInternalNote": true,
+      "schematic": true,
+      "theme": "dark",
+      "viewport": 1425,
+      "width": 1440
+    },
+    {
+      "label": "new-zh-desktop-dark",
+      "contentWidth": 1425,
+      "manuals": true,
+      "noInternalNote": true,
+      "schematic": true,
+      "theme": "dark",
+      "viewport": 1425,
+      "width": 1440
+    }
+  ],
+  "errors": [],
+  "scope": "Copy and layout checks only; no external modeling service or real-device validation."
+}
