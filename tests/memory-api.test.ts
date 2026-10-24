@@ -5,6 +5,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { after, afterEach, before, beforeEach, test } from 'node:test';
 import type { MemoryOverview, MemoryDevice, MemorySession, SessionDetail } from '../shared/memory';
+import type { ChatResponse as DiagnosticChatResponse } from '../shared/chat';
 import { getMemoryStore } from '../server/memory/store';
 
 const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'agridx-memory-api-'));
@@ -18,12 +19,8 @@ let server: http.Server;
 let port = 0;
 let sequence = 0;
 const originalFetch = globalThis.fetch;
-interface ChatResponse {
+interface ChatResponse extends Omit<DiagnosticChatResponse, 'memory'> {
   memory: MemorySession;
-  provider: string;
-  fallbackReason?: string;
-  localSummary?: string;
-  choices: { message: { content: string } }[];
   code?: string;
 }
 before(async () => {
@@ -83,6 +80,18 @@ test('local-only diagnosis persists and restores user checks without model crede
   const restored = await request<SessionDetail>(`/api/memory/sessions/${session.id}`, 'GET', undefined, cookie);
   assert.equal(restored.body.messages.length, 2); assert.match(restored.body.messages[0].content, /电瓶已检查正常/);
   assert.equal(restored.body.device.hours, 200);
+  const assistant = restored.body.messages[1];
+  assert.ok(assistant.diagnosticReply);
+  assert.ok(assistant.knowledgeSources?.length);
+  assert.ok(assistant.coordination);
+  assert.ok(assistant.diagnosisTrace);
+  assert.ok(assistant.roleFlow);
+  for (const field of ['content', 'model', 'provider', 'localSummary', 'coordinationMessage', 'answerMode',
+    'fallbackReason', 'knowledgeChunks', 'diagnosticReply', 'knowledgeSources', 'coordination', 'diagnosisTrace', 'roleFlow'] as const) {
+    assert.deepEqual(assistant[field], field === 'content' ? result.body.choices[0].message.content : result.body[field], field);
+  }
+  assert.equal(assistant.coordination.requestedMode, 'knowledge_only');
+  assert.equal(assistant.diagnosisTrace.aiAttempts, 0);
 });
 
 test('Gemini and DeepSeek receive shared saved history, progress and profile; client cannot rewrite old turns', async () => {
@@ -105,6 +114,14 @@ test('Gemini and DeepSeek receive shared saved history, progress and profile; cl
   assert.equal(deepseek.status, 200); assert.equal(deepseek.body.provider, 'deepseek'); assert.match(endpoint, /deepseek/);
   assert.ok(outgoing.some((m) => m.role === 'user' && m.content === '下一步查什么？'));
   assert.equal(deepseek.body.memory.revision, local.body.memory.revision + 3);
+  const restored = await request<SessionDetail>(`/api/memory/sessions/${session.id}`, 'GET', undefined, cookie);
+  const assistant = restored.body.messages.at(-1)!;
+  assert.equal(assistant.diagnosticReply?.aiSupplement, '模型建议：先核实现场条件');
+  for (const field of ['diagnosticReply', 'knowledgeSources', 'coordination', 'diagnosisTrace', 'roleFlow'] as const) {
+    assert.deepEqual(assistant[field], deepseek.body[field], field);
+  }
+  assert.match(assistant.content, /模型建议：先核实现场条件/);
+  assert.notEqual(assistant.content, assistant.diagnosticReply?.aiSupplement);
 });
 
 test('failed external providers still save local fallback and retain entered progress', async () => {
@@ -215,7 +232,20 @@ test('first saved turn migrates local history; later responses preserve all stor
   const detail = await request<SessionDetail>(`/api/memory/sessions/${session.id}`, 'GET', undefined, cookie);
   assert.equal(detail.body.messages.length, 4); assert.ok(detail.body.messages.every((m) => m.role === 'user' || m.role === 'assistant'));
   assert.ok(!JSON.stringify(detail.body).includes('不得进入记忆'));
-  const cleared = await request<SessionDetail>(`/api/memory/sessions/${session.id}/clear`, 'POST', { revision: 1 }, cookie);
+  const legacyAssistant = detail.body.messages[1];
+  assert.equal(legacyAssistant.role, 'assistant');
+  assert.equal(legacyAssistant.content, '可能是喷油器，尚未验证');
+  for (const field of ['diagnosticReply', 'knowledgeSources', 'coordination', 'diagnosisTrace', 'roleFlow'] as const) {
+    assert.equal(legacyAssistant[field], undefined, `legacy ${field} is optional`);
+  }
+  assert.ok(detail.body.messages[3].diagnosticReply);
+  const continued = await chat(cookie, migrated.body.memory, '继续记录现场表现', { diagnosisMode: 'knowledge_only' });
+  assert.equal(continued.status, 200);
+  const next = await request<SessionDetail>(`/api/memory/sessions/${session.id}`, 'GET', undefined, cookie);
+  assert.equal(next.body.messages.length, 6);
+  assert.deepEqual(next.body.messages[1], legacyAssistant);
+  assert.deepEqual(next.body.messages[5].diagnosticReply, continued.body.diagnosticReply);
+  const cleared = await request<SessionDetail>(`/api/memory/sessions/${session.id}/clear`, 'POST', { revision: continued.body.memory.revision }, cookie);
   assert.equal(cleared.body.messages.length, 0); assert.equal(cleared.body.device.name, profile.name);
 });
 

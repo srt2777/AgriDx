@@ -38,7 +38,7 @@ test('coverage follows the question and never invents missing diagnostic fields'
   assert.equal(decide({}, partial).route, 'ai');
   assert.equal(decide({ query: '为什么起动困难', currentQuery: '为什么起动困难' }, partial).route, 'local');
   assert.deepEqual(requiredDiagnosticCoverage('如何排查起动困难'), ['symptom', 'checks']);
-  assert.equal(decide({}, { diagnosticMetadata: undefined }).reason, 'unknown_operation_risk');
+  assert.equal(decide({}, { diagnosticMetadata: undefined }).route, 'ai');
 });
 
 test('raw score thresholds are configurable; absent and fractional raw scores are never percentages', () => {
@@ -116,7 +116,7 @@ test('high-risk queries return restricted safety replies before all modes, ident
 
 test('unknown operation risk remains conservative while ordinary missing-identity symptoms may use AI', () => {
   assert.equal(decide({ retrieved: [], currentQuery: '怎么拆卸这个零件' }).reason, 'unknown_operation_risk');
-  assert.equal(decide({ retrieved: [], currentQuery: '坏了怎么办' }).reason, 'unknown_operation_risk');
+  assert.equal(decide({ retrieved: [], currentQuery: '坏了怎么办' }).route, 'ai');
   const general = decide({ query: '热车后没劲', currentQuery: '热车后没劲', scope: {}, retrieved: [] });
   assert.equal(general.route, 'ai');
   assert.equal(general.riskLevel, 'unknown');
@@ -161,6 +161,29 @@ test('multiple complete references require synthesis rather than assuming differ
   assert.equal(decision.evidenceLevel, 'partial');
   assert.equal(decision.route, 'ai');
   assert.equal(decision.reason, 'synthesis_requested');
+});
+
+test('retrieval outcomes distinguish source absence, a topic miss and incomplete usable content', () => {
+  assert.equal(decide({ retrieved: [], manualAvailable: false }).retrievalOutcome, 'no_manual');
+  assert.equal(decide({ retrieved: [], manualAvailable: true }).retrievalOutcome, 'no_results');
+  assert.equal(decide({ manualAvailable: true }, { diagnosticMetadata: {
+    coverage: { symptom: true, causes: false, checks: false, repair: false }, riskLevel: 'low',
+  } }).retrievalOutcome, 'insufficient_evidence');
+  assert.equal(decide({ manualAvailable: true }).retrievalOutcome, 'sufficient');
+  assert.equal(decide({ manualAvailable: true, requestedMode: 'ai_assisted' }).retrievalOutcome, 'sufficient');
+  assert.equal(decide({ manualAvailable: true, evidenceConflict: true }).retrievalOutcome, 'insufficient_evidence');
+  // Injected stores need not pretend that a missing search hit means a missing manual.
+  assert.equal(decide({ retrieved: [] }).retrievalOutcome, 'no_results');
+});
+
+test('zero lexical score can retain a structural component reference without authorizing direct repairs', () => {
+  const decision = decide({}, { retrieval: { tier: 'component', basis: ['合成组件关联'], referenceOnly: true },
+    relevance: { score: 0, method: 'keyword-weighted-overlap', calibrated: false } });
+  assert.equal(decision.candidates?.[0].excluded, false);
+  assert.equal(decision.candidates?.[0].relevance.score, 0);
+  assert.equal(decision.candidates?.[0].directEligible, false);
+  assert.equal(decision.retrievalOutcome, 'insufficient_evidence');
+  assert.deepEqual(decision.referenceOnlyIds, ['TEST-001']);
 });
 
 test('environment raw threshold configuration fails closed for malformed or reversed values', () => {

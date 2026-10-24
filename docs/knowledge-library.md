@@ -41,3 +41,8 @@
 - **问题指定了品牌或型号**：只检索匹配的归档条目，与此前一致；此时不使用通识（未收录的型号返回空结果，不再用通识补位）。显式 `查阅 TK-xxxx` 仍可打开该条，但不作证据。
 - **标注**：通识证据一律标为“通识（无手册页码）”，不附书名或页码，不得写成某本手册的说法；归档条目保留书名与页码。API `knowledgeSources` 新增 `evidenceKind`（`archive`/`general-knowledge`/`prompt`）、`evidenceLabel`（通识为“通识（无手册页码）”，归档为“手册：书名，PDF第N页…”）和 `generalEvidence`；`roleFlow.generalKnowledgeIds` 单列通识编号，不混入按书页引用的角色步骤。本地回复以【通识依据（通识·无手册页码，待验证）】展示。
 - 数据中的 `diagnostic_evidence=false` 不改（条目文件字节锁定）；证据角色只在 `server/knowledge/retriever.ts` 运行时按检索范围决定。安全风险、身份冲突、电动／无人设备和非拖拉机边界保持原规则。
+
+
+### 3.14.0 诊断参考层级
+
+指定品牌/车型时仍优先匹配归档；内容覆盖不足可补充标为reference-only的组件或通用原理，不将通识变为该车型手册。真实适用范围、排放及配置冲突继续硬排除，核验失败来源在top-k前过滤。开放式无车型问题保留通识证据。详见[诊断交互与安全边界](diagnosis-interaction.md)。原始知识正文、来源、审核状态与知识库版次不变。

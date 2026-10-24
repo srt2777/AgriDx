@@ -8,7 +8,7 @@ import type { ChatProvider, FallbackReason } from '../../../shared/chat';
 import { requestChat } from './api';
 import {
   createChatRequest, generateMessageId, loadChatSession, MAX_QUESTION_LENGTH,
-  saveHistory, saveMachineContext, type ChatMessage,
+  saveHistory, saveMachineContext, parseHistory, parseFaultCodes, composeDiagnosticQuestion, type ChatMessage, type DiagnosticTextAttachment,
 } from './session';
 
 interface ChatSessionOptions {
@@ -27,6 +27,10 @@ export function useChatSession({ handoff, translate: t, focusInput, minLoadingMs
   const [machineType, setMachineType] = useState(initial.context.machineType);
   const [brand, setBrand] = useState(initial.context.brand);
   const [model, setModel] = useState(initial.context.model);
+  const [engineModel, setEngineModel] = useState(initial.context.engineModel || '');
+  const [faultCodeInput, setFaultCodeInput] = useState(initial.context.faultCodes?.join('、') || '');
+  const [attachment, setAttachment] = useState<DiagnosticTextAttachment>();
+  const [sendError, setSendError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [currentModel, setCurrentModel] = useState('');
   const [currentProvider, setCurrentProvider] = useState<ChatProvider | ''>('');
@@ -43,7 +47,11 @@ export function useChatSession({ handoff, translate: t, focusInput, minLoadingMs
     requestRef.current = null;
   }, []);
   useEffect(() => saveHistory(messages), [messages]);
-  useEffect(() => saveMachineContext({ machineType, brand, model }), [machineType, brand, model]);
+  useEffect(() => {
+    let faultCodes: string[] = [];
+    try { faultCodes = parseFaultCodes(faultCodeInput); } catch { /* Keep invalid input editable, never send it. */ }
+    saveMachineContext({ machineType, brand, model, engineModel, faultCodes });
+  }, [machineType, brand, model, engineModel, faultCodeInput]);
 
   const resetStatus = useCallback(() => {
     setCurrentModel('');
@@ -53,7 +61,10 @@ export function useChatSession({ handoff, translate: t, focusInput, minLoadingMs
 
   const onRestore = useCallback((detail: SessionDetail | null) => {
     requestRef.current?.abort(); requestRef.current = null; setIsLoading(false);
-    setMessages(detail?.messages || []); setProgress(detail?.progress || ''); resetStatus();
+    setMessages(parseHistory(detail?.messages || [])); setProgress(detail?.progress || ''); resetStatus();
+    setAttachment(undefined); setSendError('');
+    // Engine/codes are diagnosis inputs, not verified facts about another device.
+    setEngineModel(''); setFaultCodeInput('');
   }, [resetStatus]);
   const onDevice = useCallback((device: MemoryDevice | null) => {
     setDeviceName(device?.name || '我的设备'); setHours(device?.hours === null || !device ? '' : String(device.hours));
@@ -64,9 +75,18 @@ export function useChatSession({ handoff, translate: t, focusInput, minLoadingMs
   const memory = useDiagnosticMemory(onRestore, onDevice, resumeOnBoot);
   const profile: DeviceProfile = useMemo(() => ({ name: deviceName.trim(), machineType, brand: brand.trim(), model: model.trim(), hours: hours.trim() ? Number(hours) : null, notes: deviceNotes.trim() }), [deviceName, machineType, brand, model, hours, deviceNotes]);
 
-  const sendMessage = useCallback(async (text: string) => {
-    const trimmed = text.trim();
-    if (!trimmed || trimmed.length > MAX_QUESTION_LENGTH || requestRef.current || memory.busy) return;
+  const sendMessage = useCallback(async (text: string, includeAttachment = true) => {
+    if (requestRef.current || memory.busy) return;
+    const selectedAttachment = includeAttachment ? attachment : undefined;
+    const trimmed = composeDiagnosticQuestion(text, selectedAttachment);
+    if (!trimmed || trimmed.length > MAX_QUESTION_LENGTH) {
+      setSendError(t('描述与文本文件合计不能超过2000字符。', 'The description and text file must total no more than 2000 characters.'));
+      return;
+    }
+    let faultCodes: string[];
+    try { faultCodes = parseFaultCodes(faultCodeInput); }
+    catch (error) { setSendError(error instanceof Error ? error.message : '故障码格式错误'); return; }
+    setSendError('');
     const controller = new AbortController();
     requestRef.current = controller;
     const started = performance.now();
@@ -74,14 +94,19 @@ export function useChatSession({ handoff, translate: t, focusInput, minLoadingMs
     const timeout = window.setTimeout(() => controller.abort(new DOMException('Timeout', 'TimeoutError')), 60_000);
     const userMessage: ChatMessage = { id: generateMessageId(), role: 'user', content: trimmed };
     const loadingMessage: ChatMessage = { id: generateMessageId(), role: 'loading', content: '' };
-    setMessages((previous) => [...previous, userMessage, loadingMessage]);
-    setInput('');
     setIsLoading(true);
+    let submitted = false;
     try {
+      // Validate/save the existing profile before consuming the user's draft.
       const session = memory.ready ? await memory.prepare(profile) : null;
       if (requestRef.current !== controller) return;
-      const request = { ...createChatRequest(messages, trimmed, { machineType, brand, model }, session?.revision === 0 ? 38 : 20), diagnosisMode,
+      controller.signal.throwIfAborted();
+      const request = { ...createChatRequest(messages, trimmed, { machineType, brand, model, engineModel, faultCodes }, session?.revision === 0 ? 38 : 20), diagnosisMode,
         ...(session ? { sessionId: session.id, revision: session.revision } : {}) };
+      submitted = true;
+      setMessages((previous) => [...previous, userMessage, loadingMessage]);
+      if (text === input) setInput('');
+      if (selectedAttachment) setAttachment(undefined);
       const reply = await requestChat(
         request,
         controller.signal,
@@ -93,6 +118,10 @@ export function useChatSession({ handoff, translate: t, focusInput, minLoadingMs
       if (remain > 0) await new Promise((resolve) => window.setTimeout(resolve, remain));
       if (requestRef.current !== controller) return;
       if (reply.memory) memory.updateSession(reply.memory);
+      if (reply.role === 'error') {
+        if (text === input) setInput(text);
+        if (selectedAttachment) setAttachment(selectedAttachment);
+      }
       setCurrentModel(reply.model || '');
       setCurrentProvider(reply.provider || '');
       setCurrentFallbackReason(reply.fallbackReason);
@@ -101,11 +130,14 @@ export function useChatSession({ handoff, translate: t, focusInput, minLoadingMs
     } catch (error) {
       if (requestRef.current !== controller) return;
       resetStatus();
-      setMessages((previous) => previous.map((message) => message.id === loadingMessage.id ? {
+      if (submitted) setMessages((previous) => previous.map((message) => message.id === loadingMessage.id ? {
         id: message.id,
         role: 'error',
         content: t('对话请求未完成，请稍后重试；已有对话仍保留。', 'The chat request did not complete. Please retry; your previous messages are preserved.'),
       } : message));
+      if (submitted && text === input) setInput(text);
+      if (selectedAttachment) setAttachment(selectedAttachment);
+      setSendError(error instanceof Error ? error.message : t('请求未完成，草稿已保留。', 'The request did not complete; your draft is preserved.'));
       toast.error(error instanceof Error && error.name !== 'AbortError' ? error.message : t('对话服务暂不可用', 'Chat service unavailable'));
     } finally {
       window.clearTimeout(timeout);
@@ -115,7 +147,7 @@ export function useChatSession({ handoff, translate: t, focusInput, minLoadingMs
         window.setTimeout(focusInput, 0);
       }
     }
-  }, [messages, machineType, brand, model, t, focusInput, resetStatus, memory, profile, diagnosisMode, minLoadingMs]);
+  }, [messages, input, attachment, machineType, brand, model, engineModel, faultCodeInput, t, focusInput, resetStatus, memory, profile, diagnosisMode, minLoadingMs]);
 
   const stopRequest = useCallback(() => {
     requestRef.current?.abort();
@@ -138,5 +170,6 @@ export function useChatSession({ handoff, translate: t, focusInput, minLoadingMs
     isLoading, currentModel, currentProvider, currentFallbackReason,
     sendMessage, stopRequest, handleClear, memory, profile,
     diagnosisMode, setDiagnosisMode, deviceName, setDeviceName, hours, setHours, deviceNotes, setDeviceNotes, progress, setProgress,
+    engineModel, setEngineModel, faultCodeInput, setFaultCodeInput, attachment, setAttachment, sendError,
   };
 }

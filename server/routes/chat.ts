@@ -42,7 +42,7 @@ export function createChatRoutes(diagnose: DiagnosticService, store = getMemoryS
       if (res.destroyed) return;
       if (remembered) {
         const assistant: Omit<MemoryMessage, 'id' | 'role' | 'createdAt'> = { content: payload.choices[0].message.content };
-        for (const field of ['model', 'provider', 'localSummary', 'coordinationMessage', 'answerMode', 'fallbackReason', 'knowledgeChunks'] as const) {
+        for (const field of ['model', 'provider', 'localSummary', 'coordinationMessage', 'answerMode', 'fallbackReason', 'knowledgeChunks', 'diagnosticReply', 'knowledgeSources', 'coordination', 'diagnosisTrace', 'roleFlow'] as const) {
           if (payload[field] !== undefined) Object.assign(assistant, { [field]: payload[field] });
         }
         payload.memory = store().appendTurn(owner, remembered.id, remembered.revision, user.content, assistant, remembered.messages.length ? [] : input.history.slice(0, -1));

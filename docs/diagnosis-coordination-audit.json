@@ -1,0 +1,945 @@
+{
+  "testType": "Actual archive + real local HTTP and browser; explicit simulated provider transport. NOT real model validation.",
+  "realModelTested": false,
+  "realSessionConfigured": false,
+  "baselineMain": "4bfc1e8",
+  "baselinePr102": "4002b5c",
+  "question": "东方红 LF1504 拖拉机旋耕时水温过高，可能是什么原因？",
+  "limitation": "No configured Gemini/DeepSeek key in this execution environment; provider text is an explicit test fixture, not a model quality measurement.",
+  "scenarios": [
+    {
+      "name": "related",
+      "before": {
+        "name": "related",
+        "testType": "real HTTP and archive / simulated provider transport",
+        "providerAdapterCalls": 1,
+        "rawProviderReturns": [
+          "LF1504旋耕时水温过高，通常表示散热能力暂时不能覆盖负荷。常见待核实方向包括散热器外部堵塞、冷却液不足或风扇传动异常。\n\n先安全停机冷却；只查看已有仪表记录和停机后可见的外部遮挡，不开热盖、不拆检。\n\n空载或轻负荷时是否也出现，是否已有报警原文？"
+        ],
+        "promptChecks": [
+          {
+            "hasModel": true,
+            "hasFollowup": false
+          }
+        ],
+        "provider": "knowledge-base",
+        "route": "local",
+        "reason": "output_rejected",
+        "removedIssues": [
+          "unsupported_fault_code"
+        ],
+        "sources": [
+          {
+            "entryId": "KB-YTO-LF1504-005",
+            "sourceId": "SRC-YTO-LF1504-SMLF150449010",
+            "referenceOnly": true
+          },
+          {
+            "entryId": "KB2000-20261015-YTOLF1504-010",
+            "sourceId": "SRC-YTO-LF1504-SMLF150449010",
+            "referenceOnly": true
+          },
+          {
+            "entryId": "TK-4195",
+            "referenceOnly": true
+          }
+        ],
+        "trace": {
+          "retrievalCount": 1,
+          "aiAttempts": 1,
+          "aiSuccesses": 1,
+          "aiProvider": "deepseek",
+          "scoreMethod": "keyword-weighted-overlap",
+          "contextChars": 2669,
+          "sentKnowledgeIds": [
+            "KB-YTO-LF1504-005",
+            "KB2000-20261015-YTOLF1504-010",
+            "TK-4195"
+          ],
+          "timings": {
+            "retrievalMs": 16.959037999999964,
+            "decisionMs": 2.1509889999999814,
+            "externalAiMs": 0.25149599999986094,
+            "totalMs": 133.89721999999983
+          }
+        },
+        "answer": "你咨询的是东方红 LF1504。你描述的是“旋耕时水温过高，可能是什么原因？”。目前还不能只凭这一现象确定具体故障。\n\n通用原理参考（非本机结论，尚需核对）：\n- 发动机机体金属与冷却液具有较大热容量，热响应时间常数通常为数分钟，能自然平抑秒级的高频负载波动（TK-4195，无手册页码）\n\n建议按以下顺序处理：\n1. 不要在热机或带压时打开冷却系统盖，也不要接近高温蒸汽；先按本机规程安全停机并交由合格人员处理。\n2. 先记录报警原文、异常发生工况和已经完成的检查结果；只描述已有观察，不必为补充信息再次试车或拆检。\n\n本次参考TK-4195（模型辅助编写和技术审校；本批经自动检查与Codex选项审阅；未逐条完成原厂手册对照或实车验证）通识（无手册页码），只能解释一般原理，不能作为本机参数或维修操作依据。\n\n为了缩小范围，先确认：\n1. 水温异常是在冷车刚启动时，还是已经作业一段时间后出现？只说已经观察到的情况即可。"
+      },
+      "after": {
+        "name": "related",
+        "testType": "real HTTP and archive / simulated provider transport",
+        "providerAdapterCalls": 1,
+        "rawProviderReturns": [
+          "LF1504旋耕时水温过高，通常表示散热能力暂时不能覆盖负荷。常见待核实方向包括散热器外部堵塞、冷却液不足或风扇传动异常。\n\n先安全停机冷却；只查看已有仪表记录和停机后可见的外部遮挡，不开热盖、不拆检。\n\n空载或轻负荷时是否也出现，是否已有报警原文？"
+        ],
+        "promptChecks": [
+          {
+            "hasModel": true,
+            "hasFollowup": false
+          }
+        ],
+        "provider": "deepseek",
+        "route": "ai",
+        "reason": "synthesis_requested",
+        "removedIssues": [],
+        "sources": [
+          {
+            "entryId": "KB-YTO-LF1504-005",
+            "sourceId": "SRC-YTO-LF1504-SMLF150449010",
+            "referenceOnly": true
+          },
+          {
+            "entryId": "KB2000-20261015-YTOLF1504-010",
+            "sourceId": "SRC-YTO-LF1504-SMLF150449010",
+            "referenceOnly": true
+          },
+          {
+            "entryId": "TK-4195",
+            "referenceOnly": true
+          }
+        ],
+        "trace": {
+          "retrievalCount": 1,
+          "aiAttempts": 1,
+          "aiSuccesses": 1,
+          "aiProvider": "deepseek",
+          "scoreMethod": "keyword-weighted-overlap",
+          "contextChars": 2669,
+          "sentKnowledgeIds": [
+            "KB-YTO-LF1504-005",
+            "KB2000-20261015-YTOLF1504-010",
+            "TK-4195"
+          ],
+          "timings": {
+            "retrievalMs": 14.781994000000054,
+            "decisionMs": 2.1057929999999487,
+            "externalAiMs": 0.3033990000000131,
+            "totalMs": 44.857267999999976
+          }
+        },
+        "answer": "东方红 LF1504：旋耕时水温过高，可能是什么原因。下面区分已有资料与通用分析，原因尚待检查验证。\n\n通用原理参考（非本机结论，尚需核对）：\n- 发动机机体金属与冷却液具有较大热容量，热响应时间常数通常为数分钟，能自然平抑秒级的高频负载波动（TK-4195，无手册页码）\n\nAI补充分析（推断，需核对）：\nLF1504旋耕时水温过高，通常表示散热能力暂时不能覆盖负荷。常见待核实方向包括散热器外部堵塞、冷却液不足或风扇传动异常。\n\n先安全停机冷却；只查看已有仪表记录和停机后可见的外部遮挡，不开热盖、不拆检。\n\n空载或轻负荷时是否也出现，是否已有报警原文？\n\n建议按以下顺序处理：\n1. 不要在热机或带压时打开冷却系统盖，也不要接近高温蒸汽；先按本机规程安全停机并交由合格人员处理。\n2. 先记录报警原文、异常发生工况和已经完成的检查结果；只描述已有观察，不必为补充信息再次试车或拆检。\n3. 安全停机并完全冷却后，只从外部观察散热器表面有无草屑遮挡、地面有无液体痕迹；不触碰风扇、不打开盖、不拆洗或加液。\n\n本次参考TK-4195（模型辅助编写和技术审校；本批经自动检查与Codex选项审阅；未逐条完成原厂手册对照或实车验证）通识（无手册页码），只能解释一般原理，不能作为本机参数或维修操作依据。"
+      }
+    },
+    {
+      "name": "zero_hits",
+      "before": {
+        "name": "zero_hits",
+        "testType": "real HTTP and archive / simulated provider transport",
+        "providerAdapterCalls": 1,
+        "rawProviderReturns": [
+          "LF1504旋耕时水温过高，通常表示散热能力暂时不能覆盖负荷。常见待核实方向包括散热器外部堵塞、冷却液不足或风扇传动异常。\n\n先安全停机冷却；只查看已有仪表记录和停机后可见的外部遮挡，不开热盖、不拆检。\n\n空载或轻负荷时是否也出现，是否已有报警原文？"
+        ],
+        "promptChecks": [
+          {
+            "hasModel": true,
+            "hasFollowup": false
+          }
+        ],
+        "provider": "knowledge-base",
+        "route": "local",
+        "reason": "output_rejected",
+        "removedIssues": [
+          "unsupported_fault_code"
+        ],
+        "sources": [],
+        "trace": {
+          "retrievalCount": 1,
+          "aiAttempts": 1,
+          "aiSuccesses": 1,
+          "aiProvider": "deepseek",
+          "scoreMethod": "keyword-weighted-overlap",
+          "contextChars": 0,
+          "sentKnowledgeIds": [],
+          "timings": {
+            "retrievalMs": 0.020751000000018394,
+            "decisionMs": 0.686623999999938,
+            "externalAiMs": 0.07908799999995608,
+            "totalMs": 4.1075429999998505
+          }
+        },
+        "answer": "你咨询的是东方红 LF1504。你描述的是“旋耕时水温过高，可能是什么原因？”。目前还不能只凭这一现象确定具体故障。\n\n建议按以下顺序处理：\n1. 不要在热机或带压时打开冷却系统盖，也不要接近高温蒸汽；先按本机规程安全停机并交由合格人员处理。\n2. 先记录报警原文、异常发生工况和已经完成的检查结果；只描述已有观察，不必为补充信息再次试车或拆检。\n\n本次检索没有找到支持这一问题的资料，这不代表没有该机型手册。请补充现场信息后再缩小检索范围。\n\n为了缩小范围，先确认：\n1. 水温异常是在冷车刚启动时，还是已经作业一段时间后出现？只说已经观察到的情况即可。"
+      },
+      "after": {
+        "name": "zero_hits",
+        "testType": "real HTTP and archive / simulated provider transport",
+        "providerAdapterCalls": 1,
+        "rawProviderReturns": [
+          "LF1504旋耕时水温过高，通常表示散热能力暂时不能覆盖负荷。常见待核实方向包括散热器外部堵塞、冷却液不足或风扇传动异常。\n\n先安全停机冷却；只查看已有仪表记录和停机后可见的外部遮挡，不开热盖、不拆检。\n\n空载或轻负荷时是否也出现，是否已有报警原文？"
+        ],
+        "promptChecks": [
+          {
+            "hasModel": true,
+            "hasFollowup": false
+          }
+        ],
+        "provider": "deepseek",
+        "route": "ai",
+        "reason": "insufficient_evidence",
+        "removedIssues": [],
+        "sources": [],
+        "trace": {
+          "retrievalCount": 1,
+          "aiAttempts": 1,
+          "aiSuccesses": 1,
+          "aiProvider": "deepseek",
+          "scoreMethod": "keyword-weighted-overlap",
+          "contextChars": 0,
+          "sentKnowledgeIds": [],
+          "timings": {
+            "retrievalMs": 0.05561099999999897,
+            "decisionMs": 0.8228859999999258,
+            "externalAiMs": 0.08104000000002998,
+            "totalMs": 4.467726999999968
+          }
+        },
+        "answer": "东方红 LF1504：旋耕时水温过高，可能是什么原因。下面区分已有资料与通用分析，原因尚待检查验证。\n\nAI补充分析（推断，需核对）：\nLF1504旋耕时水温过高，通常表示散热能力暂时不能覆盖负荷。常见待核实方向包括散热器外部堵塞、冷却液不足或风扇传动异常。\n\n先安全停机冷却；只查看已有仪表记录和停机后可见的外部遮挡，不开热盖、不拆检。\n\n空载或轻负荷时是否也出现，是否已有报警原文？\n\n建议按以下顺序处理：\n1. 不要在热机或带压时打开冷却系统盖，也不要接近高温蒸汽；先按本机规程安全停机并交由合格人员处理。\n2. 先记录报警原文、异常发生工况和已经完成的检查结果；只描述已有观察，不必为补充信息再次试车或拆检。\n3. 安全停机并完全冷却后，只从外部观察散热器表面有无草屑遮挡、地面有无液体痕迹；不触碰风扇、不打开盖、不拆洗或加液。\n\n本次检索没有找到支持这一问题的资料，这不代表没有该机型手册。请补充现场信息后再缩小检索范围。"
+      }
+    },
+    {
+      "name": "help_wording",
+      "before": {
+        "name": "help_wording",
+        "testType": "real HTTP and archive / simulated provider transport",
+        "providerAdapterCalls": 0,
+        "rawProviderReturns": [],
+        "promptChecks": [],
+        "provider": "knowledge-base",
+        "route": "safe",
+        "reason": "unknown_operation_risk",
+        "removedIssues": [],
+        "sources": [
+          {
+            "entryId": "KB-YTO-LF1504-005",
+            "sourceId": "SRC-YTO-LF1504-SMLF150449010",
+            "referenceOnly": true
+          },
+          {
+            "entryId": "KB2000-20261015-YTOLF1504-010",
+            "sourceId": "SRC-YTO-LF1504-SMLF150449010",
+            "referenceOnly": true
+          },
+          {
+            "entryId": "TK-4195",
+            "referenceOnly": true
+          }
+        ],
+        "trace": {
+          "retrievalCount": 1,
+          "aiAttempts": 0,
+          "aiSuccesses": 0,
+          "aiProvider": null,
+          "scoreMethod": "keyword-weighted-overlap",
+          "contextChars": 0,
+          "sentKnowledgeIds": [],
+          "timings": {
+            "retrievalMs": 8.755914000000075,
+            "decisionMs": 0.6455459999999675,
+            "externalAiMs": 0,
+            "totalMs": 11.58473099999992
+          }
+        },
+        "answer": "高温或冷却异常需要先排除烫伤与继续运行的风险。先停止危险作业，按本机安全规程安全停机；现在不安排试车、拆检或调压。\n\n建议按以下顺序处理：\n1. 不要在热机或带压时打开冷却系统盖，也不要接近高温蒸汽；先按本机规程安全停机并交由合格人员处理。\n2. 保持与运动、高温和带压部件的安全距离，不要绕过安全联锁；请具备相应资质的维修人员现场核对。\n\n本次参考TK-4195（模型辅助编写和技术审校；本批经自动检查与Codex选项审阅；未逐条完成原厂手册对照或实车验证）通识（无手册页码），只能解释一般原理，不能作为本机参数或维修操作依据。\n\n为了缩小范围，先确认：\n1. 水温异常是在冷车刚启动时，还是已经作业一段时间后出现？只说已经观察到的情况即可。"
+      },
+      "after": {
+        "name": "help_wording",
+        "testType": "real HTTP and archive / simulated provider transport",
+        "providerAdapterCalls": 1,
+        "rawProviderReturns": [
+          "LF1504旋耕时水温过高，通常表示散热能力暂时不能覆盖负荷。常见待核实方向包括散热器外部堵塞、冷却液不足或风扇传动异常。\n\n先安全停机冷却；只查看已有仪表记录和停机后可见的外部遮挡，不开热盖、不拆检。\n\n空载或轻负荷时是否也出现，是否已有报警原文？"
+        ],
+        "promptChecks": [
+          {
+            "hasModel": true,
+            "hasFollowup": false
+          }
+        ],
+        "provider": "deepseek",
+        "route": "ai",
+        "reason": "synthesis_requested",
+        "removedIssues": [],
+        "sources": [
+          {
+            "entryId": "KB-YTO-LF1504-005",
+            "sourceId": "SRC-YTO-LF1504-SMLF150449010",
+            "referenceOnly": true
+          },
+          {
+            "entryId": "KB2000-20261015-YTOLF1504-010",
+            "sourceId": "SRC-YTO-LF1504-SMLF150449010",
+            "referenceOnly": true
+          },
+          {
+            "entryId": "TK-4195",
+            "referenceOnly": true
+          }
+        ],
+        "trace": {
+          "retrievalCount": 1,
+          "aiAttempts": 1,
+          "aiSuccesses": 1,
+          "aiProvider": "deepseek",
+          "scoreMethod": "keyword-weighted-overlap",
+          "contextChars": 2669,
+          "sentKnowledgeIds": [
+            "KB-YTO-LF1504-005",
+            "KB2000-20261015-YTOLF1504-010",
+            "TK-4195"
+          ],
+          "timings": {
+            "retrievalMs": 12.145325999999955,
+            "decisionMs": 1.0348040000000083,
+            "externalAiMs": 0.1351160000000391,
+            "totalMs": 16.611043999999993
+          }
+        },
+        "answer": "东方红 LF1504：水温过高怎么办。下面区分已有资料与通用分析，原因尚待检查验证。\n\n通用原理参考（非本机结论，尚需核对）：\n- 发动机机体金属与冷却液具有较大热容量，热响应时间常数通常为数分钟，能自然平抑秒级的高频负载波动（TK-4195，无手册页码）\n\nAI补充分析（推断，需核对）：\nLF1504旋耕时水温过高，通常表示散热能力暂时不能覆盖负荷。常见待核实方向包括散热器外部堵塞、冷却液不足或风扇传动异常。\n\n先安全停机冷却；只查看已有仪表记录和停机后可见的外部遮挡，不开热盖、不拆检。\n\n空载或轻负荷时是否也出现，是否已有报警原文？\n\n建议按以下顺序处理：\n1. 不要在热机或带压时打开冷却系统盖，也不要接近高温蒸汽；先按本机规程安全停机并交由合格人员处理。\n2. 先记录报警原文、异常发生工况和已经完成的检查结果；只描述已有观察，不必为补充信息再次试车或拆检。\n3. 安全停机并完全冷却后，只从外部观察散热器表面有无草屑遮挡、地面有无液体痕迹；不触碰风扇、不打开盖、不拆洗或加液。\n\n本次参考TK-4195（模型辅助编写和技术审校；本批经自动检查与Codex选项审阅；未逐条完成原厂手册对照或实车验证）通识（无手册页码），只能解释一般原理，不能作为本机参数或维修操作依据。"
+      }
+    },
+    {
+      "name": "unconfigured",
+      "before": {
+        "name": "unconfigured",
+        "testType": "real HTTP and archive / simulated provider transport",
+        "providerAdapterCalls": 0,
+        "rawProviderReturns": [],
+        "promptChecks": [],
+        "provider": "knowledge-base",
+        "route": "local",
+        "reason": "llm_not_configured",
+        "removedIssues": [],
+        "sources": [
+          {
+            "entryId": "KB-YTO-LF1504-005",
+            "sourceId": "SRC-YTO-LF1504-SMLF150449010",
+            "referenceOnly": true
+          },
+          {
+            "entryId": "KB2000-20261015-YTOLF1504-010",
+            "sourceId": "SRC-YTO-LF1504-SMLF150449010",
+            "referenceOnly": true
+          },
+          {
+            "entryId": "TK-4195",
+            "referenceOnly": true
+          }
+        ],
+        "trace": {
+          "retrievalCount": 1,
+          "aiAttempts": 0,
+          "aiSuccesses": 0,
+          "aiProvider": null,
+          "scoreMethod": "keyword-weighted-overlap",
+          "contextChars": 0,
+          "sentKnowledgeIds": [],
+          "timings": {
+            "retrievalMs": 0.07867800000008174,
+            "decisionMs": 0.6138389999998708,
+            "externalAiMs": 0,
+            "totalMs": 2.925134000000071
+          }
+        },
+        "answer": "你咨询的是东方红 LF1504。你描述的是“旋耕时水温过高，可能是什么原因？”。目前还不能只凭这一现象确定具体故障。\n\n通用原理参考（非本机结论，尚需核对）：\n- 发动机机体金属与冷却液具有较大热容量，热响应时间常数通常为数分钟，能自然平抑秒级的高频负载波动（TK-4195，无手册页码）\n\n建议按以下顺序处理：\n1. 不要在热机或带压时打开冷却系统盖，也不要接近高温蒸汽；先按本机规程安全停机并交由合格人员处理。\n2. 先记录报警原文、异常发生工况和已经完成的检查结果；只描述已有观察，不必为补充信息再次试车或拆检。\n\n本次参考TK-4195（模型辅助编写和技术审校；本批经自动检查与Codex选项审阅；未逐条完成原厂手册对照或实车验证）通识（无手册页码），只能解释一般原理，不能作为本机参数或维修操作依据。\n\n为了缩小范围，先确认：\n1. 水温异常是在冷车刚启动时，还是已经作业一段时间后出现？只说已经观察到的情况即可。"
+      },
+      "after": {
+        "name": "unconfigured",
+        "testType": "real HTTP and archive / simulated provider transport",
+        "providerAdapterCalls": 0,
+        "rawProviderReturns": [],
+        "promptChecks": [],
+        "provider": "knowledge-base",
+        "route": "local",
+        "reason": "llm_not_configured",
+        "removedIssues": [],
+        "sources": [
+          {
+            "entryId": "KB-YTO-LF1504-005",
+            "sourceId": "SRC-YTO-LF1504-SMLF150449010",
+            "referenceOnly": true
+          },
+          {
+            "entryId": "KB2000-20261015-YTOLF1504-010",
+            "sourceId": "SRC-YTO-LF1504-SMLF150449010",
+            "referenceOnly": true
+          },
+          {
+            "entryId": "TK-4195",
+            "referenceOnly": true
+          }
+        ],
+        "trace": {
+          "retrievalCount": 1,
+          "aiAttempts": 0,
+          "aiSuccesses": 0,
+          "aiProvider": null,
+          "scoreMethod": "keyword-weighted-overlap",
+          "contextChars": 0,
+          "sentKnowledgeIds": [],
+          "timings": {
+            "retrievalMs": 0.1194749999999658,
+            "decisionMs": 0.8673440000000028,
+            "externalAiMs": 0,
+            "totalMs": 4.797780999999986
+          }
+        },
+        "answer": "你咨询的是东方红 LF1504。你描述的是“旋耕时水温过高，可能是什么原因？”。目前还不能只凭这一现象确定具体故障。当前服务端未配置外部 AI 密钥，本次没有调用外部模型。\n\n通用原理参考（非本机结论，尚需核对）：\n- 发动机机体金属与冷却液具有较大热容量，热响应时间常数通常为数分钟，能自然平抑秒级的高频负载波动（TK-4195，无手册页码）\n\n建议按以下顺序处理：\n1. 不要在热机或带压时打开冷却系统盖，也不要接近高温蒸汽；先按本机规程安全停机并交由合格人员处理。\n2. 先记录报警原文、异常发生工况和已经完成的检查结果；只描述已有观察，不必为补充信息再次试车或拆检。\n3. 安全停机并完全冷却后，只从外部观察散热器表面有无草屑遮挡、地面有无液体痕迹；不触碰风扇、不打开盖、不拆洗或加液。\n\n本次参考TK-4195（模型辅助编写和技术审校；本批经自动检查与Codex选项审阅；未逐条完成原厂手册对照或实车验证）通识（无手册页码），只能解释一般原理，不能作为本机参数或维修操作依据。\n\n为了缩小范围，先确认：\n1. 是否已有空载或轻负荷时的水温表现记录，以及报警原文？只补充已有观察，不要为此试车或开盖。"
+      }
+    },
+    {
+      "name": "timeout",
+      "before": {
+        "name": "timeout",
+        "testType": "real HTTP and archive / simulated provider transport",
+        "providerAdapterCalls": 1,
+        "rawProviderReturns": [],
+        "promptChecks": [
+          {
+            "hasModel": true,
+            "hasFollowup": false
+          }
+        ],
+        "provider": "knowledge-base",
+        "route": "local",
+        "reason": "provider_unavailable",
+        "removedIssues": [],
+        "sources": [
+          {
+            "entryId": "KB-YTO-LF1504-005",
+            "sourceId": "SRC-YTO-LF1504-SMLF150449010",
+            "referenceOnly": true
+          },
+          {
+            "entryId": "KB2000-20261015-YTOLF1504-010",
+            "sourceId": "SRC-YTO-LF1504-SMLF150449010",
+            "referenceOnly": true
+          },
+          {
+            "entryId": "TK-4195",
+            "referenceOnly": true
+          }
+        ],
+        "trace": {
+          "retrievalCount": 1,
+          "aiAttempts": 1,
+          "aiSuccesses": 0,
+          "aiProvider": null,
+          "scoreMethod": "keyword-weighted-overlap",
+          "contextChars": 2669,
+          "sentKnowledgeIds": [
+            "KB-YTO-LF1504-005",
+            "KB2000-20261015-YTOLF1504-010",
+            "TK-4195"
+          ],
+          "timings": {
+            "retrievalMs": 0.03980999999998858,
+            "decisionMs": 0.5389529999999922,
+            "externalAiMs": 0.16620299999999588,
+            "totalMs": 3.63370000000009
+          }
+        },
+        "answer": "你咨询的是东方红 LF1504。你描述的是“旋耕时水温过高，可能是什么原因？”。目前还不能只凭这一现象确定具体故障。\n\n通用原理参考（非本机结论，尚需核对）：\n- 发动机机体金属与冷却液具有较大热容量，热响应时间常数通常为数分钟，能自然平抑秒级的高频负载波动（TK-4195，无手册页码）\n\n建议按以下顺序处理：\n1. 不要在热机或带压时打开冷却系统盖，也不要接近高温蒸汽；先按本机规程安全停机并交由合格人员处理。\n2. 先记录报警原文、异常发生工况和已经完成的检查结果；只描述已有观察，不必为补充信息再次试车或拆检。\n\n本次参考TK-4195（模型辅助编写和技术审校；本批经自动检查与Codex选项审阅；未逐条完成原厂手册对照或实车验证）通识（无手册页码），只能解释一般原理，不能作为本机参数或维修操作依据。\n\n为了缩小范围，先确认：\n1. 水温异常是在冷车刚启动时，还是已经作业一段时间后出现？只说已经观察到的情况即可。"
+      },
+      "after": {
+        "name": "timeout",
+        "testType": "real HTTP and archive / simulated provider transport",
+        "providerAdapterCalls": 1,
+        "rawProviderReturns": [],
+        "promptChecks": [
+          {
+            "hasModel": true,
+            "hasFollowup": false
+          }
+        ],
+        "provider": "knowledge-base",
+        "route": "local",
+        "reason": "provider_unavailable",
+        "removedIssues": [],
+        "sources": [
+          {
+            "entryId": "KB-YTO-LF1504-005",
+            "sourceId": "SRC-YTO-LF1504-SMLF150449010",
+            "referenceOnly": true
+          },
+          {
+            "entryId": "KB2000-20261015-YTOLF1504-010",
+            "sourceId": "SRC-YTO-LF1504-SMLF150449010",
+            "referenceOnly": true
+          },
+          {
+            "entryId": "TK-4195",
+            "referenceOnly": true
+          }
+        ],
+        "trace": {
+          "retrievalCount": 1,
+          "aiAttempts": 1,
+          "aiSuccesses": 0,
+          "aiProvider": null,
+          "scoreMethod": "keyword-weighted-overlap",
+          "contextChars": 2669,
+          "sentKnowledgeIds": [
+            "KB-YTO-LF1504-005",
+            "KB2000-20261015-YTOLF1504-010",
+            "TK-4195"
+          ],
+          "timings": {
+            "retrievalMs": 0.05222599999990507,
+            "decisionMs": 1.050848999999971,
+            "externalAiMs": 0.2185780000000932,
+            "totalMs": 6.2554589999999735
+          }
+        },
+        "answer": "你咨询的是东方红 LF1504。你描述的是“旋耕时水温过高，可能是什么原因？”。目前还不能只凭这一现象确定具体故障。已尝试外部 AI，但请求超时；本次先提供本地安全观察建议。\n\n通用原理参考（非本机结论，尚需核对）：\n- 发动机机体金属与冷却液具有较大热容量，热响应时间常数通常为数分钟，能自然平抑秒级的高频负载波动（TK-4195，无手册页码）\n\n建议按以下顺序处理：\n1. 不要在热机或带压时打开冷却系统盖，也不要接近高温蒸汽；先按本机规程安全停机并交由合格人员处理。\n2. 先记录报警原文、异常发生工况和已经完成的检查结果；只描述已有观察，不必为补充信息再次试车或拆检。\n3. 安全停机并完全冷却后，只从外部观察散热器表面有无草屑遮挡、地面有无液体痕迹；不触碰风扇、不打开盖、不拆洗或加液。\n\n本次参考TK-4195（模型辅助编写和技术审校；本批经自动检查与Codex选项审阅；未逐条完成原厂手册对照或实车验证）通识（无手册页码），只能解释一般原理，不能作为本机参数或维修操作依据。\n\n为了缩小范围，先确认：\n1. 是否已有空载或轻负荷时的水温表现记录，以及报警原文？只补充已有观察，不要为此试车或开盖。"
+      }
+    },
+    {
+      "name": "partial",
+      "before": {
+        "name": "partial",
+        "testType": "real HTTP and archive / simulated provider transport",
+        "providerAdapterCalls": 1,
+        "rawProviderReturns": [
+          "旋耕时水温升高可能涉及散热器外部遮挡、负荷增加或冷却液不足，仍需核实。\n\n本机压力标准为9MPa。\n\n短接安全联锁继续试车。"
+        ],
+        "promptChecks": [
+          {
+            "hasModel": true,
+            "hasFollowup": false
+          }
+        ],
+        "provider": "knowledge-base",
+        "route": "local",
+        "reason": "output_rejected",
+        "removedIssues": [
+          "unsafe_action",
+          "unsupported_parameter"
+        ],
+        "sources": [
+          {
+            "entryId": "KB-YTO-LF1504-005",
+            "sourceId": "SRC-YTO-LF1504-SMLF150449010",
+            "referenceOnly": true
+          },
+          {
+            "entryId": "KB2000-20261015-YTOLF1504-010",
+            "sourceId": "SRC-YTO-LF1504-SMLF150449010",
+            "referenceOnly": true
+          },
+          {
+            "entryId": "TK-4195",
+            "referenceOnly": true
+          }
+        ],
+        "trace": {
+          "retrievalCount": 1,
+          "aiAttempts": 1,
+          "aiSuccesses": 1,
+          "aiProvider": "deepseek",
+          "scoreMethod": "keyword-weighted-overlap",
+          "contextChars": 2669,
+          "sentKnowledgeIds": [
+            "KB-YTO-LF1504-005",
+            "KB2000-20261015-YTOLF1504-010",
+            "TK-4195"
+          ],
+          "timings": {
+            "retrievalMs": 0.04086400000005597,
+            "decisionMs": 0.47512800000004063,
+            "externalAiMs": 0.11345500000015818,
+            "totalMs": 4.224502999999913
+          }
+        },
+        "answer": "你咨询的是东方红 LF1504。你描述的是“旋耕时水温过高，可能是什么原因？”。目前还不能只凭这一现象确定具体故障。\n\n通用原理参考（非本机结论，尚需核对）：\n- 发动机机体金属与冷却液具有较大热容量，热响应时间常数通常为数分钟，能自然平抑秒级的高频负载波动（TK-4195，无手册页码）\n\n建议按以下顺序处理：\n1. 不要在热机或带压时打开冷却系统盖，也不要接近高温蒸汽；先按本机规程安全停机并交由合格人员处理。\n2. 先记录报警原文、异常发生工况和已经完成的检查结果；只描述已有观察，不必为补充信息再次试车或拆检。\n\n本次参考TK-4195（模型辅助编写和技术审校；本批经自动检查与Codex选项审阅；未逐条完成原厂手册对照或实车验证）通识（无手册页码），只能解释一般原理，不能作为本机参数或维修操作依据。\n\n为了缩小范围，先确认：\n1. 水温异常是在冷车刚启动时，还是已经作业一段时间后出现？只说已经观察到的情况即可。"
+      },
+      "after": {
+        "name": "partial",
+        "testType": "real HTTP and archive / simulated provider transport",
+        "providerAdapterCalls": 1,
+        "rawProviderReturns": [
+          "旋耕时水温升高可能涉及散热器外部遮挡、负荷增加或冷却液不足，仍需核实。\n\n本机压力标准为9MPa。\n\n短接安全联锁继续试车。"
+        ],
+        "promptChecks": [
+          {
+            "hasModel": true,
+            "hasFollowup": false
+          }
+        ],
+        "provider": "deepseek",
+        "route": "ai",
+        "reason": "synthesis_requested",
+        "removedIssues": [
+          "unsafe_action",
+          "unsupported_parameter"
+        ],
+        "sources": [
+          {
+            "entryId": "KB-YTO-LF1504-005",
+            "sourceId": "SRC-YTO-LF1504-SMLF150449010",
+            "referenceOnly": true
+          },
+          {
+            "entryId": "KB2000-20261015-YTOLF1504-010",
+            "sourceId": "SRC-YTO-LF1504-SMLF150449010",
+            "referenceOnly": true
+          },
+          {
+            "entryId": "TK-4195",
+            "referenceOnly": true
+          }
+        ],
+        "trace": {
+          "retrievalCount": 1,
+          "aiAttempts": 1,
+          "aiSuccesses": 1,
+          "aiProvider": "deepseek",
+          "scoreMethod": "keyword-weighted-overlap",
+          "contextChars": 2669,
+          "sentKnowledgeIds": [
+            "KB-YTO-LF1504-005",
+            "KB2000-20261015-YTOLF1504-010",
+            "TK-4195"
+          ],
+          "timings": {
+            "retrievalMs": 0.05150700000001507,
+            "decisionMs": 0.8003620000000637,
+            "externalAiMs": 0.12224400000002333,
+            "totalMs": 7.646843999999987
+          }
+        },
+        "answer": "东方红 LF1504：旋耕时水温过高，可能是什么原因。下面区分已有资料与通用分析，原因尚待检查验证。\n\n通用原理参考（非本机结论，尚需核对）：\n- 发动机机体金属与冷却液具有较大热容量，热响应时间常数通常为数分钟，能自然平抑秒级的高频负载波动（TK-4195，无手册页码）\n\nAI补充分析（推断，需核对）：\n已移除未通过来源或安全检查的段落，以下保留通用分析：\n\n旋耕时水温升高可能涉及散热器外部遮挡、负荷增加或冷却液不足，仍需核实。\n\n建议按以下顺序处理：\n1. 不要在热机或带压时打开冷却系统盖，也不要接近高温蒸汽；先按本机规程安全停机并交由合格人员处理。\n2. 先记录报警原文、异常发生工况和已经完成的检查结果；只描述已有观察，不必为补充信息再次试车或拆检。\n3. 安全停机并完全冷却后，只从外部观察散热器表面有无草屑遮挡、地面有无液体痕迹；不触碰风扇、不打开盖、不拆洗或加液。\n\n本次参考TK-4195（模型辅助编写和技术审校；本批经自动检查与Codex选项审阅；未逐条完成原厂手册对照或实车验证）通识（无手册页码），只能解释一般原理，不能作为本机参数或维修操作依据。\n\n为了缩小范围，先确认：\n1. 是否已有空载或轻负荷时的水温表现记录，以及报警原文？只补充已有观察，不要为此试车或开盖。"
+      }
+    },
+    {
+      "name": "followup",
+      "before": {
+        "name": "followup",
+        "testType": "real HTTP and archive / simulated provider transport",
+        "providerAdapterCalls": 1,
+        "rawProviderReturns": [
+          "冷车正常而持续旋耕后升温，结合已报告的外部草屑，散热受阻与负荷因素值得优先核实，但不能据此确定水泵故障。停机冷却后只作已有外部观察，不拆洗或试车。是否已有报警原文？"
+        ],
+        "promptChecks": [
+          {
+            "hasModel": true,
+            "hasFollowup": true
+          }
+        ],
+        "provider": "deepseek",
+        "route": "ai",
+        "reason": "synthesis_requested",
+        "removedIssues": [],
+        "sources": [
+          {
+            "entryId": "KB-YTO-LF1504-005",
+            "sourceId": "SRC-YTO-LF1504-SMLF150449010",
+            "referenceOnly": true
+          },
+          {
+            "entryId": "KB2000-20261015-YTOLF1504-021",
+            "sourceId": "SRC-YTO-LF1504-SMLF150449010",
+            "referenceOnly": true
+          },
+          {
+            "entryId": "TK-2239",
+            "referenceOnly": true
+          }
+        ],
+        "trace": {
+          "retrievalCount": 1,
+          "aiAttempts": 1,
+          "aiSuccesses": 1,
+          "aiProvider": "deepseek",
+          "scoreMethod": "keyword-weighted-overlap",
+          "contextChars": 2658,
+          "sentKnowledgeIds": [
+            "KB-YTO-LF1504-005",
+            "KB2000-20261015-YTOLF1504-021",
+            "TK-2239"
+          ],
+          "timings": {
+            "retrievalMs": 6.73145199999999,
+            "decisionMs": 0.6585660000000644,
+            "externalAiMs": 0.0826799999999821,
+            "totalMs": 12.050265999999965
+          }
+        },
+        "answer": "你咨询的是东方红 LF1504。你描述的是“旋耕时水温过高，可能是什么原因？ 冷车正常，旋耕十几分钟后升温；散热器外面有草屑，没看见漏液。”。目前还不能只凭这一现象确定具体故障。\n\n通用原理参考（非本机结论，尚需核对）：\n- 判断节温器是否失效需综合暖机速率、散热器进出口温差、大小循环流量表现和拆检结果（TK-2239，无手册页码）\n\n建议按以下顺序处理：\n1. 不要在热机或带压时打开冷却系统盖，也不要接近高温蒸汽；先按本机规程安全停机并交由合格人员处理。\n2. 先记录报警原文、异常发生工况和已经完成的检查结果；只描述已有观察，不必为补充信息再次试车或拆检。\n\n本次参考TK-2239（模型辅助编写和技术审校；本批经自动检查与Codex选项审阅；未逐条完成原厂手册对照或实车验证）通识（无手册页码），只能解释一般原理，不能作为本机参数或维修操作依据。\n\nAI补充分析（推断，需核对）：\n冷车正常而持续旋耕后升温，结合已报告的外部草屑，散热受阻与负荷因素值得优先核实，但不能据此确定水泵故障。停机冷却后只作已有外部观察，不拆洗或试车。是否已有报警原文？\n\n为了缩小范围，先确认：\n1. 同时有没有看到报警原文、蒸汽或外部液体痕迹？不必为回答再启动或开盖。"
+      },
+      "after": {
+        "name": "followup",
+        "testType": "real HTTP and archive / simulated provider transport",
+        "providerAdapterCalls": 1,
+        "rawProviderReturns": [
+          "冷车正常而持续旋耕后升温，结合已报告的外部草屑，散热受阻与负荷因素值得优先核实，但不能据此确定水泵故障。停机冷却后只作已有外部观察，不拆洗或试车。是否已有报警原文？"
+        ],
+        "promptChecks": [
+          {
+            "hasModel": true,
+            "hasFollowup": true
+          }
+        ],
+        "provider": "deepseek",
+        "route": "ai",
+        "reason": "synthesis_requested",
+        "removedIssues": [],
+        "sources": [
+          {
+            "entryId": "KB-YTO-LF1504-005",
+            "sourceId": "SRC-YTO-LF1504-SMLF150449010",
+            "referenceOnly": true
+          },
+          {
+            "entryId": "KB2000-20261015-YTOLF1504-021",
+            "sourceId": "SRC-YTO-LF1504-SMLF150449010",
+            "referenceOnly": true
+          },
+          {
+            "entryId": "TK-2239",
+            "referenceOnly": true
+          }
+        ],
+        "trace": {
+          "retrievalCount": 1,
+          "aiAttempts": 1,
+          "aiSuccesses": 1,
+          "aiProvider": "deepseek",
+          "scoreMethod": "keyword-weighted-overlap",
+          "contextChars": 2658,
+          "sentKnowledgeIds": [
+            "KB-YTO-LF1504-005",
+            "KB2000-20261015-YTOLF1504-021",
+            "TK-2239"
+          ],
+          "timings": {
+            "retrievalMs": 7.815445999999952,
+            "decisionMs": 0.6290010000000166,
+            "externalAiMs": 0.08583299999997962,
+            "totalMs": 15.021191999999928
+          }
+        },
+        "answer": "东方红 LF1504：旋耕时水温过高，可能是什么原因？ 冷车正常，旋耕十几分钟后升温；散热器外面有草屑，没看见漏液。下面区分已有资料与通用分析，原因尚待检查验证。\n\n通用原理参考（非本机结论，尚需核对）：\n- 判断节温器是否失效需综合暖机速率、散热器进出口温差、大小循环流量表现和拆检结果（TK-2239，无手册页码）\n\nAI补充分析（推断，需核对）：\n冷车正常而持续旋耕后升温，结合已报告的外部草屑，散热受阻与负荷因素值得优先核实，但不能据此确定水泵故障。停机冷却后只作已有外部观察，不拆洗或试车。是否已有报警原文？\n\n建议按以下顺序处理：\n1. 不要在热机或带压时打开冷却系统盖，也不要接近高温蒸汽；先按本机规程安全停机并交由合格人员处理。\n2. 先记录报警原文、异常发生工况和已经完成的检查结果；只描述已有观察，不必为补充信息再次试车或拆检。\n3. 安全停机并完全冷却后，只从外部观察散热器表面有无草屑遮挡、地面有无液体痕迹；不触碰风扇、不打开盖、不拆洗或加液。\n\n本次参考TK-2239（模型辅助编写和技术审校；本批经自动检查与Codex选项审阅；未逐条完成原厂手册对照或实车验证）通识（无手册页码），只能解释一般原理，不能作为本机参数或维修操作依据。"
+      }
+    },
+    {
+      "name": "knowledge_only",
+      "before": {
+        "name": "knowledge_only",
+        "testType": "real HTTP and archive / simulated provider transport",
+        "providerAdapterCalls": 0,
+        "rawProviderReturns": [],
+        "promptChecks": [],
+        "provider": "knowledge-base",
+        "route": "local",
+        "reason": "local_requested",
+        "removedIssues": [],
+        "sources": [
+          {
+            "entryId": "KB-YTO-LF1504-005",
+            "sourceId": "SRC-YTO-LF1504-SMLF150449010",
+            "referenceOnly": true
+          },
+          {
+            "entryId": "KB2000-20261015-YTOLF1504-010",
+            "sourceId": "SRC-YTO-LF1504-SMLF150449010",
+            "referenceOnly": true
+          },
+          {
+            "entryId": "TK-4195",
+            "referenceOnly": true
+          }
+        ],
+        "trace": {
+          "retrievalCount": 1,
+          "aiAttempts": 0,
+          "aiSuccesses": 0,
+          "aiProvider": null,
+          "scoreMethod": "keyword-weighted-overlap",
+          "contextChars": 0,
+          "sentKnowledgeIds": [],
+          "timings": {
+            "retrievalMs": 0.03679400000009991,
+            "decisionMs": 0.5063649999999598,
+            "externalAiMs": 0,
+            "totalMs": 2.621644999999944
+          }
+        },
+        "answer": "你咨询的是东方红 LF1504。你描述的是“旋耕时水温过高，可能是什么原因？”。目前还不能只凭这一现象确定具体故障。\n\n通用原理参考（非本机结论，尚需核对）：\n- 发动机机体金属与冷却液具有较大热容量，热响应时间常数通常为数分钟，能自然平抑秒级的高频负载波动（TK-4195，无手册页码）\n\n建议按以下顺序处理：\n1. 不要在热机或带压时打开冷却系统盖，也不要接近高温蒸汽；先按本机规程安全停机并交由合格人员处理。\n2. 先记录报警原文、异常发生工况和已经完成的检查结果；只描述已有观察，不必为补充信息再次试车或拆检。\n\n本次参考TK-4195（模型辅助编写和技术审校；本批经自动检查与Codex选项审阅；未逐条完成原厂手册对照或实车验证）通识（无手册页码），只能解释一般原理，不能作为本机参数或维修操作依据。\n\n为了缩小范围，先确认：\n1. 水温异常是在冷车刚启动时，还是已经作业一段时间后出现？只说已经观察到的情况即可。"
+      },
+      "after": {
+        "name": "knowledge_only",
+        "testType": "real HTTP and archive / simulated provider transport",
+        "providerAdapterCalls": 0,
+        "rawProviderReturns": [],
+        "promptChecks": [],
+        "provider": "knowledge-base",
+        "route": "local",
+        "reason": "local_requested",
+        "removedIssues": [],
+        "sources": [
+          {
+            "entryId": "KB-YTO-LF1504-005",
+            "sourceId": "SRC-YTO-LF1504-SMLF150449010",
+            "referenceOnly": true
+          },
+          {
+            "entryId": "KB2000-20261015-YTOLF1504-010",
+            "sourceId": "SRC-YTO-LF1504-SMLF150449010",
+            "referenceOnly": true
+          },
+          {
+            "entryId": "TK-4195",
+            "referenceOnly": true
+          }
+        ],
+        "trace": {
+          "retrievalCount": 1,
+          "aiAttempts": 0,
+          "aiSuccesses": 0,
+          "aiProvider": null,
+          "scoreMethod": "keyword-weighted-overlap",
+          "contextChars": 0,
+          "sentKnowledgeIds": [],
+          "timings": {
+            "retrievalMs": 0.04026499999997668,
+            "decisionMs": 0.4761320000000069,
+            "externalAiMs": 0,
+            "totalMs": 3.231425999999942
+          }
+        },
+        "answer": "你咨询的是东方红 LF1504。你描述的是“旋耕时水温过高，可能是什么原因？”。目前还不能只凭这一现象确定具体故障。\n\n通用原理参考（非本机结论，尚需核对）：\n- 发动机机体金属与冷却液具有较大热容量，热响应时间常数通常为数分钟，能自然平抑秒级的高频负载波动（TK-4195，无手册页码）\n\n建议按以下顺序处理：\n1. 不要在热机或带压时打开冷却系统盖，也不要接近高温蒸汽；先按本机规程安全停机并交由合格人员处理。\n2. 先记录报警原文、异常发生工况和已经完成的检查结果；只描述已有观察，不必为补充信息再次试车或拆检。\n3. 安全停机并完全冷却后，只从外部观察散热器表面有无草屑遮挡、地面有无液体痕迹；不触碰风扇、不打开盖、不拆洗或加液。\n\n本次参考TK-4195（模型辅助编写和技术审校；本批经自动检查与Codex选项审阅；未逐条完成原厂手册对照或实车验证）通识（无手册页码），只能解释一般原理，不能作为本机参数或维修操作依据。\n\n为了缩小范围，先确认：\n1. 是否已有空载或轻负荷时的水温表现记录，以及报警原文？只补充已有观察，不要为此试车或开盖。"
+      }
+    },
+    {
+      "name": "dangerous",
+      "before": {
+        "name": "dangerous",
+        "testType": "real HTTP and archive / simulated provider transport",
+        "providerAdapterCalls": 0,
+        "rawProviderReturns": [],
+        "promptChecks": [],
+        "provider": "knowledge-base",
+        "route": "safe",
+        "reason": "high_risk_insufficient_evidence",
+        "removedIssues": [],
+        "sources": [
+          {
+            "entryId": "KB2000-20261015-YTOLF1504-011",
+            "sourceId": "SRC-YTO-LF1504-SMLF150449010",
+            "referenceOnly": false
+          },
+          {
+            "entryId": "KB2000-20261015-YTOLF1504-020",
+            "sourceId": "SRC-YTO-LF1504-SMLF150449010",
+            "referenceOnly": false
+          },
+          {
+            "entryId": "KB2000-20261015-YTOLF1504-064",
+            "sourceId": "SRC-YTO-LF1504-SMLF150449010",
+            "referenceOnly": false
+          },
+          {
+            "entryId": "KB2000-20261015-YTOLF1504-067",
+            "sourceId": "SRC-YTO-LF1504-SMLF150449010",
+            "referenceOnly": false
+          },
+          {
+            "entryId": "TK-1707",
+            "referenceOnly": true
+          }
+        ],
+        "trace": {
+          "retrievalCount": 1,
+          "aiAttempts": 0,
+          "aiSuccesses": 0,
+          "aiProvider": null,
+          "scoreMethod": "keyword-weighted-overlap",
+          "contextChars": 0,
+          "sentKnowledgeIds": [],
+          "timings": {
+            "retrievalMs": 40.04563999999982,
+            "decisionMs": 0.7658340000002681,
+            "externalAiMs": 0,
+            "totalMs": 43.1820630000002
+          }
+        },
+        "answer": "当前情况还涉及未排除的操作风险。先停止危险作业，按本机安全规程安全停机；现在不安排试车、拆检或调压。\n\n建议按以下顺序处理：\n1. 保持与运动、高温和带压部件的安全距离，不要绕过安全联锁；请具备相应资质的维修人员现场核对。\n\n本次参考TK-1707（模型辅助编写和技术审校；本批经自动检查与Codex选项审阅；未逐条完成原厂手册对照或实车验证）通识（无手册页码），只能解释一般原理，不能作为本机参数或维修操作依据。\n\n为了缩小范围，先确认：\n1. 异常是在什么工况下出现的，同时还有哪些已经观察到的现象？无需新增试车或拆检。"
+      },
+      "after": {
+        "name": "dangerous",
+        "testType": "real HTTP and archive / simulated provider transport",
+        "providerAdapterCalls": 0,
+        "rawProviderReturns": [],
+        "promptChecks": [],
+        "provider": "knowledge-base",
+        "route": "safe",
+        "reason": "high_risk_insufficient_evidence",
+        "removedIssues": [],
+        "sources": [
+          {
+            "entryId": "KB2000-20261015-YTOLF1504-011",
+            "sourceId": "SRC-YTO-LF1504-SMLF150449010",
+            "referenceOnly": false
+          },
+          {
+            "entryId": "KB2000-20261015-YTOLF1504-020",
+            "sourceId": "SRC-YTO-LF1504-SMLF150449010",
+            "referenceOnly": false
+          },
+          {
+            "entryId": "KB2000-20261015-YTOLF1504-064",
+            "sourceId": "SRC-YTO-LF1504-SMLF150449010",
+            "referenceOnly": false
+          },
+          {
+            "entryId": "KB2000-20261015-YTOLF1504-067",
+            "sourceId": "SRC-YTO-LF1504-SMLF150449010",
+            "referenceOnly": false
+          },
+          {
+            "entryId": "TK-1707",
+            "referenceOnly": true
+          }
+        ],
+        "trace": {
+          "retrievalCount": 1,
+          "aiAttempts": 0,
+          "aiSuccesses": 0,
+          "aiProvider": null,
+          "scoreMethod": "keyword-weighted-overlap",
+          "contextChars": 0,
+          "sentKnowledgeIds": [],
+          "timings": {
+            "retrievalMs": 13.154043999999999,
+            "decisionMs": 0.7205129999999826,
+            "externalAiMs": 0,
+            "totalMs": 16.08147699999995
+          }
+        },
+        "answer": "当前情况还涉及未排除的操作风险。先停止危险作业，按本机安全规程安全停机；现在不安排试车、拆检或调压。\n\n建议按以下顺序处理：\n1. 保持与运动、高温和带压部件的安全距离，不要绕过安全联锁；请具备相应资质的维修人员现场核对。\n\n本次参考TK-1707（模型辅助编写和技术审校；本批经自动检查与Codex选项审阅；未逐条完成原厂手册对照或实车验证）通识（无手册页码），只能解释一般原理，不能作为本机参数或维修操作依据。\n\n为了缩小范围，先确认：\n1. 异常是在什么工况下出现的，同时还有哪些已经观察到的现象？无需新增试车或拆检。"
+      }
+    }
+  ],
+  "browser": {
+    "passed": true,
+    "testType": "Real browser/HTTP, SIMULATED provider. Not a real model acceptance.",
+    "turns": 2,
+    "restored": true,
+    "mobile": {
+      "width": 390,
+      "scroll": 390,
+      "input": {
+        "x": 26,
+        "y": 708.6690673828125,
+        "width": 294,
+        "height": 60,
+        "top": 708.6690673828125,
+        "right": 320,
+        "bottom": 768.6690673828125,
+        "left": 26
+      },
+      "topic": "东方红 · LF1504\n\n当前问题：旋耕时水温过高，可能是什么原因？ 冷车正常，旋耕十几分钟后升温；散热器外面有草屑，没看见漏液。\n\n车型与记录"
+    },
+    "classic": true,
+    "errors": [],
+    "first": "东方红 LF1504：旋耕时水温过高，可能是什么原因。下面区分已有资料与通用分析，原因尚待检查验证。\n\n通用原理参考（非本机结论，需核对）\n\n发动机机体金属与冷却液具有较大热容量，热响应时间常数通常为数分钟，能自然平抑秒级的高频负载波动\n\nAI 补充分析（推断，需核对）\nLF1504旋耕时水温过高，通常表示散热能力暂时不能覆盖负荷。常见待核实方向包括散热器外部堵塞、冷却液不足或风扇传动异常。\n\n先安全停机冷却，只作已有外部观察；不开热盖、不拆检。\n\n空载或轻负荷时是否也出现，是否已有报警原文？\n建议先做\n不要在热机或带压时打开冷却系统盖，也不要接近高温蒸汽；先按本机规程安全停机并交由合格人员处理。\n先记录报警原文、异常发生工况和已经完成的检查结果；只描述已有观察，不必为补充信息再次试车或拆检。\n安全停机并完全冷却后，只从外部观察散热器表面有无草屑遮挡、地面有无液体痕迹；不触碰风扇、不打开盖、不拆洗或加液。\n\n本次参考TK-4195（模型辅助编写和技术审校；本批经自动检查与Codex选项审阅；未逐条完成原厂手册对照或实车验证）通识（无手册页码），只能解释一般原理，不能作为本机参数或维修操作依据。\n\n依据：通识（无手册页码）\n\n诊断依据与技术详情 · 3"
+  }
+}

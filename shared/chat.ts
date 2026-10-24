@@ -1,5 +1,5 @@
 import type { MemorySession, PriorDeviceReport } from './memory';
-import type { CoordinationDecision, DiagnosisMode } from './diagnosis';
+import type { CoordinationDecision, DiagnosisMode, DiagnosticReply, RetrievalBasis } from './diagnosis';
 import type { KnowledgePages, KnowledgeRole } from './knowledge-catalog';
 /** Public chat protocol. Provider prompts and credentials remain server-only. */
 export type ChatProvider = 'gemini' | 'deepseek' | 'knowledge-base';
@@ -15,6 +15,8 @@ export interface MachineContext {
   machineType: string;
   brand: string;
   model: string;
+  engineModel?: string;
+  faultCodes?: string[];
 }
 
 export interface ChatRequest {
@@ -30,6 +32,9 @@ export interface ChatRequest {
 }
 
 export interface ChatKnowledgeSource {
+  retrieval?: RetrievalBasis;
+  /** A prompt candidate is not proof that every generated claim is supported. */
+  usage?: 'answer-evidence' | 'prompt-context' | 'reference-only';
   entryId?: string;
   entryType?: string;
   diagnosticEvidence?: false;
@@ -49,6 +54,10 @@ export interface ChatKnowledgeSource {
   referenceVerification?: 'verified' | 'pending' | 'unverified' | 'unspecified' | 'failed';
   sourceIndexed?: boolean;
   sourceTitle?: string;
+  scopeBoundary?: string;
+  models?: string[];
+  engineModel?: string;
+  faultCodes?: string[];
   pages?: KnowledgePages;
   roles?: KnowledgeRole[];
   roleBasis?: '原文标记' | '人工核对';
@@ -67,6 +76,7 @@ export interface ChatRoleFlowStep {
 export type ChatRoleFlow = Record<KnowledgeRole, ChatRoleFlowStep[]> & { untaggedEntryIds: string[]; generalKnowledgeIds?: string[] };
 
 export interface ChatResponse {
+  diagnosticReply?: DiagnosticReply;
   diagnosisTrace?: DiagnosisTrace;
   coordination?: CoordinationDecision;
   coordinationMessage?: string;

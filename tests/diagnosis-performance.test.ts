@@ -57,6 +57,9 @@ test('all three modes use one retrieval and at most one successful generation, i
     const response = await diagnose(input);
     assert.equal(retrievals, 1, `${expectedRoute}: actual retrieval calls`);
     assert.equal(response.coordination?.route, expectedRoute);
+    assert.ok(response.diagnosticReply?.understanding);
+    assert.ok(response.diagnosticReply &&
+      response.diagnosticReply.suggestions.length + response.diagnosticReply.questions.length > 0);
     assert.equal(mock.generations(), expectedGenerations);
     assert.equal(response.diagnosisTrace?.retrievalCount, retrievals);
     assert.equal(response.diagnosisTrace?.aiSuccesses, expectedGenerations);
@@ -65,6 +68,9 @@ test('all three modes use one retrieval and at most one successful generation, i
       assert.ok(mock.sent()[0].content.includes('PERF-001'));
       assert.ok(mock.sent()[0].content.includes('仅测试，不用于实车维修。'));
       assert.deepEqual(response.diagnosisTrace?.sentKnowledgeIds, ['PERF-001']);
+      assert.equal(response.diagnosticReply?.aiSupplement, '测试模拟回答，不用于维修。');
+      assert.ok(response.choices[0].message.content.includes(response.diagnosticReply.aiSupplement));
+      assert.notEqual(response.choices[0].message.content, response.diagnosticReply.aiSupplement);
     }
     for (const duration of Object.values(response.diagnosisTrace!.timings)) assert.ok(Number.isFinite(duration) && duration >= 0);
   }

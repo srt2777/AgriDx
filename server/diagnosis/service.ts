@@ -2,11 +2,12 @@ import type { ChatResponse, DiagnosisTrace } from '../../shared/chat';
 import type { DiagnosisCandidateAssessment } from '../../shared/diagnosis';
 import type { SessionDetail, PriorDeviceReport } from '../../shared/memory';
 import { resolveDiagnosticContext } from '../knowledge/conversation';
-import { generateLocalKnowledgeReply, localReplySummary } from '../knowledge/fallbackDiagnosis';
-import { buildSystemPrompt, hasDiagnosticEvidence } from '../knowledge/systemPrompt';
+import { buildSystemPrompt } from '../knowledge/systemPrompt';
+import { buildDiagnosticReply, renderDiagnosticReply } from './reply';
+import { filterDiagnosticAnswer } from './answerGuard';
 import { decideCoordination, ROUTE_MESSAGES } from '../knowledge/coordination';
 import { hasIndexedReference, referenceVerification } from '../knowledge/evidence';
-import { retrieve, selectPromptChunks, formatForPrompt } from '../knowledge/retriever';
+import { retrieve, selectPromptChunks, formatForPrompt, hasApplicableManual } from '../knowledge/retriever';
 import { buildRoleFlow } from '../knowledge/roles';
 import { memoryPrompt, recentMessages } from '../memory/context';
 import type { LlmRouter } from '../llm/router';
@@ -54,15 +55,12 @@ export function createDiagnosticService(llm: DiagnosticProvider, dependencies: D
     const retrievalMs = now() - retrievalStart;
     const decisionStart = now();
     const coordination = decideCoordination({ query, currentQuery, scope, retrieved, clarificationNeeded,
-      requestedMode: diagnosisMode, llmConfigured: llm.hasAnyConfigured(), llmConfigValid: llm.getStatus?.().configValid });
+      requestedMode: diagnosisMode, llmConfigured: llm.hasAnyConfigured(), llmConfigValid: llm.getStatus?.().configValid,
+      manualAvailable: dependencies.retrieve || clarificationNeeded ? undefined : hasApplicableManual(query, scope) });
     const decisionMs = now() - decisionStart;
     const excluded = new Set(coordination.excludedKnowledgeIds ?? []);
     const admissible = retrieved.filter(chunk => referenceVerification(chunk.status) !== 'failed' &&
       (!chunk.entryId || !excluded.has(chunk.entryId)));
-    // A reference with uncertain review/applicability may be listed, never presented as instructions.
-    const reliable = admissible.filter(chunk => hasDiagnosticEvidence([chunk]) && hasIndexedReference(chunk) &&
-      referenceVerification(chunk.status) === 'verified' && chunk.applicability === 'matched' &&
-      coordination.candidates?.some(candidate => candidate.entryId === chunk.entryId && candidate.modelMatch === 'exact'));
     let displayed = admissible;
     const trace: DiagnosisTrace = { retrievalCount: clarificationNeeded ? 0 : 1, aiAttempts: 0, aiSuccesses: 0, aiProvider: null,
       scoreMethod: 'keyword-weighted-overlap', contextChars: 0, sentKnowledgeIds: [],
@@ -74,8 +72,13 @@ export function createDiagnosticService(llm: DiagnosticProvider, dependencies: D
       evidenceKind: chunk.entryType === '通识学习' ? 'general-knowledge' as const : chunk.entryId ? 'archive' as const : 'prompt' as const,
       evidenceLabel: chunk.entryType === '通识学习' ? '通识（无手册页码）' : chunk.entryId ? `手册：${chunk.sourceTitle ?? chunk.sourceId ?? '来源待核实'}${chunk.pages?.pdf ? `，PDF第${chunk.pages.pdf}页` : ''}${chunk.pages?.printed ? `，印刷第${chunk.pages.printed}页` : ''}` : '信息收集提示（非手册）',
       locator: chunk.locator, version: chunk.version, applicability: chunk.applicability, status: chunk.status,
+      ...(chunk.retrieval ? { retrieval: { ...chunk.retrieval, basis: [...chunk.retrieval.basis] } } : {}),
       referenceVerification: referenceVerification(chunk.status), sourceIndexed: hasIndexedReference(chunk),
       ...(chunk.sourceTitle ? { sourceTitle: chunk.sourceTitle } : {}),
+      ...(chunk.scopeBoundary ? { scopeBoundary: chunk.scopeBoundary } : {}),
+      ...(chunk.models ? { models: [...chunk.models] } : chunk.model ? { models: [chunk.model] } : {}),
+      ...(chunk.engineModel ? { engineModel: chunk.engineModel } : {}),
+      ...(chunk.faultCodes ? { faultCodes: [...chunk.faultCodes] } : {}),
       ...(chunk.pages ? { pages: { ...chunk.pages } } : {}),
       ...(chunk.roles ? { roles: [...chunk.roles], roleBasis: chunk.roleBasis } : {}),
       ...(chunk.riskLevel ? { riskLevel: chunk.riskLevel } : {}),
@@ -83,6 +86,12 @@ export function createDiagnosticService(llm: DiagnosticProvider, dependencies: D
     const finish = (payload: ChatResponse): ChatResponse => {
       trace.timings.totalMs = now() - started;
       payload.diagnosisTrace = trace;
+      const usedIds = new Set([...(payload.diagnosticReply?.background ?? []), ...(payload.diagnosticReply?.causes ?? []), ...(payload.diagnosticReply?.suggestions ?? [])]
+        .flatMap(item => item.evidenceIds));
+      const promptIds = new Set(trace.sentKnowledgeIds);
+      for (const source of payload.knowledgeSources) source.usage = source.entryId && usedIds.has(source.entryId)
+        ? 'answer-evidence' : source.entryId && promptIds.has(source.entryId) && payload.provider !== 'knowledge-base'
+          ? 'prompt-context' : 'reference-only';
       payload.coordination!.knowledgeIds = displayed.flatMap(chunk => chunk.entryId ? [chunk.entryId] : []);
       // No raw question, history, device identifiers or credentials enter routing logs.
       const event: DiagnosticDecisionLog = { mode: coordination.effectiveMode, requestedMode: coordination.requestedMode, route: payload.coordination!.route,
@@ -98,35 +107,35 @@ export function createDiagnosticService(llm: DiagnosticProvider, dependencies: D
       });
       return payload;
     };
-    const localResponse = (failed = false): ChatResponse => {
-      const route = failed ? { ...coordination, route: 'local' as const, reason: 'provider_unavailable' as const, aiRequired: false } : coordination;
+    const replyPlan = (route = coordination) => buildDiagnosticReply({
+      query, currentQuery, symptomQuery, chunks: displayed, scope, coordination: route,
+      // User observations guide follow-up selection; they are not verified repair evidence.
+      progress: [memory?.session.progress, ...history.filter(message => message.role === 'user').map(message => message.content)].filter(Boolean).join('\n'),
+      priorReports: memory?.priorReports,
+    });
+    const localResponse = (failed = false, outputIssues: string[] = [], failureKind?: string): ChatResponse => {
+      const rejected = outputIssues.length > 0;
+      const route = failed || rejected ? { ...coordination, route: 'local' as const,
+        reason: rejected ? 'output_rejected' as const : 'provider_unavailable' as const,
+        aiRequired: false, ...(rejected ? { outputIssues } : {}) } : coordination;
       const fallbackReason = failed ? 'provider_unavailable' as const : route.reason === 'llm_not_configured' ? 'not_configured' as const : undefined;
-      const clarification = route.reason === 'identity_required'
-        ? '**【需要补充】** 请提供品牌和铭牌上的完整型号，再核对故障码或参数。不能用其他型号的数据代替。'
-        : '**【需要确认机型】** 请确认本次设备的品牌、完整型号及发动机信息；确认前暂停引用冲突资料。';
-      const needsClarification = route.route === 'clarify';
-      const safe = route.route === 'safe';
-      const directIds = new Set(route.directEligibleIds ?? []);
-      const learning = admissible.filter(chunk => chunk.entryType === '通识学习' && chunk.diagnosticEvidence === false);
-      const localEvidence = route.reason === 'direct_reference' ? reliable.filter(chunk => directIds.has(chunk.entryId!)) : [...reliable, ...learning];
-      if (route.reason === 'direct_reference') displayed = localEvidence;
-      const memoryNote = memory?.session.progress && !needsClarification && !safe
-        ? `**【已记录的检查进度 · 用户报告，待核实】**\n${memory.session.progress}\n\n以下为资料排查清单，请优先处理未完成项目；已完成项目仅在结果变化或需要复核时再检查。\n\n` : '';
-      const priorNote = memory?.priorReports.length && !needsClarification && !safe
-        ? `**【同一设备的历史检查报告 · 待核实】**\n${memory.priorReports.map(r => `${r.updatedAt.slice(0, 10)}：${r.progress}`).join('\n')}\n\n以上是历史用户报告，不代表本次已检查或当前仍正常。\n\n` : '';
-      const referenceNotice = admissible.filter(chunk => !reliable.includes(chunk) && !learning.includes(chunk) && chunk.entryId).map(chunk =>
-        `- ${chunk.entryId}／${chunk.sourceId}；${chunk.version}；${chunk.locator?.match(/(?:PDF|印刷)[^；;。\n]*?页(?:[^；;。\n]*页)?/g)?.join('；') || '原文位置见来源记录'}；核验状态：${chunk.status}。\n  适用限制：${chunk.scopeBoundary || '具体适用条件尚未明确'}。`).join('\n');
-      const references = referenceNotice && route.reason !== 'direct_reference' ? `\n\n**【参考资料 · 适用或核验仍待确认】**\n${referenceNotice}\n上述资料只作来源参考，本次不展示其具体操作步骤或参数。` : '';
-      const content = needsClarification ? clarification : safe
-        ? '**【安全处置优先】**\n本次问题涉及制动、转向、动力输出、高压或其他尚未排除的维修风险。请停止危险作业，按本机安全规程安全停机并联系具备相应资质的维修人员。不要带压、带电拆检，不要绕过安全联锁或在悬空机具下作业。\n\n**【需要补充】**\n请记录故障发生条件、报警或故障码及已观察到的现象；品牌、完整型号及必要配置尚未明确时，请同时确认。匹配资料也不代表风险已经解除，本次不提供拆解、调压或试操作步骤。'
-        : generateLocalKnowledgeReply(query, localEvidence, scope, fallbackReason, symptomQuery || currentQuery, false) + references;
+      if (route.reason === 'direct_reference') {
+        const directIds = new Set(route.directEligibleIds ?? []);
+        displayed = admissible.filter(chunk => chunk.entryId && directIds.has(chunk.entryId));
+      }
+      const diagnosticReply = replyPlan(route);
+      const unavailable = failed ? failureKind === 'timeout' ? '已尝试外部 AI，但请求超时；本次先提供本地安全观察建议。' : '已尝试外部 AI，但服务暂不可用；本次先提供本地安全观察建议。'
+        : rejected ? '外部 AI 已返回，但内容未通过来源或安全检查；本次保留本地安全建议。'
+        : route.reason === 'llm_not_configured' ? '当前服务端未配置外部 AI 密钥，本次没有调用外部模型。'
+        : route.reason === 'server_local_only' ? '当前环境只启用本地知识检索，本次没有调用外部模型。'
+        : route.reason === 'llm_config_invalid' || route.reason === 'invalid_config' ? '当前 AI 配置无效，本次没有调用外部模型。' : '';
+      if (unavailable) diagnosticReply.understanding += unavailable;
+      const content = renderDiagnosticReply(diagnosticReply);
       return finish({
-        choices: [{ message: { role: 'assistant', content: memoryNote + priorNote + content } }],
-        model: failed ? 'kb-rag-fallback (本地备用引擎)' : 'kb-rag-engine (本地知识引擎)', provider: 'knowledge-base',
-        fellBack: Boolean(fallbackReason), ...(fallbackReason ? { fallbackReason } : {}), ...metadata(), answerMode: 'local-evidence',
-        localSummary: (memoryNote + priorNote + (needsClarification || safe ? content :
-          localReplySummary(symptomQuery, localEvidence, scope, fallbackReason ?? 'local_selected') +
-          (references ? `\n\n参考来源：${admissible.flatMap(chunk => chunk.entryId ? [chunk.entryId] : []).join('、')}。核验或适用条件待确认；请展开查看来源和限制，本次不据此提供维修步骤。` : ''))).slice(0, 4000),
+        choices: [{ message: { role: 'assistant', content } }], diagnosticReply,
+        model: failed || rejected ? 'kb-rag-fallback (本地备用引擎)' : 'kb-rag-engine (本地知识引擎)', provider: 'knowledge-base',
+        fellBack: Boolean(fallbackReason) || rejected, ...(fallbackReason ? { fallbackReason } : {}), ...metadata(), answerMode: 'local-evidence',
+        localSummary: content,
         coordination: route, coordinationMessage: ROUTE_MESSAGES[route.reason],
       });
     };
@@ -135,6 +144,9 @@ export function createDiagnosticService(llm: DiagnosticProvider, dependencies: D
     displayed = promptChunks;
     const { message: systemMessage, answerMode } = buildSystemPrompt({ query, currentQuery, clarificationNeeded,
       ...scope, retrieved: promptChunks, contextMaxChars: config.contextMaxChars });
+    const groundedPrompt = promptChunks.some(chunk => chunk.generalEvidence === true && !scope.brand && !scope.model) || promptChunks.some(chunk => !chunk.retrieval?.referenceOnly &&
+      coordination.candidates?.some(candidate => candidate.entryId === chunk.entryId && !candidate.excluded &&
+        candidate.modelMatch === 'exact' && candidate.sourceIndexed && candidate.referenceVerification === 'verified'));
     systemMessage.content += '\n本次回答路径为AI补充：来源核验仅指文献核对，未实车验证。待核验、适用性待确认或未提供发动机/故障码适配元数据的资料只能作参考；不能作为本机操作或故障码含义的依据。历史回答和用户检查报告也不是手册证据。';
     if (memory) systemMessage.content += memoryPrompt(memory.session, memory.priorReports);
     trace.contextChars = formatForPrompt(promptChunks, config.contextMaxChars).length;
@@ -147,16 +159,37 @@ export function createDiagnosticService(llm: DiagnosticProvider, dependencies: D
       trace.aiAttempts = outcome.attempts ?? 1;
       trace.aiSuccesses = 1;
       trace.aiProvider = outcome.result.provider;
-      return finish({ choices: [{ message: { role: 'assistant', content: outcome.result.content } }],
+      const trustedEvidenceIds = promptChunks.flatMap(chunk => chunk.entryId && !chunk.retrieval?.referenceOnly &&
+        coordination.candidates?.some(candidate => candidate.entryId === chunk.entryId && !candidate.excluded &&
+          candidate.modelMatch === 'exact' && candidate.sourceIndexed && candidate.referenceVerification === 'verified') ? [chunk.entryId] : []);
+      const filtered = filterDiagnosticAnswer(outcome.result.content, promptChunks, { trustedEvidenceIds, model: scope.model });
+      if (!filtered.content) {
+        displayed = admissible;
+        return localResponse(false, [...new Set(filtered.removedIssues)]);
+      }
+      const diagnosticReply = { ...replyPlan(), aiSupplement: filtered.content };
+      // Let a useful AI analysis lead; local facts and inferred analysis remain separate.
+      diagnosticReply.understanding = `${[scope.brand, scope.model].filter(Boolean).join(' ')}${scope.model ? '：' : ''}${(symptomQuery || currentQuery).replace(/[。！？?!]+$/u, '')}。下面区分已有资料与通用分析，原因尚待检查验证。`;
+      if (/[？?]|请.{0,12}(?:补充|确认)/.test(filtered.content)) diagnosticReply.questions = [];
+      if (filtered.removedIssues.length) {
+        diagnosticReply.aiSupplement = '已移除未通过来源或安全检查的段落，以下保留通用分析：\n\n' + filtered.content;
+        coordination.outputIssues = [...new Set(filtered.removedIssues)];
+      }
+      const content = renderDiagnosticReply(diagnosticReply);
+      if (content.length > 16000) {
+        displayed = admissible;
+        return localResponse(false, ['answer_too_long']);
+      }
+      return finish({ choices: [{ message: { role: 'assistant', content } }], diagnosticReply,
         model: outcome.result.model, provider: outcome.result.provider, fellBack: outcome.fellBack,
-        ...metadata(), answerMode, coordination, coordinationMessage: ROUTE_MESSAGES[coordination.reason] });
+        ...metadata(), answerMode: groundedPrompt ? answerMode : 'general-guidance', coordination, coordinationMessage: ROUTE_MESSAGES[coordination.reason] });
     } catch (error) {
       trace.timings.externalAiMs = now() - externalStart;
       if (!(error instanceof ProviderError)) throw error;
       trace.aiAttempts = error.attempts || 1;
       console.warn(`[chat] provider error: ${error.provider}/${error.kind}`);
       displayed = admissible;
-      return localResponse(true);
+      return localResponse(true, [], error.kind);
     }
   };
 }
