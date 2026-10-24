@@ -171,7 +171,7 @@ export default function ChatPage() {
               <span className="hidden sm:inline">{t('清空对话', 'Clear')}</span>
             </Button>
           </AlertDialogTrigger>
-          <AlertDialogContent>
+          <AlertDialogContent portalContainer={version === 'old' ? document.querySelector<HTMLElement>('.classic-version-shell .fluid-body') ?? undefined : undefined}>
             <AlertDialogHeader>
               <AlertDialogTitle>{t('确认清空对话？', 'Clear all messages?')}</AlertDialogTitle>
               <AlertDialogDescription>

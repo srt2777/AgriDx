@@ -387,11 +387,18 @@
       "date": "2026-10-23"
     },
     {
-      "id": "ui-fluid-workspace-20261023",
+      "id": "taxonomy-node-graph-20261023",
       "kind": "maintenance",
       "base": "3.13.5",
       "version": "3.13.6",
       "date": "2026-10-23"
+    },
+    {
+      "id": "ui-fluid-workspace-20261023",
+      "kind": "maintenance",
+      "base": "3.13.6",
+      "version": "3.13.7",
+      "date": "2026-10-24"
     }
   ]
 }

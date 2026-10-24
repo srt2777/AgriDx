@@ -86,7 +86,7 @@ export function WorkspaceShell() {
       </header>
       <main id="main-content" className="fluid-main" tabIndex={-1}><Outlet /></main>
       <SiteStatusBar />
-      <CommandPalette />
+      <CommandPalette classic />
     </div>
   </div></MotionConfig>;
 }

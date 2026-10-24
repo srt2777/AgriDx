@@ -4,11 +4,12 @@ import { Link } from 'react-router-dom';
 import type { KnowledgeCatalog } from '@shared/knowledge-catalog';
 import { useKnowledgeCatalog } from '@/hooks/useKnowledgeCatalog';
 import { taxonomyNodes, type TaxonomyNode } from './knowledge-taxonomy-data';
+import TaxonomyGraphCanvas from './TaxonomyGraphCanvas';
 import EvidenceEntry from './EvidenceEntry';
 import './knowledge-taxonomy.css';
 
 export default function KnowledgeGraph({ catalog, lang }: { catalog: KnowledgeCatalog; lang: string }) {
-  const { t, format, separator } = useUiCopy(lang);
+  const { t, separator } = useUiCopy(lang);
   const nodes = useMemo(() => taxonomyNodes(catalog), [catalog]);
   const [selectedId, setSelected] = useState('');
   const [search, setSearch] = useState('');
@@ -39,13 +40,14 @@ export default function KnowledgeGraph({ catalog, lang }: { catalog: KnowledgeCa
     { level: 'part', label: t('零部件', 'Part'), parent: selectedComponent?.id },
   ];
   return <section className="knowledge-taxonomy" aria-labelledby="taxonomy-heading">
-    <header className="taxonomy-heading"><div><span>TAXONOMY / EVIDENCE</span><h2 id="taxonomy-heading">{t('沿知识结构，找到依据。', 'Follow the knowledge structure to evidence.')}</h2><p>{t('按已整理目录从左向右展开。层级只表示目录归属，不代表学习先后、兼容性或故障因果。', 'Follow the reviewed catalog from left to right. Levels show membership, not prerequisites, compatibility or fault causality.')}</p></div><strong>{nodes.length.toLocaleString()}<small>{t('目录节点 · 非独立知识条数', 'catalog nodes · not unique entries')}</small></strong></header>
+    <header className="taxonomy-heading"><div><span>TAXONOMY / EVIDENCE</span><h2 id="taxonomy-heading">{t('沿知识结构，找到依据。', 'Follow the knowledge structure to evidence.')}</h2><p>{t('节点按知识库层级排列，颜色区分品牌。连线只表示目录归属，不代表学习先后、兼容性或故障因果。', 'Nodes follow catalog levels and brand colors. Edges show membership, not prerequisites, compatibility or fault causality.')}</p></div><strong>{nodes.length.toLocaleString()}<small>{t('目录节点 · 非独立知识条数', 'catalog nodes · not unique entries')}</small></strong></header>
     <div className="taxonomy-search"><label htmlFor="taxonomy-search">{t('定位知识节点', 'Find a knowledge node')}</label><input id="taxonomy-search" type="search" value={search} onChange={event => setSearch(event.target.value)} placeholder={t('搜索品牌、机型、系统或零件', 'Search brand, model, system or part')} />{searchTerm && <div className="taxonomy-results"><p>{t(`找到 ${results.length} 个节点，显示前 50 个`, `${results.length} matches; showing the first 50`)}</p>{results.slice(0, 50).map(node => <button key={node.id} onClick={() => { setSelected(node.id); setSearch(''); }}>{node.label}<small>{pathLabel(node)}</small></button>)}{!results.length && <p>{t('无匹配节点；未生成推测知识。', 'No matches; no knowledge inferred.')}</p>}</div>}</div>
     <nav className="taxonomy-trail" aria-label={t('当前知识路径', 'Current knowledge path')}><button onClick={() => setSelected('')}>{t('全部归档', 'All archives')}</button>{path.map(node => <span key={node.id}><span aria-hidden="true"> → </span><button onClick={() => setSelected(node.id)} aria-current={selected?.id === node.id ? 'location' : undefined}>{node.label}</button></span>)}</nav>
-    <div className="taxonomy-columns">{levels.map(({ level, label, parent }, index) => {
+    <TaxonomyGraphCanvas nodes={nodes} selectedId={selectedId} onSelect={setSelected} lang={lang} />
+    <details className="taxonomy-accessible-directory"><summary>{t('展开目录辅助浏览（键盘 / 无图形模式）', 'Browse directory (keyboard / non-graph mode)')}</summary><div className="taxonomy-columns">{levels.map(({ level, label, parent }, index) => {
       const children = nodes.filter(node => node.level === level && (level === 'brand' || !!parent && node.parent === parent));
       return <section className="taxonomy-column" key={level} aria-label={label}><h3><span>{String(index + 1).padStart(2, '0')}</span>{label}<small>{children.length}</small></h3><div className="taxonomy-node-list">{children.map(node => <button className={node.count ? '' : 'taxonomy-gap'} key={node.id} aria-pressed={path.some(item => item.id === node.id)} onClick={() => setSelected(node.id)}><span>{node.label}</span><small>{node.count ? t(`${node.count} 条关联资料`, `${node.count} linked entries`) : t('待补资料', 'Evidence gap')}{node.scope && `${separator}${node.scope === 'exact' ? t('具体型号范围', 'Specific model') : node.scope === 'series' ? t('系列范围', 'Series scope') : t('待核实', 'Unconfirmed')}`}</small></button>)}{!children.length && <p>{parent ? t('本层尚无已定位节点；保留在上层查看资料。', 'No identified nodes; review evidence at the parent level.') : t('先选择左侧上级目录。', 'Select a parent to continue.')}</p>}</div></section>;
-    })}</div>
+    })}</div></details>
     <section className="taxonomy-evidence" aria-labelledby="taxonomy-evidence-heading"><header><h3 id="taxonomy-evidence-heading">{t('原始知识与来源', 'Original knowledge & sources')}{selected && ` / ${selected.label}`}</h3>{selectedModel && <Link to="/chat" className="catalog-action" state={state}>{t('带机型去诊断', 'Diagnose with this model')}</Link>}</header>
       {!selectedModel ? <p>{t('请选择机型，再查看原始条目、页码与核验状态。品牌只是分类入口，不自动选择机型。', 'Select a model to review entries, page references and verification. A brand does not select a model automatically.')}</p> : <>
         <p>{t('型号、配置和版本仍须核对；目录关系不等于维修覆盖。通识资料继续在独立入口浏览。', 'Check the model, configuration and version. Membership does not imply repair coverage. General learning remains separate.')}</p>

@@ -23,7 +23,7 @@ export function CommandButton({ className = '' }: { className?: string }) {
 }
 
 /** Glass destination list for the new version. Ctrl/Cmd+K toggles it. */
-export default function CommandPalette() {
+export default function CommandPalette({ classic = false }: { classic?: boolean } = {}) {
   const lang = useLang();
   const navigate = useNavigate();
   const location = useLocation();
@@ -33,7 +33,7 @@ export default function CommandPalette() {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [index, setIndex] = useState(0);
-  const results = useMemo(() => filterCommands(query), [query]);
+  const results = useMemo(() => filterCommands(query).map(route => classic && route.id === 'hub' ? { ...route, zh: '首页', en: 'Home', hintZh: '', hintEn: '' } : route), [query, classic]);
   const t = (zh: string, en: string) => (lang === 'zh' ? zh : en);
 
   useEffect(() => {
@@ -114,14 +114,14 @@ export default function CommandPalette() {
           }
         }}
       >
-        <p id={titleId} className="command-palette-title">{t('快速前往', 'Quick navigation')}</p>
+        <p id={titleId} className="command-palette-title">{classic ? t('搜索', 'Search') : t('快速前往', 'Quick navigation')}</p>
         <label className="command-palette-field">
           <Search size={16} strokeWidth={1.5} />
           <input
             ref={inputRef}
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            placeholder={t('大厅、展厅、目录、模型、诊断', 'Hub, hall, catalog, model, diagnosis')}
+            placeholder={classic ? t('搜索页面', 'Search pages') : t('大厅、展厅、目录、模型、诊断', 'Hub, hall, catalog, model, diagnosis')}
             aria-controls="command-results"
             aria-activedescendant={active ? `command-${active.id}` : undefined}
             aria-autocomplete="list"
@@ -149,6 +149,6 @@ export default function CommandPalette() {
         </ul>
       </div>
     </div>,
-    document.body,
+    classic ? document.querySelector('.classic-version-shell .fluid-body') ?? document.body : document.body,
   );
 }
