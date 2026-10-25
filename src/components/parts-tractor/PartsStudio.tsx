@@ -15,6 +15,7 @@ import { probeWebGL } from '@/lib/webgl';
 import { useLang } from '@/hooks/useLang';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { partListIndex, partOutlines, restorePartFocus } from './parts-interaction';
+import { drawStructureWatermark, focusSimulationDetails, type SimulationTarget } from './parts-simulation';
 import { STUDIO_LIGHTS, STUDIO_PRESENTATIONS, type StudioLight, type StudioPresentation } from '@/components/studio-schematic';
 import PartsTractorScene from './PartsTractorScene';
 import { partTitle, resolveSelection, selectionForPart, type CatalogPart, type PartsModelId } from './parts-catalog';
@@ -52,6 +53,7 @@ export default function PartsStudio({ onImport }: { onImport: (event: ChangeEven
   const [listOnly, setListOnly] = useState(false);
   const listRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLElement>(null);
+  const drawerRef = useRef<HTMLElement>(null);
   const returnFocus = useRef<HTMLElement | null>(null);
   const listId = useId();
   const [explode, setExplode] = useState(0);
@@ -60,6 +62,7 @@ export default function PartsStudio({ onImport }: { onImport: (event: ChangeEven
   const [light, setLight] = useState<StudioLight>('studio');
   const [presentation, setPresentation] = useState<StudioPresentation>('solid');
   const [faultPartId, setFaultPartId] = useState<string | null>(null);
+  const [simulation, setSimulation] = useState<SimulationTarget | null>(null);
   const [shareNote, setShareNote] = useState('');
   const [modelId, setModelId] = useState<PartsModelId>(DEFAULT_PARTS_MODEL);
   const [detailStep, setDetailStep] = useState<'overview' | 'faults' | 'log'>('overview');
@@ -75,6 +78,7 @@ export default function PartsStudio({ onImport }: { onImport: (event: ChangeEven
   const language = lang === 'zh' ? 'zh' : 'en';
   const faultNode = faultPartId ? parts.find(part => part.partId === faultPartId) : undefined;
   const faultLabel = faultNode ? partTitle(faultNode, language, modelId) : t('未点亮', 'Off');
+  const activeSimulation = simulation?.modelId === modelId && simulation.selection === selection ? simulation : null;
 
   const pushLog = useCallback((zh: string, en: string) => {
     setLog(previous => (previous[0]?.zh === zh ? previous : [{ id: (previous[0]?.id ?? 0) + 1, zh, en }, ...previous].slice(0, 4)));
@@ -88,6 +92,7 @@ export default function PartsStudio({ onImport }: { onImport: (event: ChangeEven
   const onLost = useCallback(() => setLost(true), []);
 
   function choose(name: string | null, fromCanvas = false) {
+    setSimulation(null);
     if (name) {
       returnFocus.current = !fromCanvas && panelRef.current?.contains(document.activeElement) ? document.activeElement as HTMLElement : null;
       setFocusRequest(value => value + 1);
@@ -130,6 +135,7 @@ export default function PartsStudio({ onImport }: { onImport: (event: ChangeEven
     setDetailStep('overview');
     setExplode(0);
     setFaultPartId(null);
+    setSimulation(null);
     setReady(false);
     setError('');
     setShareNote('');
@@ -144,6 +150,7 @@ export default function PartsStudio({ onImport }: { onImport: (event: ChangeEven
     setEngineRunning(true);
   }
   function toggleFault(partId: string) {
+    setSimulation(null);
     const next = faultPartId === partId ? null : partId;
     setFaultPartId(next);
     if (!next) {
@@ -158,6 +165,20 @@ export default function PartsStudio({ onImport }: { onImport: (event: ChangeEven
     const titleEn = node ? partTitle(node, 'en', modelId) : next;
     pushLog(`故障示意 · ${title}`, `Fault example · ${titleEn}`);
   }
+  function locateSimulation(target: SimulationTarget) {
+    const next = resolveSelection(target.selection, target.modelId);
+    if (!next || next.node.partId !== target.partId || target.source !== 'simulated') return;
+    returnFocus.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    switchModel(target.modelId);
+    setFaultPartId(null);
+    setSimulation(target);
+    setSelection(target.selection);
+    setPresentation('xray');
+    setDetailStep('overview');
+    setFocusRequest(value => value + 1);
+    pushLog(`仿真定位 · ${partTitle(next.node, 'zh', target.modelId)}`, `Simulation selection · ${partTitle(next.node, 'en', target.modelId)}`);
+    window.requestAnimationFrame(() => focusSimulationDetails(drawerRef.current, reduced));
+  }
   function toggleExplode() {
     const open = explode < 1;
     setExplode(open ? 1 : 0);
@@ -166,12 +187,17 @@ export default function PartsStudio({ onImport }: { onImport: (event: ChangeEven
   async function saveIllustration() {
     const canvas = document.querySelector<HTMLCanvasElement>('.parts-stage canvas');
     if (!canvas) return;
-    const blob = await new Promise<Blob | null>(resolve => canvas.toBlob(resolve, 'image/png'));
+    const copy = document.createElement('canvas'); copy.width = canvas.width; copy.height = canvas.height;
+    const context = copy.getContext('2d');
+    if (!context) return;
+    context.drawImage(canvas, 0, 0);
+    drawStructureWatermark(context, copy.width, copy.height, !!activeSimulation);
+    const blob = await new Promise<Blob | null>(resolve => copy.toBlob(resolve, 'image/png'));
     if (!blob) return;
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = spec.shotName;
+    link.download = activeSimulation ? spec.shotName.replace(/\.png$/i, '-simulated.png') : spec.shotName;
     link.click();
     window.setTimeout(() => URL.revokeObjectURL(url), 1500);
     setShareNote(t('已保存结构示意', 'Structure illustration saved'));
@@ -241,7 +267,8 @@ export default function PartsStudio({ onImport }: { onImport: (event: ChangeEven
           </button>
           <p className="studio-share-note" aria-live="polite">{shareNote}</p>
         </div>
-        <div className="model-stage parts-stage" data-model={modelId} data-outline={outline ? 'on' : 'off'} data-engine={modelId === 'diesel' && engineRunning && !reduced && !staticView ? 'running' : 'paused'} data-component={selection ?? 'all'} data-fault={faultPartId ?? ''} data-explode={explode >= 1 ? 'open' : 'closed'}>
+        {activeSimulation && <p className="parts-simulation-note" data-source="simulated" role="status"><strong>{t('仿真数据 · 告警结构定位', 'Simulated data · Alert structure selection')}</strong><span>{selectedLabel} · <time dateTime={new Date(activeSimulation.at).toISOString()}>{new Date(activeSimulation.at).toLocaleTimeString(language === 'zh' ? 'zh-CN' : 'en-GB', { hour12: false })}</time> · {t('所选样本的定位；当前告警以面板为准。', 'Selection from that sample; current alerts are in the panel.')}</span><button type="button" onClick={() => setSimulation(null)}>{t('清除定位高亮', 'Clear selection highlight')}</button></p>}
+        <div className="model-stage parts-stage" data-model={modelId} data-outline={outline ? 'on' : 'off'} data-engine={modelId === 'diesel' && engineRunning && !reduced && !staticView ? 'running' : 'paused'} data-component={selection ?? 'all'} data-fault={faultPartId ?? ''} data-simulation={activeSimulation?.partId ?? ''} data-explode={explode >= 1 ? 'open' : 'closed'}>
           <div className="parts-viewport" tabIndex={staticView ? -1 : 0} role="group" aria-label={t('结构示意视图；可用二维列表选择部件', 'Structure view; use the 2D list to select parts')} onPointerDownCapture={event => {
             if ((event.target as HTMLElement).tagName === 'CANVAS') event.currentTarget.focus({ preventScroll: true });
           }}>
@@ -269,6 +296,7 @@ export default function PartsStudio({ onImport }: { onImport: (event: ChangeEven
                   presentation={presentation}
                   light={light}
                   faultPartId={faultPartId}
+                  simulationPartId={activeSimulation?.partId ?? null}
                   reduced={reduced}
                   lang={lang === 'zh' ? 'zh' : 'en'}
                   modelId={modelId}
@@ -313,7 +341,7 @@ export default function PartsStudio({ onImport }: { onImport: (event: ChangeEven
             </div>
             {error && <p role="alert" className="parts-missing">{error}</p>}
           </aside>
-          <aside className="parts-drawer" aria-live="polite" aria-hidden={resolved ? undefined : true} inert={resolved ? undefined : true}>
+          <aside className="parts-drawer" ref={drawerRef} tabIndex={-1} aria-label={t('部件详情', 'Part detail')} aria-live="polite" aria-hidden={resolved ? undefined : true} inert={resolved ? undefined : true}>
             <div className="parts-drawer-head">
               <p>{t('部件详情', 'Part detail')}<span className="parts-chip">{t('示例数据', 'Example data')}</span></p>
               <button type="button" className="parts-drawer-close" onClick={closeDetails} aria-label={t('关闭部件详情', 'Close part detail')}><X size={16} /></button>
@@ -361,7 +389,7 @@ export default function PartsStudio({ onImport }: { onImport: (event: ChangeEven
             ))}
             {resolved && <PartKnowledge key={modelId} modelId={modelId} partId={resolved.node.partId} lang={language} />}
             {resolved && <ErrorBoundary key={`${modelId}:${resolved.node.partId}`} fallback={<TelemetryLoadState lang={language} failed />}>
-              <Suspense fallback={<TelemetryLoadState lang={language} />}><PartTelemetry modelId={modelId} partId={resolved.node.partId} lang={language} /></Suspense>
+              <Suspense fallback={<TelemetryLoadState lang={language} />}><PartTelemetry modelId={modelId} partId={resolved.node.partId} lang={language} onAlertSelect={locateSimulation} /></Suspense>
             </ErrorBoundary>}
           </aside>
         </div>

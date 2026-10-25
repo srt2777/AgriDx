@@ -604,10 +604,17 @@
       "date": "2026-10-25"
     },
     {
-      "id": "dev-api-console-20261025",
+      "id": "ui-telemetry-alert-link-20261025",
       "kind": "feature",
       "base": "3.23.0",
       "version": "3.24.0",
+      "date": "2026-10-25"
+    },
+    {
+      "id": "dev-api-console-20261025",
+      "kind": "feature",
+      "base": "3.24.0",
+      "version": "3.25.0",
       "date": "2026-10-25"
     }
   ]

@@ -3,6 +3,7 @@ import { Activity, Clock3, Download, FlaskConical, RefreshCw, Unplug, TriangleAl
 import { StatTicker } from '../StatTicker';
 import { TelemetryScenarioControls } from './TelemetryScenarioControls';
 import { TelemetryAlerts } from './TelemetryAlerts';
+import type { SimulationTarget } from './parts-simulation';
 import { useTelemetry } from '../../hooks/useTelemetry';
 import { nearestTelemetryPoint, telemetryCsv, telemetryNumber, telemetryPlot, telemetryThreshold, telemetryValue, type TelemetryLanguage } from '../../features/telemetry/presentation';
 import { TELEMETRY_WINDOWS, type TelemetryModelId, type TelemetryWindow } from '../../../shared/telemetry';
@@ -10,14 +11,14 @@ import { TELEMETRY_WINDOWS, type TelemetryModelId, type TelemetryWindow } from '
 type TelemetryData = ReturnType<typeof useTelemetry>;
 type Row = TelemetryData['series'][number];
 
-export default function PartTelemetry({ modelId, partId, lang }: { modelId: TelemetryModelId; partId: string; lang: TelemetryLanguage }) {
+export default function PartTelemetry({ modelId, partId, lang, onAlertSelect }: { modelId: TelemetryModelId; partId: string; lang: TelemetryLanguage; onAlertSelect?: (target: SimulationTarget) => void }) {
   const [window, setWindow] = useState<TelemetryWindow>('5m');
   const data = useTelemetry({ modelId, partId, window });
-  return <TelemetryPanel data={data} lang={lang} onWindowChange={setWindow} />;
+  return <TelemetryPanel data={data} lang={lang} onWindowChange={setWindow} onAlertSelect={onAlertSelect} />;
 }
 
 /** Presentational boundary also permits deterministic empty/error/accessibility acceptance tests. */
-export function TelemetryPanel({ data, lang, onWindowChange }: { data: TelemetryData; lang: TelemetryLanguage; onWindowChange: (window: TelemetryWindow) => void }) {
+export function TelemetryPanel({ data, lang, onWindowChange, onAlertSelect }: { data: TelemetryData; lang: TelemetryLanguage; onWindowChange: (window: TelemetryWindow) => void; onAlertSelect?: (target: SimulationTarget) => void }) {
   const t = (zh: string, en: string) => lang === 'zh' ? zh : en;
   const id = useId(), [cursor, setCursor] = useState<number | null>(null);
   const to = data.windowEnd;
@@ -43,7 +44,7 @@ export function TelemetryPanel({ data, lang, onWindowChange }: { data: Telemetry
     </header>
     <p className="telemetry-note">{t('仿真读数仅供趋势演示，不能作为实车维修依据。', 'Simulated trends only; not evidence for vehicle repairs.')}</p>
     <p className="telemetry-note">{t('阈值来源：演示配置（demo）', 'Threshold source: demo configuration (demo)')} <code>config/telemetry-demo.json</code><br />{t('仿真演示阈值,非厂家标准', 'Simulation demo thresholds, not manufacturer standards.')}</p>
-    <TelemetryAlerts data={data} lang={lang} />
+    <TelemetryAlerts data={data} lang={lang} onSelect={onAlertSelect} />
     <TelemetryScenarioControls data={data} lang={lang} />
     {data.phase === 'loading' && <p role="status">{t('正在连接仿真数据…', 'Connecting to simulation data…')}</p>}
     {data.phase === 'error' && <div role="alert" className="telemetry-message"><TriangleAlert size={16} aria-hidden="true" /><p>{data.error === 'invalid_data' ? t('数据校验失败，连接已停止。', 'Data validation failed; connection stopped.') : t('监测连接不可用。保留的读数是末次样本；恢复后自动重连。', 'Monitoring connection unavailable. Retained readings are the last samples; reconnection is automatic.')}</p><button type="button" onClick={data.retry}><RefreshCw size={14} aria-hidden="true" />{t('重试连接', 'Retry connection')}</button></div>}
