@@ -618,10 +618,17 @@
       "date": "2026-10-25"
     },
     {
-      "id": "restore-campus-equipment-20261025",
+      "id": "ui-telemetry-unavailable-20261025",
       "kind": "fix",
       "base": "3.25.0",
       "version": "3.25.1",
+      "date": "2026-10-25"
+    },
+    {
+      "id": "restore-campus-equipment-20261025",
+      "kind": "fix",
+      "base": "3.25.1",
+      "version": "3.25.2",
       "date": "2026-10-25"
     }
   ]

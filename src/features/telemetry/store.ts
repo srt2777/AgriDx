@@ -13,7 +13,7 @@ const IDLE_CONTROL: TelemetryScenarioControl = { phase: 'idle', error: null, con
 export interface TelemetrySnapshot {
   catalog: TelemetryCatalog | null;
   phase: 'loading' | 'ready' | 'empty' | 'error';
-  error: 'unavailable' | 'invalid_data' | null;
+  error: 'unavailable' | 'invalid_data' | 'unsupported' | null;
   connected: boolean;
   runId: string | null;
   sequence: number;
@@ -74,12 +74,12 @@ export class TelemetryStore {
     // An applied command broadcasts its new run before the HTTP reply; keep that command alive.
     this.update({ points: {}, latest: {}, historyStatus: {}, alerts: [], scenario: null, runId: null, sequence: 0, receivedAt: null, phase: 'loading', error: null, epoch: this.snapshot.epoch + 1 });
   }
-  private fail(code: 'unavailable' | 'invalid_data', close = false) {
+  private fail(code: 'unavailable' | 'invalid_data' | 'unsupported', close = false) {
     if (close) this.stop();
     this.update({ phase: 'error', error: code, connected: false });
   }
   private start() {
-    if (this.options.supported === false) { this.fail('unavailable'); return; }
+    if (this.options.supported === false) { this.fail('unsupported'); return; }
     const generation = ++this.generation;
     this.abortHistory();
     // A newly constructed EventSource has no previous native cursor. Refill any unobserved gap.
