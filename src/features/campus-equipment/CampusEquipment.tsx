@@ -26,7 +26,7 @@ export default function CampusEquipment({ selected, onSelect, moving, reduced }:
           <ExhibitModel kind={exhibit.kind} accent={exhibit.accent} moving={moving && !reduced && device.status !== 'offline'} />
           <StatusHalo id={exhibit.id} />
         </group>
-        {active === exhibit.id && <Html position={[0, 2.7, 0]} center zIndexRange={[9, 5]}><button type="button" className="campus-equipment-label" onClick={() => onSelect(exhibit.id)}>{zone.id} · {zh ? zone.zh : zone.en}<small>{zh ? '结构与状态均为示例' : 'Example schematic and status'}</small></button></Html>}
+        {active === exhibit.id && <Html position={[0, 4.2, -1.2]} center zIndexRange={[9, 5]}><button type="button" className="campus-equipment-label" onClick={() => onSelect(exhibit.id)}>{zone.id} · {zh ? zone.zh : zone.en}<small>{zh ? '结构与状态均为示例' : 'Example schematic and status'}</small></button></Html>}
       </group>;
     })}
     <HallIdle enabled={moving} reduced={reduced} />
