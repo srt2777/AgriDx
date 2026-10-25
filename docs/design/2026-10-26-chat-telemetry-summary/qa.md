@@ -7,3 +7,4 @@
 - `node --import tsx --test tests/chat-telemetry-summary.test.ts`：2/2通过；`npm run verify`：673项、657通过、16平台跳过、0失败，类型/知识哈希/Lint/完整构建通过。既有Fast Refresh警告和大包提示保留，日志`work/pr-chat-summary-verify.log`。
 - 实际Express构建（外部AI关闭）1440英文深色及375中文浅色诊断页回归：默认关闭复选框、原导航和车型上下文保留，桌面scrollWidth1440、手机375，浏览器error空。截图`desktop-dark-summary.png`、`mobile-light-summary.png`。
 - 未调用真实模型服务；没有真实设备数据、故障码、参数、力矩或阈值。勾选状态仅当前会话内存，不跨刷新保存。
+- GitHub PR检查：等待当前head的Ubuntu、Windows和ci-verify完成后再合并发布。
