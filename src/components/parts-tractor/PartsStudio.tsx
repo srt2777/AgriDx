@@ -1,4 +1,4 @@
-import { useCallback, useId, useRef, useState, type ChangeEvent, type KeyboardEvent } from 'react';
+import { lazy, Suspense, useCallback, useId, useRef, useState, type ChangeEvent, type KeyboardEvent } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import { Camera, Download, Upload, X } from 'lucide-react';
 import { useReducedMotion } from 'framer-motion';
@@ -24,6 +24,15 @@ import '../tractor-viewer.css';
 import './parts-studio.css';
 
 type StudioLog = { id: number; zh: string; en: string };
+const PartTelemetry = lazy(() => import('./PartTelemetry'));
+
+function TelemetryLoadState({ lang, failed = false }: { lang: 'zh' | 'en'; failed?: boolean }) {
+  return <section className="telemetry-panel" data-source="simulated" aria-live="polite">
+    <header className="telemetry-header"><strong className="telemetry-badge">{lang === 'zh' ? '仿真数据' : 'Simulated data'}</strong></header>
+    <p role={failed ? 'alert' : 'status'}>{lang === 'zh' ? (failed ? '监测面板载入失败。' : '监测面板加载中…') : (failed ? 'Monitoring panel failed to load.' : 'Loading monitoring panel…')}</p>
+    {failed && <button type="button" onClick={() => window.location.reload()}>{lang === 'zh' ? '刷新页面重试' : 'Reload page to retry'}</button>}
+  </section>;
+}
 
 export default function PartsStudio({ onImport }: { onImport: (event: ChangeEvent<HTMLInputElement>) => void }) {
   const lang = useLang();
@@ -351,6 +360,9 @@ export default function PartsStudio({ onImport }: { onImport: (event: ChangeEven
               </div>
             ))}
             {resolved && <PartKnowledge key={modelId} modelId={modelId} partId={resolved.node.partId} lang={language} />}
+            {resolved && <ErrorBoundary key={`${modelId}:${resolved.node.partId}`} fallback={<TelemetryLoadState lang={language} failed />}>
+              <Suspense fallback={<TelemetryLoadState lang={language} />}><PartTelemetry modelId={modelId} partId={resolved.node.partId} lang={language} /></Suspense>
+            </ErrorBoundary>}
           </aside>
         </div>
         <div className="parts-explode">
