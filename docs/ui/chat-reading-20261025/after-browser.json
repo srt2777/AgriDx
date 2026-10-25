@@ -1,0 +1,130 @@
+{
+  "testType": "Actual Chromium + local production build + HTTP, simulated provider; not real model acceptance",
+  "passed": true,
+  "measurements": [
+    {
+      "name": "desktop",
+      "width": 1440,
+      "pageWidth": 1440,
+      "body": 17,
+      "lineHeight": 28.9,
+      "font": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", \"PingFang SC\", \"Hiragino Sans GB\", \"Microsoft YaHei\", \"Noto Sans CJK SC\", sans-serif",
+      "heading": 20,
+      "user": 16,
+      "input": 16,
+      "inputBottom": 880,
+      "bodyWidth": 752,
+      "paragraphMargin": 15.3,
+      "markdown": {
+        "paragraphs": 4,
+        "strong": 3,
+        "ordered": 2,
+        "unordered": 1
+      },
+      "answer": "以下是通用分析，尚无匹配手册支持，不能据此确诊或确定本机参数。\n\n旋耕时水温升高，可能是作业负荷增加后，冷却系统的散热能力跟不上。需要结合现场观察区分原因，不能仅凭水温高就判断水泵损坏。\n\n可能的原因\n散热器外部受阻：田间草屑或尘土遮挡表面时，空气通过散热器会受到影响。这只是需要核实的方向。\n冷却系统状态异常：冷却液不足或循环异常也可能出现类似现象，需要由合格人员依据适用资料检查，不能据此决定换件。\n作业负荷偏大：如果只在持续旋耕时出现，而轻负荷时没有相同现象，负荷变化和散热条件值得一起核对。\n先做安全观察\n按本机规程安全停机并完全冷却后，仅从外部查看散热器表面有无草屑遮挡；不要触碰风扇，不拆洗或加液。\n记录已有的报警原文、发生工况及已经观察到的变化，不必为了补充信息再次试车。\n\n不要在热机或带压时打开冷却系统盖，也不要靠近高温蒸汽。出现明显危险征兆时停止作业，联系合格维修人员。\n\n轻负荷时是否也出现？仪表有没有报警原文？\n\n不要在热机或带压时打开冷却系统盖，也不要接近高温蒸汽；先按本机规程安全停机并交由合格人员处理。\n安全停机并完全冷却后，只从外部观察散热器表面有无草屑遮挡、地面有无液体痕迹；不触碰风扇、不打开盖、不拆洗或加液。"
+    },
+    {
+      "name": "mobile",
+      "width": 390,
+      "pageWidth": 390,
+      "body": 16,
+      "lineHeight": 27.2,
+      "font": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", \"PingFang SC\", \"Hiragino Sans GB\", \"Microsoft YaHei\", \"Noto Sans CJK SC\", sans-serif",
+      "heading": 18,
+      "user": 16,
+      "input": 16,
+      "inputBottom": 701,
+      "bodyWidth": 358,
+      "paragraphMargin": 14.4,
+      "markdown": {
+        "paragraphs": 4,
+        "strong": 3,
+        "ordered": 2,
+        "unordered": 1
+      },
+      "answer": "以下是通用分析，尚无匹配手册支持，不能据此确诊或确定本机参数。\n\n旋耕时水温升高，可能是作业负荷增加后，冷却系统的散热能力跟不上。需要结合现场观察区分原因，不能仅凭水温高就判断水泵损坏。\n\n可能的原因\n散热器外部受阻：田间草屑或尘土遮挡表面时，空气通过散热器会受到影响。这只是需要核实的方向。\n冷却系统状态异常：冷却液不足或循环异常也可能出现类似现象，需要由合格人员依据适用资料检查，不能据此决定换件。\n作业负荷偏大：如果只在持续旋耕时出现，而轻负荷时没有相同现象，负荷变化和散热条件值得一起核对。\n先做安全观察\n按本机规程安全停机并完全冷却后，仅从外部查看散热器表面有无草屑遮挡；不要触碰风扇，不拆洗或加液。\n记录已有的报警原文、发生工况及已经观察到的变化，不必为了补充信息再次试车。\n\n不要在热机或带压时打开冷却系统盖，也不要靠近高温蒸汽。出现明显危险征兆时停止作业，联系合格维修人员。\n\n轻负荷时是否也出现？仪表有没有报警原文？\n\n不要在热机或带压时打开冷却系统盖，也不要接近高温蒸汽；先按本机规程安全停机并交由合格人员处理。\n安全停机并完全冷却后，只从外部观察散热器表面有无草屑遮挡、地面有无液体痕迹；不触碰风扇、不打开盖、不拆洗或加液。"
+    },
+    {
+      "name": "small",
+      "width": 320,
+      "pageWidth": 320,
+      "body": 16,
+      "lineHeight": 27.2,
+      "font": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", \"PingFang SC\", \"Hiragino Sans GB\", \"Microsoft YaHei\", \"Noto Sans CJK SC\", sans-serif",
+      "heading": 18,
+      "user": 16,
+      "input": 16,
+      "inputBottom": 597,
+      "bodyWidth": 288,
+      "paragraphMargin": 14.4,
+      "markdown": {
+        "paragraphs": 4,
+        "strong": 3,
+        "ordered": 2,
+        "unordered": 1
+      },
+      "answer": "以下是通用分析，尚无匹配手册支持，不能据此确诊或确定本机参数。\n\n旋耕时水温升高，可能是作业负荷增加后，冷却系统的散热能力跟不上。需要结合现场观察区分原因，不能仅凭水温高就判断水泵损坏。\n\n可能的原因\n散热器外部受阻：田间草屑或尘土遮挡表面时，空气通过散热器会受到影响。这只是需要核实的方向。\n冷却系统状态异常：冷却液不足或循环异常也可能出现类似现象，需要由合格人员依据适用资料检查，不能据此决定换件。\n作业负荷偏大：如果只在持续旋耕时出现，而轻负荷时没有相同现象，负荷变化和散热条件值得一起核对。\n先做安全观察\n按本机规程安全停机并完全冷却后，仅从外部查看散热器表面有无草屑遮挡；不要触碰风扇，不拆洗或加液。\n记录已有的报警原文、发生工况及已经观察到的变化，不必为了补充信息再次试车。\n\n不要在热机或带压时打开冷却系统盖，也不要靠近高温蒸汽。出现明显危险征兆时停止作业，联系合格维修人员。\n\n轻负荷时是否也出现？仪表有没有报警原文？\n\n不要在热机或带压时打开冷却系统盖，也不要接近高温蒸汽；先按本机规程安全停机并交由合格人员处理。\n安全停机并完全冷却后，只从外部观察散热器表面有无草屑遮挡、地面有无液体痕迹；不触碰风扇、不打开盖、不拆洗或加液。"
+    },
+    {
+      "name": "classic",
+      "body": 17,
+      "heading": 20,
+      "input": 16,
+      "width": 1440,
+      "pageWidth": 1440
+    },
+    {
+      "name": "classic",
+      "body": 16,
+      "heading": 18,
+      "input": 16,
+      "width": 390,
+      "pageWidth": 390
+    }
+  ],
+  "copyTested": true,
+  "evidenceTested": true,
+  "modeResults": [
+    {
+      "mode": "auto",
+      "provider": "deepseek",
+      "externalAttempts": 1,
+      "requestedMode": "auto"
+    },
+    {
+      "mode": "knowledge_only",
+      "provider": "knowledge-base",
+      "externalAttempts": 0,
+      "requestedMode": "knowledge_only"
+    },
+    {
+      "mode": "ai_assisted",
+      "provider": "deepseek",
+      "externalAttempts": 1,
+      "requestedMode": "ai_assisted"
+    }
+  ],
+  "stressResults": [
+    {
+      "fixture": "SYNTHETIC layout-only, not model accuracy",
+      "characters": 3586,
+      "paragraphs": 24,
+      "width": 1440,
+      "pageWidth": 1440,
+      "overflow": [],
+      "table": true,
+      "code": true
+    },
+    {
+      "fixture": "SYNTHETIC layout-only, not model accuracy",
+      "characters": 3586,
+      "paragraphs": 24,
+      "width": 320,
+      "pageWidth": 320,
+      "overflow": [],
+      "table": true,
+      "code": true
+    }
+  ],
+  "errors": []
+}

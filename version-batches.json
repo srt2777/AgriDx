@@ -588,6 +588,13 @@
       "base": "3.21.0",
       "version": "3.21.1",
       "date": "2026-10-25"
+    },
+    {
+      "id": "chat-reading-20261025",
+      "kind": "maintenance",
+      "base": "3.21.1",
+      "version": "3.21.2",
+      "date": "2026-10-25"
     }
   ]
 }
