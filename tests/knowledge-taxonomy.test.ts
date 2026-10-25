@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { loadKnowledgeCatalog, getKnowledgeCatalog } from '../server/knowledge/catalog';
-import { taxonomyNodes } from '../src/pages/KnowledgePage/knowledge-taxonomy-data';
+import { taxonomyNodes, visibleTaxonomyNodes } from '../src/pages/KnowledgePage/knowledge-taxonomy-data';
 const catalog = loadKnowledgeCatalog();
 const nodes = taxonomyNodes(catalog);
 test('taxonomy preserves catalog order, scoped identities and reviewed parent relationships', () => {
@@ -34,4 +34,12 @@ test('taxonomy evidence resolves actual component and part entries, including ex
   }
   assert.ok(nodes.some(node => node.level === 'component' && node.count === 0));
   assert.deepEqual(taxonomyNodes({ ...catalog, brands: [] }), []);
+});
+test('taxonomy filters retain matching reviewed metadata and their parent path', () => {
+  const role = visibleTaxonomyNodes(nodes, { role: 'symptom' });
+  assert.ok(role.length > 0);
+  assert.ok(role.every(node => node.level === 'brand' || node.roleCoverage?.symptom || role.some(child => child.parent === node.id)));
+  const type = visibleTaxonomyNodes(nodes, { entryType: '维护/故障知识' });
+  assert.ok(type.length > 0);
+  assert.ok(type.some(node => node.entryTypes?.includes('维护/故障知识')));
 });

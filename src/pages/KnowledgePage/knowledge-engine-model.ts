@@ -2,6 +2,7 @@ import type { TaxonomyNode } from './knowledge-taxonomy-data';
 
 export interface EngineNode {
   id: string; label: string; x: number; y: number; z: number;
+  level: TaxonomyNode['level'];
   radius: number; color: 'coral' | 'ivory' | 'gold'; cluster: number;
   born: number; hub: boolean; claim?: string; taxonomyId?: string;
 }
@@ -36,7 +37,7 @@ export function catalogNetwork(taxonomy: TaxonomyNode[]): EngineNetwork {
     const cluster = base?.cluster ?? brandIndex.get(node.id) ?? 0;
     const center = CENTERS[cluster % CENTERS.length];
     const [dx, dy, dz] = offset(random, node.level === 'model' ? .65 : node.level === 'component' ? .27 : .13);
-    const point: EngineNode = { id: node.id, taxonomyId: node.id, label: node.label, x: base ? base.x + dx : center[0], y: base ? base.y + dy : center[1], z: base ? base.z + dz : center[2] + (cluster >= 12 ? .9 : 0), radius: node.level === 'brand' ? .1 : node.level === 'model' ? .035 : node.level === 'component' ? .019 : .009, color: node.level === 'brand' || node.level === 'model' ? 'ivory' : 'coral', cluster, born: 0, hub: node.level === 'brand', claim: `${node.count} 条关联资料 · ${node.count ? '目录归属' : '待补资料'}` };
+    const point: EngineNode = { id: node.id, taxonomyId: node.id, label: node.label, level: node.level, x: base ? base.x + dx : center[0], y: base ? base.y + dy : center[1], z: base ? base.z + dz : center[2] + (cluster >= 12 ? .9 : 0), radius: node.level === 'brand' ? .1 : node.level === 'model' ? .035 : node.level === 'component' ? .019 : .009, color: node.level === 'brand' || node.level === 'model' ? 'ivory' : 'coral', cluster, born: 0, hub: node.level === 'brand', claim: `${node.count} 条关联资料 · ${node.count ? '目录归属' : '待补资料'}` };
     points.set(node.id, point); return point;
   };
   const nodes = taxonomy.map(place), index = new Map(nodes.map((node, i) => [node.id, i]));

@@ -47,6 +47,7 @@ test('catalogue adds learning and archive counts while preserving archive-only h
   assert.equal(catalog.totals.mappedEntries, archive.length);
   assert.equal(catalog.totals.sources, new Set(archive.map((chunk) => chunk.sourceId)).size);
   assert.equal(catalog.totals.faultEntries, archive.filter((chunk) => chunk.entryType === '维护/故障知识').length);
+  assert.ok(catalog.brands.every(brand => brand.entryTypes?.length));
   assert.equal(catalog.expansion.status, 'reached');
   assert.equal(catalog.expansion.targetLabel, '1w+');
   assert.equal(catalog.expansion.countingUnit, 'indexed-entry');

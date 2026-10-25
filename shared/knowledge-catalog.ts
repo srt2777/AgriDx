@@ -4,6 +4,8 @@ export interface CatalogCounts {
   entryCount: number;
   faultCount: number;
   sourceCount: number;
+  /** Distinct archived entry types attached to this taxonomy node. */
+  entryTypes?: string[];
   /** Entries per reviewed role (entry-roles.jsonl) in this node; untagged entries are only in `untagged`. */
   roleCoverage: RoleCoverage;
   /** Reviewed risk labels only; absent in older catalog responses. Never inferred from roles or symptoms. */
