@@ -13,6 +13,7 @@ import { catalogByName, hoverLabel, type PartsModelId } from './parts-catalog';
 import { loadPartsTractor, partOwner, type PartRecord, type PreparedTractor } from './load-parts-tractor';
 import { partVisual, smoothstep, visualSets, type StudioPresentation } from './parts-motion';
 import { PARTS_SHOWCASE } from './parts-models';
+import { applySimulationHighlight } from './parts-simulation';
 import { STUDIO_LIGHT_LOOK, type StudioLight } from '@/components/studio-schematic';
 
 const GL = { antialias: true, alpha: true, preserveDrawingBuffer: true } as const;
@@ -46,7 +47,7 @@ function EnvironmentLight() {
   return null;
 }
 
-function applyVisual(record: PartRecord, visual: ReturnType<typeof partVisual>) {
+function applyVisual(record: PartRecord, visual: ReturnType<typeof partVisual>, simulated = false) {
   for (const slot of record.slots) {
     slot.material.opacity = slot.opacity * visual.opacity;
     slot.material.transparent = visual.opacity < 0.98 || slot.transparent;
@@ -56,6 +57,8 @@ function applyVisual(record: PartRecord, visual: ReturnType<typeof partVisual>) 
     if (visual.pulse) {
       paint.emissive.copy(HOT);
       paint.emissiveIntensity = 0.75;
+    } else if (simulated) {
+      applySimulationHighlight(paint);
     } else if (visual.outline) {
       paint.emissive.copy(CYAN);
       paint.emissiveIntensity = 0.28;
@@ -91,6 +94,7 @@ function TractorBody({
   explode,
   presentation,
   faultPartId,
+  simulationPartId,
   reduced,
   lang,
   modelId,
@@ -105,6 +109,7 @@ function TractorBody({
   explode: number;
   presentation: StudioPresentation;
   faultPartId: string | null;
+  simulationPartId: string | null;
   reduced: boolean;
   lang: 'zh' | 'en';
   modelId: PartsModelId;
@@ -197,13 +202,13 @@ function TractorBody({
         outlineEnabled: outline,
         occluding: sets.occluding,
         internal: sets.internal,
-      }));
+      }), record.partId === simulationPartId);
       if (modelId === 'diesel' && record.partId === 'engine') {
         for (const edge of record.edges) edge.visible = false;
       }
     }
     invalidate();
-  }, [faultPartId, hovered, invalidate, prepared.records, presentation, reduced, selection, sets, modelId, outline]);
+  }, [faultPartId, simulationPartId, hovered, invalidate, prepared.records, presentation, reduced, selection, sets, modelId, outline]);
 
   useEffect(() => {
     if (!orbit) return;
@@ -337,6 +342,7 @@ export default function PartsTractorScene({
   presentation,
   light,
   faultPartId,
+  simulationPartId = null,
   reduced,
   lang,
   modelId,
@@ -356,6 +362,7 @@ export default function PartsTractorScene({
   presentation: StudioPresentation;
   light: StudioLight;
   faultPartId: string | null;
+  simulationPartId?: string | null;
   reduced: boolean;
   lang: 'zh' | 'en';
   modelId: PartsModelId;
@@ -432,6 +439,7 @@ export default function PartsTractorScene({
         explode={explode}
         presentation={presentation}
         faultPartId={faultPartId}
+        simulationPartId={simulationPartId}
         reduced={reduced}
         lang={lang}
         modelId={modelId}
