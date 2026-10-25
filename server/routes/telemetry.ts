@@ -1,7 +1,7 @@
-import { Router } from 'express';
-import { TELEMETRY_WATERMARK, TELEMETRY_WINDOWS, type TelemetryHeartbeat, type TelemetryWindow } from '../../shared/telemetry';
+import { json, Router, type ErrorRequestHandler } from 'express';
+import { TELEMETRY_WATERMARK, TELEMETRY_WINDOWS, type TelemetryHeartbeat, type TelemetryScenarioCommand, type TelemetryWindow } from '../../shared/telemetry';
 import { createChatRateLimiter } from '../http/middleware';
-import { parseTelemetryCursor, type TelemetryRuntime } from '../telemetry/runtime';
+import { parseTelemetryCursor, TelemetryScenarioConflict, type TelemetryRuntime } from '../telemetry/runtime';
 import { createTelemetrySseWriter } from '../telemetry/sse';
 
 export function createTelemetryRoutes(runtime: TelemetryRuntime | undefined): Router {
@@ -9,6 +9,40 @@ export function createTelemetryRoutes(runtime: TelemetryRuntime | undefined): Ro
   router.use('/telemetry', createChatRateLimiter());
   const active = new Map<string, number>();
   let connections = 0;
+  router.get('/telemetry/scenario', (req, res) => {
+    res.set('Cache-Control', 'no-store');
+    if (!runtime) { res.status(503).json({ code: 'telemetry_disabled', error: '仿真监测已关闭' }); return; }
+    if (Object.keys(req.query).length) { res.status(400).json({ code: 'bad_request', error: '场景读取不接受查询参数' }); return; }
+    res.json(runtime.scenario());
+  });
+  router.post('/telemetry/scenario', (req, res, next) => {
+    res.set('Cache-Control', 'no-store');
+    // Match existing same-origin mutation policy, with a telemetry-specific error and no memory ownership.
+    try {
+      if (req.get('sec-fetch-site') === 'cross-site' || (req.headers.origin
+        && new URL(req.headers.origin).origin !== new URL(`${req.protocol}://${req.get('host')}`).origin)) throw new Error('origin');
+    } catch { res.status(403).json({ code: 'telemetry_origin', error: '请从本站操作仿真场景' }); return; }
+    if (!runtime) { res.status(503).json({ code: 'telemetry_disabled', error: '仿真监测已关闭' }); return; }
+    if (!req.is('application/json')) { res.status(415).json({ code: 'unsupported_media_type', error: '场景命令须使用JSON' }); return; }
+    next();
+  }, json({ limit: '1kb' }), (req, res) => {
+    const body: unknown = req.body;
+    if (Object.keys(req.query).length || !body || typeof body !== 'object' || Array.isArray(body)
+      || Object.keys(body).length !== 4 || Object.keys(body).some(key => !['expectedRunId', 'revision', 'id', 'loop'].includes(key))) {
+      res.status(400).json({ code: 'bad_request', error: '请提供完整的仿真场景命令' }); return;
+    }
+    const command = body as TelemetryScenarioCommand;
+    if (typeof command.expectedRunId !== 'string' || !/^[a-zA-Z0-9-]{1,64}$/.test(command.expectedRunId)
+      || !Number.isSafeInteger(command.revision) || command.revision < 0 || typeof command.loop !== 'boolean'
+      || !runtime!.catalog().scenarios.some(item => item.id === command.id)) {
+      res.status(400).json({ code: 'bad_request', error: '仿真场景、循环标记或版本无效' }); return;
+    }
+    try { res.json(runtime!.changeScenario(command)); }
+    catch (error) {
+      if (!(error instanceof TelemetryScenarioConflict)) throw error;
+      res.status(409).json({ code: 'telemetry_scenario_conflict', error: '仿真场景已变化，请重新读取后再试', state: runtime!.scenario() });
+    }
+  });
   router.get('/telemetry/history', (req, res) => {
     res.set('Cache-Control', 'no-store');
     if (!runtime) { res.status(503).json({ code: 'telemetry_disabled', error: '仿真监测已关闭' }); return; }
@@ -66,5 +100,10 @@ export function createTelemetryRoutes(runtime: TelemetryRuntime | undefined): Ro
     }, catalog.heartbeatMs);
     timers.heartbeat.unref();
   });
+  const controlBodyError: ErrorRequestHandler = (error, _req, res, next) => {
+    if (error.type === 'entity.too.large') { res.status(413).json({ code: 'telemetry_control_too_large', error: '仿真场景命令体积过大' }); return; }
+    next(error);
+  };
+  router.use(controlBodyError);
   return router;
 }

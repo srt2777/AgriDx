@@ -60,6 +60,24 @@ export interface TelemetryScenario {
   name: TelemetryText;
   durationMs: number;
 }
+export interface TelemetryScenarioCommand {
+  expectedRunId: string;
+  revision: number;
+  id: TelemetryScenarioId;
+  loop: boolean;
+}
+export interface TelemetryScenarioState {
+  schemaVersion: 1;
+  source: 'simulated';
+  watermark: typeof TELEMETRY_WATERMARK;
+  scope: 'shared-service';
+  runId: string;
+  revision: number;
+  id: TelemetryScenarioId;
+  loop: boolean;
+  startedAt: number;
+  elapsedMs: number;
+}
 export interface TelemetryCatalog {
   schemaVersion: 1;
   source: 'simulated';
@@ -80,7 +98,8 @@ export interface TelemetryFrame {
   runId: string;
   sequence: number;
   at: number;
-  scenario: { id: TelemetryScenarioId; elapsedMs: number; loop: boolean };
+  /** Control metadata is optional for compatibility with pure generator snapshots. */
+  scenario: { id: TelemetryScenarioId; elapsedMs: number; loop: boolean; revision?: number; startedAt?: number };
   points: TelemetryPoint[];
   alerts: TelemetryAlert[];
 }
