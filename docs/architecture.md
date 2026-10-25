@@ -12,6 +12,7 @@ Agent的设计口径和参与路线见[共同指南](agent-development.md)。LLM
 | --- | --- |
 | `src/pages/` | 路由页面、布局、文案与交互呈现 |
 | `src/features/chat/` | 会话状态、请求生命周期、历史存储、健康状态 |
+| `src/features/telemetry/`、`src/hooks/useTelemetry.ts` | 仿真协议校验、共享SSE连接、有界历史缓存和降采样；页面仅消费hook，详见[遥测协议](telemetry.md) |
 | `src/features/knowledge/catalog-api.ts` | 知识目录请求与响应解析 |
 | `src/lib/api-client.ts` | HTTP/JSON 边界、错误与 AbortSignal |
 | `shared/chat.ts`、`shared/knowledge-catalog.ts` | 前后端协议纯类型，不导入服务端实现或密钥 |
@@ -43,6 +44,8 @@ flowchart LR
 页面只调用前端客户端，不直接引用 `server/`。协议类型放在 `shared/`；浏览器接收的数据仍需运行时校验，TypeScript 类型不能替代输入验证。会话恢复沿用原存储键，跳过未完成的 loading/error 消息；发送保留最多 20 条历史，用户问题上限 2,000 字。取消等待与清空会话使旧请求失效，不让迟到的响应污染新对话。
 
 HTTP 路由只做传输边界；诊断用例保留来源编号、定位、手册版本与适用范围，不将模型通用分析或品牌匹配当作确诊。知识原件和索引不随架构整理改写；修改知识时继续遵守其目录规范。
+
+仿真监测独立经过后端生成器 → SSE/history → 前端校验存储 → useTelemetry；当前数据层尚未挂载生产监测UI。连接在最后观察者离开后释放，原生重连有游标，历史请求有取消与超时，重启清除旧run。仿真不进入检索、诊断记忆、覆盖或质量统计，也不是供诊断Agent使用的工具；LLM、Memory与Planner行为不变。
 
 3.6.0 的 `server/diagnosis/router.ts` 在一次已完成的检索结果上执行无副作用决策；`service.ts` 复用结果生成本地或 AI 答复。覆盖标签与检索文本在知识导入时计算，短期缓存只保存公开静态片段；来源、限制和正文按完整块计入上下文预算。安全降级、必要追问、可靠来源和原始分数的边界及性能验收见[诊断路由说明](diagnosis-router.md)。
 
