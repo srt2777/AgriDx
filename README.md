@@ -1,5 +1,9 @@
 # 耕知·耘诊 · 农业机械智能诊断平台
 
+面向农业机械的故障诊断与资料检索平台，结合有来源的知识资料、对话式排查和三维结构示意。当前持续开发主线为 **V4**，具体版本以 `package.json` 为准。
+
+[开发站](https://agridx-dev-preview.z3464715478.chatgpt.site/) · [快速开始](#快速开始) · [项目结构](#项目结构) · [贡献指南](CONTRIBUTING.md) · [更新日志](CHANGELOG.md)
+
 版本历史功能：新旧界面页脚的“更新记录”进入 `/#/version-history`；详细内容由 `CHANGELOG.md` 在构建时自动生成，当前构建版本读取 `package.json`，提交沿用构建标识。缺失历史证据显示“未记录”，不把日志日期当作上线日期。维护流程见[版本历史记录说明](docs/version-history.md)。功能随本批3.11.0交付；实际发布状态以对应PR和部署验收为准。
 
 ## Agent 设计与参与入口
@@ -41,7 +45,7 @@
 
 诊断路由复用一次检索并按风险与证据选择回答；检索、目录和健康统计共享可整体切换的只读快照，重载失败保留旧数据。知识页新增通用运行表现入口；离线`npm run knowledge:quality`和`npm run knowledge:dedup`生成规则及语义候选报告，候选保持待人工复核，不自动改写知识或进入在线诊断请求。整合说明和验收见[本轮记录](docs/integration/20261016-all-open-prs.md)。
 
-历史编号曾按2026-10-13约定协调：两批累计800条知识扩充合并为3.3.0，功能整合由原3.5.0调整为3.4.0；主题修复与开发网关修复由原3.5.1、3.5.2对应协调为3.4.1、3.4.2。后续按最终改动规模及[自动版本规则](docs/version-policy.md)在 **3.x.x** 内递进；4.0.0及更高主版本需用户明确授权。此前上限与历史验证输出保留当时含义。
+历史编号曾按2026-10-13约定协调：两批累计800条知识扩充合并为3.3.0，功能整合由原3.5.0调整为3.4.0；主题修复与开发网关修复由原3.5.1、3.5.2对应协调为3.4.1、3.4.2。当前按用户2026-10-25授权协调到 **4.0.0**，有效版本上限为 **4.0.0**；更高版本需另行明确授权，具体递进和同批去重见[自动版本规则](docs/version-policy.md)。此前上限与历史验证输出保留当时含义。
 
 v3由Changjie29与另外三位协作者共同改进，协作流程见[贡献指南](CONTRIBUTING.md)。初始化来源为v2提交[`38f5bbb`](https://github.com/Changjie29/AgriDx-v2/commit/38f5bbba0f484505525a69ebbe394cc6c8601ee0)，将v3原基线之后的液态玻璃界面改动与最终验证记录同步到本仓库。保留v2的历史、资源署名和知识来源；未合并的[PR #1](https://github.com/Changjie29/AgriDx-v3/pull/1)独立改动不纳入本次初始化。
 
@@ -89,6 +93,11 @@ v3由Changjie29与另外三位协作者共同改进，协作流程见[贡献指�
 
 ## 腾讯云现有服务器更新
 
+<details>
+<summary>历史部署与知识扩充记录（2026年10月）</summary>
+
+以下记录保留当时的版本、数量和验收范围，不作为当前部署状态或知识规模的证明。当前开发站状态以实际构建版本和提交为准。
+
 用户已于 2026-10-11 授权配置现有腾讯云轻量服务器。服务器为 Ubuntu 24.04.4，网站使用 `/opt/agridx/current` 版本软链接、`agridx.service`、本机 8787 接口及现有 Nginx HTTPS；运行密钥文件为 `/etc/agridx.env`。
 
 新增手动更新脚本 [update-existing.sh](scripts/tencent-deploy/update-existing.sh)，支持 `--check` 只读检查和 `--deploy <完整提交 SHA>` 分目录构建、检查、切换及失败回退。每个版本使用 agridx 拥有的独立 npm 缓存，避免旧缓存权限阻止安装。它不改 Nginx、证书、DNS、防火墙或自动发布任务。当前配置与验收记录见 [腾讯服务器配置](docs/deployment/2026-10-11-tencent-existing-server.md)；GitHub 保存、脚本检查和服务器实际执行分别记录。
@@ -113,12 +122,14 @@ v3由Changjie29与另外三位协作者共同改进，协作流程见[贡献指�
 
 上述验收来自代理出口和远程浏览器。用户随后报告不开代理时域名连接关闭，IP 的 HTTP 访问也失败；当前网络直连可用性仍在排查，尚未确认所有网络可访问，实际诊断进展见同一部署记录。
 
+</details>
+
 ## 技术栈
 
 - **前端**：React 19 + Vite + TypeScript + Tailwind CSS + React Router + React Three Fiber
 - **后端**：Node.js + Express + tsx（ESM）
 - **LLM**：Gemini（默认 `gemini-3.8-flash`，可配置）/ DeepSeek（默认 `deepseek-v4-flash`，可配置），OpenAI 兼容协议
-- **知识库**：通用信息收集提示 + 4863 条归档条目（含500条官方预览目录索引），按章节提取 + 关键词重叠打分，零向量库
+- **知识库**：4877 条来源归档 + 6000 条通识学习资料，共10877条；另有信息收集提示。按章节提取与关键词检索，资料类型、适用范围及核验状态分别保留。
 - **3D**：Three.js / React Three Fiber，程序化 RoomEnvironment 光照，零 HDR 网络请求
 
 ## 快速开始
@@ -209,7 +220,7 @@ npm run knowledge:quality -- --report server/data/knowledge-quality/report.json 
 
 ## 生产部署与验收
 
-以下保留生产运行说明；后端编译产物仅用于编译验证，生产入口仍为 `tsx server.ts`。当前按用户2026-10-10最新要求暂停发布，本轮不连接服务器或执行迁移；完成验证后的改动继续及时保存到v3 GitHub。
+以下是生产环境运行方法，不代表已执行部署。后端编译产物用于编译验证，生产入口仍为 `tsx server.ts`。当前本线程仅跟进开发站；腾讯服务器和正式站不操作，历史发布授权与验收记录保留原日期。
 
 在仓库根目录使用Node.js ≥ 22.19.0（建议24 LTS）。先安装完整依赖并构建前端，再仅保留运行依赖：
 
@@ -274,7 +285,7 @@ server/knowledge/
 ## 项目结构
 
 ```text
-AgriDx-v3/
+AgriDx/
 ├── src/                 # React 页面、组件与样式
 │   ├── pages/           # 页面布局与路由视图
 │   ├── features/chat/   # 会话、历史存储、请求与健康状态
@@ -302,11 +313,13 @@ AgriDx-v3/
 
 - **`main`**：共同维护的稳定主线。协作者从最新`main`创建自己的功能或修复分支，通过PR说明改动与验证结果，审阅后合入。
 - 人工开发可使用`feature/<用户名>/<主题>`或`fix/<用户名>/<主题>`，Codex任务默认使用`codex/`前缀。提交前刷新远端并检查差异，按新旧版本与任务意图进行更新性覆盖或合并，保留无关成果；合并完成后可删除对应任务分支。
-- 每轮授权改动完成验证后及时按现有分支/PR规范保存到v3 GitHub；个人分支、PR及主线推送均不触发网站发布，详见[贡献指南](CONTRIBUTING.md)。新增GitHub协作规则等待用户后续明确授权。
+- 修改从最新 `main` 创建任务分支，通过 PR 审阅与检查后合入。个人分支与 PR 不发布开发站；`main` 合入后由 `Development preview` 自动验证、构建和更新。开发站与正式站分别验收，详见[开发预览说明](docs/deployment/dev-preview.md)。
 
 ## API
 
 ### `GET /api/health`
+
+以下保留历史响应示例用于说明字段结构；当前版本、提交与知识统计以实际接口结果为准。
 
 ```json
 { "ok": true, "version": "3.4.12", "timestamp": "...", "knowledge": { "chunks": 4262, "archivedEntries": 4253 } }
@@ -362,7 +375,7 @@ AgriDx-v3/
 
 **已实现**
 
-- 本地 Markdown 知识库 + 4863 条拖拉机、配套系统与目录归档条目 + 品牌／型号过滤与关键词检索 RAG
+- 本地 Markdown 知识库：4877条来源归档、6000条通识学习资料，支持品牌／型号过滤与关键词检索 RAG
 - Gemini / DeepSeek 双 Provider，可选优先顺序 + 失败回退 + 安全配置状态
 - 后端独占 system prompt，强制结构化输出与禁止编造参数
 - 四级农机知识浏览、组件资料缺口、原文/版次/页码/适用范围；可将机型及问题预填到诊断页
@@ -391,6 +404,13 @@ AgriDx-v3/
 
 ## GitHub保存与部署约定
 
+当前代码主线为 [srt2777/AgriDx](https://github.com/srt2777/AgriDx) 的 `main`。分支与 PR 用于开发和审阅，合入后由现有流程更新开发站；本线程不操作腾讯服务器或正式站。GitHub 合入、构建发布和线上验收分别记录。
+
+<details>
+<summary>历史保存与部署约定（保留当时日期与原始出处）</summary>
+
+以下是历史约定；涉及暂停发布、仓库旧名称或服务器接入的描述不代替上方现行说明。
+
 2026-10-14用户最新要求：腾讯正式域名`agridx.xyz`跟随`srt2777/AgriDx-v3`主干最新版更新，覆盖此前腾讯自动发布暂停。新增`Tencent production`工作流等待最新main的CI成功，沿用分目录检查及失败回退，并核对公网完整SHA与页面资源摘要。服务器只需一次新systemd控制器安装，不需要GitHub保存服务器登录凭据；当前尚未完成服务器接入，公开部署请求本身不代表已上线，不能把仓库保存或工作流准备写成已经上线。原Sites保持暂停，个人分支和PR不发布，不恢复旧cron；见[接入说明及实际状态](docs/deployment/tencent-production-sync.md)。
 
 - GitHub：[Changjie29/AgriDx-v3](https://github.com/Changjie29/AgriDx-v3)。v2保留在[原仓库](https://github.com/Changjie29/AgriDx-v2)，本轮不修改v2。
@@ -401,6 +421,8 @@ AgriDx-v3/
 - 每次推送前对比远端与本地改动，按新旧版本及任务意图判断更新性覆盖，保留无关成果；本次允许按差异覆盖v3的旧v2基线。主线合入、GitHub保存和网站发布分别记录，本地构建或Git推送本身不证明已发布。
 - 用户后续会再要求从GitHub增加v3协作规则。当前保持已有分支/PR规范，不修改仓库权限、分支保护或rules；新增规则等待后续明确授权。
 - v2的2.4.5历史保存与Sites版本19回执保留在[原记录](docs/deployment/2026-10-10-liquid-glass-status.md)，不能作为v3发布验收结果。
+
+</details>
 
 ---
 
