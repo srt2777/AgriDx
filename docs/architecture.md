@@ -6,10 +6,13 @@
 
 ## 模块职责
 
+Agent的设计口径和参与路线见[共同指南](agent-development.md)。LLM落在`server/llm/`，Memory落在`server/memory/`及前端会话模块，Planner由诊断协调与路由承担，Tool Use由服务层编排检索和记忆等内部能力。当前内部调用不等于已提供模型工具协议或自主循环运行器。
+
 | 位置 | 职责 |
 | --- | --- |
 | `src/pages/` | 路由页面、布局、文案与交互呈现 |
 | `src/features/chat/` | 会话状态、请求生命周期、历史存储、健康状态 |
+| `src/features/telemetry/`、`src/hooks/useTelemetry.ts` | 仿真协议校验、共享SSE连接、有界历史缓存和降采样；页面仅消费hook，详见[遥测协议](telemetry.md) |
 | `src/features/knowledge/catalog-api.ts` | 知识目录请求与响应解析 |
 | `src/lib/api-client.ts` | HTTP/JSON 边界、错误与 AbortSignal |
 | `shared/chat.ts`、`shared/knowledge-catalog.ts` | 前后端协议纯类型，不导入服务端实现或密钥 |
@@ -42,9 +45,17 @@ flowchart LR
 
 HTTP 路由只做传输边界；诊断用例保留来源编号、定位、手册版本与适用范围，不将模型通用分析或品牌匹配当作确诊。知识原件和索引不随架构整理改写；修改知识时继续遵守其目录规范。
 
+仿真监测独立经过后端生成器 → SSE/history → 前端校验存储 → useTelemetry；当前数据层尚未挂载生产监测UI。连接在最后观察者离开后释放，原生重连有游标，历史请求有取消与超时，重启清除旧run。仿真不进入检索、诊断记忆、覆盖或质量统计，也不是供诊断Agent使用的工具；LLM、Memory与Planner行为不变。
+
 3.6.0 的 `server/diagnosis/router.ts` 在一次已完成的检索结果上执行无副作用决策；`service.ts` 复用结果生成本地或 AI 答复。覆盖标签与检索文本在知识导入时计算，短期缓存只保存公开静态片段；来源、限制和正文按完整块计入上下文预算。安全降级、必要追问、可靠来源和原始分数的边界及性能验收见[诊断路由说明](diagnosis-router.md)。
 
 ## 系统上下文
+
+### Agent执行边界
+
+当前服务围绕一次主要检索复用结果，按规则选择本地、追问、安全或AI路径；`answerGuard.ts`检查AI输出，结构化答复见[诊断交互](diagnosis-interaction.md)。它是代码规则门，不是独立评估Agent。前端展示、HTTP边界、规划决策、工具执行及持久化继续分层；共享协议放`shared/`，不由页面直接调用服务端实现。
+
+后续新增工具注册或多步执行时，先在诊断用例层明确行动与观察、预算、停止及降级，不把决策塞进HTTP路由。新增持久任务时，将检查点和等待事件与对话文本分开，通过既有归属/事务边界恢复；详细设计及验收要求见[Agent指南](agent-development.md)。这些是后续扩展要求，当前尚未提供通用任务调度或MCP工具服务。
 
 ```mermaid
 flowchart LR
