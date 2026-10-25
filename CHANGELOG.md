@@ -32,7 +32,7 @@
 
 ### 关联 PR
 
-- 分支 `codex/agent-contributor-guidance-20261025`；PR创建后记录链接。
+- PR [#123](https://github.com/srt2777/AgriDx/pull/123)，分支 `codex/agent-contributor-guidance-20261025`；文档实现提交 `a261e5e`。
 
 ### 部署记录
 
