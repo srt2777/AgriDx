@@ -38,13 +38,15 @@ test('项目版本拒绝前导零、非稳定版本与非字符串', () => {
   }
 });
 
-test('项目版本按整数分段比较，允许3.x.x和已授权的4.0.0，拒绝更高版本', () => {
+test('项目版本按整数分段比较，保留历史3.x并允许已授权4.x，拒绝5.0.0及以上', () => {
   for (const version of ['3.3.10', '3.4.9', '3.4.10', '3.7.99', '3.8.0', '3.8.1', '3.8.99', '3.9.0', '3.9.1', '3.9.10', '3.9.99', '3.10.0', '3.10.1', '3.10.2', '3.10.3', '3.10.99', '3.11.0', '3.11.1', '3.11.2', '3.11.99', '3.12.0', '3.12.1', '3.13.0', '3.100.999']) {
     assert.equal(validateVersionState(metadata(version)), version);
   }
-  assert.equal(validateVersionState(metadata('4.0.0')), '4.0.0');
-  for (const version of ['4.0.1', '4.1.0', '5.0.0', '10.0.0']) {
-    assert.throws(() => validateVersionState(metadata(version)), /上限为 4\.0\.0/);
+  for (const version of ['4.0.0', '4.0.1', '4.1.0', '4.999.999']) {
+    assert.equal(validateVersionState(metadata(version)), version);
+  }
+  for (const version of ['5.0.0', '5.0.1', '10.0.0']) {
+    assert.throws(() => validateVersionState(metadata(version)), /上限为 4\.x\.x/);
   }
 });
 
