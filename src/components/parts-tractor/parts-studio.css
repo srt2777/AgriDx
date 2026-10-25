@@ -9,6 +9,10 @@
 .parts-knowledge button, .parts-knowledge > a { display: inline-flex; align-items: center; min-height: 44px; padding: 8px; border: 1px solid var(--border); border-radius: 8px; color: var(--primary); text-decoration: underline; text-underline-offset: 3px; }
 .parts-knowledge :is(a, button, select):focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
 .parts-knowledge-gap { color: var(--muted-foreground); }
+.parts-simulation-note { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0; padding: 10px 12px; border-top: 3px solid var(--md-on-gold-container, #604100); background: var(--md-gold-container, #ffdeac); color: var(--md-on-gold-container, #604100); font-size: 12px; }
+.parts-simulation-note span { flex: 1 1 240px; }
+.parts-simulation-note button { min-height: 44px; padding: 8px; border: 1px solid currentColor; border-radius: 8px; cursor: pointer; }
+.parts-simulation-note button:focus-visible, .parts-drawer:focus-visible { outline: 2px solid var(--primary); outline-offset: 3px; }
 .parts-knowledge-gap > svg, .parts-knowledge [role='alert'] svg { display: inline-block; vertical-align: middle; margin-right: 4px; }
 .parts-knowledge-count { display: flex; align-items: baseline; gap: 8px; margin: 12px 0; }
 .parts-knowledge-count > strong { font-size: 22px; font-variant-numeric: tabular-nums; }
