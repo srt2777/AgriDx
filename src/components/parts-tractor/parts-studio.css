@@ -54,7 +54,17 @@
 .telemetry-table th { font-weight: 500; }
 .telemetry-table caption { text-align: left; color: var(--muted-foreground); }
 .telemetry-export { width: 100%; }
-.telemetry-panel :is(button, input, summary):focus-visible { outline: 2px solid var(--primary); outline-offset: 3px; }
+.telemetry-scenarios { margin-block: 12px; padding: 10px; border: 1px solid var(--border); border-radius: 10px; }
+.telemetry-scenarios h4 { display: flex; align-items: center; gap: 6px; margin: 0; font-size: 12px; }
+.telemetry-scenarios progress { display: block; width: 100%; height: 8px; accent-color: var(--telemetry-demo); }
+.telemetry-scenarios fieldset { min-width: 0; margin: 8px 0 0; padding: 0; border: 0; }
+.telemetry-scenarios legend { margin-bottom: 4px; font-weight: 600; }
+.telemetry-scenarios select { display: block; width: 100%; min-width: 0; min-height: 44px; padding: 8px; border: 1px solid var(--border); border-radius: 8px; color: var(--foreground); background: var(--background); }
+.telemetry-loop { display: flex; align-items: center; gap: 8px; min-height: 44px; margin-block: 4px; cursor: pointer; }
+.telemetry-loop input { width: 18px; height: 18px; accent-color: var(--primary); }
+.telemetry-scenario-actions { display: flex; flex-wrap: wrap; gap: 6px; }
+.telemetry-scenario-actions button { flex: 1 1 140px; }
+.telemetry-panel :is(button, input, select, summary):focus-visible { outline: 2px solid var(--primary); outline-offset: 3px; }
 .parts-studio.is-list-view .telemetry-header { top: 112px; }
 @media (max-width: 1023px) { .telemetry-header { top: 112px; } }
 .parts-stage-card,

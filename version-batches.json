@@ -588,6 +588,13 @@
       "base": "3.21.0",
       "version": "3.21.1",
       "date": "2026-10-25"
+    },
+    {
+      "id": "ui-telemetry-scenario-controls-20261025",
+      "kind": "feature",
+      "base": "3.21.1",
+      "version": "3.22.0",
+      "date": "2026-10-25"
     }
   ]
 }
