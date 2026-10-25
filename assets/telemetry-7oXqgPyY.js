@@ -1,0 +1,1 @@
+const E="仿真数据 / Simulated data",a="仿真演示阈值,非厂家标准",m={"5m":3e5,"15m":9e5,"1h":36e5};function T(t,u,i,n,e){return u?i===null||!Number.isFinite(i)||!Number.isFinite(n)||!Number.isFinite(e)||e<=0||n<i||n-i>e?"delayed":t==="device"?"live":"simulated":"offline"}export{a as D,E as T,m as a,T as t};
