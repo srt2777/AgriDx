@@ -1,10 +1,12 @@
 import type { ChatMessage } from '../llm/types';
 import { isDiagnosisMode, type DiagnosisMode } from '../knowledge/coordination';
 import type { RetrievalContext } from '../knowledge/scope';
+import type { ChatTelemetrySummary } from '../../shared/chat';
 
 export interface DiagnosticRequest extends RetrievalContext {
   diagnosisMode?: DiagnosisMode;
   history: (ChatMessage & { role: 'user' | 'assistant' })[];
+  telemetrySummary?: ChatTelemetrySummary;
 }
 
 export class DiagnosticInputError extends Error {
@@ -37,6 +39,11 @@ export function parseDiagnosticRequest(input: unknown): DiagnosticRequest {
     throw new DiagnosticInputError('对话轮次过多，请新开对话', 'too_long');
   }
   if (body.diagnosisMode !== undefined && !isDiagnosisMode(body.diagnosisMode)) throw new DiagnosticInputError('回答模式无效');
+  const telemetry = body.telemetrySummary;
+  const telemetryRecord = telemetry && typeof telemetry === 'object' && !Array.isArray(telemetry) ? telemetry as Record<string, unknown> : undefined;
+  if (telemetry !== undefined && (!telemetryRecord || telemetryRecord.source !== 'simulated' || typeof telemetryRecord.text !== 'string' || telemetryRecord.text.length > 1600)) {
+    throw new DiagnosticInputError('仿真监测摘要格式错误或过长');
+  }
   const roles = new Set(['system', 'user', 'assistant']);
   for (const message of body.messages) {
     if (!message || typeof message !== 'object' || !roles.has(message.role) || typeof message.content !== 'string') {
@@ -62,5 +69,6 @@ export function parseDiagnosticRequest(input: unknown): DiagnosticRequest {
     model: (body.model as string | undefined)?.trim(),
     engineModel: (body.engineModel as string | undefined)?.trim(),
     faultCodes: (body.faultCodes as string[] | undefined)?.map(code => code.trim()),
+    telemetrySummary: telemetry as ChatTelemetrySummary | undefined,
   };
 }

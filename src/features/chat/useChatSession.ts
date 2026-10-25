@@ -4,7 +4,7 @@ import type { DeviceProfile, MemoryDevice, SessionDetail } from '../../../shared
 import type { DiagnosisMode } from '../../../shared/diagnosis';
 import { useCallback, useEffect, useRef, useState, useMemo } from 'react';
 import { toast } from 'sonner';
-import type { ChatProvider, FallbackReason } from '../../../shared/chat';
+import type { ChatProvider, FallbackReason, ChatTelemetrySummary } from '../../../shared/chat';
 import { requestChat } from './api';
 import {
   createChatRequest, generateMessageId, loadChatSession, MAX_QUESTION_LENGTH,
@@ -17,10 +17,11 @@ interface ChatSessionOptions {
   focusInput: () => void;
   /** Keeps the loading row on screen long enough to read named orb states. */
   minLoadingMs?: number;
+  telemetrySummary?: ChatTelemetrySummary;
 }
 
 /** Owns conversation lifecycle; the page renders the workspace and input controls. */
-export function useChatSession({ handoff, translate: t, focusInput, minLoadingMs = 0 }: ChatSessionOptions) {
+export function useChatSession({ handoff, translate: t, focusInput, minLoadingMs = 0, telemetrySummary }: ChatSessionOptions) {
   const [initial] = useState(() => loadChatSession(handoff));
   const [messages, setMessages] = useState(initial.messages);
   const [input, setInput] = useState(initial.draft);
@@ -102,6 +103,7 @@ export function useChatSession({ handoff, translate: t, focusInput, minLoadingMs
       if (requestRef.current !== controller) return;
       controller.signal.throwIfAborted();
       const request = { ...createChatRequest(messages, trimmed, { machineType, brand, model, engineModel, faultCodes }, session?.revision === 0 ? 38 : 20), diagnosisMode,
+        ...(telemetrySummary ? { telemetrySummary } : {}),
         ...(session ? { sessionId: session.id, revision: session.revision } : {}) };
       submitted = true;
       setMessages((previous) => [...previous, userMessage, loadingMessage]);
@@ -147,7 +149,7 @@ export function useChatSession({ handoff, translate: t, focusInput, minLoadingMs
         window.setTimeout(focusInput, 0);
       }
     }
-  }, [messages, input, attachment, machineType, brand, model, engineModel, faultCodeInput, t, focusInput, resetStatus, memory, profile, diagnosisMode, minLoadingMs]);
+  }, [messages, input, attachment, machineType, brand, model, engineModel, faultCodeInput, t, focusInput, resetStatus, memory, profile, diagnosisMode, minLoadingMs, telemetrySummary]);
 
   const stopRequest = useCallback(() => {
     requestRef.current?.abort();
