@@ -34,6 +34,7 @@ import { MorphingPanel } from '@/components/motion/MorphingPanel';
 import { ThinkingOrbs } from '@/components/motion/ThinkingOrbs';
 import { useDiagnosisOrb } from '@/components/motion/useDiagnosisOrb';
 import { chatPathBadge, evidenceRows } from '@/features/chat/evidence';
+import { useTelemetry } from '@/hooks/useTelemetry';
 
 export default function ChatPage() {
   const location = useLocation();
@@ -46,6 +47,12 @@ export default function ChatPage() {
     provider === 'gemini' ? 'Gemini' : provider === 'deepseek' ? 'DeepSeek' : provider === 'openai' ? 'OpenAI compatible' : '';
   const workspaceRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const [includeTelemetry, setIncludeTelemetry] = useState(false);
+  const telemetry = useTelemetry({ modelId: 'diesel', partId: 'engine', window: '5m' });
+  const telemetrySummary = includeTelemetry ? {
+    source: 'simulated' as const,
+    text: telemetry.series.filter(row => row.latest).map(row => `${row.channel.name[lang]}: ${row.latest!.value} ${row.channel.unit}（采样源 simulated）`).join('\n') || t('当前没有可发送的已收到仿真样本。', 'No received simulated sample is available to send.'),
+  } : undefined;
   useEffect(() => {
     const node = workspaceRef.current;
     if (!node || version !== 'new') return;
@@ -70,7 +77,7 @@ export default function ChatPage() {
     sendMessage, stopRequest, handleClear, memory, profile,
     diagnosisMode, setDiagnosisMode, deviceName, setDeviceName, hours, setHours, deviceNotes, setDeviceNotes, progress, setProgress,
     engineModel, setEngineModel, faultCodeInput, setFaultCodeInput, attachment, setAttachment, sendError,
-  } = useChatSession({ handoff, translate: t, focusInput, minLoadingMs: version === 'new' && PREMIUM_MOTION_ENABLED ? 900 : 0 });
+  } = useChatSession({ handoff, translate: t, focusInput, telemetrySummary, minLoadingMs: version === 'new' && PREMIUM_MOTION_ENABLED ? 900 : 0 });
   const orb = useDiagnosisOrb(PREMIUM_MOTION_ENABLED && version === 'new' && isLoading);
   useUpdateBlocker('/chat', isLoading || memory.busy || !memory.ready || !!input.trim() || !!attachment
     || progress.trim() !== (memory.session?.progress ?? '')
@@ -204,6 +211,10 @@ export default function ChatPage() {
           <option value="knowledge_only">{t('仅本地知识库', 'Local knowledge only')}</option>
           <option value="ai_assisted" disabled={typeof llmHealth !== 'object' || !llmHealth.configured || llmHealth.allowExternalAi === false}>{t('AI 辅助分析', 'AI-assisted analysis')}</option>
         </select>
+      </div>
+      <div className="flex flex-wrap items-start gap-2 border-b border-border/60 px-4 py-2 text-xs">
+        <label className="inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-md border border-border px-3 py-2"><input type="checkbox" checked={includeTelemetry} onChange={event => setIncludeTelemetry(event.target.checked)} disabled={isLoading || memory.busy} />{t('携带仿真监测摘要', 'Attach simulated monitoring summary')}</label>
+        {includeTelemetry && <div className="min-w-0 flex-1 rounded-md border border-amber-500/40 bg-amber-500/5 px-3 py-2"><p>{t('发送前预览；将发送给所选模型服务。', 'Preview before sending; it will be sent to the selected model service.')}</p><pre className="mt-1 max-h-20 overflow-auto whitespace-pre-wrap">{telemetrySummary?.text}</pre><p className="mt-1 font-medium">{t('以下为仿真演示数据，不是真实设备读数，不得据此给出确定性故障结论。', 'Simulation demo data, not real device readings; do not use it for a definitive fault conclusion.')}</p></div>}
       </div>
       <div className="chat-current-context">
         <div className="min-w-0"><p className="truncate font-medium">{plate || t('尚未指定车型 · 可先描述现象', 'No model specified · describe the symptom first')}</p>{topic && <p className="truncate text-muted-foreground">{t('当前问题：', 'Current topic: ')}{topic.slice(0, 100)}</p>}</div>
