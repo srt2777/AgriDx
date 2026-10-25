@@ -17,5 +17,5 @@ export function useTelemetry(scope: TelemetryScope & { window?: TelemetryWindow 
     const points = state.points[channel.id] ?? [], windowPoints = telemetryWindowPoints(points, window, windowEnd);
     return { channel, points, windowPoints, chartPoints: downsampleTelemetry(windowPoints), latest: state.latest[channel.id], historyStatus: state.historyStatus[channel.id] ?? 'loading' };
   }), [channels, state.points, state.latest, state.historyStatus, window, windowEnd]);
-  return { ...state, series, window, windowEnd, connectionState: store.connectionState(), retry: store.retry, retryHistory: store.retryHistory };
+  return { ...state, series, window, windowEnd, connectionState: store.connectionState(), retry: store.retry, retryHistory: store.retryHistory, changeScenario: store.changeScenario };
 }
