@@ -62,6 +62,13 @@ test('只在柴油模型定位到实际存在的关联部件，不使用故障�
   assert.match(model, /modelId="diesel"/);
   assert.match(model, /faultPartId=\{null\}/);
 });
+test('旧工作台页面消费统一遥测hook和有界回放，不再前端生成参数帧', () => {
+  const page = readFileSync(new URL('../src/pages/FaultDetectionPage/FaultDetectionPage.tsx', import.meta.url), 'utf8');
+  assert.match(page, /useTelemetry\(\{ modelId: 'diesel', partId: 'engine'/);
+  assert.match(page, /buildReplayTimeline/);
+  assert.doesNotMatch(page, /frame\(scenario/);
+  assert.doesNotMatch(page, /const METRICS/);
+});
 test('演示播放或未保存笔记阻止自动更新，解除后允许更新', () => {
   assert.equal(canAutoReload('/fault-detection'), false);
   const remove = registerUpdateGuard('fault-demo-test', '/fault-detection', true);

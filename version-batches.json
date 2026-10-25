@@ -644,6 +644,13 @@
       "base": "4.0.1",
       "version": "4.0.2",
       "date": "2026-10-25"
+    },
+    {
+      "id": "ui-fault-telemetry-page-20261025",
+      "kind": "feature",
+      "base": "4.0.2",
+      "version": "4.1.0",
+      "date": "2026-10-25"
     }
   ]
 }
