@@ -96,7 +96,7 @@ export default function ModelPage() {
     window.setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
 
-  return <div className={`mx-auto px-4 pb-16 md:px-6 ${version === 'new' ? 'max-w-[1240px] pt-4 md:pt-6' : 'max-w-6xl pt-10 md:pt-16'}`}>
+  return <div className={`mx-auto px-4 pb-16 md:px-6 ${version === 'new' ? 'model-page max-w-[1240px] pt-4 md:pt-6' : 'max-w-6xl pt-10 md:pt-16'}`}>
     <div className="mb-8 max-w-3xl">
       <p className="text-xs font-semibold tracking-[.14em] text-primary">{t('耕知 · 模型工坊', 'GENGZHI · MODEL STUDIO')}</p>
       <h1 className="mt-3 text-3xl font-semibold tracking-tight text-foreground md:text-4xl" data-shared-target={version === 'new' ? 'models' : undefined}>{t('看清结构，再对资料。', 'See the structure, then check the evidence.')}</h1>
