@@ -10,6 +10,7 @@ export interface ChatApiMessage {
   role: 'user' | 'assistant';
   content: string;
 }
+export interface ChatTelemetrySummary { source: 'simulated'; text: string }
 
 export interface MachineContext {
   machineType: string;
@@ -29,6 +30,7 @@ export interface ChatRequest {
   model?: string;
   engineModel?: string;
   faultCodes?: string[];
+  telemetrySummary?: ChatTelemetrySummary;
 }
 
 export interface ChatKnowledgeSource {

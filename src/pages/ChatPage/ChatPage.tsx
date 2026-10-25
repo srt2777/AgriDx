@@ -33,6 +33,8 @@ import { PREMIUM_MOTION_ENABLED } from '@/components/motion/flag';
 import { MorphingPanel } from '@/components/motion/MorphingPanel';
 import { ThinkingOrbs } from '@/components/motion/ThinkingOrbs';
 import { useDiagnosisOrb } from '@/components/motion/useDiagnosisOrb';
+import { chatPathBadge, evidenceRows } from '@/features/chat/evidence';
+import { useTelemetry } from '@/hooks/useTelemetry';
 
 export default function ChatPage() {
   const location = useLocation();
@@ -45,6 +47,12 @@ export default function ChatPage() {
     provider === 'gemini' ? 'Gemini' : provider === 'deepseek' ? 'DeepSeek' : provider === 'openai' ? 'OpenAI compatible' : '';
   const workspaceRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const [includeTelemetry, setIncludeTelemetry] = useState(false);
+  const telemetry = useTelemetry({ modelId: 'diesel', partId: 'engine', window: '5m' });
+  const telemetrySummary = includeTelemetry ? {
+    source: 'simulated' as const,
+    text: telemetry.series.filter(row => row.latest).map(row => `${row.channel.name[lang]}: ${row.latest!.value} ${row.channel.unit}（采样源 simulated）`).join('\n') || t('当前没有可发送的已收到仿真样本。', 'No received simulated sample is available to send.'),
+  } : undefined;
   useEffect(() => {
     const node = workspaceRef.current;
     if (!node || version !== 'new') return;
@@ -69,7 +77,7 @@ export default function ChatPage() {
     sendMessage, stopRequest, handleClear, memory, profile,
     diagnosisMode, setDiagnosisMode, deviceName, setDeviceName, hours, setHours, deviceNotes, setDeviceNotes, progress, setProgress,
     engineModel, setEngineModel, faultCodeInput, setFaultCodeInput, attachment, setAttachment, sendError,
-  } = useChatSession({ handoff, translate: t, focusInput, minLoadingMs: version === 'new' && PREMIUM_MOTION_ENABLED ? 900 : 0 });
+  } = useChatSession({ handoff, translate: t, focusInput, telemetrySummary, minLoadingMs: version === 'new' && PREMIUM_MOTION_ENABLED ? 900 : 0 });
   const orb = useDiagnosisOrb(PREMIUM_MOTION_ENABLED && version === 'new' && isLoading);
   useUpdateBlocker('/chat', isLoading || memory.busy || !memory.ready || !!input.trim() || !!attachment
     || progress.trim() !== (memory.session?.progress ?? '')
@@ -203,6 +211,10 @@ export default function ChatPage() {
           <option value="knowledge_only">{t('仅本地知识库', 'Local knowledge only')}</option>
           <option value="ai_assisted" disabled={typeof llmHealth !== 'object' || !llmHealth.configured || llmHealth.allowExternalAi === false}>{t('AI 辅助分析', 'AI-assisted analysis')}</option>
         </select>
+      </div>
+      <div className="flex flex-wrap items-start gap-2 border-b border-border/60 px-4 py-2 text-xs">
+        <label className="inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-md border border-border px-3 py-2"><input type="checkbox" checked={includeTelemetry} onChange={event => setIncludeTelemetry(event.target.checked)} disabled={isLoading || memory.busy} />{t('携带仿真监测摘要', 'Attach simulated monitoring summary')}</label>
+        {includeTelemetry && <div className="min-w-0 flex-1 rounded-md border border-amber-500/40 bg-amber-500/5 px-3 py-2"><p>{t('发送前预览；将发送给所选模型服务。', 'Preview before sending; it will be sent to the selected model service.')}</p><pre className="mt-1 max-h-20 overflow-auto whitespace-pre-wrap">{telemetrySummary?.text}</pre><p className="mt-1 font-medium">{t('以下为仿真演示数据，不是真实设备读数，不得据此给出确定性故障结论。', 'Simulation demo data, not real device readings; do not use it for a definitive fault conclusion.')}</p></div>}
       </div>
       <div className="chat-current-context">
         <div className="min-w-0"><p className="truncate font-medium">{plate || t('尚未指定车型 · 可先描述现象', 'No model specified · describe the symptom first')}</p>{topic && <p className="truncate text-muted-foreground">{t('当前问题：', 'Current topic: ')}{topic.slice(0, 100)}</p>}</div>
@@ -370,7 +382,30 @@ function DiagnosticAnswer({ message, t, onAnswer, disabled }: {
     : source.evidenceKind === 'prompt' ? t('信息收集提示（非手册）', 'Information prompt (not a manual)')
     : [source.sourceTitle || source.sourceId || source.source, source.pages?.pdf ? t(`PDF第${source.pages.pdf}页`, `PDF p. ${source.pages.pdf}`) : '', source.pages?.printed ? t(`印刷第${source.pages.printed}页`, `Printed p. ${source.pages.printed}`) : ''].filter(Boolean).join(' · ');
   const used = sources.filter(source => source.usage === 'answer-evidence');
+  const rows = evidenceRows(message.roleFlow, sources);
+  const badge = chatPathBadge(message.coordination, message.fallbackReason, message.provider);
+  const badgeLabel = {
+    'source-answer': t('来源回答', 'Source answer'),
+    clarify: t('需补充信息', 'Needs clarification'),
+    'ai-assist': t('AI 辅助', 'AI assisted'),
+    'safety-fallback': t('安全降级', 'Safety fallback'),
+  }[badge];
+  const badgeReason = message.fallbackReason === 'not_configured'
+    ? t('外部AI未配置，使用本地资料。', 'External AI is not configured; local evidence is used.')
+    : message.fallbackReason === 'provider_unavailable'
+    ? t('外部AI不可用，已回退本地资料。', 'External AI was unavailable; local evidence is used.')
+    : message.coordination?.reason === 'identity_required'
+    ? t('需要先确认机型和配置。', 'Confirm the machine and configuration first.')
+    : message.coordination?.reason === 'high_risk_restricted'
+    ? t('高风险动作需核对手册与专业人员。', 'High-risk actions require the manual and a professional.')
+    : undefined;
+  const contextFollowups = [
+    t('驾驶室 / 防翻架配置', 'Cab / ROPS configuration'),
+    t('驱动形式（两驱 / 四驱）', 'Driveline (2WD / 4WD)'),
+    t('排放阶段或市场', 'Emission stage or market'),
+  ];
   return <div className="chat-answer">
+    <div className="mb-3 flex flex-wrap items-center gap-2 text-xs" role="status"><span className="rounded-full border border-border px-2 py-1 font-medium">{badgeLabel}</span>{badgeReason && <span className="text-muted-foreground">{badgeReason}</span>}</div>
     {reply ? <>
       <p className="whitespace-pre-wrap">{reply.understanding}</p>
       {!!reply.background?.length && <section className="mt-4"><h3 className="mb-2 font-semibold">{t('通用原理参考（非本机结论，需核对）', 'General principles (not a vehicle diagnosis; verify)')}</h3>{reply.background.map((item, index) => <p key={index} className="mt-2">{item.text}</p>)}</section>}
@@ -379,8 +414,13 @@ function DiagnosticAnswer({ message, t, onAnswer, disabled }: {
       {reply.suggestions.length > 0 && <section className="mt-4"><h3 className="mb-2 font-semibold">{t('建议先做', 'Suggested next steps')}</h3><ol className="list-decimal space-y-2 pl-5">{[...reply.suggestions].sort((a, b) => a.priority - b.priority).map((suggestion, index) => <li key={index}>{suggestion.text}</li>)}</ol></section>}
       {reply.sourceNote && <p className="mt-3 text-xs leading-relaxed text-muted-foreground">{reply.sourceNote}</p>}
       {reply.questions.length > 0 && <section className="chat-follow-up mt-4"><h3 className="mb-2 font-semibold">{t('再确认一下', 'A couple of questions')}</h3>{reply.questions.slice(0, 2).map((question, index) => <div key={index} className="mt-3"><p>{question.text}</p>{question.options?.length ? <div className="mt-2 flex flex-wrap gap-2">{question.options.slice(0, 6).map((option, optionIndex) => <button key={optionIndex} type="button" disabled={disabled} className="chat-follow-up-option rounded-lg border border-border bg-background px-3 py-2 text-left text-sm hover:border-primary disabled:opacity-50" onClick={() => onAnswer(`补充：${option}`)}>{option}</button>)}</div> : null}</div>)}</section>}
+      <section className="chat-follow-up mt-4"><h3 className="mb-2 font-semibold">{t('补充适用条件', 'Add applicability')}</h3><div className="flex flex-wrap gap-2">{contextFollowups.map(option => <button key={option} type="button" disabled={disabled} className="chat-follow-up-option min-h-11 rounded-lg border border-border bg-background px-3 py-2 text-left text-sm hover:border-primary disabled:opacity-50" onClick={() => onAnswer(`补充：${option}`)}>{option}</button>)}</div></section>
     </> : <div className="prose prose-sm max-w-none overflow-x-auto dark:prose-invert"><DeferredMarkdown>{message.localSummary || message.content}</DeferredMarkdown></div>}
     {used.length > 0 && <p className="mt-4 border-t border-border/50 pt-2 text-xs text-muted-foreground">{t('依据：', 'Evidence: ')}{used.slice(0, 2).map(sourceLabel).join('；')}{used.length > 2 ? t(`，另${used.length - 2}条见详情`, `; ${used.length - 2} more in details`) : ''}</p>}
+    {message.role === 'assistant' && <section className="chat-evidence mt-4 border-t border-border/50 pt-3" aria-label={t('证据路径', 'Evidence path')}>
+      <h3 className="mb-3 text-sm font-semibold">{t('证据路径：现象→原因→检查→处理→复检', 'Evidence path: phenomenon → cause → check → action → retest')}</h3>
+      <div className="grid gap-2 md:grid-cols-5">{rows.map(row => <section key={row.id} className="rounded-md border border-border/60 p-2"><h4 className="font-medium">{langLabel(row, t)}</h4>{row.items.length ? <ul className="mt-2 space-y-2 text-xs">{row.items.map(item => <li key={item.entryId}><p className="text-foreground">{item.heading}</p><p>{item.source?.sourceTitle || item.source?.source || t('来源待核实', 'Source pending')}</p><p>{item.source?.pages?.pdf ? t(`PDF第${item.source.pages.pdf}页`, `PDF p. ${item.source.pages.pdf}`) : t('页码待核实', 'Page pending')}</p><p>{item.source?.scopeBoundary || t('适用范围待核实', 'Scope pending')}</p></li>)}</ul> : <p className="mt-2 text-xs text-muted-foreground">{t('暂无资料', 'No evidence yet')}</p>}</section>)}</div>
+    </section>}
     {message.role === 'assistant' && <details className="chat-evidence mt-4 border-t border-border/50 pt-3">
       <summary className="cursor-pointer text-xs font-medium">{t('诊断依据与技术详情', 'Evidence and technical details')}{sources.length ? ` · ${sources.length}` : ''}</summary>
       <div className="chat-evidence-body mt-3 space-y-4 text-xs leading-relaxed text-muted-foreground">
@@ -404,6 +444,8 @@ function DiagnosticAnswer({ message, t, onAnswer, disabled }: {
     </details>}
   </div>;
 }
+
+function langLabel(row: { zh: string; en: string }, t: (zh: string, en: string) => string) { return t(row.zh, row.en); }
 
 function MachineContext({
   framed, t, typeOptions, machineType, setMachineType, brand, setBrand, model, setModel,

@@ -43,7 +43,7 @@ export interface DiagnosticDependencies {
 export function createDiagnosticService(llm: DiagnosticProvider, dependencies: DiagnosticDependencies = {}): DiagnosticService {
   const search = dependencies.retrieve ?? retrieve;
   const now = dependencies.now ?? (() => performance.now());
-  return async ({ history, machineType, brand, model, engineModel, faultCodes, diagnosisMode }, memory) => {
+  return async ({ history, machineType, brand, model, engineModel, faultCodes, diagnosisMode, telemetrySummary }, memory) => {
     const started = now();
     const config = { ...diagnosticRuntimeConfig(), ...dependencies.config };
     const context = resolveDiagnosticContext(history, { machineType, brand, model });
@@ -124,6 +124,7 @@ export function createDiagnosticService(llm: DiagnosticProvider, dependencies: D
         displayed = admissible.filter(chunk => chunk.entryId && directIds.has(chunk.entryId));
       }
       const diagnosticReply = replyPlan(route);
+      if (telemetrySummary) diagnosticReply.sourceNote += '\n仿真演示数据，不是真实设备读数，不得据此给出确定性故障结论。';
       const unavailable = failed ? failureKind === 'timeout' ? '已尝试外部 AI，但请求超时；本次先提供本地安全观察建议。' : '已尝试外部 AI，但服务暂不可用；本次先提供本地安全观察建议。'
         : rejected ? '外部 AI 已返回，但内容未通过来源或安全检查；本次保留本地安全建议。'
         : route.reason === 'llm_not_configured' ? '当前服务端未配置外部 AI 密钥，本次没有调用外部模型。'
@@ -143,7 +144,7 @@ export function createDiagnosticService(llm: DiagnosticProvider, dependencies: D
     const promptChunks = selectPromptChunks(admissible, config.contextMaxChars);
     displayed = promptChunks;
     const { message: systemMessage, answerMode } = buildSystemPrompt({ query, currentQuery, clarificationNeeded,
-      ...scope, retrieved: promptChunks, contextMaxChars: config.contextMaxChars });
+      ...scope, retrieved: promptChunks, contextMaxChars: config.contextMaxChars, telemetrySummary: telemetrySummary?.text });
     const groundedPrompt = promptChunks.some(chunk => chunk.generalEvidence === true && !scope.brand && !scope.model) || promptChunks.some(chunk => !chunk.retrieval?.referenceOnly &&
       coordination.candidates?.some(candidate => candidate.entryId === chunk.entryId && !candidate.excluded &&
         candidate.modelMatch === 'exact' && candidate.sourceIndexed && candidate.referenceVerification === 'verified'));

@@ -40,6 +40,7 @@ export interface BuildSystemPromptOptions {
   model?: string;
   engineModel?: string;
   faultCodes?: string[];
+  telemetrySummary?: string;
 }
 
 export function buildSystemPrompt(opts: BuildSystemPromptOptions): {
@@ -122,5 +123,8 @@ ${machineContext || '（用户未指定农机类型/品牌/型号；通识原理
 # 知识库片段
 ${knowledgeBlock}`;
 
-  return { message: { role: 'system', content }, retrieved, answerMode };
+  const telemetryNotice = opts.telemetrySummary
+    ? `\n\n# 仿真监测摘要（用户主动勾选）\n以下为仿真演示数据，不是真实设备读数，不得据此给出确定性故障结论。它只能作为辅助上下文，不进入知识检索、覆盖统计或设备事实：\n${opts.telemetrySummary}\n回答中必须保留“仿真演示数据，不是真实设备读数，不得据此给出确定性故障结论”。`
+    : '';
+  return { message: { role: 'system', content: content + telemetryNotice }, retrieved, answerMode };
 }
