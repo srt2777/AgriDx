@@ -124,3 +124,10 @@ html.theme-dark .new-version-shell[data-ui-version="new"] {
   .new-version-shell[data-ui-version="new"] .new-version-navigation { gap: 4px; }
   .new-version-shell[data-ui-version="new"] .new-version-nav-toggle { bottom: 16px; }
 }
+
+/* 3. One compact help trigger; redundant location stays available to screen readers. */
+.new-version-shell[data-ui-version="new"] .demo-note-button { width: 44px; height: 44px; padding: 0; border-color: var(--nv-border); color: var(--nv-text); background: transparent; }
+.new-version-shell[data-ui-version="new"] .demo-note-button:hover { background: var(--nv-surface); }
+.new-version-shell[data-ui-version="new"] .new-version-language { min-width: 44px; min-height: 44px; }
+.new-version-shell[data-ui-version="new"] .site-status-bar > span:first-child { display: none; }
+.new-version-shell[data-ui-version="new"] .site-status-bar { justify-content: flex-end; }

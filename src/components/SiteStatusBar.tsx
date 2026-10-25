@@ -20,7 +20,7 @@ export function SiteStatusBar() {
       </span>
       <span>
         <Link to="/version-history" className="hover:underline">{lang === 'zh' ? '更新记录' : 'Version history'} · v{version}</Link> <i aria-hidden="true" />
-        {place}
+        <span className="sr-only">{place}</span>
       </span>
     </footer>
   );
