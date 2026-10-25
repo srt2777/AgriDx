@@ -7,7 +7,7 @@ import { PREMIUM_MOTION_ENABLED } from '@/components/motion/flag';
 import { BorderBeam } from '@/components/motion/BorderBeam';
 import { MorphingPanel } from '@/components/motion/MorphingPanel';
 import { TiltCard } from '@/components/motion/TiltCard';
-import { TwinQuery } from '@/components/motion/ThinkingOrbs';
+import ModelLoading from '@/components/ModelLoading';
 import PartsPreviewFallback from './PartsPreviewFallback';
 import PartKnowledge from './PartKnowledge';
 import { publicAsset } from '@/lib/public-asset';
@@ -247,7 +247,7 @@ export default function PartsStudio({ onImport }: { onImport: (event: ChangeEven
               <PartsPreviewFallback modelId={modelId} exploded={explode >= 1} reason={graphics ? lost ? 'lost' : error ? 'error' : 'unsupported' : 'manual'} onRetry={retryGraphics} onShowParts={showParts} />
             ) : (
               <ErrorBoundary key={sceneAttempt} fallback={<PartsPreviewFallback modelId={modelId} exploded={explode >= 1} reason="error" onRetry={retryGraphics} onShowParts={showParts} />} onError={error => onError(error instanceof Error ? error.message : String(error))}>
-              <DeferredScene fallback={PREMIUM_MOTION_ENABLED ? <TwinQuery label={t('正在打开孪生视图…', 'Opening the twin view…')} /> : <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground" role="status"><span>{t('正在打开孪生视图…', 'Opening the twin view…')}</span></div>}>
+              <DeferredScene fallback={<ModelLoading />}>
                 <PartsTractorScene
                   key={sceneAttempt}
                   url={modelUrl}
@@ -272,7 +272,7 @@ export default function PartsStudio({ onImport }: { onImport: (event: ChangeEven
               </DeferredScene>
               </ErrorBoundary>
             )}
-            {!staticView && !ready && !error && <div className="parts-loading">{PREMIUM_MOTION_ENABLED ? <TwinQuery label={t(`正在打开${spec.titleZh}…`, `Opening ${spec.titleEn}…`)} /> : <span>{t(`正在打开${spec.titleZh}…`, `Opening ${spec.titleEn}…`)}</span>}</div>}
+            {!staticView && !ready && !error && <div className="parts-loading"><ModelLoading /></div>}
             <ol className="parts-event-log" aria-label={t('示例记录', 'Example log')}>
               {timeline.map(item => <li key={item.id}>{language === 'zh' ? item.zh : item.en}</li>)}
             </ol>

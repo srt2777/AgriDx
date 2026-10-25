@@ -1,0 +1,280 @@
+/* Scheme A: modern UI only. Keep this after all existing style entry points. */
+.new-version-shell[data-ui-version="new"] {
+  --nv-text-xs: 12px;
+  --nv-text-sm: 14px;
+  --nv-text-md: 16px;
+  --nv-text-lg: 20px;
+  --nv-text-xl: 32px;
+  --nv-leading: 1.5;
+  --nv-heading-leading: 1.25;
+  --nv-radius-sm: 6px;
+  --nv-radius-md: 10px;
+  --nv-radius-lg: 16px;
+  --nv-radius-pill: 999px;
+  --nv-space-1: 4px;
+  --nv-space-2: 8px;
+  --nv-space-3: 16px;
+  --nv-space-4: 24px;
+  --nv-space-5: 32px;
+  --nv-background: var(--hub-background);
+  --nv-surface: var(--hub-surface);
+  --nv-card: var(--hub-card);
+  --nv-text: var(--hub-foreground);
+  --nv-muted: var(--hub-muted);
+  --nv-border: var(--hub-border);
+  --nv-primary: var(--hub-primary);
+  --nv-on-primary: var(--hub-primary-foreground);
+  /* Semantic aliases have one source each; no new palette literals. */
+  --nv-success: var(--success);
+  --nv-warning: var(--warning);
+  --nv-danger: var(--destructive);
+  --nv-shadow-sm: 0 4px 8px color-mix(in srgb, var(--hub-foreground) 8%, transparent);
+  --nv-shadow-lg: 0 8px 24px color-mix(in srgb, var(--hub-foreground) 16%, transparent);
+  --nv-duration: var(--motion-hover);
+  --nv-ease: var(--motion-ease-standard);
+  --primary: var(--nv-primary);
+  --primary-foreground: var(--nv-on-primary);
+  --ring: var(--nv-primary);
+  --background: var(--nv-background);
+  --card: var(--nv-card);
+  --foreground: var(--nv-text);
+  --muted-foreground: var(--nv-muted);
+  --border: var(--nv-border);
+  color: var(--nv-text);
+  font-size: var(--nv-text-sm);
+  line-height: var(--nv-leading);
+}
+html.theme-dark .new-version-shell[data-ui-version="new"] {
+  --nv-background: var(--hall-night);
+  --nv-surface: var(--hall-surface);
+  --nv-card: var(--hall-card);
+  --nv-primary: var(--hall-cyan);
+  --nv-on-primary: var(--hall-night);
+}
+.new-version-shell[data-ui-version="new"] :is(p, label, input, textarea, select, button, summary, td, th) {
+  font-size: var(--nv-text-sm);
+  line-height: var(--nv-leading);
+}
+.new-version-shell[data-ui-version="new"] :is(small, .text-xs, [class*='text-[10px]'], [class*='text-[11px]'], .section-eyebrow) {
+  font-size: var(--nv-text-xs);
+  line-height: var(--nv-leading);
+}
+.new-version-shell[data-ui-version="new"] h1 { font-size: var(--nv-text-xl); line-height: var(--nv-heading-leading); }
+.new-version-shell[data-ui-version="new"] h2 { font-size: var(--nv-text-lg); line-height: var(--nv-heading-leading); }
+.new-version-shell[data-ui-version="new"] :is(h3, h4) { font-size: var(--nv-text-md); line-height: var(--nv-heading-leading); }
+.new-version-shell[data-ui-version="new"] :is(button, a, input, select, textarea) {
+  transition-duration: var(--nv-duration);
+  transition-timing-function: var(--nv-ease);
+}
+@media (prefers-reduced-motion: reduce) {
+  .new-version-shell[data-ui-version="new"] { --nv-duration: 0ms; }
+}
+
+
+/* 2. One frame, including its navigation row and every inner page. */
+.new-version-shell[data-ui-version="new"] > .new-version-header,
+.new-version-shell[data-ui-version="new"] .new-version-workspace,
+.new-version-shell[data-ui-version="new"] .not-found-main {
+  width: min(calc(100% - 48px), 1360px);
+  max-width: 1360px;
+  margin-inline: auto;
+}
+.new-version-shell[data-ui-version="new"] .new-version-workspace,
+.new-version-shell[data-ui-version="new"] .new-version-workspace.is-nav-collapsed {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 16px;
+  align-items: stretch;
+}
+.new-version-shell[data-ui-version="new"] .new-version-navigation-rail { position: static; padding: 0; }
+.new-version-shell[data-ui-version="new"] .new-version-navigation { flex-direction: row; justify-content: flex-start; flex-wrap: wrap; gap: 8px; }
+.new-version-shell[data-ui-version="new"] .new-version-nav-item { min-height: 44px; border-radius: var(--nv-radius-md); }
+.new-version-shell[data-ui-version="new"] .new-version-content { width: 100%; }
+.new-version-shell[data-ui-version="new"] .new-version-breadcrumb { padding: 0 0 16px; }
+.new-version-shell[data-ui-version="new"] .new-version-main :is(.page-container, .version-history-page, .model-page, .expo-page) {
+  width: 100%;
+  max-width: none;
+  margin-inline: 0;
+  padding-inline: 0;
+}
+.new-version-shell[data-ui-version="new"] .knowledge-page { background: transparent; }
+.new-version-shell[data-ui-version="new"] .knowledge-page .page-container { padding-top: 24px; }
+.new-version-shell[data-ui-version="new"] .new-version-header-content { gap: 16px; padding: 8px 16px; }
+.new-version-shell[data-ui-version="new"] .new-version-wordmark small { font-size: var(--nv-text-xs); letter-spacing: .04em; }
+.new-version-shell[data-ui-version="new"] .new-version-tools { gap: 8px; }
+.new-version-shell[data-route='/chat'] .new-version-workspace { padding-bottom: 16px; overflow: visible; }
+.new-version-shell[data-route='/chat'] .new-version-content { flex: 1; min-height: 0; }
+.new-version-shell[data-route='/chat'] .chat-glass { border-radius: var(--nv-radius-lg); overflow: hidden; }
+.new-version-shell[data-ui-version="new"] .site-status-bar { padding-inline: 0; }
+@media (max-width: 900px) {
+  .new-version-shell[data-ui-version="new"] .new-version-navigation { display: flex; }
+  .new-version-shell[data-ui-version="new"] .new-version-navigation-rail { border: 0; background: transparent; }
+  .new-version-shell[data-ui-version="new"] .new-version-workspace { padding-bottom: 72px; }
+}
+@media (max-width: 600px) {
+  .new-version-shell[data-ui-version="new"] > .new-version-header,
+  .new-version-shell[data-ui-version="new"] .new-version-workspace,
+  .new-version-shell[data-ui-version="new"] .not-found-main { width: calc(100% - 32px); }
+  .new-version-shell[data-ui-version="new"] .new-version-header-content { gap: 8px; padding: 8px; }
+  .new-version-shell[data-ui-version="new"] .new-version-tools { width: 100%; justify-content: space-between; flex-wrap: nowrap; gap: 4px; }
+  .new-version-shell[data-ui-version="new"] .new-version-language { font-size: var(--nv-text-xs); }
+  .new-version-shell[data-ui-version="new"] .new-version-nav-item { padding: 8px; font-size: var(--nv-text-xs); }
+  .new-version-shell[data-ui-version="new"] .new-version-navigation { gap: 4px; }
+  .new-version-shell[data-ui-version="new"] .new-version-nav-toggle { bottom: 16px; }
+}
+
+/* 3. One compact help trigger; redundant location stays available to screen readers. */
+.new-version-shell[data-ui-version="new"] .demo-note-button { width: 44px; height: 44px; padding: 0; border-color: var(--nv-border); color: var(--nv-text); background: transparent; }
+.new-version-shell[data-ui-version="new"] .demo-note-button:hover { background: var(--nv-surface); }
+.new-version-shell[data-ui-version="new"] .new-version-language { min-width: 44px; min-height: 44px; }
+.new-version-shell[data-ui-version="new"] .site-status-bar > span:first-child { display: none; }
+.new-version-shell[data-ui-version="new"] .site-status-bar { justify-content: flex-end; }
+
+/* Remove decorative corner marks and top ticks. */
+.new-version-shell[data-ui-version="new"] :is(.nv-corners, .chat-context, .chat-source, .catalog-brand-pills button, .catalog-model-grid button, .evidence-entry, .hall-metric, .hall-zone-button)::before { content: none; }
+.new-version-shell[data-ui-version="new"] .wheat-line { display: none; background: var(--nv-primary); }
+.new-version-shell[data-ui-version="new"] :is(.knowledge-page-heading, .model-page > div:first-child, .not-found-card) .wheat-line { display: block; }
+
+/* 4–5. Quiet, opaque content surfaces; glass remains on chrome and popovers. */
+.new-version-shell[data-ui-version="new"] :is(.chat-glass, .chat-bar-glass, .chat-input-glass, .chat-context, .chat-source, .chat-chip, .chat-composer, .catalog-browser, .catalog-stats, .catalog-distribution, .catalog-model-grid button, .catalog-brand-pills button, .evidence-entry, .parts-panel, .parts-stage-card, .parts-knowledge, .model-control-glass, .history-build, .history-detail-body, .not-found-card) {
+  background: var(--nv-card);
+  color: var(--nv-text);
+  border: 1px solid var(--nv-border);
+  border-radius: var(--nv-radius-lg);
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+.new-version-shell[data-ui-version="new"] :is(.chat-bar-glass, .chat-input-glass) { border: 0; border-radius: 0; }
+.new-version-shell[data-ui-version="new"] .chat-bar-glass { border-bottom: 1px solid var(--nv-border); }
+.new-version-shell[data-ui-version="new"] .chat-input-glass { border-top: 1px solid var(--nv-border); }
+.new-version-shell[data-ui-version="new"] .new-version-main .agri-liquid-glass:not(.expo-dock-glass):not(.expo-zone-card):not(.expo-catalog) {
+  background: var(--nv-card);
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+.new-version-shell[data-ui-version="new"] .new-version-main .agri-liquid-glass:not(.expo-dock-glass):not(.expo-zone-card):not(.expo-catalog) > :is(.agri-glass-lens, .agri-glass-optics) { display: none; }
+.new-version-shell[data-ui-version="new"] :is(.card-peek, .model-peek, .nv-example) { color: var(--nv-primary); border-color: var(--nv-border); }
+.new-version-shell[data-ui-version="new"] :is(.catalog-browser, .parts-panel, .chat-context) { padding: 16px; }
+.new-version-shell[data-ui-version="new"] :is(.catalog-tabs, .library-collections, .parts-stage-head, .parts-stage-foot) { gap: 8px; }
+.new-version-shell[data-ui-version="new"] :is(.catalog-tabs, .library-collections) button { border-radius: var(--nv-radius-pill); }
+.new-version-shell[data-ui-version="new"] :is(input:where(:not([type='checkbox']):not([type='range']):not([type='file'])), textarea, select) {
+  min-width: 0;
+  max-width: 100%;
+  border: 1px solid var(--nv-border);
+  border-radius: var(--nv-radius-md);
+  background-color: var(--nv-surface);
+  color: var(--nv-text);
+  box-shadow: none;
+}
+.new-version-shell[data-ui-version="new"] select { min-height: 44px; padding: 8px 12px; font: inherit; color-scheme: light; }
+html.theme-dark .new-version-shell[data-ui-version="new"] select { color-scheme: dark; }
+.new-version-shell[data-ui-version="new"] :is(input, textarea, select):focus-visible { outline: 2px solid var(--nv-primary); outline-offset: 2px; box-shadow: none; }
+.new-version-shell[data-ui-version="new"] :is(button, a):focus-visible { outline: 2px solid var(--nv-primary); outline-offset: 2px; }
+.new-version-shell[data-ui-version="new"] .catalog-stats strong,
+.new-version-shell[data-ui-version="new"] .catalog-stats strong span { font-size: var(--nv-text-xl); line-height: var(--nv-heading-leading); font-weight: 700; font-variant-numeric: tabular-nums; }
+.new-version-shell[data-ui-version="new"] .catalog-stats > div > span { font-size: var(--nv-text-xs); color: var(--nv-muted); margin-top: 8px; }
+.new-version-shell[data-ui-version="new"] .catalog-stats > div { padding: 16px; }
+.new-version-shell[data-ui-version="new"] .chat-composer { border: 0; padding: 0; background: transparent; }
+.new-version-shell[data-ui-version="new"] .chat-composer:focus-within { box-shadow: none; }
+.new-version-shell[data-ui-version="new"] .chat-composer textarea { border: 1px solid var(--nv-border); padding: 12px; }
+.new-version-shell[data-ui-version="new"] .chat-composer textarea:focus-visible { outline: none; border-color: var(--nv-primary); }
+.new-version-shell[data-ui-version="new"] .chat-composer button[type='submit'] {
+  display: inline-flex;
+  min-width: 48px;
+  min-height: 48px;
+  border: 1px solid var(--nv-primary);
+  border-radius: var(--nv-radius-md);
+  background: var(--nv-primary);
+  color: var(--nv-on-primary);
+  opacity: 1;
+  box-shadow: none;
+}
+.new-version-shell[data-ui-version="new"] .chat-composer button[type='submit']:disabled { background: var(--nv-surface); border-color: var(--nv-border); color: var(--nv-muted); cursor: not-allowed; }
+.new-version-shell[data-ui-version="new"] .chat-context h2 { padding: 0 0 16px; }
+.new-version-shell[data-ui-version="new"] :is(.parts-panel, .parts-stage-foot, .parts-knowledge, .model-page p) { font-size: var(--nv-text-sm); line-height: var(--nv-leading); }
+.new-version-shell[data-ui-version="new"] :is(.parts-stage-head, .parts-stage-foot, .parts-explode, .parts-fault) { align-items: center; gap: 8px; }
+.new-version-shell[data-ui-version="new"] :is(.parts-panel button, .parts-stage-head button, .parts-stage-foot button) { min-height: 44px; }
+.new-version-shell[data-ui-version="new"] .nv-model-skeleton { width: 100%; min-height: 240px; display: grid; align-content: center; gap: 16px; padding: 24px; background: var(--nv-card); border-radius: var(--nv-radius-lg); }
+.new-version-shell[data-ui-version="new"] .nv-model-skeleton p { color: var(--nv-muted); }
+.new-version-shell[data-ui-version="new"] .nv-model-skeleton span { display: block; height: 16px; border-radius: var(--nv-radius-sm); background: var(--nv-surface); }
+.new-version-shell[data-ui-version="new"] .nv-model-skeleton span:first-of-type { width: 60%; height: 120px; }
+.new-version-shell[data-ui-version="new"] .nv-model-skeleton span:last-child { width: 75%; }
+.new-version-shell[data-ui-version="new"] :is(.parts-kpi, .parts-event-log, .parts-studio .studio-bar) {
+  background: var(--nv-card); color: var(--nv-text); border-color: var(--nv-border);
+  border-radius: var(--nv-radius-md); box-shadow: none; backdrop-filter: none;
+}
+.new-version-shell[data-ui-version="new"] .parts-kpi { flex-wrap: wrap; }
+.new-version-shell[data-ui-version="new"] .parts-kpi-card { border: 0; box-shadow: none; background: transparent; }
+.new-version-shell[data-ui-version="new"] .parts-detail ul { font-size: var(--nv-text-sm); }
+.new-version-shell[data-ui-version="new"] .chat-input-glass .agri-glass-frost { display: none; }
+
+/* 6. Campus overlays use cyan, while model geometry and fallback controls stay intact. */
+.new-version-shell[data-ui-version="new"] .world-zone-label {
+  --zone-color: var(--nv-primary);
+  border-color: var(--nv-border);
+  color: var(--nv-text);
+  box-shadow: var(--nv-shadow-sm);
+}
+.new-version-shell[data-ui-version="new"] .world-zone-label :is(span, strong) { color: var(--nv-text); font-size: var(--nv-text-xs); }
+.new-version-shell[data-ui-version="new"] .world-zone-label.is-selected { border-color: var(--nv-primary); }
+.new-version-shell[data-ui-version="new"] .expo-world-stage { border-radius: var(--nv-radius-lg); border-color: var(--nv-border); box-shadow: none; }
+
+
+
+
+
+.new-version-shell[data-ui-version="new"] .not-found-card { width: 100%; margin: 0; }
+.new-version-shell[data-ui-version="new"] .not-found-card > strong { font-size: var(--nv-text-xl); }
+@media (max-width: 600px) {
+
+
+  .new-version-shell[data-ui-version="new"] .catalog-stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .new-version-shell[data-ui-version="new"] .catalog-stats > div { min-width: 0; }
+  .new-version-shell[data-ui-version="new"] .chat-current-context { flex-wrap: wrap; }
+}
+
+/* Specific follow-ups found in the mobile/async style audit. */
+.new-version-shell[data-ui-version="new"] .new-version-main :is(.chat-bar-glass, .chat-input-glass) {
+  --lg-radius: 0px;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+.new-version-shell[data-ui-version="new"] .new-version-main .chat-composer { border: 0; border-radius: 0; background: transparent; box-shadow: none; }
+.new-version-shell[data-ui-version="new"] .new-version-main .chat-empty { border: 0; border-radius: 0; background: transparent; box-shadow: none; padding: 16px 0; margin: 0; }
+.new-version-shell[data-ui-version="new"] .new-version-main .library-collections { background: var(--nv-card); border: 1px solid var(--nv-border); border-radius: var(--nv-radius-md); backdrop-filter: none; }
+.new-version-shell[data-ui-version="new"] :is(.catalog-evidence-heading > span, .library-entry span, .parts-chip, .parts-kpi span, .parts-event-log li, .parts-detail small, .equipment-device-title em, .expo-world-hint, .expo-map-title, .expo-world-minimap span) { font-size: var(--nv-text-xs); line-height: var(--nv-leading); }
+.new-version-shell[data-ui-version="new"] .new-version-main .chat-thread { min-height: 0; }
+.new-version-shell[data-ui-version="new"] .new-version-main .chat-thread > .overflow-y-auto { justify-content: flex-start; }
+.new-version-shell[data-ui-version="new"] :where(span, strong, b, em, dt, dd, li, div, a, code, output) { font-size: inherit; line-height: inherit; }
+.new-version-shell[data-ui-version="new"] :is(p, label).text-xs { font-size: var(--nv-text-sm); }
+.new-version-shell[data-ui-version="new"] .library-preview span { font-size: var(--nv-text-xs); }
+.new-version-shell[data-ui-version="new"] :is(.rounded, .rounded-md, .rounded-lg) { border-radius: var(--nv-radius-sm); }
+.new-version-shell[data-ui-version="new"] .rounded-xl { border-radius: var(--nv-radius-md); }
+.new-version-shell[data-ui-version="new"] :is(.rounded-2xl, .rounded-3xl) { border-radius: var(--nv-radius-lg); }
+.new-version-shell[data-ui-version="new"] .rounded-full { border-radius: var(--nv-radius-pill); }
+.new-version-shell[data-ui-version="new"] .route-shell-reveal { animation-duration: var(--nv-duration); animation-timing-function: var(--nv-ease); }
+.new-version-shell[data-ui-version="new"] .new-version-main .agri-liquid-glass:not(.expo-dock-glass):not(.expo-zone-card):not(.expo-catalog) > :is(.liquid-glass-effect, .liquid-glass-tint, .liquid-glass-shine) { display: none; }
+.new-version-shell[data-ui-version="new"] .border-beam { display: none; }
+.new-version-shell[data-ui-version="new"] :is([aria-pressed='true'], .is-selected, .expo-zone-card):is(:focus-within, .is-selected, .is-beamed, [aria-pressed='true']) > .border-beam { display: block; }
+.new-version-shell[data-ui-version="new"] .new-version-header .new-version-header-glass,
+.new-version-shell[data-ui-version="new"] :is(.expo-zone-card, .expo-catalog, .parts-drawer) { box-shadow: var(--nv-shadow-lg); }
+.new-version-shell[data-ui-version="new"] .expo-dock-glass { box-shadow: var(--nv-shadow-sm); }
+.new-version-shell[data-ui-version="new"] .not-found-main { padding-inline: 0; }
+.new-version-shell[data-ui-version="new"] :is(.demo-note-panel, .nv-shortcuts-panel, .nv-tip) { border-radius: var(--nv-radius-lg); box-shadow: var(--nv-shadow-lg); }
+.new-version-shell[data-ui-version="new"] .demo-help-shortcuts { min-height: 44px; padding: 8px 12px; border: 1px solid var(--nv-border); border-radius: var(--nv-radius-md); color: var(--nv-primary); }
+.new-version-shell[data-ui-version="new"] :is(.nv-shortcuts-panel dt, .nv-shortcuts-panel dd) { font-size: var(--nv-text-sm); }
+
+.new-version-shell[data-ui-version="new"] .campus-equipment-detail .expo-zone-card-top { align-items: flex-start; gap: 16px; }
+.new-version-shell[data-ui-version="new"] .campus-equipment-detail .expo-zone-card-top > span { min-width: 0; overflow-wrap: anywhere; font-size: var(--nv-text-xs); line-height: var(--nv-leading); }
+/* The studio's former HUD text was fixed to white; pair it with the new surface. */
+.new-version-shell[data-ui-version="new"] :is(.parts-panel, .parts-drawer) :is(p, button, summary, h2, h3) { color: var(--nv-text); }
+.new-version-shell[data-ui-version="new"] :is(.parts-panel, .parts-drawer) button { border-color: var(--nv-border); }
+.new-version-shell[data-ui-version="new"] :is(.parts-panel, .parts-drawer) button[aria-pressed='true'] { color: var(--nv-on-primary); background: var(--nv-primary); border-color: var(--nv-primary); }
+.new-version-shell[data-ui-version="new"] :is(.parts-panel, .parts-drawer, .parts-kpi) .parts-chip { color: var(--nv-primary); background: var(--nv-surface); border-color: var(--nv-border); }
+.new-version-shell[data-ui-version="new"] .parts-drawer { background: color-mix(in srgb, var(--nv-card) 94%, transparent); color: var(--nv-text); }
+.new-version-shell[data-ui-version="new"] :is(.hall-card, .rounded-3xl.border)::before { content: none; }
+.new-version-shell[data-ui-version="new"] .parts-drawer .parts-detail ul { color: var(--nv-muted); }
