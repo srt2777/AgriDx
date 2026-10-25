@@ -9,7 +9,9 @@ export function validateVersionState({ packageJson, lockJson, readme, changelog,
   }
   const versionParts = version.split('.').map(Number);
   if (!versionParts.every(Number.isSafeInteger)) throw new Error('版本整数超出安全范围。');
-  if (versionParts[0] >= 4) throw new Error('当前阶段版本上限为 3.x.x；4.0.0 及更高版本需用户明确授权。');
+  if (versionParts[0] > 4 || (versionParts[0] === 4 && (versionParts[1] > 0 || versionParts[2] > 0))) {
+    throw new Error('当前阶段版本上限为 4.0.0；更高版本需用户明确授权。');
+  }
   const recorded = [
     ['package-lock.json', lockJson.version],
     ['package-lock.json 根包', lockJson.packages?.['']?.version],
