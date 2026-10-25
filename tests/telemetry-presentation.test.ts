@@ -20,7 +20,7 @@ function fixture(): ReturnType<typeof useTelemetry> {
     runId: 'presentation-run', sequence: 3, window: '5m', windowEnd: startAt + 2000, connectionState: 'simulated',
     series: definitions.map(channel => { const values = points.map(frame => frame.find(point => point.channelId === channel.id)!);
       return { channel, points: values, windowPoints: values, chartPoints: values, latest: values.at(-1), historyStatus: 'ready' };
-    }), retry: () => {}, retryHistory: async () => {},
+    }), retry: () => {}, retryHistory: async () => {}, changeScenario: async () => {},
   };
 }
 const render = (data: ReturnType<typeof useTelemetry>, lang: 'zh' | 'en' = 'zh') => renderToStaticMarkup(React.createElement(TelemetryPanel, { data, lang, onWindowChange: () => {} }));

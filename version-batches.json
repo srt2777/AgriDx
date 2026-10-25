@@ -581,6 +581,13 @@
       "base": "3.20.0",
       "version": "3.21.0",
       "date": "2026-10-25"
+    },
+    {
+      "id": "ui-telemetry-scenario-client-20261025",
+      "kind": "maintenance",
+      "base": "3.21.0",
+      "version": "3.21.1",
+      "date": "2026-10-25"
     }
   ]
 }

@@ -5,6 +5,7 @@ import { build } from 'vite';
 import express from 'express';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
+const scenarioControls = process.argv[2] === 'scenario';
 const workspace = path.dirname(root), output = path.join(workspace, `telemetry-hook-qa-${Date.now()}`);
 if (!output.startsWith(workspace + path.sep)) throw new Error('QA output outside task workspace');
 let applied = false;
@@ -21,6 +22,10 @@ function TelemetryQaReadout({ name }: { name: string }) {
     <strong>仿真数据 / Simulated data</strong><h2>本地 hook 验收夹具 / Local hook acceptance fixture</h2>
     <p>{name} · {data.phase} / {data.connectionState} · sequence {data.sequence}</p>
     <p style={{ overflowWrap: 'anywhere' }}>run: {data.runId ?? '—'}</p>
+    ${scenarioControls ? `<p>场景 / Scenario: {data.scenario?.id ?? '—'} · revision {data.scenario?.revision ?? '—'} · control {data.scenarioControl.phase}</p>
+    <p>本地验收：当前服务共用仿真场景 / Local acceptance: shared service simulation</p>
+    <button type="button" style={{ minHeight: 44 }} disabled={!data.connected || data.scenarioControl.phase === 'pending'} onClick={() => void data.changeScenario('battery-spread', false)}>电池压差场景 / Battery spread</button>
+    <button type="button" style={{ minHeight: 44 }} disabled={!data.connected || data.scenarioControl.phase === 'pending'} onClick={() => void data.changeScenario('normal', false)}>回到正常 / Return to normal</button>` : ''}
     {data.series.map(row => <p key={row.channel.id} data-channel={row.channel.id} data-source={row.latest?.source ?? ''}>
       {row.channel.name.zh} / {row.channel.name.en}: {row.latest?.value ?? '—'} {row.channel.unit} · history {row.points.length} / chart {row.chartPoints.length} · {row.historyStatus}
     </p>)}
