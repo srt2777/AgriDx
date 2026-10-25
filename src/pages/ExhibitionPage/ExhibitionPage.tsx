@@ -54,6 +54,7 @@ import {
   type ZoneId,
 } from './world-navigation';
 import type { WorldInput } from './ExhibitionWorld';
+import CampusEquipmentCatalog from '@/features/campus-equipment/CampusEquipmentCatalog';
 import { HALL_EXAMPLE_DEVICES, HALL_ZONES, HALL_STATUS_EXAMPLE } from '@/features/campus-equipment/hall-example-data';
 import { exhibitForDevice } from '@/features/campus-equipment/campus-layout';
 import './exhibition.css';
@@ -152,6 +153,7 @@ export default function ExhibitionPage() {
   const [catalogOpen, setCatalogOpen] = useState(false);
   const [tractorOpen, setTractorOpen] = useState(false);
   const [equipmentId, setEquipmentId] = useState<string | null>(null);
+  const [equipmentMoving, setEquipmentMoving] = useState(false);
   const equipmentClose = useRef<HTMLButtonElement>(null);
   const equipmentTrigger = useRef<HTMLElement | null>(null);
   useEffect(() => {
@@ -318,7 +320,7 @@ export default function ExhibitionPage() {
     if (!equipmentRequest) return;
     endIntro();
     if (equipmentRequest === 'all') {
-      stage.current?.scrollIntoView({ behavior: 'instant', block: 'start' });
+      document.getElementById('campus-equipment-catalog')?.scrollIntoView({ behavior: 'instant', block: 'start' });
     } else {
       const device = HALL_EXAMPLE_DEVICES.find(item => item.id === equipmentRequest || item.zone === equipmentRequest);
       if (device) openEquipment(device.id);
@@ -411,7 +413,7 @@ export default function ExhibitionPage() {
                 onLost={onLost}
                 onSelect={selectZone}
                 equipmentFocus={equipmentId}
-                equipmentMoving={false}
+                equipmentMoving={equipmentMoving && !reducedMotion}
                 onEquipmentSelect={openEquipment}
                 onTractorSelect={() => {
                   setEquipmentId(null);
@@ -729,6 +731,7 @@ export default function ExhibitionPage() {
             </div>
           )}
         </section>
+        <CampusEquipmentCatalog onSelect={openEquipment} moving={equipmentMoving && !reducedMotion} onMotion={() => setEquipmentMoving(value => !value)} reduced={reducedMotion} />
       </div>
       {notice && (
         <div className="expo-notice" role="status">
