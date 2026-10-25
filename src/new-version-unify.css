@@ -1,0 +1,73 @@
+/* Scheme A: modern UI only. Keep this after all existing style entry points. */
+.new-version-shell[data-ui-version="new"] {
+  --nv-text-xs: 12px;
+  --nv-text-sm: 14px;
+  --nv-text-md: 16px;
+  --nv-text-lg: 20px;
+  --nv-text-xl: 32px;
+  --nv-leading: 1.5;
+  --nv-heading-leading: 1.25;
+  --nv-radius-sm: 6px;
+  --nv-radius-md: 10px;
+  --nv-radius-lg: 16px;
+  --nv-radius-pill: 999px;
+  --nv-space-1: 4px;
+  --nv-space-2: 8px;
+  --nv-space-3: 16px;
+  --nv-space-4: 24px;
+  --nv-space-5: 32px;
+  --nv-background: var(--hub-background);
+  --nv-surface: var(--hub-surface);
+  --nv-card: var(--hub-card);
+  --nv-text: var(--hub-foreground);
+  --nv-muted: var(--hub-muted);
+  --nv-border: var(--hub-border);
+  --nv-primary: var(--hub-primary);
+  --nv-on-primary: var(--hub-primary-foreground);
+  /* Semantic aliases have one source each; no new palette literals. */
+  --nv-success: var(--success);
+  --nv-warning: var(--warning);
+  --nv-danger: var(--destructive);
+  --nv-shadow-sm: 0 4px 8px color-mix(in srgb, var(--hub-foreground) 8%, transparent);
+  --nv-shadow-lg: 0 8px 24px color-mix(in srgb, var(--hub-foreground) 16%, transparent);
+  --nv-duration: var(--motion-hover);
+  --nv-ease: var(--motion-ease-standard);
+  --primary: var(--nv-primary);
+  --primary-foreground: var(--nv-on-primary);
+  --ring: var(--nv-primary);
+  --background: var(--nv-background);
+  --card: var(--nv-card);
+  --foreground: var(--nv-text);
+  --muted-foreground: var(--nv-muted);
+  --border: var(--nv-border);
+  color: var(--nv-text);
+  font-size: var(--nv-text-sm);
+  line-height: var(--nv-leading);
+}
+html.theme-dark .new-version-shell[data-ui-version="new"] {
+  --nv-background: var(--hall-night);
+  --nv-surface: var(--hall-surface);
+  --nv-card: var(--hall-card);
+  --nv-primary: var(--hall-cyan);
+  --nv-on-primary: var(--hall-night);
+}
+.new-version-shell[data-ui-version="new"] :is(p, label, input, textarea, select, button, summary, td, th) {
+  font-size: var(--nv-text-sm);
+  line-height: var(--nv-leading);
+}
+.new-version-shell[data-ui-version="new"] :is(small, .text-xs, [class*='text-[10px]'], [class*='text-[11px]'], .section-eyebrow) {
+  font-size: var(--nv-text-xs);
+  line-height: var(--nv-leading);
+}
+.new-version-shell[data-ui-version="new"] h1 { font-size: var(--nv-text-xl); line-height: var(--nv-heading-leading); }
+.new-version-shell[data-ui-version="new"] h2 { font-size: var(--nv-text-lg); line-height: var(--nv-heading-leading); }
+.new-version-shell[data-ui-version="new"] :is(h3, h4) { font-size: var(--nv-text-md); line-height: var(--nv-heading-leading); }
+.new-version-shell[data-ui-version="new"] :is(button, a, input, select, textarea) {
+  transition-duration: var(--nv-duration);
+  transition-timing-function: var(--nv-ease);
+}
+@media (prefers-reduced-motion: reduce) {
+  .new-version-shell[data-ui-version="new"] { --nv-duration: 0ms; }
+  .new-version-shell[data-ui-version="new"] .nv-model-skeleton span { animation: none; }
+}
+
