@@ -15,7 +15,7 @@
 
 | 版本 | 位置 | 状态 |
 |---|---|---|
-| V3（持续迭代） | `main` 分支 | 当前开发主线，项目版本以 `package.json` 为准，按 PR 流程增量更新 |
+| **V4（持续迭代）** | `main` 分支 | 当前开发主线；版本以 `package.json` 为准，通过 PR 审阅与检查后更新 |
 | V3 归档快照 | 分支 `archive/v3` | 历史归档，只读 |
 | V2 | 分支 `archive/v2` | 原 Changjie29/AgriDx-v2 的完整代码与历史，只读 |
 | V1 | 分支 `archive/v1` | 原 Changjie29/AgriDx-v1 的完整代码与历史，只读 |
