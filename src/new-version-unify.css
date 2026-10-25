@@ -136,3 +136,78 @@ html.theme-dark .new-version-shell[data-ui-version="new"] {
 .new-version-shell[data-ui-version="new"] :is(.nv-corners, .chat-context, .chat-source, .catalog-brand-pills button, .catalog-model-grid button, .evidence-entry, .hall-metric, .hall-zone-button)::before { content: none; }
 .new-version-shell[data-ui-version="new"] .wheat-line { display: none; background: var(--nv-primary); }
 .new-version-shell[data-ui-version="new"] :is(.knowledge-page-heading, .model-page > div:first-child, .not-found-card) .wheat-line { display: block; }
+
+/* 4–5. Quiet, opaque content surfaces; glass remains on chrome and popovers. */
+.new-version-shell[data-ui-version="new"] :is(.chat-glass, .chat-bar-glass, .chat-input-glass, .chat-context, .chat-source, .chat-chip, .chat-composer, .catalog-browser, .catalog-stats, .catalog-distribution, .catalog-model-grid button, .catalog-brand-pills button, .evidence-entry, .parts-panel, .parts-stage-card, .parts-knowledge, .model-control-glass, .history-build, .history-detail-body, .not-found-card) {
+  background: var(--nv-card);
+  color: var(--nv-text);
+  border: 1px solid var(--nv-border);
+  border-radius: var(--nv-radius-lg);
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+.new-version-shell[data-ui-version="new"] :is(.chat-bar-glass, .chat-input-glass) { border: 0; border-radius: 0; }
+.new-version-shell[data-ui-version="new"] .chat-bar-glass { border-bottom: 1px solid var(--nv-border); }
+.new-version-shell[data-ui-version="new"] .chat-input-glass { border-top: 1px solid var(--nv-border); }
+.new-version-shell[data-ui-version="new"] .new-version-main .agri-liquid-glass:not(.expo-dock-glass):not(.expo-zone-card):not(.expo-catalog) {
+  background: var(--nv-card);
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+.new-version-shell[data-ui-version="new"] .new-version-main .agri-liquid-glass:not(.expo-dock-glass):not(.expo-zone-card):not(.expo-catalog) > :is(.agri-glass-lens, .agri-glass-optics) { display: none; }
+.new-version-shell[data-ui-version="new"] :is(.card-peek, .model-peek, .nv-example) { color: var(--nv-primary); border-color: var(--nv-border); }
+.new-version-shell[data-ui-version="new"] :is(.catalog-browser, .parts-panel, .chat-context) { padding: 16px; }
+.new-version-shell[data-ui-version="new"] :is(.catalog-tabs, .library-collections, .parts-stage-head, .parts-stage-foot) { gap: 8px; }
+.new-version-shell[data-ui-version="new"] :is(.catalog-tabs, .library-collections) button { border-radius: var(--nv-radius-pill); }
+.new-version-shell[data-ui-version="new"] :is(input:not([type='checkbox']):not([type='range']):not([type='file']), textarea, select) {
+  min-width: 0;
+  max-width: 100%;
+  border: 1px solid var(--nv-border);
+  border-radius: var(--nv-radius-md);
+  background-color: var(--nv-surface);
+  color: var(--nv-text);
+  box-shadow: none;
+}
+.new-version-shell[data-ui-version="new"] select { min-height: 44px; padding: 8px 12px; font: inherit; color-scheme: light; }
+html.theme-dark .new-version-shell[data-ui-version="new"] select { color-scheme: dark; }
+.new-version-shell[data-ui-version="new"] :is(input, textarea, select):focus-visible { outline: 2px solid var(--nv-primary); outline-offset: 2px; box-shadow: none; }
+.new-version-shell[data-ui-version="new"] :is(button, a):focus-visible { outline: 2px solid var(--nv-primary); outline-offset: 2px; }
+.new-version-shell[data-ui-version="new"] .catalog-stats strong,
+.new-version-shell[data-ui-version="new"] .catalog-stats strong span { font-size: var(--nv-text-xl); line-height: var(--nv-heading-leading); font-weight: 700; font-variant-numeric: tabular-nums; }
+.new-version-shell[data-ui-version="new"] .catalog-stats > div > span { font-size: var(--nv-text-xs); color: var(--nv-muted); margin-top: 8px; }
+.new-version-shell[data-ui-version="new"] .catalog-stats > div { padding: 16px; }
+.new-version-shell[data-ui-version="new"] .chat-composer { border: 0; padding: 0; background: transparent; }
+.new-version-shell[data-ui-version="new"] .chat-composer:focus-within { box-shadow: none; }
+.new-version-shell[data-ui-version="new"] .chat-composer textarea { border: 1px solid var(--nv-border); padding: 12px; }
+.new-version-shell[data-ui-version="new"] .chat-composer textarea:focus-visible { outline: none; border-color: var(--nv-primary); }
+.new-version-shell[data-ui-version="new"] .chat-composer button[type='submit'] {
+  display: inline-flex;
+  min-width: 48px;
+  min-height: 48px;
+  border: 1px solid var(--nv-primary);
+  border-radius: var(--nv-radius-md);
+  background: var(--nv-primary);
+  color: var(--nv-on-primary);
+  opacity: 1;
+  box-shadow: none;
+}
+.new-version-shell[data-ui-version="new"] .chat-composer button[type='submit']:disabled { background: var(--nv-surface); border-color: var(--nv-border); color: var(--nv-muted); cursor: not-allowed; }
+.new-version-shell[data-ui-version="new"] .chat-context h2 { padding: 0 0 16px; }
+.new-version-shell[data-ui-version="new"] :is(.parts-panel, .parts-stage-foot, .parts-knowledge, .model-page p) { font-size: var(--nv-text-sm); line-height: var(--nv-leading); }
+.new-version-shell[data-ui-version="new"] :is(.parts-stage-head, .parts-stage-foot, .parts-explode, .parts-fault) { align-items: center; gap: 8px; }
+.new-version-shell[data-ui-version="new"] :is(.parts-panel button, .parts-stage-head button, .parts-stage-foot button) { min-height: 44px; }
+.new-version-shell[data-ui-version="new"] .nv-model-skeleton { width: 100%; min-height: 240px; display: grid; align-content: center; gap: 16px; padding: 24px; background: var(--nv-card); border-radius: var(--nv-radius-lg); }
+.new-version-shell[data-ui-version="new"] .nv-model-skeleton p { color: var(--nv-muted); }
+.new-version-shell[data-ui-version="new"] .nv-model-skeleton span { display: block; height: 16px; border-radius: var(--nv-radius-sm); background: var(--nv-surface); }
+.new-version-shell[data-ui-version="new"] .nv-model-skeleton span:first-of-type { width: 60%; height: 120px; }
+.new-version-shell[data-ui-version="new"] .nv-model-skeleton span:last-child { width: 75%; }
+.new-version-shell[data-ui-version="new"] :is(.parts-kpi, .parts-event-log, .parts-studio .studio-bar) {
+  background: var(--nv-card); color: var(--nv-text); border-color: var(--nv-border);
+  border-radius: var(--nv-radius-md); box-shadow: none; backdrop-filter: none;
+}
+.new-version-shell[data-ui-version="new"] .parts-kpi { flex-wrap: wrap; }
+.new-version-shell[data-ui-version="new"] .parts-kpi-card { border: 0; box-shadow: none; background: transparent; }
+.new-version-shell[data-ui-version="new"] .parts-detail ul { font-size: var(--nv-text-sm); }
+.new-version-shell[data-ui-version="new"] .chat-input-glass .agri-glass-frost { display: none; }
