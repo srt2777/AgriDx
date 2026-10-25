@@ -1,73 +1,33 @@
 /// <reference types="node" />
+import { createDiagnosticService } from '../../server/diagnosis/service';
+import { previewAiProvider, readPreviewAiStatus } from './ai-gateway';
 import { recordQuestion } from './telemetry';
 import { PreviewMemoryStore, previewMemoryRoute } from './memory';
 import { MemoryError, summarizeReports } from '../../shared/memory-validation';
-import { loadKnowledgeBase, stats, retrieve, hasApplicableManual } from '../../server/knowledge/retriever';
+import { loadKnowledgeBase, stats } from '../../server/knowledge/retriever';
 import { getKnowledgeCatalog, loadKnowledgeCatalog } from '../../server/knowledge/catalog';
-import { resolveDiagnosticContext } from '../../server/knowledge/conversation';
-import { decideCoordination, ROUTE_MESSAGES } from '../../server/knowledge/coordination';
-import { referenceVerification, hasIndexedReference } from '../../server/knowledge/evidence';
-import { buildRoleFlow } from '../../server/knowledge/roles';
-import { buildDiagnosticReply, renderDiagnosticReply } from '../../server/diagnosis/reply';
-import { diagnosticRuntimeConfig } from '../../server/diagnosis/config';
+import { renderDiagnosticReply } from '../../server/diagnosis/reply';
 import { DiagnosticInputError, parseDiagnosticRequest, type DiagnosticRequest } from '../../server/diagnosis/request';
 import type { ChatResponse } from '../../shared/chat';
 import type { SessionDetail, PriorDeviceReport } from '../../shared/memory';
 import { CATALOG_FILTER_KEYS, validCatalogCondition, type CatalogFilters } from '../../shared/knowledge-catalog';
 
 let ready = false;
-/** Browser-only orchestration of the same deterministic router and reply builder.
- * Never import the server service/provider graph or offer an external-AI callback.
- */
-function diagnose(request: DiagnosticRequest, memory?: { session: SessionDetail; priorReports: PriorDeviceReport[] }): ChatResponse {
-  const started = performance.now();
-  const context = resolveDiagnosticContext(request.history, request);
-  const scope = { ...context.scope, engineModel: request.engineModel, faultCodes: request.faultCodes };
-  const retrievalStarted = performance.now();
-  const retrieved = context.clarificationNeeded ? [] : retrieve(context.query, diagnosticRuntimeConfig().topK, scope);
-  const retrievalMs = performance.now() - retrievalStarted;
-  const decisionStarted = performance.now();
-  const coordination = decideCoordination({ query: context.query, currentQuery: context.currentQuery, scope, retrieved,
-    clarificationNeeded: context.clarificationNeeded, requestedMode: 'knowledge_only', llmConfigured: false,
-    manualAvailable: context.clarificationNeeded ? undefined : hasApplicableManual(context.query, scope) });
-  const decisionMs = performance.now() - decisionStarted;
-  const excluded = new Set(coordination.excludedKnowledgeIds ?? []);
-  const admissible = retrieved.filter(chunk => referenceVerification(chunk.status) !== 'failed' && (!chunk.entryId || !excluded.has(chunk.entryId)));
-  const direct = new Set(coordination.directEligibleIds ?? []);
-  const displayed = coordination.reason === 'direct_reference' ? admissible.filter(chunk => chunk.entryId && direct.has(chunk.entryId)) : admissible;
-  const diagnosticReply = buildDiagnosticReply({ query: context.query, currentQuery: context.currentQuery, symptomQuery: context.symptomQuery,
-    chunks: displayed, scope, coordination,
-    progress: [memory?.session.progress, ...request.history.filter(message => message.role === 'user').map(message => message.content)].filter(Boolean).join('\n'),
-    priorReports: memory?.priorReports });
-  diagnosticReply.understanding += '当前为仅本地检索的开发预览，本次没有调用外部 AI。';
-  const content = renderDiagnosticReply(diagnosticReply);
-  const used = new Set([...(diagnosticReply.background ?? []), ...diagnosticReply.causes, ...diagnosticReply.suggestions].flatMap(item => item.evidenceIds));
-  coordination.knowledgeIds = displayed.flatMap(chunk => chunk.entryId ? [chunk.entryId] : []);
-  const fallbackReason = coordination.reason === 'llm_not_configured' ? 'not_configured' as const : undefined;
-  return { choices: [{ message: { role: 'assistant', content } }], diagnosticReply, localSummary: content,
-    provider: 'knowledge-base', model: 'kb-rag-engine (本地知识引擎)', answerMode: 'local-evidence', fellBack: !!fallbackReason,
-    ...(fallbackReason ? { fallbackReason } : {}), coordination, coordinationMessage: ROUTE_MESSAGES[coordination.reason],
-    knowledgeChunks: displayed.length, roleFlow: buildRoleFlow(displayed),
-    knowledgeSources: displayed.map(chunk => ({
-      entryId: chunk.entryId, sourceId: chunk.sourceId, source: chunk.source, heading: chunk.heading,
-      entryType: chunk.entryType, diagnosticEvidence: chunk.diagnosticEvidence,
-      ...(chunk.generalEvidence ? { generalEvidence: true as const } : {}),
-      evidenceKind: chunk.entryType === '通识学习' ? 'general-knowledge' as const : chunk.entryId ? 'archive' as const : 'prompt' as const,
-      evidenceLabel: chunk.entryType === '通识学习' ? '通识（无手册页码）' : chunk.entryId ? `手册：${chunk.sourceTitle ?? chunk.sourceId ?? '来源待核实'}${chunk.pages?.pdf ? `，PDF第${chunk.pages.pdf}页` : ''}${chunk.pages?.printed ? `，印刷第${chunk.pages.printed}页` : ''}` : '信息收集提示（非手册）',
-      locator: chunk.locator, version: chunk.version, applicability: chunk.applicability, status: chunk.status,
-      ...(chunk.retrieval ? { retrieval: { ...chunk.retrieval, basis: [...chunk.retrieval.basis] } } : {}),
-      referenceVerification: referenceVerification(chunk.status), sourceIndexed: hasIndexedReference(chunk),
-      ...(chunk.sourceTitle ? { sourceTitle: chunk.sourceTitle } : {}), ...(chunk.scopeBoundary ? { scopeBoundary: chunk.scopeBoundary } : {}),
-      ...(chunk.models ? { models: [...chunk.models] } : chunk.model ? { models: [chunk.model] } : {}),
-      ...(chunk.engineModel ? { engineModel: chunk.engineModel } : {}), ...(chunk.faultCodes ? { faultCodes: [...chunk.faultCodes] } : {}),
-      ...(chunk.pages ? { pages: { ...chunk.pages } } : {}), ...(chunk.roles ? { roles: [...chunk.roles], roleBasis: chunk.roleBasis } : {}),
-      ...(chunk.riskLevel ? { riskLevel: chunk.riskLevel } : {}), usage: chunk.entryId && used.has(chunk.entryId) ? 'answer-evidence' : 'reference-only',
-    })),
-    diagnosisTrace: { retrievalCount: context.clarificationNeeded ? 0 : 1, aiAttempts: 0, aiSuccesses: 0, aiProvider: null,
-      scoreMethod: 'keyword-weighted-overlap', contextChars: 0, sentKnowledgeIds: [],
-      timings: { retrievalMs, decisionMs, externalAiMs: 0, totalMs: performance.now() - started } },
-  };
+/** Reuse canonical retrieval, coordination and output checks with a same-origin AI proxy. */
+async function diagnose(request: DiagnosticRequest, memory?: { session: SessionDetail; priorReports: PriorDeviceReport[] }, signal?: AbortSignal): Promise<ChatResponse> {
+  const status = await readPreviewAiStatus(signal);
+  const service = createDiagnosticService(previewAiProvider(status, signal), { config: { logDecisions: false } });
+  const payload = await service(status.enabled ? request : { ...request, diagnosisMode: 'knowledge_only' }, memory);
+  signal?.throwIfAborted();
+  if (!status.enabled && payload.diagnosticReply) {
+    payload.diagnosticReply.understanding += '当前为仅本地检索的开发预览，本次没有调用外部 AI。';
+    const content = renderDiagnosticReply(payload.diagnosticReply);
+    payload.choices[0].message.content = content;
+    payload.localSummary = content;
+  }
+  return payload;
 }
+
 function initialize() {
   if (ready) return;
   loadKnowledgeBase();
@@ -85,12 +45,13 @@ async function dispatchPreviewFetch(input: string, options: RequestInit = {}): P
   try {
     let response: Response;
     if (url.pathname === '/api/health' && method === 'GET') {
+      const aiStatus = await readPreviewAiStatus(options.signal ?? undefined);
       response = json({
         ok: true,
         ...(typeof __AGRIDX_PREVIEW_RELEASE__ === 'undefined' ? {} : __AGRIDX_PREVIEW_RELEASE__),
         environment: 'development-preview', timestamp: new Date().toISOString(),
-        knowledge: stats(), llm: { configured: false, primary: null },
-        coordination: { defaultMode: 'knowledge_only', allowExternalAi: false, configValid: true },
+        knowledge: stats(), llm: { configured: aiStatus.enabled, primary: aiStatus.provider },
+        coordination: { defaultMode: aiStatus.enabled ? 'auto' : 'knowledge_only', allowExternalAi: aiStatus.enabled, configValid: true },
       });
     } else if (url.pathname === '/api/knowledge/catalog' && method === 'GET') {
       const filters: CatalogFilters = {};
@@ -119,8 +80,6 @@ async function dispatchPreviewFetch(input: string, options: RequestInit = {}): P
       const started = performance.now();
       const question = { question: request.history.at(-1)!.content, machineType: request.machineType, brand: request.brand, model: request.model };
       try {
-      // Preview enforces local-only even if the browser requests AI assistance.
-      request.diagnosisMode = 'knowledge_only';
       const data = body as Record<string, unknown>;
       const store = data.sessionId === undefined ? undefined : new PreviewMemoryStore();
       const session = data.sessionId === undefined ? undefined : store!.session(String(data.sessionId));
@@ -135,7 +94,7 @@ async function dispatchPreviewFetch(input: string, options: RequestInit = {}): P
         if (session.messages.length) request.history = [...session.messages.map(({ role, content }) => ({ role, content })), user];
       }
       const priorReports = session ? store!.priorReports(session.deviceId, session.id, user.content) : [];
-      const payload = await diagnose(request, session ? { session: { ...session, summary: summarizeReports(request.history) }, priorReports } : undefined);
+      const payload = await diagnose(request, session ? { session: { ...session, summary: summarizeReports(request.history) }, priorReports } : undefined, options.signal ?? undefined);
       options.signal?.throwIfAborted();
       if (session) {
         const { model, provider, localSummary, coordinationMessage, answerMode, fallbackReason, knowledgeChunks,

@@ -133,5 +133,32 @@ test('实际浏览器构建保持完整知识目录、诊断来源与型号隔�
     assert.equal(health.knowledge.learningEntries, 6000);
     assert.equal(health.knowledge.totalEntries, catalog.totals.entries);
     assert.equal(health.llm.configured, false);
+    // Simulate the browser and a deployed same-origin gateway, without a real key.
+    const originalFetch = globalThis.fetch;
+    const originalWindow = Object.getOwnPropertyDescriptor(globalThis, 'window');
+    let aiCalls = 0, unavailable = false;
+    Object.defineProperty(globalThis, 'window', { value: {}, configurable: true });
+    globalThis.fetch = async (input: any) => {
+      if (String(input) === '/api/dev-ai/status') return Response.json({ enabled: true, provider: 'deepseek', model: 'synthetic-model' });
+      assert.equal(String(input), '/api/dev-ai/chat'); aiCalls++;
+      return unavailable ? Response.json({ error: 'quota' }, { status: 429 }) : Response.json({ provider: 'deepseek', model: 'synthetic-model', content: '拖拉机冷却系统通过冷却液循环和散热器向空气散热。需要结合具体型号资料核对结构。' });
+    };
+    try {
+      const enabledHealth = await (await previewFetch('/api/health')).json();
+      assert.equal(enabledHealth.llm.configured, true); assert.equal(enabledHealth.coordination.allowExternalAi, true); assert.equal(enabledHealth.coordination.defaultMode, 'auto');
+      const request = { messages: [{ role: 'user', content: '拖拉机冷却系统的基本原理是什么？' }], diagnosisMode: 'ai_assisted' };
+      const remote = await (await previewFetch('/api/chat', { method: 'POST', body: JSON.stringify(request) })).json();
+      assert.equal(aiCalls, 1); assert.equal(remote.provider, 'deepseek'); assert.ok(remote.diagnosticReply.aiSupplement); assert.equal(remote.diagnosisTrace.aiAttempts, 1);
+      const local = await (await previewFetch('/api/chat', { method: 'POST', body: JSON.stringify({ ...request, diagnosisMode: 'knowledge_only' }) })).json();
+      assert.equal(local.provider, 'knowledge-base'); assert.equal(aiCalls, 1); assert.equal(local.diagnosisTrace.aiAttempts, 0);
+      unavailable = true;
+      const fallback = await (await previewFetch('/api/chat', { method: 'POST', body: JSON.stringify(request) })).json();
+      assert.equal(aiCalls, 2); assert.equal(fallback.provider, 'knowledge-base'); assert.equal(fallback.fallbackReason, 'provider_unavailable');
+    } finally {
+      globalThis.fetch = originalFetch;
+      if (originalWindow) Object.defineProperty(globalThis, 'window', originalWindow);
+      else Reflect.deleteProperty(globalThis, 'window');
+    }
+
   } finally { rmSync(directory, { recursive: true, force: true }); }
 });

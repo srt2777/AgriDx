@@ -41,7 +41,7 @@ export const MACHINE_TYPES_EN = ['Tractor', 'Combine', 'Transplanter', 'Sprayer'
 type SessionStorage = Pick<Storage, 'getItem' | 'setItem' | 'removeItem'>;
 
 export function isChatProvider(value: unknown): value is ChatProvider {
-  return value === 'gemini' || value === 'deepseek' || value === 'knowledge-base';
+  return value === 'gemini' || value === 'deepseek' || value === 'openai' || value === 'knowledge-base';
 }
 
 export function isAnswerMode(value: unknown): value is AnswerMode {
@@ -148,7 +148,7 @@ export function parseChatMetadata(value: unknown): Pick<ChatMessage, 'diagnostic
   const trace = value.diagnosisTrace;
   const timings = isRecord(trace) ? trace.timings : undefined;
   if (isRecord(trace) && isRecord(timings) && finite(trace.retrievalCount) && finite(trace.aiAttempts) && finite(trace.aiSuccesses) && finite(trace.contextChars)
-    && (trace.aiProvider === null || oneOf(trace.aiProvider, ['gemini', 'deepseek'])) && trace.scoreMethod === 'keyword-weighted-overlap'
+    && (trace.aiProvider === null || oneOf(trace.aiProvider, ['gemini', 'deepseek', 'openai'])) && trace.scoreMethod === 'keyword-weighted-overlap'
     && texts(trace.sentKnowledgeIds, 40) && finite(timings.retrievalMs) && finite(timings.decisionMs) && finite(timings.externalAiMs) && finite(timings.totalMs)) {
     result.diagnosisTrace = { retrievalCount: trace.retrievalCount, aiAttempts: trace.aiAttempts, aiSuccesses: trace.aiSuccesses, contextChars: trace.contextChars,
       aiProvider: trace.aiProvider, scoreMethod: trace.scoreMethod, sentKnowledgeIds: [...trace.sentKnowledgeIds],

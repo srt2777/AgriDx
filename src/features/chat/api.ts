@@ -59,7 +59,7 @@ export function parseLlmHealth(value: unknown): LlmHealth {
     ...(typeof coordination.allowExternalAi === 'boolean' ? { allowExternalAi: coordination.allowExternalAi } : {}),
     ...(isDiagnosisMode(coordination.defaultMode) ? { defaultMode: coordination.defaultMode } : {}),
     configured: llm.configured,
-    primary: llm.primary === 'gemini' || llm.primary === 'deepseek' ? llm.primary : null,
+    primary: llm.primary === 'gemini' || llm.primary === 'deepseek' || llm.primary === 'openai' ? llm.primary : null,
   };
 }
 

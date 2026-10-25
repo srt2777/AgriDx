@@ -6,7 +6,7 @@
 
 ## 身份和范围
 
-现有 Site 未配置专用 GitHub OAuth 应用，采用页面内的 GitHub 令牌验证。令牌仅发送到同源 HTTPS 服务端，服务端只请求固定的 GitHub `/user` 与 `srt2777/AgriDx-v3` 仓库 Metadata，要求 GitHub 返回 `permissions.admin` 或 `permissions.maintain`。普通 GitHub 用户、只有 push 的协作者、匿名访客均不能读取。令牌不要求代码写入权限，不进入数据库、源码或浏览器持久化存储。
+现有 Site 未配置专用 GitHub OAuth 应用，采用页面内的 GitHub 令牌验证。令牌仅发送到同源 HTTPS 服务端，服务端只请求固定的 GitHub `/user` 与 `srt2777/AgriDx` 仓库 Metadata，要求 GitHub 返回 `permissions.admin` 或 `permissions.maintain`。普通 GitHub 用户、只有 push 的协作者、匿名访客均不能读取。令牌不要求代码写入权限，不进入数据库、源码或浏览器持久化存储。
 
 验证后生成独立随机会话，以 `__Host-`、Secure、HttpOnly、SameSite=Strict Cookie 返回，D1只存SHA-256摘要及账号/过期时间。登录页默认开启“记住这台设备”，会话30天有效，同一浏览器刷新、关闭重开和下次访问自动恢复；取消勾选则1小时。期限从本次GitHub验证成功起算，访问不无限续期，退出立即撤销；权限在每次建立会话时验证，之后以该有期限的会话授权。没有复用 GitHub 的代码写入凭据作为网站长期服务密钥。
 
@@ -61,3 +61,8 @@ Sites首次内部数据部署 `appgdep_6acdc6d2f52881919249cd4803d3eb65` 成功�
 Chromium1440px验证实际开发构建与Worker、真实SQLite迁移，GitHub响应使用合成维护者账号：关闭并重新启动同一浏览器配置、刷新及新标签页均自动恢复，没有额外登录请求；独立浏览器配置仍需登录；退出清除Cookie并使另一标签页刷新后退出；取消勾选后Cookie为1小时。Cookie为Secure/HttpOnly/SameSite=Strict，原始令牌未进入localStorage或sessionStorage。320px及390px中英文布局均无横向溢出，勾选文字点击区至少44px，全程无页面异常。这是本地合成账号验证，未使用用户真实令牌或线上内部记录。
 
 GitHub CI、主干前端发布与Sites入口更新须分别验收，实际提交、构建及部署回执追加在本功能PR记录中。本地通过不代表线上会话期限已更新。
+
+
+## 3.20.0 API 接入
+
+新增管理员 API 配置页，支持 DeepSeek、Gemini 与 OpenAI 兼容接口；用户最新选择为开放给开发站全部访客，通过默认服务商开关、公开额度和既有诊断检查控制调用。详细配置、加密根密钥、追加迁移、验证及当前 Sites 访问阻塞见 [开发 API 接入](dev-ai-console.md)。源码实现与本地验证不代表已上线，历史发布记录不作为本批服务端已部署的证明。

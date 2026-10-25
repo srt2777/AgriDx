@@ -5,7 +5,7 @@
  * 统一返回结构，路由层不再关心是 Gemini 还是 DeepSeek。
  */
 
-export type ProviderName = 'gemini' | 'deepseek';
+export type ProviderName = 'gemini' | 'deepseek' | 'openai';
 export type ProviderErrorKind =
   | 'auth'
   | 'network'

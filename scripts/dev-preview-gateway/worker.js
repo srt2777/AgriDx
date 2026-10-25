@@ -1,3 +1,5 @@
+import { handleAiRequest, aiStatus } from './ai.js';
+
 const artifactOrigin = 'https://raw.githubusercontent.com/srt2777/AgriDx/dev-preview-built/';
 const types = {
   html: 'text/html; charset=utf-8', js: 'application/javascript; charset=utf-8',
@@ -60,9 +62,9 @@ const cookie = (name, value, age) => `${name}=${value}; Path=/; Max-Age=${age}; 
 function readCookie(request, name) {
   return request.headers.get('Cookie')?.split(';').map(v => v.trim()).find(v => v.startsWith(`${name}=`))?.slice(name.length + 1) ?? '';
 }
-async function bodyJson(request) {
+async function bodyJson(request, maxBytes = 12_000) {
   if (!request.headers.get('Content-Type')?.toLowerCase().startsWith('application/json')) fail(415, '请使用 JSON 请求。');
-  if (Number(request.headers.get('Content-Length')) > 12_000) fail(413, '请求内容过长。');
+  if (Number(request.headers.get('Content-Length')) > maxBytes) fail(413, '请求内容过长。');
   const reader = request.body?.getReader();
   if (!reader) fail(400, '请求内容缺失。');
   const decoder = new TextDecoder('utf-8', { fatal: true });
@@ -71,7 +73,7 @@ async function bodyJson(request) {
     const { value, done } = await reader.read();
     if (done) break;
     size += value.byteLength;
-    if (size > 12_000) { await reader.cancel(); fail(413, '请求内容过长。'); }
+    if (size > maxBytes) { await reader.cancel(); fail(413, '请求内容过长。'); }
     try { raw += decoder.decode(value, { stream: true }); } catch { fail(400, '请求编码无效。'); }
   }
   try {
@@ -217,17 +219,27 @@ function csv(data, kind) {
 /** Private records stay behind server-side GitHub authorization; public collection has no read API. */
 export async function serveDevelopment(request, env = {}, ctx = {}, upstreamFetch = fetch) {
   const url = new URL(request.url), path = url.pathname;
-  if (!path.startsWith('/api/dev-admin/') && !path.startsWith('/api/dev-events/')) return servePreview(request, upstreamFetch);
+  if (path === '/api/health' && request.method === 'GET') {
+    const response = await servePreview(request, upstreamFetch);
+    if (!response.ok) return response;
+    let status = { enabled: false, provider: null, model: null };
+    try { if (env.DB) status = await aiStatus(env.DB, env); } catch { /* Old gateways without the AI migration retain local diagnosis. */ }
+    return apiJson({ ...await response.json(), llm: { configured: status.enabled, primary: status.provider, model: status.model }, coordination: { defaultMode: status.enabled ? 'auto' : 'knowledge_only', allowExternalAi: status.enabled, configValid: true } });
+  }
+  if (!path.startsWith('/api/dev-admin/') && !path.startsWith('/api/dev-events/') && !path.startsWith('/api/dev-ai/')) return servePreview(request, upstreamFetch);
   try {
     const db = env.DB;
     if (path === '/api/dev-admin/session' && request.method === 'GET') return apiJson({ user: await session(request, db), configured: Boolean(db), repository });
     if (request.method === 'POST' && request.headers.get('Origin') !== url.origin) fail(403, '此操作须从开发站页面发起。');
     const collection = path.startsWith('/api/dev-events/');
+    const publicAi = path.startsWith('/api/dev-ai/');
     const loggingIn = path === '/api/dev-admin/login';
-    const user = collection || loggingIn ? null : await session(request, db);
-    if (!collection && !loggingIn && !user) fail(401, '请先使用 GitHub 管理员账号登录。');
+    const user = collection || loggingIn || publicAi ? null : await session(request, db);
+    if (!collection && !loggingIn && !publicAi && !user) fail(401, '请先使用 GitHub 管理员账号登录。');
     if (!db) fail(503, '内部数据存储尚未配置。');
     cleanup(db, ctx);
+    const aiResponse = await handleAiRequest(request, env, { user, readJson: bodyJson, rateLimit, json: apiJson }, upstreamFetch);
+    if (aiResponse) return aiResponse;
     if (loggingIn && request.method === 'POST') {
       await rateLimit(request, db, 'login', 8);
       const body = await bodyJson(request);

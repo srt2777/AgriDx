@@ -2,7 +2,7 @@ import type { MemorySession, PriorDeviceReport } from './memory';
 import type { CoordinationDecision, DiagnosisMode, DiagnosticReply, RetrievalBasis } from './diagnosis';
 import type { KnowledgePages, KnowledgeRole } from './knowledge-catalog';
 /** Public chat protocol. Provider prompts and credentials remain server-only. */
-export type ChatProvider = 'gemini' | 'deepseek' | 'knowledge-base';
+export type ChatProvider = 'gemini' | 'deepseek' | 'openai' | 'knowledge-base';
 export type AnswerMode = 'knowledge-grounded' | 'general-guidance' | 'local-evidence';
 export type FallbackReason = 'not_configured' | 'provider_unavailable';
 
@@ -99,7 +99,7 @@ export interface DiagnosisTrace {
   retrievalCount: number;
   aiAttempts: number;
   aiSuccesses: number;
-  aiProvider: 'gemini' | 'deepseek' | null;
+  aiProvider: 'gemini' | 'deepseek' | 'openai' | null;
   scoreMethod: 'keyword-weighted-overlap';
   contextChars: number;
   sentKnowledgeIds: string[];
@@ -110,5 +110,5 @@ export interface LlmHealth {
   allowExternalAi?: boolean;
   defaultMode?: DiagnosisMode;
   configured: boolean;
-  primary: 'gemini' | 'deepseek' | null;
+  primary: 'gemini' | 'deepseek' | 'openai' | null;
 }
