@@ -33,6 +33,7 @@
 .campus-equipment-detail dl { font-size: 12px; line-height: 1.9; margin-top: 15px; }
 .campus-equipment-detail dt { color: var(--muted-foreground); margin-top: 8px; }
 .campus-equipment-detail > p { font-size: 12px; line-height: 1.8; margin-top: 12px; }
+.expo-zone-card.campus-equipment-detail .floating-panel-content > p { display: block; }
 @media (max-width: 900px) { .campus-equipment-list { grid-template-columns: repeat(2,minmax(0,1fr)); } }
 @media (max-width: 600px) {
   .campus-equipment-catalog { margin: 20px 14px; padding: 18px; }
