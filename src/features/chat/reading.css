@@ -1,0 +1,94 @@
+/* A bounded reading surface for both shells; no changes to evidence or routing. */
+.chat-reading {
+  --chat-body-size: 16px;
+  --chat-heading-size: 18px;
+  --chat-font: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;
+  font-family: var(--chat-font);
+}
+.chat-reading .chat-transcript { width: 100%; max-width: 800px; }
+.chat-reading .chat-message { margin-bottom: 28px; }
+.chat-reading .chat-message.is-answer > .chat-avatar { display: none; }
+.chat-reading .chat-message.is-answer .chat-bubble {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.chat-reading .chat-markdown {
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  font-family: var(--chat-font);
+  font-size: var(--chat-body-size);
+  font-weight: 400;
+  line-height: 1.7;
+  color: var(--foreground);
+}
+.chat-reading .chat-markdown :where(p, li, blockquote, td, th) { font-size: inherit; line-height: inherit; }
+.chat-reading .chat-markdown :where(p, ul, ol, blockquote, pre, table) { margin-block: 1em; }
+.chat-reading .chat-markdown > :first-child { margin-top: 0; }
+.chat-reading .chat-markdown > :last-child { margin-bottom: 0; }
+.chat-reading .chat-markdown :is(h1, h2, h3, h4, h5, h6) {
+  margin: 1.5em 0 0.6em;
+  font-family: var(--chat-font);
+  font-size: var(--chat-heading-size);
+  font-weight: 600;
+  line-height: 1.4;
+  letter-spacing: normal;
+}
+.chat-reading .chat-markdown strong { font-weight: 600; }
+.chat-reading .chat-markdown :is(ul, ol) { padding-left: 1.5em; }
+.chat-reading .chat-markdown ul { list-style-type: disc; }
+.chat-reading .chat-markdown ol { list-style-type: decimal; }
+.chat-reading .chat-markdown li + li { margin-top: 0.5em; }
+.chat-reading .chat-markdown li > p { margin-block: 0.4em; }
+.chat-reading .chat-markdown blockquote { border-left: 2px solid var(--border); padding-left: 1em; color: var(--muted-foreground); }
+.chat-reading .chat-markdown pre { max-width: 100%; white-space: pre-wrap; overflow-wrap: anywhere; padding: 0.8em; background: var(--muted); border-radius: 8px; }
+.chat-reading .chat-markdown code { font-size: 1em; overflow-wrap: anywhere; }
+.chat-reading .chat-markdown table { width: 100%; table-layout: fixed; border-collapse: collapse; }
+.chat-reading .chat-markdown :is(th, td) { padding: 0.5em; border-bottom: 1px solid var(--border); overflow-wrap: anywhere; text-align: left; }
+.chat-reading .chat-markdown img { max-width: 100%; height: auto; }
+.chat-reading :is(.chat-message.is-user .chat-bubble, .chat-composer textarea, .chat-follow-up-option) {
+  font-family: var(--chat-font);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.7;
+}
+.chat-reading .chat-evidence { margin-top: 4px; border-top: 0; padding-top: 0; }
+.chat-reading .chat-evidence-body { max-width: 100%; overflow-wrap: anywhere; }
+
+/* The classic shell intentionally resets every descendant to 14px !important.
+   Restore the reading scale only inside chat, leaving its other pages alone. */
+.fluid-workspace[data-ui-version='old'] .chat-reading .chat-markdown {
+  font-size: var(--chat-body-size) !important;
+  line-height: 1.7 !important;
+}
+.fluid-workspace[data-ui-version='old'] .chat-reading .chat-markdown :where(p, li, strong, em, a, span, blockquote, th, td, pre, code) {
+  font-size: inherit !important;
+  line-height: inherit !important;
+}
+.fluid-workspace[data-ui-version='old'] .chat-reading .chat-markdown :is(h1, h2, h3, h4, h5, h6) {
+  font-size: var(--chat-heading-size) !important;
+  line-height: 1.4 !important;
+}
+.fluid-workspace[data-ui-version='old'] .chat-reading :is(.chat-message.is-user .chat-bubble, .chat-message.is-user .chat-bubble *, .chat-composer textarea, .chat-follow-up-option) { font-size: 16px !important; line-height: 1.7 !important; }
+
+@media (min-width: 768px) {
+  .chat-reading { --chat-body-size: 17px; --chat-heading-size: 20px; }
+}
+
+/* Vehicle fields and mode controls also avoid small text and mobile input zoom. */
+.chat-reading :is(input, select, textarea) { font-family: var(--chat-font); font-size: 16px; }
+.fluid-workspace[data-ui-version='old'] .chat-reading :is(input, select, textarea) { font-size: 16px !important; }
+
+@media (max-width: 767px) {
+  .chat-reading .chat-transcript { padding-block: 16px; }
+  .chat-reading .chat-bar-glass > .liquid-glass-content { padding-block: 8px; }
+  .chat-reading .chat-input-glass > .liquid-glass-content { padding: 10px 12px; }
+  .chat-reading .chat-composer { padding: 0; border: 0; border-radius: 0; background: transparent; box-shadow: none; }
+  .chat-reading .chat-composer textarea { min-height: 52px; max-height: 144px; }
+  /* Keep the version-history link, without repeating the institution masthead below chat. */
+  .new-version-shell[data-route='/chat'] .site-status-bar { margin-block: 4px; padding-block: 6px; gap: 4px; }
+  .new-version-shell[data-route='/chat'] .site-status-bar > span:first-child { display: none; }
+}
