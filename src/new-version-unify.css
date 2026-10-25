@@ -131,3 +131,8 @@ html.theme-dark .new-version-shell[data-ui-version="new"] {
 .new-version-shell[data-ui-version="new"] .new-version-language { min-width: 44px; min-height: 44px; }
 .new-version-shell[data-ui-version="new"] .site-status-bar > span:first-child { display: none; }
 .new-version-shell[data-ui-version="new"] .site-status-bar { justify-content: flex-end; }
+
+/* Remove decorative corner marks and top ticks. */
+.new-version-shell[data-ui-version="new"] :is(.nv-corners, .chat-context, .chat-source, .catalog-brand-pills button, .catalog-model-grid button, .evidence-entry, .hall-metric, .hall-zone-button)::before { content: none; }
+.new-version-shell[data-ui-version="new"] .wheat-line { display: none; background: var(--nv-primary); }
+.new-version-shell[data-ui-version="new"] :is(.knowledge-page-heading, .model-page > div:first-child, .not-found-card) .wheat-line { display: block; }
