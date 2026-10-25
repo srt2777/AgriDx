@@ -2,8 +2,8 @@ import assert from 'node:assert/strict';
 import { EventEmitter, once } from 'node:events';
 import { test } from 'node:test';
 import { telemetryConnectionState, type TelemetryFrame } from '../shared/telemetry';
-import { loadTelemetryDemoConfig } from '../server/telemetry/simulator';
-import { parseTelemetryCursor, TelemetryRing, TelemetryRuntime, telemetryFromEnvironment } from '../server/telemetry/runtime';
+import { loadTelemetryDemoConfig, simulateTelemetry } from '../server/telemetry/simulator';
+import { parseTelemetryCursor, TelemetryRing, TelemetryRuntime, TelemetryScenarioConflict, telemetryFromEnvironment } from '../server/telemetry/runtime';
 import { createTelemetrySseWriter } from '../server/telemetry/sse';
 
 function fixture(capacity = 4) {
@@ -101,6 +101,69 @@ test('automatic producer starts on demand and publishes timed frames until expli
     assert.ok((frame as TelemetryFrame).sequence >= 2);
   } finally { clearTimeout(guard); stop(); runtime.close(); }
   assert.throws(() => runtime.replay(null), /closed/);
+});
+
+test('scenario changes restart a single shared run, clear old history and reject stale or invalid commands atomically', () => {
+  const config = loadTelemetryDemoConfig(); let clock = 100000, serial = 0;
+  const runtime = new TelemetryRuntime(config, { now: () => clock, automatic: false, runId: 'scenario-start', newRunId: () => `scenario-${++serial}` });
+  try {
+    const first = runtime.replay(null).frames[0]; clock += 10000; runtime.tick();
+    const a: TelemetryFrame[] = [], b: TelemetryFrame[] = [];
+    runtime.subscribe(frame => a.push(frame)); runtime.subscribe(frame => b.push(frame));
+    const command = { expectedRunId: runtime.runId, revision: 0, id: 'coolant-rise' as const, loop: false };
+    const state = runtime.changeScenario(command);
+    assert.equal(state.scope, 'shared-service'); assert.equal(state.source, 'simulated'); assert.equal(state.revision, 1);
+    assert.equal(state.runId, 'scenario-1'); assert.equal(state.startedAt, clock); assert.equal(state.elapsedMs, 0);
+    assert.deepEqual(a, b); assert.equal(a.length, 1); assert.equal(a[0].sequence, 1); assert.equal(a[0].scenario.id, 'coolant-rise');
+    assert.equal(a[0].scenario.revision, 1); assert.equal(a[0].scenario.startedAt, clock);
+    const history = runtime.history(config.channels[0].id, '1h'); assert.equal(history.points.length, 1); assert.equal(history.runId, state.runId);
+    assert.equal(history.points[0].at, clock); assert.equal(runtime.replay({ runId: first.runId, sequence: first.sequence }).reset, 'server_restart');
+    assert.throws(() => runtime.changeScenario(command), TelemetryScenarioConflict);
+    assert.throws(() => runtime.changeScenario({ ...command, expectedRunId: state.runId }), TelemetryScenarioConflict);
+    assert.equal(runtime.scenario().runId, state.runId); assert.equal(runtime.scenario().revision, 1); assert.equal(a.length, 1);
+    for (const invalid of [{ ...command, id: 'device' }, { ...command, loop: 'true' }, { ...command, revision: -1 },
+      { ...command, expectedRunId: '' }, { ...command, source: 'device' }, { ...command, revision: NaN }]) {
+      assert.throws(() => runtime.changeScenario(invalid as never), RangeError); assert.equal(runtime.runId, state.runId);
+    }
+    const restored = runtime.changeScenario({ expectedRunId: state.runId, revision: 1, id: 'normal', loop: false });
+    assert.equal(restored.runId, 'scenario-2'); assert.equal(restored.revision, 2);
+    assert.deepEqual(runtime.replay(null).frames[0].points.map(point => point.value), first.points.map(point => point.value), 'returning to normal restarts the same seeded baseline');
+  } finally { runtime.close(); }
+  assert.throws(() => runtime.scenario(), /closed/);
+});
+
+test('all configured timelines and looping use the backend seed, clock and thresholds, without retaining a prior scenario', () => {
+  const config = loadTelemetryDemoConfig(); let clock = 100000, serial = 0;
+  const runtime = new TelemetryRuntime(config, { now: () => clock, automatic: false, runId: 'timeline-start', newRunId: () => `timeline-${++serial}` });
+  try {
+    for (const scenario of config.scenarios) {
+      const previous = runtime.scenario();
+      const state = runtime.changeScenario({ expectedRunId: previous.runId, revision: previous.revision, id: scenario.id, loop: false });
+      clock += 80000; runtime.tick(); const actual = runtime.replay(null).frames[0];
+      const expected = simulateTelemetry(config, { elapsedMs: 80000, epochMs: state.startedAt, seed: 2777, scenario: scenario.id });
+      assert.deepEqual(actual.points, expected.points); assert.deepEqual(actual.alerts, expected.alerts);
+      assert.equal(runtime.scenario().elapsedMs, 80000);
+      clock += scenario.durationMs; runtime.tick(); assert.equal(runtime.scenario().elapsedMs, scenario.durationMs);
+      assert.equal(runtime.replay(null).frames[0].alerts.length, 0, 'configured tracks return to baseline after completion');
+    }
+    const previous = runtime.scenario();
+    const looping = runtime.changeScenario({ expectedRunId: previous.runId, revision: previous.revision, id: 'battery-spread', loop: true });
+    const duration = config.scenarios.find(row => row.id === 'battery-spread')!.durationMs;
+    clock += duration + 80000; runtime.tick();
+    assert.equal(runtime.scenario().elapsedMs, 80000);
+    assert.deepEqual(runtime.replay(null).frames[0].points, simulateTelemetry(config, { elapsedMs: duration + 80000, epochMs: looping.startedAt, scenario: 'battery-spread', loop: true }).points);
+  } finally { runtime.close(); }
+});
+
+test('clock rollback and invalid replacement run IDs cannot partially apply a scene command', () => {
+  let clock = 100000;
+  const runtime = new TelemetryRuntime(loadTelemetryDemoConfig(), { now: () => clock, automatic: false, runId: 'guarded', newRunId: () => 'guarded' });
+  try {
+    const command = { expectedRunId: 'guarded', revision: 0, id: 'normal' as const, loop: false };
+    clock -= 1; assert.throws(() => runtime.changeScenario(command), /Invalid telemetry clock/);
+    clock += 1; assert.throws(() => runtime.changeScenario(command), /Invalid telemetry run ID/);
+    assert.equal(runtime.runId, 'guarded'); assert.equal(runtime.scenario().revision, 0);
+  } finally { runtime.close(); }
 });
 
 test('cursor parsing rejects oversized, injected, fractional and unsafe IDs without echoing input', () => {

@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto';
-import { TELEMETRY_WATERMARK, TELEMETRY_WINDOWS, type TelemetryFrame, type TelemetryHistory, type TelemetryResetReason, type TelemetryWindow } from '../../shared/telemetry';
+import { TELEMETRY_WATERMARK, TELEMETRY_WINDOWS, type TelemetryFrame, type TelemetryHistory, type TelemetryResetReason, type TelemetryWindow,
+  type TelemetryScenarioCommand, type TelemetryScenarioId, type TelemetryScenarioState } from '../../shared/telemetry';
 import { loadTelemetryDemoConfig, simulateTelemetry, telemetryCatalog, type TelemetryDemoConfig } from './simulator';
 
 export interface TelemetryCursor { runId: string; sequence: number }
@@ -54,26 +55,34 @@ export class TelemetryRing {
   }
 }
 
+export class TelemetryScenarioConflict extends Error {
+  constructor() { super('Telemetry scenario changed'); }
+}
+
 /** App-owned producer, shared by history and every SSE client; starts lazily on first read. */
 export class TelemetryRuntime {
-  readonly runId: string;
-  private readonly epoch: number;
-  private readonly buffer: TelemetryRing;
+  private currentRunId: string;
+  private epoch: number;
+  private buffer: TelemetryRing;
   private readonly metadata;
+  private scenarioId: TelemetryScenarioId = 'normal';
+  private scenarioLoop = false;
+  private revision = 0;
   private timer?: ReturnType<typeof setInterval>;
   private lastStep = -1;
   private closed = false;
   private listeners = new Set<(frame: TelemetryFrame) => void>();
   constructor(private readonly config: TelemetryDemoConfig, private readonly options: {
-    now?: () => number; seed?: number; runId?: string; automatic?: boolean;
+    now?: () => number; seed?: number; runId?: string; automatic?: boolean; newRunId?: () => string;
   } = {}) {
     this.epoch = this.now();
     if (!Number.isSafeInteger(this.epoch) || this.epoch < 0) throw new RangeError('Invalid telemetry clock');
-    this.runId = options.runId ?? randomUUID();
+    this.currentRunId = options.runId ?? randomUUID();
     if (!/^[a-zA-Z0-9-]{1,64}$/.test(this.runId)) throw new RangeError('Invalid telemetry run ID');
     this.metadata = telemetryCatalog(config, options.seed ?? config.seed);
     this.buffer = new TelemetryRing(config.capacity);
   }
+  get runId() { return this.currentRunId; }
   private now() { return (this.options.now ?? Date.now)(); }
   private ensure() {
     if (this.closed) throw new Error('Telemetry runtime closed');
@@ -85,6 +94,35 @@ export class TelemetryRuntime {
   }
   catalog() { return structuredClone(this.metadata); }
   channel(id: string) { return this.catalog().channels.find(channel => channel.id === id); }
+  scenario(): TelemetryScenarioState {
+    if (this.closed) throw new Error('Telemetry runtime closed');
+    const now = this.now();
+    if (!Number.isSafeInteger(now) || now < 0) throw new Error('Invalid telemetry clock');
+    const elapsed = Math.max(0, now - this.epoch), duration = this.metadata.scenarios.find(item => item.id === this.scenarioId)!.durationMs;
+    return { schemaVersion: 1, source: 'simulated', watermark: TELEMETRY_WATERMARK, scope: 'shared-service', runId: this.runId,
+      revision: this.revision, id: this.scenarioId, loop: this.scenarioLoop, startedAt: this.epoch,
+      elapsedMs: this.scenarioLoop ? elapsed % duration : Math.min(elapsed, duration) };
+  }
+  /** Restart one shared simulated run. Commands never supply samples, thresholds or device data. */
+  changeScenario(command: TelemetryScenarioCommand): TelemetryScenarioState {
+    if (this.closed) throw new Error('Telemetry runtime closed');
+    if (!command || typeof command !== 'object' || Object.keys(command).length !== 4
+      || Object.keys(command).some(key => !['expectedRunId', 'revision', 'id', 'loop'].includes(key))
+      || typeof command.expectedRunId !== 'string' || !/^[a-zA-Z0-9-]{1,64}$/.test(command.expectedRunId)
+      || !Number.isSafeInteger(command.revision) || command.revision < 0 || typeof command.loop !== 'boolean'
+      || !this.metadata.scenarios.some(item => item.id === command.id)) throw new RangeError('Invalid telemetry scenario command');
+    if (command.expectedRunId !== this.runId || command.revision !== this.revision) throw new TelemetryScenarioConflict();
+    const now = this.now();
+    if (!Number.isSafeInteger(now) || now < this.epoch || now < (this.buffer.latest()?.at ?? this.epoch)) throw new Error('Invalid telemetry clock');
+    if (this.revision >= Number.MAX_SAFE_INTEGER) throw new Error('Telemetry revision exhausted');
+    const runId = (this.options.newRunId ?? randomUUID)();
+    if (typeof runId !== 'string' || !/^[a-zA-Z0-9-]{1,64}$/.test(runId) || runId === this.runId) throw new Error('Invalid telemetry run ID');
+    const buffer = new TelemetryRing(this.config.capacity);
+    this.currentRunId = runId; this.epoch = now; this.buffer = buffer; this.lastStep = -1;
+    this.scenarioId = command.id; this.scenarioLoop = command.loop; this.revision++;
+    this.ensure();
+    return this.scenario();
+  }
   /** Catch-up is bounded by retention even after a long pause or forward clock jump. */
   tick() {
     if (this.closed) return;
@@ -93,8 +131,10 @@ export class TelemetryRuntime {
     const target = Math.floor((now - this.epoch) / this.config.sampleMs);
     const from = Math.max(this.lastStep + 1, target - this.config.capacity + 1);
     for (let step = from; step <= target; step++) {
-      const simulation = simulateTelemetry(this.config, { elapsedMs: step * this.config.sampleMs, epochMs: this.epoch, seed: this.metadata.seed });
-      const frame: TelemetryFrame = { ...simulation, schemaVersion: 1, source: 'simulated', watermark: TELEMETRY_WATERMARK, runId: this.runId, sequence: step + 1 };
+      const simulation = simulateTelemetry(this.config, { elapsedMs: step * this.config.sampleMs, epochMs: this.epoch, seed: this.metadata.seed,
+        scenario: this.scenarioId, loop: this.scenarioLoop });
+      const frame: TelemetryFrame = { ...simulation, scenario: { ...simulation.scenario, revision: this.revision, startedAt: this.epoch },
+        schemaVersion: 1, source: 'simulated', watermark: TELEMETRY_WATERMARK, runId: this.runId, sequence: step + 1 };
       this.buffer.push(frame);
       this.lastStep = step;
       for (const listener of this.listeners) {

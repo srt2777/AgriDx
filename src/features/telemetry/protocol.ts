@@ -1,7 +1,7 @@
 import { isRecord } from '../../lib/api-client';
 import { DEMO_THRESHOLD_NOTE, TELEMETRY_WATERMARK, TELEMETRY_WINDOWS,
   type TelemetryCatalog, type TelemetryChannel, type TelemetryDemoThreshold, type TelemetryFrame,
-  type TelemetryHistory, type TelemetryModelId, type TelemetryPoint, type TelemetryWindow } from '../../../shared/telemetry';
+  type TelemetryHistory, type TelemetryModelId, type TelemetryPoint, type TelemetryScenarioState, type TelemetryWindow } from '../../../shared/telemetry';
 
 const number = (value: unknown): value is number => typeof value === 'number' && Number.isFinite(value);
 const integer = (value: unknown): value is number => number(value) && Number.isSafeInteger(value) && value >= 0;
@@ -58,6 +58,12 @@ export function parseTelemetryFrame(value: unknown, catalog: TelemetryCatalog): 
     && integer(value.sequence) && value.sequence > 0 && integer(value.at) && isRecord(scenario)
     && catalog.scenarios.some(item => item.id === scenario.id) && integer(scenario.elapsedMs) && typeof scenario.loop === 'boolean'
     && Array.isArray(value.points) && value.points.length === catalog.channels.length && Array.isArray(value.alerts) && value.alerts.length <= catalog.channels.length);
+  if (Object.hasOwn(scenario, 'revision') || Object.hasOwn(scenario, 'startedAt')) {
+    const duration = catalog.scenarios.find(item => item.id === scenario.id)!.durationMs;
+    requireData(integer(scenario.revision) && integer(scenario.startedAt) && scenario.startedAt <= value.at);
+    const elapsed = value.at - scenario.startedAt;
+    requireData(scenario.elapsedMs === (scenario.loop ? elapsed % duration : Math.min(elapsed, duration)));
+  }
   const points = new Map<string, TelemetryPoint>();
   for (const row of value.points) {
     const definition = catalog.channels.find(item => isRecord(row) && item.id === row.channelId);
@@ -76,6 +82,14 @@ export function parseTelemetryFrame(value: unknown, catalog: TelemetryCatalog): 
     seen.add(alert.channelId);
   }
   return structuredClone(value) as unknown as TelemetryFrame;
+}
+/** Control replies are metadata, never a substitute for samples received on the stream. */
+export function parseTelemetryScenarioState(value: unknown, catalog: TelemetryCatalog): TelemetryScenarioState {
+  requireData(marked(value) && value.scope === 'shared-service' && typeof value.runId === 'string' && /^[a-zA-Z0-9-]{1,64}$/.test(value.runId)
+    && integer(value.revision) && integer(value.startedAt) && integer(value.elapsedMs) && typeof value.loop === 'boolean');
+  const scenario = catalog.scenarios.find(item => item.id === value.id);
+  requireData(scenario && (value.loop ? value.elapsedMs < scenario.durationMs : value.elapsedMs <= scenario.durationMs));
+  return structuredClone(value) as unknown as TelemetryScenarioState;
 }
 export function parseTelemetryHistory(value: unknown, catalog: TelemetryCatalog, channelId: string, window: TelemetryWindow): TelemetryHistory {
   const definition = catalog.channels.find(item => item.id === channelId);
@@ -115,6 +129,10 @@ export function mergeTelemetryPoints(left: readonly TelemetryPoint[], right: rea
   return [...new Map([...left, ...right].map(point => [point.at, point])).values()].sort((a, b) => a.at - b.at).slice(-3600);
 }
 export interface TelemetryScope { modelId?: TelemetryModelId; partId?: string; channelIds?: readonly string[] }
+/** Window before downsampling so a short window does not inherit the one-hour resolution. */
+export function telemetryWindowPoints(points: readonly TelemetryPoint[], window: TelemetryWindow, to: number): TelemetryPoint[] {
+  return points.filter(point => point.at >= to - TELEMETRY_WINDOWS[window] && point.at <= to);
+}
 export function selectTelemetryChannels(catalog: TelemetryCatalog | null, scope: TelemetryScope): TelemetryChannel[] {
   const ids = new Set(scope.channelIds ?? []);
   return (catalog?.channels ?? []).filter(channel => {

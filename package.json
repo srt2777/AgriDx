@@ -1,6 +1,6 @@
 {
   "name": "agri-fault-diagnosis",
-  "version": "3.20.0",
+  "version": "3.24.0",
   "private": true,
   "type": "module",
   "scripts": {

@@ -569,10 +569,45 @@
       "date": "2026-10-25"
     },
     {
+      "id": "ui-telemetry-panel-20261025",
+      "kind": "feature",
+      "base": "3.19.2",
+      "version": "3.20.0",
+      "date": "2026-10-25"
+    },
+    {
+      "id": "ui-telemetry-scenarios-api-20261025",
+      "kind": "feature",
+      "base": "3.20.0",
+      "version": "3.21.0",
+      "date": "2026-10-25"
+    },
+    {
+      "id": "ui-telemetry-scenario-client-20261025",
+      "kind": "maintenance",
+      "base": "3.21.0",
+      "version": "3.21.1",
+      "date": "2026-10-25"
+    },
+    {
+      "id": "ui-telemetry-scenario-controls-20261025",
+      "kind": "feature",
+      "base": "3.21.1",
+      "version": "3.22.0",
+      "date": "2026-10-25"
+    },
+    {
+      "id": "ui-telemetry-alerts-20261025",
+      "kind": "feature",
+      "base": "3.22.0",
+      "version": "3.23.0",
+      "date": "2026-10-25"
+    },
+    {
       "id": "dev-api-console-20261025",
       "kind": "feature",
-      "base": "3.19.1",
-      "version": "3.20.0",
+      "base": "3.23.0",
+      "version": "3.24.0",
       "date": "2026-10-25"
     }
   ]

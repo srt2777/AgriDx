@@ -1,4 +1,4 @@
-# 开发控制台 API 接入（3.20.0）
+# 开发控制台 API 接入（3.24.0）
 
 入口：开发站 `/#/developer` → GitHub 管理员/维护者登录 → **API 接入**。只作用于开发站；正式 Node 服务原有 `.env` 和模型路由不由此页面修改。
 
@@ -54,3 +54,5 @@ DeepSeek/Gemini 的预填模型名沿用现有项目配置，不宣称服务商�
 ## 本地界面截图
 
 [桌面配置页](../ui/assets/api-console-desktop.webp) · [手机配置页](../ui/assets/api-console-mobile.webp) · [已保存与调试](../ui/assets/api-console-configured.webp) · [诊断 AI 路径](../ui/assets/api-console-diagnosis.webp)
+
+2026-10-25 合入准备：保留 main 3.23.0 的遥测更新，本批协调为 3.24.0；再次查询原 Site 仍返回 `Sites project not found`，网关部署与线上迁移仍受访问权限阻塞。
