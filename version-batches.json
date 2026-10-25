@@ -637,6 +637,13 @@
       "base": "4.0.0",
       "version": "4.0.1",
       "date": "2026-10-25"
+    },
+    {
+      "id": "ui-fault-telemetry-replay-20261025",
+      "kind": "maintenance",
+      "base": "4.0.1",
+      "version": "4.0.2",
+      "date": "2026-10-25"
     }
   ]
 }
