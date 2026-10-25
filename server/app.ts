@@ -18,11 +18,12 @@ export function createApp(runtime: ServerRuntime): express.Express {
   app.use(securityHeaders);
   app.use(cors());
   app.use('/api/modeling', createModelingRoutes());
+  // Telemetry owns its small command parser; mount before the general JSON parser.
+  app.use('/api', createTelemetryRoutes(runtime.telemetry));
   app.use(express.json({ limit: '256kb' }));
   app.use('/api/chat', createChatRateLimiter());
   const memory = runtime.getMemoryStore ?? getMemoryStore;
   app.use('/api/memory', createMemoryRoutes(memory));
-  app.use('/api', createTelemetryRoutes(runtime.telemetry));
   app.use('/api', createStatusRoutes(runtime), createCatalogRoutes(runtime.getCatalog), createChatRoutes(runtime.diagnose, memory));
   app.use('/api', apiNotFound);
   app.use(errorHandler);

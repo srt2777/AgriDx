@@ -4,12 +4,14 @@ import { test, type TestContext } from 'node:test';
 import { createApp } from '../server/app';
 import { TelemetryRuntime } from '../server/telemetry/runtime';
 import { loadTelemetryDemoConfig } from '../server/telemetry/simulator';
-import { TELEMETRY_WATERMARK, type TelemetryFrame, type TelemetryHistory } from '../shared/telemetry';
+import { TELEMETRY_WATERMARK, type TelemetryFrame, type TelemetryHistory, type TelemetryScenarioState } from '../shared/telemetry';
+import { parseTelemetryFrame } from '../src/features/telemetry/protocol';
 
 async function fixture(t: TestContext, enabled = true, capacity = 20) {
   const config = loadTelemetryDemoConfig(); config.capacity = capacity; config.heartbeatMs = 1000;
   let now = Date.UTC(2026, 9, 25);
-  const runtime = new TelemetryRuntime(config, { now: () => now, automatic: false, runId: 'http-test' });
+  let scenarioRun = 0;
+  const runtime = new TelemetryRuntime(config, { now: () => now, automatic: false, runId: 'http-test', newRunId: () => `http-scene-${++scenarioRun}` });
   const app = createApp({ rootDirectory: process.cwd(), version: 'telemetry-test', telemetry: enabled ? runtime : undefined,
     diagnose: async () => { throw new Error('telemetry must not call diagnosis'); },
     getCatalog: () => { throw new Error('telemetry must not call knowledge'); },
@@ -129,6 +131,78 @@ test('disconnect releases per-IP connection slots; excessive connections and req
   for (let i = 0; i < 24; i++) assert.equal((await fetch(`${f.base}/api/telemetry/history?channel=diesel.engine.rpm`)).status, 200);
   const limited = await fetch(`${f.base}/api/telemetry/history?channel=diesel.engine.rpm`); assert.equal(limited.status, 429);
   assert.equal((await limited.json()).code, 'rate_limited');
+});
+
+test('scenario control shares one new run across SSE/history, keeps simulation provenance and rejects duplicate commands', { timeout: 8000 }, async t => {
+  const f = await fixture(t); f.advance(5000);
+  const initialResponse = await fetch(`${f.base}/api/telemetry/scenario`);
+  assert.equal(initialResponse.status, 200); assert.equal(initialResponse.headers.get('cache-control'), 'no-store');
+  assert.equal(initialResponse.headers.get('set-cookie'), null, 'scenario control must not create diagnosis ownership');
+  const initial = await initialResponse.json() as TelemetryScenarioState;
+  assert.equal(initial.id, 'normal'); assert.equal(initial.scope, 'shared-service'); assert.equal(initial.watermark, TELEMETRY_WATERMARK);
+  const a = await f.stream(), b = await f.stream();
+  await a.next('catalog'); await a.next('telemetry'); await b.next('catalog'); await b.next('telemetry');
+  const command = { expectedRunId: initial.runId, revision: initial.revision, id: 'battery-spread', loop: true };
+  const changed = await fetch(`${f.base}/api/telemetry/scenario`, { method: 'POST', headers: { 'Content-Type': 'application/json', Origin: f.base }, body: JSON.stringify(command) });
+  assert.equal(changed.status, 200); assert.equal(changed.headers.get('cache-control'), 'no-store');
+  const state = await changed.json() as TelemetryScenarioState;
+  assert.equal(state.runId, 'http-scene-1'); assert.equal(state.revision, 1); assert.equal(state.id, 'battery-spread'); assert.equal(state.loop, true);
+  const first = await a.next('telemetry'), second = await b.next('telemetry'); assert.deepEqual(first, second);
+  assert.equal(first.id, 'http-scene-1:1'); const frame = first.data as TelemetryFrame;
+  assert.equal(frame.scenario.revision, 1); assert.equal(frame.scenario.startedAt, state.startedAt); assert.equal(frame.scenario.elapsedMs, 0);
+  assert.equal(frame.source, 'simulated'); assert.doesNotThrow(() => parseTelemetryFrame(frame, f.runtime.catalog()), 'the existing client accepts the compatible control metadata');
+  const history = await (await fetch(`${f.base}/api/telemetry/history?channel=t70.battery-box.spread&window=1h`)).json() as TelemetryHistory;
+  assert.equal(history.points.length, 1); assert.equal(history.runId, state.runId); assert.equal(history.points[0].at, state.startedAt);
+  const duplicate = await fetch(`${f.base}/api/telemetry/scenario`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(command) });
+  assert.equal(duplicate.status, 409); const conflict = await duplicate.json(); assert.equal(conflict.code, 'telemetry_scenario_conflict'); assert.deepEqual(conflict.state, state);
+  assert.equal(f.runtime.scenario().revision, 1, 'duplicate requests must not restart the new run');
+  const reconnected = await f.stream(`${initial.runId}:6`); await reconnected.next('catalog');
+  assert.equal(((await reconnected.next('reset')).data as { reason: string }).reason, 'server_restart');
+  assert.equal((await reconnected.next('telemetry')).id, 'http-scene-1:1');
+});
+
+test('scenario command validation, origin, content type and body limits reject input before a run changes', async t => {
+  const f = await fixture(t), url = `${f.base}/api/telemetry/scenario`;
+  const command = { expectedRunId: 'http-test', revision: 0, id: 'normal', loop: false };
+  const post = (body: string, headers: Record<string, string> = {}) => fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json', ...headers }, body });
+  for (const bad of [[], null, true, 'normal', 1, {}, { ...command, source: 'device' }, { ...command, values: [] },
+    { ...command, id: 'unknown' }, { ...command, loop: 1 }, { ...command, revision: -1 }, { ...command, expectedRunId: '../private' },
+    { ...command, revision: Number.MAX_SAFE_INTEGER + 1 }]) {
+    assert.equal((await post(JSON.stringify(bad))).status, 400); assert.equal(f.runtime.runId, 'http-test');
+  }
+  assert.equal((await post('{"id":')).status, 400);
+  const oversized = await post(JSON.stringify(command) + ' '.repeat(1024)); assert.equal(oversized.status, 413); assert.equal((await oversized.json()).code, 'telemetry_control_too_large');
+  assert.equal((await post(JSON.stringify(command), { 'Content-Type': 'text/plain' })).status, 415);
+  assert.equal((await fetch(url + '?id=normal', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(command) })).status, 400);
+  assert.equal((await post(JSON.stringify(command), { Origin: 'https://foreign.invalid' })).status, 403);
+  assert.equal((await post(JSON.stringify(command), { 'Sec-Fetch-Site': 'cross-site' })).status, 403);
+  assert.equal((await fetch(url + '?source=device')).status, 400);
+  assert.equal(f.runtime.scenario().revision, 0); assert.equal(f.runtime.runId, 'http-test');
+  assert.equal((await post(JSON.stringify(command), { Origin: f.base, 'Sec-Fetch-Site': 'same-origin' })).status, 200);
+  assert.equal(f.runtime.scenario().revision, 1);
+});
+
+test('scenario requests share the existing rate limit, disabled mode is explicit and ingest remains absent', async t => {
+  const on = await fixture(t);
+  for (let i = 0; i < 30; i++) assert.equal((await fetch(`${on.base}/api/telemetry/scenario`)).status, 200);
+  const limited = await fetch(`${on.base}/api/telemetry/scenario`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' });
+  assert.equal(limited.status, 429); assert.equal((await limited.json()).code, 'rate_limited'); assert.equal(on.runtime.scenario().revision, 0);
+  const off = await fixture(t, false);
+  for (const method of ['GET', 'POST']) {
+    const response = await fetch(`${off.base}/api/telemetry/scenario`, { method, ...(method === 'POST' ? { headers: { 'Content-Type': 'application/json' }, body: '{}' } : {}) });
+    assert.equal(response.status, 503); assert.equal((await response.json()).code, 'telemetry_disabled');
+  }
+  assert.equal((await fetch(`${off.base}/api/telemetry/ingest`, { method: 'POST' })).status, 404);
+});
+
+test('unexpected scenario read or command failures retain the existing redacted error boundary', async t => {
+  const f = await fixture(t); t.mock.method(console, 'error', () => {});
+  t.mock.method(f.runtime, 'changeScenario', () => { throw new Error('private-scenario-path-and-secret'); });
+  const failed = await fetch(`${f.base}/api/telemetry/scenario`, { method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ expectedRunId: 'http-test', revision: 0, id: 'normal', loop: false }) });
+  assert.equal(failed.status, 500); assert.deepEqual(await failed.json(), { error: '服务器内部错误' });
+  t.mock.method(f.runtime, 'scenario', () => { throw new Error('private-config-path'); });
+  const read = await fetch(`${f.base}/api/telemetry/scenario`); assert.equal(read.status, 500); assert.deepEqual(await read.json(), { error: '服务器内部错误' });
 });
 
 test('off mode is explicit and unexpected history failures use existing redacted errors', async t => {

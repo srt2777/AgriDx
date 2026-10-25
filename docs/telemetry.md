@@ -1,6 +1,6 @@
 # 仿真监测协议与后端生成器
 
-仿真是正式功能，始终明示来源。当前没有真实传感器输入。共享协议、配置与后端纯生成器已接入有上限的内存运行时及SSE/history；前端迁移仍是下一批工作，现有监测页面尚未消费新接口。
+仿真是正式功能，始终明示来源。当前没有真实传感器输入。共享协议、配置与后端纯生成器已接入有上限的内存运行时及SSE/history，PartsStudio已消费统一流。场景控制接口已提供，选择界面/告警联动和旧故障工作台迁移仍待后续小PR。
 
 ## 来源与隔离
 
@@ -18,7 +18,7 @@
 | 采样点 | `channelId`、`deviceId`、`source`、`at`（Unix毫秒）、`elapsedMs`（仿真相对时间）、有限`value` |
 | 告警 | `id`、通道/设备/部件关联、时间与值、`severity=attention|alarm`、双语仿真告警名、完整演示阈值出处；不是故障结论 |
 | 目录 | `schemaVersion=1`、水印与来源、种子、采样/心跳/延迟时长、设备/通道/场景描述；不向前端提供基线、噪声或场景脚本 |
-| 帧 | `schemaVersion=1`、水印与来源、`runId`、递增`sequence`、时间、场景相对时钟/循环标记、采样点及当前仿真告警；序号由后续运行时分配 |
+| 帧 | `schemaVersion=1`、水印与来源、`runId`、递增`sequence`、时间、场景相对时钟/循环标记、采样点及当前仿真告警；运行时额外提供可选场景`revision/startedAt`，纯生成器快照兼容原字段 |
 
 ## 演示配置
 
@@ -40,7 +40,25 @@
 
 五个场景为正常运行、冷却液温度缓慢爬升、电池压差扩大、定位漂移、液压提升缓慢。每个场景由`durationMs`和按通道配置的`[相对毫秒, 偏移量]`关键帧描述；偏移按平滑步进连接，首尾归零，未涉及通道继续同一条基线曲线。默认120秒场景在20秒后开始偏离（散热器轨道25秒后），80秒附近达到演示偏移，结束恢复基线。所有时间以JSON为准。
 
-调用方可以独立传`scenarioElapsedMs`触发场景，同时保留总采样时钟；`loop=true`按配置周期循环，默认不循环。切回`normal`不重置噪声序列。UI场景选择与授权的场景控制留到后续PR，不在当前批新增操作接口。
+纯生成器调用方可以独立传`scenarioElapsedMs`触发场景，同时保留总采样时钟；`loop=true`按配置周期循环，默认不循环。在保持总时钟的纯函数调用中切回`normal`不重置噪声序列。下述人工场景控制则明确开启新仿真会话，重置相对时钟/缓冲；同种子在相同相对时刻重现同一曲线。
+
+## 场景控制接口
+
+`GET /api/telemetry/scenario`不接受查询参数，返回`TelemetryScenarioState`：固定schema/source/watermark、`scope: shared-service`、当前runId/revision、id/loop、startedAt（Unix毫秒）及elapsedMs。这里是当前服务共用的仿真场景，**控制会影响该服务的所有监测窗口**，不是私人设备操作；前端选择器接入时须说明此范围。状态不持久化，服务重启回到normal/非循环/revision0，并产生不同runId。
+
+`POST /api/telemetry/scenario`只接受application/json，体积上限1KiB，无查询参数。完整命令仅四字段：
+
+```json
+{"expectedRunId":"从当前状态读取","revision":0,"id":"coolant-rise","loop":false}
+```
+
+id只能是目录中的五场景之一，loop须布尔，revision须非负安全整数；expectedRunId须与当前状态一致。没有采样点、阈值、种子、设备来源或外部脚本字段。未知/缺失字段、数组、错误类型或场景为400，非JSON为415，超体积为413/telemetry_control_too_large。坏JSON沿用全局脱敏400。两端点与SSE/history共用既有每IP30次/分钟限流；模式关闭为503。
+
+写操作遵循已有同站来源规则：跨站Origin或Sec-Fetch-Site拒绝403/telemetry_origin，无诊断身份cookie、记忆读写或模型调用；它是公开仿真服务的临时控制，不提供设备写入权限。路由在通用JSON解析前装配以兑现1KiB上限，其他HTTP错误仍交既有脱敏边界。
+
+runId或revision过期返回409/telemetry_scenario_conflict及当前带水印state，**不重新应用**。前端应重新读取并展示当前场景后，等待用户再次选择，不自动覆盖他人的切换。成功命令将revision加一、创建不同runId、清理环形缓冲并立即发布新会话sequence1；种子与通道配置不变，原有SSE订阅不另开生产者。现有客户端看到不同runId即清理旧曲线/迟到history，再读新历史。旧游标重连复用server_restart（新生成会话）的reset原因；该原因现在同时涵盖服务重启和人工场景重启，不能仅凭它推断整个服务停机。
+
+用户可再次选择normal作为“回到正常”，或选择原场景重新开始；loop按配置周期循环。当前接口不支持任意跳时、暂停生产、上传值或ingest。前端控制、仿真告警点击三维/知识跳转及旧工作台已有样本回放在后续PR接入。
 
 ## 读取接口与运行时
 

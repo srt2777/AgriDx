@@ -574,6 +574,13 @@
       "base": "3.19.2",
       "version": "3.20.0",
       "date": "2026-10-25"
+    },
+    {
+      "id": "ui-telemetry-scenarios-api-20261025",
+      "kind": "feature",
+      "base": "3.20.0",
+      "version": "3.21.0",
+      "date": "2026-10-25"
     }
   ]
 }

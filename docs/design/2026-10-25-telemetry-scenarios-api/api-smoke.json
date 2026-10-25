@@ -1,0 +1,19 @@
+{
+  "source": "simulated",
+  "watermark": "仿真数据 / Simulated data",
+  "seed": 2777,
+  "channelCount": 21,
+  "sharedScope": "shared-service",
+  "subscribersAgree": true,
+  "initialRun": "9dca475d-a8ba-4f8e-85b2-7ba1a20701f6",
+  "scenarioRun": "437cc740-760b-41bd-bab0-ae0f72803643",
+  "normalRun": "62ee167c-3bd9-4bc9-947a-24d0e13a3fdf",
+  "scenarioRevision": 1,
+  "normalRevision": 2,
+  "historyPoints": 1,
+  "stale": 409,
+  "oversized": 413,
+  "foreign": 403,
+  "oldCursorReset": "server_restart",
+  "ingest": 404
+}
