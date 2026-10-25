@@ -81,7 +81,7 @@ export default function DemoNote() {
           {copy.points.map((point) => <p key={point}>{point}</p>)}
           <button type="button" className="demo-help-shortcuts" onClick={() => { setOpen(false); button.current?.focus(); openShortcuts(); }}>{lang === 'zh' ? '键盘快捷键与操作帮助' : 'Keyboard shortcuts and controls'}</button>
         </div>,
-        document.body,
+        document.querySelector('.new-version-shell') ?? document.body,
       )}
     </div>
   );

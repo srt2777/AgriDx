@@ -68,7 +68,6 @@ html.theme-dark .new-version-shell[data-ui-version="new"] {
 }
 @media (prefers-reduced-motion: reduce) {
   .new-version-shell[data-ui-version="new"] { --nv-duration: 0ms; }
-  .new-version-shell[data-ui-version="new"] .nv-model-skeleton span { animation: none; }
 }
 
 
@@ -161,7 +160,7 @@ html.theme-dark .new-version-shell[data-ui-version="new"] {
 .new-version-shell[data-ui-version="new"] :is(.catalog-browser, .parts-panel, .chat-context) { padding: 16px; }
 .new-version-shell[data-ui-version="new"] :is(.catalog-tabs, .library-collections, .parts-stage-head, .parts-stage-foot) { gap: 8px; }
 .new-version-shell[data-ui-version="new"] :is(.catalog-tabs, .library-collections) button { border-radius: var(--nv-radius-pill); }
-.new-version-shell[data-ui-version="new"] :is(input:not([type='checkbox']):not([type='range']):not([type='file']), textarea, select) {
+.new-version-shell[data-ui-version="new"] :is(input:where(:not([type='checkbox']):not([type='range']):not([type='file'])), textarea, select) {
   min-width: 0;
   max-width: 100%;
   border: 1px solid var(--nv-border);
@@ -222,29 +221,60 @@ html.theme-dark .new-version-shell[data-ui-version="new"] select { color-scheme:
 .new-version-shell[data-ui-version="new"] .world-zone-label :is(span, strong) { color: var(--nv-text); font-size: var(--nv-text-xs); }
 .new-version-shell[data-ui-version="new"] .world-zone-label.is-selected { border-color: var(--nv-primary); }
 .new-version-shell[data-ui-version="new"] .expo-world-stage { border-radius: var(--nv-radius-lg); border-color: var(--nv-border); box-shadow: none; }
-.new-version-shell[data-ui-version="new"] .campus-equipment-catalog { margin: 24px 0; padding: 24px; border-radius: var(--nv-radius-lg); }
-.new-version-shell[data-ui-version="new"] .campus-equipment-list { display: grid; grid-template-columns: 1fr; gap: 0; }
-.new-version-shell[data-ui-version="new"] .campus-equipment-list li { border-bottom: 1px solid var(--nv-border); }
-.new-version-shell[data-ui-version="new"] .campus-equipment-list li > button {
-  display: grid;
-  grid-template-columns: minmax(160px, 1fr) minmax(180px, 2fr) minmax(120px, 1fr);
-  width: 100%;
-  gap: 16px;
-  align-items: center;
-  border: 0;
-  border-radius: 0;
-  background: var(--nv-card);
-  text-align: left;
-}
-.new-version-shell[data-ui-version="new"] .campus-equipment-list .equipment-locate { grid-column: 1 / -1; font-size: var(--nv-text-xs); }
-.new-version-shell[data-ui-version="new"] .campus-equipment-label { white-space: normal; max-width: 200px; background: var(--nv-card); border-color: var(--nv-primary); }
-.new-version-shell[data-ui-version="new"] .campus-equipment-label small { display: block; }
+
+
+
+
+
 .new-version-shell[data-ui-version="new"] .not-found-card { width: 100%; margin: 0; }
 .new-version-shell[data-ui-version="new"] .not-found-card > strong { font-size: var(--nv-text-xl); }
 @media (max-width: 600px) {
-  .new-version-shell[data-ui-version="new"] .campus-equipment-list li > button { grid-template-columns: 1fr; gap: 8px; }
-  .new-version-shell[data-ui-version="new"] .campus-equipment-catalog { padding: 16px; }
+
+
   .new-version-shell[data-ui-version="new"] .catalog-stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .new-version-shell[data-ui-version="new"] .catalog-stats > div { min-width: 0; }
   .new-version-shell[data-ui-version="new"] .chat-current-context { flex-wrap: wrap; }
 }
+
+/* Specific follow-ups found in the mobile/async style audit. */
+.new-version-shell[data-ui-version="new"] .new-version-main :is(.chat-bar-glass, .chat-input-glass) {
+  --lg-radius: 0px;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+.new-version-shell[data-ui-version="new"] .new-version-main .chat-composer { border: 0; border-radius: 0; background: transparent; box-shadow: none; }
+.new-version-shell[data-ui-version="new"] .new-version-main .chat-empty { border: 0; border-radius: 0; background: transparent; box-shadow: none; padding: 16px 0; margin: 0; }
+.new-version-shell[data-ui-version="new"] .new-version-main .library-collections { background: var(--nv-card); border: 1px solid var(--nv-border); border-radius: var(--nv-radius-md); backdrop-filter: none; }
+.new-version-shell[data-ui-version="new"] :is(.catalog-evidence-heading > span, .library-entry span, .parts-chip, .parts-kpi span, .parts-event-log li, .parts-detail small, .equipment-device-title em, .expo-world-hint, .expo-map-title, .expo-world-minimap span) { font-size: var(--nv-text-xs); line-height: var(--nv-leading); }
+.new-version-shell[data-ui-version="new"] .new-version-main .chat-thread { min-height: 0; }
+.new-version-shell[data-ui-version="new"] .new-version-main .chat-thread > .overflow-y-auto { justify-content: flex-start; }
+.new-version-shell[data-ui-version="new"] :where(span, strong, b, em, dt, dd, li, div, a, code, output) { font-size: inherit; line-height: inherit; }
+.new-version-shell[data-ui-version="new"] :is(p, label).text-xs { font-size: var(--nv-text-sm); }
+.new-version-shell[data-ui-version="new"] .library-preview span { font-size: var(--nv-text-xs); }
+.new-version-shell[data-ui-version="new"] :is(.rounded, .rounded-md, .rounded-lg) { border-radius: var(--nv-radius-sm); }
+.new-version-shell[data-ui-version="new"] .rounded-xl { border-radius: var(--nv-radius-md); }
+.new-version-shell[data-ui-version="new"] :is(.rounded-2xl, .rounded-3xl) { border-radius: var(--nv-radius-lg); }
+.new-version-shell[data-ui-version="new"] .rounded-full { border-radius: var(--nv-radius-pill); }
+.new-version-shell[data-ui-version="new"] .route-shell-reveal { animation-duration: var(--nv-duration); animation-timing-function: var(--nv-ease); }
+.new-version-shell[data-ui-version="new"] .new-version-main .agri-liquid-glass:not(.expo-dock-glass):not(.expo-zone-card):not(.expo-catalog) > :is(.liquid-glass-effect, .liquid-glass-tint, .liquid-glass-shine) { display: none; }
+.new-version-shell[data-ui-version="new"] .border-beam { display: none; }
+.new-version-shell[data-ui-version="new"] :is([aria-pressed='true'], .is-selected, .expo-zone-card):is(:focus-within, .is-selected, .is-beamed, [aria-pressed='true']) > .border-beam { display: block; }
+.new-version-shell[data-ui-version="new"] .new-version-header .new-version-header-glass,
+.new-version-shell[data-ui-version="new"] :is(.expo-zone-card, .expo-catalog, .parts-drawer) { box-shadow: var(--nv-shadow-lg); }
+.new-version-shell[data-ui-version="new"] .expo-dock-glass { box-shadow: var(--nv-shadow-sm); }
+.new-version-shell[data-ui-version="new"] .not-found-main { padding-inline: 0; }
+.new-version-shell[data-ui-version="new"] :is(.demo-note-panel, .nv-shortcuts-panel, .nv-tip) { border-radius: var(--nv-radius-lg); box-shadow: var(--nv-shadow-lg); }
+.new-version-shell[data-ui-version="new"] .demo-help-shortcuts { min-height: 44px; padding: 8px 12px; border: 1px solid var(--nv-border); border-radius: var(--nv-radius-md); color: var(--nv-primary); }
+.new-version-shell[data-ui-version="new"] :is(.nv-shortcuts-panel dt, .nv-shortcuts-panel dd) { font-size: var(--nv-text-sm); }
+
+.new-version-shell[data-ui-version="new"] .campus-equipment-detail .expo-zone-card-top { align-items: flex-start; gap: 16px; }
+.new-version-shell[data-ui-version="new"] .campus-equipment-detail .expo-zone-card-top > span { min-width: 0; overflow-wrap: anywhere; font-size: var(--nv-text-xs); line-height: var(--nv-leading); }
+/* The studio's former HUD text was fixed to white; pair it with the new surface. */
+.new-version-shell[data-ui-version="new"] :is(.parts-panel, .parts-drawer) :is(p, button, summary, h2, h3) { color: var(--nv-text); }
+.new-version-shell[data-ui-version="new"] :is(.parts-panel, .parts-drawer) button { border-color: var(--nv-border); }
+.new-version-shell[data-ui-version="new"] :is(.parts-panel, .parts-drawer) button[aria-pressed='true'] { color: var(--nv-on-primary); background: var(--nv-primary); border-color: var(--nv-primary); }
+.new-version-shell[data-ui-version="new"] :is(.parts-panel, .parts-drawer, .parts-kpi) .parts-chip { color: var(--nv-primary); background: var(--nv-surface); border-color: var(--nv-border); }
+.new-version-shell[data-ui-version="new"] .parts-drawer { background: color-mix(in srgb, var(--nv-card) 94%, transparent); color: var(--nv-text); }
+.new-version-shell[data-ui-version="new"] :is(.hall-card, .rounded-3xl.border)::before { content: none; }
+.new-version-shell[data-ui-version="new"] .parts-drawer .parts-detail ul { color: var(--nv-muted); }
