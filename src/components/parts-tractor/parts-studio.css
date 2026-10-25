@@ -64,6 +64,13 @@
 .telemetry-loop input { width: 18px; height: 18px; accent-color: var(--primary); }
 .telemetry-scenario-actions { display: flex; flex-wrap: wrap; gap: 6px; }
 .telemetry-scenario-actions button { flex: 1 1 140px; }
+.telemetry-alerts { margin-block: 12px; padding-block: 10px; border-block: 1px solid var(--border); }
+.telemetry-alerts h4, .telemetry-alert-label { display: flex; align-items: center; gap: 6px; margin: 0; font-size: 12px; }
+.telemetry-alert-list { display: grid; gap: 8px; margin: 8px 0; padding: 0; list-style: none; }
+.telemetry-alert-list li { min-width: 0; padding: 8px; border: 1px solid var(--border); border-left: 3px solid var(--telemetry-demo); border-radius: 8px; }
+.telemetry-alert-list [data-severity='alarm'] { border-left-color: var(--destructive); }
+.telemetry-alert-list .telemetry-alert-label { color: var(--telemetry-demo); }
+.telemetry-alert-list [data-severity='alarm'] .telemetry-alert-label { color: var(--destructive); }
 .telemetry-panel :is(button, input, select, summary):focus-visible { outline: 2px solid var(--primary); outline-offset: 3px; }
 .parts-studio.is-list-view .telemetry-header { top: 112px; }
 @media (max-width: 1023px) { .telemetry-header { top: 112px; } }
