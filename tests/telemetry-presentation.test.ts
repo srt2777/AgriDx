@@ -91,6 +91,16 @@ test('loading, failure, no data and unconfigured parts all retain an uncollapsed
   assert.match(render(failed, 'en'), /Simulated data.*Offline/); assert.match(render(failed, 'en'), /Data validation failed/);
 });
 
+test('a build without a simulation service is explicit and cannot offer reconnection, scenario writes or even retained charts', () => {
+  const data = { ...fixture(), phase: 'error' as const, error: 'unsupported' as const, connectionState: 'offline' as const };
+  for (const lang of ['zh', 'en'] as const) {
+    const html = render(data, lang); assert.match(html, /class="telemetry-badge"/); assert.match(html, /data-source="simulated"/);
+    assert.match(html, lang === 'zh' ? /当前网页未接入仿真服务/ : /not connected to a simulation service/);
+    assert.match(html, /role="alert"/);
+    assert.doesNotMatch(html, /自动重连|reconnection is automatic|等待带控制信息|Waiting for a simulation sample|<select|<figure|<article|<button/);
+  }
+});
+
 test('a single buffered sample remains visible as a point and does not offer an unusable time slider', () => {
   const data = fixture(); data.series = data.series.map(row => ({ ...row, windowPoints: [row.latest!], chartPoints: [row.latest!] }));
   const html = render(data); assert.match(html, /class="telemetry-dot"/);

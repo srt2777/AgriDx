@@ -158,7 +158,7 @@ test('static preview fails explicitly without opening a stream, generating point
   const store = new TelemetryStore({ supported: false, open: () => { network++; throw new Error('must not run'); }, history: async () => { network++; return {}; } });
   t.after(() => store.dispose()); store.subscribe(() => {});
   await store.loadHistory(channel.id); store.retry();
-  assert.equal(network, 0); assert.equal(store.getSnapshot().phase, 'error'); assert.equal(store.getSnapshot().error, 'unavailable');
+  assert.equal(network, 0); assert.equal(store.getSnapshot().phase, 'error'); assert.equal(store.getSnapshot().error, 'unsupported');
   assert.deepEqual(store.getSnapshot().latest, {});
 });
 

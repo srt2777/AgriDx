@@ -28,6 +28,7 @@ export function TelemetryPanel({ data, lang, onWindowChange, onAlertSelect }: { 
   const hasPoints = data.series.some(row => row.windowPoints.length > 0);
   const clock = (time: number) => time > 0 ? new Date(time).toLocaleTimeString(lang === 'zh' ? 'zh-CN' : 'en-GB', { hour12: false }) : '—';
   const state = data.connectionState;
+  const unsupported = data.error === 'unsupported';
   const StateIcon = state === 'offline' ? Unplug : state === 'delayed' ? Clock3 : FlaskConical;
   const stateLabel = state === 'offline' ? t('离线', 'Offline') : state === 'delayed' ? t('延迟', 'Delayed') : t('仿真', 'Simulated');
   function download() {
@@ -44,12 +45,14 @@ export function TelemetryPanel({ data, lang, onWindowChange, onAlertSelect }: { 
     </header>
     <p className="telemetry-note">{t('仿真读数仅供趋势演示，不能作为实车维修依据。', 'Simulated trends only; not evidence for vehicle repairs.')}</p>
     <p className="telemetry-note">{t('阈值来源：演示配置（demo）', 'Threshold source: demo configuration (demo)')} <code>config/telemetry-demo.json</code><br />{t('仿真演示阈值,非厂家标准', 'Simulation demo thresholds, not manufacturer standards.')}</p>
-    <TelemetryAlerts data={data} lang={lang} onSelect={onAlertSelect} />
-    <TelemetryScenarioControls data={data} lang={lang} />
+    {!unsupported && <TelemetryAlerts data={data} lang={lang} onSelect={onAlertSelect} />}
+    {!unsupported && <TelemetryScenarioControls data={data} lang={lang} />}
     {data.phase === 'loading' && <p role="status">{t('正在连接仿真数据…', 'Connecting to simulation data…')}</p>}
-    {data.phase === 'error' && <div role="alert" className="telemetry-message"><TriangleAlert size={16} aria-hidden="true" /><p>{data.error === 'invalid_data' ? t('数据校验失败，连接已停止。', 'Data validation failed; connection stopped.') : t('监测连接不可用。保留的读数是末次样本；恢复后自动重连。', 'Monitoring connection unavailable. Retained readings are the last samples; reconnection is automatic.')}</p><button type="button" onClick={data.retry}><RefreshCw size={14} aria-hidden="true" />{t('重试连接', 'Retry connection')}</button></div>}
-    {data.catalog && !data.series.length && <p role="status">{t('此部件未配置仿真通道。', 'No simulation channels are configured for this part.')}</p>}
-    {data.series.length > 0 && <>
+    {data.phase === 'error' && <div role="alert" className="telemetry-message"><TriangleAlert size={16} aria-hidden="true" /><p>{unsupported
+      ? t('当前网页未接入仿真服务，监测数据、场景和告警不可用。', 'This website is not connected to a simulation service. Monitoring data, scenarios and alerts are unavailable.')
+      : data.error === 'invalid_data' ? t('数据校验失败，连接已停止。', 'Data validation failed; connection stopped.') : t('监测连接不可用。保留的读数是末次样本；恢复后自动重连。', 'Monitoring connection unavailable. Retained readings are the last samples; reconnection is automatic.')}</p>{!unsupported && <button type="button" onClick={data.retry}><RefreshCw size={14} aria-hidden="true" />{t('重试连接', 'Retry connection')}</button>}</div>}
+    {!unsupported && data.catalog && !data.series.length && <p role="status">{t('此部件未配置仿真通道。', 'No simulation channels are configured for this part.')}</p>}
+    {!unsupported && data.series.length > 0 && <>
       <div className="telemetry-metrics">{data.series.map(row => <article className="telemetry-metric" key={row.channel.id}>
         <h4>{row.channel.name[lang]}</h4>
         <div className="telemetry-value">{row.channel.kind === 'state' ? telemetryValue(row.channel, row.latest, lang) : <><StatTicker value={row.latest?.value} reduced precision={row.channel.precision} locale={lang === 'zh' ? 'zh-CN' : 'en-US'} /><small>{row.channel.unit}</small></>}</div>
