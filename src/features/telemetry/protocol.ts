@@ -115,6 +115,10 @@ export function mergeTelemetryPoints(left: readonly TelemetryPoint[], right: rea
   return [...new Map([...left, ...right].map(point => [point.at, point])).values()].sort((a, b) => a.at - b.at).slice(-3600);
 }
 export interface TelemetryScope { modelId?: TelemetryModelId; partId?: string; channelIds?: readonly string[] }
+/** Window before downsampling so a short window does not inherit the one-hour resolution. */
+export function telemetryWindowPoints(points: readonly TelemetryPoint[], window: TelemetryWindow, to: number): TelemetryPoint[] {
+  return points.filter(point => point.at >= to - TELEMETRY_WINDOWS[window] && point.at <= to);
+}
 export function selectTelemetryChannels(catalog: TelemetryCatalog | null, scope: TelemetryScope): TelemetryChannel[] {
   const ids = new Set(scope.channelIds ?? []);
   return (catalog?.channels ?? []).filter(channel => {
