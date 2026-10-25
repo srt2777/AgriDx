@@ -44,3 +44,22 @@ export const rateLimits = sqliteTable('preview_rate_limits', {
   count: integer('count').notNull(),
   expiresAt: integer('expires_at').notNull(),
 }, t => [index('preview_rate_limits_expiry').on(t.expiresAt)]);
+
+/** API keys are AES-GCM ciphertext; the wrapping key is a deployment secret. */
+export const aiProviders = sqliteTable('preview_ai_providers', {
+  provider: text('provider').primaryKey(),
+  model: text('model').notNull(),
+  baseUrl: text('base_url').notNull(),
+  encryptedKey: text('encrypted_key').notNull(),
+  enabled: integer('enabled', { mode: 'boolean' }).notNull().default(false),
+  updatedAt: integer('updated_at').notNull(),
+  updatedBy: text('updated_by').notNull(),
+});
+export const aiSettings = sqliteTable('preview_ai_settings', {
+  id: integer('id').primaryKey(),
+  publicEnabled: integer('public_enabled', { mode: 'boolean' }).notNull().default(false),
+  defaultProvider: text('default_provider').notNull().default('deepseek'),
+  dailyLimit: integer('daily_limit').notNull().default(100),
+  updatedAt: integer('updated_at').notNull(),
+  updatedBy: text('updated_by').notNull(),
+});

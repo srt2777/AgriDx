@@ -24,7 +24,7 @@ export interface MemoryMessage {
   content: string;
   createdAt: string;
   model?: string;
-  provider?: 'gemini' | 'deepseek' | 'knowledge-base';
+  provider?: 'gemini' | 'deepseek' | 'openai' | 'knowledge-base';
   localSummary?: string;
   coordinationMessage?: string;
   answerMode?: 'knowledge-grounded' | 'general-guidance' | 'local-evidence';

@@ -42,7 +42,7 @@ export default function ChatPage() {
   const { t, format, separator } = useUiCopy(lang);
   const providerLabel = (provider?: ChatProvider) =>
     provider === 'knowledge-base' ? t('本地知识库', 'Local knowledge base') :
-    provider === 'gemini' ? 'Gemini' : provider === 'deepseek' ? 'DeepSeek' : '';
+    provider === 'gemini' ? 'Gemini' : provider === 'deepseek' ? 'DeepSeek' : provider === 'openai' ? 'OpenAI compatible' : '';
   const workspaceRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   useEffect(() => {
@@ -137,7 +137,7 @@ export default function ChatPage() {
     ? t('本地知识库 · LLM 暂不可用', 'Local KB · LLM temporarily unavailable')
     : currentFallbackReason === 'not_configured'
     ? t('本地知识库 · LLM 未配置', 'Local KB · LLM not configured')
-    : currentProvider === 'gemini' || currentProvider === 'deepseek'
+    : currentProvider === 'gemini' || currentProvider === 'deepseek' || currentProvider === 'openai'
     ? t('本地知识库 + LLM', 'Local KB + LLM')
     : typeof llmHealth === 'object' && !llmHealth.configured
     ? t('本地知识库 · LLM 未配置', 'Local KB · LLM not configured')

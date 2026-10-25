@@ -1,0 +1,28 @@
+.console-ai { min-width: 0; font-size: 14px; line-height: 1.5; }
+.console-ai .console-panel-heading h2 { display: flex; align-items: center; gap: 8px; }
+.console-api-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.console-api-grid .console-panel { min-width: 0; padding: 20px; }
+.console-api-card-heading { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
+.console-api-card-heading h2 { margin: 0; font-size: 20px; }
+.console-api-caption, .console-api-card-footer { font-size: 12px; color: var(--muted-foreground); overflow-wrap: anywhere; }
+.console-api-caption { margin: 12px 0; }
+.console-ai label { display: grid; gap: 8px; margin-bottom: 16px; font-size: 14px; }
+.console-ai :is(input:not([type='checkbox']), select, textarea) { width: 100%; min-width: 0; min-height: 44px; border: 1px solid var(--border); border-radius: 6px; padding: 8px 12px; color: var(--foreground); background: var(--muted); font: inherit; }
+.console-ai textarea { resize: vertical; }
+.console-ai .console-api-check { display: flex; align-items: center; min-height: 44px; gap: 8px; }
+.console-api-check input { width: 18px; height: 18px; accent-color: var(--primary); }
+.console-ai button { min-height: 44px; border: 1px solid var(--border); border-radius: 6px; padding: 8px 12px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-size: 14px; cursor: pointer; }
+.console-ai button:disabled { opacity: .5; cursor: not-allowed; }
+.console-ai :is(button, input, textarea, select):focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+.console-api-actions, .console-api-overview, .console-api-card-footer { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between; }
+.console-api-card-footer { border-top: 1px solid var(--border); margin-top: 16px; padding-top: 12px; }
+.console-api-card-footer small { font-size: 12px; }
+.console-api-card-footer .console-api-delete { color: var(--destructive); padding-inline: 0; border: 0; background: transparent; }
+.console-api-confirm { margin-top: 8px; padding: 12px; border: 1px solid var(--destructive); border-radius: 6px; }
+.console-api-confirm button { margin: 8px 8px 0 0; }
+.console-api-success { color: var(--primary); padding: 8px 0; }
+.console-api-settings, .console-api-debug { max-width: 760px; }
+.console-api-reply { padding: 16px; margin-top: 16px; border: 1px solid var(--border); border-radius: 10px; background: var(--muted); font: inherit; white-space: pre-wrap; overflow-wrap: anywhere; }
+@media(max-width:1100px) { .console-api-grid { grid-template-columns: 1fr; } }
+@media(prefers-reduced-motion:reduce) { .console-ai * { scroll-behavior: auto; } }
+.dev-console .console-freshness[hidden], .dev-console .console-toolbar select[hidden] { display: none; }
