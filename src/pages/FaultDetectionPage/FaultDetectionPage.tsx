@@ -7,24 +7,23 @@ import { useKnowledgeCatalog } from '@/hooks/useKnowledgeCatalog';
 import { useUpdateBlocker } from '@/features/updates/useUpdateBlocker';
 import { catalogParts, partTitle, resolveSelection, selectionForPart } from '@/components/parts-tractor/parts-catalog';
 import DeferredMarkdown from '@/components/DeferredMarkdown';
-import { ALARM_AT, CHECKS, DEMO_RECORD_KEY, DURATION, EVIDENCE_QUERY, OUTAGE_AT, SCENARIOS,
-  clampTime, demoEvidence, diagnosisDraft, frame, parseRecords, type DemoRecord, type Scenario } from './demo';
+import { CHECKS, DEMO_RECORD_KEY, EVIDENCE_QUERY, SCENARIOS,
+  demoEvidence, diagnosisDraft, parseRecords, type DemoRecord, type Scenario } from './demo';
+import { useTelemetry } from '@/hooks/useTelemetry';
+import { buildReplayTimeline, cursorAt, pointsThrough, resetForRun, type ReplayCursor } from './telemetry-replay';
 import './fault-detection.css';
 
 const FaultModel = lazy(() => import('./FaultModel'));
 type Metric = 'temperature' | 'rpm' | 'pressure';
-const METRICS: { id: Metric; zh: string; en: string; unit: string; min: number; max: number }[] = [
-  { id: 'temperature', zh: '冷却液温度', en: 'Coolant temperature', unit: '°C', min: 60, max: 120 },
-  { id: 'rpm', zh: '发动机转速', en: 'Engine speed', unit: 'rpm', min: 1000, max: 2000 },
-  { id: 'pressure', zh: '机油压力', en: 'Oil pressure', unit: 'kPa', min: 200, max: 400 },
-];
+const METRIC_HINTS: Record<Metric, string[]> = {
+  temperature: ['冷却液温度', 'coolant'], rpm: ['发动机转速', 'engine speed', 'rpm'], pressure: ['机油压力', 'oil pressure'],
+};
 
 export default function FaultDetectionPage() {
   const zh = useLang() === 'zh';
   const t = (cn: string, en: string) => zh ? cn : en;
   const reduced = !!useReducedMotion();
   const [scenario, setScenario] = useState<Scenario>('quiet');
-  const [time, setTime] = useState(0);
   const [playing, setPlaying] = useState(false);
   const [metric, setMetric] = useState<Metric>('temperature');
   const [selection, setSelection] = useState<string | null>(null);
@@ -40,33 +39,46 @@ export default function FaultDetectionPage() {
   const [storageMessage, setStorageMessage] = useState('');
   const checksRef = useRef<HTMLDetailsElement>(null);
   const { catalog, loading, failed, retry } = useKnowledgeCatalog(EVIDENCE_QUERY);
+  const telemetry = useTelemetry({ modelId: 'diesel', partId: 'engine', window: '1h' });
   const evidence = failed ? null : demoEvidence(catalog);
-  const sample = frame(scenario, time);
+  const [cursor, setCursor] = useState<ReplayCursor>(resetForRun);
+  const runId = telemetry.runId;
+  const metricRows = telemetry.series.filter(row => row.channel.kind === 'measurement');
+  const rowFor = (id: Metric) => metricRows.find(row => METRIC_HINTS[id].some(hint => `${row.channel.name.zh} ${row.channel.name.en} ${row.channel.id}`.toLowerCase().includes(hint.toLowerCase())));
+  const activeRow = rowFor(metric);
+  const timeline = buildReplayTimeline(activeRow?.points ?? [], activeRow?.channel.id ?? '');
+  const replayPoints = pointsThrough(timeline, cursor);
+  const selectedPoint = replayPoints.at(-1)?.point ?? activeRow?.latest;
+  const elapsedSeconds = selectedPoint ? Math.floor(selectedPoint.elapsedMs / 1000) : 0;
+  const time = elapsedSeconds;
+  const sample = { sampleAt: elapsedSeconds, offline: telemetry.connectionState === 'offline', alert: telemetry.alerts.length > 0 };
+  const displayRows = metricRows.map(row => ({ row, id: (Object.keys(METRIC_HINTS) as Metric[]).find(id => METRIC_HINTS[id].some(hint => `${row.channel.name.zh} ${row.channel.name.en} ${row.channel.id}`.toLowerCase().includes(hint.toLowerCase()))) })).filter(item => item.id);
+  const timelineEndMs = timeline.points.at(-1)?.point.elapsedMs ?? 1000;
+  const maxSeconds = Math.max(1, Math.ceil(timelineEndMs / 1000));
   const selectedPart = resolveSelection(selection);
   const currentRecords = records.filter(row => row.scenario === scenario);
-  const activeMetric = METRICS.find(item => item.id === metric)!;
-  const end = sample.sampleAt;
-  const path = Array.from({ length: end + 1 }, (_, at) => {
-    const value = frame(scenario, at)[metric];
-    return `${at ? 'L' : 'M'}${40 + at / DURATION * 600},${170 - (value - activeMetric.min) / (activeMetric.max - activeMetric.min) * 140}`;
-  }).join(' ');
-  const x = 40 + time / DURATION * 600;
+  const activeMetric = activeRow?.channel;
+  const values = replayPoints.map(item => item.point.value);
+  const low = activeMetric?.range.min ?? Math.min(...values, 0);
+  const high = activeMetric?.range.max ?? Math.max(...values, 1);
+  const range = Math.max(high - low, 1);
+  const path = replayPoints.map((item, index) => `${index ? 'L' : 'M'}${40 + (item.point.elapsedMs / timelineEndMs) * 600},${170 - ((item.point.value - low) / range) * 140}`).join(' ');
+  const x = selectedPoint ? 40 + (selectedPoint.elapsedMs / timelineEndMs) * 600 : 40;
   useUpdateBlocker('/fault-detection', playing || note.trim().length > 0 || storageMessage.length > 0);
 
   useEffect(() => {
     if (!playing) return;
-    let last = performance.now();
     const timer = window.setInterval(() => {
-      const now = performance.now();
-      const delta = Math.min((now - last) / 1000, 1);
-      last = now;
-      setTime(value => clampTime(value + delta));
+      setCursor(value => value.index + 1 < timeline.points.length
+        ? { index: value.index + 1, elapsedMs: timeline.points[value.index + 1].point.elapsedMs, mode: 'received-history' }
+        : value);
     }, 250);
     const pause = () => { if (document.hidden) setPlaying(false); };
     document.addEventListener('visibilitychange', pause);
     return () => { clearInterval(timer); document.removeEventListener('visibilitychange', pause); };
-  }, [playing]);
-  useEffect(() => { if (time >= DURATION) setPlaying(false); }, [time]);
+  }, [playing, timeline.points]);
+  useEffect(() => { setCursor(resetForRun()); setPlaying(false); }, [runId]);
+  useEffect(() => { if (playing && cursor.index >= timeline.points.length - 1) setPlaying(false); }, [cursor.index, playing, timeline.points.length]);
 
   function persist(next: DemoRecord[]) {
     setRecords(next);
@@ -75,11 +87,11 @@ export default function FaultDetectionPage() {
   }
   function changeScenario(next: Scenario) {
     if (note.trim() && !window.confirm(t('切换场景将丢弃未保存的演示备注，继续？', 'Discard the unsaved demo note and change scenario?'))) return;
-    setScenario(next); setTime(0); setPlaying(false); setSelection(null); setMetric('temperature');
+    setScenario(next); setCursor(resetForRun()); setPlaying(false); setSelection(null); setMetric('temperature');
     setIsolate(false); setChecksOpen(false); setEvidenceOpen(false); setNote(''); setCheckId('scope');
   }
   function selectAlert() {
-    setPlaying(false); setTime(ALARM_AT); setMetric('temperature');
+    setPlaying(false); setMetric('temperature'); setCursor(cursorAt(timeline, 45000));
     setSelection(selectionForPart('radiator')); setIsolate(true); setChecksOpen(true); setEvidenceOpen(true);
     setModelOpen(true);
     window.setTimeout(() => checksRef.current?.focus({ preventScroll: true }), 0);
@@ -100,19 +112,19 @@ export default function FaultDetectionPage() {
       <span>{t('数值与告警为预设教学场景，不是通用维修阈值。', 'Values and alerts are scripted examples, not universal service thresholds.')}</span></div>
     <section className="fault-controls" aria-label={t('模拟场景与播放', 'Scenario and playback')}>
       <label>{t('场景', 'Scenario')}<select aria-label={t('场景', 'Scenario')} value={scenario} onChange={e => changeScenario(e.target.value as Scenario)}>{SCENARIOS.map(item => <option key={item.id} value={item.id}>{zh ? item.zh : item.en}</option>)}</select></label>
-      <button type="button" onClick={() => { if (time >= DURATION) setTime(0); setPlaying(v => !v); }}>{playing ? <Pause size={16} /> : <Play size={16} />}{playing ? t('暂停', 'Pause') : t('播放', 'Play')}</button>
-      <button type="button" onClick={() => { setTime(0); setPlaying(false); setSelection(null); setIsolate(false); setChecksOpen(false); setEvidenceOpen(false); }}><RotateCcw size={16} />{t('重新开始', 'Restart')}</button>
-      <label className="fault-seek">{t('演示时间', 'Demo time')}<input aria-label={t('定位演示时间', 'Seek demo time')} type="range" min={0} max={DURATION} step={1} value={Math.floor(time)} onChange={e => { setPlaying(false); setTime(Number(e.target.value)); }} /><output>{Math.floor(time)} / {DURATION}s</output></label>
+      <button type="button" onClick={() => { if (cursor.index >= timeline.points.length - 1) setCursor(resetForRun()); setPlaying(v => !v); }}>{playing ? <Pause size={16} /> : <Play size={16} />}{playing ? t('暂停回放', 'Pause replay') : t('播放回放', 'Play replay')}</button>
+      <button type="button" onClick={() => { setCursor(resetForRun()); setPlaying(false); setSelection(null); setIsolate(false); setChecksOpen(false); setEvidenceOpen(false); }}><RotateCcw size={16} />{t('重新开始回放', 'Restart replay')}</button>
+      <label className="fault-seek">{t('已收到历史定位', 'Received-history cursor')}<input aria-label={t('定位已收到历史', 'Seek received history')} type="range" min={0} max={maxSeconds} step={1} value={Math.min(time, maxSeconds)} onChange={e => { setPlaying(false); setCursor(cursorAt(timeline, Number(e.target.value) * 1000)); }} /><output>{Math.floor(time)} / {maxSeconds}s</output></label>
     </section>
-    <dl className="fault-data-status"><div><dt>{t('数据来源', 'Source')}</dt><dd>{t('内置确定性模拟序列', 'Built-in deterministic simulation')}</dd></div>
+    <dl className="fault-data-status"><div><dt>{t('数据来源', 'Source')}</dt><dd>{t('后端仿真SSE已收到样本', 'Received from backend simulation SSE')}</dd></div>
       <div><dt>{t('连接状态', 'Connection')}</dt><dd>{sample.offline ? t('模拟数据中断 · 无法判断当前状态', 'SIMULATED INTERRUPTION · CURRENT STATE UNKNOWN') : t('本地演示源 · 无实车连接', 'Local simulation · no live machine')}</dd></div>
       <div><dt>{t('最后采集时间', 'Last sample')}</dt><dd>{t('场景相对时间', 'Scenario-relative time')} +{sample.sampleAt}s{sample.offline && ` · ${t('历史值', 'historical value')}`}</dd></div></dl>
     <div className="fault-workbench">
       <section className="fault-alert-panel fault-panel" aria-labelledby="fault-alert-title"><p className="fault-eyebrow">01 / ALERTS</p><h2 id="fault-alert-title">{t('当前异常', 'Current alerts')}</h2>
         <div aria-live="polite">{sample.offline ? <p className="fault-warning">{t('数据已中断，无法判断当前状态。最后收到的数据不代表当前状态。', 'Data interrupted. Current state is unknown; the last sample is historical.')}</p>
-          : sample.alert ? <button type="button" className="fault-alert" onClick={selectAlert}><TriangleAlert size={22} /><span><strong>{t('预设温度告警', 'Scripted temperature alert')}</strong><small>+{ALARM_AT}s · {t('点击联动模型、曲线和检查步骤', 'Select to link model, chart and checks')}</small></span><ArrowRight size={17} /></button>
-          : <p>{t('截至当前演示时间，本场景无预设告警；不表示实车正常。', 'No scripted alert at this demo time. This says nothing about a real machine.')}</p>}</div>
-        <div className="fault-metrics">{METRICS.map(item => <button key={item.id} type="button" aria-pressed={metric === item.id} onClick={() => setMetric(item.id)}><span>{zh ? item.zh : item.en}</span><strong>{sample[item.id]} <small>{item.unit}</small></strong><small>{sample.offline ? t('最后历史样本', 'Last historical sample') : t('模拟采样', 'Simulated sample')}</small></button>)}</div>
+          : sample.alert ? <button type="button" className="fault-alert" onClick={selectAlert}><TriangleAlert size={22} /><span><strong>{t('仿真告警', 'Simulated alert')}</strong><small>{t('告警来自已收到的后端仿真帧；点击查看历史定位', 'Alert comes from a received backend simulation frame; select a history position')}</small></span><ArrowRight size={17} /></button>
+          : <p>{t('当前已收到历史没有仿真告警；不表示实车正常。', 'No simulated alert is present in received history; this says nothing about a real machine.')}</p>}</div>
+        <div className="fault-metrics">{displayRows.map(({ id, row }) => <button key={row.channel.id} type="button" aria-pressed={metric === id} onClick={() => setMetric(id!)}><span>{row.channel.name[zh ? 'zh' : 'en']}</span><strong>{id === metric ? selectedPoint?.value ?? '—' : row.latest?.value ?? '—'} <small>{row.channel.unit}</small></strong><small>{sample.offline ? t('最后历史样本', 'Last historical sample') : t('已收到仿真样本', 'Received simulated sample')}</small></button>)}</div>
       </section>
       <details className="fault-model-panel fault-panel" open={modelOpen} onToggle={event => setModelOpen(event.currentTarget.open)}>
         <summary><span>02 / {t('柴油拖拉机结构示意', 'DIESEL STRUCTURE SCHEMATIC')}</span><span>{modelOpen ? '−' : '+'}</span></summary>
@@ -122,16 +134,15 @@ export default function FaultDetectionPage() {
           <Suspense fallback={<p role="status">{t('加载模型组件…', 'Loading model component…')}</p>}><FaultModel selection={selection} onSelect={setSelection} reduced={reduced} zh={zh} isolate={isolate} /></Suspense>
           <p className="fault-model-selection">{t('当前选择', 'Selection')}: {selectedPart ? partTitle(selectedPart.node, zh ? 'zh' : 'en') : t('整机', 'Whole machine')} · <Link to="/models">{t('打开完整模型工坊', 'Open model studio')}</Link></p></>}
       </details>
-      <section className="fault-chart-panel fault-panel"><p className="fault-eyebrow">03 / TELEMETRY</p><h2>{t('参数趋势', 'Parameter trend')} · {zh ? activeMetric.zh : activeMetric.en}</h2>
-        <p>{t('横轴为场景秒数，纵轴为参数值；只绘制已收到的模拟样本。拖动上方时间轴查看。', 'X: scenario seconds; Y: parameter value. Only received simulated samples are drawn. Use the time slider above.')}</p>
-        <svg className="fault-chart" viewBox="0 0 680 210" role="img" aria-label={`${zh ? activeMetric.zh : activeMetric.en}: ${sample[metric]} ${activeMetric.unit}; +${sample.sampleAt}s`}>
+      <section className="fault-chart-panel fault-panel"><p className="fault-eyebrow">03 / TELEMETRY</p><h2>{t('参数趋势', 'Parameter trend')} · {activeMetric?.name[zh ? 'zh' : 'en'] ?? t('暂无已收到通道', 'No received channel')}</h2>
+        <p>{t('横轴为已收到仿真样本的相对时间，纵轴量程来自目录；回放只显示已收到点。', 'X: received simulated sample time; Y: catalog range. Replay shows received points only.')}</p>
+        <svg className="fault-chart" viewBox="0 0 680 210" role="img" aria-label={`${activeMetric?.name[zh ? 'zh' : 'en'] ?? 'Telemetry'}: ${selectedPoint?.value ?? '—'} ${activeMetric?.unit ?? ''}; +${sample.sampleAt}s`}>
           <title>{t('模拟参数趋势，不是实车测量', 'Simulated trend, not real measurements')}</title>
-          {[0, 1, 2].map(i => <g key={i}><line x1="40" x2="640" y1={30 + i * 70} y2={30 + i * 70} className="fault-grid" /><text x="2" y={34 + i * 70}>{activeMetric.max - i * (activeMetric.max - activeMetric.min) / 2}</text></g>)}
-          {[0, 30, 60, 90, 120].map(at => <text key={at} x={40 + at / DURATION * 600} y="196">{at}s</text>)}
+          {[0, 1, 2].map(i => <g key={i}><line x1="40" x2="640" y1={30 + i * 70} y2={30 + i * 70} className="fault-grid" /><text x="2" y={34 + i * 70}>{(high - i * range / 2).toFixed(activeMetric?.precision ?? 0)}</text></g>)}
+          {[0, .25, .5, .75, 1].map(fraction => <text key={fraction} x={40 + fraction * 600} y="196">{Math.round(maxSeconds * fraction)}s</text>)}
           <path d={path} className="fault-trend" /><line x1={x} x2={x} y1="20" y2="175" className="fault-cursor" />
-          {scenario === 'temperature' && sample.alert && <g><line x1="265" x2="265" y1="20" y2="175" className="fault-alert-line" /><text x="270" y="16">{t('预设告警 +45s', 'Scripted alert +45s')}</text></g>}
-          {sample.offline && <text x="355" y="90">{t('数据中断，无新增样本', 'Interrupted · no new samples')}</text>}
-        </svg><p>{t('当前定位', 'Cursor')} +{Math.floor(time)}s · {sample[metric]} {activeMetric.unit} · {sample.offline ? t('历史值，当前未知', 'Historical; current unknown') : t('模拟值', 'Simulated value')}</p>
+          {sample.offline && <text x="355" y="90">{t('连接离线；仅保留最后已收到历史', 'Offline; only last received history is retained')}</text>}
+        </svg><p>{t('当前历史定位', 'History cursor')} +{Math.floor(time)}s · {selectedPoint?.value ?? '—'} {activeMetric?.unit ?? ''} · {sample.offline ? t('历史值，当前未知', 'Historical; current unknown') : t('已收到仿真值', 'Received simulated value')}</p>
       </section>
       <section className="fault-check-panel fault-panel"><p className="fault-eyebrow">04 / EVIDENCE & CHECKS</p><h2>{t('检查步骤与依据', 'Checks and evidence')}</h2>
         <details ref={checksRef} tabIndex={-1} open={checksOpen} onToggle={e => setChecksOpen(e.currentTarget.open)}><summary>{t('展开检查清单', 'Expand checklist')}</summary>
@@ -154,9 +165,9 @@ export default function FaultDetectionPage() {
       <section className="fault-events-panel fault-panel"><div className="fault-events-title"><div><p className="fault-eyebrow">05 / EVENT LOG</p><h2>{t('模拟事件记录', 'Simulated event log')}</h2></div><button type="button" onClick={() => {
         if (window.confirm(t('清除所有场景的演示记录和当前备注？真实设备档案不受影响。', 'Clear all demo notes and the current draft? Real device profiles are unaffected.'))) { persist([]); setNote(''); }
       }}>{t('清除演示记录', 'Clear demo notes')}</button></div>
-        <ul><li><time>+0s</time>{t('场景开始；数据来自内置模拟序列。', 'Scenario starts; data comes from the built-in simulator.')}</li>
-          {sample.alert && <li><time>+{ALARM_AT}s</time>{t('触发预设温度告警；未确认任何零件损坏。', 'Scripted temperature alert; no component damage confirmed.')}</li>}
-          {sample.offline && <li><time>+{OUTAGE_AT}s</time>{t('模拟数据中断，当前状态未知。', 'Simulated data interruption; current state unknown.')}</li>}
+        <ul><li><time>+0s</time>{t('场景视图开始；数据来自后端仿真已收到历史。', 'View starts; data comes from received backend simulation history.')}</li>
+          {sample.alert && <li><time>已收到</time>{t('后端仿真帧带告警；未确认任何零件损坏。', 'A received backend simulation frame carries an alert; no component damage confirmed.')}</li>}
+          {sample.offline && <li><time>离线</time>{t('连接离线；历史视图不代表当前状态。', 'Connection offline; history view does not represent current state.')}</li>}
           {currentRecords.map((row, index) => <li key={index}><time>+{row.at}s</time><span>{t('用户演示记录', 'User demo note')} · {CHECKS.find(check => check.id === row.checkId)![zh ? 'zh' : 'en']}：{row.note}{row.at > time && ` (${t('记录时间在当前定位之后', 'recorded after cursor time')})`}</span></li>)}</ul>
       </section>
     </div>
