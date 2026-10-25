@@ -1,0 +1,1 @@
+import{j as e}from"./r3f-C54c6kk3.js";import{R as s}from"./ResearchSection-BWGHUao7.js";import{d as o}from"./index-FncI9EcG.js";import"./three-Be1dPCZm.js";import"./arrow-up-right-Bw4YG3ZQ.js";function n(){const{t:r}=o();return e.jsxs("div",{className:"page-container modern-research-page",children:[e.jsx("h1",{children:r("研究依据","Research")}),e.jsx(s,{})]})}export{n as default};
