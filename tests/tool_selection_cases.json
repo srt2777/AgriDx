@@ -1,0 +1,72 @@
+[
+  {
+    "query": "计算 (12+3)*2",
+    "expected_tool": "calculator",
+    "note": "明确算术"
+  },
+  {
+    "query": "现在上海几点",
+    "expected_tool": "get_current_time",
+    "note": "当前时间"
+  },
+  {
+    "query": "久保田LX2620启动困难，找手册依据",
+    "expected_tool": "search_knowledge",
+    "note": "症状证据检索"
+  },
+  {
+    "query": "浏览久保田LX2620液压资料目录",
+    "expected_tool": "browse_knowledge",
+    "note": "目录浏览"
+  },
+  {
+    "query": "当前知识库有多少条",
+    "expected_tool": "knowledge_stats",
+    "note": "快照数量"
+  },
+  {
+    "query": "问题说东方红LF1504但已选久保田，是否冲突",
+    "expected_tool": "resolve_machine_scope",
+    "note": "身份解析"
+  },
+  {
+    "query": "你好",
+    "expected_tool": null,
+    "note": "闲聊无需工具"
+  },
+  {
+    "query": "谢谢你",
+    "expected_tool": null,
+    "note": "寒暄无需工具"
+  },
+  {
+    "query": "解释什么是四冲程发动机",
+    "expected_tool": null,
+    "note": "一般原理无需工具"
+  },
+  {
+    "query": "告诉我未来一周天气",
+    "expected_tool": null,
+    "note": "没有天气工具"
+  },
+  {
+    "query": "只想确认文字里是哪种机型，不查询维修资料",
+    "expected_tool": "resolve_machine_scope",
+    "note": "身份解析与检索相近"
+  },
+  {
+    "query": "找冷却组件的资料目录，不需要故障正文",
+    "expected_tool": "browse_knowledge",
+    "note": "目录与检索相近"
+  },
+  {
+    "query": "要启动困难的具体证据，不要目录",
+    "expected_tool": "search_knowledge",
+    "note": "检索与浏览相近"
+  },
+  {
+    "query": "条目多是不是一定能确诊",
+    "expected_tool": null,
+    "note": "常识边界，不需要统计"
+  }
+]
