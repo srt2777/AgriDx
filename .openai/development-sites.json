@@ -16,9 +16,9 @@
       "initial_version": "4.4.0",
       "initial_source_commit": "783b565e8b2ff7733d7246ff733287e80f2245dc",
       "audience": "owner-private",
-      "status": "preparing-first-deployment",
+      "status": "deployed",
       "runtime": "Cloudflare Workers + independent D1",
-      "source_checkout": "sites/agridx-v4-development (local, separate Sites repository)",
+      "source_checkout": "sites/agridx-v4-publish (local, separate Sites repository)",
       "details": "full GitHub tracked source snapshot retained; gateway uses complete development artifact; private records and API credentials isolated; external AI disabled until administrator configures provider and enables it",
       "source_verification": {
         "files_checked": 1174,
@@ -27,6 +27,25 @@
           "package.json (Sites build entry; original command retained as build:source)"
         ],
         "verified_source_commit": "783b565e8b2ff7733d7246ff733287e80f2245dc"
+      },
+      "sites_source_commit": "0758b407eb4b9bef282ff6fb334c36c1c8591a81",
+      "saved_version_id": "appgprj_6adf3b38eac48191a7139d92f2e1a357~appgver_dda5ee2ebaf081918b33a93fcb23c747",
+      "deployment_id": "appgdep_6adf44313f5c819189ee4c443e28f3f5",
+      "first_deployed_at": "2026-10-26T12:14:54.034543+00:00",
+      "first_deployed_at_shanghai": "2026-10-26 20:14:54 +08:00",
+      "runtime_environment_revision": 1,
+      "source_upload": "11 bounded Git uploads; all 1174 original source files verified as tracked before saving and deploying",
+      "initial_online_verification": {
+        "version": "4.4.0",
+        "source_commit": "783b565e8b2ff7733d7246ff733287e80f2245dc",
+        "health_http": 200,
+        "release_http": 200,
+        "html_http": 200,
+        "html_build_commit_matches": true,
+        "d1_session_configured": true,
+        "external_ai_configured": false,
+        "browser_verified": "live three-dimensional campus loaded with original navigation and equipment catalogue",
+        "method": "authenticated owner browser and Sites-supported service access; no credential committed"
       }
     },
     {

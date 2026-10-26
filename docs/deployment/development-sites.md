@@ -25,8 +25,12 @@ Sites 源码快照与运行中的前端构建分别记录：前端自动跟随 m
 
 ## 本次发布记录
 
-首次 Sites 部署状态、saved version、源码提交及线上核对结果记录于机器清单，完成后更新。本轮不操作腾讯、旧正式站、域名或 GitHub 权限。
+2026-10-26 20:14:54（上海），Sites 原生回执确认首次部署 succeeded；saved version `appgprj_6adf3b38eac48191a7139d92f2e1a357~appgver_dda5ee2ebaf081918b33a93fcb23c747`，部署 `appgdep_6adf44313f5c819189ee4c443e28f3f5`，Sites 源码 `0758b407eb4b9bef282ff6fb334c36c1c8591a81`，运行环境 revision 1。准确字段同时保存在机器清单。本轮不操作腾讯、旧正式站、域名或 GitHub 权限。
 
 ## 本地验证记录
 
 2026-10-26，逐文件核对 GitHub 初始提交：1174个文件保留，仅 package.json 增加 Sites 构建入口（原命令保留为 build:source）；2个旧站身份文件被替换。浏览器验证真实三维大厅、10877条知识目录、带手册编号和页码的 LX2620 本地诊断、T70模型工坊；外部AI和独立建模进程未连接状态保持明确。
+
+上传过程中单次完整 Git pack 超过 Sites 平台上限，改用11批受限 Git 上传，全部源码保存并逐一核对后才保存/部署版本；没有发布中间的不完整源码状态。
+
+首次线上核对：`/api/health`、`/dev-preview.json` 与 HTML 均为200，版本4.4.0、提交 `783b565e8b2ff7733d7246ff733287e80f2245dc` 三者一致；`/api/dev-admin/session` 确认独立 D1 configured=true，匿名应用会话 user=null。外部AI默认未配置。所有者浏览器已加载线上真实三维大厅。4.4.1为本次登记维护版本，合入main并完成既有构建后由同一入口自动更新，不把首发核对记录改写成后续版本。
