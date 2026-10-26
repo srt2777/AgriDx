@@ -1,0 +1,37 @@
+{
+  "repository": "srt2777/AgriDx",
+  "source_branch": "main",
+  "artifact_branch": "dev-preview-built",
+  "update_policy": "main push → existing Development preview workflow verifies/builds/publishes → gateway serves latest artifact; browser checks every 30 seconds, safe reload may defer for unsaved work",
+  "sites": [
+    {
+      "name": "AgriDx v4 开发版",
+      "project_id": "appgprj_6adf3b38eac48191a7139d92f2e1a357",
+      "url": "https://agridx-v4-development.orangeglade33.chatgpt.site",
+      "created_at": "2026-10-26T11:36:28.201053+00:00",
+      "created_at_shanghai": "2026-10-26 19:36:28 +08:00",
+      "created_by": "Codex via Sites, requested by user",
+      "site_owner_display_name": "changjie",
+      "github_operator": "Changjie29",
+      "initial_version": "4.4.0",
+      "initial_source_commit": "783b565e8b2ff7733d7246ff733287e80f2245dc",
+      "audience": "owner-private",
+      "status": "preparing-first-deployment",
+      "runtime": "Cloudflare Workers + independent D1",
+      "source_checkout": "sites/agridx-v4-development (local, separate Sites repository)",
+      "details": "full GitHub tracked source snapshot retained; gateway uses complete development artifact; private records and API credentials isolated; external AI disabled until administrator configures provider and enables it"
+    },
+    {
+      "name": "原公开开发站",
+      "project_id": "appgprj_6accea9518e08191ba29e1f8b0f8725e",
+      "url": "https://agridx-dev-preview.z3464715478.chatgpt.site",
+      "created_at": null,
+      "historical_first_publication_date": "2026-10-12",
+      "creation_evidence": "docs/deployment/dev-preview.md; historical publication date is not a verified platform creation timestamp",
+      "created_by": "历史文档记载由 Codex 通过 Sites 建立；本次账户无法读取旧站 Sites 管理信息",
+      "audience": "public (existing repository configuration)",
+      "status": "existing; not modified",
+      "details": "same main/dev-preview-built artifact pipeline; retains its original independent data and settings"
+    }
+  ]
+}
