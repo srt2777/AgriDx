@@ -1,0 +1,64 @@
+{
+  "repository": "srt2777/AgriDx",
+  "source_branch": "main",
+  "artifact_branch": "dev-preview-built",
+  "update_policy": "main push → existing Development preview workflow verifies/builds/publishes → gateway serves latest artifact; browser checks every 30 seconds, safe reload may defer for unsaved work",
+  "sites": [
+    {
+      "name": "AgriDx v4 开发版",
+      "project_id": "appgprj_6adf3b38eac48191a7139d92f2e1a357",
+      "url": "https://agridx-v4-development.orangeglade33.chatgpt.site",
+      "created_at": "2026-10-26T11:36:28.201053+00:00",
+      "created_at_shanghai": "2026-10-26 19:36:28 +08:00",
+      "created_by": "Codex via Sites, requested by user",
+      "site_owner_display_name": "changjie",
+      "github_operator": "Changjie29",
+      "initial_version": "4.4.0",
+      "initial_source_commit": "783b565e8b2ff7733d7246ff733287e80f2245dc",
+      "audience": "owner-private",
+      "status": "deployed",
+      "runtime": "Cloudflare Workers + independent D1",
+      "source_checkout": "sites/agridx-v4-publish (local, separate Sites repository)",
+      "details": "full GitHub tracked source snapshot retained; gateway uses complete development artifact; private records and API credentials isolated; external AI disabled until administrator configures provider and enables it",
+      "source_verification": {
+        "files_checked": 1174,
+        "excluded_old_site_identity_files": 2,
+        "modified_upstream_files": [
+          "package.json (Sites build entry; original command retained as build:source)"
+        ],
+        "verified_source_commit": "783b565e8b2ff7733d7246ff733287e80f2245dc"
+      },
+      "sites_source_commit": "0758b407eb4b9bef282ff6fb334c36c1c8591a81",
+      "saved_version_id": "appgprj_6adf3b38eac48191a7139d92f2e1a357~appgver_dda5ee2ebaf081918b33a93fcb23c747",
+      "deployment_id": "appgdep_6adf44313f5c819189ee4c443e28f3f5",
+      "first_deployed_at": "2026-10-26T12:14:54.034543+00:00",
+      "first_deployed_at_shanghai": "2026-10-26 20:14:54 +08:00",
+      "runtime_environment_revision": 1,
+      "source_upload": "11 bounded Git uploads; all 1174 original source files verified as tracked before saving and deploying",
+      "initial_online_verification": {
+        "version": "4.4.0",
+        "source_commit": "783b565e8b2ff7733d7246ff733287e80f2245dc",
+        "health_http": 200,
+        "release_http": 200,
+        "html_http": 200,
+        "html_build_commit_matches": true,
+        "d1_session_configured": true,
+        "external_ai_configured": false,
+        "browser_verified": "live three-dimensional campus loaded with original navigation and equipment catalogue",
+        "method": "authenticated owner browser and Sites-supported service access; no credential committed"
+      }
+    },
+    {
+      "name": "原公开开发站",
+      "project_id": "appgprj_6accea9518e08191ba29e1f8b0f8725e",
+      "url": "https://agridx-dev-preview.z3464715478.chatgpt.site",
+      "created_at": null,
+      "historical_first_publication_date": "2026-10-12",
+      "creation_evidence": "docs/deployment/dev-preview.md; historical publication date is not a verified platform creation timestamp",
+      "created_by": "未核实；历史首次发布记录未提供平台创建者身份，当前 Sites 账户无法读取旧站管理信息",
+      "audience": "public (existing repository configuration)",
+      "status": "existing; not modified",
+      "details": "same main/dev-preview-built artifact pipeline; retains its original independent data and settings"
+    }
+  ]
+}
