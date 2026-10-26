@@ -16,5 +16,5 @@
     "esModuleInterop": true,
     "types": ["node", "express"]
   },
-  "include": ["server.ts", "server/**/*.ts"]
+  "include": ["server.ts", "server/**/*.ts", "agent/**/*.ts"]
 }
