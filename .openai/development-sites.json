@@ -19,7 +19,15 @@
       "status": "preparing-first-deployment",
       "runtime": "Cloudflare Workers + independent D1",
       "source_checkout": "sites/agridx-v4-development (local, separate Sites repository)",
-      "details": "full GitHub tracked source snapshot retained; gateway uses complete development artifact; private records and API credentials isolated; external AI disabled until administrator configures provider and enables it"
+      "details": "full GitHub tracked source snapshot retained; gateway uses complete development artifact; private records and API credentials isolated; external AI disabled until administrator configures provider and enables it",
+      "source_verification": {
+        "files_checked": 1174,
+        "excluded_old_site_identity_files": 2,
+        "modified_upstream_files": [
+          "package.json (Sites build entry; original command retained as build:source)"
+        ],
+        "verified_source_commit": "783b565e8b2ff7733d7246ff733287e80f2245dc"
+      }
     },
     {
       "name": "原公开开发站",
@@ -28,7 +36,7 @@
       "created_at": null,
       "historical_first_publication_date": "2026-10-12",
       "creation_evidence": "docs/deployment/dev-preview.md; historical publication date is not a verified platform creation timestamp",
-      "created_by": "历史文档记载由 Codex 通过 Sites 建立；本次账户无法读取旧站 Sites 管理信息",
+      "created_by": "未核实；历史首次发布记录未提供平台创建者身份，当前 Sites 账户无法读取旧站管理信息",
       "audience": "public (existing repository configuration)",
       "status": "existing; not modified",
       "details": "same main/dev-preview-built artifact pipeline; retains its original independent data and settings"
