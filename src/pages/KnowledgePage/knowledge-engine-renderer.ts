@@ -43,12 +43,14 @@ export class KnowledgeEngineRenderer {
     if (canvas.width !== Math.round(width * dpr) || canvas.height !== Math.round(height * dpr)) { canvas.width = Math.round(width * dpr); canvas.height = Math.round(height * dpr); }
     c.setTransform(dpr, 0, 0, dpr, 0, 0); c.fillStyle = '#0e1211'; c.fillRect(0, 0, width, height);
     const unit = width / 1080, { camera: view, time } = scene;
+    const lodParts = view.zoom < .72;
     const scale = Math.min(width / 5.85, height / 5.65) * view.zoom;
     const yaw = view.yaw + (scene.animate ? time * .017 : 0);
     const pitch = view.pitch + (scene.animate ? Math.sin(time * .18) * .025 : 0);
     const cy = Math.cos(yaw), sy = Math.sin(yaw), cp = Math.cos(pitch), sp = Math.sin(pitch);
     network.nodes.forEach((node, i) => {
       const point = points[i]; point.visible = true;
+      if (lodParts && node.level === 'part' && scene.active !== i) point.visible = false;
       if (!point.visible) return;
       const drift = scene.animate ? Math.sin(time * .35 + node.cluster) * .018 : 0;
       const x = node.x + drift, y = node.y + drift * .5, z = node.z;
@@ -63,6 +65,7 @@ export class KnowledgeEngineRenderer {
     for (let group = 0; group < 2; group++) {
       c.beginPath(); c.strokeStyle = group ? '#b8beb32e' : '#e0837036';
       for (const edge of network.edges) {
+        if (!points[edge.from].visible || !points[edge.to].visible) continue;
         if ((network.nodes[edge.from].color === 'ivory' ? 1 : 0) !== group) continue;
         const a = points[edge.from], b = points[edge.to];
         c.moveTo(a.x, a.y); c.lineTo(b.x, b.y);

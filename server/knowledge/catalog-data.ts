@@ -60,6 +60,7 @@ function counts(chunks: KnowledgeChunk[]): CatalogCounts {
     entryCount: new Set(chunks.map((chunk) => chunk.entryId)).size,
     faultCount: chunks.filter((chunk) => chunk.entryType === '维护/故障知识').length,
     sourceCount: new Set(chunks.map((chunk) => chunk.sourceId)).size,
+    entryTypes: [...new Set(chunks.map((chunk) => chunk.entryType).filter((type): type is string => Boolean(type)))].sort((a, b) => a.localeCompare(b, 'zh-CN')),
   };
 }
 

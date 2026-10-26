@@ -30,7 +30,7 @@ export default function EvidenceEntry({ entry, diagnosisState }: { entry: Catalo
     {open && <div className="evidence-entry-body">
       <dl className="evidence-provenance">
         <div><dt>{t('资料来源', 'Source')}</dt><dd>{entry.sourceUrl ? <a href={entry.sourceUrl} target="_blank" rel="noreferrer">{entry.sourceId}</a> : entry.sourceId}</dd></div>
-        <div><dt>{t('版次 / 定位', 'Version / locator')}</dt><dd>{entry.version || t('版次待核实', 'Version unconfirmed')}{separator}{entry.locator}</dd></div>
+        <div><dt>{t('版次 / 页码 / 定位', 'Version / pages / locator')}</dt><dd>{entry.version || t('版次待核实', 'Version unconfirmed')}{entry.pages?.pdf || entry.pages?.printed ? `${separator}${t('页码', 'Pages')} ${entry.pages.pdf ?? entry.pages.printed}` : ''}{separator}{entry.locator || t('定位待核实', 'Locator unconfirmed')}</dd></div>
         <div><dt>{t('适用范围', 'Applicability')}</dt><dd>{entry.scopeBoundary || t('待核实', 'Needs verification')}</dd></div>
       </dl>
       <div className="prose prose-sm max-w-none overflow-x-auto dark:prose-invert"><DeferredMarkdown>{entry.content}</DeferredMarkdown></div>
