@@ -30,7 +30,7 @@ const result = await registry.call('search_knowledge', {
 
 默认工具只读，权限仅限现有公开知识快照和时钟；不开放 shell、外部模型、私有记忆或仿真遥测。一次 `call()` 只调用一次函数，不自动重试。异步等待上限10秒，超时后返回错误；不会终止底层任务或中断同步CPU函数，注册扩展异步工具时需自行实现取消。本批没有多步规划循环或聊天接线，不改变现有诊断请求的一次检索与风险门控。调用结果仍是待上层判读的数据，不能替代维修授权或实车核验。
 
-验证：`node --import tsx --test tests/tools.test.ts`；现有 `npm test` 自动发现该测试。新增目录不在现有 tsconfig 的 include 内，独立类型检查命令：
+验证：`node --import tsx --test tests/tools.test.ts`；现有 `npm test` 自动发现该测试。`agent/**/*.ts` 已纳入后端类型检查与构建。包含测试文件的独立严格类型检查命令：
 
 ```sh
 npx tsc --noEmit --target ES2022 --lib ES2023 --module ESNext --moduleResolution bundler --strict --skipLibCheck --esModuleInterop agent/config.ts agent/tools.ts tests/tools.test.ts
