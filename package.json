@@ -1,6 +1,6 @@
 {
   "name": "agri-fault-diagnosis",
-  "version": "4.3.0",
+  "version": "4.4.0",
   "private": true,
   "type": "module",
   "scripts": {
@@ -33,6 +33,7 @@
     "@react-three/fiber": "^9.7.0",
     "@react-three/postprocessing": "^3.2.0",
     "@tailwindcss/typography": "^0.5.19",
+    "ajv": "^8.20.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cors": "^2.8.6",

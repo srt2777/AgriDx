@@ -1,37 +1,39 @@
 # Tool Use 执行层
 
-本仓库使用 TypeScript，因此 `agent/tools.ts`、`agent/config.ts`、`tests/tools.test.ts` 对应任务中的 Python 文件。无需 Python 运行时或新增依赖。
+仓库使用 TypeScript，对应交付为 `agent/tools.ts`、`agent/config.ts`、`tests/tools.test.ts` 和 `tests/tool_selection_cases.json`。Ajv 校验 JSON Schema；不需要 Python、网络或 API key。
 
 ```ts
-import { build_default_registry } from './agent/tools';
-const registry = build_default_registry();
-const tools = registry.schemas(); // Anthropic messages API 的 tools 字段
-const result = await registry.call('search_knowledge', {
-  query: '久保田LX2620启动困难', limit: 1,
-  context: { brand: '久保田', model: 'LX2620' },
+import { registry, ToolExecutor } from './agent/tools';
+// 每个任务创建一个 executor，跨轮保留以检测重复调用。
+const executor = new ToolExecutor(registry, async (name, args) => {
+  return await askUserToConfirm(name, args); // 由宿主 UI 实现
 });
+for (let step = 0; step < max_steps; step++) {
+  const resp = await llm.chat(messages, { tools: registry.schemas() });
+  messages.push({ role: 'assistant', content: resp.content });
+  if (resp.stop_reason !== 'tool_use') break;
+  messages.push({ role: 'user', content: await executor.execute_tool_uses(resp.content) });
+}
+// 达到预算且需要总结时，由主循环调用 tool_choice: { type: 'none' } 强制收尾。
 ```
 
-| 名称 | 何时使用 | 参数 |
-| --- | --- | --- |
-| `search_knowledge` | 检索症状对应的知识与来源，复用现有适用范围过滤 | `query` 必填；`limit` 1–5，默认1；可选 `context` |
-| `browse_knowledge` | 浏览目录与资料定位，正文请使用检索工具 | 可选 `brand`、`model`、`component`、`part`、`q`、`collection`（all/archive/learning）、`page`（整数） |
-| `knowledge_stats` | 获取当前加载快照的知识统计 | 无 |
-| `resolve_machine_scope` | 解析品牌、型号及输入冲突；不证明手册适用 | `query` 必填；可选 `context` |
-| `get_current_time` | 记录当前时间，含 ISO 和上海本地时间 | 无 |
+以上为 Anthropic 风格主循环示例，并未接入现有 `/api/chat`。max_steps、取消任务、强制收尾和重规划属于主循环；Executor 不自动重试。每个有效 tool_use 保留原 id 并产出对应 tool_result，失败时才包含 is_error:true。
 
-`context` 接受 `machineType`、`brand`、`model`、`engineModel`、`faultCodes`（字符串数组）。每个 schema 与 description 都含明确输入或使用边界。
+| 工具 | 用途 | 参数 | risk |
+| --- | --- | --- | --- |
+| calculator | 安全算术解析 | expression，支持 + - * / % 与括号 | read |
+| get_current_time | ISO 与上海当前时间 | 无 | read |
+| search_knowledge | 按症状检索来源与适用范围 | query；limit 1–5 默认1；context | read |
+| browse_knowledge | 浏览精简资料目录 | brand/model/component/part/q；collection；page；limit 1–20 默认10 | read |
+| knowledge_stats | 已加载知识快照统计 | 无 | read |
+| resolve_machine_scope | 品牌型号解析及冲突检测 | query；context | read |
 
-注册方式：`register(name, description, input_schema, func)`，函数接收一个参数对象。函数装饰器为 `registry.tool(name, description, input_schema)(fn)`；保留原函数。`names()`、`describe()` 用于清单，`schemas()` 返回不含函数且与内部隔离的 schema 副本。
+context 可含 machineType/brand/model/engineModel/faultCodes。数量和机型匹配不等于维修结论，检索继续沿用现有来源和配置边界。
 
-`call()` 为异步接口，必须 `await`。未知工具、参数校验、同步异常、Promise 拒绝、序列化失败和超时均返回 `ERROR: ...` 文本；不输出原始异常，避免密钥或私人数据泄漏。JSON Schema 校验支持此模块声明的 object/string/number/integer/boolean/array/null、required、additionalProperties、enum、上下限和长度；未支持的关键字在注册时拒绝。
+`register(tool)` 或兼容的 `register(name, description, schema, fn, options)` 注册；`registry.tool(name, description, schema, options)(fn)` 为函数装饰器。schemas(allowed)、names、get、describe 提供模型及 Planner 所需信息。导出 registry 为默认共享实例，build_default_registry 可用于隔离测试；每任务 Executor 独立维护重复计数和 trace。旧 call 接口保留，但每次创建临时 Executor，不适用于多轮任务的重复保护。
 
-输出最多 `MAX_TOOL_OUTPUT = 4000` 个 Unicode 字符；超限时包含 `[TRUNCATED]` 标记，截断结果可能不是完整 JSON，应作为工具文本读取，不可将缺失正文视为否定证据。目录返回来源与适用边界等元数据，不重复返回大段正文；检索优先返回来源元数据，正文排在后面。
+默认 write 放行，dangerous 拒绝；传入 confirm 后两者都由该回调决定。回调必须由可信宿主实现，不能把模型声称的“已确认”作为授权。重复调用采用键排序后的参数比较，第三次相同调用拒绝（包括此前失败）。超时默认30秒，read 最多4个异步并发，write/dangerous 串行且作为前后读取的屏障。超时仅停止等待，不能中止已启动操作；同步阻塞函数会阻塞 Node 事件循环，需要 Worker/子进程适配器，本层没有宣称对其硬抢占。未加入取消或事务回滚。
 
-默认工具只读，权限仅限现有公开知识快照和时钟；不开放 shell、外部模型、私有记忆或仿真遥测。一次 `call()` 只调用一次函数，不自动重试。异步等待上限10秒，超时后返回错误；不会终止底层任务或中断同步CPU函数，注册扩展异步工具时需自行实现取消。本批没有多步规划循环或聊天接线，不改变现有诊断请求的一次检索与风险门控。调用结果仍是待上层判读的数据，不能替代维修授权或实车核验。
+输出默认保留前4000个 Unicode 字符，再追加原长提示；工具可指定 max_output。非字符串转 JSON，BigInt 转字符串；循环引用返回 TOOL_ERROR。错误包含异常类型与信息，生产工具应避免把凭据放入异常；trace 参数递归遮蔽 password/token/secret/key，结果摘要只保留前200字符（结果本身仍须工具保证不含秘密）。
 
-验证：`node --import tsx --test tests/tools.test.ts`；现有 `npm test` 自动发现该测试。`agent/**/*.ts` 已纳入后端类型检查与构建。包含测试文件的独立严格类型检查命令：
-
-```sh
-npx tsc --noEmit --target ES2022 --lib ES2023 --module ESNext --moduleResolution bundler --strict --skipLibCheck --esModuleInterop agent/config.ts agent/tools.ts tests/tools.test.ts
-```
+运行 `node --import tsx --test tests/tools.test.ts` 和 `npm test`。选择用例仅为真实模型回归的输入，尚未声称模型选择准确率。

@@ -679,6 +679,13 @@
       "base": "4.2.0",
       "version": "4.3.0",
       "date": "2026-10-26"
+    },
+    {
+      "id": "tool-execution-layer-20261026",
+      "kind": "feature",
+      "base": "4.3.0",
+      "version": "4.4.0",
+      "date": "2026-10-26"
     }
   ]
 }
