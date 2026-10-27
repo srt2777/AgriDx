@@ -30,7 +30,7 @@ async function fixture(t: any) {
   const login = await serveDevelopment(req('dev-admin/login', { token: credential }), env, {}, async () => Response.json({ login: 'maintainer', id: 42, permissions: { maintain: true } }));
   assert.equal(login.status, 200); const cookie = login.headers.get('Set-Cookie')!.split(';')[0];
   const call = (route: string, body?: unknown, upstream: any = async () => { throw new Error('Unexpected external request'); }, ip = '192.0.2.1') => serveDevelopment(req(route, body, cookie, ip), env, {}, upstream);
-  const save = (provider = 'deepseek', values: object = {}) => call(`dev-admin/ai/providers/${provider}`, { model: 'test-model', baseUrl: provider === 'gemini' ? 'https://generativelanguage.googleapis.com/v1beta/openai' : provider === 'openai' ? 'https://api.openai.com/v1' : 'https://api.deepseek.com/v1', apiKey: secret, enabled: true, ...values });
+  const save = (provider = 'deepseek', values: object = {}, upstream: any = async () => Response.json({ choices: [{ message: { content: 'OK' } }] }), ip = '192.0.2.1') => call(`dev-admin/ai/providers/${provider}`, { model: 'test-model', baseUrl: provider === 'gemini' ? 'https://generativelanguage.googleapis.com/v1beta/openai' : provider === 'openai' ? 'https://api.openai.com/v1' : 'https://api.deepseek.com/v1', apiKey: secret, enabled: true, ...values }, upstream, ip);
   const enable = (limit = 100) => call('dev-admin/ai/settings', { publicEnabled: true, defaultProvider: 'deepseek', dailyLimit: limit });
   return { sqlite, db, env, cookie, call, save, enable };
 }
@@ -58,7 +58,8 @@ test('provider keys use randomized authenticated ciphertext, never appear in met
 test('missing encryption configuration fails closed; invalid and unapproved endpoints never make network requests', async t => {
   const f = await fixture(t);
   const response = await serveDevelopment(req('dev-admin/ai/providers/deepseek', { model: 'test', baseUrl: 'https://api.deepseek.com/v1', enabled: true, apiKey: secret }, f.cookie), { DB: f.db }); assert.equal(response.status, 503);
-  for (const baseUrl of ['http://api.deepseek.com/v1', 'https://127.0.0.1/v1', 'https://[::1]/v1', 'https://169.254.169.254/v1', 'https://api.deepseek.com.attacker.example/v1', 'https://user:pass@api.deepseek.com/v1', 'https://api.deepseek.com/v1?key=x', 'https://api.deepseek.com/v1#x', 'https://api.deepseek.com:8443/v1', 'https://api.deepseek.com/v1/chat/completions']) assert.equal((await f.save('deepseek', { baseUrl })).status, 400, baseUrl);
+  const invalidUrls = ['http://api.deepseek.com/v1', 'https://127.0.0.1/v1', 'https://[::1]/v1', 'https://169.254.169.254/v1', 'https://api.deepseek.com.attacker.example/v1', 'https://user:pass@api.deepseek.com/v1', 'https://api.deepseek.com/v1?key=x', 'https://api.deepseek.com/v1#x', 'https://api.deepseek.com:8443/v1', 'https://api.deepseek.com/v1/chat/completions'];
+  for (const [index, baseUrl] of invalidUrls.entries()) assert.equal((await f.save('deepseek', { baseUrl }, undefined, `192.0.2.${index+10}`)).status, 400, baseUrl);
   assert.equal(f.sqlite.prepare('SELECT count(*) AS n FROM preview_ai_providers').get()!.n, 0);
   assert.equal((await f.call('dev-admin/ai/settings', { publicEnabled: false, defaultProvider: 'toString', dailyLimit: 10 })).status, 400);
 });
@@ -75,8 +76,8 @@ test('saved Gemini and compatible APIs can be tested while disabled without leak
   assert.equal((await f.call('dev-admin/ai/providers/gemini/chat', { prompt: 'test' })).status, 400);
   const rejected = await f.call('dev-admin/ai/providers/gemini/test', {}, async () => Response.json({ error: secret }, { status: 401 })); assert.equal(rejected.status, 502); assert.equal((await rejected.text()).includes(secret), false);
   await f.save('openai'); assert.equal((await f.call('dev-admin/ai/providers/openai/test', {}, async () => Response.json({ choices: [{ message: { content: 'OK' } }] }))).status, 200);
-  const echoed = await f.call('dev-admin/ai/providers/openai/test', {}, async () => Response.json({ choices: [{ message: { content: secret } }] })); assert.equal(echoed.status, 502); assert.equal((await echoed.text()).includes(secret), false);
-  const networkError = await f.call('dev-admin/ai/providers/openai/test', {}, async () => { throw Object.assign(new Error(secret), { status: 400 }); }); assert.equal(networkError.status, 504); assert.equal((await networkError.text()).includes(secret), false);
+  const echoed = await f.call('dev-admin/ai/providers/openai/test', {}, async () => Response.json({ choices: [{ message: { content: secret } }] }), '192.0.2.51'); assert.equal(echoed.status, 502); assert.equal((await echoed.text()).includes(secret), false);
+  const networkError = await f.call('dev-admin/ai/providers/openai/test', {}, async () => { throw Object.assign(new Error(secret), { status: 400 }); }, '192.0.2.52'); assert.equal(networkError.status, 504); assert.equal((await networkError.text()).includes(secret), false);
 });
 
 test('public AI starts disabled, obeys configured model/guardrails, and daily budget is atomic across visitors', async t => {
@@ -127,4 +128,60 @@ test('retained gateway build emits one import-free Worker and includes the appen
   const module = await import(pathToFileURL(path.join(directory, 'dist/server/index.js')).href);
   const f = await fixture(t); const status = await module.serveDevelopment(req('dev-ai/status'), f.env); assert.equal(status.status, 200);
   assert.ok(readdirSync(path.join(directory, 'dist/drizzle')).includes('0001_nice_kronos.sql'));
+});
+
+test('save tests before atomic persistence and failed validation preserves existing records', async t => {
+  const f=await fixture(t);
+  const failed=await f.save('deepseek',{publicEnabled:true},async()=>Response.json({error:secret},{status:401}));
+  assert.equal(failed.status,502);assert.equal((await failed.json()).errorKind,'authentication');
+  assert.equal(f.sqlite.prepare('SELECT count(*) AS n FROM preview_ai_providers').get()!.n,0);
+  assert.equal(f.sqlite.prepare('SELECT count(*) AS n FROM preview_ai_settings').get()!.n,0);
+  const saved=await f.save('deepseek',{publicEnabled:true});assert.equal(saved.status,200);
+  const row=f.sqlite.prepare('SELECT * FROM preview_ai_providers').get()!;
+  assert.equal(row.last_test_ok,1); assert.ok(row.last_test_at); assert.notEqual(row.encrypted_key,secret);
+  const settings=f.sqlite.prepare('SELECT * FROM preview_ai_settings').get()!;
+  assert.equal(settings.public_enabled,1);assert.equal(settings.default_provider,'deepseek');assert.equal(settings.daily_limit,100);
+  const old=row.encrypted_key;
+  const rejected=await f.save('deepseek',{apiKey:'other-fake-key-123'},async()=>Response.json({},{status:429}));
+  assert.equal(rejected.status,502);assert.equal(f.sqlite.prepare('SELECT encrypted_key FROM preview_ai_providers').get()!.encrypted_key,old);
+});
+
+test('verified provider fallback consumes one public request, authentication failures do not fall back', async t => {
+  const f=await fixture(t);await f.save('deepseek',{publicEnabled:true});await f.save('gemini');
+  const seen:string[]=[];
+  const upstream=async (url:string, options:RequestInit)=>{seen.push(url);assert.equal(options.redirect,'manual');return url.includes('deepseek')?new Response(null,{status:503}):Response.json({choices:[{message:{content:'OK'}}]});};
+  const result=await f.call('dev-ai/chat',message,upstream);assert.equal(result.status,200);assert.equal((await result.json()).provider,'gemini');assert.equal(seen.length,2);
+  assert.equal((await (await f.call('dev-admin/ai')).json()).usedToday,1);
+  const errors:string[]=[];const denied=await f.call('dev-ai/chat',message,async(url:string)=>{errors.push(url);return new Response(null,{status:401});});
+  assert.equal(denied.status,502);assert.equal(errors.length,1);
+});
+
+test('model discovery falls back safely and readiness reports verification state', async t => {
+  const f=await fixture(t);const before=await (await f.call('dev-admin/ai/readiness')).json();
+  assert.equal(before.encryptionConfigured,true);assert.equal(before.migrationApplied,true);assert.equal(before.verifiedProvider,false);assert.equal(before.gateway.capabilities.toolCalls,false);
+  const body={baseUrl:'https://api.deepseek.com/v1',apiKey:secret};
+  const models=await f.call('dev-admin/ai/providers/deepseek/models',body,async(_url:string, options:RequestInit)=>{assert.equal(options.redirect,'manual');return Response.json({data:[{id:'model-a'},{id:'model-b'}]});});
+  assert.deepEqual((await models.json()).models,['model-a','model-b']);
+  const fallback=await f.call('dev-admin/ai/providers/deepseek/models',body,async()=>new Response(null,{status:404}));assert.equal((await fallback.json()).available,false);
+  assert.equal(f.sqlite.prepare('SELECT count(*) AS n FROM preview_ai_providers').get()!.n,0);
+  await f.save('deepseek',{publicEnabled:true});const after=await (await f.call('dev-admin/ai/readiness')).json();assert.equal(after.verifiedProvider,true);assert.equal(after.publicEnabled,true);
+  const fail=await f.call('dev-admin/ai/providers/deepseek/test',{},async()=>new Response(null,{status:401}));assert.equal(fail.status,502);
+  assert.equal((await (await f.call('dev-ai/status')).json()).enabled,false);
+});
+
+test('empty model discovers and tests a model in the save action, unsupported list asks for manual input', async t => {
+  const f=await fixture(t);let calls=0;
+  const upstream=async (url:string)=>{calls++;return url.endsWith('/models') ? Response.json({data:[{id:'example-chat'}]}) : Response.json({choices:[{message:{content:'OK'}}]});};
+  const result=await f.save('deepseek',{model:'',publicEnabled:true},upstream);
+  assert.equal(result.status,200);assert.equal((await result.json()).model,'example-chat');assert.equal(calls,2);
+  assert.equal(f.sqlite.prepare('SELECT model FROM preview_ai_providers').get()!.model,'example-chat');
+  const denied=await f.save('gemini',{model:''},async()=>new Response(null,{status:404}));
+  assert.equal(denied.status,400);assert.equal((await denied.json()).errorKind,'model');
+  assert.equal(f.sqlite.prepare('SELECT count(*) AS n FROM preview_ai_providers').get()!.n,1);
+});
+
+test('save-and-test shares the existing upstream test rate limit', async t => {
+  const f=await fixture(t);let calls=0;const upstream=async()=>{calls++;return Response.json({choices:[{message:{content:'OK'}}]});};
+  for(let i=0;i<6;i++)assert.equal((await f.save('deepseek',{},upstream)).status,200);
+  assert.equal((await f.save('deepseek',{},upstream)).status,429);assert.equal(calls,6);
 });

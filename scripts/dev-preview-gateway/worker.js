@@ -1,4 +1,4 @@
-import { handleAiRequest, aiStatus } from './ai.js';
+import { handleAiRequest, aiStatus, gatewayInfo } from './ai.js';
 
 const artifactOrigin = 'https://raw.githubusercontent.com/srt2777/AgriDx/dev-preview-built/';
 const types = {
@@ -224,12 +224,12 @@ export async function serveDevelopment(request, env = {}, ctx = {}, upstreamFetc
     if (!response.ok) return response;
     let status = { enabled: false, provider: null, model: null };
     try { if (env.DB) status = await aiStatus(env.DB, env); } catch { /* Old gateways without the AI migration retain local diagnosis. */ }
-    return apiJson({ ...await response.json(), llm: { configured: status.enabled, primary: status.provider, model: status.model }, coordination: { defaultMode: status.enabled ? 'auto' : 'knowledge_only', allowExternalAi: status.enabled, configValid: true } });
+    return apiJson({ ...await response.json(), ...gatewayInfo, gatewaySourceHash: globalThis.__AGRIDX_GATEWAY_RELEASE__?.sourceHash || null, llm: { configured: status.enabled, primary: status.provider, model: status.model }, coordination: { defaultMode: status.enabled ? 'auto' : 'knowledge_only', allowExternalAi: status.enabled, configValid: true } });
   }
   if (!path.startsWith('/api/dev-admin/') && !path.startsWith('/api/dev-events/') && !path.startsWith('/api/dev-ai/')) return servePreview(request, upstreamFetch);
   try {
     const db = env.DB;
-    if (path === '/api/dev-admin/session' && request.method === 'GET') return apiJson({ user: await session(request, db), configured: Boolean(db), repository });
+    if (path === '/api/dev-admin/session' && request.method === 'GET') return apiJson({ user: await session(request, db), configured: Boolean(db), repository, ...gatewayInfo, gatewaySourceHash: globalThis.__AGRIDX_GATEWAY_RELEASE__?.sourceHash || null });
     if (request.method === 'POST' && request.headers.get('Origin') !== url.origin) fail(403, '此操作须从开发站页面发起。');
     const collection = path.startsWith('/api/dev-events/');
     const publicAi = path.startsWith('/api/dev-ai/');
@@ -296,7 +296,7 @@ export async function serveDevelopment(request, env = {}, ctx = {}, upstreamFetc
     return apiJson({ error: '接口或请求方式不存在。' }, 404);
   } catch (error) {
     if (!error.status) console.error('[dev-admin] request failed');
-    return apiJson({ error: error.status ? error.message : '内部数据服务暂不可用，请稍后重试。' }, error.status || 503, error.status === 429 ? { 'Retry-After': '60' } : {});
+    return apiJson({ error: error.status ? error.message : '内部数据服务暂不可用，请稍后重试。', ...(error.kind ? { errorKind: error.kind } : {}) }, error.status || 503, error.status === 429 ? { 'Retry-After': '60' } : {});
   }
 }
 

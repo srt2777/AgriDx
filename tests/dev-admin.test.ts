@@ -56,7 +56,12 @@ test('内部记录、版本和CSV接口拒绝匿名及伪造身份，不读取�
   }
   const forged = new Request(`${origin}/api/dev-admin/summary`, { headers: { 'oai-authenticated-user-id': 'forged', 'oai-authenticated-user-email': 'owner@example.com' } });
   assert.equal((await serveDevelopment(forged, { DB: db }, {}, reject)).status, 401);
-  assert.deepEqual(await (await serveDevelopment(get('/api/dev-admin/session'), { DB: db }, {}, reject)).json(), { user: null, configured: true, repository: 'srt2777/AgriDx' });
+  const session = await (await serveDevelopment(get('/api/dev-admin/session'), { DB: db }, {}, reject)).json();
+  assert.equal(session.user, null);
+  assert.equal(session.configured, true);
+  assert.equal(session.repository, 'srt2777/AgriDx');
+  assert.equal(session.schemaVersion, 2);
+  assert.equal(session.capabilities.toolCalls, false);
 });
 
 test('GitHub验证管理员权限，令牌不落库，会话仅存摘要且能过期与退出', async t => {

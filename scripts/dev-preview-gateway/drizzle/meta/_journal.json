@@ -15,6 +15,13 @@
       "when": 1792896152231,
       "tag": "0001_nice_kronos",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1793103452330,
+      "tag": "0002_worried_iron_patriot",
+      "breakpoints": true
     }
   ]
 }
