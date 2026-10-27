@@ -1,5 +1,5 @@
 import { useUiCopy } from '@/ui/useUiCopy';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -7,6 +7,7 @@ import { ArrowLeft, ChevronDown, ExternalLink, History } from 'lucide-react';
 import history from 'virtual:agridx-version-history';
 import { version } from '../../../package.json';
 import { useLang } from '@/hooks/useLang';
+import { gatewayHashStatus, gatewayMeetsRequirements, type GatewayIdentity } from '../../dev-preview/gateway-compat';
 import './version-history.css';
 
 const labels: Record<string, [string, string]> = {
@@ -29,9 +30,18 @@ export default function VersionHistoryPage() {
   const lang = useLang();
   const [includeLegacy, setIncludeLegacy] = useState(false);
   const [expanded, setExpanded] = useState<Set<string>>(() => new Set());
+  const [gateway, setGateway] = useState<GatewayIdentity | null>(null);
+  useEffect(() => {
+    if (typeof __AGRIDX_DEV_PREVIEW__ === 'undefined' || !__AGRIDX_DEV_PREVIEW__) return;
+    const controller = new AbortController();
+    void fetch('/api/health', { cache: 'no-store', signal: controller.signal }).then(response => response.ok ? response.json() : null).then(value => { if (!controller.signal.aborted) setGateway(value); }).catch(() => { if (!controller.signal.aborted) setGateway(null); });
+    return () => controller.abort();
+  }, []);
   const { t, format, separator } = useUiCopy(lang);
   const missing = t('未记录', 'Not recorded');
   const commit = typeof __AGRIDX_BUILD_COMMIT__ !== 'undefined' ? __AGRIDX_BUILD_COMMIT__ : '';
+  const requirements = typeof __AGRIDX_GATEWAY_REQUIRED__ === 'undefined' ? { minimumSchema: 2, capabilities: ['onboarding', 'modelList', 'validationState', 'readiness'], sourceHash: '' } : __AGRIDX_GATEWAY_REQUIRED__;
+  const gatewayHash = gatewayHashStatus(gateway, requirements.sourceHash);
   const releases = history.releases.filter(item => !item.draft && (includeLegacy || !item.legacy));
   const drafts = history.releases.filter(item => item.draft);
   return <section className="version-history-page" aria-labelledby="history-title">
@@ -47,6 +57,11 @@ export default function VersionHistoryPage() {
         ? <a href={'https://github.com/' + history.repository + '/commit/' + commit} target="_blank" rel="noopener noreferrer"><code>{commit}</code><ExternalLink size={14} /></a>
         : <strong>{missing}</strong>}</div>
       <p>{t('日期为日志记录日期（上海时区），不等同于实际上线时间。部署文字仅为当时记录；当前构建不证明正式站已更新。', 'Dates follow the recorded Shanghai date, not a verified go-live time. Deployment notes are historical evidence; this build does not prove production is updated.')}</p>
+      {typeof __AGRIDX_DEV_PREVIEW__ !== 'undefined' && __AGRIDX_DEV_PREVIEW__ && <p>{!gateway
+        ? t('开发网关状态未验证，请检查连接。', 'Development gateway status is unverified; check the connection.')
+        : gatewayMeetsRequirements(gateway, requirements)
+        ? t(`开发网关 ${gateway?.gatewayVersion || '版本未知'}；源码一致性：${gatewayHash === 'match' ? '一致' : gatewayHash === 'mismatch' ? '不一致，需重新部署网关' : '未验证'}。`, `Development gateway ${gateway?.gatewayVersion || 'unknown'}; source: ${gatewayHash === 'match' ? 'matches' : gatewayHash === 'mismatch' ? 'differs, redeploy gateway' : 'unverified'}.`)
+        : t(`开发网关 ${gateway?.gatewayVersion || '版本未知'} 未满足前端要求（schema ≥ ${requirements.minimumSchema}），需重新部署网关。`, `Development gateway ${gateway?.gatewayVersion || 'unknown'} does not meet frontend requirements (schema ≥ ${requirements.minimumSchema}); redeploy the gateway.`)}</p>}
     </div>
     <div className="history-toolbar">
       <span>{t('版本从新到旧', 'Newest first')}{separator}{releases.length}</span>

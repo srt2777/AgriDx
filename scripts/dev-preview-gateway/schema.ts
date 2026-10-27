@@ -54,6 +54,10 @@ export const aiProviders = sqliteTable('preview_ai_providers', {
   enabled: integer('enabled', { mode: 'boolean' }).notNull().default(false),
   updatedAt: integer('updated_at').notNull(),
   updatedBy: text('updated_by').notNull(),
+  lastTestAt: integer('last_test_at'),
+  lastTestOk: integer('last_test_ok', { mode: 'boolean' }),
+  lastTestLatencyMs: integer('last_test_latency_ms'),
+  lastErrorKind: text('last_error_kind'),
 });
 export const aiSettings = sqliteTable('preview_ai_settings', {
   id: integer('id').primaryKey(),
