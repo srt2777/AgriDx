@@ -5,8 +5,9 @@
 ## 唯一内容来源
 
 - `package.json`：当前项目版本。
-- `CHANGELOG.md`：每版摘要、详细改动、知识库变化、兼容性、验证、PR 与当时部署记录。
+- `CHANGELOG.md` 保留 4.x；`docs/changelog/3.x.md` 与 `docs/changelog/2.x.md` 保留历史节。三份文件共同提供摘要、详细改动、知识库变化、兼容性、验证、PR 与当时部署记录。
 - `version-batches.json`：沿用批次去重；同批修正不重复升版。
+- 历史 Markdown 移到两级子目录后，仓库相对链接加 `../../` 以保持 GitHub 内的目标；构建网页时恢复原链接表示，其他正文、排序与来源保留。
 - Vite 的 `versionHistoryPlugin` 在开发、生产和独立开发预览构建中自动生成只读虚拟数据模块，无需提交或手改第二份日志。修改日志在开发时触发刷新。
 - 构建提交沿用 `__AGRIDX_BUILD_COMMIT__`。源码 ZIP 无 Git 提交时显示“未记录”；不拿版本号冒充提交。
 
@@ -20,7 +21,7 @@ npm.cmd run version:update -- --kind maintenance --batch 本批唯一编号 --su
 npm.cmd run version:update -- --kind maintenance --batch 本批唯一编号 --summary "实际更新摘要"
 ```
 
-3. 脚本生成详细分节模板。在本版 CHANGELOG 下填实际改动、知识数量及范围、兼容性和验证结果；没有证据就保留“未记录”。明确没有知识变化时可写“未改知识库”。只手工更新这个文件里的内容。
+3. 脚本生成详细分节模板。在本版 CHANGELOG 下填实际改动、知识数量及范围、兼容性和验证结果；没有证据就保留“未记录”。明确没有知识变化时可写“未改知识库”。也可用 `npm run version:log -- --batch <ID>` 更新指定小节。
 4. 建 PR 后，在该版“关联 PR”写完整 Markdown 链接。引用旧仓库的历史链接保留原址，不批量替换。
 5. 执行 `npm run history:check` 和 `npm run verify`；检查手机/桌面、新旧界面入口、展开内容与主题。生产和开发预览构建自动生成网页数据。
 6. 最终提交通过审阅和 CI 后按现有授权合入、发布。部署状态以现有工作流、公网健康、提交和资源验收为准。

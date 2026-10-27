@@ -48,9 +48,23 @@ test('history: real changelog current package, all historical sections and virtu
   const watched = [];
   const source = plugin.load.call({ addWatchFile: file => watched.push(file) }, id);
   assert.deepEqual(JSON.parse(source.slice('export default '.length, -1)), data);
-  assert.equal(watched.length, 2);
+  assert.equal(watched.length, 4);
   let message;
   plugin.handleHotUpdate({ file: watched[0], server: { ws: { send: value => { message = value; } } } });
   assert.deepEqual(message, { type: 'full-reload' });
+});
+
+test('split history reads all files and preserves original release bodies', async () => {
+  const { mkdtempSync, mkdirSync, writeFileSync, rmSync } = await import('node:fs');
+  const { tmpdir } = await import('node:os');
+  const path = await import('node:path');
+  const dir = mkdtempSync(path.join(tmpdir(), 'agridx-history-'));
+  try {
+    mkdirSync(path.join(dir, 'docs/changelog'), { recursive: true });
+    const sections = ['## 4.0.0\n- 当前版本\n', '## 草稿分支 3.1.0\n- 草稿\n## 3.0.0\n- 历史\n', '## 2.0.0\n- 更早历史\n'];
+    writeFileSync(path.join(dir, 'package.json'), JSON.stringify({ version: '4.0.0' }));
+    ['CHANGELOG.md', 'docs/changelog/3.x.md', 'docs/changelog/2.x.md'].forEach((file, i) => writeFileSync(path.join(dir, file), sections[i]));
+    assert.deepEqual(readVersionHistory(dir), parseVersionHistory(sections.join('\n'), { currentVersion: '4.0.0' }));
+  } finally { rmSync(dir, { recursive: true, force: true }); }
 });
 
