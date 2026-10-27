@@ -1,8 +1,24 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import Ajv from 'ajv';
 import { ToolRegistry, ToolExecutor, build_default_registry } from '../agent/tools';
 const schema = {type:'object',properties:{value:{type:'integer',enum:[1,2,3]}},required:['value'],additionalProperties:false} as const;
 function setup() { const r=new ToolRegistry(); r.register('double','测试',schema,({value})=>({result:value*2})); return {r,e:new ToolExecutor(r)}; }
+test('tool schema is compiled once and remains isolated from caller mutations', async () => {
+ const original = Ajv.prototype.compile; let calls = 0;
+ Ajv.prototype.compile = function (...args: Parameters<typeof original>) { calls++; return original.apply(this, args); } as typeof original;
+ try {
+  const input = { type: 'object' as const, properties: { value: { type: 'integer' as const } }, required: ['value'], additionalProperties: false };
+  const r = new ToolRegistry(); r.register('cached', '测试', input, ({value}) => value);
+  assert.equal(calls, 1);
+  input.properties.value.type = 'string' as 'integer';
+  r.get('cached')!.input_schema.type = 'string';
+  const e = new ToolExecutor(r);
+  for (let value = 0; value < 20; value++) assert.equal((await e.execute('cached', {value})).ok, true);
+  assert.equal((await e.execute('cached', {value: 'bad'})).error_type, 'INVALID_ARGS');
+  assert.equal(calls, 1);
+ } finally { Ajv.prototype.compile = original; }
+});
 test('strings, objects, decorator and schemas',async()=>{
  const {r,e}=setup(); assert.equal((await e.execute('double',{value:2})).content,'{"result":4}');
  r.tool('echo','测试',{type:'object'})(()=> '中文'); assert.equal((await e.execute('echo')).content,'中文');
