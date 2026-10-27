@@ -21,11 +21,11 @@ export function terrainField(points: readonly TerrainPoint[], edges: readonly Re
   for (const edge of edges) {
     if (!(edge.strength > 0)) continue;
     const a=byId.get(edge.from),b=byId.get(edge.to); if(!a||!b||a.count<=0||b.count<=0)continue;
-    const sigma=.018-.012*edge.strength, reach=sigma*3, dx=b.x-a.x,dy=b.y-a.y, length=dx*dx+dy*dy;
+    const sigma=.018-.012*edge.strength, reach=sigma*3, reachSquared=reach*reach, dx=b.x-a.x,dy=b.y-a.y, length=dx*dx+dy*dy;
     splat(Math.min(a.x,b.x)-reach,Math.max(a.x,b.x)+reach,Math.min(a.y,b.y)-reach,Math.max(a.y,b.y)+reach,(x,y)=>{
       const t=length?Math.max(0,Math.min(1,((x-a.x)*dx+(y-a.y)*dy)/length)):0;
       const d=(x-a.x-t*dx)**2+(y-a.y-t*dy)**2;
-      return edge.strength*Math.exp(-d/(2*sigma*sigma));
+      return d<=reachSquared?edge.strength*Math.exp(-d/(2*sigma*sigma)):0;
     });
   }
   return { width,height,values };
