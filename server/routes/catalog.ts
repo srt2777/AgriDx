@@ -1,9 +1,15 @@
 import { Router } from 'express';
 import { CATALOG_FILTER_KEYS, validCatalogCondition, type CatalogFilters } from '../../shared/knowledge-catalog';
 import type { ServerRuntime } from '../runtime';
+import { pageKnowledgeRelations, relationsForCatalog } from '../knowledge/relations';
 
 export function createCatalogRoutes(getCatalog: ServerRuntime['getCatalog']): Router {
   const router = Router();
+  router.get('/knowledge/relations', (req, res) => {
+    res.set('Cache-Control', 'no-store');
+    try { res.json(pageKnowledgeRelations(relationsForCatalog(getCatalog()), new URL(req.originalUrl, 'http://localhost').searchParams)); }
+    catch (error) { if (error instanceof RangeError) { res.status(400).json({ error: error.message, code: 'bad_request' }); return; } console.error('[relations] unexpected error:', error); res.status(500).json({ error: '知识关系暂时无法读取。', code: 'relations_unavailable' }); }
+  });
   router.get('/knowledge/catalog', (req, res) => {
     res.set('Cache-Control', 'no-store');
     const filters: CatalogFilters = {};

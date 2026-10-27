@@ -6,6 +6,7 @@ import { PreviewMemoryStore, previewMemoryRoute } from './memory';
 import { MemoryError, summarizeReports } from '../../shared/memory-validation';
 import { loadKnowledgeBase, stats } from '../../server/knowledge/retriever';
 import { getKnowledgeCatalog, loadKnowledgeCatalog } from '../../server/knowledge/catalog';
+import { getKnowledgeRelations, pageKnowledgeRelations } from '../../server/knowledge/relations';
 import { renderDiagnosticReply } from '../../server/diagnosis/reply';
 import { DiagnosticInputError, parseDiagnosticRequest, type DiagnosticRequest } from '../../server/diagnosis/request';
 import type { ChatResponse } from '../../shared/chat';
@@ -53,6 +54,9 @@ async function dispatchPreviewFetch(input: string, options: RequestInit = {}): P
         knowledge: stats(), llm: { configured: aiStatus.enabled, primary: aiStatus.provider },
         coordination: { defaultMode: aiStatus.enabled ? 'auto' : 'knowledge_only', allowExternalAi: aiStatus.enabled, configValid: true },
       });
+    } else if (url.pathname === '/api/knowledge/relations' && method === 'GET') {
+      try { response = json(pageKnowledgeRelations(getKnowledgeRelations(), url.searchParams)); }
+      catch (error) { if (error instanceof RangeError) return json({ error: error.message, code: 'bad_request' }, 400); throw error; }
     } else if (url.pathname === '/api/knowledge/catalog' && method === 'GET') {
       const filters: CatalogFilters = {};
       for (const key of CATALOG_FILTER_KEYS) {
