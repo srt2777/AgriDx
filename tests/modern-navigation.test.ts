@@ -5,9 +5,9 @@ import { MODERN_DESTINATIONS, modernLocation } from '../src/lib/modern-navigatio
 import { COMMAND_ROUTES } from '../src/lib/command-routes';
 import { WORLD_ZONES, pavilionDestination } from '../src/pages/ExhibitionPage/world-navigation';
 
-test('hall and all four features share the same destination order and current section', () => {
-  assert.deepEqual(MODERN_DESTINATIONS.map(item => item.path), ['/', '/knowledge', '/chat', '/models', '/research']);
-  assert.deepEqual(COMMAND_ROUTES.slice(0, 5).map(item => item.path), MODERN_DESTINATIONS.map(item => item.path));
+test('hall and all three features share the same destination order and current section', () => {
+  assert.deepEqual(MODERN_DESTINATIONS.map(item => item.path), ['/', '/knowledge', '/chat', '/models']);
+  assert.deepEqual(COMMAND_ROUTES.slice(0, 4).map(item => item.path), MODERN_DESTINATIONS.map(item => item.path));
   for (const zone of WORLD_ZONES) {
     const destination = pavilionDestination(zone.id);
     const item = MODERN_DESTINATIONS.find(item => item.path === destination.path)!;

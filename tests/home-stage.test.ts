@@ -27,8 +27,8 @@ test('滚动关键帧按 smoothstep 插值，手机步数更少、横向位移�
   assert.ok(Math.abs(mid.x - (from.x + (to.x - from.x) * eased)) < 1e-9);
   assert.equal(sampleBeats(DESKTOP_BEATS, 2).focus, 'body_shell');
   assert.equal(sampleBeats(DESKTOP_BEATS, 3).focus, 'gps_antenna');
-  assert.equal(sampleBeats(DESKTOP_BEATS, 7).explode, 0.72);
-  assert.equal(sampleBeats(DESKTOP_BEATS, 8).explode, 0);
+  assert.equal(sampleBeats(DESKTOP_BEATS, 6).explode, 0.72);
+  assert.equal(sampleBeats(DESKTOP_BEATS, 7).explode, 0);
   assert.ok(MOBILE_BEATS.length < DESKTOP_BEATS.length);
   const desktopShift = Math.max(...DESKTOP_BEATS.map(beat => Math.abs(beat.pose.x)));
   const mobileShift = Math.max(...MOBILE_BEATS.map(beat => Math.abs(beat.pose.x)));
@@ -49,9 +49,9 @@ test('滚动索引、短列表映射、阻尼和减少动效', () => {
   assert.equal(reduced.turn, 0);
   assert.equal(reduced.explode, 0);
   assert.equal(reduced.scale, DESKTOP_BEATS[0].pose.scale);
-  const exploded = presentPose(DESKTOP_BEATS[7].pose, true);
+  const exploded = presentPose(DESKTOP_BEATS[6].pose, true);
   assert.equal(exploded.explode, 0);
-  assert.equal(presentPose(DESKTOP_BEATS[7].pose, false).explode, 0.72);
+  assert.equal(presentPose(DESKTOP_BEATS[6].pose, false).explode, 0.72);
 });
 
 test('旧版首页只有一个固定舞台，T70 仍走工坊 Meshopt 与照片色', () => {
@@ -70,7 +70,7 @@ test('旧版首页只有一个固定舞台，T70 仍走工坊 Meshopt 与照片�
   assert.match(stage, /setFrameloop\(document\.hidden \? 'never' : 'demand'\)/);
   assert.match(loader, /paint\.vertexColors = false/);
   assert.match(loader, /loader\.setMeshoptDecoder\(MeshoptDecoder\)/);
-  for (const id of ['hero', 'capabilities', 'painpoints', 'knowledge', 'techroute', 'research', 'scenarios', 'details', 'closing']) {
-    assert.match(`${page}\n${hero}\n${read('../src/pages/HomePage/sections/PainPointsSection.tsx')}\n${read('../src/components/KnowledgeCoverage.tsx')}\n${read('../src/pages/HomePage/sections/TechRouteSection.tsx')}\n${read('../src/pages/HomePage/sections/ResearchSection.tsx')}\n${read('../src/pages/HomePage/sections/ScenariosSection.tsx')}\n${read('../src/pages/HomePage/sections/ClosingSection.tsx')}`, new RegExp(`data-home-beat="${id}"`));
+  for (const id of ['hero', 'capabilities', 'painpoints', 'knowledge', 'techroute', 'scenarios', 'details', 'closing']) {
+    assert.match(`${page}\n${hero}\n${read('../src/pages/HomePage/sections/PainPointsSection.tsx')}\n${read('../src/components/KnowledgeCoverage.tsx')}\n${read('../src/pages/HomePage/sections/TechRouteSection.tsx')}\n\n${read('../src/pages/HomePage/sections/ScenariosSection.tsx')}\n${read('../src/pages/HomePage/sections/ClosingSection.tsx')}`, new RegExp(`data-home-beat="${id}"`));
   }
 });

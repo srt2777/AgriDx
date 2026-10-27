@@ -95,13 +95,7 @@ export const DESKTOP_BEATS: readonly Beat[] = [
       camX: 2.05, camY: 0.48, camZ: 2.05, lookX: 0.78, lookY: -0.18,
     }),
   },
-  {
-    id: 'research',
-    pose: pose({
-      x: -1.08, scale: 1.5, yaw: -0.92, focus: 'sensor_roof_l',
-      camX: -1.55, camY: 1.58, camZ: 2.35, lookX: -0.68, lookY: 0.38,
-    }),
-  },
+
   {
     id: 'scenarios',
     pose: pose({

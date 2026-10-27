@@ -182,7 +182,7 @@ html.theme-dark .new-version-shell .model-stage {
   .new-version-workspace { display: flex; flex-direction: column; width: 100%; margin-top: 8px; padding-bottom: calc(72px + env(safe-area-inset-bottom,0px)); }
   .new-version-content { width: 100%; flex: 1; }
   .new-version-navigation-rail { position: fixed; z-index: 50; inset: auto 0 0; padding: 6px 6px calc(6px + env(safe-area-inset-bottom,0px)); background: var(--card); border-top: 1px solid var(--border); }
-  .new-version-navigation { display: grid; grid-template-columns: repeat(5,minmax(0,1fr)); gap: 4px; }
+  .new-version-navigation { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 4px; }
   .new-version-nav-item { justify-content: center; min-height: 52px; padding: 6px 2px; text-align: center; white-space: normal; font-size: 12px; line-height: 1.35; }
   .new-version-nav-label { overflow-wrap: anywhere; }
   .new-version-breadcrumb { padding: 8px 16px 12px; }

@@ -239,44 +239,6 @@ function ModelSculpture({ color }: { color: string }) {
   );
 }
 
-function ResearchSculpture({ color }: { color: string }) {
-  return (
-    <group>
-      <Block size={[2.7, 0.3, 2]} position={[0, 0.48, 0]} color="#354354" />
-      <group position={[0, 1.25, 0.1]} rotation={[-0.5, 0, 0]}>
-        {[-1, 1].map((sign) => (
-          <group key={sign} rotation={[0, 0, sign * -0.3]}>
-            <Block size={[1.05, 0.16, 1.5]} position={[sign * 0.5, 0.2, 0]} color="#c3d0d9" />
-            {[-0.45, -0.15, 0.15, 0.45].map((z) => (
-              <Block key={z} size={[0.65, 0.018, 0.02]} position={[sign * 0.52, 0.29, z]} color="#5a7484" />
-            ))}
-          </group>
-        ))}
-      </group>
-      <Ring
-        position={[0, 2.7, -0.6]}
-        radius={0.85}
-        color={color}
-        rotation={[0.2, 0.25, 0]}
-        thickness={0.022}
-      />
-      {[0, 1, 2].map((i) => (
-        <mesh
-          key={i}
-          position={[
-            Math.cos((i * Math.PI * 2) / 3) * 0.85,
-            2.7 + Math.sin((i * Math.PI * 2) / 3) * 0.85,
-            -0.6,
-          ]}
-          castShadow
-        >
-          <sphereGeometry args={[0.13, 16, 12]} />
-          <meshStandardMaterial color="#dae7ec" metalness={0.7} roughness={0.2} />
-        </mesh>
-      ))}
-    </group>
-  );
-}
 
 function ZoneSign({ number, color }: { number: string; color: string }) {
   const texture = useMemo(() => {
@@ -403,7 +365,6 @@ function Pavilion({
         {zone.id === 'knowledge' && <KnowledgeSculpture color={color} />}
         {zone.id === 'diagnosis' && <DiagnosisSculpture color={color} />}
         {zone.id === 'models' && <ModelSculpture color={color} />}
-        {zone.id === 'research' && <ResearchSculpture color={color} />}
       </group>
       <Html position={[0, 4, 0]} center zIndexRange={[8, 4]} className="world-label-wrap">
         <button
@@ -1032,8 +993,8 @@ export default function ExhibitionWorld({ onLive, onLost, ...props }: WorldProps
         }}
         aria-label={
           lang === 'zh'
-            ? '农机三维园区，四个展区围绕中央广场。单指拖动环视，双指缩放。'
-            : '3D machinery campus with four pavilions around a central plaza. Drag to orbit and pinch to zoom.'
+            ? '农机三维园区，三个展区围绕中央广场。单指拖动环视，双指缩放。'
+            : '3D machinery campus with three pavilions around a central plaza. Drag to orbit and pinch to zoom.'
         }
       >
         <WorldScene {...props} onLoaded={loaded} />

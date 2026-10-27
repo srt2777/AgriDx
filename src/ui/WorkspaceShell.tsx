@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { BookOpen, Boxes, ChevronRight, FlaskConical, History, Home, MessageSquare, PanelLeftClose, PanelLeftOpen, Search, X, Globe } from 'lucide-react';
+import { BookOpen, Boxes, ChevronRight, History, Home, MessageSquare, PanelLeftClose, PanelLeftOpen, Search, X, Globe } from 'lucide-react';
 import { useLang, setLang } from '@/hooks/useLang';
 import { publicAsset } from '@/lib/public-asset';
 import { preloadPage } from '@/lib/page-loaders';
@@ -66,7 +66,6 @@ export function WorkspaceShell() {
         {destinations.map(({ path, zh, en, icon: Icon }) => <NavLink key={path} to={path} end={path === '/'} onClick={() => dialog.current?.close()} onPointerEnter={() => preloadPage(path, 'old')} onFocus={() => preloadPage(path, 'old')} className={({ isActive }) => `fluid-row${isActive ? ' is-active' : ''}`}><Icon size={17} strokeWidth={1.6} /><span>{t(zh, en)}</span></NavLink>)}
       </details>
       <details open className="fluid-group"><summary>{t('项目', 'Project')}<ChevronRight size={14} /></summary>
-        <button type="button" className="fluid-row" onClick={() => { dialog.current?.close(); navigate('/', { state: { scrollTo: 'research' } }); if (pathname === '/') document.getElementById('research')?.scrollIntoView({ behavior: 'instant', block: 'start' }); }}><FlaskConical size={17} strokeWidth={1.6} /><span>{t('研究依据', 'Research')}</span></button>
         <NavLink to="/version-history" onClick={() => dialog.current?.close()} className={({ isActive }) => `fluid-row${isActive ? ' is-active' : ''}`}><History size={17} strokeWidth={1.6} /><span>{t('更新记录', 'Version history')}</span></NavLink>
       </details>
     </nav>
