@@ -90,23 +90,29 @@ export function parseVersionHistory(markdown, { currentVersion, repository = 'sr
 
 export function readVersionHistory(directory = rootDir) {
   const pkg = JSON.parse(readFileSync(path.join(directory, 'package.json'), 'utf8'));
-  return parseVersionHistory(readFileSync(path.join(directory, 'CHANGELOG.md'), 'utf8'), { currentVersion: pkg.version });
+  const files = ['CHANGELOG.md', 'docs/changelog/3.x.md', 'docs/changelog/2.x.md'];
+  // Historical markdown lives two directories below its original root. Convert
+  // its repository-relative links back for the existing website data contract.
+  return parseVersionHistory(files.map((file, index) => {
+    const text = readFileSync(path.join(directory, file), 'utf8');
+    return index === 0 ? text : text.replace(/(\]\()\.\.\/\.\.\//g, '$1');
+  }).join('\n'), { currentVersion: pkg.version });
 }
 
 /** Vite generates this module for dev, production and the existing development-preview build. */
 export function versionHistoryPlugin(directory = rootDir) {
   const publicId = 'virtual:agridx-version-history', internalId = '\0' + publicId;
-  const changelog = path.join(directory, 'CHANGELOG.md'), pkg = path.join(directory, 'package.json');
+  const sources = ['CHANGELOG.md', 'docs/changelog/3.x.md', 'docs/changelog/2.x.md', 'package.json'].map(file => path.join(directory, file));
   return {
     name: 'agridx-version-history',
     resolveId(id) { return id === publicId ? internalId : undefined; },
     load(id) {
       if (id !== internalId) return undefined;
-      this.addWatchFile(changelog); this.addWatchFile(pkg);
+      sources.forEach(file => this.addWatchFile(file));
       return 'export default ' + JSON.stringify(readVersionHistory(directory)) + ';';
     },
     handleHotUpdate(context) {
-      if ([changelog, pkg].includes(context.file)) context.server.ws.send({ type: 'full-reload' });
+      if (sources.includes(context.file)) context.server.ws.send({ type: 'full-reload' });
     },
   };
 }

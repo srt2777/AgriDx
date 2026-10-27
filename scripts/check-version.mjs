@@ -1,16 +1,17 @@
 import { existsSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { isMain, main, rootDir } from './lib/process.mjs';
+import { loadVersionPolicy } from './version-policy.mjs';
 
-export function validateVersionState({ packageJson, lockJson, readme, changelog, batches }) {
+export function validateVersionState({ packageJson, lockJson, readme, changelog, batches, policy = loadVersionPolicy() }) {
   const version = packageJson.version;
   if (typeof version !== 'string' || !/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/.test(version)) {
     throw new Error('package.json 必须使用规范的 X.Y.Z 项目版本。');
   }
   const versionParts = version.split('.').map(Number);
   if (!versionParts.every(Number.isSafeInteger)) throw new Error('版本整数超出安全范围。');
-  if (versionParts[0] > 4) {
-    throw new Error('当前阶段版本上限为 4.x.x；5.0.0及更高主版本需用户明确授权。');
+  if (versionParts[0] > policy.maxMajor) {
+    throw new Error(`当前阶段版本上限为 ${policy.maxMajor}.x.x；更高主版本需用户明确授权。`);
   }
   const recorded = [
     ['package-lock.json', lockJson.version],
@@ -34,7 +35,7 @@ export function validateVersionState({ packageJson, lockJson, readme, changelog,
 }
 
 // 最新 CHANGELOG 节须写明本批次 ID 与验证结果（docs/version-policy.md#更新日志格式）。
-export function validateLatestChangelog(changelog, batches) {
+export function validateLatestChangelog(changelog, batches, { release = false, warn = console.warn } = {}) {
   const match = changelog.match(/^##\s+(\d+\.\d+\.\d+)\b[^\n]*\n([\s\S]*?)(?=^##\s|(?![\s\S]))/m);
   if (!match) throw new Error('CHANGELOG 缺少版本节。');
   const [, version, body] = match;
@@ -45,11 +46,22 @@ export function validateLatestChangelog(changelog, batches) {
   if (!/更新类型[：:]\s*(knowledge|fix|maintenance|feature|breaking)/.test(body)) {
     throw new Error(`CHANGELOG ${version} 节缺少“更新类型：knowledge|fix|maintenance|feature|breaking”。`);
   }
-  if (!/验证/.test(body)) throw new Error(`CHANGELOG ${version} 节缺少验证结果。`);
+  const contents = Object.fromEntries([...body.matchAll(/^###\s+([^\n]+)\s*\n([\s\S]*?)(?=^###\s|$(?![\s\S]))/gm)].map(([, title, content]) => [title.trim(), content.trim()]));
+  const missing = [];
+  const meaningful = value => (value || '').split('\n').map(line => line.replace(/^[\s>*-]+/, '').trim()).some(line => line && !/^(未记录|待记录)[。；;\s]*$/.test(line));
+  for (const title of ['详细改动', '验证结果']) if (!meaningful(contents[title])) missing.push(title);
+  if (!contents['关联 PR']?.replace(/^[\s>*-]+/gm, '').trim()) missing.push('关联 PR');
+  if (!meaningful(contents['部署记录']) || (/未记录|待记录/.test(contents['部署记录'] || '') && !/未部署/.test(contents['部署记录'] || ''))) missing.push('部署记录');
+  if (missing.length) {
+    const message = `CHANGELOG ${version} 节缺少实际内容：${missing.join('、')}。`;
+    if (release) throw new Error(message);
+    warn(`[version] 警告：${message}`);
+  }
   return version;
 }
 
-export function checkVersion() {
+export function checkVersion(args = process.argv.slice(2)) {
+  if (args.some(arg => arg !== '--release') || args.length > 1) throw new Error('用法：check:version [--release]');
   const read = (name) => readFileSync(path.join(rootDir, name), 'utf8');
   const version = validateVersionState({
     packageJson: JSON.parse(read('package.json')),
@@ -59,7 +71,7 @@ export function checkVersion() {
     batches: existsSync(path.join(rootDir, 'version-batches.json')) ? JSON.parse(read('version-batches.json')) : undefined,
   });
   validateLatestChangelog(read('CHANGELOG.md'),
-    existsSync(path.join(rootDir, 'version-batches.json')) ? JSON.parse(read('version-batches.json')) : undefined);
+    existsSync(path.join(rootDir, 'version-batches.json')) ? JSON.parse(read('version-batches.json')) : undefined, { release: args.includes('--release') });
   console.log(`[version] ${version}：package、锁文件、README 与最新日志一致。`);
 }
 

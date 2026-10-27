@@ -20,11 +20,14 @@ test('kb_version increments within a month and resets on a new month', () => {
   assert.equal(nextKbVersion(undefined, '2026-10-21'), '2026.10.1');
 });
 
-test('latest changelog section must name batch, update kind and verification', () => {
+test('latest changelog requires batch and kind; incomplete evidence warns daily and blocks release', () => {
   const batches = { batches: [{ id: 'b-1', version: '3.7.2' }] };
   const ok = '# log\n\n## 3.7.2 — d\n\n- x\n- 更新类型：maintenance；批次：b-1。验证：通过。\n\n## 3.7.1 — d\n';
   assert.equal(validateLatestChangelog(ok, batches), '3.7.2');
   assert.throws(() => validateLatestChangelog(ok.replace('b-1', 'b-2'), batches), /批次/);
   assert.throws(() => validateLatestChangelog(ok.replace('更新类型：maintenance；', ''), batches), /更新类型/);
-  assert.throws(() => validateLatestChangelog(ok.replace('验证：通过。', ''), batches), /验证/);
+  const warnings = [];
+  validateLatestChangelog(ok.replace('验证：通过。', ''), batches, { warn: message => warnings.push(message) });
+  assert.match(warnings[0], /验证/);
+  assert.throws(() => validateLatestChangelog(ok.replace('验证：通过。', ''), batches, { release: true }), /验证/);
 });
