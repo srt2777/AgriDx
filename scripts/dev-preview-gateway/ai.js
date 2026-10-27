@@ -191,7 +191,8 @@ export async function handleAiRequest(request, env, helpers, upstreamFetch) {
   const match = path.match(/^\/api\/dev-admin\/ai\/providers\/(deepseek|gemini|openai)(?:\/(test|chat|delete|models))?$/);
   if (!match || request.method !== 'POST') return json({ error: 'API 接口或请求方式不存在。' }, 404);
   const upstreamAction = ['test', 'chat', 'models'].includes(match[2]);
-  await rateLimit(request, db, upstreamAction ? 'ai-admin-test' : 'ai-admin-config', upstreamAction ? 6 : 20);
+  if (upstreamAction || !match[2]) await rateLimit(request, db, 'ai-admin-test', 6);
+  if (!upstreamAction) await rateLimit(request, db, 'ai-admin-config', 20);
   const provider = match[1], action = match[2] || 'save', data = await readJson(request);
   const existing = await aiRow(db, provider);
   if (action === 'models') {
