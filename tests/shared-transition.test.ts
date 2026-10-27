@@ -41,7 +41,7 @@ test('园区展区路径、过渡名和快速前往落在真实页面上', () =>
     assert.equal(sharedTransitionName('pavilion', zone.id), `pavilion-${zone.id}`);
     if (!destination.classicResearch) assert.notEqual(statusPlace(destination.path, 'zh'), '未找到');
   }
-  assert.equal(COMMAND_ROUTES.length, 6);
+  assert.equal(COMMAND_ROUTES.length, 5);
   for (const route of COMMAND_ROUTES) {
     assert.notEqual(statusPlace(route.path, 'zh'), '未找到');
     assert.notEqual(statusPlace(route.path, 'en'), 'NOT FOUND');
