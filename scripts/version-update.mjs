@@ -11,7 +11,7 @@ export function nextVersion(version, kind, policy = loadVersionPolicy()) {
   const parts = version.split('.').map(Number);
   if (!parts.every(Number.isSafeInteger)) throw new Error('版本整数超出安全范围。');
   if (['knowledge', 'fix', 'maintenance'].includes(kind)) parts[2] += 1;
-  else if (kind === 'feature') { parts[1] += 1; parts[2] = 0; }
+  else if (kind === 'feature') { if (parts[0] === 4) parts[2] += 1; else { parts[1] += 1; parts[2] = 0; } }
   else if (kind === 'breaking') { parts[0] += 1; parts[1] = 0; parts[2] = 0; }
   else throw new Error('类型必须是 knowledge、fix、maintenance、feature 或 breaking。');
   if (!parts.every(Number.isSafeInteger)) throw new Error('版本整数超出安全范围。');

@@ -723,10 +723,45 @@
       "date": "2026-10-27"
     },
     {
-      "id": "remove-research-20261027",
+      "id": "version-compression-4-0-1-20261027",
+      "kind": "maintenance",
+      "base": "4.0.0",
+      "version": "4.0.1",
+      "date": "2026-10-26"
+    },
+    {
+      "id": "version-compression-4-0-2-20261027",
+      "kind": "maintenance",
+      "base": "4.0.1",
+      "version": "4.0.2",
+      "date": "2026-10-26"
+    },
+    {
+      "id": "version-compression-4-0-3-20261027",
+      "kind": "maintenance",
+      "base": "4.0.2",
+      "version": "4.0.3",
+      "date": "2026-10-26"
+    },
+    {
+      "id": "version-compression-4-0-4-20261027",
+      "kind": "maintenance",
+      "base": "4.0.3",
+      "version": "4.0.4",
+      "date": "2026-10-27"
+    },
+    {
+      "id": "version-compression-4-0-5-20261027",
+      "kind": "maintenance",
+      "base": "4.0.4",
+      "version": "4.0.5",
+      "date": "2026-10-27"
+    },
+    {
+      "id": "remove-research-compressed-20261027",
       "kind": "fix",
-      "base": "4.6.0",
-      "version": "4.6.1",
+      "base": "4.0.5",
+      "version": "4.0.6",
       "date": "2026-10-27"
     }
   ]
