@@ -716,10 +716,17 @@
       "date": "2026-10-27"
     },
     {
+      "id": "dev-api-onboarding-20261027",
+      "kind": "feature",
+      "base": "4.5.0",
+      "version": "4.6.0",
+      "date": "2026-10-27"
+    },
+    {
       "id": "remove-research-20261027",
       "kind": "fix",
-      "base": "4.5.0",
-      "version": "4.5.1",
+      "base": "4.6.0",
+      "version": "4.6.1",
       "date": "2026-10-27"
     }
   ]
