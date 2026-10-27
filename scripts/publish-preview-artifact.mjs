@@ -10,7 +10,7 @@ const api = (endpoint, data, method) => {
   const args = ['api', `repos/${repository}/${endpoint}`];
   if (method) args.push('--method', method);
   if (data) args.push('--input', '-');
-  const result = spawnSync('gh', args, { cwd: rootDir, encoding: 'utf8', shell: false, input: data ? JSON.stringify(data) : undefined });
+  const result = spawnSync('gh', args, { cwd: rootDir, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024, shell: false, input: data ? JSON.stringify(data) : undefined });
   if (result.status !== 0) throw new Error(result.stderr.trim() || 'GitHub artifact request failed');
   return JSON.parse(result.stdout);
 };
