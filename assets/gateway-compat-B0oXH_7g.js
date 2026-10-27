@@ -1,0 +1,1 @@
+function i(e,a){return!!(e&&Number.isSafeInteger(e.schemaVersion)&&Number(e.schemaVersion)>=a.minimumSchema&&e.capabilities&&a.capabilities.every(s=>e.capabilities?.[s]===!0))}function t(e,a){return!e?.gatewaySourceHash||!/^[a-f0-9]{64}$/.test(e.gatewaySourceHash)||!/^[a-f0-9]{64}$/.test(a)?"unknown":e.gatewaySourceHash===a?"match":"mismatch"}export{t as a,i as g};
