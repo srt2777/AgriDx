@@ -1,0 +1,417 @@
+[
+  {
+    "path": "docs/design/2026-10-09-figma/knowledge-mobile-draft.png",
+    "bytes": 370049,
+    "action": "retain-original; historical-index-only"
+  },
+  {
+    "path": "docs/design/2026-10-11-digital-exhibition/classic-desktop.png",
+    "bytes": 440993,
+    "action": "retain-original; historical-index-only"
+  },
+  {
+    "path": "docs/design/2026-10-11-digital-exhibition/new-320-en.png",
+    "bytes": 405113,
+    "action": "retain-original; historical-index-only"
+  },
+  {
+    "path": "docs/design/2026-10-11-digital-exhibition/new-desktop.png",
+    "bytes": 947747,
+    "action": "retain-original; historical-index-only"
+  },
+  {
+    "path": "docs/design/2026-10-11-digital-exhibition/new-mobile.png",
+    "bytes": 493933,
+    "action": "retain-original; historical-index-only"
+  },
+  {
+    "path": "docs/design/2026-10-11-spatial-campus/desktop.png",
+    "bytes": 853439,
+    "action": "retain-original; historical-index-only"
+  },
+  {
+    "path": "docs/design/2026-10-11-spatial-campus/drive.png",
+    "bytes": 854073,
+    "action": "retain-original; historical-index-only"
+  },
+  {
+    "path": "docs/design/2026-10-11-spatial-campus/mobile-320-en.png",
+    "bytes": 205578,
+    "action": "retain-original; historical-index-only"
+  },
+  {
+    "path": "docs/design/2026-10-11-spatial-campus/mobile-drive.png",
+    "bytes": 203176,
+    "action": "retain-original; historical-index-only"
+  },
+  {
+    "path": "docs/design/2026-10-11-spatial-campus/mobile.png",
+    "bytes": 246000,
+    "action": "retain-original; historical-index-only"
+  },
+  {
+    "path": "docs/design/2026-10-12-classic-liquid-glass/home-320-en-dark.png",
+    "bytes": 178939,
+    "action": "retain-original; historical-index-only"
+  },
+  {
+    "path": "docs/design/2026-10-12-classic-liquid-glass/home-320-zh-light.png",
+    "bytes": 184759,
+    "action": "retain-original; historical-index-only"
+  },
+  {
+    "path": "docs/design/2026-10-12-classic-liquid-glass/home-375-en-dark.png",
+    "bytes": 215378,
+    "action": "retain-original; historical-index-only"
+  },
+  {
+    "path": "docs/design/2026-10-12-classic-liquid-glass/home-375-zh-light.png",
+    "bytes": 232943,
+    "action": "retain-original; historical-index-only"
+  },
+  {
+    "path": "docs/design/2026-10-12-classic-liquid-glass/home-desktop-dark.png",
+    "bytes": 445689,
+    "action": "retain-original; historical-index-only"
+  },
+  {
+    "path": "docs/design/2026-10-12-classic-liquid-glass/home-desktop-light.png",
+    "bytes": 450456,
+    "action": "retain-original; historical-index-only"
+  },
+  {
+    "path": "docs/design/2026-10-12-classic-liquid-glass/model-desktop.png",
+    "bytes": 209797,
+    "action": "retain-original; historical-index-only"
+  },
+  {
+    "path": "docs/design/2026-10-12-wwdc-fluid-interaction/campus-panel.png",
+    "bytes": 448694,
+    "action": "retain-original; historical-index-only"
+  },
+  {
+    "path": "docs/design/2026-10-12-wwdc-fluid-interaction/campus-panels.webm",
+    "bytes": 463583,
+    "action": "retain-original; historical-index-only"
+  },
+  {
+    "path": "docs/design/2026-10-12-wwdc-fluid-interaction/desktop-controls.webm",
+    "bytes": 1174343,
+    "action": "retain-original; historical-index-only"
+  },
+  {
+    "path": "docs/design/2026-10-12-wwdc-fluid-interaction/mobile-menu.webm",
+    "bytes": 238642,
+    "action": "retain-original; historical-index-only"
+  },
+  {
+    "path": "docs/design/2026-10-12-wwdc-fluid-interaction/model-controls.png",
+    "bytes": 200536,
+    "action": "retain-original; historical-index-only"
+  },
+  {
+    "path": "docs/design/2026-10-12-wwdc-fluid-interaction/navigation-preview.mp4",
+    "bytes": 104572,
+    "action": "retain-original; historical-index-only"
+  },
+  {
+    "path": "docs/design/2026-10-12-wwdc-fluid-interaction/navigation-preview.webm",
+    "bytes": 106868,
+    "action": "retain-original; historical-index-only"
+  },
+  {
+    "path": "docs/design/2026-10-12-wwdc-fluid-interaction/regression/campus-ready.png",
+    "bytes": 569127,
+    "action": "retain-original; historical-index-only"
+  },
+  {
+    "path": "docs/design/2026-10-12-wwdc-fluid-interaction/regression/mobile-classic.png",
+    "bytes": 177068,
+    "action": "retain-original; historical-index-only"
+  },
+  {
+    "path": "docs/design/2026-10-12-wwdc-fluid-interaction/regression/model-workshop.png",
+    "bytes": 198842,
+    "action": "retain-original; historical-index-only"
+  },
+  {
+    "path": "docs/design/2026-10-12-wwdc-fluid-interaction/regression/new-home-loading.png",
+    "bytes": 421834,
+    "action": "retain-original; historical-index-only"
+  },
+  {
+    "path": "docs/design/2026-10-13-live-liquid-glass/classic-desktop.png",
+    "bytes": 353385,
+    "action": "retain-original; historical-index-only"
+  },
+  {
+    "path": "docs/design/2026-10-13-live-liquid-glass/new-campus-preview.mp4",
+    "bytes": 1240379,
+    "action": "retain-original; historical-index-only"
+  },
+  {
+    "path": "docs/design/2026-10-13-live-liquid-glass/new-campus.png",
+    "bytes": 573396,
+    "action": "retain-original; historical-index-only"
+  },
+  {
+    "path": "docs/design/2026-10-13-live-liquid-glass/new-catalog.png",
+    "bytes": 643870,
+    "action": "retain-original; historical-index-only"
+  },
+  {
+    "path": "docs/design/2026-10-13-live-liquid-glass/new-mobile-320-zh.png",
+    "bytes": 212030,
+    "action": "retain-original; historical-index-only"
+  },
+  {
+    "path": "docs/design/2026-10-13-live-liquid-glass/new-mobile-375-en.png",
+    "bytes": 237943,
+    "action": "retain-original; historical-index-only"
+  },
+  {
+    "path": "docs/design/2026-10-13-live-liquid-glass/regression/campus-ready.png",
+    "bytes": 596911,
+    "action": "retain-original; historical-index-only"
+  },
+  {
+    "path": "docs/design/2026-10-13-live-liquid-glass/regression/mobile-classic.png",
+    "bytes": 178312,
+    "action": "retain-original; historical-index-only"
+  },
+  {
+    "path": "docs/design/2026-10-13-live-liquid-glass/regression/model-workshop.png",
+    "bytes": 198208,
+    "action": "retain-original; historical-index-only"
+  },
+  {
+    "path": "docs/design/2026-10-13-live-liquid-glass/regression/new-home-loading.png",
+    "bytes": 439226,
+    "action": "retain-original; historical-index-only"
+  },
+  {
+    "path": "docs/design/2026-10-13-material-you-glass/contrast-new-dark.png",
+    "bytes": 154162,
+    "action": "retain-original; historical-index-only"
+  },
+  {
+    "path": "docs/design/2026-10-13-material-you-glass/new-campus.png",
+    "bytes": 571054,
+    "action": "retain-original; historical-index-only"
+  },
+  {
+    "path": "docs/design/2026-10-13-material-you-glass/new-catalog.png",
+    "bytes": 530629,
+    "action": "retain-original; historical-index-only"
+  },
+  {
+    "path": "docs/design/2026-10-13-material-you-glass/old-mobile-320.png",
+    "bytes": 160716,
+    "action": "retain-original; historical-index-only"
+  },
+  {
+    "path": "docs/design/2026-10-13-material-you-glass/regression/mobile-new-chat.png",
+    "bytes": 205986,
+    "action": "retain-original; historical-index-only"
+  },
+  {
+    "path": "docs/design/2026-10-13-material-you-glass/regression/mobile-old-chat.png",
+    "bytes": 192513,
+    "action": "retain-original; historical-index-only"
+  },
+  {
+    "path": "docs/design/2026-10-13-material-you-glass/regression/preview-new-knowledge-desktop.png",
+    "bytes": 154933,
+    "action": "retain-original; historical-index-only"
+  },
+  {
+    "path": "docs/design/2026-10-21-new-version-ui/campus-intro-r15-dark.png",
+    "bytes": 467328,
+    "action": "retain-original; historical-index-only"
+  },
+  {
+    "path": "docs/design/2026-10-21-new-version-ui/campus-landed-r15-dark.png",
+    "bytes": 612083,
+    "action": "retain-original; historical-index-only"
+  },
+  {
+    "path": "docs/design/2026-10-21-new-version-ui/campus-round8-fallback.png",
+    "bytes": 402208,
+    "action": "retain-original; historical-index-only"
+  },
+  {
+    "path": "docs/design/2026-10-21-new-version-ui/campus-round9-dark.png",
+    "bytes": 540616,
+    "action": "retain-original; historical-index-only"
+  },
+  {
+    "path": "docs/design/2026-10-21-new-version-ui/campus-shell-1440.png",
+    "bytes": 783215,
+    "action": "retain-original; historical-index-only"
+  },
+  {
+    "path": "docs/design/2026-10-21-new-version-ui/chat-round11-dark.png",
+    "bytes": 175262,
+    "action": "retain-original; historical-index-only"
+  },
+  {
+    "path": "docs/design/2026-10-21-new-version-ui/cohesion-404-1440-dark.png",
+    "bytes": 176366,
+    "action": "retain-original; historical-index-only"
+  },
+  {
+    "path": "docs/design/2026-10-21-new-version-ui/delight-toast-r17-dark.png",
+    "bytes": 156873,
+    "action": "retain-original; historical-index-only"
+  },
+  {
+    "path": "docs/design/2026-10-21-new-version-ui/hall-1920-dark.png",
+    "bytes": 413787,
+    "action": "retain-original; historical-index-only"
+  },
+  {
+    "path": "docs/design/2026-10-21-new-version-ui/hall-1920-light.png",
+    "bytes": 410118,
+    "action": "retain-original; historical-index-only"
+  },
+  {
+    "path": "docs/design/2026-10-21-new-version-ui/hall-390-dark.png",
+    "bytes": 170639,
+    "action": "retain-original; historical-index-only"
+  },
+  {
+    "path": "docs/design/2026-10-21-new-version-ui/hall-glass-kpi-1440.png",
+    "bytes": 585337,
+    "action": "retain-original; historical-index-only"
+  },
+  {
+    "path": "docs/design/2026-10-21-new-version-ui/hall-models-r16-dark.png",
+    "bytes": 407797,
+    "action": "retain-original; historical-index-only"
+  },
+  {
+    "path": "docs/design/2026-10-21-new-version-ui/hall-round10-drawer.png",
+    "bytes": 470169,
+    "action": "retain-original; historical-index-only"
+  },
+  {
+    "path": "docs/design/2026-10-21-new-version-ui/knowledge-round11-dark.png",
+    "bytes": 162646,
+    "action": "retain-original; historical-index-only"
+  },
+  {
+    "path": "docs/design/2026-10-21-new-version-ui/models-studio-exploded-1440.png",
+    "bytes": 315172,
+    "action": "retain-original; historical-index-only"
+  },
+  {
+    "path": "docs/design/2026-10-21-new-version-ui/models-studio-webgl-fallback.png",
+    "bytes": 422667,
+    "action": "retain-original; historical-index-only"
+  },
+  {
+    "path": "docs/design/2026-10-21-new-version-ui/restraint-404-r18-dark.png",
+    "bytes": 176366,
+    "action": "retain-original; historical-index-only"
+  },
+  {
+    "path": "docs/design/2026-10-21-new-version-ui/restraint-campus-r18-dark.png",
+    "bytes": 600567,
+    "action": "retain-original; historical-index-only"
+  },
+  {
+    "path": "docs/design/2026-10-21-new-version-ui/restraint-campus-r18-reduced-light.png",
+    "bytes": 329181,
+    "action": "retain-original; historical-index-only"
+  },
+  {
+    "path": "docs/design/2026-10-21-new-version-ui/restraint-chat-r18-dark.png",
+    "bytes": 176505,
+    "action": "retain-original; historical-index-only"
+  },
+  {
+    "path": "docs/design/2026-10-21-new-version-ui/restraint-hall-r18-390.png",
+    "bytes": 183228,
+    "action": "retain-original; historical-index-only"
+  },
+  {
+    "path": "docs/design/2026-10-21-new-version-ui/restraint-hall-r18-dark.png",
+    "bytes": 393769,
+    "action": "retain-original; historical-index-only"
+  },
+  {
+    "path": "docs/design/2026-10-21-new-version-ui/restraint-hall-r18-light.png",
+    "bytes": 395090,
+    "action": "retain-original; historical-index-only"
+  },
+  {
+    "path": "docs/design/2026-10-21-new-version-ui/restraint-knowledge-r18-dark.png",
+    "bytes": 193489,
+    "action": "retain-original; historical-index-only"
+  },
+  {
+    "path": "docs/design/2026-10-21-new-version-ui/restraint-models-r18-dark.png",
+    "bytes": 441946,
+    "action": "retain-original; historical-index-only"
+  },
+  {
+    "path": "docs/design/2026-10-21-new-version-ui/restraint-webgl-off-r18.png",
+    "bytes": 441927,
+    "action": "retain-original; historical-index-only"
+  },
+  {
+    "path": "docs/design/2026-10-21-new-version-ui/studio-hud-390.png",
+    "bytes": 173142,
+    "action": "retain-original; historical-index-only"
+  },
+  {
+    "path": "docs/design/2026-10-21-new-version-ui/studio-hud-assembled-1440.png",
+    "bytes": 343077,
+    "action": "retain-original; historical-index-only"
+  },
+  {
+    "path": "docs/design/2026-10-21-new-version-ui/studio-hud-drawer-1440.png",
+    "bytes": 466195,
+    "action": "retain-original; historical-index-only"
+  },
+  {
+    "path": "docs/design/2026-10-24-knowledge-engine/catalog-desktop.png",
+    "bytes": 495342,
+    "action": "retain-original; historical-index-only"
+  },
+  {
+    "path": "docs/design/2026-10-24-knowledge-engine/mobile-375.png",
+    "bytes": 167166,
+    "action": "retain-original; historical-index-only"
+  },
+  {
+    "path": "docs/design/2026-10-24-knowledge-engine/reference-18s.png",
+    "bytes": 1056076,
+    "action": "retain-original; historical-index-only"
+  },
+  {
+    "path": "docs/design/2026-10-24-knowledge-engine/reference-24s.png",
+    "bytes": 1052914,
+    "action": "retain-original; historical-index-only"
+  },
+  {
+    "path": "docs/design/2026-10-24-knowledge-engine/reference-5s.png",
+    "bytes": 1036599,
+    "action": "retain-original; historical-index-only"
+  },
+  {
+    "path": "docs/design/2026-10-25-telemetry-alert-link/export-simulated.png",
+    "bytes": 711016,
+    "action": "retain-original; historical-index-only"
+  },
+  {
+    "path": "docs/design/2026-10-26-knowledge-graph/desktop-dark-graph.png",
+    "bytes": 600060,
+    "action": "retain-original; historical-index-only"
+  },
+  {
+    "path": "docs/design/2026-10-26-knowledge-graph/mobile-light-graph.png",
+    "bytes": 227279,
+    "action": "retain-original; historical-index-only"
+  }
+]
