@@ -20,7 +20,7 @@ test('知识扩充和修复均升补丁，功能和不兼容变化受当前上�
   assert.equal(nextVersion('3.10.1', 'maintenance'), '3.10.2');
   for (const version of ['3.999.999', '3.9.10', '3.4.4']) assert.equal(nextVersion(version, 'breaking'), '4.0.0');
   for (const kind of ['knowledge', 'fix', 'maintenance']) assert.equal(nextVersion('4.0.0', kind), '4.0.1');
-  assert.equal(nextVersion('4.0.0', 'feature'), '4.1.0');
+  assert.equal(nextVersion('4.0.0', 'feature'), '4.0.1');
   assert.throws(() => nextVersion('4.0.0', 'breaking'), /上限/);
   assert.throws(() => nextVersion('3.4.4', 'unknown'), /类型/);
 });
@@ -92,7 +92,7 @@ test('已授权4.x的批次预演及重跑不写入，跨到5.0.0在写入前拒
     const afterPatch = names.map(name => readFileSync(path.join(directory, name), 'utf8'));
     assert.equal(updateVersion(patch).repeated, true);
     assert.deepEqual(names.map(name => readFileSync(path.join(directory, name), 'utf8')), afterPatch);
-    assert.equal(updateVersion({ ...options, kind: 'feature', batch: 'allowed-4x-feature', dryRun: true }).version, '4.1.0');
+    assert.equal(updateVersion({ ...options, kind: 'feature', batch: 'allowed-4x-feature', dryRun: true }).version, '4.0.2');
     assert.deepEqual(names.map(name => readFileSync(path.join(directory, name), 'utf8')), afterPatch);
     const state = version => ({ packageJson: { version }, lockJson: { version, packages: { '': { version } } }, readme: `当前项目版本：**${version}**`, changelog: `## ${version}` });
     for (const version of ['4.0.0', '4.0.1', '4.1.0', '4.999.999']) assert.equal(validateVersionState(state(version)), version);
@@ -122,7 +122,7 @@ test('版本上限按整数分段比较：3.10.0 大于 3.9.x，而非按字符�
   assert.equal(nextVersion('3.12.0', 'feature'), '3.13.0');
   assert.equal(nextVersion('3.999.999', 'breaking'), '4.0.0');
   assert.equal(nextVersion('4.9.99', 'maintenance'), '4.9.100');
-  assert.equal(nextVersion('4.9.100', 'feature'), '4.10.0');
+  assert.equal(nextVersion('4.9.100', 'feature'), '4.9.101');
   assert.throws(() => nextVersion('4.999.999', 'breaking'), /上限/);
   assert.throws(() => nextVersion('3.0.9007199254740991', 'fix'), /安全范围/);
   assert.throws(() => nextVersion('4.0.9007199254740991', 'fix'), /安全范围/);

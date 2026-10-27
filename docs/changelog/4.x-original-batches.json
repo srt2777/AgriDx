@@ -1,0 +1,96 @@
+{
+  "schema": 1,
+  "batches": [
+    {
+      "id": "ui-version-range-20261025",
+      "kind": "maintenance",
+      "base": "4.0.0",
+      "version": "4.0.1",
+      "date": "2026-10-25"
+    },
+    {
+      "id": "ui-fault-telemetry-replay-20261025",
+      "kind": "maintenance",
+      "base": "4.0.1",
+      "version": "4.0.2",
+      "date": "2026-10-25"
+    },
+    {
+      "id": "ui-fault-telemetry-page-20261025",
+      "kind": "feature",
+      "base": "4.0.2",
+      "version": "4.1.0",
+      "date": "2026-10-25"
+    },
+    {
+      "id": "ui-chat-evidence-20261026",
+      "kind": "maintenance",
+      "base": "4.1.0",
+      "version": "4.1.1",
+      "date": "2026-10-26"
+    },
+    {
+      "id": "ui-chat-telemetry-summary-20261026",
+      "kind": "maintenance",
+      "base": "4.1.1",
+      "version": "4.1.2",
+      "date": "2026-10-26"
+    },
+    {
+      "id": "ui-knowledge-graph-20261026",
+      "kind": "feature",
+      "base": "4.1.2",
+      "version": "4.2.0",
+      "date": "2026-10-26"
+    },
+    {
+      "id": "agent-tool-use-20261026",
+      "kind": "feature",
+      "base": "4.2.0",
+      "version": "4.3.0",
+      "date": "2026-10-26"
+    },
+    {
+      "id": "tool-execution-layer-20261026",
+      "kind": "feature",
+      "base": "4.3.0",
+      "version": "4.4.0",
+      "date": "2026-10-26"
+    },
+    {
+      "id": "sites-v4-development-20261026",
+      "kind": "maintenance",
+      "base": "4.4.0",
+      "version": "4.4.1",
+      "date": "2026-10-26"
+    },
+    {
+      "id": "version-tooling-20261027",
+      "kind": "maintenance",
+      "base": "4.4.1",
+      "version": "4.4.2",
+      "date": "2026-10-27"
+    },
+    {
+      "id": "maintenance-slimming-20261027",
+      "kind": "maintenance",
+      "base": "4.4.2",
+      "version": "4.4.3",
+      "date": "2026-10-27"
+    },
+    {
+      "id": "knowledge-relation-strength-20261027",
+      "kind": "feature",
+      "base": "4.4.3",
+      "version": "4.5.0",
+      "date": "2026-10-27"
+    },
+    {
+      "id": "dev-api-onboarding-20261027",
+      "kind": "feature",
+      "base": "4.5.0",
+      "version": "4.6.0",
+      "date": "2026-10-27"
+    }
+  ]
+}
