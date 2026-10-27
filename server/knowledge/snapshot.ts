@@ -8,6 +8,8 @@ import { buildRetrievalOrganization, type RetrievalOrganization } from './common
 import type { CommonFrameworkDefinition } from '../../shared/common-knowledge';
 import type { KnowledgeChunk } from './types';
 import type { CatalogFilters, KnowledgeCatalog } from '../../shared/knowledge-catalog';
+import { readSemanticReport } from '../../scripts/lib/semantic-report.mjs';
+import type { SemanticRelationsInput } from './relations-semantic';
 
 export interface KnowledgeSnapshot {
   /** Optional release metadata belongs to the same published generation as its data. */
@@ -17,6 +19,7 @@ export interface KnowledgeSnapshot {
   readonly archivedEntries: number;
   readonly learningEntries: number;
   readonly getCatalog: (filters?: CatalogFilters) => KnowledgeCatalog;
+  readonly semantic: SemanticRelationsInput;
   readonly retrievalOrganization: RetrievalOrganization;
   /** Real source classifications, independent of whether the current topic retrieves a hit. */
   readonly manualSourceIds: readonly string[];
@@ -86,6 +89,7 @@ function splitByHeading(relPath: string, content: string): KnowledgeChunk[] {
 
 /** Read and validate everything before replacing any active consumer's data. */
 export function reloadKnowledgeSnapshot(): KnowledgeSnapshot {
+  const semanticBefore = readSemanticReport(process.cwd());
   const chunks: KnowledgeChunk[] = [];
   let fileCount = 0;
   for (const relative of walkMdFiles(KB_ROOT, '')) {
@@ -112,10 +116,27 @@ export function reloadKnowledgeSnapshot(): KnowledgeSnapshot {
   const baseCatalog = freezeData(selectCatalog());
   const kbVersion = readVersionMetadata();
   const catalog = freezeData({ ...baseCatalog, kbVersion });
+  const semanticAfter = readSemanticReport(process.cwd());
+  const semantic = JSON.stringify(semanticBefore) === JSON.stringify(semanticAfter) ? semanticAfter : { reason: '载入知识快照期间语义审核报告或来源发生变化。' };
+  const entryNodes = new Map<string, string[]>();
+  if (semantic.report) {
+    const byEntry = new Map((hierarchy as { entries: { entry_id: string; components: { component_id: string; part_ids: string[] }[] }[] }).entries.map(item => [item.entry_id, item.components]));
+    const sourceModels = new Map(archive.sources.map(source => [source.source_id, source.model]));
+    for (const chunk of archive.chunks) {
+      if (!chunk.entryId || !chunk.brand || !chunk.sourceId) continue;
+      const models = chunk.models ?? [sourceModels.get(chunk.sourceId)].filter((model): model is string => Boolean(model));
+      const ids: string[] = [];
+      for (const model of models) for (const item of byEntry.get(chunk.entryId) ?? []) {
+        if (item.part_ids.length) ids.push(...item.part_ids.map(part => JSON.stringify([chunk.brand, model, item.component_id, part])));
+        else ids.push(JSON.stringify([chunk.brand, model, item.component_id]));
+      }
+      entryNodes.set(chunk.entryId, ids);
+    }
+  }
   const next: KnowledgeSnapshot = Object.freeze({
     kbVersion, chunks, fileCount: fileCount + archive.fileCount + new Set(learning.map(entry => entry.knowledgePath)).size, archivedEntries: archive.chunks.length,
     learningEntries: learning.length,
-    retrievalOrganization, manualSourceIds,
+    retrievalOrganization, manualSourceIds, semantic: { ...semantic, entryNodes },
     getCatalog: (filters: CatalogFilters = {}) => {
       const selected = selectCatalog(filters);
       return selected === baseCatalog ? catalog : freezeData({ ...selected, kbVersion });
