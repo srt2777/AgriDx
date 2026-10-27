@@ -1,4 +1,4 @@
-import type { KnowledgeCatalog, KnowledgeRole, RoleCoverage } from '@shared/knowledge-catalog';
+import type { KnowledgeCatalog, KnowledgeRole, RoleCoverage } from '../../../shared/knowledge-catalog';
 
 export interface TaxonomyNode {
   id: string;

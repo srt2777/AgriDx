@@ -5,6 +5,9 @@ import { mkdtempSync, rmSync } from 'node:fs';
 import path from 'node:path';
 import { tmpdir } from 'node:os';
 import { pathToFileURL } from 'node:url';
+import { createHash } from 'node:crypto';
+import { once } from 'node:events';
+import express from 'express';
 import { build } from 'vite';
 import { knowledgeSnapshotPlugin, createKnowledgeSnapshot } from '../scripts/lib/dev-preview.mjs';
 import { getKnowledgeCatalog, loadKnowledgeCatalog } from '../server/knowledge/catalog';
@@ -14,6 +17,7 @@ import { parseDiagnosticRequest } from '../server/diagnosis/request';
 import { createReadOnlyFileSystem } from '../src/dev-preview/filesystem.mjs';
 import browserPath from '../src/dev-preview/path.mjs';
 import type { ChatResponse } from '../shared/chat';
+import { createCatalogRoutes } from '../server/routes/catalog';
 const transported = (value: unknown) => JSON.parse(JSON.stringify(value));
 
 /** Durations differ by runtime; every other response field must match the server contract. */
@@ -63,6 +67,23 @@ test('实际浏览器构建保持完整知识目录、诊断来源与型号隔�
     const catalog = await (await previewFetch('/api/knowledge/catalog')).json();
     assert.match(catalog.kbVersion, /^20\d{2}\.\d{2}\.\d+$/);
     assert.deepEqual(catalog, getKnowledgeCatalog());
+    const app = express(); app.use('/api', createCatalogRoutes(getKnowledgeCatalog));
+    const server = app.listen(0, '127.0.0.1'); await once(server, 'listening');
+    try {
+      const address = server.address(); assert.ok(address && typeof address !== 'string');
+      const [nodeResponse, previewResponse] = await Promise.all([
+        fetch(`http://127.0.0.1:${address.port}/api/knowledge/relations`), previewFetch('/api/knowledge/relations'),
+      ]);
+      assert.equal(nodeResponse.status, 200); assert.equal(previewResponse.status, 200);
+      const [nodeText, previewText] = await Promise.all([nodeResponse.text(), previewResponse.text()]);
+      const digest = (value: string) => createHash('sha256').update(value).digest('hex');
+      assert.equal(digest(previewText), digest(nodeText));
+      const [nodePage, previewPage] = await Promise.all([
+        fetch(`http://127.0.0.1:${address.port}/api/knowledge/relations?offset=42&limit=20`), previewFetch('/api/knowledge/relations?offset=42&limit=20'),
+      ]);
+      assert.deepEqual(await previewPage.json(), await nodePage.json());
+      assert.equal((await previewFetch('/api/knowledge/relations?limit=10001')).status, 400);
+    } finally { await new Promise<void>((resolve, reject) => server.close(error => error ? reject(error) : resolve())); }
     let selections = 0;
     for (const brand of catalog.brands) {
       for (const model of brand.models) {

@@ -1,6 +1,7 @@
 import { existsSync, readFileSync, readdirSync, realpathSync } from 'node:fs';
 import path from 'node:path';
 import { rootDir } from './process.mjs';
+import { readSemanticReport } from './semantic-report.mjs';
 
 /** Collect indexed Markdown and its indexes; exclude secrets and original manuals. */
 export function createKnowledgeSnapshot(root = rootDir) {
@@ -41,15 +42,22 @@ export function createKnowledgeSnapshot(root = rootDir) {
   walk('server/knowledge');
   return snapshot;
 }
-export function knowledgeSnapshotPlugin(snapshot = createKnowledgeSnapshot()) {
+export function knowledgeSnapshotPlugin(snapshot) {
+  const before = readSemanticReport(rootDir);
+  snapshot ??= createKnowledgeSnapshot();
   const fsModule = '\0agridx-preview-filesystem';
+  const semanticModule = '\0agridx-preview-semantic-report';
+  const after = readSemanticReport(rootDir);
+  const semantic = JSON.stringify(before) === JSON.stringify(after) ? after : { reason: '构建知识快照期间语义审核报告或来源发生变化。' };
   return {
     name: 'agridx-development-knowledge', enforce: 'pre',
     resolveId(id) {
+      if (id === '../../scripts/lib/semantic-report.mjs') return semanticModule;
       if (id === 'node:fs') return fsModule;
       if (id === 'node:path') return path.join(rootDir, 'src/dev-preview/path.mjs');
     },
     load(id) {
+      if (id === semanticModule) return `export function readSemanticReport() { return ${JSON.stringify(semantic)}; }`;
       if (id === fsModule) return `import { createReadOnlyFileSystem } from ${JSON.stringify(path.join(rootDir, 'src/dev-preview/filesystem.mjs').replaceAll('\\', '/'))};\nexport default createReadOnlyFileSystem(${JSON.stringify(snapshot)});`;
     },
     transform(code, id) {
