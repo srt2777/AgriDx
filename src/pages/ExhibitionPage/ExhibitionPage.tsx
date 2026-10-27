@@ -20,7 +20,6 @@ import {
   ChevronRight,
   Compass,
   Cpu,
-  Layers3,
   Map as MapIcon,
   Maximize,
   MoveUpRight,
@@ -60,7 +59,7 @@ import { exhibitForDevice } from '@/features/campus-equipment/campus-layout';
 import './exhibition.css';
 
 const ExhibitionWorld = lazy(() => import('./ExhibitionWorld'));
-const ZONE_ICONS = { knowledge: BookOpen, diagnosis: Cpu, models: Tractor, research: Layers3 };
+const ZONE_ICONS = { knowledge: BookOpen, diagnosis: Cpu, models: Tractor };
 const ZONE_DETAILS = {
   knowledge: {
     zh: '从品牌与型号出发，找到适用资料。',
@@ -86,14 +85,7 @@ const ZONE_DETAILS = {
     tagsZh: ['交互结构示意', '本地模型导入'],
     tagsEn: ['Interactive schematic', 'Local model import'],
   },
-  research: {
-    zh: '回到方法与文献，理解每一步依据。',
-    en: 'Explore the methods behind the platform.',
-    descZh: '查看论文入口、建设路线与验证记录，了解当前能力和研究方向。',
-    descEn: 'Read research references, the development path and validation boundaries.',
-    tagsZh: ['研究文献', '验证记录'],
-    tagsEn: ['Research references', 'Validation records'],
-  },
+
 };
 
 export default function ExhibitionPage() {

@@ -70,7 +70,7 @@ test('旧版首页只有一个固定舞台，T70 仍走工坊 Meshopt 与照片�
   assert.match(stage, /setFrameloop\(document\.hidden \? 'never' : 'demand'\)/);
   assert.match(loader, /paint\.vertexColors = false/);
   assert.match(loader, /loader\.setMeshoptDecoder\(MeshoptDecoder\)/);
-  for (const id of ['hero', 'capabilities', 'painpoints', 'knowledge', 'techroute', 'research', 'scenarios', 'details', 'closing']) {
-    assert.match(`${page}\n${hero}\n${read('../src/pages/HomePage/sections/PainPointsSection.tsx')}\n${read('../src/components/KnowledgeCoverage.tsx')}\n${read('../src/pages/HomePage/sections/TechRouteSection.tsx')}\n${read('../src/pages/HomePage/sections/ResearchSection.tsx')}\n${read('../src/pages/HomePage/sections/ScenariosSection.tsx')}\n${read('../src/pages/HomePage/sections/ClosingSection.tsx')}`, new RegExp(`data-home-beat="${id}"`));
+  for (const id of ['hero', 'capabilities', 'painpoints', 'knowledge', 'techroute', 'scenarios', 'details', 'closing']) {
+    assert.match(`${page}\n${hero}\n${read('../src/pages/HomePage/sections/PainPointsSection.tsx')}\n${read('../src/components/KnowledgeCoverage.tsx')}\n${read('../src/pages/HomePage/sections/TechRouteSection.tsx')}\n\n${read('../src/pages/HomePage/sections/ScenariosSection.tsx')}\n${read('../src/pages/HomePage/sections/ClosingSection.tsx')}`, new RegExp(`data-home-beat="${id}"`));
   }
 });

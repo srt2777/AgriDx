@@ -8,7 +8,7 @@ test('展区跳转使用共享过渡名，减少动态时退回直接导航', ()
   assert.equal(sharedTransitionName('pavilion', 'knowledge'), 'pavilion-knowledge');
   assert.equal(sharedTransitionName('pavilion', 'diagnosis'), 'pavilion-diagnosis');
   assert.equal(sharedTransitionName('pavilion', 'models'), 'pavilion-models');
-  assert.equal(sharedTransitionName('pavilion', 'research'), null);
+  assert.equal(sharedTransitionName('pavilion'), null);
   assert.equal(sharedTransitionName('hall', 'A'), 'hall-knowledge');
   assert.equal(sharedTarget('pavilion-knowledge'), 'knowledge');
   assert.equal(sharedTarget('hall-knowledge'), 'knowledge');
@@ -19,7 +19,7 @@ test('展区跳转使用共享过渡名，减少动态时退回直接导航', ()
 });
 
 test('快速前往可按中英文筛选，状态条和 404 文案跟着语言走', () => {
-  assert.deepEqual(filterCommands('').map((item) => item.id), ['hub', 'knowledge', 'chat', 'models', 'research', 'history']);
+  assert.deepEqual(filterCommands('').map((item) => item.id), ['hub', 'knowledge', 'chat', 'models', 'history']);
   assert.equal(filterCommands('更新')[0]?.path, '/version-history');
   assert.equal(statusPlace('/version-history', 'zh'), '版本历史记录');
   assert.deepEqual(filterCommands('结构').map((item) => item.id), ['models']);
@@ -36,10 +36,9 @@ test('园区展区路径、过渡名和快速前往落在真实页面上', () =>
   assert.deepEqual(pavilionDestination('knowledge'), { path: '/knowledge', classicResearch: false });
   assert.deepEqual(pavilionDestination('diagnosis'), { path: '/chat', classicResearch: false });
   assert.deepEqual(pavilionDestination('models'), { path: '/models', classicResearch: false });
-  assert.deepEqual(pavilionDestination('research'), { path: '/research', classicResearch: false });
   for (const zone of WORLD_ZONES) {
     const destination = pavilionDestination(zone.id);
-    assert.equal(sharedTransitionName('pavilion', zone.id), zone.id === 'research' ? null : `pavilion-${zone.id}`);
+    assert.equal(sharedTransitionName('pavilion', zone.id), `pavilion-${zone.id}`);
     if (!destination.classicResearch) assert.notEqual(statusPlace(destination.path, 'zh'), '未找到');
   }
   assert.equal(COMMAND_ROUTES.length, 6);

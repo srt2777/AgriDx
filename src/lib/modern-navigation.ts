@@ -4,7 +4,6 @@ export const MODERN_DESTINATIONS = [
   { path: '/knowledge', zh: '农机知识', en: 'Knowledge' },
   { path: '/chat', zh: '智能诊断', en: 'Diagnosis' },
   { path: '/models', zh: '模型工坊', en: 'Model studio' },
-  { path: '/research', zh: '研究依据', en: 'Research' },
 ] as const;
 export interface ModernCrumb { path: string; zh: string; en: string }
 export function modernLocation(pathname: string): { sectionPath: string; breadcrumbs: ModernCrumb[] } {

@@ -1,6 +1,6 @@
 import { CAMPUS_EXHIBITS } from '../../features/campus-equipment/campus-layout';
 
-export type ZoneId = 'knowledge' | 'diagnosis' | 'models' | 'research';
+export type ZoneId = 'knowledge' | 'diagnosis' | 'models';
 export type DriveAction = 'forward' | 'backward' | 'left' | 'right' | 'brake';
 export type WorldMode = 'overview' | 'drive';
 
@@ -38,21 +38,11 @@ export const WORLD_ZONES = [
     arrival: [-4.1, 3.4],
     path: '/models',
   },
-  {
-    id: 'research',
-    number: '04',
-    zh: '研究依据',
-    en: 'Research',
-    color: '#d2dce9',
-    x: 7.5,
-    z: 5.6,
-    arrival: [4.1, 3.4],
-    path: '/research',
-  },
+
 ] as const;
 
 /** All pavilion destinations stay inside the modern workspace. */
-export function pavilionDestination(id: ZoneId): { path: '/knowledge' | '/chat' | '/models' | '/research'; classicResearch: false } {
+export function pavilionDestination(id: ZoneId): { path: '/knowledge' | '/chat' | '/models'; classicResearch: false } {
   const zone = WORLD_ZONES.find(item => item.id === id)!;
   return { path: zone.path, classicResearch: false };
 }
