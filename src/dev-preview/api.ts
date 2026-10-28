@@ -18,7 +18,7 @@ let ready = false;
 async function diagnose(request: DiagnosticRequest, memory?: { session: SessionDetail; priorReports: PriorDeviceReport[] }, signal?: AbortSignal): Promise<ChatResponse> {
   const status = await readPreviewAiStatus(signal);
   const service = createDiagnosticService(previewAiProvider(status, signal), { config: { logDecisions: false } });
-  const payload = await service(status.enabled ? request : { ...request, diagnosisMode: 'knowledge_only' }, memory);
+  const payload = await service(status.enabled ? request : { ...request, diagnosisMode: 'knowledge_only' }, memory, signal);
   signal?.throwIfAborted();
   if (!status.enabled && payload.diagnosticReply) {
     payload.diagnosticReply.understanding += '当前为仅本地检索的开发预览，本次没有调用外部 AI。';

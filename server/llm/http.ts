@@ -20,6 +20,10 @@ export async function fetchWithTimeout<T>(
   consumeResponse?: (response: Response) => Promise<T>,
 ): Promise<T | Response> {
   const controller = new AbortController();
+  const external = init.signal;
+  const cancel = () => controller.abort();
+  if (external?.aborted) cancel();
+  else external?.addEventListener('abort',cancel,{once:true});
   const timer = setTimeout(() => controller.abort(), timeoutMs);
   try {
     const response = await fetch(url, { ...init, signal: controller.signal });
@@ -27,11 +31,13 @@ export async function fetchWithTimeout<T>(
     return consumeResponse ? await consumeResponse(response) : response;
   } catch (err) {
     if (err instanceof Error && err.name === 'AbortError') {
+      if (external?.aborted) throw new Error('cancelled');
       throw new Error('timeout');
     }
     throw err;
   } finally {
     clearTimeout(timer);
+    external?.removeEventListener('abort',cancel);
   }
 }
 

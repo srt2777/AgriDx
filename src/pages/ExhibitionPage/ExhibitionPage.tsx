@@ -475,7 +475,7 @@ export default function ExhibitionPage() {
             </FloatingPanel>
           )}</AnimatePresence>
           <AnimatePresence initial={false}>{equipment && !catalogOpen && <FloatingPanel key={`equipment-${equipment.id}`} as="aside" className="expo-zone-card campus-equipment-detail" glass label={t('装备示例详情', 'Example equipment detail')}>
-            <div className="expo-zone-card-top"><span>{t('装备详情', 'Equipment details')}</span><button ref={equipmentClose} type="button" className="expo-icon-button" aria-label={t('关闭装备详情', 'Close equipment detail')} onClick={closeEquipment}><X size={16} /></button></div>
+            <div className="expo-zone-card-top"><span>{equipmentZone ? `${equipmentZone.id} · ${t(equipmentZone.zh, equipmentZone.en)}` : t('装备详情', 'Equipment details')}</span><button ref={equipmentClose} type="button" className="expo-icon-button" aria-label={t('关闭装备详情', 'Close equipment detail')} onClick={closeEquipment}><X size={16} /></button></div>
             <h2>{equipment.name}</h2><p>{t('示例数据 · 未接实车与传感器。陈列为结构示意，不是该型号的精确模型。', 'Example data · no physical machine or sensors. The exhibit is a schematic, not an exact model.')}</p>
             <dl><dt>{t('分类', 'Category')}</dt><dd>{equipmentZone && t(equipmentZone.zh, equipmentZone.en)}</dd><dt>{t('示例状态', 'Example status')}</dt><dd>{equipmentStatus && t(equipmentStatus.zh, equipmentStatus.en)}</dd><dt>{t('示例规格', 'Example specs')}</dt><dd>{t(equipment.specZh, equipment.specEn)}</dd><dt>{t('示例管理人', 'Example manager')}</dt><dd>{equipment.manager}</dd></dl>
             {exhibitForDevice(equipment.id)?.id !== equipment.id && <p>{t('本记录没有独立模型，镜头定位到同分类代表示意。', 'No dedicated model for this record; the camera shows a representative of its category.')}</p>}

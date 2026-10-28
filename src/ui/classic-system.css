@@ -67,7 +67,7 @@
 .fluid-workspace[data-ui-version='old'] .fluid-search { padding: 8px; gap: 8px; }
 .fluid-workspace[data-ui-version='old'] .fluid-sidebar-bottom { padding: 12px 4px 0; }
 .fluid-workspace[data-ui-version='old'] .fluid-breadcrumb { font-size: 14px !important; }
-.fluid-workspace[data-ui-version='old'] :where(.agri-liquid-glass, .glass-hero, .chat-glass, .catalog-state, .catalog-empty, .library-collections, .model-control-glass) { background: var(--radix-sage-1) !important; }
+.fluid-workspace[data-ui-version='old'] :where(.agri-liquid-glass, .chat-glass, .catalog-state, .catalog-empty, .library-collections, .model-control-glass) { background: var(--radix-sage-1) !important; }
 .fluid-workspace[data-ui-version='old'] :where(.evidence-entry, .research-paper, .catalog-browser, .fluid-machine-context, pre) { background: var(--radix-sage-2) !important; }
 .fluid-workspace[data-ui-version='old'] :where(input, textarea, select) { background: var(--radix-sage-1) !important; color: var(--radix-sage-12) !important; min-height: 40px; padding: 10px 12px; }
 .fluid-workspace[data-ui-version='old'] :where(input, textarea)::placeholder { color: var(--radix-sage-11) !important; opacity: 1; }
@@ -80,7 +80,7 @@
 .fluid-workspace[data-ui-version='old'] :where([class*='text-muted'], .section-eyebrow, .fluid-group summary, small, kbd) { color: var(--radix-sage-11) !important; }
 .fluid-workspace[data-ui-version='old'] :where([class*='text-destructive'], [role='alert']) { color: var(--radix-red-11) !important; }
 .fluid-workspace[data-ui-version='old'] :where(.catalog-gaps, .coverage-gap) { background: var(--radix-amber-3) !important; color: var(--radix-amber-12) !important; }
-.fluid-workspace[data-ui-version='old'] :where(.liquid-glass-shine, .liquid-glass-lens, .wheat-line, .wheat-divider, .knowledge-heading-icon, .knowledge-back, .knowledge-page-heading > div > p, .hero-evidence-note, .hero-affiliation, .hero-stage-note, .history-eyebrow) { display: none !important; }
+.fluid-workspace[data-ui-version='old'] :where(.liquid-glass-shine, .liquid-glass-lens, .wheat-line, .wheat-divider, .knowledge-heading-icon, .knowledge-back, .knowledge-page-heading > div > p, .hero-evidence-note, .hero-affiliation, .history-eyebrow) { display: none !important; }
 .fluid-workspace[data-ui-version='old'] .knowledge-page-heading { margin-block: 24px; }
 .fluid-workspace[data-ui-version='old'] .catalog-stats { padding-block: 16px; margin-bottom: 24px; }
 .fluid-workspace[data-ui-version='old'] .library-collections { display: flex; align-items: center; gap: 4px; border-radius: 8px !important; padding: 4px; background: var(--radix-sage-3) !important; }
@@ -92,8 +92,10 @@
 .fluid-workspace[data-ui-version='old'] .classic-disclosure > summary { min-height: 44px; display: flex; align-items: center; cursor: pointer; font-weight: 500; }
 .fluid-workspace[data-ui-version='old'] .classic-disclosure :where(h2, .section-eyebrow) { display: none; }
 .fluid-workspace[data-ui-version='old'] .catalog-boundaries { margin-top: 24px; padding-top: 0; }
-.fluid-workspace[data-ui-version='old'] :where(.home-immersive [data-home-side='start'] > :first-child, .home-immersive [data-home-side='end'] > :first-child, .home-immersive [data-home-side='center']) { border-radius: 0 !important; background: var(--radix-sage-1) !important; backdrop-filter: none !important; }
-.fluid-workspace[data-ui-version='old'] .home-immersive .glass-hero { min-height: calc(100svh - 64px); padding-block: 48px; }
+.fluid-workspace[data-ui-version='old'] :where(.home-immersive [data-home-side='start'] > :first-child, .home-immersive [data-home-side='end'] > :first-child) { border-radius: 12px !important; background: var(--radix-sage-2) !important; border: 0.5px solid var(--radix-sage-6) !important; backdrop-filter: none !important; }
+.fluid-workspace[data-ui-version='old'] .home-immersive [data-home-side='center'],
+.fluid-workspace[data-ui-version='old'] .home-immersive [data-home-side='center'] > :first-child { background: transparent !important; border: 0 !important; box-shadow: none !important; }
+.fluid-workspace[data-ui-version='old'] .home-immersive .glass-hero { min-height: calc(100svh - 64px); padding-block: 36px 28px; background: transparent !important; }
 .fluid-workspace[data-ui-version='old'] .glass-home .hero-title { line-height: 1.5 !important; }
 .fluid-workspace[data-ui-version='old'] :focus-visible { outline: 0.5px solid var(--radix-grass-8) !important; outline-offset: 3px; }
 .fluid-workspace[data-ui-version='old'] .fluid-drawer::backdrop { background: var(--radix-black-a-7); }

@@ -19,8 +19,8 @@ export function SiteStatusBar() {
         {lang === 'zh' ? '南京农业大学工学院 · 农机知识与诊断' : 'COLLEGE OF ENGINEERING, NAU · KNOWLEDGE & DIAGNOSIS'}
       </span>
       <span>
-        <Link to="/version-history" className="hover:underline">{lang === 'zh' ? '更新记录' : 'Version history'} · v{version}</Link> <i aria-hidden="true" />
-        {place}
+        <Link to="/version-history" className="hover:underline">{lang === 'zh' ? '更新记录' : 'Version history'} · v{version}</Link>
+        <span className="sr-only">{place}</span>
       </span>
     </footer>
   );
