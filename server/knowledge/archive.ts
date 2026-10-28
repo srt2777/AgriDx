@@ -20,6 +20,9 @@ export interface ArchiveEntry {
   brand: string;
   model: string;
   models?: string[];
+  /** Entry-specific, reviewed applicability. Never infer from titles or inherit a manual-wide code list. */
+  engine_model?: string;
+  fault_codes?: string[];
   configuration?: 'CAB' | 'ROPS';
   drive_configuration?: '2WD' | '4WD';
   title: string;
@@ -169,6 +172,15 @@ export function loadArchive(archiveRoot = ARCHIVE_ROOT, options: { configureMode
     if (entry.emission_stage !== undefined && !['国三', '国四'].includes(entry.emission_stage)) {
       throw new Error(`知识条目排放阶段无效：${entry.entry_id}`);
     }
+    if (entry.engine_model !== undefined && (typeof entry.engine_model !== 'string' || !entry.engine_model.trim() ||
+      entry.engine_model !== entry.engine_model.trim() || entry.engine_model.length > 120 || /[\r\n\0]/.test(entry.engine_model))) {
+      throw new Error(`知识条目发动机适配字段无效：${entry.entry_id}`);
+    }
+    if (entry.fault_codes !== undefined && (!Array.isArray(entry.fault_codes) || !entry.fault_codes.length || entry.fault_codes.length > 1000 ||
+      entry.fault_codes.some(code => typeof code !== 'string' || !code.trim() || code !== code.trim() || code.length > 120 || /[\r\n\0]/.test(code)) ||
+      new Set(entry.fault_codes).size !== entry.fault_codes.length)) {
+      throw new Error(`知识条目故障码适配字段无效：${entry.entry_id}`);
+    }
     const roleError = entryRoleSchemaError(entry);
     if (roleError) throw new Error(`知识条目角色/风险字段无效：${entry.entry_id}：${roleError}`);
     if (ids.has(entry.entry_id)) throw new Error(`知识条目编号重复：${entry.entry_id}`);
@@ -227,6 +239,8 @@ export function loadArchive(archiveRoot = ARCHIVE_ROOT, options: { configureMode
       model: entry.model,
       models: entry.models ? [...entry.models] : source.models ? [...source.models] : undefined,
       requiresExactModel: entry.models !== undefined,
+      ...(entry.engine_model !== undefined ? { engineModel: entry.engine_model } : {}),
+      ...(entry.fault_codes !== undefined ? { faultCodes: [...entry.fault_codes] } : {}),
       configuration: entry.configuration ?? source.configuration,
       driveConfiguration: entry.drive_configuration ?? source.drive_configuration,
       emissionStage: entry.emission_stage ?? source.emission_stage,

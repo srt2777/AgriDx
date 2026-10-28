@@ -62,3 +62,27 @@ test('reference review statuses preserve uncertainty and do not imply vehicle va
   assert.equal(referenceVerification('沿用既有原文核对条目'), 'unspecified');
   assert.equal(referenceVerification(), 'unspecified');
 });
+
+test('reviewed entry-specific engine/code metadata reaches strict retrieval without source-wide inheritance', async t => {
+  const f=fixture(t);
+  fs.writeFileSync(f.document,'## TEST-001｜测试章节\nSAMPLE：测试代码 P001、发动机 E1；不用于真实诊断。\n');
+  const reviewed=Object.assign({},f.entry,{model:'M1',engine_model:'E1',fault_codes:['P001']});
+  f.write([f.source],[reviewed]);
+  const {chunks}=loadArchive(f.root,{configureModels:false});
+  assert.equal(chunks[0].engineModel,'E1');assert.deepEqual(chunks[0].faultCodes,['P001']);
+  const {createStrictSearch}=await import('../agent/retrieval/strict');
+  const search=createStrictSearch(()=>[],()=>{},()=>chunks);
+  assert.equal(search({query:'P001',faultCode:'P001',machine:{brand:f.entry.brand,model:'M1',engineModel:'E1'}}).citations.length,1);
+  assert.equal(search({query:'P001',faultCode:'P001',machine:{brand:f.entry.brand,model:'M1',engineModel:'E2'}}).citations.length,0);
+  f.write([Object.assign({},f.source,{fault_codes:['P999'],engine_model:'E2'})],[f.entry]);
+  const plain=loadArchive(f.root,{configureModels:false}).chunks[0];
+  assert.equal(plain.faultCodes,undefined);assert.equal(plain.engineModel,undefined);
+});
+
+test('malformed optional engine/code metadata fails archive validation',t=>{
+  const f=fixture(t);
+  for(const metadata of [{engine_model:''},{engine_model:' E1'},{engine_model:123},{fault_codes:'P001'},{fault_codes:[]},{fault_codes:['P001','P001']},{fault_codes:['P001\nP002']}]){
+    f.write([f.source],[Object.assign({},f.entry,metadata)]);
+    assert.throws(()=>loadArchive(f.root),/发动机适配字段无效|故障码适配字段无效/);
+  }
+});
