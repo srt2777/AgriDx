@@ -784,6 +784,13 @@
       "base": "4.0.8",
       "version": "4.0.9",
       "date": "2026-10-28"
+    },
+    {
+      "id": "research-fault-tree-fuzzy-20261028",
+      "kind": "maintenance",
+      "base": "4.0.9",
+      "version": "4.0.10",
+      "date": "2026-10-28"
     }
   ]
 }
