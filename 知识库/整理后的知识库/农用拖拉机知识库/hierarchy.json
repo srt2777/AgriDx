@@ -49186,14 +49186,6 @@
         {
           "component_id": "transmission",
           "part_ids": []
-        },
-        {
-          "component_id": "steering",
-          "part_ids": []
-        },
-        {
-          "component_id": "chassis",
-          "part_ids": []
         }
       ]
     },
@@ -49285,10 +49277,6 @@
       "components": [
         {
           "component_id": "hydraulics",
-          "part_ids": []
-        },
-        {
-          "component_id": "brakes",
           "part_ids": []
         },
         {
@@ -49385,10 +49373,6 @@
       "entry_id": "KB-YTO-EBUY-WFAQ-043",
       "components": [
         {
-          "component_id": "cooling",
-          "part_ids": []
-        },
-        {
           "component_id": "chassis",
           "part_ids": []
         }
@@ -49398,19 +49382,7 @@
       "entry_id": "KB-YTO-EBUY-WFAQ-044",
       "components": [
         {
-          "component_id": "brakes",
-          "part_ids": []
-        },
-        {
-          "component_id": "cooling",
-          "part_ids": []
-        },
-        {
-          "component_id": "electrical",
-          "part_ids": []
-        },
-        {
-          "component_id": "engine",
+          "component_id": "fuel",
           "part_ids": []
         }
       ]
@@ -49473,22 +49445,13 @@
       "entry_id": "KB-YTO-EBUY-WFAQ-051",
       "components": [
         {
-          "component_id": "fuel",
-          "part_ids": []
-        }
-      ]
-    },
-    {
-      "entry_id": "KB-YTO-EBUY-WFAQ-052",
-      "components": [
-        {
           "component_id": "engine",
           "part_ids": []
         }
       ]
     },
     {
-      "entry_id": "KB-YTO-EBUY-WFAQ-053",
+      "entry_id": "KB-YTO-EBUY-WFAQ-052",
       "components": [
         {
           "component_id": "electrical",
@@ -49505,64 +49468,10 @@
       ]
     },
     {
-      "entry_id": "KB-YTO-EBUY-WFAQ-054",
+      "entry_id": "KB-YTO-EBUY-WFAQ-053",
       "components": [
         {
-          "component_id": "hydraulics",
-          "part_ids": []
-        },
-        {
-          "component_id": "transmission",
-          "part_ids": []
-        },
-        {
-          "component_id": "steering",
-          "part_ids": []
-        },
-        {
-          "component_id": "lubrication",
-          "part_ids": []
-        }
-      ]
-    },
-    {
-      "entry_id": "KB-YTO-EBUY-WFAQ-055",
-      "components": [
-        {
-          "component_id": "hydraulics",
-          "part_ids": []
-        },
-        {
-          "component_id": "transmission",
-          "part_ids": []
-        },
-        {
-          "component_id": "steering",
-          "part_ids": []
-        },
-        {
-          "component_id": "lubrication",
-          "part_ids": []
-        }
-      ]
-    },
-    {
-      "entry_id": "KB-YTO-EBUY-WFAQ-056",
-      "components": [
-        {
-          "component_id": "hydraulics",
-          "part_ids": []
-        },
-        {
-          "component_id": "transmission",
-          "part_ids": []
-        },
-        {
-          "component_id": "steering",
-          "part_ids": []
-        },
-        {
-          "component_id": "lubrication",
+          "component_id": "machine",
           "part_ids": []
         }
       ]
@@ -54112,24 +54021,6 @@
       ]
     },
     {
-      "entry_id": "KB-YTO-EBUY-WUSE-018",
-      "components": [
-        {
-          "component_id": "machine",
-          "part_ids": []
-        }
-      ]
-    },
-    {
-      "entry_id": "KB-YTO-EBUY-WUSE-019",
-      "components": [
-        {
-          "component_id": "machine",
-          "part_ids": []
-        }
-      ]
-    },
-    {
       "entry_id": "KB-YTO-EBUY-CUSE-001",
       "components": [
         {
@@ -54185,24 +54076,6 @@
     },
     {
       "entry_id": "KB-YTO-EBUY-CUSE-007",
-      "components": [
-        {
-          "component_id": "machine",
-          "part_ids": []
-        }
-      ]
-    },
-    {
-      "entry_id": "KB-YTO-EBUY-CUSE-008",
-      "components": [
-        {
-          "component_id": "machine",
-          "part_ids": []
-        }
-      ]
-    },
-    {
-      "entry_id": "KB-YTO-EBUY-CUSE-009",
       "components": [
         {
           "component_id": "machine",
@@ -54517,24 +54390,6 @@
       ]
     },
     {
-      "entry_id": "KB-YTO-EBUY-LDOM-027",
-      "components": [
-        {
-          "component_id": "pto",
-          "part_ids": []
-        }
-      ]
-    },
-    {
-      "entry_id": "KB-YTO-EBUY-LDOM-028",
-      "components": [
-        {
-          "component_id": "pto",
-          "part_ids": []
-        }
-      ]
-    },
-    {
       "entry_id": "KB-YTO-EBUY-MEOM-001",
       "components": [
         {
@@ -54715,11 +54570,7 @@
       "entry_id": "KB-YTO-EBUY-MEOM-014",
       "components": [
         {
-          "component_id": "electrical",
-          "part_ids": []
-        },
-        {
-          "component_id": "engine",
+          "component_id": "steering",
           "part_ids": []
         }
       ]
@@ -54728,7 +54579,7 @@
       "entry_id": "KB-YTO-EBUY-MEOM-015",
       "components": [
         {
-          "component_id": "steering",
+          "component_id": "electrical",
           "part_ids": []
         }
       ]
@@ -54744,49 +54595,6 @@
     },
     {
       "entry_id": "KB-YTO-EBUY-MEOM-017",
-      "components": [
-        {
-          "component_id": "electrical",
-          "part_ids": []
-        }
-      ]
-    },
-    {
-      "entry_id": "KB-YTO-EBUY-MEOM-018",
-      "components": [
-        {
-          "component_id": "electrical",
-          "part_ids": []
-        },
-        {
-          "component_id": "fuel",
-          "part_ids": []
-        },
-        {
-          "component_id": "engine",
-          "part_ids": []
-        }
-      ]
-    },
-    {
-      "entry_id": "KB-YTO-EBUY-MEOM-019",
-      "components": [
-        {
-          "component_id": "electrical",
-          "part_ids": []
-        },
-        {
-          "component_id": "fuel",
-          "part_ids": []
-        },
-        {
-          "component_id": "engine",
-          "part_ids": []
-        }
-      ]
-    },
-    {
-      "entry_id": "KB-YTO-EBUY-MEOM-020",
       "components": [
         {
           "component_id": "electrical",
@@ -54986,45 +54794,6 @@
         },
         {
           "component_id": "electrical",
-          "part_ids": []
-        }
-      ]
-    },
-    {
-      "entry_id": "KB-YTO-EBUY-MFOM-017",
-      "components": [
-        {
-          "component_id": "electrical",
-          "part_ids": []
-        },
-        {
-          "component_id": "engine",
-          "part_ids": []
-        }
-      ]
-    },
-    {
-      "entry_id": "KB-YTO-EBUY-MFOM-018",
-      "components": [
-        {
-          "component_id": "electrical",
-          "part_ids": []
-        },
-        {
-          "component_id": "engine",
-          "part_ids": []
-        }
-      ]
-    },
-    {
-      "entry_id": "KB-YTO-EBUY-MFOM-019",
-      "components": [
-        {
-          "component_id": "electrical",
-          "part_ids": []
-        },
-        {
-          "component_id": "engine",
           "part_ids": []
         }
       ]
@@ -56151,32 +55920,6 @@
       ]
     },
     {
-      "entry_id": "KB-YTO-EBUY-LFCOM-034",
-      "components": [
-        {
-          "component_id": "electrical",
-          "part_ids": []
-        },
-        {
-          "component_id": "engine",
-          "part_ids": []
-        }
-      ]
-    },
-    {
-      "entry_id": "KB-YTO-EBUY-LFCOM-035",
-      "components": [
-        {
-          "component_id": "electrical",
-          "part_ids": []
-        },
-        {
-          "component_id": "engine",
-          "part_ids": []
-        }
-      ]
-    },
-    {
       "entry_id": "KB-YTO-EBUY-LFCMT-001",
       "components": [
         {
@@ -57011,24 +56754,6 @@
       ]
     },
     {
-      "entry_id": "KB-YTO-EBUY-L12MT-025",
-      "components": [
-        {
-          "component_id": "lubrication",
-          "part_ids": []
-        }
-      ]
-    },
-    {
-      "entry_id": "KB-YTO-EBUY-L12MT-026",
-      "components": [
-        {
-          "component_id": "lubrication",
-          "part_ids": []
-        }
-      ]
-    },
-    {
       "entry_id": "KB-YTO-EBUY-LGOM-001",
       "components": [
         {
@@ -57345,24 +57070,6 @@
     },
     {
       "entry_id": "KB-YTO-EBUY-LGOM-028",
-      "components": [
-        {
-          "component_id": "pto",
-          "part_ids": []
-        }
-      ]
-    },
-    {
-      "entry_id": "KB-YTO-EBUY-LGOM-029",
-      "components": [
-        {
-          "component_id": "pto",
-          "part_ids": []
-        }
-      ]
-    },
-    {
-      "entry_id": "KB-YTO-EBUY-LGOM-030",
       "components": [
         {
           "component_id": "pto",
@@ -57694,15 +57401,6 @@
       ]
     },
     {
-      "entry_id": "KB-YTO-EBUY-LGMT-028",
-      "components": [
-        {
-          "component_id": "lubrication",
-          "part_ids": []
-        }
-      ]
-    },
-    {
       "entry_id": "KB-YTO-EBUY-LGAD-001",
       "components": [
         {
@@ -57931,24 +57629,6 @@
     },
     {
       "entry_id": "KB-YTO-EBUY-LGAD-024",
-      "components": [
-        {
-          "component_id": "chassis",
-          "part_ids": []
-        }
-      ]
-    },
-    {
-      "entry_id": "KB-YTO-EBUY-LGAD-025",
-      "components": [
-        {
-          "component_id": "chassis",
-          "part_ids": []
-        }
-      ]
-    },
-    {
-      "entry_id": "KB-YTO-EBUY-LGAD-026",
       "components": [
         {
           "component_id": "chassis",
@@ -58531,19 +58211,6 @@
     },
     {
       "entry_id": "KB-YTO-EBUY-LXOM-025",
-      "components": [
-        {
-          "component_id": "electrical",
-          "part_ids": []
-        },
-        {
-          "component_id": "pto",
-          "part_ids": []
-        }
-      ]
-    },
-    {
-      "entry_id": "KB-YTO-EBUY-LXOM-026",
       "components": [
         {
           "component_id": "electrical",

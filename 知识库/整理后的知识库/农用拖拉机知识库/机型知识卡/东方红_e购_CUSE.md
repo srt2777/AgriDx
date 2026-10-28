@@ -55,25 +55,9 @@
 - 证据：SRC-YTO-EBUY-CUSE；栏目：第四节 三号技术保养
 - 状态：已对照网页正文；未厂家复核；未实车验证；未全书审校。
 
-## KB-YTO-EBUY-CUSE-007｜第五节 四号技术保养（1）
+## KB-YTO-EBUY-CUSE-007｜第五节 四号技术保养
 
-- 手册事实：第五节 四号技术保养。网页列出：四号技术保养在拖拉机每工作1400~1500h后进行，除完成班次技术保养、一号技术保养、二号技术保养、三号技术保养外，增加以下项目： 5.1 柴油机全面拆检（应在室内进行） 5.1.1 检查气门、气门座、气门导管、气门弹簧、推杆、摇臂、挺柱等零件的磨损情况，必要时进行修理或更换。 5.1.2 清除油污、积碳、结焦、水垢等。 5.1.3检查活塞连杆组件（活塞环、连杆小头及衬套、连杆瓦及气缸套）的磨损情况，必要时进行更换。 5.1.4 检查喷油器工作情况，必要时更换喷油嘴偶件。 5.1.5 检查机油泵、水泵工作情况，必要时更换相应零件。 5.1.6 喷油泵应上试验台检验调整，必要时更换相应零件。 5.1.7 检查发动机和启动电动机，清洗轴承和其他零件，更换润滑脂，必要时更换零件。 5.1.8 检查电器系统各连接处是否牢固，各仪表工作是否正常。 5.1.9 柴油机拆检、修理后重新装配。新装好的柴油机安装到拖拉机前应进行启动试运转，当确认无异常现象后再装到拖拉机上。 5.2 拖拉机全面拆检 5.2.1 清洗整机。 5.2.2 清洗水箱，除去水垢。 5.2.3 清洗液压油箱，换加新油。 5.2.4 清洗柴油箱。 5.2.5 更换各部位的润滑油、润滑脂。 5.2.6 清洗离合器的摩擦片、转向离合器摩擦片、制动带。 5.2.7 检查变速箱、中央传动、最终传动、动力输出传动齿轮、轴承、油封等，必要时更换。 5.2.8 检查行走系各部件轴承及密封零件，必要时更换。 注：上述内容为东方红-1002/1202系列履带拖拉机的技术保养，其他机型与其类似。 /*.jy_talk_icon{position:fixed; right:0; top:280px; z-index:99; width:20px; padding:12px; font-size:18px; background-color:#e63c47; color:#fff;} .jy_talk_icon a{color:#fff;}*/ .ershou_ad,.zt_ad{display:none;}
-- 适用限制：仅本页写明的履带拖拉机。页面未给出手册编号、版次、排放和发动机铭牌，不外推到未点名机型。随车发动机说明书与本页不是同一份资料。
-- 整理边界：按网页文字概述，不补图表中的未读数值。油品、容量、扭矩和周期只保留本段原文，不外推。
-- 证据：SRC-YTO-EBUY-CUSE；栏目：第五节 四号技术保养
-- 状态：已对照网页正文；未厂家复核；未实车验证；未全书审校。
-
-## KB-YTO-EBUY-CUSE-008｜第五节 四号技术保养（2）
-
-- 手册事实：第五节 四号技术保养。网页列出：.service-flow > div{width:60px; position:fixed; right:0; top:240px; transition:width .2s; -webkit-transition:width .2s; z-index:99;box-shadow:-1px 0 10px rgba(0,0,0,0.2) inset;-moz-box-shadow:-1px 0 10px rgba(0,0,0,0.2) inset; -webkit-box-shadow:-1px 0 10px rgba(0,0,0,0.2) inset; -ms-box-shadow:-1px 0 10px rgba(0,0,0,0.2) inset; height:60px; color: #fff;background-color:#e63c47;font-size:16px; overflow:hidden;} .service-flow > div:hover{width:144px;} .service-flow > div{height:60px; transition:height .6s; -webkit-transition:height .6s; display:block; text-align:center;} .service-flow >div img{vertical-align:top; margin-top:6px;} .service-flow:hover > div{height:60px;} .service-flow div span{opacity:0; color:#fff; font-size:20px; height:60px; line-height:60px;} .service-flow .menu_jy:hover span{opacity:1; color:#fff; transition:color 1.5s; -webkit-transition:color 1.5s;}
-- 适用限制：仅本页写明的履带拖拉机。页面未给出手册编号、版次、排放和发动机铭牌，不外推到未点名机型。随车发动机说明书与本页不是同一份资料。
-- 整理边界：按网页文字概述，不补图表中的未读数值。油品、容量、扭矩和周期只保留本段原文，不外推。
-- 证据：SRC-YTO-EBUY-CUSE；栏目：第五节 四号技术保养
-- 状态：已对照网页正文；未厂家复核；未实车验证；未全书审校。
-
-## KB-YTO-EBUY-CUSE-009｜第五节 四号技术保养（3）
-
-- 手册事实：第五节 四号技术保养。网页列出：.service-flow .menu_es:hover span{opacity:1; color:#fff; transition:color 1.5s; -webkit-transition:color 1.5s;} .service-flow a{color:#fff; display:block;} .service-flow a i{font-style:normal; width:60px; height:60px;} .service-flow > div i em{text-align:center; font-style:normal; display:block;} .service-flow .menu_jy:hover em,.service-flow .menu_es:hover em{display:none;} .service-flow >div:hover img{margin:16px 8px 0 0;} 建议有奖 二手转让--> 建议建议有奖 二手二手转让 O2O模式线上选购 线下交付 特色服务金融支持 保险保障 品类齐全产品丰富 轻松购机 正品保障品牌精选 贴心服务 移动商城 新手指南 注册流程 购机流程 支付帮助 特色服务 贷款产品 保险产品 解决方案 购机保障
+- 手册事实：第五节 四号技术保养。网页列出：四号技术保养在拖拉机每工作1400~1500h后进行，除完成班次技术保养、一号技术保养、二号技术保养、三号技术保养外，增加以下项目： 5.1 柴油机全面拆检（应在室内进行） 5.1.1 检查气门、气门座、气门导管、气门弹簧、推杆、摇臂、挺柱等零件的磨损情况，必要时进行修理或更换。 5.1.2 清除油污、积碳、结焦、水垢等。 5.1.3检查活塞连杆组件（活塞环、连杆小头及衬套、连杆瓦及气缸套）的磨损情况，必要时进行更换。 5.1.4 检查喷油器工作情况，必要时更换喷油嘴偶件。 5.1.5 检查机油泵、水泵工作情况，必要时更换相应零件。 5.1.6 喷油泵应上试验台检验调整，必要时更换相应零件。 5.1.7 检查发动机和启动电动机，清洗轴承和其他零件，更换润滑脂，必要时更换零件。 5.1.8 检查电器系统各连接处是否牢固，各仪表工作是否正常。 5.1.9 柴油机拆检、修理后重新装配。新装好的柴油机安装到拖拉机前应进行启动试运转，当确认无异常现象后再装到拖拉机上。 5.2 拖拉机全面拆检 5.2.1 清洗整机。 5.2.2 清洗水箱，除去水垢。 5.2.3 清洗液压油箱，换加新油。 5.2.4 清洗柴油箱。 5.2.5 更换各部位的润滑油、润滑脂。 5.2.6 清洗离合器的摩擦片、转向离合器摩擦片、制动带。 5.2.7 检查变速箱、中央传动、最终传动、动力输出传动齿轮、轴承、油封等，必要时更换。 5.2.8 检查行走系各部件轴承及密封零件，必要时更换。 注：上述内容为东方红-1002/1202系列履带拖拉机的技术保养，其他机型与其类似。
 - 适用限制：仅本页写明的履带拖拉机。页面未给出手册编号、版次、排放和发动机铭牌，不外推到未点名机型。随车发动机说明书与本页不是同一份资料。
 - 整理边界：按网页文字概述，不补图表中的未读数值。油品、容量、扭矩和周期只保留本段原文，不外推。
 - 证据：SRC-YTO-EBUY-CUSE；栏目：第五节 四号技术保养

@@ -191,25 +191,9 @@
 - 证据：SRC-YTO-EBUY-LGAD；栏目：第七节 前束与转向限位
 - 状态：已对照网页正文；未厂家复核；未实车验证；未全书审校。
 
-## KB-YTO-EBUY-LGAD-024｜二、后轮轮距的调整（1）
+## KB-YTO-EBUY-LGAD-024｜二、后轮轮距的调整
 
-- 手册事实：二、后轮轮距的调整。网页列出：东方红LG1404/LG1504/LG1604拖拉机的后轮安装18.4-38规格的轮胎，后轮轮距的调整有两种方法，首先通过移动轮毂与驱动轮轴的相对位置，轮距可在0~120mm范围内增加无级调整，调整方法如下：在图6-28中，首先松开螺栓A，然后拧入螺钉B，使螺钉B顶动轴瓦，使轴瓦松动，然后把撬杠从轴瓦的间隙插入，移动轮毂到合适位置来起到无级调整的作用。 其次通过调整辐板和轮辋的不同连接位置可以获得七种基础轮距：1620，1720，1824，1924，2024，2128，2228(指该种位置的可调的最小轮距)。图6-29示。 东方红LG1404/LG1504/LG1604拖拉机有七种轮距调整范围：1620~1740，1720~1840，1824~1944，1924~2044，2024~2144，2128~2248，2228~2348，出厂轮距调整范围：1720~1840。 调整轮距时，一定要使轮胎侧面上所示箭头指向拖拉机前进方向，始终保证2个前轮 及后轮对称于拖拉机的中心线。调整时，先选择最合适的后轮距，再选择前轮距。 /*.jy_talk_icon{position:fixed; right:0; top:280px; z-index:99; width:20px; padding:12px; font-size:18px; background-color:#e63c47; color:#fff;} .jy_talk_icon a{color:#fff;}*/ .ershou_ad,.zt_ad{display:none;}
-- 适用限制：仅本页写明的LG1404、LG1504、LG1604。页面未给出手册编号、版次、排放和发动机铭牌，不外推到未点名机型。随车发动机说明书与本页不是同一份资料。
-- 整理边界：按网页文字概述，不补图表中的未读数值。油品、容量、扭矩和周期只保留本段原文，不外推。
-- 证据：SRC-YTO-EBUY-LGAD；栏目：二、后轮轮距的调整
-- 状态：已对照网页正文；未厂家复核；未实车验证；未全书审校。
-
-## KB-YTO-EBUY-LGAD-025｜二、后轮轮距的调整（2）
-
-- 手册事实：二、后轮轮距的调整。网页列出：.service-flow > div{width:60px; position:fixed; right:0; top:240px; transition:width .2s; -webkit-transition:width .2s; z-index:99;box-shadow:-1px 0 10px rgba(0,0,0,0.2) inset;-moz-box-shadow:-1px 0 10px rgba(0,0,0,0.2) inset; -webkit-box-shadow:-1px 0 10px rgba(0,0,0,0.2) inset; -ms-box-shadow:-1px 0 10px rgba(0,0,0,0.2) inset; height:60px; color: #fff;background-color:#e63c47;font-size:16px; overflow:hidden;} .service-flow > div:hover{width:144px;} .service-flow > div{height:60px; transition:height .6s; -webkit-transition:height .6s; display:block; text-align:center;} .service-flow >div img{vertical-align:top; margin-top:6px;} .service-flow:hover > div{height:60px;} .service-flow div span{opacity:0; color:#fff; font-size:20px; height:60px; line-height:60px;} .service-flow .menu_jy:hover span{opacity:1; color:#fff; transition:color 1.5s; -webkit-transition:color 1.5s;}
-- 适用限制：仅本页写明的LG1404、LG1504、LG1604。页面未给出手册编号、版次、排放和发动机铭牌，不外推到未点名机型。随车发动机说明书与本页不是同一份资料。
-- 整理边界：按网页文字概述，不补图表中的未读数值。油品、容量、扭矩和周期只保留本段原文，不外推。
-- 证据：SRC-YTO-EBUY-LGAD；栏目：二、后轮轮距的调整
-- 状态：已对照网页正文；未厂家复核；未实车验证；未全书审校。
-
-## KB-YTO-EBUY-LGAD-026｜二、后轮轮距的调整（3）
-
-- 手册事实：二、后轮轮距的调整。网页列出：.service-flow .menu_es:hover span{opacity:1; color:#fff; transition:color 1.5s; -webkit-transition:color 1.5s;} .service-flow a{color:#fff; display:block;} .service-flow a i{font-style:normal; width:60px; height:60px;} .service-flow > div i em{text-align:center; font-style:normal; display:block;} .service-flow .menu_jy:hover em,.service-flow .menu_es:hover em{display:none;} .service-flow >div:hover img{margin:16px 8px 0 0;} 建议有奖 二手转让--> 建议建议有奖 二手二手转让 O2O模式线上选购 线下交付 特色服务金融支持 保险保障 品类齐全产品丰富 轻松购机 正品保障品牌精选 贴心服务 移动商城 新手指南 注册流程 购机流程 支付帮助 特色服务 贷款产品 保险产品 解决方案 购机保障
+- 手册事实：二、后轮轮距的调整。网页列出：东方红LG1404/LG1504/LG1604拖拉机的后轮安装18.4-38规格的轮胎，后轮轮距的调整有两种方法，首先通过移动轮毂与驱动轮轴的相对位置，轮距可在0~120mm范围内增加无级调整，调整方法如下：在图6-28中，首先松开螺栓A，然后拧入螺钉B，使螺钉B顶动轴瓦，使轴瓦松动，然后把撬杠从轴瓦的间隙插入，移动轮毂到合适位置来起到无级调整的作用。 其次通过调整辐板和轮辋的不同连接位置可以获得七种基础轮距：1620，1720，1824，1924，2024，2128，2228(指该种位置的可调的最小轮距)。图6-29示。 东方红LG1404/LG1504/LG1604拖拉机有七种轮距调整范围：1620~1740，1720~1840，1824~1944，1924~2044，2024~2144，2128~2248，2228~2348，出厂轮距调整范围：1720~1840。 调整轮距时，一定要使轮胎侧面上所示箭头指向拖拉机前进方向，始终保证2个前轮 及后轮对称于拖拉机的中心线。调整时，先选择最合适的后轮距，再选择前轮距。
 - 适用限制：仅本页写明的LG1404、LG1504、LG1604。页面未给出手册编号、版次、排放和发动机铭牌，不外推到未点名机型。随车发动机说明书与本页不是同一份资料。
 - 整理边界：按网页文字概述，不补图表中的未读数值。油品、容量、扭矩和周期只保留本段原文，不外推。
 - 证据：SRC-YTO-EBUY-LGAD；栏目：二、后轮轮距的调整

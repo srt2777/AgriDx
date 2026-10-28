@@ -87,7 +87,7 @@
 - 证据：SRC-YTO-EBUY-LGMT；栏目：一、拖拉机的维护保养
 - 状态：已对照网页正文；未厂家复核；未实车验证；未全书审校。
 
-## KB-YTO-EBUY-LGMT-011｜注意：1.本拖拉机传动、液压、转向系统用油使用的是…
+## KB-YTO-EBUY-LGMT-011｜注意：1.本拖拉机传动、液压、转向系统用油使用的是
 
 - 手册事实：注意：。网页列出：1.本拖拉机传动、液压、转向系统用油使用的是由一拖公司和美国雪佛龙公司(Chevron) 联合开发的东方红YTDH大中轮拖专用多功能液压传动油。 2、拖拉机首次工作60小时后,用户需趁热放出变速箱、后桥、最终传动、分动箱的东方红 YTDH 大中轮拖专用多功能液压传动油,清理放油螺塞,更换液压系统滤芯，将液压传动油透析、过滤后,重新加入;工作240小时后，再次将液压传动油放出透析、过滤，并更换液压系统滤芯。如果油量不足时必须补加东方红YTDH大中轮拖专用多功能液压传动油。 3、拖拉机工作满500小时时,更换为新的东方红YTDH大中轮拖专用多功能液压传动油。以后每工作1500小时,更换一次东方红YTDH大中轮拖专用多功能液压传动油,禁止混用其它品牌的润滑油。
 - 适用限制：仅本页写明的LG1404、LG1504、LG1604。页面未给出手册编号、版次、排放和发动机铭牌，不外推到未点名机型。随车发动机说明书与本页不是同一份资料。
@@ -216,17 +216,9 @@
 - 证据：SRC-YTO-EBUY-LGMT；栏目：─── 露天存放时打蜡保护
 - 状态：已对照网页正文；未厂家复核；未实车验证；未全书审校。
 
-## KB-YTO-EBUY-LGMT-027｜─── 铰链、门锁及窗户要涂防水润滑剂（1）
+## KB-YTO-EBUY-LGMT-027｜─── 铰链、门锁及窗户要涂防水润滑剂
 
-- 手册事实：─── 铰链、门锁及窗户要涂防水润滑剂。网页列出：─── 用适当的清洗剂擦洗窗户，必要的地方用专用洗涤剂擦洗 ─── 取下刮水器刮片，在其上面涂滑石粉 ─── 门和侧窗可以半开 24.驱动轮轴轴承的保养 在A点(见图5-16)加注润滑脂。拖拉机左右两侧共两处加注点。 /*.jy_talk_icon{position:fixed; right:0; top:280px; z-index:99; width:20px; padding:12px; font-size:18px; background-color:#e63c47; color:#fff;} .jy_talk_icon a{color:#fff;}*/ .ershou_ad,.zt_ad{display:none;} .service-flow > div{width:60px; position:fixed; right:0; top:240px; transition:width .2s; -webkit-transition:width .2s; z-index:99;box-shadow:-1px 0 10px rgba(0,0,0,0.2) inset;-moz-box-shadow:-1px 0 10px rgba(0,0,0,0.2) inset; -webkit-box-shadow:-1px 0 10px rgba(0,0,0,0.2) inset; -ms-box-shadow:-1px 0 10px rgba(0,0,0,0.2) inset; height:60px; color: #fff;background-color:#e63c47;font-size:16px; overflow:hidden;} .service-flow > div:hover{width:144px;} .service-flow > div{height:60px; transition:height .6s; -webkit-transition:height .6s; display:block; text-align:center;} .service-flow >div img{vertical-align:top; margin-top:6px;}
-- 适用限制：仅本页写明的LG1404、LG1504、LG1604。页面未给出手册编号、版次、排放和发动机铭牌，不外推到未点名机型。随车发动机说明书与本页不是同一份资料。
-- 整理边界：按网页文字概述，不补图表中的未读数值。油品、容量、扭矩和周期只保留本段原文，不外推。
-- 证据：SRC-YTO-EBUY-LGMT；栏目：─── 铰链、门锁及窗户要涂防水润滑剂
-- 状态：已对照网页正文；未厂家复核；未实车验证；未全书审校。
-
-## KB-YTO-EBUY-LGMT-028｜─── 铰链、门锁及窗户要涂防水润滑剂（2）
-
-- 手册事实：─── 铰链、门锁及窗户要涂防水润滑剂。网页列出：.service-flow:hover > div{height:60px;} .service-flow div span{opacity:0; color:#fff; font-size:20px; height:60px; line-height:60px;} .service-flow .menu_jy:hover span{opacity:1; color:#fff; transition:color 1.5s; -webkit-transition:color 1.5s;} .service-flow .menu_es:hover span{opacity:1; color:#fff; transition:color 1.5s; -webkit-transition:color 1.5s;} .service-flow a{color:#fff; display:block;} .service-flow a i{font-style:normal; width:60px; height:60px;} .service-flow > div i em{text-align:center; font-style:normal; display:block;} .service-flow .menu_jy:hover em,.service-flow .menu_es:hover em{display:none;} .service-flow >div:hover img{margin:16px 8px 0 0;} 建议有奖 二手转让--> 建议建议有奖 二手二手转让 O2O模式线上选购 线下交付 特色服务金融支持 保险保障 品类齐全产品丰富 轻松购机 正品保障品牌精选 贴心服务 移动商城 新手指南 注册流程 购机流程 支付帮助 特色服务 贷款产品 保险产品 解决方案 购机保障
+- 手册事实：─── 铰链、门锁及窗户要涂防水润滑剂。网页列出：─── 用适当的清洗剂擦洗窗户，必要的地方用专用洗涤剂擦洗 ─── 取下刮水器刮片，在其上面涂滑石粉 ─── 门和侧窗可以半开 24.驱动轮轴轴承的保养 在A点(见图5-16)加注润滑脂。拖拉机左右两侧共两处加注点。
 - 适用限制：仅本页写明的LG1404、LG1504、LG1604。页面未给出手册编号、版次、排放和发动机铭牌，不外推到未点名机型。随车发动机说明书与本页不是同一份资料。
 - 整理边界：按网页文字概述，不补图表中的未读数值。油品、容量、扭矩和周期只保留本段原文，不外推。
 - 证据：SRC-YTO-EBUY-LGMT；栏目：─── 铰链、门锁及窗户要涂防水润滑剂

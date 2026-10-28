@@ -184,9 +184,13 @@ def safe_title(title):
     return title.replace('电动机', '起动机').replace('无人力', '没有人力')
 
 
-def shorten(text, limit=80):
-    text = re.sub(r'\s+', ' ', text).strip(' ：:。')
-    return text if len(text) <= limit else text[:limit].rstrip() + '…'
+def shorten(text, limit=22):
+    """标题只用正文里已经出现的前半句，不写入省略号。"""
+    text = re.sub(r'\s+', ' ', text).strip(' ：:。…')
+    clause = re.split(r'[，。；！？]', text)[0].strip(' ：:。…')
+    if not clause:
+        clause = text
+    return clause[:limit].rstrip(' ：:。…')
 
 
 def scope_text(page, models):
@@ -222,8 +226,9 @@ def fit_faults(symptom, causes, actions, page, models, locator, note):
     while chunks:
         cause_part, action_part = chunks.pop(0)
         body = build_fault_body(symptom, cause_part, action_part, page, models, locator, note)
+        label = shorten(symptom) or '故障条目'
         if utf16_len(body) <= BODY_LIMIT:
-            bodies.append((symptom if not bodies else f'{symptom}（续）', body, cause_part, action_part))
+            bodies.append((label if not bodies else f'{label}（续）', body, cause_part, action_part))
             continue
         if len(cause_part) <= 1 and len(action_part) <= 1:
             cause_bits = re.split(r'(?<=。)', cause_part[0][1]) if cause_part else ['']
@@ -263,6 +268,8 @@ def add_entry(bucket, page, page_norm, *, title, body, entry_type, models, locat
     title = safe_title(re.sub(r'\s+', ' ', title).strip())
     if re.search(r'6M3|6A3|6K|SC7|SC9', title) and '严禁使用普通柴油机机油代替' in body:
         title = '严禁使用普通柴油机机油代替'
+    if 'service-flow' in body or '{height:' in body:
+        return 'chrome'
     if utf16_len(body) > BODY_LIMIT:
         return 'oversize'
     quote = quote_for(page_norm, quote_source, title)
@@ -325,6 +332,8 @@ def parse_faq(page, paragraphs, page_norm, bucket):
         block = [paragraph]
         index += 1
         while index < len(paragraphs) and not re.match(r'^\d+\s*[、.．]\s*', paragraphs[index]):
+            if re.match(r'^[一二三四五六七八九十]+、', paragraphs[index]):
+                break
             scope_next = faq_scope(paragraphs[index], scope)
             if scope_next != scope and len(paragraphs[index]) <= 48:
                 break
@@ -349,7 +358,7 @@ def parse_faq(page, paragraphs, page_norm, bucket):
         if len(causes) != len(actions) and causes and actions:
             note += '原因与排除的编号数量不一致，缺号不补。'
         locator = f"网页第{numbered.group(1)}问；型号范围{'/'.join(models)}"
-        bodies = fit_faults(shorten(symptom, 36), causes, actions, page, models, locator, note)
+        bodies = fit_faults(symptom, causes, actions, page, models, locator, note)
         for title, body, _, _ in bodies:
             add_entry(bucket, page, page_norm, title=title, body=body, entry_type='维护/故障知识',
                       models=models, locator=locator, quote_source=symptom, components=components_for(text),
@@ -421,7 +430,7 @@ def parse_tables(page, tables, page_norm, bucket, section):
                 if [n for n, _ in causes] != [n for n, _ in actions]:
                     note += '原因与排除的编号数量不一致，缺号不补，也不重排。'
                 locator = f'故障表{table_index}；原行号{number}'
-                bodies = fit_faults(shorten(symptom, 36), causes, actions, page, models, locator, note)
+                bodies = fit_faults(symptom, causes, actions, page, models, locator, note)
                 for title, body, _, _ in bodies:
                     add_entry(bucket, page, page_norm, title=title, body=body, entry_type='维护/故障知识',
                               models=models, locator=locator, quote_source=symptom,

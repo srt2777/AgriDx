@@ -2065,9 +2065,6 @@
 {"entry_id": "KB-YTO-EBUY-WFAQ-051", "roles": ["symptom", "cause", "check", "action"], "role_basis": "原文标记"}
 {"entry_id": "KB-YTO-EBUY-WFAQ-052", "roles": ["symptom", "cause", "check", "action"], "role_basis": "原文标记"}
 {"entry_id": "KB-YTO-EBUY-WFAQ-053", "roles": ["symptom", "cause", "check", "action"], "role_basis": "原文标记"}
-{"entry_id": "KB-YTO-EBUY-WFAQ-054", "roles": ["symptom", "cause", "check", "action"], "role_basis": "原文标记"}
-{"entry_id": "KB-YTO-EBUY-WFAQ-055", "roles": ["symptom", "cause", "check", "action"], "role_basis": "原文标记"}
-{"entry_id": "KB-YTO-EBUY-WFAQ-056", "roles": ["symptom", "cause", "check", "action"], "role_basis": "原文标记"}
 {"entry_id": "KB-YTO-EBUY-LGFL-001", "roles": ["symptom", "cause", "check", "action"], "role_basis": "原文标记"}
 {"entry_id": "KB-YTO-EBUY-LGFL-002", "roles": ["symptom", "cause", "check", "action"], "role_basis": "原文标记"}
 {"entry_id": "KB-YTO-EBUY-LGFL-003", "roles": ["symptom", "cause", "check", "action"], "role_basis": "原文标记"}

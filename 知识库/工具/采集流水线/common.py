@@ -66,6 +66,11 @@ def honor_parts(html):
     """拆出商城正文段落，并把表格、图片留成占位。"""
     match = re.search(r'<div class="honor_center">(.*)</div>\s*</div>', html, re.S | re.I)
     body = match.group(1) if match else ''
+    # 商城页脚样式和分享栏不是手册正文。
+    for marker in ('<style', 'class="service-flow"', 'class="slogen"'):
+        cut = body.lower().find(marker.lower()) if marker.startswith('<') else body.find(marker)
+        if cut >= 0:
+            body = body[:cut]
     tables = []
 
     def keep_table(found):
@@ -79,7 +84,7 @@ def honor_parts(html):
     for part in text.split('\n'):
         part = re.sub(r'[ \t\u3000]+', ' ', part).strip()
         part = re.sub(r'[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]', '', part)
-        if part:
+        if part and not re.search(r'service-flow|\{height:|贷款产品|新手指南|正品保障|移动商城', part):
             paragraphs.append(part)
     return paragraphs, tables
 

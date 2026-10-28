@@ -5,19 +5,19 @@
   "scope": "仅由现有索引派生的统计与导航，不是新增维修事实，不加入检索",
   "input_sha256": {
     "知识库/整理后的知识库/农用拖拉机知识库/sources.json": "5ffc84d2e02712ed96d1143daff0b7745d00c76546efa92947adb58e13a5acf3",
-    "知识库/整理后的知识库/农用拖拉机知识库/entries.jsonl": "8394b909fe48a1acff891af0a186744308991d1d8a842dbfa38f76989a92c56b",
+    "知识库/整理后的知识库/农用拖拉机知识库/entries.jsonl": "f813d9622699e4706c379801c884ecd9746d69433f8f45b991ef51f60bcca9ca",
     "docs/tractor-knowledge/index.jsonl": "1eac29d4f33681de65628b95b992b248f35c62578fb2f9e45ac5b1fdda8b414f",
     "docs/tractor-knowledge/expansion-5000/index.jsonl": "f498bd5dce2b3f96730ab5d508936d5852d0173416e2636878e35aabcda3fbfc"
   },
   "totals": {
     "sources": 55,
-    "archived_entries": 5485,
+    "archived_entries": 5460,
     "learning_entries": 6000,
-    "total_library_entries": 11485,
+    "total_library_entries": 11460,
     "knowledge_documents": 95,
     "brand_labels": 14,
     "generic_chunks": 9,
-    "retrieval_chunks": 11494,
+    "retrieval_chunks": 11469,
     "information_or_scope_entries": 557
   },
   "brands": [
@@ -29,7 +29,7 @@
     {
       "label": "东方红",
       "sources": 30,
-      "entries": 1247
+      "entries": 1222
     },
     {
       "label": "久保田",
@@ -93,9 +93,9 @@
     }
   ],
   "entry_types": {
-    "安全操作": 713,
-    "操作/维护知识": 2247,
-    "维护/故障知识": 1916,
+    "安全操作": 709,
+    "操作/维护知识": 2229,
+    "维护/故障知识": 1913,
     "机型资料": 5,
     "资料缺口": 8,
     "资料索引": 513,
@@ -112,7 +112,7 @@
   },
   "entries_by_source_purpose": {
     "整机／维保PDF": 4626,
-    "维护网页": 617,
+    "维护网页": 592,
     "报道背景": 2,
     "交机培训PDF": 222,
     "配套导航PDF": 18
@@ -127,7 +127,7 @@
     "仓库PDF原件": 2956,
     "仓库网页快照": 11,
     "PDF链接＋来源记录": 1910,
-    "网页链接＋来源记录": 608
+    "网页链接＋来源记录": 583
   },
   "verification_status_raw": {
     "沿用既有原文核对条目": 24,
@@ -170,7 +170,7 @@
     "证据选页图像已核对；未厂家复核、实车验证或全书审校": 38,
     "官方预览目录文本已核对；未取得完整正文；未厂家复核/全书审校/实车验证": 500,
     "已目视核对引用选页扫描图像、表格行对应及实际印刷页；仅选页核对，未全书审校、未厂家复核、未实车维修验证。": 100,
-    "已对照网页正文；未厂家复核；未实车验证；未全书审校。": 608
+    "已对照网页正文；未厂家复核；未实车验证；未全书审校。": 583
   },
   "research": {
     "reports": 3,
@@ -5676,7 +5676,7 @@
       "storage_group": "网页链接＋来源记录",
       "source_path": "知识库/原始农机说明书/东方红/e购网页/来源记录_WFAQ.md",
       "source_url": "http://ytobuy.nongji360.com/service/view/20",
-      "entry_count": 56,
+      "entry_count": 53,
       "entry_ids": [
         "KB-YTO-EBUY-WFAQ-001",
         "KB-YTO-EBUY-WFAQ-002",
@@ -5730,10 +5730,7 @@
         "KB-YTO-EBUY-WFAQ-050",
         "KB-YTO-EBUY-WFAQ-051",
         "KB-YTO-EBUY-WFAQ-052",
-        "KB-YTO-EBUY-WFAQ-053",
-        "KB-YTO-EBUY-WFAQ-054",
-        "KB-YTO-EBUY-WFAQ-055",
-        "KB-YTO-EBUY-WFAQ-056"
+        "KB-YTO-EBUY-WFAQ-053"
       ],
       "knowledge_paths": [
         "知识库/整理后的知识库/农用拖拉机知识库/机型知识卡/东方红_e购_WFAQ.md"
@@ -5927,7 +5924,7 @@
       "storage_group": "网页链接＋来源记录",
       "source_path": "知识库/原始农机说明书/东方红/e购网页/来源记录_WUSE.md",
       "source_url": "http://ytobuy.nongji360.com/service/view/21",
-      "entry_count": 19,
+      "entry_count": 17,
       "entry_ids": [
         "KB-YTO-EBUY-WUSE-001",
         "KB-YTO-EBUY-WUSE-002",
@@ -5945,9 +5942,7 @@
         "KB-YTO-EBUY-WUSE-014",
         "KB-YTO-EBUY-WUSE-015",
         "KB-YTO-EBUY-WUSE-016",
-        "KB-YTO-EBUY-WUSE-017",
-        "KB-YTO-EBUY-WUSE-018",
-        "KB-YTO-EBUY-WUSE-019"
+        "KB-YTO-EBUY-WUSE-017"
       ],
       "knowledge_paths": [
         "知识库/整理后的知识库/农用拖拉机知识库/机型知识卡/东方红_e购_WUSE.md"
@@ -5966,7 +5961,7 @@
       "storage_group": "网页链接＋来源记录",
       "source_path": "知识库/原始农机说明书/东方红/e购网页/来源记录_CUSE.md",
       "source_url": "http://ytobuy.nongji360.com/service/view/22",
-      "entry_count": 9,
+      "entry_count": 7,
       "entry_ids": [
         "KB-YTO-EBUY-CUSE-001",
         "KB-YTO-EBUY-CUSE-002",
@@ -5974,9 +5969,7 @@
         "KB-YTO-EBUY-CUSE-004",
         "KB-YTO-EBUY-CUSE-005",
         "KB-YTO-EBUY-CUSE-006",
-        "KB-YTO-EBUY-CUSE-007",
-        "KB-YTO-EBUY-CUSE-008",
-        "KB-YTO-EBUY-CUSE-009"
+        "KB-YTO-EBUY-CUSE-007"
       ],
       "knowledge_paths": [
         "知识库/整理后的知识库/农用拖拉机知识库/机型知识卡/东方红_e购_CUSE.md"
@@ -5995,7 +5988,7 @@
       "storage_group": "网页链接＋来源记录",
       "source_path": "知识库/原始农机说明书/东方红/e购网页/来源记录_LDOM.md",
       "source_url": "http://ytobuy.nongji360.com/service/view/41",
-      "entry_count": 28,
+      "entry_count": 26,
       "entry_ids": [
         "KB-YTO-EBUY-LDOM-001",
         "KB-YTO-EBUY-LDOM-002",
@@ -6022,9 +6015,7 @@
         "KB-YTO-EBUY-LDOM-023",
         "KB-YTO-EBUY-LDOM-024",
         "KB-YTO-EBUY-LDOM-025",
-        "KB-YTO-EBUY-LDOM-026",
-        "KB-YTO-EBUY-LDOM-027",
-        "KB-YTO-EBUY-LDOM-028"
+        "KB-YTO-EBUY-LDOM-026"
       ],
       "knowledge_paths": [
         "知识库/整理后的知识库/农用拖拉机知识库/机型知识卡/东方红_e购_LDOM.md"
@@ -6043,7 +6034,7 @@
       "storage_group": "网页链接＋来源记录",
       "source_path": "知识库/原始农机说明书/东方红/e购网页/来源记录_MEOM.md",
       "source_url": "http://ytobuy.nongji360.com/service/view/42",
-      "entry_count": 20,
+      "entry_count": 17,
       "entry_ids": [
         "KB-YTO-EBUY-MEOM-001",
         "KB-YTO-EBUY-MEOM-002",
@@ -6061,10 +6052,7 @@
         "KB-YTO-EBUY-MEOM-014",
         "KB-YTO-EBUY-MEOM-015",
         "KB-YTO-EBUY-MEOM-016",
-        "KB-YTO-EBUY-MEOM-017",
-        "KB-YTO-EBUY-MEOM-018",
-        "KB-YTO-EBUY-MEOM-019",
-        "KB-YTO-EBUY-MEOM-020"
+        "KB-YTO-EBUY-MEOM-017"
       ],
       "knowledge_paths": [
         "知识库/整理后的知识库/农用拖拉机知识库/机型知识卡/东方红_e购_MEOM.md"
@@ -6083,7 +6071,7 @@
       "storage_group": "网页链接＋来源记录",
       "source_path": "知识库/原始农机说明书/东方红/e购网页/来源记录_MFOM.md",
       "source_url": "http://ytobuy.nongji360.com/service/view/43",
-      "entry_count": 19,
+      "entry_count": 16,
       "entry_ids": [
         "KB-YTO-EBUY-MFOM-001",
         "KB-YTO-EBUY-MFOM-002",
@@ -6100,10 +6088,7 @@
         "KB-YTO-EBUY-MFOM-013",
         "KB-YTO-EBUY-MFOM-014",
         "KB-YTO-EBUY-MFOM-015",
-        "KB-YTO-EBUY-MFOM-016",
-        "KB-YTO-EBUY-MFOM-017",
-        "KB-YTO-EBUY-MFOM-018",
-        "KB-YTO-EBUY-MFOM-019"
+        "KB-YTO-EBUY-MFOM-016"
       ],
       "knowledge_paths": [
         "知识库/整理后的知识库/农用拖拉机知识库/机型知识卡/东方红_e购_MFOM.md"
@@ -6250,7 +6235,7 @@
       "storage_group": "网页链接＋来源记录",
       "source_path": "知识库/原始农机说明书/东方红/e购网页/来源记录_LFCOM.md",
       "source_url": "http://ytobuy.nongji360.com/service/view/54",
-      "entry_count": 35,
+      "entry_count": 33,
       "entry_ids": [
         "KB-YTO-EBUY-LFCOM-001",
         "KB-YTO-EBUY-LFCOM-002",
@@ -6284,9 +6269,7 @@
         "KB-YTO-EBUY-LFCOM-030",
         "KB-YTO-EBUY-LFCOM-031",
         "KB-YTO-EBUY-LFCOM-032",
-        "KB-YTO-EBUY-LFCOM-033",
-        "KB-YTO-EBUY-LFCOM-034",
-        "KB-YTO-EBUY-LFCOM-035"
+        "KB-YTO-EBUY-LFCOM-033"
       ],
       "knowledge_paths": [
         "知识库/整理后的知识库/农用拖拉机知识库/机型知识卡/东方红_e购_LFCOM.md"
@@ -6395,7 +6378,7 @@
       "storage_group": "网页链接＋来源记录",
       "source_path": "知识库/原始农机说明书/东方红/e购网页/来源记录_L12MT.md",
       "source_url": "http://ytobuy.nongji360.com/service/view/57",
-      "entry_count": 26,
+      "entry_count": 24,
       "entry_ids": [
         "KB-YTO-EBUY-L12MT-001",
         "KB-YTO-EBUY-L12MT-002",
@@ -6420,9 +6403,7 @@
         "KB-YTO-EBUY-L12MT-021",
         "KB-YTO-EBUY-L12MT-022",
         "KB-YTO-EBUY-L12MT-023",
-        "KB-YTO-EBUY-L12MT-024",
-        "KB-YTO-EBUY-L12MT-025",
-        "KB-YTO-EBUY-L12MT-026"
+        "KB-YTO-EBUY-L12MT-024"
       ],
       "knowledge_paths": [
         "知识库/整理后的知识库/农用拖拉机知识库/机型知识卡/东方红_e购_L12MT.md"
@@ -6441,7 +6422,7 @@
       "storage_group": "网页链接＋来源记录",
       "source_path": "知识库/原始农机说明书/东方红/e购网页/来源记录_LGOM.md",
       "source_url": "http://ytobuy.nongji360.com/service/view/79",
-      "entry_count": 30,
+      "entry_count": 28,
       "entry_ids": [
         "KB-YTO-EBUY-LGOM-001",
         "KB-YTO-EBUY-LGOM-002",
@@ -6470,9 +6451,7 @@
         "KB-YTO-EBUY-LGOM-025",
         "KB-YTO-EBUY-LGOM-026",
         "KB-YTO-EBUY-LGOM-027",
-        "KB-YTO-EBUY-LGOM-028",
-        "KB-YTO-EBUY-LGOM-029",
-        "KB-YTO-EBUY-LGOM-030"
+        "KB-YTO-EBUY-LGOM-028"
       ],
       "knowledge_paths": [
         "知识库/整理后的知识库/农用拖拉机知识库/机型知识卡/东方红_e购_LGOM.md"
@@ -6491,7 +6470,7 @@
       "storage_group": "网页链接＋来源记录",
       "source_path": "知识库/原始农机说明书/东方红/e购网页/来源记录_LGMT.md",
       "source_url": "http://ytobuy.nongji360.com/service/view/80",
-      "entry_count": 28,
+      "entry_count": 27,
       "entry_ids": [
         "KB-YTO-EBUY-LGMT-001",
         "KB-YTO-EBUY-LGMT-002",
@@ -6519,8 +6498,7 @@
         "KB-YTO-EBUY-LGMT-024",
         "KB-YTO-EBUY-LGMT-025",
         "KB-YTO-EBUY-LGMT-026",
-        "KB-YTO-EBUY-LGMT-027",
-        "KB-YTO-EBUY-LGMT-028"
+        "KB-YTO-EBUY-LGMT-027"
       ],
       "knowledge_paths": [
         "知识库/整理后的知识库/农用拖拉机知识库/机型知识卡/东方红_e购_LGMT.md"
@@ -6539,7 +6517,7 @@
       "storage_group": "网页链接＋来源记录",
       "source_path": "知识库/原始农机说明书/东方红/e购网页/来源记录_LGAD.md",
       "source_url": "http://ytobuy.nongji360.com/service/view/81",
-      "entry_count": 26,
+      "entry_count": 24,
       "entry_ids": [
         "KB-YTO-EBUY-LGAD-001",
         "KB-YTO-EBUY-LGAD-002",
@@ -6564,9 +6542,7 @@
         "KB-YTO-EBUY-LGAD-021",
         "KB-YTO-EBUY-LGAD-022",
         "KB-YTO-EBUY-LGAD-023",
-        "KB-YTO-EBUY-LGAD-024",
-        "KB-YTO-EBUY-LGAD-025",
-        "KB-YTO-EBUY-LGAD-026"
+        "KB-YTO-EBUY-LGAD-024"
       ],
       "knowledge_paths": [
         "知识库/整理后的知识库/农用拖拉机知识库/机型知识卡/东方红_e购_LGAD.md"
@@ -6634,7 +6610,7 @@
       "storage_group": "网页链接＋来源记录",
       "source_path": "知识库/原始农机说明书/东方红/e购网页/来源记录_LXOM.md",
       "source_url": "http://ytobuy.nongji360.com/service/view/90",
-      "entry_count": 26,
+      "entry_count": 25,
       "entry_ids": [
         "KB-YTO-EBUY-LXOM-001",
         "KB-YTO-EBUY-LXOM-002",
@@ -6660,8 +6636,7 @@
         "KB-YTO-EBUY-LXOM-022",
         "KB-YTO-EBUY-LXOM-023",
         "KB-YTO-EBUY-LXOM-024",
-        "KB-YTO-EBUY-LXOM-025",
-        "KB-YTO-EBUY-LXOM-026"
+        "KB-YTO-EBUY-LXOM-025"
       ],
       "knowledge_paths": [
         "知识库/整理后的知识库/农用拖拉机知识库/机型知识卡/东方红_e购_LXOM.md"
