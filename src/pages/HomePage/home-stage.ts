@@ -45,9 +45,9 @@ function pose(partial: Partial<StagePose> & Pick<StagePose, 'x' | 'scale' | 'yaw
     y: 0,
     z: 0,
     pitch: 0,
-    camX: 2.7,
-    camY: 1.25,
-    camZ: 3.45,
+    camX: 2.4,
+    camY: 1.2,
+    camZ: 4.05,
     lookX: 0,
     lookY: 0.04,
     lookZ: 0,
@@ -58,95 +58,70 @@ function pose(partial: Partial<StagePose> & Pick<StagePose, 'x' | 'scale' | 'yaw
   };
 }
 
-/** Desktop: hero turn, side slides, part zooms, a light explode, then a settle. */
+/** Desktop keeps the model in the open lane: right of left-hand copy, left of right-hand copy. */
 export const DESKTOP_BEATS: readonly Beat[] = [
   {
     id: 'hero',
-    pose: pose({
-      x: 0.95, scale: 1.24, yaw: 0.62, turn: 0.16,
-      camX: 2.35, camY: 1.15, camZ: 3.55, lookX: 0.55, lookY: 0.02,
-    }),
+    pose: pose({ x: 1.82, scale: 0.9, yaw: 0.46, turn: 0.04 }),
   },
   {
     id: 'capabilities',
-    pose: pose({
-      x: 1.15, scale: 1.02, yaw: 0.38, turn: 0.06,
-      camX: 2.6, camY: 1.3, camZ: 3.9, lookX: 0.72,
-    }),
+    pose: pose({ x: 1.28, scale: 0.9, yaw: 0.36 }),
   },
   {
     id: 'painpoints',
-    pose: pose({
-      x: 1.22, scale: 1.48, yaw: 0.88, focus: 'body_shell',
-      camX: 1.7, camY: 1.02, camZ: 2.45, lookX: 0.82, lookY: 0.08,
-    }),
+    pose: pose({ x: 1.38, scale: 1.0, yaw: 0.62, focus: 'body_shell' }),
   },
   {
     id: 'knowledge',
-    pose: pose({
-      x: -1.18, scale: 1.58, yaw: -0.52, focus: 'gps_antenna',
-      camX: -1.35, camY: 1.72, camZ: 2.25, lookX: -0.72, lookY: 0.42,
-    }),
+    pose: pose({ x: -1.38, scale: 0.98, yaw: -0.42, focus: 'gps_antenna' }),
   },
   {
     id: 'techroute',
-    pose: pose({
-      x: 1.16, scale: 1.72, yaw: 1.12, focus: 'wheel_fl',
-      camX: 2.05, camY: 0.48, camZ: 2.05, lookX: 0.78, lookY: -0.18,
-    }),
+    pose: pose({ x: 1.36, scale: 1.0, yaw: 0.72, focus: 'wheel_fl' }),
   },
-
   {
     id: 'scenarios',
-    pose: pose({
-      x: 1.02, scale: 1.42, yaw: 0.32, focus: 'battery_box',
-      camX: 1.85, camY: 1.12, camZ: 2.3, lookX: 0.62, lookY: 0.1,
-    }),
+    pose: pose({ x: 1.34, scale: 0.98, yaw: 0.34, focus: 'battery_box' }),
   },
   {
     id: 'details',
-    pose: pose({
-      x: 0, scale: 1.08, yaw: 0.5, explode: 0.72,
-      camX: 3.35, camY: 1.75, camZ: 3.35, lookX: 0, lookY: 0.08,
-    }),
+    pose: pose({ x: 0.2, y: -0.06, scale: 0.9, yaw: 0.4, explode: 0.24 }),
   },
   {
     id: 'closing',
-    pose: pose({
-      x: 0.28, y: 0.02, scale: 0.58, yaw: 0.18,
-      camX: 3.55, camY: 1.45, camZ: 3.85, lookX: 0.22, lookY: 0,
-    }),
+    pose: pose({ x: 1.2, y: 0.04, scale: 0.58, yaw: 0.22 }),
   },
 ];
 
-/** Phones keep the same story with a shorter list and almost no lateral travel. */
+/** Phones keep the same story in a lower dock, with almost no lateral travel. */
 export const MOBILE_BEATS: readonly Beat[] = [
   {
     id: 'hero',
     pose: pose({
-      x: 0, y: -0.42, scale: 0.74, yaw: 0.4, turn: 0.08,
-      camX: 2.8, camY: 1.35, camZ: 4.05, lookX: 0, lookY: -0.12,
+      x: 0.7, y: -0.62, scale: 0.62, yaw: 0.42, turn: 0.03,
+      camX: 0.15, camY: 1.15, camZ: 4.35, lookX: 0, lookY: -0.2,
     }),
   },
   {
     id: 'mid',
     pose: pose({
-      x: 0.08, y: -0.2, scale: 0.92, yaw: 0.7, focus: 'body_shell',
-      camX: 2.15, camY: 1.05, camZ: 2.85, lookX: 0.06, lookY: 0.02,
+      x: 0.55, y: -0.55, scale: 0.66, yaw: 0.48, focus: 'body_shell',
+      camX: 0.1, camY: 1.1, camZ: 4.15, lookX: 0, lookY: -0.16,
     }),
   },
   {
     id: 'explode',
     pose: pose({
-      x: 0, y: -0.12, scale: 0.86, yaw: 0.36, explode: 0.58,
-      camX: 3.15, camY: 1.7, camZ: 3.4, lookY: 0.02,
+      x: 0, y: -0.68, scale: 0.68, yaw: 0.34, explode: 0.16,
+      camX: 0.05, camY: 1.2, camZ: 4.4, lookY: -0.12,
     }),
   },
   {
     id: 'closing',
     pose: pose({
-      x: 0, y: 0.22, scale: 0.4, yaw: 0.16,
-      camX: 3.4, camY: 1.4, camZ: 4.1, lookY: -0.08,
+      x: 0, y: -0.28, scale: 0.4, yaw: 0.18,
+      camX: 0.05, camY: 1.25, camZ: 4.5, lookY: -0.05,
     }),
   },
 ];

@@ -1,5 +1,5 @@
 /* Old-home immersive stage. The canvas is fixed behind the copy; sections stay in flow. */
-.home-immersive.glass-home { background: transparent; }
+.home-immersive.glass-home { background: transparent; overflow-x: clip; }
 .home-immersive > .home-stage {
   position: fixed;
   inset: 0;
@@ -14,9 +14,10 @@
 .home-stage-label {
   position: absolute;
   left: 50%;
-  bottom: 28px;
+  right: auto;
+  bottom: 64px;
   transform: translateX(-50%);
-  max-width: calc(100% - 32px);
+  max-width: min(240px, calc(100% - 32px));
   padding: 8px 14px;
   border-radius: 999px;
   color: var(--foreground);
@@ -44,25 +45,34 @@
 }
 .home-immersive .hero-layout { grid-template-columns: minmax(0, 1fr); gap: 0; }
 .home-immersive .hero-stage-note {
-  position: absolute;
-  right: max(24px, calc((100% - 1200px) / 2));
-  bottom: 28px;
-  z-index: 2;
+  position: static;
+  z-index: 1;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 12px;
-  width: min(440px, calc(100% - 48px));
-  margin: 0;
-  padding: 8px 8px 8px 16px;
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--agri-paper) 86%, transparent);
-  border: 1px solid color-mix(in srgb, var(--agri-line) 70%, transparent);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+  width: 100%;
+  margin: 22px 0 0;
+  padding: 0;
+  background: transparent;
+  border: 0;
 }
 .home-immersive .hero-stage-note .hero-model-caption {
-  display: contents;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  padding: 0;
+  color: var(--muted-foreground);
+}
+.home-immersive .hero-model-entry { background: transparent; }
+.home-immersive .hero-model-entry-link {
+  min-height: 36px;
+  padding: 0 12px;
+  border-radius: 4px;
+  background: var(--primary);
+  color: var(--primary-foreground);
 }
 .home-immersive [data-home-beat="details"],
 .home-immersive [data-home-beat="closing"] { min-height: 72vh; }
@@ -70,33 +80,38 @@
 @media (min-width: 960px) {
   .home-immersive [data-home-side="start"] > :first-child,
   .home-immersive [data-home-side="end"] > :first-child {
-    width: min(600px, calc(100vw - 400px));
-    max-width: min(600px, calc(100vw - 400px));
-    margin-left: max(28px, calc((100vw - 1200px) / 2));
+    width: min(440px, calc(100% - 300px));
+    max-width: min(440px, calc(100% - 300px));
+    margin-left: 28px;
     margin-right: auto;
-    padding: 28px 32px 32px;
-    border-radius: 28px;
-    background: color-mix(in srgb, var(--agri-paper) 84%, transparent);
-    border: 1px solid color-mix(in srgb, var(--agri-line) 68%, transparent);
-    box-shadow: 0 24px 60px -40px rgba(24, 67, 41, 0.38);
+    padding: 28px 28px 24px;
+    border-radius: 12px;
     overflow-x: clip;
-    backdrop-filter: blur(18px) saturate(1.15);
-    -webkit-backdrop-filter: blur(18px) saturate(1.15);
   }
   .home-immersive [data-home-side="end"] > :first-child {
     margin-left: auto;
-    margin-right: max(28px, calc((100vw - 1200px) / 2));
+    margin-right: 28px;
   }
   .home-immersive [data-home-side="center"] {
-    width: min(760px, calc(100% - 48px));
-    max-width: min(760px, calc(100% - 48px));
-    padding: 12px 28px 32px;
-    border-radius: 28px;
-    background: color-mix(in srgb, var(--agri-paper) 86%, transparent);
-    border: 1px solid color-mix(in srgb, var(--agri-line) 68%, transparent);
-    backdrop-filter: blur(18px) saturate(1.15);
-    -webkit-backdrop-filter: blur(18px) saturate(1.15);
+    width: min(1080px, calc(100% - 48px));
+    max-width: min(1080px, calc(100% - 48px));
+    margin-inline: auto;
+    padding: 0;
+    background: transparent;
+    border: 0;
   }
+  .home-immersive .capability-details > summary {
+    width: min(440px, calc(100% - 300px));
+    margin-inline: auto;
+    padding: 14px 18px;
+  }
+.fluid-workspace[data-ui-version='old'] .home-immersive .capability-details > summary {
+  border-radius: 12px !important;
+  background: var(--radix-sage-2) !important;
+  border: 0.5px solid var(--radix-sage-6) !important;
+}
+  .home-immersive .knowledge-preview-footer { flex-wrap: wrap; align-items: flex-start; row-gap: 12px; }
+  .home-immersive .knowledge-preview-footer .hero-text-link { flex: none; white-space: nowrap; }
   .home-immersive .capability-strip {
     width: min(100% - 48px, 1080px);
     margin-inline: auto;
@@ -120,7 +135,14 @@
 }
 
 @media (max-width: 959px) {
-  .home-immersive .glass-hero { min-height: 100svh; padding-top: 92px; padding-bottom: 36px; }
+  .fluid-workspace[data-ui-version='old'] .home-immersive .glass-hero {
+    min-height: auto !important;
+    justify-content: flex-start;
+    padding-top: 16px !important;
+    padding-bottom: 48svh !important;
+    background: transparent !important;
+  }
+  .home-immersive [data-home-beat] { scroll-margin-top: 12px; }
   .home-immersive [data-home-side="start"] > :first-child,
   .home-immersive [data-home-side="end"] > :first-child,
   .home-immersive [data-home-side="center"] {
@@ -128,12 +150,9 @@
     max-width: calc(100% - 24px);
     margin-inline: auto;
     padding: 20px 16px;
-    border-radius: 22px;
-    background: color-mix(in srgb, var(--agri-paper) 90%, transparent);
-    border: 1px solid color-mix(in srgb, var(--agri-line) 65%, transparent);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    border-radius: 12px;
   }
+  .home-immersive section:not(.glass-hero) { padding-bottom: 42svh; }
   .home-immersive .capability-strip {
     width: calc(100% - 24px);
     max-width: calc(100% - 24px);
@@ -145,10 +164,10 @@
   }
   .home-immersive .hero-stage-note {
     position: static;
-    width: auto;
-    max-width: calc(100% - 24px);
-    margin: 16px auto 0;
-    border-radius: 22px;
+    width: 100%;
+    max-width: 100%;
+    margin: 16px 0 0;
+    border-radius: 0;
   }
   .home-immersive .hero-stage-note .hero-model-caption {
     display: flex;
@@ -159,9 +178,15 @@
     width: 100%;
     padding: 0;
   }
-  .home-stage-label { bottom: 16px; font-size: 11px; }
+  .home-stage-label { left: 50%; right: auto; bottom: 16px; transform: translateX(-50%); font-size: 11px; }
   .home-immersive [data-home-beat="details"],
   .home-immersive [data-home-beat="closing"] { min-height: 58vh; }
+}
+
+.fluid-workspace[data-ui-version='old'] .home-immersive .capability-details > summary {
+  border-radius: 12px !important;
+  background: var(--radix-sage-2) !important;
+  border: 0.5px solid var(--radix-sage-6) !important;
 }
 
 @media (prefers-reduced-transparency: reduce) {

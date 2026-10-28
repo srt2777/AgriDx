@@ -65,15 +65,16 @@ function PauseWhenHidden() {
 function applyFocus(records: readonly PartRecord[], focus: string | null, strength: number) {
   for (const record of records) {
     const active = focus != null && record.name === focus;
-    const dim = focus != null && !active ? 1 - strength * 0.78 : 1;
     for (const slot of record.slots) {
-      slot.material.opacity = slot.opacity * dim;
-      slot.material.transparent = dim < 0.98 || slot.transparent;
-      slot.material.depthWrite = dim > 0.35 && slot.depthWrite;
-      if (!slot.paint || !slot.emissive) continue;
+      slot.material.opacity = slot.opacity;
+      slot.material.transparent = slot.transparent;
+      slot.material.depthWrite = slot.depthWrite;
+      if (!slot.paint || !slot.color || !slot.emissive) continue;
+      slot.paint.color.copy(slot.color);
+      if (!active && focus && strength > 0) slot.paint.color.multiplyScalar(1 - strength * 0.16);
       if (active && strength > 0.02) {
-        slot.paint.emissive.set('#d7ffe4');
-        slot.paint.emissiveIntensity = 0.22 * strength;
+        slot.paint.emissive.set('#ffffff');
+        slot.paint.emissiveIntensity = 0.08 * strength;
       } else {
         slot.paint.emissive.copy(slot.emissive);
         slot.paint.emissiveIntensity = slot.emissiveIntensity;
@@ -241,10 +242,10 @@ function StageScene({
     <>
       <PauseWhenHidden />
       <EnvironmentLight />
-      <ambientLight intensity={0.55} />
-      <hemisphereLight args={['#FFF8E7', '#C8B89A', 0.62]} />
-      <directionalLight position={[5, 8, 5]} intensity={1.15} />
-      <directionalLight position={[-3, 4, -3]} intensity={0.32} color="#E8D5B7" />
+      <ambientLight intensity={0.42} />
+      <hemisphereLight args={['#f4f7fb', '#c5bfb4', 0.48]} />
+      <directionalLight position={[4.5, 7.5, 5]} intensity={1.35} />
+      <directionalLight position={[-4, 3.2, -2]} intensity={0.28} color="#d9e4f2" />
       {prepared && (
         <FittedModel
           prepared={prepared}

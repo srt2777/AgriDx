@@ -31,16 +31,16 @@ export default function HeroSection() {
               </Link>
             </div>
             <div className="hero-evidence-note"><span className="status-dot" />{t('以资料适用范围为边界 缺口明确标注', 'Source-aware guidance visible knowledge gaps')}</div>
+            <figure className="hero-stage-note">
+              <figcaption className="hero-model-caption">
+                <span>{t('鸿鹄 T70 照片色部件示意', 'Honghu T70 Photo-colored parts')}</span>
+                <LiquidGlass variant="regular" lens displacementScale={40} className="hero-model-entry" contentClassName="hero-model-entry-content">
+                  <Link to="/models" onPointerEnter={() => preloadPage('/models')} onFocus={() => preloadPage('/models')} className="hero-model-entry-link press-control"><span>{t('进入模型工坊', 'Model studio')}</span><ArrowRight size={15} /></Link>
+                </LiquidGlass>
+              </figcaption>
+            </figure>
           </div>
         </div>
-        <figure className="hero-stage-note">
-          <figcaption className="hero-model-caption">
-            <span>{t('鸿鹄 T70 照片色部件示意', 'Honghu T70 Photo-colored parts')}</span>
-            <LiquidGlass variant="regular" lens displacementScale={40} className="hero-model-entry" contentClassName="hero-model-entry-content">
-              <Link to="/models" onPointerEnter={() => preloadPage('/models')} onFocus={() => preloadPage('/models')} className="hero-model-entry-link press-control"><span>{t('进入模型工坊', 'Model studio')}</span><ArrowRight size={15} /></Link>
-            </LiquidGlass>
-          </figcaption>
-        </figure>
       </section>
       <div className="capability-strip page-container" data-home-beat="capabilities" data-home-side="band" aria-label={t('系统能力', 'Platform capabilities')}>
         {[

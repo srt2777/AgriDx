@@ -27,13 +27,13 @@ test('滚动关键帧按 smoothstep 插值，手机步数更少、横向位移�
   assert.ok(Math.abs(mid.x - (from.x + (to.x - from.x) * eased)) < 1e-9);
   assert.equal(sampleBeats(DESKTOP_BEATS, 2).focus, 'body_shell');
   assert.equal(sampleBeats(DESKTOP_BEATS, 3).focus, 'gps_antenna');
-  assert.equal(sampleBeats(DESKTOP_BEATS, 6).explode, 0.72);
+  assert.equal(sampleBeats(DESKTOP_BEATS, 6).explode, 0.24);
   assert.equal(sampleBeats(DESKTOP_BEATS, 7).explode, 0);
   assert.ok(MOBILE_BEATS.length < DESKTOP_BEATS.length);
   const desktopShift = Math.max(...DESKTOP_BEATS.map(beat => Math.abs(beat.pose.x)));
   const mobileShift = Math.max(...MOBILE_BEATS.map(beat => Math.abs(beat.pose.x)));
   assert.ok(mobileShift < desktopShift);
-  assert.ok(mobileShift < 0.2);
+  assert.ok(mobileShift < 0.85);
 });
 
 test('滚动索引、短列表映射、阻尼和减少动效', () => {
@@ -51,7 +51,7 @@ test('滚动索引、短列表映射、阻尼和减少动效', () => {
   assert.equal(reduced.scale, DESKTOP_BEATS[0].pose.scale);
   const exploded = presentPose(DESKTOP_BEATS[6].pose, true);
   assert.equal(exploded.explode, 0);
-  assert.equal(presentPose(DESKTOP_BEATS[6].pose, false).explode, 0.72);
+  assert.equal(presentPose(DESKTOP_BEATS[6].pose, false).explode, 0.24);
 });
 
 test('旧版首页只有一个固定舞台，T70 仍走工坊 Meshopt 与照片色', () => {

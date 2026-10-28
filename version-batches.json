@@ -770,6 +770,13 @@
       "base": "4.0.6",
       "version": "4.0.7",
       "date": "2026-10-28"
+    },
+    {
+      "id": "old-home-stage-light-20261028",
+      "kind": "fix",
+      "base": "4.0.7",
+      "version": "4.0.8",
+      "date": "2026-10-28"
     }
   ]
 }
