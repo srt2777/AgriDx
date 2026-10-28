@@ -4,14 +4,18 @@ import { test } from 'node:test';
 import {
   DESKTOP_BEATS,
   MOBILE_BEATS,
+  beatsFromAnchor,
   damp,
   fitProjectedBox,
   freeLane,
   presentPose,
+  progressIndex,
   sampleBeats,
   scrollIndex,
+  scrollProgress,
   smoothstep,
   stageIndex,
+  trackFor,
 } from '../src/pages/HomePage/home-stage.ts';
 
 const read = (path: string) => readFileSync(new URL(path, import.meta.url), 'utf8');
@@ -38,6 +42,28 @@ test('滚动关键帧按 smoothstep 插值，手机步数更少、横向位移�
   assert.ok(mobileShift < 0.85);
   assert.ok(Math.abs(DESKTOP_BEATS[0].pose.scale - DESKTOP_BEATS[5].pose.scale) < 0.001);
   assert.ok(DESKTOP_BEATS[7].pose.scale > 0.85);
+});
+
+test('整页滚动进度连续，关键帧之间没有位置或缩放跳变', () => {
+  assert.equal(scrollProgress(0, 800, 4000), 0);
+  assert.equal(scrollProgress(3200, 800, 4000), 1);
+  assert.ok(scrollProgress(100, 800, 4000) < scrollProgress(200, 800, 4000));
+  const anchor = { x: 1.4, y: 0.04, z: 0.02, scale: 1.35 };
+  for (const compact of [false, true]) {
+    const beats = beatsFromAnchor(anchor, trackFor(compact), (compact ? MOBILE_BEATS : DESKTOP_BEATS)[0].pose);
+    const steps = 80;
+    let previous = sampleBeats(beats, progressIndex(0, beats.length));
+    for (let i = 1; i <= steps; i += 1) {
+      const next = sampleBeats(beats, progressIndex(i / steps, beats.length));
+      assert.ok(Math.abs(next.x - previous.x) < 0.2, `${compact} x ${i}`);
+      assert.ok(Math.abs(next.y - previous.y) < 0.05, `${compact} y ${i}`);
+      assert.ok(Math.abs(next.yaw - previous.yaw) < 0.15, `${compact} yaw ${i}`);
+      assert.ok(Math.abs(next.scale - previous.scale) < 0.05, `${compact} scale ${i}`);
+      assert.ok(Math.abs(next.explode - previous.explode) < 0.05, `${compact} explode ${i}`);
+      previous = next;
+    }
+    assert.ok(Math.abs(sampleBeats(beats, 0).x - anchor.x) < 1e-9);
+  }
 });
 
 test('投影包围盒落在卡片外侧的空位中，并占空位面积的 55% 到 65%', () => {

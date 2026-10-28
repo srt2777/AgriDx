@@ -791,6 +791,13 @@
       "base": "4.0.9",
       "version": "4.0.10",
       "date": "2026-10-28"
+    },
+    {
+      "id": "old-home-scroll-smooth-20261028",
+      "kind": "fix",
+      "base": "4.0.10",
+      "version": "4.0.11",
+      "date": "2026-10-28"
     }
   ]
 }

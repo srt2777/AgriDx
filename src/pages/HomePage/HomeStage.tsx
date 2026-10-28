@@ -12,13 +12,16 @@ import {
   DESKTOP_BEATS,
   LANE_AREA_FILL,
   MOBILE_BEATS,
+  beatsFromAnchor,
   damp,
   fitProjectedBox,
   freeLane,
   presentPose,
+  progressIndex,
   sampleBeats,
-  scrollIndex,
-  stageIndex,
+  scrollProgress,
+  trackFor,
+  type Anchor,
   type ScreenRect,
   type StagePose,
 } from './home-stage';
@@ -97,28 +100,6 @@ function stageViewport(): ScreenRect | null {
   return { x: rect.left, y: top, width: rect.width, height: Math.max(0, rect.bottom - 20 - top) };
 }
 
-function activeCard(canvas: ScreenRect): ScreenRect | null {
-  if (canvas.height < window.innerHeight * 0.7) return null;
-  const nodes = [...document.querySelectorAll<HTMLElement>('[data-home-side="start"], [data-home-side="end"]')];
-  const focus = window.innerHeight * 0.42;
-  let best: HTMLElement | null = null;
-  let bestDistance = Infinity;
-  for (const node of nodes) {
-    const rect = node.getBoundingClientRect();
-    if (rect.height < 24 || rect.bottom < 0 || rect.top > window.innerHeight) continue;
-    const distance = Math.abs(rect.top + rect.height / 2 - focus);
-    if (distance < bestDistance) {
-      bestDistance = distance;
-      best = node;
-    }
-  }
-  const card = best?.querySelector(':scope > :first-child');
-  if (!(card instanceof HTMLElement)) return null;
-  const rect = card.getBoundingClientRect();
-  if (rect.width < 32 || rect.height < 32) return null;
-  return { x: rect.left, y: canvas.y, width: rect.width, height: canvas.height };
-}
-
 function heroLane(canvas: ScreenRect): ScreenRect {
   if (canvas.height < window.innerHeight * 0.7) return freeLane(canvas, null, 16);
   const card = document.querySelector<HTMLElement>('[data-home-beat="hero"] > :first-child');
@@ -175,25 +156,55 @@ function applyExplode(records: readonly PartRecord[], factor: number) {
   }
 }
 
+function solveHeroAnchor(
+  rig: THREE.Object3D,
+  camera: THREE.Camera,
+  root: THREE.Object3D,
+  canvas: DOMRect,
+  home: StagePose,
+  fitScale: number,
+): Anchor | null {
+  const viewport = stageViewport();
+  if (!viewport || canvas.width < 2 || !(fitScale > 0)) return null;
+  rig.position.set(0, 0, 0);
+  rig.rotation.set(0, home.yaw, 0);
+  rig.scale.setScalar(fitScale * home.scale);
+  camera.position.set(home.camX, home.camY, home.camZ);
+  camera.lookAt(home.lookX, home.lookY, home.lookZ);
+  camera.updateMatrixWorld();
+  const projected = projectedBounds(root, camera, canvas);
+  if (!projected || projected.width < 2 || projected.height < 2) return null;
+  const fitted = fitProjectedBox(projected, heroLane(viewport), LANE_AREA_FILL);
+  rig.scale.multiplyScalar(fitted.scale);
+  panRig(rig, camera, canvas, fitted.dx, fitted.dy);
+  return { x: rig.position.x, y: rig.position.y, z: rig.position.z, scale: home.scale * fitted.scale };
+}
+
 function FittedModel({
   prepared,
   poseRef,
   reducedRef,
   pointerRef,
+  anchorRef,
+  layoutEpoch,
   onReady,
+  onAnchor,
 }: {
   prepared: PreparedTractor;
   poseRef: React.RefObject<StagePose>;
   reducedRef: React.RefObject<boolean>;
   pointerRef: React.RefObject<PointerState>;
+  anchorRef: React.RefObject<Anchor>;
+  layoutEpoch: React.RefObject<number>;
   onReady: () => void;
+  onAnchor: () => void;
 }) {
   const group = useRef<THREE.Group>(null);
   const fit = useRef(1);
   const spin = useRef(0);
   const highlight = useRef(0);
   const nudge = useRef({ yaw: 0, pitch: 0, x: 0, y: 0, zoom: 0 });
-  const placed = useRef({ dx: 0, dy: 0, scale: 1 });
+  const solvedEpoch = useRef(-1);
   const gl = useThree(state => state.gl);
   const live = useRef<StagePose>({ ...DESKTOP_BEATS[0].pose });
   const camera = useThree(state => state.camera);
@@ -294,6 +305,16 @@ function FittedModel({
     if (Math.abs(nextStrength - highlight.current) > 0.004) moving = true;
     highlight.current = nextStrength;
 
+    if (solvedEpoch.current !== layoutEpoch.current && fit.current > 0) {
+      const home = (window.matchMedia('(max-width: 959px)').matches ? MOBILE_BEATS : DESKTOP_BEATS)[0].pose;
+      const anchor = solveHeroAnchor(rig, camera, prepared.root, gl.domElement.getBoundingClientRect(), home, fit.current);
+      if (anchor) {
+        anchorRef.current = anchor;
+        solvedEpoch.current = layoutEpoch.current;
+        onAnchor();
+        moving = true;
+      }
+    }
     rig.position.set(current.x + eased.x, current.y + eased.y, current.z);
     rig.rotation.set(current.pitch + eased.pitch, current.yaw + spin.current + pointer.drag + eased.yaw, 0);
     rig.scale.setScalar(fit.current * current.scale);
@@ -301,32 +322,6 @@ function FittedModel({
     camera.lookAt(current.lookX, current.lookY, current.lookZ);
     camera.updateMatrixWorld();
     applyExplode(prepared.records, current.explode);
-    const canvas = gl.domElement.getBoundingClientRect();
-    const viewport = stageViewport();
-    if (viewport && canvas.width > 2) {
-      const sizeLane = heroLane(viewport);
-      const placeLane = freeLane(viewport, activeCard(viewport), viewport.height < window.innerHeight * 0.7 ? 16 : 28);
-      const relative = current.scale / (viewport.height < window.innerHeight * 0.7 ? MOBILE_BEATS[0].pose.scale : DESKTOP_BEATS[0].pose.scale);
-      const projected = projectedBounds(prepared.root, camera, canvas);
-      if (projected && projected.width > 2 && projected.height > 2) {
-        const sized = fitProjectedBox(projected, sizeLane, LANE_AREA_FILL);
-        const nextW = projected.width * sized.scale * relative;
-        const nextH = projected.height * sized.scale * relative;
-        const clamp = Math.min(1, placeLane.width / Math.max(nextW, 1), placeLane.height / Math.max(nextH, 1));
-        const desired = {
-          dx: placeLane.x + placeLane.width / 2 - (projected.x + projected.width / 2),
-          dy: placeLane.y + placeLane.height / 2 - (projected.y + projected.height / 2),
-          scale: sized.scale * relative * clamp,
-        };
-        const livePlace = placed.current;
-        if (Math.abs(desired.dx - livePlace.dx) > 0.5 || Math.abs(desired.dy - livePlace.dy) > 0.5 || Math.abs(desired.scale - livePlace.scale) > 0.002) moving = true;
-        livePlace.dx = desired.dx;
-        livePlace.dy = desired.dy;
-        livePlace.scale = desired.scale;
-        rig.scale.multiplyScalar(livePlace.scale);
-        panRig(rig, camera, canvas, livePlace.dx, livePlace.dy);
-      }
-    }
     applyFocus(prepared.records, current.focus, highlight.current);
     if (moving) invalidate();
   });
@@ -342,13 +337,19 @@ function StageScene({
   poseRef,
   reducedRef,
   pointerRef,
+  anchorRef,
+  layoutEpoch,
   onReady,
+  onAnchor,
   onLost,
 }: {
   poseRef: React.RefObject<StagePose>;
   reducedRef: React.RefObject<boolean>;
   pointerRef: React.RefObject<PointerState>;
+  anchorRef: React.RefObject<Anchor>;
+  layoutEpoch: React.RefObject<number>;
   onReady: () => void;
+  onAnchor: () => void;
   onLost: () => void;
 }) {
   const [prepared, setPrepared] = useState<PreparedTractor | null>(null);
@@ -385,7 +386,10 @@ function StageScene({
           poseRef={poseRef}
           reducedRef={reducedRef}
           pointerRef={pointerRef}
+          anchorRef={anchorRef}
+          layoutEpoch={layoutEpoch}
           onReady={onReady}
+          onAnchor={onAnchor}
         />
       )}
     </>
@@ -402,21 +406,23 @@ export default function HomeStage() {
   const pointerRef = useRef<PointerState>({ x: 0, y: 0, drag: 0, dragging: false, lastX: 0 });
   const invalidateRef = useRef<() => void>(() => {});
   const poseRef = useRef<StagePose>({ ...DESKTOP_BEATS[0].pose });
+  const anchorRef = useRef<Anchor>({ x: 0, y: 0, z: 0, scale: 1 });
+  const layoutEpoch = useRef(0);
+  const labelRef = useRef('');
 
   const measure = useCallback(() => {
-    const nodes = document.querySelectorAll<HTMLElement>('[data-home-beat]');
-    const midpoints: number[] = [];
-    nodes.forEach(node => {
-      const rect = node.getBoundingClientRect();
-      midpoints.push(rect.top + window.scrollY + rect.height / 2);
-    });
-    const beats = compact ? MOBILE_BEATS : DESKTOP_BEATS;
-    const index = stageIndex(scrollIndex(midpoints, window.scrollY, window.innerHeight), midpoints.length, beats.length);
-    const next = presentPose(sampleBeats(beats, index), reducedRef.current);
+    const home = (compact ? MOBILE_BEATS : DESKTOP_BEATS)[0].pose;
+    const beats = beatsFromAnchor(anchorRef.current, trackFor(compact), home);
+    const progress = scrollProgress(window.scrollY, window.innerHeight, document.documentElement.scrollHeight);
+    const next = presentPose(sampleBeats(beats, progressIndex(progress, beats.length)), reducedRef.current);
     poseRef.current = next;
     const part = next.focus;
     const named = part ? catalogByName(part, 't70') : null;
-    setLabel(named ? hoverLabel(named.node.labelZh, lang, named.node.name, 't70') : '');
+    const text = named ? hoverLabel(named.node.labelZh, lang, named.node.name, 't70') : '';
+    if (text !== labelRef.current) {
+      labelRef.current = text;
+      setLabel(text);
+    }
     invalidateRef.current();
   }, [compact, lang]);
 
@@ -425,7 +431,11 @@ export default function HomeStage() {
     const width = window.matchMedia('(max-width: 959px)');
     const sync = () => {
       reducedRef.current = motion.matches;
-      setCompact(width.matches);
+      const nextCompact = width.matches;
+      setCompact(current => {
+        if (current !== nextCompact) layoutEpoch.current += 1;
+        return nextCompact;
+      });
     };
     sync();
     motion.addEventListener('change', sync);
@@ -466,8 +476,12 @@ export default function HomeStage() {
       invalidateRef.current();
     };
     measure();
+    const onResize = () => {
+      layoutEpoch.current += 1;
+      schedule();
+    };
     window.addEventListener('scroll', schedule, { passive: true });
-    window.addEventListener('resize', schedule);
+    window.addEventListener('resize', onResize);
     document.addEventListener('toggle', schedule, true);
     window.addEventListener('pointerdown', onPointerDown);
     window.addEventListener('pointermove', onPointerMove);
@@ -476,7 +490,7 @@ export default function HomeStage() {
     return () => {
       if (frame) window.cancelAnimationFrame(frame);
       window.removeEventListener('scroll', schedule);
-      window.removeEventListener('resize', schedule);
+      window.removeEventListener('resize', onResize);
       document.removeEventListener('toggle', schedule, true);
       window.removeEventListener('pointerdown', onPointerDown);
       window.removeEventListener('pointermove', onPointerMove);
@@ -511,7 +525,10 @@ export default function HomeStage() {
             poseRef={poseRef}
             reducedRef={reducedRef}
             pointerRef={pointerRef}
+            anchorRef={anchorRef}
+            layoutEpoch={layoutEpoch}
             onReady={() => setState('ready')}
+            onAnchor={measure}
             onLost={() => setState('error')}
           />
         </Canvas>
