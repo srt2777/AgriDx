@@ -5,6 +5,8 @@ import {
   DESKTOP_BEATS,
   MOBILE_BEATS,
   damp,
+  fitProjectedBox,
+  freeLane,
   presentPose,
   sampleBeats,
   scrollIndex,
@@ -32,8 +34,39 @@ test('滚动关键帧按 smoothstep 插值，手机步数更少、横向位移�
   assert.ok(MOBILE_BEATS.length < DESKTOP_BEATS.length);
   const desktopShift = Math.max(...DESKTOP_BEATS.map(beat => Math.abs(beat.pose.x)));
   const mobileShift = Math.max(...MOBILE_BEATS.map(beat => Math.abs(beat.pose.x)));
-  assert.ok(mobileShift < desktopShift);
+  assert.ok(mobileShift <= desktopShift);
   assert.ok(mobileShift < 0.85);
+  assert.ok(Math.abs(DESKTOP_BEATS[0].pose.scale - DESKTOP_BEATS[5].pose.scale) < 0.001);
+  assert.ok(DESKTOP_BEATS[7].pose.scale > 0.85);
+});
+
+test('投影包围盒落在卡片外侧的空位中，并占空位面积的 55% 到 65%', () => {
+  const canvas = { x: 248, y: 64, width: 1192, height: 820 };
+  const card = { x: 276, y: 64, width: 440, height: 820 };
+  const lane = freeLane(canvas, card, 24);
+  assert.ok(lane.x >= card.x + card.width);
+  assert.ok(lane.width > 500);
+  const box = { x: 700, y: 300, width: 220, height: 150 };
+  const fitted = fitProjectedBox(box, lane, 0.6);
+  const width = box.width * fitted.scale;
+  const height = box.height * fitted.scale;
+  const centerX = box.x + box.width / 2 + fitted.dx;
+  const centerY = box.y + box.height / 2 + fitted.dy;
+  const left = centerX - width / 2;
+  const top = centerY - height / 2;
+  assert.ok(left >= lane.x - 0.5);
+  assert.ok(top >= lane.y - 0.5);
+  assert.ok(left + width <= lane.x + lane.width + 0.5);
+  assert.ok(top + height <= lane.y + lane.height + 0.5);
+  const coverage = (width * height) / (lane.width * lane.height);
+  assert.ok(coverage > 0.55 && coverage <= 0.65, `coverage ${coverage}`);
+  const phone = { x: 0, y: 480, width: 390, height: 360 };
+  const dock = freeLane(phone, null, 16);
+  const phoneFit = fitProjectedBox({ x: 40, y: 520, width: 180, height: 120 }, dock, 0.6);
+  const phoneWidth = 180 * phoneFit.scale;
+  const phoneHeight = 120 * phoneFit.scale;
+  const phoneCoverage = (phoneWidth * phoneHeight) / (dock.width * dock.height);
+  assert.ok(phoneCoverage > 0.55 && phoneCoverage <= 0.65);
 });
 
 test('滚动索引、短列表映射、阻尼和减少动效', () => {

@@ -46,10 +46,10 @@ function pose(partial: Partial<StagePose> & Pick<StagePose, 'x' | 'scale' | 'yaw
     z: 0,
     pitch: 0,
     camX: 2.4,
-    camY: 1.2,
-    camZ: 4.05,
+    camY: 1.55,
+    camZ: 4.15,
     lookX: 0,
-    lookY: 0.04,
+    lookY: 0.05,
     lookZ: 0,
     explode: 0,
     turn: 0,
@@ -58,71 +58,110 @@ function pose(partial: Partial<StagePose> & Pick<StagePose, 'x' | 'scale' | 'yaw
   };
 }
 
-/** Desktop keeps the model in the open lane: right of left-hand copy, left of right-hand copy. */
+/** Projected box fills this fraction of the open lane, clamped so it cannot cross the card. */
+export const LANE_AREA_FILL = 0.6;
+
+export type ScreenRect = { x: number; y: number; width: number; height: number };
+
+function areaOf(rect: ScreenRect): number {
+  return Math.max(0, rect.width) * Math.max(0, rect.height);
+}
+
+/** Largest region of the canvas that does not intersect the text card. */
+export function freeLane(canvas: ScreenRect, card: ScreenRect | null, gap = 24): ScreenRect {
+  const padded = {
+    x: canvas.x + gap,
+    y: canvas.y + gap,
+    width: Math.max(0, canvas.width - gap * 2),
+    height: Math.max(0, canvas.height - gap * 2),
+  };
+  if (!card) return padded;
+  const right = card.x + card.width;
+  const bottom = card.y + card.height;
+  const candidates = [
+    { x: right + gap, y: padded.y, width: canvas.x + canvas.width - gap - (right + gap), height: padded.height },
+    { x: padded.x, y: padded.y, width: card.x - gap - padded.x, height: padded.height },
+    { x: padded.x, y: bottom + gap, width: padded.width, height: canvas.y + canvas.height - gap - (bottom + gap) },
+    { x: padded.x, y: padded.y, width: padded.width, height: card.y - gap - padded.y },
+  ].filter(rect => rect.width >= 64 && rect.height >= 64);
+  candidates.sort((a, b) => areaOf(b) - areaOf(a));
+  return candidates[0] ?? padded;
+}
+
+/**
+ * Scale the projected box toward `fill` of the lane's area, then keep the whole box inside the lane.
+ * Translation recenters the box after scaling about its own center.
+ */
+export function fitProjectedBox(box: ScreenRect, lane: ScreenRect, fill = LANE_AREA_FILL): { dx: number; dy: number; scale: number } {
+  const boxW = Math.max(box.width, 1);
+  const boxH = Math.max(box.height, 1);
+  const aspect = boxW / boxH;
+  const targetArea = Math.min(0.65, Math.max(0.55, fill)) * Math.max(areaOf(lane), 1);
+  let width = Math.sqrt(targetArea * aspect);
+  let height = width / aspect;
+  const clamp = Math.min(1, lane.width / Math.max(width, 1), lane.height / Math.max(height, 1));
+  width *= clamp;
+  height *= clamp;
+  return {
+    dx: lane.x + lane.width / 2 - (box.x + box.width / 2),
+    dy: lane.y + lane.height / 2 - (box.y + box.height / 2),
+    scale: Math.min(6, Math.max(0.15, width / boxW)),
+  };
+}
+
+/** Later beats share the hero scale. Screen fitting places each one in the open lane. */
 export const DESKTOP_BEATS: readonly Beat[] = [
   {
     id: 'hero',
-    pose: pose({ x: 1.82, scale: 0.9, yaw: 0.46, turn: 0.04 }),
+    pose: pose({ x: 0, scale: 1, yaw: -0.95, turn: 0.03, camY: 1.55, camZ: 4.15, lookY: 0.05 }),
   },
   {
     id: 'capabilities',
-    pose: pose({ x: 1.28, scale: 0.9, yaw: 0.36 }),
+    pose: pose({ x: 0, scale: 1, yaw: -0.42 }),
   },
   {
     id: 'painpoints',
-    pose: pose({ x: 1.38, scale: 1.0, yaw: 0.62, focus: 'body_shell' }),
+    pose: pose({ x: 0, scale: 1, yaw: -0.7, focus: 'body_shell' }),
   },
   {
     id: 'knowledge',
-    pose: pose({ x: -1.38, scale: 0.98, yaw: -0.42, focus: 'gps_antenna' }),
+    pose: pose({ x: 0, scale: 1, yaw: 0.5, focus: 'gps_antenna' }),
   },
   {
     id: 'techroute',
-    pose: pose({ x: 1.36, scale: 1.0, yaw: 0.72, focus: 'wheel_fl' }),
+    pose: pose({ x: 0, scale: 1, yaw: -0.62, focus: 'wheel_fl' }),
   },
   {
     id: 'scenarios',
-    pose: pose({ x: 1.34, scale: 0.98, yaw: 0.34, focus: 'battery_box' }),
+    pose: pose({ x: 0, scale: 1, yaw: -0.38, focus: 'battery_box' }),
   },
   {
     id: 'details',
-    pose: pose({ x: 0.2, y: -0.06, scale: 0.9, yaw: 0.4, explode: 0.24 }),
+    pose: pose({ x: 0, scale: 1, yaw: -0.48, explode: 0.24 }),
   },
   {
     id: 'closing',
-    pose: pose({ x: 1.2, y: 0.04, scale: 0.58, yaw: 0.22 }),
+    pose: pose({ x: 0, scale: 0.92, yaw: -0.32 }),
   },
 ];
 
-/** Phones keep the same story in a lower dock, with almost no lateral travel. */
+/** Phones use the same scale story inside the lower dock. */
 export const MOBILE_BEATS: readonly Beat[] = [
   {
     id: 'hero',
-    pose: pose({
-      x: 0.7, y: -0.62, scale: 0.62, yaw: 0.42, turn: 0.03,
-      camX: 0.15, camY: 1.15, camZ: 4.35, lookX: 0, lookY: -0.2,
-    }),
+    pose: pose({ x: 0, scale: 1, yaw: -0.48, turn: 0.03, camY: 1.28, camZ: 4.2, lookY: 0 }),
   },
   {
     id: 'mid',
-    pose: pose({
-      x: 0.55, y: -0.55, scale: 0.66, yaw: 0.48, focus: 'body_shell',
-      camX: 0.1, camY: 1.1, camZ: 4.15, lookX: 0, lookY: -0.16,
-    }),
+    pose: pose({ x: 0, scale: 1, yaw: -0.62, focus: 'body_shell', camY: 1.28, camZ: 4.2, lookY: 0 }),
   },
   {
     id: 'explode',
-    pose: pose({
-      x: 0, y: -0.68, scale: 0.68, yaw: 0.34, explode: 0.16,
-      camX: 0.05, camY: 1.2, camZ: 4.4, lookY: -0.12,
-    }),
+    pose: pose({ x: 0, scale: 1, yaw: -0.4, explode: 0.16, camY: 1.28, camZ: 4.2, lookY: 0 }),
   },
   {
     id: 'closing',
-    pose: pose({
-      x: 0, y: -0.28, scale: 0.4, yaw: 0.18,
-      camX: 0.05, camY: 1.25, camZ: 4.5, lookY: -0.05,
-    }),
+    pose: pose({ x: 0, scale: 0.92, yaw: -0.3, camY: 1.28, camZ: 4.2, lookY: 0 }),
   },
 ];
 

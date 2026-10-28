@@ -10,12 +10,16 @@ import { bindContextLoss, probeWebGL } from '@/lib/webgl';
 import { useLang } from '@/hooks/useLang';
 import {
   DESKTOP_BEATS,
+  LANE_AREA_FILL,
   MOBILE_BEATS,
   damp,
+  fitProjectedBox,
+  freeLane,
   presentPose,
   sampleBeats,
   scrollIndex,
   stageIndex,
+  type ScreenRect,
   type StagePose,
 } from './home-stage';
 
@@ -83,6 +87,88 @@ function applyFocus(records: readonly PartRecord[], focus: string | null, streng
   }
 }
 
+function stageViewport(): ScreenRect | null {
+  const node = document.querySelector('.home-stage-canvas');
+  if (!node) return null;
+  const rect = node.getBoundingClientRect();
+  if (rect.width < 2 || rect.height < 2) return null;
+  const topbar = document.querySelector('.fluid-topbar')?.getBoundingClientRect();
+  const top = topbar && topbar.bottom > rect.top && topbar.bottom < rect.bottom ? topbar.bottom : rect.top;
+  return { x: rect.left, y: top, width: rect.width, height: Math.max(0, rect.bottom - 20 - top) };
+}
+
+function activeCard(canvas: ScreenRect): ScreenRect | null {
+  if (canvas.height < window.innerHeight * 0.7) return null;
+  const nodes = [...document.querySelectorAll<HTMLElement>('[data-home-side="start"], [data-home-side="end"]')];
+  const focus = window.innerHeight * 0.42;
+  let best: HTMLElement | null = null;
+  let bestDistance = Infinity;
+  for (const node of nodes) {
+    const rect = node.getBoundingClientRect();
+    if (rect.height < 24 || rect.bottom < 0 || rect.top > window.innerHeight) continue;
+    const distance = Math.abs(rect.top + rect.height / 2 - focus);
+    if (distance < bestDistance) {
+      bestDistance = distance;
+      best = node;
+    }
+  }
+  const card = best?.querySelector(':scope > :first-child');
+  if (!(card instanceof HTMLElement)) return null;
+  const rect = card.getBoundingClientRect();
+  if (rect.width < 32 || rect.height < 32) return null;
+  return { x: rect.left, y: canvas.y, width: rect.width, height: canvas.height };
+}
+
+function heroLane(canvas: ScreenRect): ScreenRect {
+  if (canvas.height < window.innerHeight * 0.7) return freeLane(canvas, null, 16);
+  const card = document.querySelector<HTMLElement>('[data-home-beat="hero"] > :first-child');
+  if (!card) return freeLane(canvas, null, 24);
+  const rect = card.getBoundingClientRect();
+  if (rect.width < 32) return freeLane(canvas, null, 24);
+  return freeLane(canvas, { x: rect.left, y: canvas.y, width: rect.width, height: canvas.height }, 28);
+}
+
+function projectedBounds(root: THREE.Object3D, camera: THREE.Camera, canvas: DOMRect): ScreenRect | null {
+  root.updateWorldMatrix(true, true);
+  const box = new THREE.Box3().setFromObject(root);
+  if (box.isEmpty()) return null;
+  const xs = [box.min.x, box.max.x];
+  const ys = [box.min.y, box.max.y];
+  const zs = [box.min.z, box.max.z];
+  let minX = Infinity;
+  let minY = Infinity;
+  let maxX = -Infinity;
+  let maxY = -Infinity;
+  let count = 0;
+  for (const x of xs) for (const y of ys) for (const z of zs) {
+    const ndc = new THREE.Vector3(x, y, z).project(camera);
+    if (ndc.z < -1 || ndc.z > 1) continue;
+    count += 1;
+    const px = canvas.left + (ndc.x * 0.5 + 0.5) * canvas.width;
+    const py = canvas.top + (-ndc.y * 0.5 + 0.5) * canvas.height;
+    minX = Math.min(minX, px);
+    minY = Math.min(minY, py);
+    maxX = Math.max(maxX, px);
+    maxY = Math.max(maxY, py);
+  }
+  if (count < 4) return null;
+  return { x: minX, y: minY, width: Math.max(0, maxX - minX), height: Math.max(0, maxY - minY) };
+}
+
+function panRig(rig: THREE.Object3D, camera: THREE.Camera, canvas: DOMRect, dx: number, dy: number) {
+  const center = new THREE.Vector3();
+  rig.getWorldPosition(center);
+  const right = new THREE.Vector3().setFromMatrixColumn(camera.matrixWorld, 0);
+  const up = new THREE.Vector3().setFromMatrixColumn(camera.matrixWorld, 1);
+  const origin = center.clone().project(camera);
+  const rightPoint = center.clone().add(right).project(camera);
+  const upPoint = center.clone().add(up).project(camera);
+  const pixelsPerRight = (rightPoint.x - origin.x) * canvas.width / 2;
+  const pixelsPerUp = (origin.y - upPoint.y) * canvas.height / 2;
+  if (Math.abs(pixelsPerRight) > 0.01) rig.position.addScaledVector(right, dx / pixelsPerRight);
+  if (Math.abs(pixelsPerUp) > 0.01) rig.position.addScaledVector(up, dy / pixelsPerUp);
+}
+
 function applyExplode(records: readonly PartRecord[], factor: number) {
   for (const record of records) {
     record.object.position.copy(record.base).addScaledVector(record.dir, factor);
@@ -107,6 +193,8 @@ function FittedModel({
   const spin = useRef(0);
   const highlight = useRef(0);
   const nudge = useRef({ yaw: 0, pitch: 0, x: 0, y: 0, zoom: 0 });
+  const placed = useRef({ dx: 0, dy: 0, scale: 1 });
+  const gl = useThree(state => state.gl);
   const live = useRef<StagePose>({ ...DESKTOP_BEATS[0].pose });
   const camera = useThree(state => state.camera);
   const invalidate = useThree(state => state.invalidate);
@@ -114,12 +202,30 @@ function FittedModel({
   useEffect(() => { ready.current = onReady; }, [onReady]);
 
   useLayoutEffect(() => {
+    const parent = prepared.root.parent;
+    const saved = parent ? {
+      position: parent.position.clone(),
+      scale: parent.scale.clone(),
+      quaternion: parent.quaternion.clone(),
+    } : null;
+    if (parent) {
+      parent.position.set(0, 0, 0);
+      parent.scale.set(1, 1, 1);
+      parent.quaternion.identity();
+      parent.updateMatrixWorld(true);
+    }
     const box = new THREE.Box3().setFromObject(prepared.root);
     const center = box.getCenter(new THREE.Vector3());
     const size = box.getSize(new THREE.Vector3());
     prepared.root.position.sub(center);
     const maxDim = Math.max(size.x, size.y, size.z, 0.001);
     fit.current = 1.65 / maxDim;
+    if (parent && saved) {
+      parent.position.copy(saved.position);
+      parent.scale.copy(saved.scale);
+      parent.quaternion.copy(saved.quaternion);
+      parent.updateMatrixWorld(true);
+    }
     prepared.root.traverse(object => {
       const mesh = object as THREE.Mesh;
       if (!mesh.isMesh) return;
@@ -190,10 +296,37 @@ function FittedModel({
 
     rig.position.set(current.x + eased.x, current.y + eased.y, current.z);
     rig.rotation.set(current.pitch + eased.pitch, current.yaw + spin.current + pointer.drag + eased.yaw, 0);
-    rig.scale.setScalar(fit.current * current.scale * (1 + eased.zoom));
-    camera.position.set(current.camX + eased.x * 0.35, current.camY + eased.pitch, current.camZ);
+    rig.scale.setScalar(fit.current * current.scale);
+    camera.position.set(current.camX, current.camY + eased.pitch, current.camZ);
     camera.lookAt(current.lookX, current.lookY, current.lookZ);
+    camera.updateMatrixWorld();
     applyExplode(prepared.records, current.explode);
+    const canvas = gl.domElement.getBoundingClientRect();
+    const viewport = stageViewport();
+    if (viewport && canvas.width > 2) {
+      const sizeLane = heroLane(viewport);
+      const placeLane = freeLane(viewport, activeCard(viewport), viewport.height < window.innerHeight * 0.7 ? 16 : 28);
+      const relative = current.scale / (viewport.height < window.innerHeight * 0.7 ? MOBILE_BEATS[0].pose.scale : DESKTOP_BEATS[0].pose.scale);
+      const projected = projectedBounds(prepared.root, camera, canvas);
+      if (projected && projected.width > 2 && projected.height > 2) {
+        const sized = fitProjectedBox(projected, sizeLane, LANE_AREA_FILL);
+        const nextW = projected.width * sized.scale * relative;
+        const nextH = projected.height * sized.scale * relative;
+        const clamp = Math.min(1, placeLane.width / Math.max(nextW, 1), placeLane.height / Math.max(nextH, 1));
+        const desired = {
+          dx: placeLane.x + placeLane.width / 2 - (projected.x + projected.width / 2),
+          dy: placeLane.y + placeLane.height / 2 - (projected.y + projected.height / 2),
+          scale: sized.scale * relative * clamp,
+        };
+        const livePlace = placed.current;
+        if (Math.abs(desired.dx - livePlace.dx) > 0.5 || Math.abs(desired.dy - livePlace.dy) > 0.5 || Math.abs(desired.scale - livePlace.scale) > 0.002) moving = true;
+        livePlace.dx = desired.dx;
+        livePlace.dy = desired.dy;
+        livePlace.scale = desired.scale;
+        rig.scale.multiplyScalar(livePlace.scale);
+        panRig(rig, camera, canvas, livePlace.dx, livePlace.dy);
+      }
+    }
     applyFocus(prepared.records, current.focus, highlight.current);
     if (moving) invalidate();
   });
