@@ -1,0 +1,11 @@
+.knowledge-terrain-shell { display:grid; gap:12px; min-width:0; }
+.knowledge-terrain-shell:fullscreen { padding:18px; overflow:auto; background:var(--background, #101916); }
+.knowledge-terrain-shell .engine-controls button { min-height:44px; }
+.knowledge-terrain-shell .engine-controls button[aria-pressed='true'] { border-color:currentColor; }
+.knowledge-terrain-canvas { display:block; width:100%; height:min(68vh,640px); min-height:360px; touch-action:none; border-radius:12px; }
+.terrain-legend { font-size:12px; line-height:1.6; margin:0; }
+.terrain-relations ol { list-style:none; padding:0; display:grid; gap:8px; }
+.terrain-relations li { display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
+.terrain-relations li small { flex-basis:100%; overflow-wrap:anywhere; }
+.terrain-relations button { min-height:44px; }
+@media(max-width:600px) { .knowledge-terrain-canvas { min-height:320px; height:54vh; } }

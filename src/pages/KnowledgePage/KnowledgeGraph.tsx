@@ -1,15 +1,19 @@
 import { useUiCopy } from '@/ui/useUiCopy';
 import { useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import type { KnowledgeCatalog, KnowledgeRole } from '@shared/knowledge-catalog';
 import { useKnowledgeCatalog } from '@/hooks/useKnowledgeCatalog';
 import { taxonomyNodes, visibleTaxonomyNodes, type TaxonomyNode } from './knowledge-taxonomy-data';
 import TaxonomyGraphCanvas from './TaxonomyGraphCanvas';
+import KnowledgeTerrain from './KnowledgeTerrain';
 import EvidenceEntry from './EvidenceEntry';
 import './knowledge-taxonomy.css';
 
 export default function KnowledgeGraph({ catalog, lang }: { catalog: KnowledgeCatalog; lang: string }) {
   const { t, separator } = useUiCopy(lang);
+  const [params, setParams] = useSearchParams();
+  const mode = params.get('mode') === 'terrain' ? 'terrain' : 'cluster';
+  const setMode = (next: 'terrain' | 'cluster') => { const updated = new URLSearchParams(params); updated.set('view', 'graph'); if (next === 'terrain') updated.set('mode', 'terrain'); else updated.delete('mode'); setParams(updated, { replace: true }); };
   const allNodes = useMemo(() => taxonomyNodes(catalog).filter(node => node.query.brand !== '千寻位置'), [catalog]);
   const [selectedId, setSelected] = useState('');
   const [search, setSearch] = useState('');
@@ -46,7 +50,7 @@ export default function KnowledgeGraph({ catalog, lang }: { catalog: KnowledgeCa
     { level: 'part', label: t('零部件', 'Part'), parent: selectedComponent?.id },
   ];
   return <section className="knowledge-taxonomy" aria-labelledby="taxonomy-heading">
-    <header className="taxonomy-heading"><div><h2 id="taxonomy-heading">{t('知识图谱', 'Knowledge graph')}</h2><p>{t('连线表示目录归属，资料以原文为准。', 'Links show catalog membership. Refer to original evidence.')}</p></div><strong>{nodes.length.toLocaleString()}<small>{t('目录节点 · 非独立知识条数', 'catalog nodes · not unique entries')}</small></strong></header>
+    <header className="taxonomy-heading"><div><h2 id="taxonomy-heading">{t('知识图谱', 'Knowledge graph')}</h2><p>{mode === 'terrain' ? t('关系强度为资料关联的启发式指标，资料以原文为准。', 'Relation strength is a heuristic for document association. Refer to original evidence.') : t('连线表示目录归属，资料以原文为准。', 'Links show catalog membership. Refer to original evidence.')}</p></div><strong>{nodes.length.toLocaleString()}<small>{t('目录节点 · 非独立知识条数', 'catalog nodes · not unique entries')}</small></strong></header>
     <div className="taxonomy-search"><label htmlFor="taxonomy-search">{t('定位知识节点', 'Find a knowledge node')}</label><input id="taxonomy-search" type="search" value={search} onChange={event => setSearch(event.target.value)} placeholder={t('搜索品牌、机型、系统或零件', 'Search brand, model, system or part')} />
       <div className="taxonomy-filters" aria-label={t('图谱过滤', 'Graph filters')}>
         <label><span>{t('资料类型', 'Entry type')}</span><select value={entryTypeFilter} onChange={event => setEntryTypeFilter(event.target.value)}><option value="">{t('全部类型', 'All types')}</option>{entryTypes.map(type => <option key={type} value={type}>{type}</option>)}</select></label>
@@ -56,8 +60,9 @@ export default function KnowledgeGraph({ catalog, lang }: { catalog: KnowledgeCa
       <p className="taxonomy-filter-note">{t('类型与角色只按已核对的归档元数据显示；缺少标注的节点不会被涂色代替。', 'Type and role filters use reviewed archive metadata; missing labels are never implied by color.')}</p>
       {searchTerm && <div className="taxonomy-results"><p>{t(`找到 ${results.length} 个节点，显示前 50 个`, `${results.length} matches; showing the first 50`)}</p>{results.slice(0, 50).map(node => <button key={node.id} onClick={() => { setSelected(node.id); setSearch(''); }}>{node.label}<small>{pathLabel(node)}</small></button>)}{!results.length && <p>{t('无匹配节点；未生成推测知识。', 'No matches; no knowledge inferred.')}</p>}</div>}</div>
     <nav className="taxonomy-trail" aria-label={t('当前知识路径', 'Current knowledge path')}><button onClick={() => setSelected('')}>{t('全部归档', 'All archives')}</button>{path.map(node => <span key={node.id}><span aria-hidden="true"> → </span><button onClick={() => setSelected(node.id)} aria-current={selected?.id === node.id ? 'location' : undefined}>{node.label}</button></span>)}</nav>
-    <p className="taxonomy-lod-note" role="status">{t(`当前显示 ${nodes.length.toLocaleString()} 个节点；远景会聚合隐藏零件，完整目录见下方列表。`, `${nodes.length.toLocaleString()} nodes shown; distant views aggregate parts. Use the directory below for the complete list.`)}</p>
-    <TaxonomyGraphCanvas catalog={catalog} nodes={nodes} selectedId={selectedId} onSelect={setSelected} lang={lang} />
+    <p className="taxonomy-lod-note" role="status">{mode === 'terrain' ? t(`地形包含 ${nodes.length.toLocaleString()} 个节点；完整目录见下方列表。`, `Terrain includes ${nodes.length.toLocaleString()} nodes; use the directory below for the complete list.`) : t(`当前显示 ${nodes.length.toLocaleString()} 个节点；远景会聚合隐藏零件，完整目录见下方列表。`, `${nodes.length.toLocaleString()} nodes shown; distant views aggregate parts. Use the directory below for the complete list.`)}</p>
+    <div className="engine-controls" aria-label={t('图谱视图', 'Graph view')}><button type="button" aria-pressed={mode === 'cluster'} onClick={() => setMode('cluster')}>{t('球团', 'Cluster')}</button><button type="button" aria-pressed={mode === 'terrain'} onClick={() => setMode('terrain')}>{t('地形', 'Terrain')}</button></div>
+    {mode === 'terrain' ? <KnowledgeTerrain nodes={nodes} allNodes={allNodes} selectedId={selectedId} onSelect={setSelected} lang={lang} kbVersion={catalog.kbVersion ?? null} /> : <TaxonomyGraphCanvas catalog={catalog} nodes={nodes} selectedId={selectedId} onSelect={setSelected} lang={lang} />}
     <details className="taxonomy-accessible-directory"><summary>{t('展开目录辅助浏览（键盘 / 无图形模式）', 'Browse directory (keyboard / non-graph mode)')}</summary><div className="taxonomy-columns">{levels.map(({ level, label, parent }, index) => {
       const children = nodes.filter(node => node.level === level && (level === 'brand' || !!parent && node.parent === parent));
       return <section className="taxonomy-column" key={level} aria-label={label}><h3><span>{String(index + 1).padStart(2, '0')}</span>{label}<small>{children.length}</small></h3><div className="taxonomy-node-list">{children.map(node => <button className={node.count ? '' : 'taxonomy-gap'} key={node.id} aria-pressed={path.some(item => item.id === node.id)} onClick={() => setSelected(node.id)}><span>{node.label}</span><small>{node.count ? t(`${node.count} 条关联资料`, `${node.count} linked entries`) : t('待补资料', 'Evidence gap')}{node.scope && `${separator}${node.scope === 'exact' ? t('具体型号范围', 'Specific model') : node.scope === 'series' ? t('系列范围', 'Series scope') : t('待核实', 'Unconfirmed')}`}</small></button>)}{!children.length && <p>{parent ? t('本层尚无已定位节点；保留在上层查看资料。', 'No identified nodes; review evidence at the parent level.') : t('先选择左侧上级目录。', 'Select a parent to continue.')}</p>}</div></section>;
