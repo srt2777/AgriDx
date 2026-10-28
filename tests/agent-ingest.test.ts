@@ -12,3 +12,9 @@ test('增量更新只重建变化文档，识别移除和重复', () => {
   assert.throws(() => updateIndex(second.index, [doc, doc]));
 });
 test('超长章节拒绝而不截断表格', () => assert.throws(() => chunkDocument(doc, 10)));
+test('无效元数据不能入库，代码块标题不拆开', () => {
+  assert.throws(()=>chunkDocument({...doc,metadata:{...doc.metadata,doc_type:''}}));
+  const chunks=chunkDocument({...doc,text:'# 示例\n```md\n# 代码内标题\n```\n# 正文\n检查'});
+  assert.equal(chunks.length,2); assert.match(chunks[0].text,/# 代码内标题/);
+  chunks[0].metadata.fault_codes=['P001']; assert.equal(doc.metadata.fault_codes,undefined);
+});
