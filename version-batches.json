@@ -793,10 +793,17 @@
       "date": "2026-10-28"
     },
     {
-      "id": "old-home-scroll-smooth-20261028",
-      "kind": "fix",
+      "id": "kb-ytobuy-tractor-20261028",
+      "kind": "knowledge",
       "base": "4.0.10",
       "version": "4.0.11",
+      "date": "2026-10-28"
+    },
+    {
+      "id": "old-home-scroll-smooth-20261028",
+      "kind": "fix",
+      "base": "4.0.11",
+      "version": "4.0.12",
       "date": "2026-10-28"
     }
   ]
