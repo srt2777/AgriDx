@@ -68,6 +68,14 @@ export function createStrictSearch(
         channel = 'bm25_keyword_rrf';
       } else candidates = keyword;
     }
+    const scoped = candidates.filter(chunk => hasIndexedReference(chunk) && archiveApplicability(chunk, scope) === 'matched');
+    const missingCodeMetadata = !!code && scoped.length > 0 && !scoped.some(chunk => chunk.faultCodes?.length);
+    const missingEngineMetadata = !!input.machine.engineModel && scoped.length > 0 && !scoped.some(chunk => chunk.engineModel);
+    const insufficientReason = missingCodeMetadata
+      ? '知识库中未找到可靠依据。匹配资料缺少结构化故障码适配记录，请补充本机原厂代码表的版本与页码。'
+      : missingEngineMetadata
+        ? '知识库中未找到可靠依据。匹配资料缺少明确发动机适配记录，请补充本机发动机与手册适用范围的依据。'
+        : '知识库中未找到可靠依据；请补充机型配置、故障码及发生条件。';
     let quarantined = 0;
     const admissible = candidates.filter((chunk: KnowledgeChunk) => {
       if (!hasIndexedReference(chunk) || archiveApplicability(chunk, scope) !== 'matched' ||
@@ -90,6 +98,6 @@ export function createStrictSearch(
     }));
     return citations.length
       ? { status: 'results', evidence_level: '部分', reason: '资料匹配不等于故障已确认；仍须核对年份、配置、版本冲突及证据覆盖。', citations, channel, quarantined }
-      : { status: 'insufficient_evidence', evidence_level: '不足', reason: '知识库中未找到可靠依据；请补充机型配置、故障码及发生条件。', citations: [], channel, quarantined };
+      : { status: 'insufficient_evidence', evidence_level: '不足', reason: insufficientReason, citations: [], channel, quarantined };
   };
 }

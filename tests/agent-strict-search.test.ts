@@ -50,3 +50,8 @@ test('SPN/FMI格式归一，不把相近DTC代码合并',()=>{
  assert.equal(search({query:'报码',machine:{brand:'甲',model:'M1'},faultCode:'SPN 123 FMI 4'}).citations.length,1);
  assert.equal(search({query:'报码',machine:{brand:'甲',model:'M1'},faultCode:'P-001'}).citations.length,0);
 });
+test('元数据缺口必须明确说明，不把代码不存在作为实车结论',()=>{
+ const search=createStrictSearch((()=>[]) as typeof retrieve,()=>{},()=>[{...chunk,faultCodes:undefined}]);
+ const result=search({query:'报码',machine:{brand:'甲',model:'M1'},faultCode:'P001'});
+ assert.equal(result.status,'insufficient_evidence'); assert.match(result.reason,/缺少结构化故障码适配记录/);
+});

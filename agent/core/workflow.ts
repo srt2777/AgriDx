@@ -100,7 +100,7 @@ export function createWorkflow(dependencies: { search?: ReturnType<typeof create
       const status = missingIdentity || found?.status === 'identity_required' ? 'needs_clarification' : citations.length ? 'references_found' : 'insufficient_evidence';
       const content = status === 'needs_clarification' ? found?.reason ?? '请先补充品牌与完整型号，再定位本机资料。'
         : citations.length ? `找到 ${citations.length} 条匹配本机范围的已核验资料。当前只展示资料与出处；原因尚未实车确认，置信度低。请核对每条资料的版本及适用范围，存在差异时请维修人员复核。`
-          : '知识库中未找到可靠依据。请补充以下信息；当前无法据此提供故障原因、标准值或维修步骤。';
+          : ['知识库中未找到可靠依据', (found?.reason ?? '').replace(/^知识库中未找到可靠依据[。；]?/u, '').replace(/[。；]+$/u, ''), '当前无法据此提供故障原因、标准值或维修步骤'].filter(Boolean).join('。') + '。';
       return finish({ status, content, safety, confidence: '低', evidence_level: citations.length ? '部分' : '不足', citations, questions }, bundle.version, outcome.reason, outcome.steps);
     },
   };

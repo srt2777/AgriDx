@@ -416,4 +416,4 @@ AgriDx/
 
 ### 可选的严格资料定位工作流
 
-Node 服务可设置 `AGENT_WORKFLOW_ENABLED=true`，在聊天页展开“严格资料定位”，运行本地规则规划、机型隔离检索与引用追问。默认关闭，无需外部模型密钥。当前交付不包含完整自动维修诊断、向量检索或长期 Agent 记忆。运行和验证见 [Agent RUNBOOK](docs/agent/RUNBOOK.md)，实现范围见 [架构说明](docs/agent/ARCHITECTURE.md)。
+Node 服务可设置 `AGENT_WORKFLOW_ENABLED=true`，在聊天页打开“严格资料定位”，运行本地规则规划、机型隔离检索与引用追问。默认关闭，无需外部模型密钥。当前交付不包含完整自动维修诊断、向量检索或长期 Agent 记忆。运行和验证见 [Agent RUNBOOK](docs/agent/RUNBOOK.md)，实现范围见 [架构说明](docs/agent/ARCHITECTURE.md)。

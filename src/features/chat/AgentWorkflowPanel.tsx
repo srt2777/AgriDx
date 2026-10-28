@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import type { AgentWorkflowInput, WorkflowEvent, WorkflowResult } from '../../../shared/agent';
 import { requestWorkflow } from './agent-api';
 
@@ -7,6 +8,9 @@ export function AgentWorkflowPanel({ query, machine, faultCode, onQuestion, onBu
   const [enabled, setEnabled] = useState(false); const [busy, setBusy] = useState(false);
   const [events, setEvents] = useState<WorkflowEvent[]>([]); const [result, setResult] = useState<WorkflowResult>(); const [error, setError] = useState('');
   const task = useRef<AbortController | null>(null);
+  const dialog = useRef<HTMLDialogElement | null>(null);
+  const [open, setOpen] = useState(false);
+  useEffect(() => { if (open && dialog.current && !dialog.current.open) dialog.current.showModal(); }, [open]);
   useEffect(() => {
     const controller = new AbortController();
     void fetch('/api/agent/status', { signal: controller.signal, credentials: 'same-origin', cache: 'no-store' }).then(res => res.ok ? res.json() : null).then(status => { if (!controller.signal.aborted) setEnabled(status?.enabled === true); }).catch(() => {});
@@ -14,6 +18,7 @@ export function AgentWorkflowPanel({ query, machine, faultCode, onQuestion, onBu
   }, []);
   useEffect(() => { task.current?.abort(); setBusy(false); onBusyChange(false); setResult(undefined); setEvents([]); setError(''); return () => task.current?.abort(); }, [query, machine.brand, machine.model, machine.engineModel, faultCode, onBusyChange]);
   if (!enabled) return null;
+  const close = () => { task.current?.abort(); setBusy(false); onBusyChange(false); dialog.current?.close(); setOpen(false); };
   const run = async () => {
     task.current?.abort(); const controller = new AbortController(); task.current = controller;
     setBusy(true); onBusyChange(true); setEvents([]); setResult(undefined); setError('');
@@ -30,8 +35,11 @@ export function AgentWorkflowPanel({ query, machine, faultCode, onQuestion, onBu
     const url = URL.createObjectURL(new Blob([JSON.stringify(result.trace, null, 2)], { type: 'application/json' }));
     const anchor = document.createElement('a'); anchor.href = url; anchor.download = `diagnosis-trace-${result.trace.id}.json`; anchor.click(); setTimeout(() => URL.revokeObjectURL(url), 1000);
   };
-  return <details className="mb-3 rounded-md border border-border bg-background/60 p-3 text-sm">
-    <summary className="cursor-pointer">严格资料定位</summary>
+  return <>
+    <button type="button" className="mb-3 rounded-md border border-border bg-background/60 px-3 py-2 text-sm" onClick={() => setOpen(true)}>严格资料定位</button>
+    {open && createPortal(<dialog ref={dialog} aria-labelledby="agent-workflow-title" onCancel={event => { event.preventDefault(); close(); }} className="fixed inset-0 m-auto max-h-[85dvh] w-[min(64rem,calc(100vw-2rem))] overflow-y-auto rounded-md border border-border bg-background p-4 text-sm text-foreground backdrop:bg-black/60">
+    <div className="flex items-center justify-between gap-3"><h2 id="agent-workflow-title" className="text-base font-medium">严格资料定位</h2><button type="button" onClick={close} className="rounded border border-border px-3 py-2" aria-label="关闭资料定位">关闭</button></div>
+    <p className="mt-2 text-xs text-muted-foreground">{query.trim() ? `${[machine.brand, machine.model, faultCode].filter(Boolean).join(" / ") || "机型待补充"}：${query}` : "请先在故障描述中填写问题。"}</p>
     <div className="mt-3 space-y-3">
       <div className="flex flex-wrap items-center gap-2">
         <button type="button" disabled={busy || !query.trim()} onClick={() => void run()} className="rounded-md border border-border px-3 py-2 disabled:opacity-50">{busy ? '正在查找' : error ? '重试' : '查找本机依据'}</button>
@@ -48,10 +56,11 @@ export function AgentWorkflowPanel({ query, machine, faultCode, onQuestion, onBu
           <div className="rounded border border-amber-500/40 p-2" role="note">{result.safety.join('\n')}</div>
           <p>{result.content}</p>
           {result.citations.map((citation, index) => <details key={`${citation.chunk_id}-${citation.version}`} className="rounded border border-border p-2"><summary>[{index + 1}] {citation.doc_title}（机型精确匹配）</summary><p className="mt-2 text-xs text-muted-foreground">{citation.section_path}；PDF 页码：{citation.page ?? '未记录'}；版本：{citation.version ?? '未记录'}；{citation.chunk_id}</p><blockquote className="mt-2 whitespace-pre-wrap border-l border-border pl-3">{citation.snippet}</blockquote>{citation.scope_boundary && <p className="mt-2 text-xs text-muted-foreground">适用范围：{citation.scope_boundary}</p>}</details>)}
-          {result.questions.map(question => <div key={question.id}><p>{question.label}</p>{question.options && <div className="mt-1 flex flex-wrap gap-2">{question.options.map(option => <button key={option} type="button" className="rounded border border-border px-2 py-1" onClick={() => onQuestion(`${question.label} ${option}`)}>{option}</button>)}</div>}</div>)}
+          {result.questions.map(question => <div key={question.id}><p>{question.label}</p>{question.options && <div className="mt-1 flex flex-wrap gap-2">{question.options.map(option => <button key={option} type="button" className="rounded border border-border px-2 py-1" onClick={() => { close(); onQuestion(`${question.label} ${option}`); }}>{option}</button>)}</div>}</div>)}
           <button type="button" onClick={exportTrace} className="rounded border border-border px-3 py-2">导出执行记录</button>
         </>}
       </div>
     </div>
-  </details>;
+  </dialog>, document.body)}
+  </>;
 }
