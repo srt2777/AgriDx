@@ -1,5 +1,7 @@
 # Agent 改造摸底与实施计划
 
+此为初始摸底快照；当前实现、验证与剩余范围以 [PROGRESS.md](PROGRESS.md) 为准。
+
 基线：2026-10-28，`srt2777/AgriDx` 的 `origin/main`，提交 `2f206e9`。本清单是代码摸底，不代表新能力已上线。现有产品为 React 19 / Vite / Three.js 前端与 Express / TypeScript 服务端，Node >=22.19；`npm test`、`npm run typecheck`、`npm run build` 为现有验证入口。
 
 ## 知识来源初盘
