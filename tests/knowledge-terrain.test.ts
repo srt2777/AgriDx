@@ -4,6 +4,7 @@ import { terrainLayout } from '../src/pages/KnowledgePage/knowledge-terrain-layo
 import { terrainField } from '../src/pages/KnowledgePage/knowledge-terrain-field';
 import { terrainContours } from '../src/pages/KnowledgePage/knowledge-terrain-contours';
 import { terrainCacheKey } from '../src/pages/KnowledgePage/knowledge-terrain-cache';
+import { terrainMemberships } from '../src/pages/KnowledgePage/knowledge-terrain-fallback';
 import type { TaxonomyNode } from '../src/pages/KnowledgePage/knowledge-taxonomy-data';
 const sample:TaxonomyNode[]=[{id:'brand',label:'A',level:'brand',order:0,count:10,query:{brand:'A'}},{id:'model',label:'B',level:'model',parent:'brand',order:0,count:2,query:{brand:'A',model:'B'}},{id:'gap',label:'C',level:'component',parent:'model',order:0,count:0,query:{brand:'A',model:'B'}}];
 test('terrain layout is stable and retains all identities',()=>{const a=terrainLayout(sample);assert.deepEqual(a,terrainLayout(sample));assert.equal(a.length,3);assert.ok(a.every(p=>p.x>=0&&p.x<=1&&p.y>=0&&p.y<=1));});
@@ -26,4 +27,12 @@ test('cache key invalidates on snapshot, filtering, counts and fallback',()=>{
   assert.notEqual(base,key('v1','fallback',sample));
   assert.notEqual(base,key('v1','',sample.slice(0,2)));
   assert.notEqual(base,key('v1','',[{...sample[0],count:11},...sample.slice(1)]));
+});
+test('fallback retains only evidenced catalog membership, including zero-entry gaps',()=>{
+  const edges=terrainMemberships(sample);
+  assert.equal(edges.length,2);
+  assert.ok(edges.every(edge=>edge.type==='membership'));
+  assert.deepEqual(edges.find(edge=>edge.to==='gap')?.evidence,{parentCount:2,childCount:0});
+  assert.equal(edges.find(edge=>edge.to==='gap')?.strength,0);
+  assert.deepEqual(terrainMemberships(sample.slice(1)),[edges[1]]);
 });

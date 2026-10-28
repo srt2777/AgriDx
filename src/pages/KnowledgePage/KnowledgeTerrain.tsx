@@ -5,12 +5,12 @@ import { useUiVersion } from '@/hooks/useUiVersion';
 import { useTheme } from '@/hooks/useTheme';
 import { classicGraphPalette } from '@/ui/graph-palette';
 import type { RelationEdge, KnowledgeRelations } from '../../../shared/knowledge-relations';
-import { membershipStrength } from '../../../shared/relation-strength';
 import { fetchKnowledgeRelations } from '@/features/knowledge/relations-api';
 import type { TaxonomyNode } from './knowledge-taxonomy-data';
 import { palette } from './taxonomy-graph-layout';
 import { terrainLayout } from './knowledge-terrain-layout';
 import { terrainCacheKey } from './knowledge-terrain-cache';
+import { terrainMemberships } from './knowledge-terrain-fallback';
 import type { TerrainField } from './knowledge-terrain-field';
 import type { ContourSegment } from './knowledge-terrain-contours';
 import { TerrainRenderer } from './knowledge-terrain-renderer';
@@ -18,13 +18,6 @@ import { createGraphCamera, cameraMoving, fitGraph, stepGraphCamera, zoomGraph }
 import { createGraphFlowLoop } from './graph-flow-loop';
 import './knowledge-terrain.css';
 
-function memberships(nodes: TaxonomyNode[]): RelationEdge[] {
-  const index=new Map(nodes.map(node=>[node.id,node])), edges:RelationEdge[]=[];
-  for(const child of nodes){if(!child.parent)continue;const parent=index.get(child.parent);if(!parent)continue;
-    edges.push({from:parent.id,to:child.id,type:'membership',strength:membershipStrength(parent.count,child.count),basis:'目录归属',evidence:{parentCount:parent.count,childCount:child.count}});
-  }
-  return edges;
-}
 interface TerrainData { edges:RelationEdge[]; warning:string; kbVersion:string|null }
 interface Calculated { width:number;height:number;values:Float32Array;contours:ContourSegment[];elapsedMs:number }
 export default function KnowledgeTerrain({ nodes, allNodes, selectedId, onSelect, lang, kbVersion }: { nodes:TaxonomyNode[]; allNodes:TaxonomyNode[]; selectedId:string; onSelect:(id:string)=>void; lang:string; kbVersion:string|null }) {
@@ -45,7 +38,7 @@ export default function KnowledgeTerrain({ nodes, allNodes, selectedId, onSelect
   useEffect(()=>{
     const controller=new AbortController(), ids=new Set(allNodes.map(node=>node.id));
     setData(null);setError('');
-    const fallback=(message:string)=>{if(!controller.signal.aborted)setData({edges:memberships(allNodes),warning:message,kbVersion});};
+    const fallback=(message:string)=>{if(!controller.signal.aborted)setData({edges:terrainMemberships(allNodes),warning:message,kbVersion});};
     void (async()=>{
       try {
         const first=await fetchKnowledgeRelations(ids,controller.signal,{offset:0,limit:10000});
