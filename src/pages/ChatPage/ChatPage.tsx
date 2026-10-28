@@ -35,6 +35,7 @@ import { ThinkingOrbs } from '@/components/motion/ThinkingOrbs';
 import { useDiagnosisOrb } from '@/components/motion/useDiagnosisOrb';
 import { chatPathBadge, evidenceRows } from '@/features/chat/evidence';
 import { useTelemetry } from '@/hooks/useTelemetry';
+import { AgentWorkflowPanel } from '@/features/chat/AgentWorkflowPanel';
 
 export default function ChatPage() {
   const location = useLocation();
@@ -48,6 +49,7 @@ export default function ChatPage() {
   const workspaceRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [includeTelemetry, setIncludeTelemetry] = useState(false);
+  const [agentBusy, setAgentBusy] = useState(false);
   const telemetry = useTelemetry({ modelId: 'diesel', partId: 'engine', window: '5m' });
   const telemetrySummary = includeTelemetry ? {
     source: 'simulated' as const,
@@ -79,7 +81,7 @@ export default function ChatPage() {
     engineModel, setEngineModel, faultCodeInput, setFaultCodeInput, attachment, setAttachment, sendError,
   } = useChatSession({ handoff, translate: t, focusInput, telemetrySummary, minLoadingMs: version === 'new' && PREMIUM_MOTION_ENABLED ? 900 : 0 });
   const orb = useDiagnosisOrb(PREMIUM_MOTION_ENABLED && version === 'new' && isLoading);
-  useUpdateBlocker('/chat', isLoading || memory.busy || !memory.ready || !!input.trim() || !!attachment
+  useUpdateBlocker('/chat', isLoading || agentBusy || memory.busy || !memory.ready || !!input.trim() || !!attachment
     || progress.trim() !== (memory.session?.progress ?? '')
     || hasUnsavedProfile(profile, memory.devices.find(device => device.id === memory.deviceId)));
   const llmHealth = useLlmHealth();
@@ -226,6 +228,8 @@ export default function ChatPage() {
       <div ref={threadRef} onScroll={() => { const node = threadRef.current; if (node) followThread.current = node.scrollHeight - node.scrollTop - node.clientHeight < 100; }} className="min-h-0 flex-1 overflow-y-auto" role="log" aria-label={t('诊断对话', 'Diagnosis conversation')} aria-live="polite">
         <div className="mx-auto max-w-3xl px-4 py-6 md:px-6">
               {version !== 'new' && contextOpen && <div id="chat-machine-context"><MachineContext framed {...contextProps} /></div>}
+
+          <AgentWorkflowPanel query={input} machine={{ brand, model, engineModel }} faultCode={faultCodeInput} onBusyChange={setAgentBusy} onQuestion={text => setInput(current => `${current}\n${text}`)} />
 
           {/* 空状态 / 欢迎态 */}
           {isEmpty && (
