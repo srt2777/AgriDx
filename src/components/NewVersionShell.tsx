@@ -8,6 +8,7 @@ import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useLang, setLang } from '@/hooks/useLang';
 import { CommandButton } from '@/components/CommandPalette';
 import { SiteStatusBar } from '@/components/SiteStatusBar';
+import DemoNote from '@/components/DemoNote';
 import VersionSwitch from '@/components/VersionSwitch';
 import ThemeSwitch from '@/components/ThemeSwitch';
 import { beginSharedTransition } from '@/lib/shared-transition';
@@ -46,6 +47,7 @@ export function NewVersionShell() {
         <div className="new-version-tools">
           <CommandButton className={PREMIUM_MOTION_ENABLED ? 'glass-press' : undefined} />
           <VersionSwitch exhibition onChange={() => navigate('/')} />
+          <DemoNote />
           <ThemeSwitch />
           <button type="button" className="new-version-language" onClick={() => setLang(lang === 'zh' ? 'en' : 'zh')} aria-label={t('切换语言', 'Switch language')}>
             <Globe size={16} />

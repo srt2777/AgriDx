@@ -988,6 +988,7 @@ export default function ExhibitionWorld({ onLive, onLost, ...props }: WorldProps
         frameloop="demand"
         role="group"
         onCreated={({ gl }) => {
+          gl.toneMappingExposure = 0.8;
           gl.domElement.style.touchAction = 'none';
           markLive(gl.domElement);
         }}
