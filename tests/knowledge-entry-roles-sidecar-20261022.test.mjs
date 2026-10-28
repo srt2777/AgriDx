@@ -13,9 +13,9 @@ test('角色旁路文件与人工核对队列恰好覆盖全部可标注条目�
   const tags = lines('entry-roles.jsonl');
   const queue = lines('role-review-queue.jsonl');
   const taggable = new Set(entries.filter((e) => !NON_DIAGNOSTIC.has(e.entry_type)).map((e) => e.entry_id));
-  assert.equal(taggable.size, 4343);
-  assert.equal(tags.length, 2014);
-  assert.equal(queue.length, 2329);
+  assert.equal(taggable.size, 4928);
+  assert.equal(tags.length, 2185);
+  assert.equal(queue.length, 2743);
   const tagged = new Set(tags.map((t) => t.entry_id));
   const queued = new Set(queue.map((q) => q.entry_id));
   assert.equal(tagged.size, tags.length);

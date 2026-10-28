@@ -1,22 +1,22 @@
 {
   "schema": 1,
-  "kb_version": "2026.10.3",
-  "released": "2026-10-22",
-  "project_version": "3.8.3",
+  "kb_version": "2026.10.6",
+  "released": "2026-10-28",
+  "project_version": "4.0.7",
   "counts": {
-    "archive": 4877,
+    "archive": 5485,
     "learning": 6000,
-    "sources": 28,
-    "markdown_files": 128
+    "sources": 55,
+    "markdown_files": 156
   },
   "content_hash": {
-    "entries": "2bf45e3a7abe7a84afc48bf8ee129c00786558e2d3b0b97c7a4cdf26ec493385",
-    "sources": "8fe14f18be1ebd06b8881bb24d8bffc97930a5bea1657612d06af332930d771b",
-    "hierarchy": "36faa3045c99c8e72a3cfd27f83280de13cbf782b6bc1e54ed5e8a08573889af",
-    "entry_roles": "f53450631b094c4ed978a3c570610c457613bc8725ca450c6485b2a640015a82",
-    "role_review_queue": "4da7eefc7e198dee02da445117080f4a03ffd1c8cd24ffc1c54b35d281873845",
+    "entries": "114e3ead1666348a9973cd944ea40bd629bf4f018a4454bd2b43ae2b5306d10e",
+    "sources": "5ffc84d2e02712ed96d1143daff0b7745d00c76546efa92947adb58e13a5acf3",
+    "hierarchy": "f96ed8897a7daebd1356928c3d0b8bd5d2de6a2dbaef5a95b5211ffffe1ef3da",
+    "entry_roles": "f72c649a10a2a8c8efe15e09e446a18c13c222fd8f2b05c5af0be38e0450f286",
+    "role_review_queue": "82a25fa7435ca31faf6bd833497bf673470527d76a91bc164bd7ad885a482125",
     "learning_index": "1eac29d4f33681de65628b95b992b248f35c62578fb2f9e45ac5b1fdda8b414f",
     "learning_expansion": "f498bd5dce2b3f96730ab5d508936d5852d0173416e2636878e35aabcda3fbfc",
-    "markdown": "39b8cbafcc9fb8816d34bfb662399730c93bb80fb21c350eabc2864cffd9f402"
+    "markdown": "2b64da9d2573161b11110e8af658bba4a95497be5e1f31ceda18e0768b1d53f9"
   }
 }
