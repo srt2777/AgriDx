@@ -21,8 +21,8 @@
 | --- | --- | --- |
 | LLM | `server/llm/` 的供应商与回退；`server/diagnosis/service.ts` 组织上下文和答复 | 模型补充保留推断标识，不能自行升级来源、适用范围或维修权限 |
 | Memory | `src/features/chat/` 当前会话；`server/memory/` 的设备、诊断记录、检查进度和历史报告 | Express用SQLite，独立开发预览用浏览器存储；尚不是自动提取事实并语义召回的Memory Bank |
-| Planner | `server/knowledge/coordination.ts` 接入 `server/diagnosis/router.ts`，按问题、证据和风险选择答复路径 | 当前为规则协调；未实现模型自主产生并反复执行多步计划的通用运行器 |
-| Tool Use | 服务层调用 `server/knowledge/retriever.ts` 检索，路由读取/保存记忆；`server/diagnosis/answerGuard.ts` 检查AI输出 | 新增只读工具注册表与执行层见 `agent/tools.ts` 和 [使用说明](../agent/README.md)，支持 schema、参数校验、异常归一及输出上限；现有聊天仍由应用编排，尚无模型工具调用循环或MCP接入 |
+| Planner | `server/knowledge/coordination.ts` 接入 `server/diagnosis/router.ts`，按问题、证据和风险选择答复路径 | 当前为规则协调；影子实验仅在协调器允许时使用有限工具集合，不是通用自主规划器 |
+| Tool Use | 服务层调用 `server/knowledge/retriever.ts` 检索，路由读取/保存记忆；`server/diagnosis/answerGuard.ts` 检查AI输出 | 新增只读工具注册表与执行层见 `agent/tools.ts` 和 [使用说明](../agent/README.md)，支持 schema、参数校验、异常归一、输出上限和 AbortSignal 协作取消（不能抢占同步函数）；默认仍由现有聊天路径答复；Node 端可显式启用有界影子循环记录事件，结果不改变答复；没有 MCP 接入 |
 
 `answerGuard.ts` 是已有的独立代码规则门，不是独立评估Agent，也不能证明任意自然语言结论都有语义支持。三维关系、来源分组及界面中的角色名称也不自动等于多个可独立执行的Agent。
 

@@ -9,6 +9,10 @@ export function createChatRoutes(diagnose: DiagnosticService, store = getMemoryS
   const router = Router();
   const active = new Set<string>();
   router.post('/chat', sameOrigin, async (req, res) => {
+    const controller = new AbortController();
+    const disconnect = () => { if (!res.writableEnded) controller.abort(); };
+    req.on('aborted', disconnect);
+    res.on('close', disconnect);
     let remembered: SessionDetail | undefined;
     let owner = '';
     let acquired = false;
@@ -38,7 +42,7 @@ export function createChatRoutes(diagnose: DiagnosticService, store = getMemoryS
       }
       const priorReports = remembered ? store().priorReports(owner, remembered.deviceId, remembered.id, user.content) : [];
       const memory: DiagnosticMemory | undefined = remembered ? { session: { ...remembered, summary: summarizeReports(input.history) }, priorReports } : undefined;
-      const payload = await diagnose(input, memory);
+      const payload = await diagnose(input, memory, controller.signal);
       if (res.destroyed) return;
       if (remembered) {
         const assistant: Omit<MemoryMessage, 'id' | 'role' | 'createdAt'> = { content: payload.choices[0].message.content };
@@ -54,7 +58,7 @@ export function createChatRoutes(diagnose: DiagnosticService, store = getMemoryS
       if (error instanceof MemoryError || remembered || req.body?.sessionId !== undefined) { memoryFailure(error, res); return; }
       console.error('[chat] unexpected error:', error);
       res.status(502).json({ error: '智能诊断服务暂时无法连接，请稍后重试。', code: 'llm_unavailable' });
-    } finally { if (acquired && remembered) active.delete(remembered.id); }
+    } finally { req.off('aborted',disconnect);res.off('close',disconnect);if (acquired && remembered) active.delete(remembered.id); }
   });
   return router;
 }
