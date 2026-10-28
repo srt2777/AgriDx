@@ -6,7 +6,7 @@
 
 ## 模块职责
 
-Agent的设计口径和参与路线见[共同指南](agent-development.md)。LLM落在`server/llm/`，Memory落在`server/memory/`及前端会话模块，Planner由诊断协调与路由承担，Tool Use由服务层编排检索和记忆等内部能力。OpenAI 兼容供应商提供可选工具协议；Node 诊断的实验性影子循环默认关闭，只记录脱敏事件、不改变答复。Gemini 和开发站网关尚不支持工具调用透传；不存在默认上线的自主循环。
+Agent的设计口径和参与路线见[共同指南](agent-development.md)。LLM落在`server/llm/`，Memory落在`server/memory/`及前端会话模块，Planner由诊断协调与路由承担，Tool Use由服务层编排检索和记忆等内部能力。OpenAI 兼容供应商提供可选工具协议；Node 诊断的实验性影子循环默认关闭，开启后在答复发出后于后台运行（优先可调用工具的供应商），只在服务端日志记录脱敏事件、不改变也不延迟答复。Gemini 和开发站网关尚不支持工具调用透传；不存在默认上线的自主循环。
 
 | 位置 | 职责 |
 | --- | --- |

@@ -93,12 +93,15 @@ export class LlmRouter {
     return this.getStatus().configured;
   }
 
-  /** Shadow tool use only; unsupported providers retain the ordinary chat path. */
+  /**
+   * Shadow tool use only; never affects ordinary chat routing. Prefers the ordinary primary when it
+   * supports tool calls, otherwise any other configured tool-capable provider (Gemini has none).
+   */
   toolProvider(): Provider | null {
-    const preference=getPreference();
-    if(preference===null)return null;
-    const provider=this.pickPrimary(preference).primary;
-    return provider.isConfigured() && provider.chatWithTools ? provider : null;
+    const preference = getPreference();
+    if (preference === null) return null;
+    const { primary, secondary } = this.pickPrimary(preference);
+    return [primary, secondary].find(provider => provider.isConfigured() && provider.chatWithTools) ?? null;
   }
 
   private pickPrimary(preference: ProviderPreference): { primary: Provider; secondary: Provider } {

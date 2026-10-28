@@ -98,7 +98,6 @@ export interface ChatResponse {
 
 /** Timing is measured on the executing server; scores are retrieval matches, not accuracy. */
 export interface DiagnosisTrace {
-  toolEvents?: Array<{step:number;tool:string;args:unknown;ok:boolean;error_type:string|null;duration_ms:number;source:string}>;
   retrievalCount: number;
   aiAttempts: number;
   aiSuccesses: number;

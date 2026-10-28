@@ -5,7 +5,7 @@ import type { ChatResponse } from '../shared/chat';
 import { createDiagnosticService, type DiagnosticDependencies, type DiagnosticMemory, type DiagnosticProvider } from '../server/diagnosis/service';
 import { DiagnosticInputError, parseDiagnosticRequest, type DiagnosticRequest } from '../server/diagnosis/request';
 import type { KnowledgeChunk } from '../server/knowledge/retriever';
-import type { ChatMessage } from '../server/llm/types';
+import type { ChatMessage, Provider } from '../server/llm/types';
 import { ProviderError } from '../server/llm/types';
 
 const environmentKeys = ['DIAGNOSIS_MODE', 'ALLOW_EXTERNAL_AI', 'DIAGNOSIS_RAW_HIGH_THRESHOLD', 'DIAGNOSIS_RAW_MEDIUM_THRESHOLD'];
@@ -428,15 +428,114 @@ test('输入校验保留发动机/故障码并拒绝非文本或无界代码数�
   }
 });
 
-test('shadow loop records bounded tool events but never changes the ordinary answer or bypasses local routing',async()=>{
- const saved=process.env.AGENT_LOOP;let shadowCalls=0,mainCalls=0;
- const provider:DiagnosticProvider={hasAnyConfigured:()=>true,chat:async()=>{mainCalls++;return {result:{content:'【通用分析（待验证）】合成模型回复；未确诊。',model:'fixture-model',provider:'deepseek'},primary:'deepseek',fellBack:false};},toolProvider:()=>({name:'deepseek',model:'fake',isConfigured:()=>true,chat:async()=>{throw Error('unused');},chatWithTools:async()=>shadowCalls++===0?{content:'',stopReason:'tool_calls',toolCalls:[{id:'x',name:'calculator',input:{expression:'2+2'}}]}:{content:'【通用分析（待验证）】合成影子答复。',stopReason:'stop',toolCalls:[]}})};
- const doc=document({diagnosticMetadata:{coverage:{symptom:true,causes:true,checks:false,repair:false},riskLevel:'low'}});
- const diagnose=createDiagnosticService(provider,{config:{logDecisions:false},retrieve:()=>[doc]});
- try{
-  process.env.AGENT_LOOP='off';const ordinary=await diagnose(request());assert.equal(shadowCalls,0);
-  process.env.AGENT_LOOP='shadow';const shadow=await diagnose(request());assert.equal(reply(shadow),reply(ordinary));assert.equal(shadow.diagnosisTrace?.toolEvents?.at(-1)?.tool,'calculator');assert.equal(shadowCalls,2);
-  const local=await diagnose(request('knowledge_only'));assert.equal(local.provider,'knowledge-base');assert.equal(shadowCalls,2);assert.equal(mainCalls,2);
-  const highRisk=await diagnose(request('auto','高压共轨喷油器能否带压拆卸？'));assert.equal(highRisk.provider,'knowledge-base');assert.equal(shadowCalls,2);assert.equal(mainCalls,2);
- }finally{if(saved===undefined)delete process.env.AGENT_LOOP;else process.env.AGENT_LOOP=saved;}
+type ShadowReport = Parameters<NonNullable<DiagnosticDependencies['onShadowResult']>>[0];
+const shadowAnswer = '【通用分析（待验证）】合成模型回复；未确诊。';
+function shadowHarness(toolProvider: DiagnosticProvider['toolProvider'], extra: DiagnosticDependencies = {}) {
+  let mainCalls = 0;
+  const reports: ShadowReport[] = [];
+  let notify: (() => void) | undefined;
+  const provider: DiagnosticProvider = { hasAnyConfigured: () => true, toolProvider,
+    chat: async () => { mainCalls++; return { result: { content: shadowAnswer, model: 'fixture-model', provider: 'deepseek' }, primary: 'deepseek', fellBack: false }; } };
+  const doc = document({ diagnosticMetadata: { coverage: { symptom: true, causes: true, checks: false, repair: false }, riskLevel: 'low' } });
+  const diagnose = createDiagnosticService(provider, { config: { logDecisions: false, agentLoop: 'shadow', ...extra.config }, retrieve: () => [doc],
+    onShadowResult: report => { reports.push(report); notify?.(); }, ...extra });
+  const nextReport = () => new Promise<ShadowReport>(resolve => { const count = reports.length; notify = () => { if (reports.length > count) resolve(reports.at(-1)!); }; });
+  return { diagnose, reports, nextReport, mainCalls: () => mainCalls };
+}
+function fakeToolProvider(chatWithTools: NonNullable<Provider['chatWithTools']>): Provider {
+  return { name: 'deepseek', model: 'fake', isConfigured: () => true, chat: async () => { throw Error('unused'); }, chatWithTools };
+}
+
+test('shadow loop is off by default, never changes the answer and never runs for local routes', async () => {
+  let shadowCalls = 0;
+  const tool = fakeToolProvider(async () => shadowCalls++ === 0
+    ? { content: '', stopReason: 'tool_calls', toolCalls: [{ id: 'x', name: 'calculator', input: { expression: '2+2' } }] }
+    : { content: '【通用分析（待验证）】合成影子答复。', stopReason: 'stop', toolCalls: [] });
+  const off = shadowHarness(() => tool, { config: { logDecisions: false, agentLoop: 'off' } });
+  const ordinary = await off.diagnose(request());
+  await new Promise(resolve => setTimeout(resolve, 10));
+  assert.equal(shadowCalls, 0); assert.equal(off.reports.length, 0);
+  const h = shadowHarness(() => tool);
+  const pending = h.nextReport();
+  const shadow = await h.diagnose(request());
+  assert.equal(reply(shadow), reply(ordinary));
+  assert.equal(JSON.stringify(shadow).includes('calculator'), false, 'shadow tool events are logged server-side, never returned to the client');
+  const report = await pending;
+  assert.equal(report.status, 'answered'); assert.equal(report.provider, 'deepseek'); assert.equal(report.toolEvents.at(-1)?.tool, 'calculator');
+  assert.ok(report.toolEvents.every(event => event.args === '[已脱敏]'));
+  assert.equal(shadowCalls, 2);
+  const local = await h.diagnose(request('knowledge_only'));
+  const highRisk = await h.diagnose(request('auto', '高压共轨喷油器能否带压拆卸？'));
+  await new Promise(resolve => setTimeout(resolve, 10));
+  assert.equal(local.provider, 'knowledge-base'); assert.equal(highRisk.provider, 'knowledge-base');
+  assert.equal(shadowCalls, 2); assert.equal(h.mainCalls(), 1); assert.equal(h.reports.length, 1);
+});
+
+test('AGENT_LOOP env enables shadow only for the exact value shadow', async () => {
+  const { diagnosticRuntimeConfig } = await import('../server/diagnosis/config');
+  const saved = process.env.AGENT_LOOP;
+  try {
+    delete process.env.AGENT_LOOP; assert.equal(diagnosticRuntimeConfig().agentLoop, 'off');
+    process.env.AGENT_LOOP = ' Shadow '; assert.equal(diagnosticRuntimeConfig().agentLoop, 'shadow');
+    process.env.AGENT_LOOP = 'on'; assert.equal(diagnosticRuntimeConfig().agentLoop, 'off');
+  } finally { if (saved === undefined) delete process.env.AGENT_LOOP; else process.env.AGENT_LOOP = saved; }
+});
+
+test('shadow loop runs in the background and does not delay the ordinary reply', async () => {
+  let release: (() => void) | undefined;
+  let started = false;
+  const tool = fakeToolProvider(() => { started = true; return new Promise(resolve => { release = () => resolve({ content: '【通用分析（待验证）】合成影子答复。', stopReason: 'stop', toolCalls: [] }); }); });
+  const h = shadowHarness(() => tool);
+  const pending = h.nextReport();
+  const response = await h.diagnose(request());
+  assert.equal(reply(response).length > 0, true);
+  assert.equal(h.reports.length, 0, 'the reply returns while the shadow run is still pending');
+  await new Promise(resolve => setTimeout(resolve, 0));
+  assert.equal(started, true);
+  release?.();
+  assert.equal((await pending).status, 'answered');
+});
+
+test('background shadow still honours caller cancellation and its own deadline', async () => {
+  const hanging = fakeToolProvider(() => new Promise(() => {}));
+  const h = shadowHarness(() => hanging);
+  const controller = new AbortController();
+  const cancelled = h.nextReport();
+  await h.diagnose(request(), undefined, controller.signal);
+  controller.abort();
+  const report = await cancelled;
+  assert.equal(report.status, 'cancelled');
+  const timed = shadowHarness(() => hanging, { shadowTimeoutMs: 5 });
+  const deadline = timed.nextReport();
+  await timed.diagnose(request());
+  const result = await deadline;
+  assert.equal(result.status, 'fallback'); assert.equal(result.reason, 'deadline');
+});
+
+test('shadow errors are caught and logged without affecting the reply', async (t) => {
+  const warn = t.mock.method(console, 'warn', () => {});
+  const broken: Provider = { name: 'deepseek', model: 'fake', isConfigured: () => { throw new Error('synthetic'); }, chat: async () => { throw Error('unused'); }, chatWithTools: async () => { throw Error('unused'); } };
+  const h = shadowHarness(() => broken);
+  const pending = h.nextReport();
+  const response = await h.diagnose(request());
+  assert.equal(reply(response).length > 0, true);
+  const report = await pending;
+  assert.equal(report.status, 'error'); assert.equal(report.reason, 'unexpected_error');
+  assert.ok(warn.mock.calls.some(call => String(call.arguments[0]).includes('[agent-shadow] failed')));
+  const failing = shadowHarness(() => fakeToolProvider(async () => { throw new ProviderError('deepseek', 'server_error', 'synthetic'); }));
+  const fallback = failing.nextReport();
+  await failing.diagnose(request());
+  assert.equal((await fallback).reason, 'provider_or_tool_error');
+});
+
+test('shadow without a tool-capable provider is skipped with a single clear warning', async (t) => {
+  const warn = t.mock.method(console, 'warn', () => {});
+  const h = shadowHarness(() => null);
+  const first = await h.diagnose(request());
+  await h.diagnose(request());
+  await new Promise(resolve => setTimeout(resolve, 10));
+  assert.equal(first.provider, 'deepseek');
+  assert.equal(h.reports.length, 0);
+  const skipped = warn.mock.calls.filter(call => String(call.arguments[0]).includes('no configured provider supports tool calls'));
+  assert.equal(skipped.length, 1);
 });

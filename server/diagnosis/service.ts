@@ -11,10 +11,10 @@ import { retrieve, selectPromptChunks, formatForPrompt, hasApplicableManual } fr
 import { buildRoleFlow } from '../knowledge/roles';
 import { memoryPrompt, recentMessages } from '../memory/context';
 import type { LlmRouter } from '../llm/router';
-import { ProviderError } from '../llm/types';
+import { ProviderError, type ChatMessage } from '../llm/types';
 import type { DiagnosticRequest } from './request';
 import { diagnosticRuntimeConfig, type DiagnosticRuntimeConfig } from './config';
-import { runAgent } from '../../agent/runner';
+import { runAgent, type AgentRunResult, type AgentToolEvent } from '../../agent/runner';
 import { buildContextRegistry } from '../../agent/context-tools';
 
 export interface DiagnosticMemory {
@@ -39,12 +39,66 @@ export interface DiagnosticDependencies {
   now?: () => number;
   config?: Partial<DiagnosticRuntimeConfig>;
   onDecision?: (event: DiagnosticDecisionLog) => void | Promise<void>;
+  /** Receives the redacted outcome of each background shadow run; defaults to a one-line server log. */
+  onShadowResult?: (report: ShadowLoopReport) => void;
+  /** Test hook for the shadow wall-clock deadline; production uses 8 s. */
+  shadowTimeoutMs?: number;
+}
+
+/** Redacted shadow outcome: tool names, timings and status only; never arguments, content or credentials. */
+export interface ShadowLoopReport {
+  status: AgentRunResult['status'] | 'error';
+  reason: string | null;
+  provider: string;
+  durationMs: number;
+  toolEvents: AgentToolEvent[];
+}
+
+const SHADOW_TOOLS = ['resolve_machine_scope', 'search_knowledge', 'browse_knowledge', 'knowledge_stats', 'calculator', 'get_current_time',
+  'get_knowledge_entry', 'get_session_state', 'list_prior_reports', 'explore_relations', 'ask_user_for_info'] as const;
+const SHADOW_TIMEOUT_MS = 8_000;
+const SHADOW_MAX_IN_FLIGHT = 4;
+
+function logShadowResult(report: ShadowLoopReport) {
+  const tools = report.toolEvents.map(event => `${event.tool}:${event.ok ? 'ok' : event.error_type ?? 'error'}`).join(',') || 'none';
+  console.info(`[agent-shadow] provider=${report.provider} status=${report.status}${report.reason ? ` reason=${report.reason}` : ''} ms=${Math.round(report.durationMs)} tools=${tools}`);
 }
 
 /** One retrieval feeds the local decision and the generation prompt. No model classifies requests. */
 export function createDiagnosticService(llm: DiagnosticProvider, dependencies: DiagnosticDependencies = {}): DiagnosticService {
   const search = dependencies.retrieve ?? retrieve;
   const now = dependencies.now ?? (() => performance.now());
+  const reportShadow = dependencies.onShadowResult ?? logShadowResult;
+  let shadowInFlight = 0;
+  let warnedNoToolProvider = false;
+  /** Fire-and-forget: errors are caught and logged; the caller signal and an 8 s deadline still bound the run. */
+  const startShadow = (input: { messages: ChatMessage[]; query: string; context: Record<string, unknown>; memory?: DiagnosticMemory;
+    signal?: AbortSignal; allowExternal: boolean; guard: (content: string) => string | null }) => {
+    const provider = llm.toolProvider?.() ?? null;
+    if (!provider) {
+      if (!warnedNoToolProvider) {
+        warnedNoToolProvider = true;
+        console.warn('[agent-shadow] AGENT_LOOP=shadow is set but no configured provider supports tool calls (Gemini does not; configure DEEPSEEK_API_KEY); shadow loop skipped.');
+      }
+      return;
+    }
+    if (shadowInFlight >= SHADOW_MAX_IN_FLIGHT) {
+      console.warn(`[agent-shadow] skipped: ${SHADOW_MAX_IN_FLIGHT} shadow runs already in flight`);
+      return;
+    }
+    shadowInFlight++;
+    const started = now();
+    void (async (): Promise<ShadowLoopReport> => {
+      const result = await runAgent({ provider, registry: buildContextRegistry(input.memory), messages: input.messages, query: input.query, context: input.context,
+        allowedTools: SHADOW_TOOLS, allowExternal: input.allowExternal, timeoutMs: dependencies.shadowTimeoutMs ?? SHADOW_TIMEOUT_MS, signal: input.signal, guard: input.guard });
+      return { status: result.status, reason: 'reason' in result ? result.reason : null, provider: provider.name, durationMs: now() - started, toolEvents: result.toolEvents };
+    })().catch((error: unknown): ShadowLoopReport => {
+      console.warn(`[agent-shadow] failed: ${error instanceof Error ? error.name : 'unknown error'}`);
+      return { status: 'error', reason: 'unexpected_error', provider: provider.name, durationMs: now() - started, toolEvents: [] };
+    }).then(report => {
+      try { reportShadow(report); } catch { /* Reporting must never surface to the request. */ }
+    }).finally(() => { shadowInFlight--; });
+  };
   return async ({ history, machineType, brand, model, engineModel, faultCodes, diagnosisMode, telemetrySummary }, memory, signal) => {
     const started = now();
     const config = { ...diagnosticRuntimeConfig(), ...dependencies.config };
@@ -183,18 +237,11 @@ export function createDiagnosticService(llm: DiagnosticProvider, dependencies: D
         displayed = admissible;
         return localResponse(false, ['answer_too_long']);
       }
-      // Shadow is opt-in and can never replace the answer or bypass coordination/answerGuard.
-      // Browser preview has no process environment and therefore remains off.
-      if (typeof process !== 'undefined' && process.env.AGENT_LOOP === 'shadow') {
-        try {
-          const shadowProvider=llm.toolProvider?.();
-          if(shadowProvider){
-            const shadow=await runAgent({provider:shadowProvider,registry:buildContextRegistry(memory),messages:[systemMessage,...(memory?recentMessages(history):history)],query:currentQuery,context:scope,
-              allowedTools:['resolve_machine_scope','search_knowledge','browse_knowledge','knowledge_stats','calculator','get_current_time','get_knowledge_entry','get_session_state','list_prior_reports','explore_relations','ask_user_for_info'],allowExternal:coordination.route==='ai',timeoutMs:8_000,signal,
-              guard:value=>filterDiagnosticAnswer(value,promptChunks,{trustedEvidenceIds,model:scope.model}).content||null});
-            trace.toolEvents=shadow.toolEvents;
-          }
-        } catch { /* Shadow failures never change the ordinary result. */ }
+      // Shadow is opt-in, runs after the ordinary answer is final and is never awaited, so it cannot
+      // delay, replace or bypass the coordinated answer and answerGuard.
+      if (config.agentLoop === 'shadow' && coordination.route === 'ai') {
+        startShadow({ messages: [systemMessage, ...(memory ? recentMessages(history) : history)], query: currentQuery, context: scope, memory, signal, allowExternal: coordination.route === 'ai',
+          guard: value => filterDiagnosticAnswer(value, promptChunks, { trustedEvidenceIds, model: scope.model }).content || null });
       }
       return finish({ choices: [{ message: { role: 'assistant', content } }], diagnosticReply,
         model: outcome.result.model, provider: outcome.result.provider, fellBack: outcome.fellBack,
