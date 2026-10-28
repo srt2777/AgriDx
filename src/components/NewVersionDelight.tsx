@@ -165,7 +165,7 @@ export function NewVersionDelight() {
       <div className="nv-progress" aria-hidden="true"><span ref={bar} /></div>
       {tip && createPortal(
         <div ref={tipNode} className="nv-tip" role="tooltip">{tip.text}</div>,
-        document.body,
+        document.querySelector('.new-version-shell') ?? document.body,
       )}
       {shortcuts && createPortal(
         <div className="nv-shortcuts" onMouseDown={(event) => { if (event.target === event.currentTarget) setShortcuts(false); }}>
@@ -182,7 +182,7 @@ export function NewVersionDelight() {
             <button type="button" onClick={() => setShortcuts(false)}>{lang === 'zh' ? '关闭' : 'Close'}</button>
           </div>
         </div>,
-        document.body,
+        document.querySelector('.new-version-shell') ?? document.body,
       )}
     </>
   );

@@ -125,7 +125,7 @@
   background: transparent;
   color: var(--muted-foreground);
   border: 0;
-  font-size: 11px !important;
+  font-size: 11px;
   border-radius: 9px;
 }
 .expo-icon-button:hover {
@@ -166,7 +166,7 @@
   border: 1px solid transparent;
   border-radius: 8px;
   background: transparent;
-  font-size: 11px !important;
+  font-size: 11px;
 }
 .expo-catalog-trigger:hover,
 .expo-catalog-trigger[aria-expanded='true'] {
@@ -349,7 +349,7 @@
   color: var(--primary-foreground);
   min-height: 46px;
   padding: 0 17px;
-  font-size: 12px !important;
+  font-size: 12px;
   margin-top: 22px;
   transition:
     transform 0.2s,
@@ -1322,7 +1322,7 @@
     letter-spacing: 0;
   }
   .expo-catalog-trigger {
-    font-size: 9px !important;
+    font-size: 9px;
     gap: 5px;
     padding-inline: 3px;
   }
@@ -1377,7 +1377,7 @@
     margin-top: 16px;
     padding-inline: 13px;
     min-height: 44px;
-    font-size: 10px !important;
+    font-size: 10px;
     gap: 7px;
   }
   .expo-zone-nav {
