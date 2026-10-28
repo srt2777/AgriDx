@@ -763,6 +763,20 @@
       "base": "4.0.5",
       "version": "4.0.6",
       "date": "2026-10-27"
+    },
+    {
+      "id": "new-ui-refresh-20261028",
+      "kind": "fix",
+      "base": "4.0.6",
+      "version": "4.0.7",
+      "date": "2026-10-28"
+    },
+    {
+      "id": "agent-workflow-foundation-20261028",
+      "kind": "feature",
+      "base": "4.0.7",
+      "version": "4.0.8",
+      "date": "2026-10-28"
     }
   ]
 }

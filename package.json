@@ -1,6 +1,6 @@
 {
   "name": "agri-fault-diagnosis",
-  "version": "4.0.6",
+  "version": "4.0.8",
   "private": true,
   "type": "module",
   "scripts": {
@@ -27,7 +27,11 @@
     "version:log": "node scripts/version-log.mjs",
     "version:verify-live": "node scripts/version-verify-live.mjs",
     "version:rebase": "node scripts/version-rebase.mjs",
-    "dev-ai:keygen": "node scripts/dev-ai-keygen.mjs"
+    "dev-ai:keygen": "node scripts/dev-ai-keygen.mjs",
+    "agent:eval": "node --import tsx scripts/agent-eval.ts",
+    "agent:doctor": "node --import tsx scripts/agent-doctor.ts",
+    "agent:test": "node scripts/agent-test.mjs",
+    "agent:kb-doctor": "node scripts/kb-doctor.mjs"
   },
   "dependencies": {
     "@radix-ui/colors": "^3.0.0",
