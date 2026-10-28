@@ -36,6 +36,21 @@ test('exceptions and cyclic output never escape; bigint uses string fallback',as
  r.register('big','测试',{type:'object'},()=>1n); assert.equal((await e.execute('big')).content,'"1"');
 });
 test('timeout returns promptly',async()=>{const {r,e}=setup(); r.register({name:'slow',description:'测试',input_schema:{type:'object'},timeout_s:.01,func:()=>new Promise(resolve=>setTimeout(resolve,80))}); assert.equal((await e.execute('slow')).error_type,'TIMEOUT');});
+test('cancellation is propagated and pre-cancelled work does not start',async()=>{
+ const {r,e}=setup();let called=0,observed=false;
+ r.register('cooperative','测试',{type:'object'},(_args,context)=>{called++;return new Promise(resolve=>context!.signal.addEventListener('abort',()=>{observed=true;resolve('stopped');},{once:true}));});
+ const before=new AbortController();before.abort();assert.equal((await e.execute('cooperative',{}, {signal:before.signal})).error_type,'CANCELLED');assert.equal(called,0);
+ const active=new AbortController();const pending=e.execute('cooperative',{}, {signal:active.signal});await Promise.resolve();active.abort();assert.equal((await pending).error_type,'CANCELLED');assert.equal(observed,true);assert.equal(called,1);
+});
+test('timeout notifies cooperative tools',async()=>{
+ const {r,e}=setup();let observed=false;r.register({name:'cooperative_timeout',description:'测试',input_schema:{type:'object'},timeout_s:.01,func:(_args,context)=>new Promise(resolve=>context!.signal.addEventListener('abort',()=>{observed=true;resolve('stopped');},{once:true}))});
+ assert.equal((await e.execute('cooperative_timeout')).error_type,'TIMEOUT');assert.equal(observed,true);
+});
+test('cancellation during a pending confirmation never starts the tool',async()=>{
+ const r=new ToolRegistry();let called=false;r.register({name:'guarded',description:'测试',risk:'dangerous',input_schema:{type:'object'},func:()=>{called=true;}});
+ const e=new ToolExecutor(r,()=>new Promise(()=>{})),controller=new AbortController();const pending=e.execute('guarded',{}, {signal:controller.signal});controller.abort();
+ assert.equal((await pending).error_type,'CANCELLED');assert.equal(called,false);
+});
 test('unicode output truncation reports original length',async()=>{const {r,e}=setup();r.register({name:'long',description:'测试',input_schema:{type:'object'},max_output:5,func:()=> '🌾'.repeat(10)});assert.equal((await e.execute('long')).content,'🌾'.repeat(5)+'...[已截断,原长 10 字符,请缩小查询范围]');});
 test('canonical repetition and task isolation',async()=>{const {e,r}=setup();await e.execute('double',{value:1});await e.execute('double',{value:1});assert.equal((await e.execute('double',{value:1})).error_type,'REPEATED_CALL');assert.ok((await new ToolExecutor(r).execute('double',{value:1})).ok);});
 test('permissions default and explicit confirmation, callback exceptions',async()=>{const {r,e}=setup();r.register({name:'delete',description:'测试',input_schema:{type:'object'},risk:'dangerous',func:()=> 'done'}); assert.equal((await e.execute('delete')).error_type,'PERMISSION_DENIED');assert.ok((await new ToolExecutor(r,()=>true).execute('delete')).ok);assert.equal((await new ToolExecutor(r,()=>{throw new Error('confirmation failed');}).execute('delete')).error_type,'TOOL_ERROR');r.register({name:'save',description:'测试',input_schema:{type:'object'},risk:'write',func:()=> 'saved'});assert.ok((await e.execute('save')).ok);assert.equal((await new ToolExecutor(r,()=>false).execute('save')).error_type,'PERMISSION_DENIED');});

@@ -14,13 +14,15 @@ import type { LlmRouter } from '../llm/router';
 import { ProviderError } from '../llm/types';
 import type { DiagnosticRequest } from './request';
 import { diagnosticRuntimeConfig, type DiagnosticRuntimeConfig } from './config';
+import { runAgent } from '../../agent/runner';
+import { buildContextRegistry } from '../../agent/context-tools';
 
 export interface DiagnosticMemory {
   session: SessionDetail;
   priorReports: PriorDeviceReport[];
 }
-export type DiagnosticProvider = Pick<LlmRouter, 'hasAnyConfigured' | 'chat'> & Partial<Pick<LlmRouter, 'getStatus'>>;
-export type DiagnosticService = (request: DiagnosticRequest, memory?: DiagnosticMemory) => Promise<ChatResponse>;
+export type DiagnosticProvider = Pick<LlmRouter, 'hasAnyConfigured' | 'chat'> & Partial<Pick<LlmRouter, 'getStatus' | 'toolProvider'>>;
+export type DiagnosticService = (request: DiagnosticRequest, memory?: DiagnosticMemory, signal?: AbortSignal) => Promise<ChatResponse>;
 export interface DiagnosticDecisionLog {
   mode: string;
   requestedMode: string;
@@ -43,7 +45,7 @@ export interface DiagnosticDependencies {
 export function createDiagnosticService(llm: DiagnosticProvider, dependencies: DiagnosticDependencies = {}): DiagnosticService {
   const search = dependencies.retrieve ?? retrieve;
   const now = dependencies.now ?? (() => performance.now());
-  return async ({ history, machineType, brand, model, engineModel, faultCodes, diagnosisMode, telemetrySummary }, memory) => {
+  return async ({ history, machineType, brand, model, engineModel, faultCodes, diagnosisMode, telemetrySummary }, memory, signal) => {
     const started = now();
     const config = { ...diagnosticRuntimeConfig(), ...dependencies.config };
     const context = resolveDiagnosticContext(history, { machineType, brand, model });
@@ -180,6 +182,19 @@ export function createDiagnosticService(llm: DiagnosticProvider, dependencies: D
       if (content.length > 16000) {
         displayed = admissible;
         return localResponse(false, ['answer_too_long']);
+      }
+      // Shadow is opt-in and can never replace the answer or bypass coordination/answerGuard.
+      // Browser preview has no process environment and therefore remains off.
+      if (typeof process !== 'undefined' && process.env.AGENT_LOOP === 'shadow') {
+        try {
+          const shadowProvider=llm.toolProvider?.();
+          if(shadowProvider){
+            const shadow=await runAgent({provider:shadowProvider,registry:buildContextRegistry(memory),messages:[systemMessage,...(memory?recentMessages(history):history)],query:currentQuery,context:scope,
+              allowedTools:['resolve_machine_scope','search_knowledge','browse_knowledge','knowledge_stats','calculator','get_current_time','get_knowledge_entry','get_session_state','list_prior_reports','explore_relations','ask_user_for_info'],allowExternal:coordination.route==='ai',timeoutMs:8_000,signal,
+              guard:value=>filterDiagnosticAnswer(value,promptChunks,{trustedEvidenceIds,model:scope.model}).content||null});
+            trace.toolEvents=shadow.toolEvents;
+          }
+        } catch { /* Shadow failures never change the ordinary result. */ }
       }
       return finish({ choices: [{ message: { role: 'assistant', content } }], diagnosticReply,
         model: outcome.result.model, provider: outcome.result.provider, fellBack: outcome.fellBack,

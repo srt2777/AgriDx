@@ -153,6 +153,9 @@ export function parseChatMetadata(value: unknown): Pick<ChatMessage, 'diagnostic
     result.diagnosisTrace = { retrievalCount: trace.retrievalCount, aiAttempts: trace.aiAttempts, aiSuccesses: trace.aiSuccesses, contextChars: trace.contextChars,
       aiProvider: trace.aiProvider, scoreMethod: trace.scoreMethod, sentKnowledgeIds: [...trace.sentKnowledgeIds],
       timings: { retrievalMs: timings.retrievalMs, decisionMs: timings.decisionMs, externalAiMs: timings.externalAiMs, totalMs: timings.totalMs } };
+    if(Array.isArray(trace.toolEvents)&&trace.toolEvents.length<=25&&trace.toolEvents.every(event=>isRecord(event)&&finite(event.step)&&text(event.tool,64)&&typeof event.ok==='boolean'&&(event.error_type===null||text(event.error_type,64))&&finite(event.duration_ms)&&text(event.source,80))){
+      result.diagnosisTrace.toolEvents=trace.toolEvents.map(event=>({step:event.step as number,tool:event.tool as string,args:'[已脱敏]',ok:event.ok as boolean,error_type:event.error_type as string|null,duration_ms:event.duration_ms as number,source:event.source as string}));
+    }
   }
   const flow = value.roleFlow;
   if (isRecord(flow) && texts(flow.untaggedEntryIds, 40) && KNOWLEDGE_ROLES.every(role => Array.isArray(flow[role]) && flow[role].length <= 40)) {

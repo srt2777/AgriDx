@@ -68,5 +68,30 @@
     "query": "条目多是不是一定能确诊",
     "expected_tool": null,
     "note": "常识边界，不需要统计"
+  },
+  {
+    "query": "查看条目 KB-JD-6E-G4-OMTR115296-001 的来源和正文",
+    "expected_tool": "get_knowledge_entry",
+    "note": "条目只读，适用性另行核实"
+  },
+  {
+    "query": "当前设备我已经检查过哪些项目",
+    "expected_tool": "get_session_state",
+    "note": "当前设备用户报告，不信任模型传入设备归属"
+  },
+  {
+    "query": "当前设备之前报告过什么",
+    "expected_tool": "list_prior_reports",
+    "note": "仅当前设备的用户报告，待核实"
+  },
+  {
+    "query": "查看这个目录节点的关联关系",
+    "expected_tool": "explore_relations",
+    "note": "启发式关联不是维修因果"
+  },
+  {
+    "query": "信息不够时请问我完整型号",
+    "expected_tool": "ask_user_for_info",
+    "note": "追问后结束本轮"
   }
 ]

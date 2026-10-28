@@ -427,3 +427,16 @@ test('输入校验保留发动机/故障码并拒绝非文本或无界代码数�
     assert.throws(() => parseDiagnosticRequest({ ...body, ...extra }), DiagnosticInputError);
   }
 });
+
+test('shadow loop records bounded tool events but never changes the ordinary answer or bypasses local routing',async()=>{
+ const saved=process.env.AGENT_LOOP;let shadowCalls=0,mainCalls=0;
+ const provider:DiagnosticProvider={hasAnyConfigured:()=>true,chat:async()=>{mainCalls++;return {result:{content:'【通用分析（待验证）】合成模型回复；未确诊。',model:'fixture-model',provider:'deepseek'},primary:'deepseek',fellBack:false};},toolProvider:()=>({name:'deepseek',model:'fake',isConfigured:()=>true,chat:async()=>{throw Error('unused');},chatWithTools:async()=>shadowCalls++===0?{content:'',stopReason:'tool_calls',toolCalls:[{id:'x',name:'calculator',input:{expression:'2+2'}}]}:{content:'【通用分析（待验证）】合成影子答复。',stopReason:'stop',toolCalls:[]}})};
+ const doc=document({diagnosticMetadata:{coverage:{symptom:true,causes:true,checks:false,repair:false},riskLevel:'low'}});
+ const diagnose=createDiagnosticService(provider,{config:{logDecisions:false},retrieve:()=>[doc]});
+ try{
+  process.env.AGENT_LOOP='off';const ordinary=await diagnose(request());assert.equal(shadowCalls,0);
+  process.env.AGENT_LOOP='shadow';const shadow=await diagnose(request());assert.equal(reply(shadow),reply(ordinary));assert.equal(shadow.diagnosisTrace?.toolEvents?.at(-1)?.tool,'calculator');assert.equal(shadowCalls,2);
+  const local=await diagnose(request('knowledge_only'));assert.equal(local.provider,'knowledge-base');assert.equal(shadowCalls,2);assert.equal(mainCalls,2);
+  const highRisk=await diagnose(request('auto','高压共轨喷油器能否带压拆卸？'));assert.equal(highRisk.provider,'knowledge-base');assert.equal(shadowCalls,2);assert.equal(mainCalls,2);
+ }finally{if(saved===undefined)delete process.env.AGENT_LOOP;else process.env.AGENT_LOOP=saved;}
+});

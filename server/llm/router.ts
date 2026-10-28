@@ -93,6 +93,14 @@ export class LlmRouter {
     return this.getStatus().configured;
   }
 
+  /** Shadow tool use only; unsupported providers retain the ordinary chat path. */
+  toolProvider(): Provider | null {
+    const preference=getPreference();
+    if(preference===null)return null;
+    const provider=this.pickPrimary(preference).primary;
+    return provider.isConfigured() && provider.chatWithTools ? provider : null;
+  }
+
   private pickPrimary(preference: ProviderPreference): { primary: Provider; secondary: Provider } {
     // auto 保持旧行为：两家都有 Key 时仍优先 Gemini。
     let first = preference === 'deepseek' ? this.deepseek
