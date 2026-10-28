@@ -144,3 +144,19 @@ test('machine identity corrections invalidate answers prepared for the old devic
     assert.equal(store.session('a', session.id).messages.length, 0);
   } finally { store.close(); }
 });
+
+test('session limits and owner checks remain consistent across database connections', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'agridx-memory-limit-'));
+  const filename = path.join(dir, 'memory.sqlite');
+  const first = new MemoryStore(filename);
+  const second = new MemoryStore(filename);
+  try {
+    const device = first.saveDevice('owner-a', profile);
+    for (let i = 0; i < 99; i++) first.createSession('owner-a', device.id);
+    second.createSession('owner-a', device.id);
+    assert.throws(() => first.createSession('owner-a', device.id), (error: unknown) => error instanceof MemoryError && error.code === 'memory_limit');
+    assert.throws(() => second.createSession('owner-b', device.id), (error: unknown) => error instanceof MemoryError && error.code === 'memory_not_found');
+    assert.equal(first.overview('owner-a').sessions.length, 100);
+    assert.equal(second.overview('owner-b').sessions.length, 0);
+  } finally { first.close(); second.close(); fs.rmSync(dir, { recursive: true, force: true }); }
+});
