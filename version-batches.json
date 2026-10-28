@@ -772,10 +772,17 @@
       "date": "2026-10-28"
     },
     {
-      "id": "old-home-stage-light-20261028",
-      "kind": "fix",
+      "id": "agent-tool-loop-20261028",
+      "kind": "feature",
       "base": "4.0.7",
       "version": "4.0.8",
+      "date": "2026-10-28"
+    },
+    {
+      "id": "old-home-stage-light-20261028",
+      "kind": "fix",
+      "base": "4.0.8",
+      "version": "4.0.9",
       "date": "2026-10-28"
     }
   ]
