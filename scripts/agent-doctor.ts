@@ -1,0 +1,12 @@
+import { loadKnowledgeBase } from '../server/knowledge/retriever';
+import { loadPrompts } from '../agent/prompts/loader';
+import { createWorkflow } from '../agent/core/workflow';
+const checks: {name:string;ok:boolean;detail:string}[]=[];
+const check=async(name:string,run:()=>string|Promise<string>)=>{try{checks.push({name,ok:true,detail:await run()});}catch(error){checks.push({name,ok:false,detail:error instanceof Error?error.message:'检查失败'});}};
+await check('Node.js',()=>{const [major,minor]=process.versions.node.split('.').map(Number);if(major<22||major===22&&minor<19)throw new Error('需要 Node >=22.19');return process.versions.node;});
+await check('功能开关',()=>{const value=process.env.AGENT_WORKFLOW_ENABLED;if(value!==undefined&&value!=='true'&&value!=='false')throw new Error('AGENT_WORKFLOW_ENABLED 只能是 true 或 false');return value==='true'?'启用':'关闭（默认）';});
+await check('提示词',()=>`版本 ${loadPrompts().version}`);
+await check('知识快照',()=>JSON.stringify(loadKnowledgeBase()));
+await check('规则工作流',async()=>{const result=await createWorkflow().run({query:'启动困难',machine:{}});if(result.status!=='needs_clarification')throw new Error('缺机型追问失败');return '缺机型不检索；无需外部模型密钥';});
+for(const item of checks)console.log(`${item.ok?'PASS':'FAIL'} ${item.name}: ${item.detail}`);
+if(checks.some(c=>!c.ok))process.exitCode=1;

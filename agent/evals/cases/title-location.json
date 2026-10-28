@@ -1,0 +1,605 @@
+{
+  "description": "从真实已核验归档标题构造的定位基准；不是独立口语/故障诊断评测，也不提供实车根因真值。",
+  "cases": [
+    {
+      "id": "HH-T70-001",
+      "query": "机型及资料状态",
+      "machine": {
+        "brand": "鸿鹄",
+        "model": "T70"
+      },
+      "target": "HH-T70-001",
+      "doc_type": "机型资料"
+    },
+    {
+      "id": "KB-JD-6E-G4-OMTR115296-001",
+      "query": "中国国四机型及配置匹配",
+      "machine": {
+        "brand": "约翰迪尔",
+        "model": "6E-1004 (G4)"
+      },
+      "target": "KB-JD-6E-G4-OMTR115296-001",
+      "doc_type": "机型资料"
+    },
+    {
+      "id": "KB-QX-QY210PRO-V01-001",
+      "query": "辅助导航的人机监护边界",
+      "machine": {
+        "brand": "千寻位置",
+        "model": "QYBD-2.5SD"
+      },
+      "target": "KB-QX-QY210PRO-V01-001",
+      "doc_type": "系统适用边界"
+    },
+    {
+      "id": "KB-BARB-HYDROTRAC-4HWD-001",
+      "query": "封面机型、发行日期与适用范围",
+      "machine": {
+        "brand": "Barbieri",
+        "model": "HydroTRAC 4HWD"
+      },
+      "target": "KB-BARB-HYDROTRAC-4HWD-001",
+      "doc_type": "资料核验"
+    },
+    {
+      "id": "KB-YTO-LF-MANUAL-002",
+      "query": "每班检查清单与冷却散热入口",
+      "machine": {
+        "brand": "东方红",
+        "model": "LF804S"
+      },
+      "target": "KB-YTO-LF-MANUAL-002",
+      "doc_type": "操作/维护知识"
+    },
+    {
+      "id": "KB-LV-P5000-TRAINING-002",
+      "query": "接近旋转部件及维修前的停止与支撑条件",
+      "machine": {
+        "brand": "雷沃",
+        "model": "P5000"
+      },
+      "target": "KB-LV-P5000-TRAINING-002",
+      "doc_type": "安全操作"
+    },
+    {
+      "id": "KB-LX2620-009",
+      "query": "发动机机油油位检查的停机与读数条件",
+      "machine": {
+        "brand": "久保田",
+        "model": "LX2620"
+      },
+      "target": "KB-LX2620-009",
+      "doc_type": "操作/维护知识"
+    },
+    {
+      "id": "KB-WD-WF-001",
+      "query": "2021册适用范围与核验状态",
+      "machine": {
+        "brand": "沃得",
+        "model": "WF1404-3"
+      },
+      "target": "KB-WD-WF-001",
+      "doc_type": "资料索引"
+    },
+    {
+      "id": "KB-CHC-NX510-001",
+      "query": "NX510手册适用范围与核验状态",
+      "machine": {
+        "brand": "华测",
+        "model": "NX510"
+      },
+      "target": "KB-CHC-NX510-001",
+      "doc_type": "资料索引"
+    },
+    {
+      "id": "KB-NH-WM25-20261013-001",
+      "query": "独立后PTO可与车辆行驶分别停止",
+      "machine": {
+        "brand": "纽荷兰",
+        "model": "WORKMASTER25"
+      },
+      "target": "KB-NH-WM25-20261013-001",
+      "doc_type": "操作/维护知识"
+    },
+    {
+      "id": "KB-MH-SYNC10-20261017-001",
+      "query": "Mahindra四驱驾驶室版涡轮增压器异响的分支检查与送修",
+      "machine": {
+        "brand": "Mahindra",
+        "model": "6065"
+      },
+      "target": "KB-MH-SYNC10-20261017-001",
+      "doc_type": "维护/故障知识"
+    },
+    {
+      "id": "HH-T70-002",
+      "query": "无人作业与维修资料缺口",
+      "machine": {
+        "brand": "鸿鹄",
+        "model": "T70"
+      },
+      "target": "HH-T70-002",
+      "doc_type": "资料缺口"
+    },
+    {
+      "id": "KB-JD-6E-G4-OMTR115296-002",
+      "query": "每日维护的四项检查",
+      "machine": {
+        "brand": "约翰迪尔",
+        "model": "6E-1004 (G4)"
+      },
+      "target": "KB-JD-6E-G4-OMTR115296-002",
+      "doc_type": "维护/故障知识"
+    },
+    {
+      "id": "KB-QX-QY210PRO-V01-002",
+      "query": "安装位置与防水维护",
+      "machine": {
+        "brand": "千寻位置",
+        "model": "QYBD-2.5SD"
+      },
+      "target": "KB-QX-QY210PRO-V01-002",
+      "doc_type": "维护/故障知识"
+    },
+    {
+      "id": "KB-BARB-HYDROTRAC-4HWD-002",
+      "query": "不能起动时先核对驾驶位置和安全联锁",
+      "machine": {
+        "brand": "Barbieri",
+        "model": "HydroTRAC 4HWD"
+      },
+      "target": "KB-BARB-HYDROTRAC-4HWD-002",
+      "doc_type": "操作/维护知识"
+    },
+    {
+      "id": "KB-YTO-LF-MANUAL-003",
+      "query": "干式空气滤清器主滤芯与安全滤芯不能混同",
+      "machine": {
+        "brand": "东方红",
+        "model": "LF804S"
+      },
+      "target": "KB-YTO-LF-MANUAL-003",
+      "doc_type": "操作/维护知识"
+    },
+    {
+      "id": "KB-LV-P5000-TRAINING-003",
+      "query": "散热器开盖前先停机冷却，防止压力冷却液烫伤",
+      "machine": {
+        "brand": "雷沃",
+        "model": "P5000"
+      },
+      "target": "KB-LV-P5000-TRAINING-003",
+      "doc_type": "安全操作"
+    },
+    {
+      "id": "KB-LX2620-010",
+      "query": "散热格栅与滤网清洁的停机和装复条件",
+      "machine": {
+        "brand": "久保田",
+        "model": "LX2620"
+      },
+      "target": "KB-LX2620-010",
+      "doc_type": "操作/维护知识"
+    },
+    {
+      "id": "KB-WD-WF-002",
+      "query": "机械环保代码与铭牌要求",
+      "machine": {
+        "brand": "沃得",
+        "model": "WF1404-3"
+      },
+      "target": "KB-WD-WF-002",
+      "doc_type": "机型资料"
+    },
+    {
+      "id": "KB-CHC-NX510-002",
+      "query": "安全警告与作业边界",
+      "machine": {
+        "brand": "华测",
+        "model": "NX510"
+      },
+      "target": "KB-CHC-NX510-002",
+      "doc_type": "安全操作"
+    },
+    {
+      "id": "KB-NH-WM25-20261013-002",
+      "query": "中置PTO接合时后PTO也同时接合",
+      "machine": {
+        "brand": "纽荷兰",
+        "model": "WORKMASTER25"
+      },
+      "target": "KB-NH-WM25-20261013-002",
+      "doc_type": "操作/维护知识"
+    },
+    {
+      "id": "KB-MH-SYNC10-20261017-002",
+      "query": "Mahindra四驱驾驶室版压气机或涡轮密封处漏油的候选方向",
+      "machine": {
+        "brand": "Mahindra",
+        "model": "6065"
+      },
+      "target": "KB-MH-SYNC10-20261017-002",
+      "doc_type": "维护/故障知识"
+    },
+    {
+      "id": "KB-JD-6E-G4-OMTR115296-003",
+      "query": "后处理指示灯需结合其他报警判断",
+      "machine": {
+        "brand": "约翰迪尔",
+        "model": "6E-1004 (G4)"
+      },
+      "target": "KB-JD-6E-G4-OMTR115296-003",
+      "doc_type": "维护/故障知识"
+    },
+    {
+      "id": "KB-QX-QY210PRO-V01-003",
+      "query": "未定位与交接垄不准的排查入口",
+      "machine": {
+        "brand": "千寻位置",
+        "model": "QYBD-2.5SD"
+      },
+      "target": "KB-QX-QY210PRO-V01-003",
+      "doc_type": "维护/故障知识"
+    },
+    {
+      "id": "KB-BARB-HYDROTRAC-4HWD-003",
+      "query": "维护前停机、落下提升装置并取走钥匙",
+      "machine": {
+        "brand": "Barbieri",
+        "model": "HydroTRAC 4HWD"
+      },
+      "target": "KB-BARB-HYDROTRAC-4HWD-003",
+      "doc_type": "操作/维护知识"
+    },
+    {
+      "id": "KB-YTO-LF-MANUAL-004",
+      "query": "柴油机起动需等待预热并限制连续尝试",
+      "machine": {
+        "brand": "东方红",
+        "model": "LF804S"
+      },
+      "target": "KB-YTO-LF-MANUAL-004",
+      "doc_type": "安全操作"
+    },
+    {
+      "id": "KB-LV-P5000-TRAINING-004",
+      "query": "公路行驶应连锁制动踏板，行车时不用手刹制动",
+      "machine": {
+        "brand": "雷沃",
+        "model": "P5000"
+      },
+      "target": "KB-LV-P5000-TRAINING-004",
+      "doc_type": "安全操作"
+    },
+    {
+      "id": "KB-LX2620-011",
+      "query": "电气线束日检与反复熔断保险丝的处理边界",
+      "machine": {
+        "brand": "久保田",
+        "model": "LX2620"
+      },
+      "target": "KB-LX2620-011",
+      "doc_type": "安全操作"
+    },
+    {
+      "id": "KB-WD-WF-003",
+      "query": "新机与大修后的磨合要求",
+      "machine": {
+        "brand": "沃得",
+        "model": "WF1404-3"
+      },
+      "target": "KB-WD-WF-003",
+      "doc_type": "操作/维护知识"
+    },
+    {
+      "id": "KB-CHC-NX510-003",
+      "query": "主要部件组成",
+      "machine": {
+        "brand": "华测",
+        "model": "NX510"
+      },
+      "target": "KB-CHC-NX510-003",
+      "doc_type": "机型资料"
+    },
+    {
+      "id": "KB-NH-WM25-20261013-003",
+      "query": "离座使用后PTO必须驻车并塞四轮",
+      "machine": {
+        "brand": "纽荷兰",
+        "model": "WORKMASTER25"
+      },
+      "target": "KB-NH-WM25-20261013-003",
+      "doc_type": "操作/维护知识"
+    },
+    {
+      "id": "KB-MH-SYNC10-20261017-003",
+      "query": "Mahindra四驱驾驶室版液压不提升或提升缓慢",
+      "machine": {
+        "brand": "Mahindra",
+        "model": "6065"
+      },
+      "target": "KB-MH-SYNC10-20261017-003",
+      "doc_type": "维护/故障知识"
+    },
+    {
+      "id": "KB-JD-6E-G4-OMTR115296-004",
+      "query": "不能起动应先区分起动机是否转动",
+      "machine": {
+        "brand": "约翰迪尔",
+        "model": "6E-1004 (G4)"
+      },
+      "target": "KB-JD-6E-G4-OMTR115296-004",
+      "doc_type": "维护/故障知识"
+    },
+    {
+      "id": "KB-QX-QY210PRO-V01-004",
+      "query": "型号字段冲突需保留",
+      "machine": {
+        "brand": "千寻位置",
+        "model": "QYBD-2.5SD"
+      },
+      "target": "KB-QX-QY210PRO-V01-004",
+      "doc_type": "资料核验"
+    },
+    {
+      "id": "KB-BARB-HYDROTRAC-4HWD-004",
+      "query": "后 PTO 与前端／腹部附件的离合控制不同",
+      "machine": {
+        "brand": "Barbieri",
+        "model": "HydroTRAC 4HWD"
+      },
+      "target": "KB-BARB-HYDROTRAC-4HWD-004",
+      "doc_type": "操作/维护知识"
+    },
+    {
+      "id": "KB-YTO-LF-MANUAL-005",
+      "query": "独立式 PTO 可在停止前进后继续工作",
+      "machine": {
+        "brand": "东方红",
+        "model": "LF804S"
+      },
+      "target": "KB-YTO-LF-MANUAL-005",
+      "doc_type": "安全操作"
+    },
+    {
+      "id": "KB-LV-P5000-TRAINING-005",
+      "query": "启动前机油油位与异常声音检查",
+      "machine": {
+        "brand": "雷沃",
+        "model": "P5000"
+      },
+      "target": "KB-LV-P5000-TRAINING-005",
+      "doc_type": "操作/维护知识"
+    },
+    {
+      "id": "KB-LX2620-012",
+      "query": "主副空气滤芯的处理边界与罩盖安装",
+      "machine": {
+        "brand": "久保田",
+        "model": "LX2620"
+      },
+      "target": "KB-LX2620-012",
+      "doc_type": "操作/维护知识"
+    },
+    {
+      "id": "KB-WD-WF-004",
+      "query": "油品规格与加注要求",
+      "machine": {
+        "brand": "沃得",
+        "model": "WF1404-3"
+      },
+      "target": "KB-WD-WF-004",
+      "doc_type": "操作/维护知识"
+    },
+    {
+      "id": "KB-CHC-NX510-004",
+      "query": "标定前的卫星信号前提与车型设置",
+      "machine": {
+        "brand": "华测",
+        "model": "NX510"
+      },
+      "target": "KB-CHC-NX510-004",
+      "doc_type": "系统安装/调试"
+    },
+    {
+      "id": "KB-NH-WM25-20261013-004",
+      "query": "三点挂机具抬起后检查与车身间隙",
+      "machine": {
+        "brand": "纽荷兰",
+        "model": "WORKMASTER25"
+      },
+      "target": "KB-NH-WM25-20261013-004",
+      "doc_type": "操作/维护知识"
+    },
+    {
+      "id": "KB-MH-SYNC10-20261017-004",
+      "query": "Mahindra四驱驾驶室版未操作手柄而液压提升臂自行升起",
+      "machine": {
+        "brand": "Mahindra",
+        "model": "6065"
+      },
+      "target": "KB-MH-SYNC10-20261017-004",
+      "doc_type": "维护/故障知识"
+    },
+    {
+      "id": "KB-JD-6E-G4-OMTR115296-006",
+      "query": "检修前停机隔离与禁止短接起动",
+      "machine": {
+        "brand": "约翰迪尔",
+        "model": "6E-1004 (G4)"
+      },
+      "target": "KB-JD-6E-G4-OMTR115296-006",
+      "doc_type": "安全操作"
+    },
+    {
+      "id": "KB-QX-QY210PRO-V01-005",
+      "query": "安装前检查原车转向并完成交付调试",
+      "machine": {
+        "brand": "千寻位置",
+        "model": "QYBD-2.5SD"
+      },
+      "target": "KB-QX-QY210PRO-V01-005",
+      "doc_type": "系统安装/调试"
+    },
+    {
+      "id": "KB-BARB-HYDROTRAC-4HWD-005",
+      "query": "作业前冷机检查发动机机油液位",
+      "machine": {
+        "brand": "Barbieri",
+        "model": "HydroTRAC 4HWD"
+      },
+      "target": "KB-BARB-HYDROTRAC-4HWD-005",
+      "doc_type": "操作/维护知识"
+    },
+    {
+      "id": "KB-YTO-LF-MANUAL-006",
+      "query": "液压快换接头连接前停机落具并卸压",
+      "machine": {
+        "brand": "东方红",
+        "model": "LF804S"
+      },
+      "target": "KB-YTO-LF-MANUAL-006",
+      "doc_type": "安全操作"
+    },
+    {
+      "id": "KB-LV-P5000-TRAINING-006",
+      "query": "干式空气滤清器除尘阀要区分手动与导风罩连接配置",
+      "machine": {
+        "brand": "雷沃",
+        "model": "P5000"
+      },
+      "target": "KB-LV-P5000-TRAINING-006",
+      "doc_type": "操作/维护知识"
+    },
+    {
+      "id": "KB-LX2620-013",
+      "query": "蓄电池类型、指示器与接线安全",
+      "machine": {
+        "brand": "久保田",
+        "model": "LX2620"
+      },
+      "target": "KB-LX2620-013",
+      "doc_type": "安全操作"
+    },
+    {
+      "id": "KB-WD-WF-005",
+      "query": "技术保养周期分级",
+      "machine": {
+        "brand": "沃得",
+        "model": "WF1404-3"
+      },
+      "target": "KB-WD-WF-005",
+      "doc_type": "操作/维护知识"
+    },
+    {
+      "id": "KB-CHC-NX510-005",
+      "query": "灵敏度参数按症状调节",
+      "machine": {
+        "brand": "华测",
+        "model": "NX510"
+      },
+      "target": "KB-CHC-NX510-005",
+      "doc_type": "系统安装/调试"
+    },
+    {
+      "id": "KB-NH-WM25-20261013-005",
+      "query": "左提升杆调长度前先落具卸压并拆离",
+      "machine": {
+        "brand": "纽荷兰",
+        "model": "WORKMASTER25"
+      },
+      "target": "KB-NH-WM25-20261013-005",
+      "doc_type": "操作/维护知识"
+    },
+    {
+      "id": "KB-MH-SYNC10-20261017-005",
+      "query": "Mahindra四驱驾驶室版液压系统过热的进气与进水分支",
+      "machine": {
+        "brand": "Mahindra",
+        "model": "6065"
+      },
+      "target": "KB-MH-SYNC10-20261017-005",
+      "doc_type": "维护/故障知识"
+    },
+    {
+      "id": "KB-JD-6E-G4-OMTR115296-007",
+      "query": "连接或清理PTO农具前停止传动",
+      "machine": {
+        "brand": "约翰迪尔",
+        "model": "6E-1004 (G4)"
+      },
+      "target": "KB-JD-6E-G4-OMTR115296-007",
+      "doc_type": "安全操作"
+    },
+    {
+      "id": "KB-QX-QY210PRO-V01-006",
+      "query": "入线在线和倒车灵敏度对应不同症状",
+      "machine": {
+        "brand": "千寻位置",
+        "model": "QYBD-2.5SD"
+      },
+      "target": "KB-QX-QY210PRO-V01-006",
+      "doc_type": "系统安装/调试"
+    },
+    {
+      "id": "KB-BARB-HYDROTRAC-4HWD-006",
+      "query": "液压提升杆三种状态与停放落地要求",
+      "machine": {
+        "brand": "Barbieri",
+        "model": "HydroTRAC 4HWD"
+      },
+      "target": "KB-BARB-HYDROTRAC-4HWD-006",
+      "doc_type": "操作/维护知识"
+    },
+    {
+      "id": "KB-YTO-LF-MANUAL-007",
+      "query": "起动机不转：容量、接线与控制电路分开排查",
+      "machine": {
+        "brand": "东方红",
+        "model": "LF804S"
+      },
+      "target": "KB-YTO-LF-MANUAL-007",
+      "doc_type": "维护/故障知识"
+    },
+    {
+      "id": "KB-LV-P5000-TRAINING-007",
+      "query": "膨胀箱冷却液位检查及散热器堵塞物清理",
+      "machine": {
+        "brand": "雷沃",
+        "model": "P5000"
+      },
+      "target": "KB-LV-P5000-TRAINING-007",
+      "doc_type": "操作/维护知识"
+    },
+    {
+      "id": "KB-LX2620-014",
+      "query": "CAB驾驶室内循环与新风滤网清洁条件",
+      "machine": {
+        "brand": "久保田",
+        "model": "LX2620HSDC"
+      },
+      "target": "KB-LX2620-014",
+      "doc_type": "操作/维护知识"
+    },
+    {
+      "id": "KB-WD-WF-006",
+      "query": "副离合器调整参数与限制",
+      "machine": {
+        "brand": "沃得",
+        "model": "WF1404-3"
+      },
+      "target": "KB-WD-WF-006",
+      "doc_type": "维护/故障知识"
+    },
+    {
+      "id": "KB-CHC-NX510-006",
+      "query": "开机与快速启用要点",
+      "machine": {
+        "brand": "华测",
+        "model": "NX510"
+      },
+      "target": "KB-CHC-NX510-006",
+      "doc_type": "操作/维护知识"
+    }
+  ]
+}

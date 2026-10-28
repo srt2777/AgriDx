@@ -1,0 +1,5 @@
+{
+  "benchmark": "real-title-location-v1",
+  "minimum_recall_at_5": 0.9,
+  "p95_target_ms": 1500
+}
