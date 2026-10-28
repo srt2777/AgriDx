@@ -1,11 +1,10 @@
+import ModelLoading from '@/components/ModelLoading';
 import { useUiCopy } from '@/ui/useUiCopy';
 import { lazy, Suspense, useEffect, useRef, useState, type ChangeEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Box, Download, ExternalLink, Focus, ImagePlus, Layers3, Upload, X } from 'lucide-react';
 import DeferredScene from '@/components/DeferredScene';
 import SceneLoading from '@/components/SceneLoading';
-import { PREMIUM_MOTION_ENABLED } from '@/components/motion/flag';
-import { TwinQuery } from '@/components/motion/ThinkingOrbs';
 import { TRACTOR_COMPONENTS, TRACTOR_MODEL_URL, type TractorComponent } from '@/components/tractor-model-info';
 import { ModelPeek } from '@/components/CardPeek';
 import { useLang } from '@/hooks/useLang';
@@ -96,7 +95,7 @@ export default function ModelPage() {
     window.setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
 
-  return <div className={`mx-auto px-4 pb-16 md:px-6 ${version === 'new' ? 'max-w-[1240px] pt-4 md:pt-6' : 'max-w-6xl pt-10 md:pt-16'}`}>
+  return <div className={`mx-auto px-4 pb-16 md:px-6 ${version === 'new' ? 'model-page max-w-[1240px] pt-4 md:pt-6' : 'max-w-6xl pt-10 md:pt-16'}`}>
     <div className="mb-8 max-w-3xl">
       <p className="text-xs font-semibold tracking-[.14em] text-primary">{t('耕知 · 模型工坊', 'GENGZHI · MODEL STUDIO')}</p>
       <h1 className="mt-3 text-3xl font-semibold tracking-tight text-foreground md:text-4xl" data-shared-target={version === 'new' ? 'models' : undefined}>{t('看清结构，再对资料。', 'See the structure, then check the evidence.')}</h1>
@@ -105,7 +104,7 @@ export default function ModelPage() {
         : t('整机和部件都是示意。维修结论仍要回到对应机型的资料。', 'The machine and its parts are a schematic. Repair decisions still follow model-specific evidence.')}</p>
       {version === 'new' && <span className="wheat-line mt-5 w-56" aria-hidden="true" />}
     </div>
-    {version === 'new' && !customModel ? <Suspense fallback={PREMIUM_MOTION_ENABLED ? <TwinQuery label={t('正在打开孪生视图…', 'Opening the twin view…')} /> : <SceneLoading />}><PartsStudio onImport={selectModel} /></Suspense> : <div className="grid gap-5 lg:grid-cols-[1.65fr_1fr]">
+    {version === 'new' && !customModel ? <Suspense fallback={<ModelLoading />}><PartsStudio onImport={selectModel} /></Suspense> : <div className="grid gap-5 lg:grid-cols-[1.65fr_1fr]">
       <section className="min-w-0 overflow-hidden rounded-3xl border border-border bg-card">
         <div className="flex items-center justify-between border-b border-border px-5 py-4">
           <span className="flex min-w-0 items-center gap-2 text-sm font-medium"><Box className="size-4 text-primary" /><span className="truncate">{customModel?.name ?? t('原创拖拉机结构示意', 'Original tractor schematic')}</span></span>
