@@ -206,3 +206,71 @@ export function presentPose(poseValue: StagePose, reduced: boolean): StagePose {
   if (!reduced) return poseValue;
   return { ...poseValue, turn: 0, explode: 0 };
 }
+
+export type Anchor = { x: number; y: number; z: number; scale: number };
+
+type TrackStep = {
+  id: string;
+  xMul: number;
+  yMul: number;
+  scaleMul: number;
+  yaw: number;
+  explode: number;
+  turn: number;
+  focus: string | null;
+};
+
+/** One continuous pass. Multipliers are relative to the hero anchor solved at load or resize. */
+const DESKTOP_TRACK: readonly TrackStep[] = [
+  { id: 'hero', xMul: 1, yMul: 1, scaleMul: 1, yaw: -0.9, explode: 0, turn: 0.03, focus: null },
+  { id: 'capabilities', xMul: 0.78, yMul: 1, scaleMul: 1, yaw: -0.62, explode: 0, turn: 0, focus: null },
+  { id: 'painpoints', xMul: 0.4, yMul: 1, scaleMul: 1, yaw: -0.28, explode: 0, turn: 0, focus: 'body_shell' },
+  { id: 'knowledge', xMul: -0.15, yMul: 1, scaleMul: 1, yaw: 0.08, explode: 0, turn: 0, focus: 'gps_antenna' },
+  { id: 'techroute', xMul: -0.62, yMul: 1, scaleMul: 1, yaw: 0.42, explode: 0, turn: 0, focus: 'wheel_fl' },
+  { id: 'scenarios', xMul: -0.28, yMul: 1, scaleMul: 1, yaw: 0.16, explode: 0, turn: 0, focus: 'battery_box' },
+  { id: 'details', xMul: 0.08, yMul: 1, scaleMul: 1, yaw: -0.12, explode: 0.2, turn: 0, focus: null },
+  { id: 'closing', xMul: 0.55, yMul: 1, scaleMul: 0.94, yaw: -0.4, explode: 0, turn: 0, focus: null },
+];
+
+const MOBILE_TRACK: readonly TrackStep[] = [
+  { id: 'hero', xMul: 1, yMul: 1, scaleMul: 1, yaw: -0.5, explode: 0, turn: 0.02, focus: null },
+  { id: 'mid', xMul: 1, yMul: 1, scaleMul: 1, yaw: -0.32, explode: 0, turn: 0, focus: 'body_shell' },
+  { id: 'explode', xMul: 1, yMul: 1, scaleMul: 1, yaw: -0.12, explode: 0.14, turn: 0, focus: null },
+  { id: 'closing', xMul: 1, yMul: 1, scaleMul: 0.94, yaw: -0.36, explode: 0, turn: 0, focus: null },
+];
+
+export function trackFor(compact: boolean): readonly TrackStep[] {
+  return compact ? MOBILE_TRACK : DESKTOP_TRACK;
+}
+
+/** Whole-page progress in [0, 1]. Empty pages stay at the first keyframe. */
+export function scrollProgress(scrollY: number, viewport: number, scrollHeight: number): number {
+  const max = scrollHeight - viewport;
+  if (!(max > 0)) return 0;
+  return Math.min(1, Math.max(0, scrollY / max));
+}
+
+/** Map that progress onto a beat index. The value itself is continuous. */
+export function progressIndex(progress: number, beatCount: number): number {
+  if (beatCount <= 1) return 0;
+  return Math.min(1, Math.max(0, progress)) * (beatCount - 1);
+}
+
+/** Place every keyframe on the hero anchor. Scrolling only interpolates these numbers. */
+export function beatsFromAnchor(anchor: Anchor, track: readonly TrackStep[], camera: StagePose): Beat[] {
+  return track.map(step => ({
+    id: step.id,
+    pose: {
+      ...camera,
+      x: anchor.x * step.xMul,
+      y: anchor.y * step.yMul,
+      z: anchor.z,
+      scale: anchor.scale * step.scaleMul,
+      yaw: step.yaw,
+      pitch: 0,
+      explode: step.explode,
+      turn: step.turn,
+      focus: step.focus,
+    },
+  }));
+}
