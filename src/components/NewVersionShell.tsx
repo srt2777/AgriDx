@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { preloadPage } from '@/lib/page-loaders';
+import { publicAsset } from '@/lib/public-asset';
 import { BookOpen, Globe, House, MessageSquare, PanelLeftClose, PanelLeftOpen, Wrench } from 'lucide-react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useLang, setLang } from '@/hooks/useLang';
@@ -37,6 +38,9 @@ export function NewVersionShell() {
       <a className="new-version-skip-link" href="#main-content" onClick={event => { event.preventDefault(); const main = document.getElementById('main-content'); main?.focus(); main?.scrollIntoView({ block: 'start' }); }}>{t('跳到主要内容', 'Skip to content')}</a>
       <header className="new-version-header"><div className="new-version-header-glass"><div className="new-version-header-content">
         <div className="new-version-brand">
+          <a href="https://coe.njau.edu.cn/" target="_blank" rel="noopener noreferrer" className="new-version-college-mark" aria-label={t('南京农业大学工学院官网首页', 'College of Engineering, NAU official homepage')}>
+            <img src={publicAsset('images/njau-engineering-mark.jpg')} alt={t('南京农业大学工学院院徽', 'College of Engineering, NAU emblem')} width="857" height="411" />
+          </a>
           <Link to="/" className="new-version-wordmark" aria-label={t('耕知·耘诊大厅', 'Gengzhi · Yunzhen hub')}>
             <strong>耕知 · 耘诊</strong>
           </Link>
