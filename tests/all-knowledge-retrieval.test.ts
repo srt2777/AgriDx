@@ -10,10 +10,10 @@ import { loadArchive } from '../server/knowledge/archive';
 
 loadKnowledgeBase();
 
-test('7540条学习资料逐条可按编号检索，区分6000条原理通识与1540条术语参考', () => {
+test('6875条学习资料逐条可按编号检索，区分6000条原理通识与875条术语参考', () => {
   const snapshot = loadKnowledgeSnapshot();
   const learning = snapshot.chunks.filter(chunk => chunk.entryType === '通识学习');
-  assert.equal(learning.length, 7540);
+  assert.equal(learning.length, 6875);
   for (const original of learning) {
     const found = retrieve(`查阅 ${original.entryId!.toLowerCase()}`);
     assert.equal(found.length, 1, original.entryId);

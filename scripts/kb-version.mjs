@@ -14,8 +14,8 @@ const FILES = {
   role_review_queue: `${KB_ROOT}/role-review-queue.jsonl`,
   learning_index: 'docs/tractor-knowledge/index.jsonl',
   learning_expansion: 'docs/tractor-knowledge/expansion-5000/index.jsonl',
-  learning_terminology: 'docs/tractor-knowledge/expansion-1540/index.jsonl',
-  terminology_source: 'docs/tractor-knowledge/expansion-1540/source-concepts.json',
+  learning_terminology: 'docs/tractor-knowledge/expansion-875/index.jsonl',
+  terminology_source: 'docs/tractor-knowledge/expansion-875/source-concepts.json',
 };
 // Windows checkout may use CRLF; hash the repository's LF text.
 const text = (dir, rel) => readFileSync(path.join(dir, rel), 'utf8').replace(/\r\n/g, '\n');

@@ -94,7 +94,7 @@
     "docs/tractor-knowledge/expansion-5000/index.jsonl": "f498bd5dce2b3f96730ab5d508936d5852d0173416e2636878e35aabcda3fbfc",
     "docs/tractor-knowledge/expansion-5000/similarity-review.json": "3e89a5b0dfae31a455cbf6bc64675224cc986556db07beac0b35c9020fff9151",
     "docs/tractor-knowledge/expansion-5000/topics.json": "db065a74f3bdc8ee291e794a9e9b9e20d81140ee4982cdcfafc0a66c8a6be3b0",
-    "docs/tractor-knowledge/overview.md": "6cf46db80f1c59bc8278600b4aa59d10fd6fdff52c8d4f398c25058df18a309d"
+    "docs/tractor-knowledge/overview.md": "133caec4322e2fdec0fd40fd7b253c2435fe4cab7ff3c27fe8ee3aa8f55e7781"
   },
   "existing_archive": {
     "sources": 27,
@@ -109,6 +109,12 @@
       "previous_sha256": "3e1f6422fd6c0c7d30ffa34d737f722a943886589690bd4ce33e64b72c196700",
       "sha256": "6cf46db80f1c59bc8278600b4aa59d10fd6fdff52c8d4f398c25058df18a309d",
       "reason": "总入口新增1540条FAO术语批次；本批5000条正文、原索引和历史核验状态保持不变。"
+    },
+    {
+      "date": "2026-10-29",
+      "previous_sha256": "6cf46db80f1c59bc8278600b4aa59d10fd6fdff52c8d4f398c25058df18a309d",
+      "sha256": "133caec4322e2fdec0fd40fd7b253c2435fe4cab7ff3c27fe8ee3aa8f55e7781",
+      "reason": "保留主线新增665条手册条目，术语批次协调为875条；原5000条正文与索引保持不变。"
     }
   ]
 }

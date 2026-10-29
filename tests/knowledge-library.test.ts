@@ -75,7 +75,7 @@ test('共同正文搜索保留类别隔离、中文关键词、大小写不敏�
   assert.deepEqual([empty.page, empty.total, empty.entries.length], [1, 0, 0]);
   const last = getKnowledgeCatalog({ collection: 'learning', page: '999999' }).library!;
   assert.equal(last.page, Math.ceil(learningCount / last.pageSize));
-  assert.equal(last.entries.at(-1)!.entryId, 'TK-7540');
+  assert.equal(last.entries.at(-1)!.entryId, 'TK-6875');
 });
 
 test('累计统计包含通识检索，保留维修证据集合与具体机型优先级', () => {

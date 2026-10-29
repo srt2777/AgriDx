@@ -814,10 +814,17 @@
       "date": "2026-10-29"
     },
     {
-      "id": "kb-13000-agrovoc-20261029",
+      "id": "kb-gap-manuals-20261029",
       "kind": "knowledge",
       "base": "4.0.13",
       "version": "4.0.14",
+      "date": "2026-10-29"
+    },
+    {
+      "id": "kb-13000-agrovoc-20261029",
+      "kind": "knowledge",
+      "base": "4.0.14",
+      "version": "4.0.15",
       "date": "2026-10-29"
     }
   ]

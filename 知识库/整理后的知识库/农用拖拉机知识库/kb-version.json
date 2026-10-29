@@ -1,25 +1,25 @@
 {
   "schema": 1,
-  "kb_version": "2026.10.8",
+  "kb_version": "2026.10.12",
   "released": "2026-10-29",
-  "project_version": "4.0.14",
+  "project_version": "4.0.15",
   "counts": {
-    "archive": 5460,
-    "learning": 7540,
-    "sources": 55,
-    "markdown_files": 156
+    "archive": 6125,
+    "learning": 6875,
+    "sources": 58,
+    "markdown_files": 160
   },
   "content_hash": {
-    "entries": "f813d9622699e4706c379801c884ecd9746d69433f8f45b991ef51f60bcca9ca",
-    "sources": "5ffc84d2e02712ed96d1143daff0b7745d00c76546efa92947adb58e13a5acf3",
-    "hierarchy": "2639f16a3b066724e790ca794f9d80df963753ca93ef6250cc6760327463ba3e",
-    "entry_roles": "3c2dd4b3b2858f214aec48634849881cb20af87d6fd2d8f9de8769e3fb3534ed",
-    "role_review_queue": "0254c019a642985daeb643346b034b5fe99d5dc0bb6d37e96bbcc7c1e95b66f6",
+    "entries": "32e8e677d92efc7520ab3030564c398a2e2df36c18694be1067ee9daea6ec81a",
+    "sources": "31d605bb3e4f81f065b76725a3d85aac8afe1b2f3c9935e8ed584022d74ccf1e",
+    "hierarchy": "8afe6042b2dd42ebedc9226fc0d8c25886bc3958188f64aceb6596673ffa7214",
+    "entry_roles": "e405604f0c010d6baec51a20a2fe842c846bc95c9bc83a792df4911edbd2fc5f",
+    "role_review_queue": "2458130fbdd63748affa63b85fdfb6ff8746aa74b0b18fa98badbc02c2d8aff6",
     "learning_index": "1eac29d4f33681de65628b95b992b248f35c62578fb2f9e45ac5b1fdda8b414f",
     "learning_expansion": "f498bd5dce2b3f96730ab5d508936d5852d0173416e2636878e35aabcda3fbfc",
-    "learning_terminology": "9e50d13fa6ee51ce0d48dbe0b4cd3c0bf799d7cb2f0ccff6c557724422cc42c2",
-    "terminology_source": "e6f32989a4ca55751f443b41e80b6e32c3a94688f50fd82f62f67e7addaaa7ba",
-    "markdown": "5d4a2d3ca4b62a7ac6ea8a198289c2e1fcb5f82af4fc5d939a5042a405bfb653",
-    "learning_markdown": "5fea178ff6fbec12709fa492b4670ebd280ba291896cd1a01316ef08cd73e0d7"
+    "learning_terminology": "e722d56d222848de51fe758932a03e7bff4c24093d7c6b3d8de2509c5608d46e",
+    "terminology_source": "4e46f51952a624aaf64564699e56e31ba8bca070e7ed826d0513192c89dac0bd",
+    "markdown": "159f7c81072cca48ea8c7fbfcbdab49d61a49553b9d149ccced97a205994a55c",
+    "learning_markdown": "1984a5f0c25b88b85bd5ceef6c9633c942d7776d51e08afaa6579fe293889c4b"
   }
 }

@@ -12,7 +12,7 @@ from collections import defaultdict
 from pathlib import Path
 
 root = Path(__file__).resolve().parents[1]
-base = root / 'docs/tractor-knowledge/expansion-1540'
+base = root / 'docs/tractor-knowledge/expansion-875'
 source = json.loads((base / 'source.json').read_text())
 records = json.loads((base / 'source-concepts.json').read_text())
 raw = Path(sys.argv[1])

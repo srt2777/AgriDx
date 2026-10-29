@@ -22,6 +22,8 @@ const BRAND_ALIASES: Record<string, string[]> = {
   黄海金马: ['黄海金马', '金马', 'jinma'],
   时风: ['时风', 'shifeng'],
   潍泰: ['潍泰', 'weitai'],
+  五征: ['五征', '山拖'],
+  玉柴: ['玉柴', 'yuchai'],
   约翰迪尔: ['约翰迪尔', 'john deere', 'johndeere'],
   千寻位置: ['千寻位置', '千耘', 'qianxun', '千寻位置 / 千耘'],
   华测: ['华测', 'chcnav', '华测导航', 'huace'],

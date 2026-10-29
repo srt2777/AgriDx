@@ -26,6 +26,8 @@ def content_group(source):
         return '报道背景'
     if Path(source['path']).suffix.lower() == '.html' or '网页' in description:
         return '维护网页'
+    if '发动机' in description:
+        return '发动机维护PDF'
     if '整机' in description or source.get('document_type') == '既有完整PDF' or '拖拉机安全与日常维护' in description:
         return '整机／维保PDF'
     return '未分类资料'
@@ -82,7 +84,7 @@ def generate(date, visuals):
         generic_count += sum(bool(part.strip()) for part in re.split(r'^##\s+.*$', text, flags=re.M))
     learning_paths = [REPO / 'docs/tractor-knowledge/index.jsonl',
                       REPO / 'docs/tractor-knowledge/expansion-5000/index.jsonl',
-                      REPO / 'docs/tractor-knowledge/expansion-1540/index.jsonl']
+                      REPO / 'docs/tractor-knowledge/expansion-875/index.jsonl']
     learning_entries = [json.loads(line) for file in learning_paths
                         for line in file.read_text('utf8').splitlines() if line.strip()]
     assert len({entry['entry_id'] for entry in learning_entries}) == len(learning_entries)

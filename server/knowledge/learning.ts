@@ -6,7 +6,7 @@ import type { KnowledgeChunk } from './types';
 export const LEARNING_INDEXES = [
   'docs/tractor-knowledge/index.jsonl',
   'docs/tractor-knowledge/expansion-5000/index.jsonl',
-  'docs/tractor-knowledge/expansion-1540/index.jsonl',
+  'docs/tractor-knowledge/expansion-875/index.jsonl',
 ] as const;
 
 /** Read the sole Markdown bodies, preserving original provenance and review status. */
@@ -27,7 +27,7 @@ export function loadLearningEntries(root = process.cwd()): LearningEntry[] {
         typeof title !== 'string' || !title.trim() || typeof topic !== 'string' || !topic.trim() ||
         typeof status !== 'string' || !status.trim() || item.entry_type !== '通识学习' ||
         item.diagnostic_evidence !== false || item.anchor !== id.toLowerCase() ||
-        typeof relative !== 'string' || !/^docs\/tractor-knowledge\/(?:expansion-(?:5000|1540)\/)?\d{2}\.md$/.test(relative)) {
+        typeof relative !== 'string' || !/^docs\/tractor-knowledge\/(?:expansion-(?:5000|875)\/)?\d{2}\.md$/.test(relative)) {
         throw new Error(`通识索引编号、定位或用途无效：${String(id)}`);
       }
       if (!documents.has(relative)) {
@@ -43,7 +43,7 @@ export function loadLearningEntries(root = process.cwd()): LearningEntry[] {
       }
       let content = documents.get(relative)!.get(id);
       if (!content) throw new Error(`通识正文缺失：${id}`);
-      const terminology = index.includes('/expansion-1540/');
+      const terminology = index.includes('/expansion-875/');
       if (terminology && (item.source_kind !== 'agrovoc-terminology' ||
         typeof item.source_uri !== 'string' || !/^http:\/\/aims\.fao\.org\/aos\/agrovoc\/c_[a-zA-Z0-9]+$/.test(item.source_uri) ||
         conceptUris.has(item.source_uri) || !content.includes(`](${item.source_uri})`))) {
