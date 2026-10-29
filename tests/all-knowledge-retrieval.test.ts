@@ -10,10 +10,10 @@ import { loadArchive } from '../server/knowledge/archive';
 
 loadKnowledgeBase();
 
-test('6000条通识逐条可按编号检索，保留唯一正文、主题、核验状态和引用用途', () => {
+test('7540条学习资料逐条可按编号检索，区分6000条原理通识与1540条术语参考', () => {
   const snapshot = loadKnowledgeSnapshot();
   const learning = snapshot.chunks.filter(chunk => chunk.entryType === '通识学习');
-  assert.equal(learning.length, 6000);
+  assert.equal(learning.length, 7540);
   for (const original of learning) {
     const found = retrieve(`查阅 ${original.entryId!.toLowerCase()}`);
     assert.equal(found.length, 1, original.entryId);
@@ -25,12 +25,12 @@ test('6000条通识逐条可按编号检索，保留唯一正文、主题、核�
     assert.equal(chunk.diagnosticEvidence, false);
     assert.equal(hasIndexedReference(chunk), false);
     // 2026-10-22: an open (no brand/model) lookup uses TK as 通识 evidence; the data flag stays false.
-    assert.equal(chunk.generalEvidence, true);
-    assert.equal(hasDiagnosticEvidence([chunk]), true);
+    assert.equal(chunk.generalEvidence, chunk.learningKind === 'terminology' ? undefined : true);
+    assert.equal(hasDiagnosticEvidence([chunk]), chunk.learningKind !== 'terminology');
     assert.equal(hasDiagnosticEvidence([{ ...chunk, generalEvidence: undefined }]), false);
     assert.equal(referenceVerification(chunk.status), 'unverified');
     assert.ok(Object.values(deriveDiagnosticMetadata(chunk).coverage).every(value => value === false));
-    assert.match(describeSource(chunk), /通识（无手册页码）/);
+    assert.match(describeSource(chunk), chunk.learningKind === 'terminology' ? /FAO AGROVOC术语关系参考/ : /通识（无手册页码）/);
     assert.match(describeSource({ ...chunk, generalEvidence: undefined }), /不是原厂手册证据/);
   }
   assert.deepEqual(retrieve('TK-9999'), []);

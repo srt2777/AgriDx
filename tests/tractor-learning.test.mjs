@@ -14,7 +14,7 @@ test('学习资料接受Windows换行，但拒绝正文改写和将学习条目�
   const directory = mkdtempSync(path.join(tmpdir(), 'agridx-learning-check-'));
   try {
     const manifest = JSON.parse(readFileSync(path.join(rootDir, manifestPath), 'utf8'));
-    for (const relative of [manifestPath, 'docs/knowledge-library.md', '知识库/条目整理规范.md', ...Object.keys(manifest.preserved_baseline.files), ...Object.keys(manifest.files)]) {
+    for (const relative of [manifestPath, 'docs/knowledge-library.md', 'docs/tractor-knowledge/expansion-1540/README.md', '知识库/条目整理规范.md', ...Object.keys(manifest.preserved_baseline.files), ...Object.keys(manifest.files)]) {
       const destination = path.join(directory, relative);
       mkdirSync(path.dirname(destination), { recursive: true });
       writeFileSync(destination, readFileSync(path.join(rootDir, relative), 'utf8').replace(/\r?\n/g, '\r\n'));

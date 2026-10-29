@@ -14,6 +14,8 @@ const FILES = {
   role_review_queue: `${KB_ROOT}/role-review-queue.jsonl`,
   learning_index: 'docs/tractor-knowledge/index.jsonl',
   learning_expansion: 'docs/tractor-knowledge/expansion-5000/index.jsonl',
+  learning_terminology: 'docs/tractor-knowledge/expansion-1540/index.jsonl',
+  terminology_source: 'docs/tractor-knowledge/expansion-1540/source-concepts.json',
 };
 // Windows checkout may use CRLF; hash the repository's LF text.
 const text = (dir, rel) => readFileSync(path.join(dir, rel), 'utf8').replace(/\r\n/g, '\n');
@@ -31,10 +33,12 @@ export function computeKbState(dir = rootDir) {
   const content_hash = Object.fromEntries(Object.entries(FILES).map(([key, rel]) => [key, sha(text(dir, rel))]));
   const md = markdownFiles(dir, KB_ROOT).sort();
   content_hash.markdown = sha(md.map(rel => `${rel}\n${sha(text(dir, rel))}`).join('\n'));
+  const learningMd = markdownFiles(dir, 'docs/tractor-knowledge').sort();
+  content_hash.learning_markdown = sha(learningMd.map(rel => `${rel}\n${sha(text(dir, rel))}`).join('\n'));
   const lineCount = rel => text(dir, rel).split('\n').filter(Boolean).length;
   const counts = {
     archive: lineCount(FILES.entries),
-    learning: lineCount(FILES.learning_index) + lineCount(FILES.learning_expansion),
+    learning: lineCount(FILES.learning_index) + lineCount(FILES.learning_expansion) + lineCount(FILES.learning_terminology),
     sources: JSON.parse(text(dir, FILES.sources)).length,
     markdown_files: md.length,
   };

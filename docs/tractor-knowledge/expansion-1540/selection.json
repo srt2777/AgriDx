@@ -1,0 +1,485 @@
+{
+  "schema": 1,
+  "target": 1540,
+  "groups": {
+    "农业机械与设备": 197,
+    "土壤与田间作业": 520,
+    "水文灌排与作业气象": 169,
+    "工程材料与物理过程": 310,
+    "测量数据与农业信息": 344
+  },
+  "root_uris": {
+    "农业机械与设备": [
+      {
+        "en": "cultivation equipment",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_25750"
+      },
+      {
+        "en": "tillage equipment",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_25768"
+      },
+      {
+        "en": "planting equipment",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_5991"
+      },
+      {
+        "en": "fertilizer equipment",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_25754"
+      },
+      {
+        "en": "plant protection equipment",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_25760"
+      },
+      {
+        "en": "harvesters",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_3499"
+      },
+      {
+        "en": "balers",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_793"
+      },
+      {
+        "en": "earthmoving equipment",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_2439"
+      },
+      {
+        "en": "land clearing equipment",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_25752"
+      },
+      {
+        "en": "soil management equipment",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_25757"
+      },
+      {
+        "en": "postharvest equipment",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_25744"
+      },
+      {
+        "en": "handling machinery",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_3487"
+      },
+      {
+        "en": "farm equipment",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_25753"
+      },
+      {
+        "en": "maintenance equipment",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_25749"
+      },
+      {
+        "en": "tractors",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_7847"
+      },
+      {
+        "en": "engines",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_4954"
+      },
+      {
+        "en": "pumps",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_6370"
+      },
+      {
+        "en": "compressors",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_94744f94"
+      },
+      {
+        "en": "filters",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_24839"
+      },
+      {
+        "en": "hoses",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_16dbfb5c"
+      },
+      {
+        "en": "pipes",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_5925"
+      },
+      {
+        "en": "heat exchangers",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_11483"
+      },
+      {
+        "en": "electricity generators",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_25730"
+      },
+      {
+        "en": "electrical installations",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_2516"
+      },
+      {
+        "en": "electronic equipment",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_49878"
+      },
+      {
+        "en": "power tools",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_25786"
+      },
+      {
+        "en": "hand tools",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_25785"
+      },
+      {
+        "en": "safety equipment",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_6733"
+      },
+      {
+        "en": "cleaning equipment",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_24005"
+      },
+      {
+        "en": "ventilators",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_8189"
+      },
+      {
+        "en": "air conditioning equipment",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_26046"
+      },
+      {
+        "en": "refrigeration equipment",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_25722"
+      },
+      {
+        "en": "dryers",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_2401"
+      },
+      {
+        "en": "sprayers",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_7333"
+      },
+      {
+        "en": "sprinklers",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_25677"
+      },
+      {
+        "en": "irrigation equipment",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_3955"
+      },
+      {
+        "en": "robots",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_25680"
+      },
+      {
+        "en": "automated equipment",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_e8f961a4"
+      },
+      {
+        "en": "cables",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_a8bcf3c5"
+      },
+      {
+        "en": "ropes",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_26816"
+      }
+    ],
+    "土壤与田间作业": [
+      {
+        "en": "soil properties",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_330883"
+      },
+      {
+        "en": "soil management",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_7176"
+      },
+      {
+        "en": "soil types",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_7204"
+      },
+      {
+        "en": "soil sciences",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_7188"
+      },
+      {
+        "en": "soil",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_7156"
+      },
+      {
+        "en": "tillage",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_7771"
+      },
+      {
+        "en": "cropping systems",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_1971"
+      },
+      {
+        "en": "agricultural practices",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_49913"
+      },
+      {
+        "en": "crop production",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_5976"
+      },
+      {
+        "en": "land management",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_24866"
+      },
+      {
+        "en": "agricultural mechanization",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_39f65d19"
+      },
+      {
+        "en": "agricultural engineering",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_8673"
+      },
+      {
+        "en": "fertilizers",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_2867"
+      },
+      {
+        "en": "fertilizer application",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_10795"
+      },
+      {
+        "en": "harvesting",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_3500"
+      },
+      {
+        "en": "sowing",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_7268"
+      },
+      {
+        "en": "planting",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_5992"
+      },
+      {
+        "en": "soil water",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_7205"
+      },
+      {
+        "en": "soil degradation",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_7168"
+      },
+      {
+        "en": "soil pollution",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_7183"
+      },
+      {
+        "en": "soil improvement",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_36315"
+      },
+      {
+        "en": "soil amendments",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_7159"
+      }
+    ],
+    "水文灌排与作业气象": [
+      {
+        "en": "water management",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_8320"
+      },
+      {
+        "en": "irrigation",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_3954"
+      },
+      {
+        "en": "irrigation systems",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_25332"
+      },
+      {
+        "en": "drainage systems",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_25331"
+      },
+      {
+        "en": "water properties",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_ef433a7e"
+      },
+      {
+        "en": "water",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_8309"
+      },
+      {
+        "en": "hydrology",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_3731"
+      },
+      {
+        "en": "meteorological factors",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_29565"
+      },
+      {
+        "en": "climatic factors",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_29554"
+      },
+      {
+        "en": "climate",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_1665"
+      },
+      {
+        "en": "weather",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_15292"
+      },
+      {
+        "en": "meteorology",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_4783"
+      },
+      {
+        "en": "agrometeorology",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_8689"
+      }
+    ],
+    "工程材料与物理过程": [
+      {
+        "en": "mechanics",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_35220"
+      },
+      {
+        "en": "engineering",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_2571"
+      },
+      {
+        "en": "chemicophysical properties",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_1521"
+      },
+      {
+        "en": "technical properties",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_2572"
+      },
+      {
+        "en": "equipment characteristics",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_25689"
+      },
+      {
+        "en": "physicochemical processes",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_331547"
+      },
+      {
+        "en": "physical phenomena",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_27944"
+      },
+      {
+        "en": "energy",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_2565"
+      },
+      {
+        "en": "fuels",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_3136"
+      },
+      {
+        "en": "materials",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_92337"
+      },
+      {
+        "en": "lubricants",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_25737"
+      },
+      {
+        "en": "metals",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_29036"
+      },
+      {
+        "en": "electricity",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_2518"
+      },
+      {
+        "en": "magnetism",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_739a5a5d"
+      }
+    ],
+    "测量数据与农业信息": [
+      {
+        "en": "measuring instruments",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_12457"
+      },
+      {
+        "en": "surveying equipment",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_e25db215"
+      },
+      {
+        "en": "optical instruments",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_63668d64"
+      },
+      {
+        "en": "transducers",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_120bc081"
+      },
+      {
+        "en": "measurement",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_4668"
+      },
+      {
+        "en": "statistical methods",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_7377"
+      },
+      {
+        "en": "information systems",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_11769"
+      },
+      {
+        "en": "remote sensing",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_6498"
+      },
+      {
+        "en": "data",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_49816"
+      },
+      {
+        "en": "mathematical models",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_24199"
+      },
+      {
+        "en": "digital technology",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_4b2d7f85"
+      },
+      {
+        "en": "Information and Communication Technologies",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_9000083"
+      },
+      {
+        "en": "telecommunications",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_24906"
+      },
+      {
+        "en": "experimentation",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_2758"
+      },
+      {
+        "en": "experimental design",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_29466"
+      },
+      {
+        "en": "research methods",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_31858"
+      },
+      {
+        "en": "errors",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_02516980"
+      },
+      {
+        "en": "mathematical properties",
+        "uri": "http://aims.fao.org/aos/agrovoc/c_0df381c0"
+      }
+    ]
+  },
+  "excluded_subtrees": [
+    "organisms",
+    "biological properties",
+    "medical equipment",
+    "veterinary equipment",
+    "oceanographic equipment",
+    "fishing gear",
+    "fishery industry equipment",
+    "aquaculture equipment",
+    "underwater equipment",
+    "shipboard equipment",
+    "marine technology",
+    "food technology",
+    "biotechnology",
+    "animal husbandry",
+    "animal reproduction",
+    "animal breeding",
+    "plant propagation",
+    "forestry",
+    "forestry equipment",
+    "forest management",
+    "dairy equipment",
+    "building equipment",
+    "geographical regions",
+    "countries",
+    "economic phenomena",
+    "economic systems",
+    "medical sciences",
+    "nutrition",
+    "diseases",
+    "meteorological phenomena"
+  ],
+  "excluded_label_pattern": "r'海啸|海浪|沿岸|上升流|埃克曼|斯威尔德鲁普|斜压|地转|风暴潮|海洋|海流|海底|海上|海岸|海湾|海藻|渔|鱼|鲸|贝类|浮游|水产|潜水|水下|船|艇|波浪|潮汐|潮间|波能|大洋|陆架|河口|峡湾|洋流|深海|近岸|海水|海滩|医用|口罩|临床|体内|体外|瘤胃|疾病|营养|人体|体温|卫生|病害|妊娠|膜电位|生物电|生物噪声|畜|家畜|牲畜|动物|生物浓缩|生物发光|屠宰|膜通透|活性部位|结合位点|交联键|非离子|人工膜|原产地试验|生物调查|狩猎|游钓|上岸量|网目|乳脂|牲口|健康调查|呼吸计|生物遥测|人体|卡路里|社会统计|消费者|户口|家庭消费|大众传媒|生产函数|一般均衡|基因|饲养|乳品|奶|卵|人体|基因|分子序列|亲属|性别|人口|出生|劳工|就业|经济|贸易|价格|供给函数|需求|供给弹性|储蓄|消费函数|博奕|科布|柯布|李嘉图|金融|贷款|地租|租金|供粪|森林|林业|林地|毁林|断木|白木|实木|木屑|再生木|造林|废材|采脂|割胶|树桩|棚架|脚浴|救生|浮式|铺轨牵引|拖缆|地幔|热液|地壳|三角洲沉积|远洋|泻湖|波群|风浪|赤道|底层水温|温深|湖沼|验潮|赛克盘|水深|测深|林分|林木|圆材|原木|锯材|木材|心材|边材|枯木|幼龄材|软木|硬木|枝材|木煤气|薪材|造纸|单板|枕木|坑木|阿皮通|放射性核素|放射性物质|裂变|地球外|人工细胞|食性|食品接触|发酵|发芽|糊化|糖化|面筋|咀嚼|德粉|亲脂|药物|手工采|电影|纪录片|幻灯|电视|图文|电台|美洲农业|FAO AGRIS|生物学资料|实验室内|地震|地球物理|地热测量|地磁|重力资料|冰川|岩化|成岩|交代作用|白云石化|生物侵蚀|生物计量|异速生长|地位指数|材积表|材种表|猝灭|佩克莱|考尼|波群|声呐|声纳|水听|脱碳|酸沉降|油污染|赭石|半咸|海平面|盐度资料|盐度计|盐度测|盐度温|温盐|细菌计|叶绿素|脐带|生命表|腐食|源岩|裂解|水稻稈'",
+  "selection_policy": "各概念URI只计一条；有中英文首选标签和可读直接上位概念；按农业机械、田间土壤、水文气象、测量数据优先选取，物理材料层按已保存主题关键词、中文定义存在性、英文标签与URI稳定排序选取剩余名额。排除海洋渔业、医疗生物、消费人口和无关林业候选。选择清单不代表农机维修覆盖率。"
+}

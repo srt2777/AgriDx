@@ -1,23 +1,24 @@
 {
   "schema_version": 1,
-  "snapshot_date_shanghai": "2026-10-28",
-  "repository_version": "4.0.7",
+  "snapshot_date_shanghai": "2026-10-29",
+  "repository_version": "4.0.13",
   "scope": "仅由现有索引派生的统计与导航，不是新增维修事实，不加入检索",
   "input_sha256": {
     "知识库/整理后的知识库/农用拖拉机知识库/sources.json": "5ffc84d2e02712ed96d1143daff0b7745d00c76546efa92947adb58e13a5acf3",
     "知识库/整理后的知识库/农用拖拉机知识库/entries.jsonl": "f813d9622699e4706c379801c884ecd9746d69433f8f45b991ef51f60bcca9ca",
     "docs/tractor-knowledge/index.jsonl": "1eac29d4f33681de65628b95b992b248f35c62578fb2f9e45ac5b1fdda8b414f",
-    "docs/tractor-knowledge/expansion-5000/index.jsonl": "f498bd5dce2b3f96730ab5d508936d5852d0173416e2636878e35aabcda3fbfc"
+    "docs/tractor-knowledge/expansion-5000/index.jsonl": "f498bd5dce2b3f96730ab5d508936d5852d0173416e2636878e35aabcda3fbfc",
+    "docs/tractor-knowledge/expansion-1540/index.jsonl": "9e50d13fa6ee51ce0d48dbe0b4cd3c0bf799d7cb2f0ccff6c557724422cc42c2"
   },
   "totals": {
     "sources": 55,
     "archived_entries": 5460,
-    "learning_entries": 6000,
-    "total_library_entries": 11460,
+    "learning_entries": 7540,
+    "total_library_entries": 13000,
     "knowledge_documents": 95,
     "brand_labels": 14,
     "generic_chunks": 9,
-    "retrieval_chunks": 11469,
+    "retrieval_chunks": 13009,
     "information_or_scope_entries": 557
   },
   "brands": [

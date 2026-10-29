@@ -24,11 +24,11 @@ export function createKnowledgeSnapshot(root = rootDir) {
     if (!file.startsWith('知识库/整理后的知识库/') || !file.endsWith('.md')) throw new Error(`Unexpected knowledge document: ${file}`);
     add(file);
   }
-  for (const indexFile of ['docs/tractor-knowledge/index.jsonl', 'docs/tractor-knowledge/expansion-5000/index.jsonl']) {
+  for (const indexFile of ['docs/tractor-knowledge/index.jsonl', 'docs/tractor-knowledge/expansion-5000/index.jsonl', 'docs/tractor-knowledge/expansion-1540/index.jsonl']) {
     add(indexFile);
     const learning = snapshot[`/${indexFile}`].split(/\r?\n/).filter(line => line.trim()).map(JSON.parse);
     for (const file of new Set(learning.map(entry => entry.knowledge_path))) {
-      if (!/^docs\/tractor-knowledge\/(?:expansion-5000\/)?\d{2}\.md$/.test(file)) throw new Error(`Unexpected learning document: ${file}`);
+      if (!/^docs\/tractor-knowledge\/(?:expansion-(?:5000|1540)\/)?\d{2}\.md$/.test(file)) throw new Error(`Unexpected learning document: ${file}`);
       add(file);
     }
   }

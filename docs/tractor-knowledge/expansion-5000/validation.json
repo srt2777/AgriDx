@@ -94,7 +94,7 @@
     "docs/tractor-knowledge/expansion-5000/index.jsonl": "f498bd5dce2b3f96730ab5d508936d5852d0173416e2636878e35aabcda3fbfc",
     "docs/tractor-knowledge/expansion-5000/similarity-review.json": "3e89a5b0dfae31a455cbf6bc64675224cc986556db07beac0b35c9020fff9151",
     "docs/tractor-knowledge/expansion-5000/topics.json": "db065a74f3bdc8ee291e794a9e9b9e20d81140ee4982cdcfafc0a66c8a6be3b0",
-    "docs/tractor-knowledge/overview.md": "3e1f6422fd6c0c7d30ffa34d737f722a943886589690bd4ce33e64b72c196700"
+    "docs/tractor-knowledge/overview.md": "6cf46db80f1c59bc8278600b4aa59d10fd6fdff52c8d4f398c25058df18a309d"
   },
   "existing_archive": {
     "sources": 27,
@@ -102,5 +102,13 @@
     "chunks": 4862,
     "changed": false
   },
-  "verification_notes": "本清单记录可重复的资料检查；项目完整verify、跨平台CI和合入/部署状态以对应PR实际回执为准。"
+  "verification_notes": "本清单记录可重复的资料检查；项目完整verify、跨平台CI和合入/部署状态以对应PR实际回执为准。",
+  "overview_updates": [
+    {
+      "date": "2026-10-29",
+      "previous_sha256": "3e1f6422fd6c0c7d30ffa34d737f722a943886589690bd4ce33e64b72c196700",
+      "sha256": "6cf46db80f1c59bc8278600b4aa59d10fd6fdff52c8d4f398c25058df18a309d",
+      "reason": "总入口新增1540条FAO术语批次；本批5000条正文、原索引和历史核验状态保持不变。"
+    }
+  ]
 }

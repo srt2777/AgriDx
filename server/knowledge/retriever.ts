@@ -311,6 +311,10 @@ export function retrieve(query: string, k = MAX_CHUNKS_IN_PROMPT, context: Retri
     // The local file preamble describes editing the sample, not diagnostic evidence.
     if (!c.entryId && c.heading === '(概述)') continue;
     const learning = c.entryType === '通识学习' && c.diagnosticEvidence === false;
+    // A vocabulary edge is not a mechanical cause. Use these records for explicit
+    // term/ID lookups, keeping symptom-based ranking on the original evidence set.
+    if (c.learningKind === 'terminology' && !requestedIds.size &&
+      (!/术语|词汇|词表|概念|定义|英文|英语|上位|下位|关联词|翻译/.test(query) || namedScope)) continue;
     if (!learning && c.entryId && !applicabilityByScope.has(indexed.applicabilityKey)) {
       applicabilityByScope.set(indexed.applicabilityKey, archiveApplicability(c, scope));
     }
@@ -319,7 +323,9 @@ export function retrieve(query: string, k = MAX_CHUNKS_IN_PROMPT, context: Retri
     // its applicable documents do not cover this question. Explicit IDs remain isolated lookups.
     if (learning ? !(scope.openArchive || generalAllowed && namedScope || (requestedIds.size && generalAllowed))
       : c.entryId ? !applicability : !scope.genericKnowledge) continue;
-    const score = requestedIds.size ? 100 : scoreChunk(indexed, qTokens, groups);
+    const term = c.learningKind === 'terminology' ? c.heading.split('｜')[1]?.split('（')[0] : undefined;
+    const termMatch = term && query.includes(term) ? term.length * 10 : 0;
+    const score = requestedIds.size ? 100 : scoreChunk(indexed, qTokens, groups) + termMatch;
     if (!learning && c.entryId && applicability && namedScope && !requestedIds.size && componentIds.size &&
       organization.entryComponents[c.entryId]?.some(component => componentIds.has(component)) && score === 0 &&
       !NON_DIAGNOSTIC_TYPES.has(c.entryType ?? '')) {
@@ -330,7 +336,7 @@ export function retrieve(query: string, k = MAX_CHUNKS_IN_PROMPT, context: Retri
             `运行表现关联：${symptomMatches.map(symptom => symptom.id).join('、')}`] },
         relevance: { score: scoreChunk(indexed, qTokens, []), method: 'keyword-weighted-overlap', calibrated: false } });
     }
-    if (score > 0) scored.push({ ...c, applicability, ...(learning && scope.openArchive ? { generalEvidence: true as const } : {}),
+    if (score > 0) scored.push({ ...c, applicability, ...(learning && scope.openArchive && c.learningKind !== 'terminology' ? { generalEvidence: true as const } : {}),
       retrieval: learning || !c.entryId
         ? { tier: 'general', basis: ['通用知识；无具体机型手册适用证明'], referenceOnly: true }
         : { tier: c.models && c.models.length > 1 ? 'series' : 'exact',
@@ -418,9 +424,12 @@ export function describeSource(chunk: KnowledgeChunk): string {
     `整理批次：${chunk.version}｜核验状态：${chunk.status}`,
     `正文定位：${chunk.source}#${chunk.entryId?.toLowerCase()}`,
     `用途限制：${chunk.scopeBoundary}`,
+    ...(chunk.learningKind === 'terminology' ? [`资料来源：FAO AGROVOC｜概念：${chunk.sourceUrl}`] : []),
     chunk.generalEvidence
       ? '证据性质：通识（无手册页码）。本问题未指定品牌／型号，按用户2026-10-22决定作为通识证据参与分析；不是任何具体手册的说法，不能冒充原厂步骤或专用参数。'
-      : '来源性质：原创／模型辅助整理的通识资料；不是原厂手册证据。',
+      : chunk.learningKind === 'terminology'
+        ? '来源性质：FAO AGROVOC术语关系参考；不是原厂手册证据，也不作为故障诊断证据。'
+        : '来源性质：原创／模型辅助整理的通识资料；不是原厂手册证据。',
   ].join('\n');
   if (!chunk.entryId) return `来源：${chunk.source}｜章节：${chunk.heading}`;
   return [
