@@ -94,6 +94,8 @@ export interface CatalogSelection {
 }
 
 export interface LearningEntry {
+  learningKind?: 'terminology';
+  sourceUrl?: string;
   collection: 'learning';
   entryId: string;
   title: string;

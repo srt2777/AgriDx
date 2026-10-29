@@ -41,9 +41,9 @@ function requestCatalog(query: string | URLSearchParams) {
 }
 
 test('catalogue adds learning and archive counts while preserving archive-only hierarchy and evidence counts', () => {
-  assert.equal(catalog.totals.entries, archive.length + 6000);
+  assert.equal(catalog.totals.entries, archive.length + 6875);
   assert.equal(catalog.totals.archivedEntries, archive.length);
-  assert.equal(catalog.totals.learningEntries, 6000);
+  assert.equal(catalog.totals.learningEntries, 6875);
   assert.equal(catalog.totals.mappedEntries, archive.length);
   assert.equal(catalog.totals.sources, new Set(archive.map((chunk) => chunk.sourceId)).size);
   assert.equal(catalog.totals.faultEntries, archive.filter((chunk) => chunk.entryType === '维护/故障知识').length);
@@ -140,7 +140,7 @@ test('unified library HTTP serves both original learning batches and archive evi
     const response = await requestCatalog(new URLSearchParams({ collection: 'all', q }));
     assert.equal(response.status, 200);
     const result = await response.json() as KnowledgeCatalog;
-    assert.equal(result.totals.entries, archive.length + 6000);
+    assert.equal(result.totals.entries, archive.length + 6875);
     assert.equal(result.library!.total, 1);
     assert.equal(result.library!.entries[0].entryId, q);
     assert.equal(result.library!.entries[0].collection, collection);

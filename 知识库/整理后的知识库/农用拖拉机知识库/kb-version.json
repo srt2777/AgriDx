@@ -1,11 +1,11 @@
 {
   "schema": 1,
-  "kb_version": "2026.10.11",
+  "kb_version": "2026.10.12",
   "released": "2026-10-29",
-  "project_version": "4.0.14",
+  "project_version": "4.0.15",
   "counts": {
     "archive": 6125,
-    "learning": 6000,
+    "learning": 6875,
     "sources": 58,
     "markdown_files": 160
   },
@@ -17,6 +17,9 @@
     "role_review_queue": "2458130fbdd63748affa63b85fdfb6ff8746aa74b0b18fa98badbc02c2d8aff6",
     "learning_index": "1eac29d4f33681de65628b95b992b248f35c62578fb2f9e45ac5b1fdda8b414f",
     "learning_expansion": "f498bd5dce2b3f96730ab5d508936d5852d0173416e2636878e35aabcda3fbfc",
-    "markdown": "159f7c81072cca48ea8c7fbfcbdab49d61a49553b9d149ccced97a205994a55c"
+    "learning_terminology": "e722d56d222848de51fe758932a03e7bff4c24093d7c6b3d8de2509c5608d46e",
+    "terminology_source": "4e46f51952a624aaf64564699e56e31ba8bca070e7ed826d0513192c89dac0bd",
+    "markdown": "159f7c81072cca48ea8c7fbfcbdab49d61a49553b9d149ccced97a205994a55c",
+    "learning_markdown": "1984a5f0c25b88b85bd5ceef6c9633c942d7776d51e08afaa6579fe293889c4b"
   }
 }

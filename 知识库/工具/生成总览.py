@@ -83,7 +83,8 @@ def generate(date, visuals):
         text = file.read_text('utf8')
         generic_count += sum(bool(part.strip()) for part in re.split(r'^##\s+.*$', text, flags=re.M))
     learning_paths = [REPO / 'docs/tractor-knowledge/index.jsonl',
-                      REPO / 'docs/tractor-knowledge/expansion-5000/index.jsonl']
+                      REPO / 'docs/tractor-knowledge/expansion-5000/index.jsonl',
+                      REPO / 'docs/tractor-knowledge/expansion-875/index.jsonl']
     learning_entries = [json.loads(line) for file in learning_paths
                         for line in file.read_text('utf8').splitlines() if line.strip()]
     assert len({entry['entry_id'] for entry in learning_entries}) == len(learning_entries)

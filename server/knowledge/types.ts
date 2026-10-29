@@ -42,6 +42,8 @@ export interface KnowledgeChunk {
   riskBasis?: string;
   /** General principles may inform analysis, but never prove model-specific repairs. */
   diagnosticEvidence?: false;
+  /** Controlled-vocabulary labels/edges are references, never diagnostic evidence. */
+  learningKind?: 'terminology';
   /**
    * Set at retrieval time only (never in entry files): when the question names no brand or
    * model, 通识 (TK) entries count as general-knowledge evidence (user decision 2026-10-22).
