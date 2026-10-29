@@ -847,6 +847,13 @@
       "base": "4.0.17",
       "version": "4.0.18",
       "date": "2026-10-29"
+    },
+    {
+      "id": "blue-metal-ui-20261029",
+      "kind": "maintenance",
+      "base": "4.0.18",
+      "version": "4.0.19",
+      "date": "2026-10-29"
     }
   ]
 }
