@@ -8,7 +8,7 @@ const lines = (name) => readFileSync(`${root}/${name}`, 'utf8').split(/\r?\n/).f
 
 test('AI 角色建议只写在队列 ai_suggestion，status 保持 pending，不进入 entry-roles.jsonl', () => {
   const queue = lines('role-review-queue.jsonl');
-  assert.equal(queue.length, 2329);
+  assert.equal(queue.length, 3346);
   for (const q of queue) {
     assert.equal(q.status, 'pending');
     const a = q.ai_suggestion;

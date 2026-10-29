@@ -24,8 +24,10 @@ def content_group(source):
         return '配套导航PDF'
     if '报道' in description:
         return '报道背景'
-    if Path(source['path']).suffix.lower() == '.html':
+    if Path(source['path']).suffix.lower() == '.html' or '网页' in description:
         return '维护网页'
+    if '发动机' in description:
+        return '发动机维护PDF'
     if '整机' in description or source.get('document_type') == '既有完整PDF' or '拖拉机安全与日常维护' in description:
         return '整机／维保PDF'
     return '未分类资料'
@@ -38,6 +40,8 @@ def storage_group(source):
         return '仓库PDF原件'
     if Path(source['path']).suffix.lower() == '.html':
         return '仓库网页快照'
+    if Path(source['path']).suffix.lower() == '.md' and '网页' in (source.get('document_type', '') + source.get('role', '')):
+        return '网页链接＋来源记录'
     return '其他存放方式'
 
 
@@ -79,7 +83,8 @@ def generate(date, visuals):
         text = file.read_text('utf8')
         generic_count += sum(bool(part.strip()) for part in re.split(r'^##\s+.*$', text, flags=re.M))
     learning_paths = [REPO / 'docs/tractor-knowledge/index.jsonl',
-                      REPO / 'docs/tractor-knowledge/expansion-5000/index.jsonl']
+                      REPO / 'docs/tractor-knowledge/expansion-5000/index.jsonl',
+                      REPO / 'docs/tractor-knowledge/expansion-875/index.jsonl']
     learning_entries = [json.loads(line) for file in learning_paths
                         for line in file.read_text('utf8').splitlines() if line.strip()]
     assert len({entry['entry_id'] for entry in learning_entries}) == len(learning_entries)
@@ -129,7 +134,7 @@ def generate(date, visuals):
 
 **{totals['sources']}个来源 → {totals['knowledge_documents']}个人读归档知识正文文件 → {totals['archived_entries']}条归档索引。** 另有{totals['learning_entries']}条通识学习资料，共{totals['total_library_entries']}条统一知识目录记录；加{generic_count}个通用信息收集片段，当前预期加载{totals['retrieval_chunks']}个片段。通识保留原核验状态与diagnostic_evidence=false，不作为本机维修操作或参数依据；来源、正文文件、条目和片段是不同单位。
 
-存放形式为**{storage['仓库PDF原件']}份PDF原件＋{storage['PDF链接＋来源记录']}份外链PDF来源记录＋{storage['仓库网页快照']}份网页快照**；{storage['仓库PDF原件'] + storage['PDF链接＋来源记录']}个PDF资料来源包含{storage['PDF链接＋来源记录']}个仅链接记录，不能将PDF资料来源数当作仓库PDF全文数。
+存放形式为**{storage['仓库PDF原件']}份PDF原件＋{storage['PDF链接＋来源记录']}份外链PDF来源记录＋{storage['仓库网页快照']}份网页快照＋{storage.get('网页链接＋来源记录', 0)}份网页链接及来源记录**；{storage['仓库PDF原件'] + storage['PDF链接＋来源记录']}个PDF资料来源包含{storage['PDF链接＋来源记录']}个仅链接记录，不能将PDF资料来源数当作仓库PDF全文数。
 
 {totals['archived_entries']}条中有**{totals['information_or_scope_entries']}条资料信息或系统适用边界**（资料索引、资料核验、机型资料、资料缺口、系统适用边界），不能全部作为维修步骤或已验证结论。
 

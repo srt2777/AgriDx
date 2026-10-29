@@ -1,0 +1,22 @@
+{
+  "schema": 1,
+  "publisher": "Food and Agriculture Organization of the United Nations (FAO)",
+  "title": "AGROVOC multilingual thesaurus / Core N-Triples distribution",
+  "download_url": "https://agrovoc.fao.org/latestAgrovoc/agrovoc_core.nt.zip",
+  "access_url": "https://www.fao.org/agrovoc/index.php/access",
+  "license_url": "https://aims.fao.org/standards/agrovoc/access-agrovoc",
+  "license": "CC BY IGO 3.0 (FAO official access page for Chinese and English vocabulary)",
+  "attribution": "FAO, AGROVOC. Selected Chinese/English preferred labels and SKOS broader/related relationships. Retrieved 2026-10-29. Adapted into Chinese reading cards by AgriDx. No FAO endorsement is implied.",
+  "retrieved_at": "2026-10-29",
+  "release_version": "未在下载件中独立确认；latest地址与取得日期不作发布版次",
+  "download_sha256": "d30f81b2afd3e6adb75995fc0c2774037e0fd37c60f99a4feee1583f8f9d29a0",
+  "download_bytes": 74368903,
+  "nt_sha256": "c6f4cd8d941b351dbed30e779031659d5ab8d51f479068e795696c1a88656587",
+  "nt_bytes": 1085828657,
+  "source_subset_sha256": "4e46f51952a624aaf64564699e56e31ba8bca070e7ed826d0513192c89dac0bd",
+  "entry_count": 875,
+  "scope": "农业机械、田间作业、土壤、水文气象、工程材料、测量与农业信息的术语关系。不是维修故障库。",
+  "verification": "逐条由已下载RDF中英文标签及直接SKOS关系生成；自动核对URI、关系、正文定位、数量和原库完整性。未逐条原厂、专家或实车核验。",
+  "definitions_included": false,
+  "relationships": "skos:broader为词表直接上位关系，skos:related为关联关系；均不表示部件组成、故障因果或机型适配。"
+}

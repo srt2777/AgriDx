@@ -9,6 +9,8 @@ import {
   type ChatResult,
   type Provider,
   type ProviderName,
+  type ToolChatOptions,
+  type ToolChatResult,
 } from './types';
 
 interface OpenAICompatibleOptions {
@@ -36,6 +38,41 @@ export function createOpenAICompatibleProvider(opts: OpenAICompatibleOptions): P
       const k = getKey();
       return Boolean(k && k.trim().length > 0);
     },
+    ...(name === 'gemini' ? {} : { async chatWithTools(messages:ChatMessage[], options:ToolChatOptions):Promise<ToolChatResult> {
+      const apiKey=getKey();
+      if(!apiKey)throw new ProviderError(name,'configuration',`missing ${apiKeyEnv}`);
+      const outgoing=selfIntro?(()=>{const copy=[...messages];if(copy[0]?.role==='system')copy[0]={...copy[0],content:copy[0].content+'\n\n'+selfIntro};else copy.unshift({role:'system',content:selfIntro});return copy;})():messages;
+      let data:unknown;
+      try {
+        data=await fetchWithTimeout(apiUrl,{method:'POST',signal:options.signal,headers:{'Content-Type':'application/json',Authorization:`Bearer ${apiKey}`},body:JSON.stringify({model,messages:outgoing,temperature:0.3,stream:false,...(options.tools.length?{tools:options.tools.map(tool=>({type:'function',function:{name:tool.name,description:tool.description,parameters:tool.input_schema}})),tool_choice:options.toolChoice??'auto'}:{})})},timeoutMs,async response=>{
+          if(!response.ok){const kind=response.status===401||response.status===403?'auth':response.status===429?'rate_limit':response.status===400||response.status===422?'bad_request':response.status>=500?'server_error':'unknown';throw new ProviderError(name,kind,`HTTP ${response.status}`);}
+          try{return await response.json();}catch(error){if(error instanceof Error&&error.name==='AbortError')throw error;throw new ProviderError(name,'invalid_response','response is not valid JSON');}
+        });
+      } catch(error) {
+        if(error instanceof ProviderError)throw error;
+        const kind=error instanceof Error&&error.message==='cancelled'?'cancelled':error instanceof Error&&error.message==='timeout'?'timeout':'network';
+        throw new ProviderError(name,kind,'request failed');
+      }
+      const record=data&&typeof data==='object'?data as Record<string,unknown>:{};
+      const choice=Array.isArray(record.choices)?record.choices[0]:undefined;
+      const message=choice&&typeof choice==='object'?choice.message:undefined;
+      const rawCalls=message?.tool_calls;
+      if(rawCalls!==undefined&&(!Array.isArray(rawCalls)||rawCalls.length>4))throw new ProviderError(name,'invalid_response','invalid tool calls');
+      const ids=new Set<string>();
+      const toolCalls=(rawCalls??[]).map((call:unknown)=>{
+        if(!call||typeof call!=='object')throw new ProviderError(name,'invalid_response','invalid tool call');
+        const item=call as {id?:unknown;type?:unknown;function?:{name?:unknown;arguments?:unknown}};
+        if(typeof item.id!=='string'||!item.id||item.id.length>200||ids.has(item.id)||item.type!=='function'||typeof item.function?.name!=='string'||!/^[a-zA-Z0-9_-]{1,64}$/.test(item.function.name)||typeof item.function.arguments!=='string'||item.function.arguments.length>100_000)throw new ProviderError(name,'invalid_response','invalid tool call');
+        ids.add(item.id);let input:unknown;try{input=JSON.parse(item.function.arguments);}catch{throw new ProviderError(name,'invalid_response','invalid tool arguments');}
+        if(!input||typeof input!=='object'||Array.isArray(input))throw new ProviderError(name,'invalid_response','invalid tool arguments');
+        return {id:item.id,name:item.function.name,input:input as Record<string,unknown>};
+      });
+      const finish=choice?.finish_reason;
+      if(!['tool_calls','stop','length'].includes(finish)||((finish==='tool_calls')!==Boolean(toolCalls.length)))throw new ProviderError(name,'invalid_response','invalid finish reason');
+      const content=typeof message?.content==='string'?message.content.trim():'';
+      if(!content&&!toolCalls.length)throw new ProviderError(name,'invalid_response','missing assistant content');
+      return {content,toolCalls,stopReason:finish as ToolChatResult['stopReason']};
+    }}),
     async chat(messages: ChatMessage[]): Promise<ChatResult> {
       const apiKey = getKey();
       if (!apiKey) {

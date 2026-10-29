@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { Info } from 'lucide-react';
 import { useLang } from '@/hooks/useLang';
 import { demoNoteCopy } from '@/lib/demo-note-copy';
+import { openShortcuts } from '@/lib/delight';
 import './demo-note.css';
 
 export default function DemoNote() {
@@ -67,19 +68,20 @@ export default function DemoNote() {
         className="demo-note-button"
         aria-expanded={open}
         aria-controls={panelId}
-        aria-label={copy.label}
+        aria-label={lang === 'zh' ? '帮助与演示说明' : 'Help and demo information'}
         onClick={() => setOpen((current) => !current)}
       >
         <Info size={16} />
-        <span>{copy.label}</span>
+
       </button>
       {open && createPortal(
         <div className="demo-note-panel" id={panelId} role="dialog" aria-label={copy.title} ref={panel}>
-          <span className="wheat-line" aria-hidden="true" />
+
           <strong>{copy.title}</strong>
           {copy.points.map((point) => <p key={point}>{point}</p>)}
+          <button type="button" className="demo-help-shortcuts" onClick={() => { setOpen(false); button.current?.focus(); openShortcuts(); }}>{lang === 'zh' ? '键盘快捷键与操作帮助' : 'Keyboard shortcuts and controls'}</button>
         </div>,
-        document.body,
+        document.querySelector('.new-version-shell') ?? document.body,
       )}
     </div>
   );

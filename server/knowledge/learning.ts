@@ -6,6 +6,7 @@ import type { KnowledgeChunk } from './types';
 export const LEARNING_INDEXES = [
   'docs/tractor-knowledge/index.jsonl',
   'docs/tractor-knowledge/expansion-5000/index.jsonl',
+  'docs/tractor-knowledge/expansion-875/index.jsonl',
 ] as const;
 
 /** Read the sole Markdown bodies, preserving original provenance and review status. */
@@ -14,6 +15,7 @@ export function loadLearningEntries(root = process.cwd()): LearningEntry[] {
   const documents = new Map<string, Map<string, string>>();
   const entries: LearningEntry[] = [];
   const ids = new Set<string>();
+  const conceptUris = new Set<string>();
   for (const index of LEARNING_INDEXES) {
     const rows: unknown[] = fs.readFileSync(path.join(root, index), 'utf8').split(/\r?\n/).filter(line => line.trim()).map(line => JSON.parse(line));
     if (!rows.length) throw new Error(`通识索引为空：${index}`);
@@ -25,7 +27,7 @@ export function loadLearningEntries(root = process.cwd()): LearningEntry[] {
         typeof title !== 'string' || !title.trim() || typeof topic !== 'string' || !topic.trim() ||
         typeof status !== 'string' || !status.trim() || item.entry_type !== '通识学习' ||
         item.diagnostic_evidence !== false || item.anchor !== id.toLowerCase() ||
-        typeof relative !== 'string' || !/^docs\/tractor-knowledge\/(?:expansion-5000\/)?\d{2}\.md$/.test(relative)) {
+        typeof relative !== 'string' || !/^docs\/tractor-knowledge\/(?:expansion-(?:5000|875)\/)?\d{2}\.md$/.test(relative)) {
         throw new Error(`通识索引编号、定位或用途无效：${String(id)}`);
       }
       if (!documents.has(relative)) {
@@ -41,7 +43,14 @@ export function loadLearningEntries(root = process.cwd()): LearningEntry[] {
       }
       let content = documents.get(relative)!.get(id);
       if (!content) throw new Error(`通识正文缺失：${id}`);
-      if (relative.includes('/expansion-5000/')) {
+      const terminology = index.includes('/expansion-875/');
+      if (terminology && (item.source_kind !== 'agrovoc-terminology' ||
+        typeof item.source_uri !== 'string' || !/^http:\/\/aims\.fao\.org\/aos\/agrovoc\/c_[a-zA-Z0-9]+$/.test(item.source_uri) ||
+        conceptUris.has(item.source_uri) || !content.includes(`](${item.source_uri})`))) {
+        throw new Error(`术语来源无效：${id}`);
+      }
+      if (terminology) conceptUris.add(item.source_uri as string);
+      if (relative.includes('/expansion-')) {
         const heading = `**${title}**`;
         if (!content.startsWith(`${heading}\n`)) throw new Error(`通识标题不符：${id}`);
         content = content.slice(heading.length).trim();
@@ -49,7 +58,8 @@ export function loadLearningEntries(root = process.cwd()): LearningEntry[] {
       }
       ids.add(id);
       entries.push({ collection: 'learning', entryId: id, title, entryType: '通识学习',
-        topic, status, knowledgePath: relative, content, diagnosticEvidence: false });
+        topic, status, knowledgePath: relative, content, diagnosticEvidence: false,
+        ...(terminology ? { learningKind: 'terminology' as const, sourceUrl: item.source_uri as string } : {}) });
     }
   }
   const bodyCount = [...documents.values()].reduce((count, sections) => count + sections.size, 0);
@@ -63,7 +73,11 @@ export function learningChunks(entries: LearningEntry[]): KnowledgeChunk[] {
     source: entry.knowledgePath, heading: `${entry.entryId}｜${entry.title}`,
     text: entry.content, entryId: entry.entryId, entryType: entry.entryType,
     diagnosticEvidence: false, status: entry.status,
-    locator: `${entry.topic}／${entry.entryId}`, version: '2026-10-17通识整理批次（非原厂手册）',
-    scopeBoundary: '拖拉机通用原理与待验证分析；未逐条原厂或实车核验。不能确定本机故障、专用参数、操作步骤或型号适配。',
+    locator: `${entry.topic}／${entry.entryId}`,
+    ...(entry.learningKind ? { learningKind: entry.learningKind, sourceUrl: entry.sourceUrl } : {}),
+    version: entry.learningKind === 'terminology' ? '2026-10-29取得的FAO AGROVOC词表子集（未确认发布版次）' : '2026-10-17通识整理批次（非原厂手册）',
+    scopeBoundary: entry.learningKind === 'terminology'
+      ? 'FAO AGROVOC术语首选标签与直接词表关系，仅供术语理解、翻译和检索。上位与关联关系不表示部件组成、故障因果、机型适配或维修证据。未逐条原厂、专家或实车核验。'
+      : '拖拉机通用原理与待验证分析；未逐条原厂或实车核验。不能确定本机故障、专用参数、操作步骤或型号适配。',
   }));
 }

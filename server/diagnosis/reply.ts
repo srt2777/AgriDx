@@ -120,6 +120,18 @@ export function buildDiagnosticReply(input: DiagnosticReplyInput): DiagnosticRep
     reply.supportLevel = reference.length ? 'reference_only' : 'none';
     return reply;
   }
+  const terms = chunks.filter(chunk => chunk.learningKind === 'terminology');
+  if (terms.length && !scope.brand && !scope.model && coordination.route !== 'safe' &&
+    !/故障|异常|不转|不起|不着|困难|过高|过热|无力|泄漏|漏油|异响|冒烟|怎么办|排查|检查|维修|拆卸|调压/.test(query)) {
+    reply.understanding = '以下是FAO AGROVOC的中英文术语和词表关系。';
+    reply.supportLevel = 'reference_only';
+    reply.background = terms.slice(0, 2).map(chunk => ({
+      text: `${chunk.heading.split('｜')[1]}：${chunk.text.replace(/\n+/g, ' ').trim()}`,
+      evidenceIds: [chunk.entryId!],
+    }));
+    reply.sourceNote = '来源：FAO AGROVOC，2026-10-29取得。上位和关联词只表示词表关系，不表示部件组成、故障原因或具体机型适配；本次仅作术语参考。';
+    return reply;
+  }
   const reported = progress.split(/[。；;\n]/).filter(text => /已(?:经)?检查|检查.*(?:正常|异常|完成)/.test(text) && !assessSuggestedAction(text).restricted).slice(-2).map(plain).join('；').slice(0, 180);
   if (reported) reply.understanding += `你已报告“${reported}”（用户观察，尚未独立核验），后续不把它当作手册事实。`;
   if (coordination.route !== 'safe') {
@@ -196,7 +208,7 @@ export function buildDiagnosticReply(input: DiagnosticReplyInput): DiagnosticRep
 /** Natural main answer; routing, provider failures and raw retrieval data belong in details. */
 export function renderDiagnosticReply(reply: DiagnosticReply): string {
   const sections = [reply.understanding];
-  if (reply.background?.length) sections.push('通用原理参考（非本机结论，尚需核对）：\n' + reply.background.map(item => `- ${item.text}（${item.evidenceIds.join('、')}，无手册页码）`).join('\n'));
+  if (reply.background?.length) sections.push((reply.supportLevel === 'reference_only' ? '资料参考（请核对来源和用途）：\n' : '通用原理参考（非本机结论，尚需核对）：\n') + reply.background.map(item => `- ${item.text}（${item.evidenceIds.join('、')}，无手册页码）`).join('\n'));
   if (reply.causes.length) sections.push('资料中列出的可能方向：\n' + reply.causes.map(cause => `- ${cause.text}（${cause.evidenceIds.join('、')}，待验证）`).join('\n'));
   if (reply.aiSupplement) sections.push('AI补充分析（推断，需核对）：\n' + reply.aiSupplement);
   if (reply.suggestions.length) sections.push('建议按以下顺序处理：\n' + reply.suggestions.map((suggestion, index) => `${index + 1}. ${suggestion.text}${suggestion.evidenceIds.length ? `（${suggestion.evidenceIds.join('、')}）` : ''}`).join('\n'));

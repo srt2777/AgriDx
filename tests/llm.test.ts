@@ -247,3 +247,23 @@ test('request timeout remains active while the upstream response body is still g
   });
   await assert.rejects(provider.chat(messages), providerError('timeout'));
 });
+
+test('shadow tool provider prefers a tool-capable provider without changing ordinary routing', () => {
+  process.env.GEMINI_API_KEY = 'gemini-test-key';
+  process.env.DEEPSEEK_API_KEY = 'deepseek-test-key';
+  const both = new LlmRouter();
+  assert.equal(both.getStatus().primary, 'gemini');
+  assert.equal(both.toolProvider()?.name, 'deepseek');
+  process.env.LLM_PROVIDER = 'gemini';
+  assert.equal(new LlmRouter().toolProvider()?.name, 'deepseek');
+  delete process.env.LLM_PROVIDER;
+  delete process.env.DEEPSEEK_API_KEY;
+  const geminiOnly = new LlmRouter();
+  assert.equal(geminiOnly.getStatus().primary, 'gemini');
+  assert.equal(geminiOnly.toolProvider(), null);
+  delete process.env.GEMINI_API_KEY;
+  process.env.DEEPSEEK_API_KEY = 'deepseek-test-key';
+  assert.equal(new LlmRouter().toolProvider()?.name, 'deepseek');
+  process.env.LLM_PROVIDER = 'invalid';
+  assert.equal(new LlmRouter().toolProvider(), null);
+});

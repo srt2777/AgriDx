@@ -1,0 +1,73 @@
+/* Modern workspace: cool steel surfaces and blue instrumentation. */
+.new-version-shell[data-ui-version='new'] {
+  --steel-bg: #e9eff5; --steel-panel: #f4f8fb; --steel-line: #a8bccd;
+  --steel-text: #193044; --steel-muted: #566d80; --steel-accent: #246f9f;
+  --steel-active: #d3e8f5; --steel-highlight: rgb(255 255 255 / 80%);
+  --nv-background: var(--steel-bg); --nv-surface: #e1ebf3; --nv-card: var(--steel-panel);
+  --nv-text: var(--steel-text); --nv-muted: var(--steel-muted); --nv-border: var(--steel-line);
+  --nv-primary: #246f9f; --nv-on-primary: #fff;
+  --hub-background: var(--steel-bg); --hub-surface: #e1ebf3; --hub-card: var(--steel-panel);
+  --hub-foreground: var(--steel-text); --hub-muted: var(--steel-muted); --hub-border: var(--steel-line);
+  --hub-primary: var(--steel-accent); --hub-primary-foreground: #fff;
+  background: var(--steel-bg); color: var(--steel-text);
+}
+html.theme-dark .new-version-shell[data-ui-version='new'] {
+  --steel-bg: #091521; --steel-panel: #14293a; --steel-line: #35566d;
+  --steel-text: #e3eef6; --steel-muted: #a8bece; --steel-accent: #7dc7f0;
+  --steel-active: #193f5a; --steel-highlight: rgb(205 232 248 / 12%);
+  --nv-background: var(--steel-bg); --nv-surface: #102333; --nv-card: var(--steel-panel);
+  --nv-text: var(--steel-text); --nv-muted: var(--steel-muted); --nv-border: var(--steel-line);
+  --nv-primary: var(--steel-accent); --nv-on-primary: #0b1c2b;
+  --hub-background: var(--steel-bg); --hub-surface: #102333; --hub-card: var(--steel-panel);
+  --hub-foreground: var(--steel-text); --hub-muted: var(--steel-muted); --hub-border: var(--steel-line);
+  --hub-primary: var(--steel-accent); --hub-primary-foreground: #0b1c2b;
+}
+html:not(.theme-dark) .new-version-shell[data-ui-version='new'] {
+  --nv-background: var(--steel-bg); --nv-surface: #e1ebf3; --nv-card: var(--steel-panel);
+  --nv-text: var(--steel-text); --nv-muted: var(--steel-muted); --nv-border: var(--steel-line);
+  --nv-primary: var(--steel-accent); --nv-on-primary: #fff;
+  --hub-background: var(--steel-bg); --hub-surface: #e1ebf3; --hub-card: var(--steel-panel);
+  --hub-foreground: var(--steel-text); --hub-muted: var(--steel-muted); --hub-border: var(--steel-line);
+  --hub-primary: var(--steel-accent); --hub-primary-foreground: #fff;
+}
+.new-version-shell[data-ui-version='new'] :is(.new-version-header-glass, .new-version-navigation-rail, .new-version-nav-toggle),
+html:not(.theme-dark) .new-version-shell[data-ui-version='new'] :is(.new-version-header-glass, .new-version-navigation-rail, .new-version-nav-toggle) {
+  color: var(--steel-text); border: 1px solid var(--steel-line);
+  background: linear-gradient(155deg, var(--steel-highlight), transparent 45%), var(--steel-panel);
+  box-shadow: inset 0 1px 0 var(--steel-highlight), 0 4px 12px rgb(2 19 33 / 10%);
+}
+.new-version-shell[data-ui-version='new'] .new-version-header-glass { border-bottom: 2px solid var(--steel-accent); }
+.new-version-shell[data-ui-version='new'] .new-version-wordmark strong { letter-spacing: .08em; }
+.new-version-shell[data-ui-version='new'] .new-version-navigation { gap: 8px; }
+.new-version-shell[data-ui-version='new'] .new-version-nav-item,
+html:not(.theme-dark) .new-version-shell[data-ui-version='new'] .new-version-nav-item { color: var(--steel-muted); transition: background 250ms ease-out, color 250ms ease-out, transform 250ms ease-out; }
+.new-version-shell[data-ui-version='new'] .new-version-nav-item:hover,
+html:not(.theme-dark) .new-version-shell[data-ui-version='new'] .new-version-nav-item:hover { background: var(--steel-active); color: var(--steel-text); transform: translateX(2px); }
+.new-version-shell[data-ui-version='new'] .new-version-nav-item.is-active,
+html:not(.theme-dark) .new-version-shell[data-ui-version='new'] .new-version-nav-item.is-active { background: var(--steel-active); color: var(--steel-text); box-shadow: inset 3px 0 var(--steel-accent); }
+.new-version-shell[data-ui-version='new'] :is(.chat-glass, .catalog-browser, .catalog-stats, .catalog-distribution, .evidence-entry, .parts-panel, .parts-stage-card, .parts-knowledge, .model-control-glass, .history-build, .not-found-card),
+html:not(.theme-dark) .new-version-shell[data-ui-version='new'] :is(.chat-glass, .catalog-browser, .catalog-stats, .catalog-distribution, .evidence-entry, .parts-panel, .parts-stage-card, .parts-knowledge, .model-control-glass, .history-build, .not-found-card) {
+  background: var(--steel-panel); border-color: var(--steel-line); box-shadow: inset 0 1px 0 var(--steel-highlight);
+}
+.new-version-shell[data-ui-version='new'] .expo-page,
+html:not(.theme-dark) .new-version-shell[data-ui-version='new'] .expo-page {
+  --background: var(--steel-bg); --foreground: var(--steel-text); --card: var(--steel-panel);
+  --muted-foreground: var(--steel-muted); --border: var(--steel-line); --primary: var(--steel-accent);
+  --md-on-surface: var(--steel-text); --md-on-surface-variant: var(--steel-muted);
+  --md-primary: var(--steel-accent); color: var(--steel-text); background: var(--steel-bg);
+}
+.new-version-shell[data-ui-version='new'] :is(.expo-world-stage, .campus-equipment-catalog, .expo-zone-card, .expo-catalog, .expo-dock-glass, .expo-guide-glass),
+html:not(.theme-dark) .new-version-shell[data-ui-version='new'] :is(.expo-world-stage, .campus-equipment-catalog, .expo-zone-card, .expo-catalog, .expo-dock-glass, .expo-guide-glass) { background: var(--steel-panel); border-color: var(--steel-line); }
+.new-version-shell[data-ui-version='new'] :is(.new-version-nav-item, .campus-equipment-list button, .catalog-model-grid button, .chat-chip):focus-visible { outline-color: var(--steel-accent); }
+.new-version-shell[data-ui-version='new'] .new-version-nav-item.is-active svg { color: var(--steel-accent); }
+@media (prefers-reduced-motion: no-preference) {
+  .new-version-shell[data-ui-version='new'] .new-version-header-glass { position: relative; overflow: hidden; }
+  .new-version-shell[data-ui-version='new'] .new-version-header-glass::after { content: ''; position: absolute; bottom: 0; left: -25%; width: 25%; height: 2px; background: linear-gradient(90deg, transparent, var(--steel-accent), transparent); animation: steel-sweep 9s ease-in-out infinite; pointer-events: none; }
+  @keyframes steel-sweep { 0%, 12% { transform: translateX(0); opacity: 0; } 20% { opacity: .8; } 60%, 100% { transform: translateX(500%); opacity: 0; } }
+}
+html.theme-dark .new-version-shell[data-ui-version='new'],
+html:not(.theme-dark) .new-version-shell[data-ui-version='new'] { background: var(--steel-bg); color: var(--steel-text); }
+.new-version-shell[data-ui-version='new'] .new-version-breadcrumb { color: var(--steel-muted); }
+.new-version-shell[data-ui-version='new'] .new-version-nav-toggle { color: var(--steel-accent); }
+.new-version-shell[data-ui-version='new'] :is(.expo-world-stage, .parts-stage-card) { border: 1px solid var(--steel-line); }
+.new-version-shell[data-ui-version='new'][data-route='/chat'] .new-version-workspace { align-items: stretch; min-height: 0; }

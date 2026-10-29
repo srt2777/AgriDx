@@ -4,12 +4,18 @@ import { test } from 'node:test';
 import {
   DESKTOP_BEATS,
   MOBILE_BEATS,
+  beatsFromAnchor,
   damp,
+  fitProjectedBox,
+  freeLane,
   presentPose,
+  progressIndex,
   sampleBeats,
   scrollIndex,
+  scrollProgress,
   smoothstep,
   stageIndex,
+  trackFor,
 } from '../src/pages/HomePage/home-stage.ts';
 
 const read = (path: string) => readFileSync(new URL(path, import.meta.url), 'utf8');
@@ -27,13 +33,66 @@ test('滚动关键帧按 smoothstep 插值，手机步数更少、横向位移�
   assert.ok(Math.abs(mid.x - (from.x + (to.x - from.x) * eased)) < 1e-9);
   assert.equal(sampleBeats(DESKTOP_BEATS, 2).focus, 'body_shell');
   assert.equal(sampleBeats(DESKTOP_BEATS, 3).focus, 'gps_antenna');
-  assert.equal(sampleBeats(DESKTOP_BEATS, 6).explode, 0.72);
+  assert.equal(sampleBeats(DESKTOP_BEATS, 6).explode, 0.24);
   assert.equal(sampleBeats(DESKTOP_BEATS, 7).explode, 0);
   assert.ok(MOBILE_BEATS.length < DESKTOP_BEATS.length);
   const desktopShift = Math.max(...DESKTOP_BEATS.map(beat => Math.abs(beat.pose.x)));
   const mobileShift = Math.max(...MOBILE_BEATS.map(beat => Math.abs(beat.pose.x)));
-  assert.ok(mobileShift < desktopShift);
-  assert.ok(mobileShift < 0.2);
+  assert.ok(mobileShift <= desktopShift);
+  assert.ok(mobileShift < 0.85);
+  assert.ok(Math.abs(DESKTOP_BEATS[0].pose.scale - DESKTOP_BEATS[5].pose.scale) < 0.001);
+  assert.ok(DESKTOP_BEATS[7].pose.scale > 0.85);
+});
+
+test('整页滚动进度连续，关键帧之间没有位置或缩放跳变', () => {
+  assert.equal(scrollProgress(0, 800, 4000), 0);
+  assert.equal(scrollProgress(3200, 800, 4000), 1);
+  assert.ok(scrollProgress(100, 800, 4000) < scrollProgress(200, 800, 4000));
+  const anchor = { x: 1.4, y: 0.04, z: 0.02, scale: 1.35 };
+  for (const compact of [false, true]) {
+    const beats = beatsFromAnchor(anchor, trackFor(compact), (compact ? MOBILE_BEATS : DESKTOP_BEATS)[0].pose);
+    const steps = 80;
+    let previous = sampleBeats(beats, progressIndex(0, beats.length));
+    for (let i = 1; i <= steps; i += 1) {
+      const next = sampleBeats(beats, progressIndex(i / steps, beats.length));
+      assert.ok(Math.abs(next.x - previous.x) < 0.2, `${compact} x ${i}`);
+      assert.ok(Math.abs(next.y - previous.y) < 0.05, `${compact} y ${i}`);
+      assert.ok(Math.abs(next.yaw - previous.yaw) < 0.15, `${compact} yaw ${i}`);
+      assert.ok(Math.abs(next.scale - previous.scale) < 0.05, `${compact} scale ${i}`);
+      assert.ok(Math.abs(next.explode - previous.explode) < 0.05, `${compact} explode ${i}`);
+      previous = next;
+    }
+    assert.ok(Math.abs(sampleBeats(beats, 0).x - anchor.x) < 1e-9);
+  }
+});
+
+test('投影包围盒落在卡片外侧的空位中，并占空位面积的 55% 到 65%', () => {
+  const canvas = { x: 248, y: 64, width: 1192, height: 820 };
+  const card = { x: 276, y: 64, width: 440, height: 820 };
+  const lane = freeLane(canvas, card, 24);
+  assert.ok(lane.x >= card.x + card.width);
+  assert.ok(lane.width > 500);
+  const box = { x: 700, y: 300, width: 220, height: 150 };
+  const fitted = fitProjectedBox(box, lane, 0.6);
+  const width = box.width * fitted.scale;
+  const height = box.height * fitted.scale;
+  const centerX = box.x + box.width / 2 + fitted.dx;
+  const centerY = box.y + box.height / 2 + fitted.dy;
+  const left = centerX - width / 2;
+  const top = centerY - height / 2;
+  assert.ok(left >= lane.x - 0.5);
+  assert.ok(top >= lane.y - 0.5);
+  assert.ok(left + width <= lane.x + lane.width + 0.5);
+  assert.ok(top + height <= lane.y + lane.height + 0.5);
+  const coverage = (width * height) / (lane.width * lane.height);
+  assert.ok(coverage > 0.55 && coverage <= 0.65, `coverage ${coverage}`);
+  const phone = { x: 0, y: 480, width: 390, height: 360 };
+  const dock = freeLane(phone, null, 16);
+  const phoneFit = fitProjectedBox({ x: 40, y: 520, width: 180, height: 120 }, dock, 0.6);
+  const phoneWidth = 180 * phoneFit.scale;
+  const phoneHeight = 120 * phoneFit.scale;
+  const phoneCoverage = (phoneWidth * phoneHeight) / (dock.width * dock.height);
+  assert.ok(phoneCoverage > 0.55 && phoneCoverage <= 0.65);
 });
 
 test('滚动索引、短列表映射、阻尼和减少动效', () => {
@@ -51,7 +110,7 @@ test('滚动索引、短列表映射、阻尼和减少动效', () => {
   assert.equal(reduced.scale, DESKTOP_BEATS[0].pose.scale);
   const exploded = presentPose(DESKTOP_BEATS[6].pose, true);
   assert.equal(exploded.explode, 0);
-  assert.equal(presentPose(DESKTOP_BEATS[6].pose, false).explode, 0.72);
+  assert.equal(presentPose(DESKTOP_BEATS[6].pose, false).explode, 0.24);
 });
 
 test('旧版首页只有一个固定舞台，T70 仍走工坊 Meshopt 与照片色', () => {

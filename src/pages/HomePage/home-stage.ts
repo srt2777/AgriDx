@@ -45,11 +45,11 @@ function pose(partial: Partial<StagePose> & Pick<StagePose, 'x' | 'scale' | 'yaw
     y: 0,
     z: 0,
     pitch: 0,
-    camX: 2.7,
-    camY: 1.25,
-    camZ: 3.45,
+    camX: 2.4,
+    camY: 1.55,
+    camZ: 4.15,
     lookX: 0,
-    lookY: 0.04,
+    lookY: 0.05,
     lookZ: 0,
     explode: 0,
     turn: 0,
@@ -58,96 +58,110 @@ function pose(partial: Partial<StagePose> & Pick<StagePose, 'x' | 'scale' | 'yaw
   };
 }
 
-/** Desktop: hero turn, side slides, part zooms, a light explode, then a settle. */
+/** Projected box fills this fraction of the open lane, clamped so it cannot cross the card. */
+export const LANE_AREA_FILL = 0.6;
+
+export type ScreenRect = { x: number; y: number; width: number; height: number };
+
+function areaOf(rect: ScreenRect): number {
+  return Math.max(0, rect.width) * Math.max(0, rect.height);
+}
+
+/** Largest region of the canvas that does not intersect the text card. */
+export function freeLane(canvas: ScreenRect, card: ScreenRect | null, gap = 24): ScreenRect {
+  const padded = {
+    x: canvas.x + gap,
+    y: canvas.y + gap,
+    width: Math.max(0, canvas.width - gap * 2),
+    height: Math.max(0, canvas.height - gap * 2),
+  };
+  if (!card) return padded;
+  const right = card.x + card.width;
+  const bottom = card.y + card.height;
+  const candidates = [
+    { x: right + gap, y: padded.y, width: canvas.x + canvas.width - gap - (right + gap), height: padded.height },
+    { x: padded.x, y: padded.y, width: card.x - gap - padded.x, height: padded.height },
+    { x: padded.x, y: bottom + gap, width: padded.width, height: canvas.y + canvas.height - gap - (bottom + gap) },
+    { x: padded.x, y: padded.y, width: padded.width, height: card.y - gap - padded.y },
+  ].filter(rect => rect.width >= 64 && rect.height >= 64);
+  candidates.sort((a, b) => areaOf(b) - areaOf(a));
+  return candidates[0] ?? padded;
+}
+
+/**
+ * Scale the projected box toward `fill` of the lane's area, then keep the whole box inside the lane.
+ * Translation recenters the box after scaling about its own center.
+ */
+export function fitProjectedBox(box: ScreenRect, lane: ScreenRect, fill = LANE_AREA_FILL): { dx: number; dy: number; scale: number } {
+  const boxW = Math.max(box.width, 1);
+  const boxH = Math.max(box.height, 1);
+  const aspect = boxW / boxH;
+  const targetArea = Math.min(0.65, Math.max(0.55, fill)) * Math.max(areaOf(lane), 1);
+  let width = Math.sqrt(targetArea * aspect);
+  let height = width / aspect;
+  const clamp = Math.min(1, lane.width / Math.max(width, 1), lane.height / Math.max(height, 1));
+  width *= clamp;
+  height *= clamp;
+  return {
+    dx: lane.x + lane.width / 2 - (box.x + box.width / 2),
+    dy: lane.y + lane.height / 2 - (box.y + box.height / 2),
+    scale: Math.min(6, Math.max(0.15, width / boxW)),
+  };
+}
+
+/** Later beats share the hero scale. Screen fitting places each one in the open lane. */
 export const DESKTOP_BEATS: readonly Beat[] = [
   {
     id: 'hero',
-    pose: pose({
-      x: 0.95, scale: 1.24, yaw: 0.62, turn: 0.16,
-      camX: 2.35, camY: 1.15, camZ: 3.55, lookX: 0.55, lookY: 0.02,
-    }),
+    pose: pose({ x: 0, scale: 1, yaw: -0.95, turn: 0.03, camY: 1.55, camZ: 4.15, lookY: 0.05 }),
   },
   {
     id: 'capabilities',
-    pose: pose({
-      x: 1.15, scale: 1.02, yaw: 0.38, turn: 0.06,
-      camX: 2.6, camY: 1.3, camZ: 3.9, lookX: 0.72,
-    }),
+    pose: pose({ x: 0, scale: 1, yaw: -0.42 }),
   },
   {
     id: 'painpoints',
-    pose: pose({
-      x: 1.22, scale: 1.48, yaw: 0.88, focus: 'body_shell',
-      camX: 1.7, camY: 1.02, camZ: 2.45, lookX: 0.82, lookY: 0.08,
-    }),
+    pose: pose({ x: 0, scale: 1, yaw: -0.7, focus: 'body_shell' }),
   },
   {
     id: 'knowledge',
-    pose: pose({
-      x: -1.18, scale: 1.58, yaw: -0.52, focus: 'gps_antenna',
-      camX: -1.35, camY: 1.72, camZ: 2.25, lookX: -0.72, lookY: 0.42,
-    }),
+    pose: pose({ x: 0, scale: 1, yaw: 0.5, focus: 'gps_antenna' }),
   },
   {
     id: 'techroute',
-    pose: pose({
-      x: 1.16, scale: 1.72, yaw: 1.12, focus: 'wheel_fl',
-      camX: 2.05, camY: 0.48, camZ: 2.05, lookX: 0.78, lookY: -0.18,
-    }),
+    pose: pose({ x: 0, scale: 1, yaw: -0.62, focus: 'wheel_fl' }),
   },
-
   {
     id: 'scenarios',
-    pose: pose({
-      x: 1.02, scale: 1.42, yaw: 0.32, focus: 'battery_box',
-      camX: 1.85, camY: 1.12, camZ: 2.3, lookX: 0.62, lookY: 0.1,
-    }),
+    pose: pose({ x: 0, scale: 1, yaw: -0.38, focus: 'battery_box' }),
   },
   {
     id: 'details',
-    pose: pose({
-      x: 0, scale: 1.08, yaw: 0.5, explode: 0.72,
-      camX: 3.35, camY: 1.75, camZ: 3.35, lookX: 0, lookY: 0.08,
-    }),
+    pose: pose({ x: 0, scale: 1, yaw: -0.48, explode: 0.24 }),
   },
   {
     id: 'closing',
-    pose: pose({
-      x: 0.28, y: 0.02, scale: 0.58, yaw: 0.18,
-      camX: 3.55, camY: 1.45, camZ: 3.85, lookX: 0.22, lookY: 0,
-    }),
+    pose: pose({ x: 0, scale: 0.92, yaw: -0.32 }),
   },
 ];
 
-/** Phones keep the same story with a shorter list and almost no lateral travel. */
+/** Phones use the same scale story inside the lower dock. */
 export const MOBILE_BEATS: readonly Beat[] = [
   {
     id: 'hero',
-    pose: pose({
-      x: 0, y: -0.42, scale: 0.74, yaw: 0.4, turn: 0.08,
-      camX: 2.8, camY: 1.35, camZ: 4.05, lookX: 0, lookY: -0.12,
-    }),
+    pose: pose({ x: 0, scale: 1, yaw: -0.48, turn: 0.03, camY: 1.28, camZ: 4.2, lookY: 0 }),
   },
   {
     id: 'mid',
-    pose: pose({
-      x: 0.08, y: -0.2, scale: 0.92, yaw: 0.7, focus: 'body_shell',
-      camX: 2.15, camY: 1.05, camZ: 2.85, lookX: 0.06, lookY: 0.02,
-    }),
+    pose: pose({ x: 0, scale: 1, yaw: -0.62, focus: 'body_shell', camY: 1.28, camZ: 4.2, lookY: 0 }),
   },
   {
     id: 'explode',
-    pose: pose({
-      x: 0, y: -0.12, scale: 0.86, yaw: 0.36, explode: 0.58,
-      camX: 3.15, camY: 1.7, camZ: 3.4, lookY: 0.02,
-    }),
+    pose: pose({ x: 0, scale: 1, yaw: -0.4, explode: 0.16, camY: 1.28, camZ: 4.2, lookY: 0 }),
   },
   {
     id: 'closing',
-    pose: pose({
-      x: 0, y: 0.22, scale: 0.4, yaw: 0.16,
-      camX: 3.4, camY: 1.4, camZ: 4.1, lookY: -0.08,
-    }),
+    pose: pose({ x: 0, scale: 0.92, yaw: -0.3, camY: 1.28, camZ: 4.2, lookY: 0 }),
   },
 ];
 
@@ -191,4 +205,72 @@ export function stageIndex(index: number, anchorCount: number, beatCount: number
 export function presentPose(poseValue: StagePose, reduced: boolean): StagePose {
   if (!reduced) return poseValue;
   return { ...poseValue, turn: 0, explode: 0 };
+}
+
+export type Anchor = { x: number; y: number; z: number; scale: number };
+
+type TrackStep = {
+  id: string;
+  xMul: number;
+  yMul: number;
+  scaleMul: number;
+  yaw: number;
+  explode: number;
+  turn: number;
+  focus: string | null;
+};
+
+/** One continuous pass. Multipliers are relative to the hero anchor solved at load or resize. */
+const DESKTOP_TRACK: readonly TrackStep[] = [
+  { id: 'hero', xMul: 1, yMul: 1, scaleMul: 1, yaw: -0.9, explode: 0, turn: 0.03, focus: null },
+  { id: 'capabilities', xMul: 0.78, yMul: 1, scaleMul: 1, yaw: -0.62, explode: 0, turn: 0, focus: null },
+  { id: 'painpoints', xMul: 0.4, yMul: 1, scaleMul: 1, yaw: -0.28, explode: 0, turn: 0, focus: 'body_shell' },
+  { id: 'knowledge', xMul: -0.15, yMul: 1, scaleMul: 1, yaw: 0.08, explode: 0, turn: 0, focus: 'gps_antenna' },
+  { id: 'techroute', xMul: -0.62, yMul: 1, scaleMul: 1, yaw: 0.42, explode: 0, turn: 0, focus: 'wheel_fl' },
+  { id: 'scenarios', xMul: -0.28, yMul: 1, scaleMul: 1, yaw: 0.16, explode: 0, turn: 0, focus: 'battery_box' },
+  { id: 'details', xMul: 0.08, yMul: 1, scaleMul: 1, yaw: -0.12, explode: 0.2, turn: 0, focus: null },
+  { id: 'closing', xMul: 0.55, yMul: 1, scaleMul: 0.94, yaw: -0.4, explode: 0, turn: 0, focus: null },
+];
+
+const MOBILE_TRACK: readonly TrackStep[] = [
+  { id: 'hero', xMul: 1, yMul: 1, scaleMul: 1, yaw: -0.5, explode: 0, turn: 0.02, focus: null },
+  { id: 'mid', xMul: 1, yMul: 1, scaleMul: 1, yaw: -0.32, explode: 0, turn: 0, focus: 'body_shell' },
+  { id: 'explode', xMul: 1, yMul: 1, scaleMul: 1, yaw: -0.12, explode: 0.14, turn: 0, focus: null },
+  { id: 'closing', xMul: 1, yMul: 1, scaleMul: 0.94, yaw: -0.36, explode: 0, turn: 0, focus: null },
+];
+
+export function trackFor(compact: boolean): readonly TrackStep[] {
+  return compact ? MOBILE_TRACK : DESKTOP_TRACK;
+}
+
+/** Whole-page progress in [0, 1]. Empty pages stay at the first keyframe. */
+export function scrollProgress(scrollY: number, viewport: number, scrollHeight: number): number {
+  const max = scrollHeight - viewport;
+  if (!(max > 0)) return 0;
+  return Math.min(1, Math.max(0, scrollY / max));
+}
+
+/** Map that progress onto a beat index. The value itself is continuous. */
+export function progressIndex(progress: number, beatCount: number): number {
+  if (beatCount <= 1) return 0;
+  return Math.min(1, Math.max(0, progress)) * (beatCount - 1);
+}
+
+/** Place every keyframe on the hero anchor. Scrolling only interpolates these numbers. */
+export function beatsFromAnchor(anchor: Anchor, track: readonly TrackStep[], camera: StagePose): Beat[] {
+  return track.map(step => ({
+    id: step.id,
+    pose: {
+      ...camera,
+      x: anchor.x * step.xMul,
+      y: anchor.y * step.yMul,
+      z: anchor.z,
+      scale: anchor.scale * step.scaleMul,
+      yaw: step.yaw,
+      pitch: 0,
+      explode: step.explode,
+      turn: step.turn,
+      focus: step.focus,
+    },
+  }));
 }

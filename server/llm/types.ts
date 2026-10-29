@@ -10,6 +10,7 @@ export type ProviderErrorKind =
   | 'auth'
   | 'network'
   | 'timeout'
+  | 'cancelled'
   | 'bad_request'
   | 'server_error'
   | 'rate_limit'
@@ -18,9 +19,16 @@ export type ProviderErrorKind =
   | 'unknown';
 
 export interface ChatMessage {
-  role: 'system' | 'user' | 'assistant';
+  role: 'system' | 'user' | 'assistant' | 'tool';
   content: string;
+  tool_call_id?: string;
+  tool_calls?: Array<{ id:string; type:'function'; function:{ name:string; arguments:string } }>;
 }
+
+export interface ToolDefinition { name:string; description:string; input_schema:object }
+export interface ToolCall { id:string; name:string; input:Record<string,unknown> }
+export interface ToolChatResult { content:string; toolCalls:ToolCall[]; stopReason:'tool_calls'|'stop'|'length' }
+export interface ToolChatOptions { tools:ToolDefinition[]; toolChoice?:'auto'|'none'; signal?:AbortSignal }
 
 export interface ChatResult {
   /** 模型回复正文 */
@@ -58,4 +66,6 @@ export interface Provider {
   isConfigured(): boolean;
   /** 发起一次 chat 调用；失败抛 ProviderError */
   chat(messages: ChatMessage[]): Promise<ChatResult>;
+  /** Optional capability; callers must fall back if absent. */
+  chatWithTools?(messages: ChatMessage[], options:ToolChatOptions): Promise<ToolChatResult>;
 }

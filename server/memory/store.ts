@@ -140,12 +140,14 @@ export class MemoryStore {
     });
   }
   createSession(owner: string, deviceId: string): MemorySession {
-    this.device(owner, deviceId);
-    if (this.overview(owner).sessions.length >= 100) throw new MemoryError(409, 'memory_limit', '诊断记录已达上限，请删除不再需要的记录');
-    const session = { id: randomUUID(), deviceId, title: '新诊断', progress: '', summary: '', revision: 0, updatedAt: new Date().toISOString() };
-    this.db.prepare('INSERT INTO memory_sessions(id, owner, device_id, title, updated_at) VALUES(?, ?, ?, ?, ?)')
-      .run(session.id, owner, deviceId, session.title, session.updatedAt);
-    return session;
+    return this.transaction(() => {
+      this.device(owner, deviceId);
+      if (this.overview(owner).sessions.length >= 100) throw new MemoryError(409, 'memory_limit', '诊断记录已达上限，请删除不再需要的记录');
+      const session = { id: randomUUID(), deviceId, title: '新诊断', progress: '', summary: '', revision: 0, updatedAt: new Date().toISOString() };
+      this.db.prepare('INSERT INTO memory_sessions(id, owner, device_id, title, updated_at) VALUES(?, ?, ?, ?, ?)')
+        .run(session.id, owner, deviceId, session.title, session.updatedAt);
+      return session;
+    });
   }
   session(owner: string, id: string): SessionDetail {
     const row = this.db.prepare('SELECT * FROM memory_sessions WHERE id = ? AND owner = ?').get(id, owner);

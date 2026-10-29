@@ -40,7 +40,9 @@ test('续补四条保持4873行旧索引、67份正文、其他来源及原导�
   assert.equal(hash(JSON.stringify(hierarchy.entries.slice(0, 4873))), base.hierarchy_sha256);
   assert.equal(hash(JSON.stringify(hierarchy.components)), base.components_sha256);
   const sources = JSON.parse(read(`${index}/sources.json`)) as { source_id: string }[];
-  assert.equal(hash(JSON.stringify(sources.filter(s => s.source_id !== 'SRC-MH-6065-6075-CAB-REV01').map(before3510))), base.other_sources_sha256);
+  const historical = sources.slice(0, 28);
+  assert.equal(historical.at(-1)?.source_id, 'SRC-MH-6065-6075-CAB-REV01');
+  assert.equal(hash(JSON.stringify(historical.filter(s => s.source_id !== 'SRC-MH-6065-6075-CAB-REV01').map(before3510))), base.other_sources_sha256);
 });
 
 test('四个新现象有独立编号正文、页码和精确配置，不拆原因或合列烟色凑数', () => {
