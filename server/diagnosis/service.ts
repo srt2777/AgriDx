@@ -5,7 +5,10 @@ import { resolveDiagnosticContext } from '../knowledge/conversation';
 import { buildSystemPrompt } from '../knowledge/systemPrompt';
 import { buildDiagnosticReply, renderDiagnosticReply } from './reply';
 import { filterDiagnosticAnswer } from './answerGuard';
-import { decideCoordination, ROUTE_MESSAGES } from '../knowledge/coordination';
+import { decideCoordination, coordinationConfig, ROUTE_MESSAGES } from '../knowledge/coordination';
+import { planDiagnosticTurn, plannerConversationHints } from './plannerIntegration';
+import { identifyPlannerTopic, plannerStepAliases } from './plannerPlans';
+import type { PlannerCheckpoint, PlannerCheckpointCommit } from '../memory/store';
 import { hasIndexedReference, referenceVerification } from '../knowledge/evidence';
 import { retrieve, selectPromptChunks, formatForPrompt, hasApplicableManual } from '../knowledge/retriever';
 import { buildRoleFlow } from '../knowledge/roles';
@@ -20,9 +23,14 @@ import { buildContextRegistry } from '../../agent/context-tools';
 export interface DiagnosticMemory {
   session: SessionDetail;
   priorReports: PriorDeviceReport[];
+  plannerCheckpoint?: PlannerCheckpoint;
+  /** Only an owner-bound host with atomic checkpoint persistence enables Planner. */
+  plannerSessionSeed?: string;
 }
 export type DiagnosticProvider = Pick<LlmRouter, 'hasAnyConfigured' | 'chat'> & Partial<Pick<LlmRouter, 'getStatus' | 'toolProvider'>>;
-export type DiagnosticService = (request: DiagnosticRequest, memory?: DiagnosticMemory, signal?: AbortSignal) => Promise<ChatResponse>;
+export const PLANNER_COMMIT = Symbol('server-only-planner-commit');
+export type DiagnosticResult = ChatResponse & { [PLANNER_COMMIT]?: PlannerCheckpointCommit };
+export type DiagnosticService = (request: DiagnosticRequest, memory?: DiagnosticMemory, signal?: AbortSignal) => Promise<DiagnosticResult>;
 export interface DiagnosticDecisionLog {
   mode: string;
   requestedMode: string;
@@ -102,17 +110,56 @@ export function createDiagnosticService(llm: DiagnosticProvider, dependencies: D
   return async ({ history, machineType, brand, model, engineModel, faultCodes, diagnosisMode, telemetrySummary }, memory, signal) => {
     const started = now();
     const config = { ...diagnosticRuntimeConfig(), ...dependencies.config };
-    const context = resolveDiagnosticContext(history, { machineType, brand, model });
-    const { query, currentQuery, symptomQuery, clarificationNeeded } = context;
-    const scope = { ...context.scope, engineModel, faultCodes };
+    let context = resolveDiagnosticContext(history, { machineType, brand, model },
+      memory?.plannerCheckpoint ? plannerConversationHints(memory.plannerCheckpoint) : undefined);
+    const currentQuery = context.currentQuery;
+    const prior = memory?.plannerCheckpoint;
+    const sameMachine = prior && (['machineType', 'brand', 'model'] as const).every(field => (prior.state.scope[field] ?? '') === (context.scope[field] ?? ''));
+    const pendingReturn = prior?.topicPending && (
+      /^(?:继续|恢复)(?:(?:刚才|之前|原来|原)(?:的)?)?(?:故障|诊断|问题)[。！!]*$/.test(currentQuery) ||
+      /^(?:取消诊断|停止诊断|结束诊断|暂停诊断|先暂停|暂时暂停|故障已解决|问题已解决|已经修好|已修好)[。！!]*$/.test(currentQuery) ||
+      prior.topicPending === 'step' && prior.state.steps.filter(step => plannerStepAliases(step.key).some(alias => currentQuery.includes(alias))).length === 1);
+    // After explicit confirmation of the old episode, discard the unrelated
+    // ambiguous topic from the retrieval query; still include the current text
+    // so the existing Router sees every current safety restriction.
+    if (pendingReturn && prior?.topicRoot) {
+      context = { ...context, topicRoot: prior.topicRoot, symptomQuery: [prior.topicRoot, currentQuery].join(' '),
+        query: [context.scope.brand, context.scope.model, context.scope.machineType, ...context.conditions, prior.topicRoot, currentQuery].filter(Boolean).join(' ') };
+    }
+    const { query, symptomQuery, clarificationNeeded } = context;
+    const activeTopic = pendingReturn ? prior!.topicKey : identifyPlannerTopic(context.topicRoot) ?? (prior && !prior.topicPending && plannerConversationHints(prior).isFeedback(currentQuery) ? prior.topicKey : undefined);
+    const sameTopic = prior && activeTopic === prior.topicKey && !/(?:换(?:个|一个)|另(?:一个|外一个|一)?|新的?)(?:故障|问题)/.test(currentQuery);
+    const carry = sameMachine && sameTopic ? prior!.state.scope : undefined;
+    // Apply retained scope before retrieval and every Router evaluation so the
+    // Planner cannot disagree with the evidence or AI prompt about applicability.
+    const scope = { ...context.scope, engineModel: engineModel === undefined ? carry?.engineModel : engineModel || undefined,
+      faultCodes: faultCodes === undefined ? carry?.faultCodes : faultCodes };
     const retrievalStart = now();
     // A denied identity is an explicit exception: do not query or cite the old machine.
     const retrieved = clarificationNeeded ? [] : search(query, config.topK, scope);
     const retrievalMs = now() - retrievalStart;
     const decisionStart = now();
-    const coordination = decideCoordination({ query, currentQuery, scope, retrieved, clarificationNeeded,
+    const routerInput = { query, currentQuery, scope, retrieved, clarificationNeeded,
       requestedMode: diagnosisMode, llmConfigured: llm.hasAnyConfigured(), llmConfigValid: llm.getStatus?.().configValid,
-      manualAvailable: dependencies.retrieve || clarificationNeeded ? undefined : hasApplicableManual(query, scope) });
+      manualAvailable: dependencies.retrieve || clarificationNeeded ? undefined : hasApplicableManual(query, scope) };
+    let coordination = decideCoordination(routerInput);
+    const plannerScope = { ...scope, conditions: context.conditions };
+    const planner = memory?.plannerSessionSeed ? planDiagnosticTurn({ sessionId: memory.session.id, sessionSeed: memory.plannerSessionSeed, deviceId: memory.session.deviceId,
+      revision: memory.session.revision, topicRoot: context.topicRoot, currentQuery, scope: plannerScope,
+      checkpoint: memory.plannerCheckpoint, engineSpecified: engineModel !== undefined, faultCodesSpecified: faultCodes !== undefined, routing: coordination,
+      context: { routerInput: { ...routerInput, scope: plannerScope }, routerConfig: coordinationConfig() } }) : undefined;
+    if (planner?.restriction && (coordination.route !== 'safe' || planner.restriction.route === 'safe')) coordination = planner.restriction;
+    const plannerState = planner?.commit.checkpoint?.state;
+    const stopReason = plannerState?.status === 'cancelled' ? 'planner_cancelled' as const
+      : plannerState?.status === 'resolved_reported' ? 'planner_resolved' as const
+      : plannerState?.status === 'escalated' ? 'planner_escalated' as const
+      : plannerState?.status === 'exhausted' ? 'planner_exhausted' as const
+      : plannerState?.status === 'paused' && plannerState.stopReason === 'user_paused' ? 'planner_paused' as const
+      : planner?.commit.checkpoint?.topicPending ? 'planner_clarify' as const
+      : plannerState?.status === 'paused' && plannerState.stopReason === 'no_progress' ? 'planner_paused' as const : undefined;
+    // A user stop never causes a new provider call. Existing high-risk responses
+    // retain priority so that safety guidance is not hidden.
+    if (stopReason && coordination.route !== 'safe') coordination = { ...coordination, route: 'local', reason: stopReason, aiRequired: false };
     const decisionMs = now() - decisionStart;
     const excluded = new Set(coordination.excludedKnowledgeIds ?? []);
     const admissible = retrieved.filter(chunk => referenceVerification(chunk.status) !== 'failed' &&
@@ -139,7 +186,20 @@ export function createDiagnosticService(llm: DiagnosticProvider, dependencies: D
       ...(chunk.roles ? { roles: [...chunk.roles], roleBasis: chunk.roleBasis } : {}),
       ...(chunk.riskLevel ? { riskLevel: chunk.riskLevel } : {}),
     })), roleFlow: buildRoleFlow(displayed) });
-    const finish = (payload: ChatResponse): ChatResponse => {
+    const finish = (payload: DiagnosticResult): DiagnosticResult => {
+      if (planner) {
+        const aiAlreadyAsked = Boolean(payload.diagnosticReply?.aiSupplement && /[？?]|请.{0,12}(?:补充|确认)/.test(payload.diagnosticReply.aiSupplement));
+        // Never record a proposal as issued when an existing AI question prevents
+        // us displaying it. The next turn can then propose it normally.
+        payload[PLANNER_COMMIT] = aiAlreadyAsked && planner.withoutProposal
+          ? { ...planner.commit, checkpoint: planner.withoutProposal } : planner.commit;
+        // The existing Router owns high-risk and identity clarification replies.
+        if (planner.questions && payload.diagnosticReply && coordination.route !== 'safe' && coordination.route !== 'clarify') {
+          payload.diagnosticReply.questions = aiAlreadyAsked ? [] : planner.questions;
+          payload.choices[0].message.content = renderDiagnosticReply(payload.diagnosticReply);
+          if (payload.provider === 'knowledge-base') payload.localSummary = payload.choices[0].message.content;
+        }
+      }
       trace.timings.totalMs = now() - started;
       payload.diagnosisTrace = trace;
       const usedIds = new Set([...(payload.diagnosticReply?.background ?? []), ...(payload.diagnosticReply?.causes ?? []), ...(payload.diagnosticReply?.suggestions ?? [])]
@@ -169,7 +229,7 @@ export function createDiagnosticService(llm: DiagnosticProvider, dependencies: D
       progress: [memory?.session.progress, ...history.filter(message => message.role === 'user').map(message => message.content)].filter(Boolean).join('\n'),
       priorReports: memory?.priorReports,
     });
-    const localResponse = (failed = false, outputIssues: string[] = [], failureKind?: string): ChatResponse => {
+    const localResponse = (failed = false, outputIssues: string[] = [], failureKind?: string): DiagnosticResult => {
       const rejected = outputIssues.length > 0;
       const route = failed || rejected ? { ...coordination, route: 'local' as const,
         reason: rejected ? 'output_rejected' as const : 'provider_unavailable' as const,
@@ -180,6 +240,16 @@ export function createDiagnosticService(llm: DiagnosticProvider, dependencies: D
         displayed = admissible.filter(chunk => chunk.entryId && directIds.has(chunk.entryId));
       }
       const diagnosticReply = replyPlan(route);
+      if (stopReason && coordination.route !== 'safe') {
+        diagnosticReply.understanding = stopReason === 'planner_cancelled' ? '已取消本次诊断。'
+          : stopReason === 'planner_paused' ? plannerState?.stopReason === 'no_progress' ? '暂时缺少明确结果，诊断已暂停。' : '已暂停本次诊断；需要时可以说“继续诊断”。'
+          : stopReason === 'planner_clarify' ? '请先确认故障归属或检查项目，以便继续诊断。'
+          : stopReason === 'planner_escalated' ? '诊断已安全停止，请由具备资质的维修人员进一步核对。'
+          : stopReason === 'planner_exhausted' ? '本次诊断已达到步骤上限，建议整理已有记录后请专业人员核对。'
+          : '你报告问题已解决；该结果尚未独立核验。';
+        diagnosticReply.causes = []; diagnosticReply.suggestions = stopReason === 'planner_escalated'
+          ? [{ text: '不要试车、拆检或接触高温、运动和带压部件，请合格人员处理。', kind: 'professional', evidenceIds: [], priority: 1 }] : []; diagnosticReply.questions = [];
+      }
       if (telemetrySummary) diagnosticReply.sourceNote += '\n仿真演示数据，不是真实设备读数，不得据此给出确定性故障结论。';
       const unavailable = failed ? failureKind === 'timeout' ? '已尝试外部 AI，但请求超时；本次先提供本地安全观察建议。' : '已尝试外部 AI，但服务暂不可用；本次先提供本地安全观察建议。'
         : rejected ? '外部 AI 已返回，但内容未通过来源或安全检查；本次保留本地安全建议。'
@@ -205,6 +275,7 @@ export function createDiagnosticService(llm: DiagnosticProvider, dependencies: D
       coordination.candidates?.some(candidate => candidate.entryId === chunk.entryId && !candidate.excluded &&
         candidate.modelMatch === 'exact' && candidate.sourceIndexed && candidate.referenceVerification === 'verified'));
     systemMessage.content += '\n本次回答路径为AI补充：来源核验仅指文献核对，未实车验证。待核验、适用性待确认或未提供发动机/故障码适配元数据的资料只能作参考；不能作为本机操作或故障码含义的依据。历史回答和用户检查报告也不是手册证据。';
+    if (planner?.questions?.length) systemMessage.content += '\n本轮追问由本地诊断计划提供，请专注解释和安全分析，不要再提出额外问题。';
     if (memory) systemMessage.content += memoryPrompt(memory.session, memory.priorReports);
     trace.contextChars = formatForPrompt(promptChunks, config.contextMaxChars).length;
     trace.sentKnowledgeIds = promptChunks.flatMap(chunk => chunk.entryId ? [chunk.entryId] : []);

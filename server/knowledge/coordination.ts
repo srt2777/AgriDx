@@ -27,6 +27,12 @@ export function decideCoordination(input: DiagnosisRouterInput): CoordinationDec
 }
 
 export const ROUTE_MESSAGES: Record<RouteReason, string> = {
+  planner_clarify: '诊断主题或观察归属待确认，本轮不调用外部 AI。',
+  planner_escalated: '诊断已安全停止，建议由专业人员处理。',
+  planner_exhausted: '诊断计划已达到执行预算，不再自动追问。',
+  planner_cancelled: '诊断计划已取消，本轮不调用外部 AI。',
+  planner_paused: '诊断计划已暂停，本轮不调用外部 AI。',
+  planner_resolved: '用户报告问题已解决，未独立核验，本轮不调用外部 AI。',
   output_rejected: '外部生成未通过来源或安全检查，已退回本地依据与追问。',
   llm_config_invalid: '模型供应商配置无效，暂时返回本地资料，请管理员检查配置。',
   identity_conflict: '机型信息有冲突，先确认设备，本次不调用外部 AI。',

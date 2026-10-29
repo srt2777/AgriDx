@@ -1,6 +1,7 @@
 import { Router } from 'express';
+import { createHash } from 'node:crypto';
 import { DiagnosticInputError, parseDiagnosticRequest } from '../diagnosis/request';
-import type { DiagnosticService, DiagnosticMemory } from '../diagnosis/service';
+import { PLANNER_COMMIT, type DiagnosticService, type DiagnosticMemory } from '../diagnosis/service';
 import { getMemoryStore, MemoryError, summarizeReports, validId } from '../memory/store';
 import { memoryFailure, memoryOwner, revisionFrom, sameOrigin } from '../memory/routes';
 import type { MemoryMessage, SessionDetail } from '../../shared/memory';
@@ -41,7 +42,8 @@ export function createChatRoutes(diagnose: DiagnosticService, store = getMemoryS
         res.set('Cache-Control', 'no-store');
       }
       const priorReports = remembered ? store().priorReports(owner, remembered.deviceId, remembered.id, user.content) : [];
-      const memory: DiagnosticMemory | undefined = remembered ? { session: { ...remembered, summary: summarizeReports(input.history) }, priorReports } : undefined;
+      const memory: DiagnosticMemory | undefined = remembered ? { session: { ...remembered, summary: summarizeReports(input.history) }, priorReports, plannerCheckpoint: store().plannerCheckpoint(owner, remembered.id),
+        plannerSessionSeed: createHash('sha256').update(remembered.id).digest('hex').slice(0, 32) } : undefined;
       const payload = await diagnose(input, memory, controller.signal);
       if (res.destroyed) return;
       if (remembered) {
@@ -49,7 +51,7 @@ export function createChatRoutes(diagnose: DiagnosticService, store = getMemoryS
         for (const field of ['model', 'provider', 'localSummary', 'coordinationMessage', 'answerMode', 'fallbackReason', 'knowledgeChunks', 'diagnosticReply', 'knowledgeSources', 'coordination', 'diagnosisTrace', 'roleFlow'] as const) {
           if (payload[field] !== undefined) Object.assign(assistant, { [field]: payload[field] });
         }
-        payload.memory = store().appendTurn(owner, remembered.id, remembered.revision, user.content, assistant, remembered.messages.length ? [] : input.history.slice(0, -1));
+        payload.memory = store().appendTurn(owner, remembered.id, remembered.revision, user.content, assistant, remembered.messages.length ? [] : input.history.slice(0, -1), payload[PLANNER_COMMIT]);
         payload.relatedMemoryReports = priorReports;
       }
       res.json(payload);
