@@ -26,6 +26,8 @@ def content_group(source):
         return '报道背景'
     if Path(source['path']).suffix.lower() == '.html' or '网页' in description:
         return '维护网页'
+    if '发动机' in description:
+        return '发动机维护PDF'
     if '整机' in description or source.get('document_type') == '既有完整PDF' or '拖拉机安全与日常维护' in description:
         return '整机／维保PDF'
     return '未分类资料'
