@@ -3,6 +3,8 @@ import { test } from 'node:test';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import { fork } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
 import { MemoryStore, MemoryError, profileFrom, summarizeReports } from '../server/memory/store';
 import { memoryPrompt, recentMessages } from '../server/memory/context';
 import { resolveDiagnosticContext } from '../server/knowledge/conversation';
@@ -159,4 +161,40 @@ test('session limits and owner checks remain consistent across database connecti
     assert.equal(first.overview('owner-a').sessions.length, 100);
     assert.equal(second.overview('owner-b').sessions.length, 0);
   } finally { first.close(); second.close(); fs.rmSync(dir, { recursive: true, force: true }); }
+});
+
+// Separate processes exercise SQLite's writer lock, not merely a shared JS event loop.
+test('simultaneous processes cannot exceed the session limit', async () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'agridx-memory-race-'));
+  const filename = path.join(dir, 'memory.sqlite');
+  const store = new MemoryStore(filename);
+  const children: ReturnType<typeof fork>[] = [];
+  try {
+    const device = store.saveDevice('owner-a', profile);
+    for (let i = 0; i < 99; i++) store.createSession('owner-a', device.id);
+    const worker = fileURLToPath(new URL('./fixtures/memory-session-worker.mjs', import.meta.url));
+    for (let i = 0; i < 2; i++) children.push(fork(worker, [], { execArgv: ['--import', 'tsx'], env: { ...process.env, TEST_MEMORY_PATH: filename, TEST_DEVICE_ID: device.id }, stdio: ['ignore', 'ignore', 'inherit', 'ipc'] }));
+    const ready = children.map((child) => new Promise<void>((resolve, reject) => {
+      child.once('message', (message) => message === 'ready' ? resolve() : reject(new Error('Worker not ready')));
+      child.once('error', reject);
+      child.once('exit', (code) => { if (code !== 0) reject(new Error(`Worker exited: ${code}`)); });
+    }));
+    await Promise.all(ready);
+    const results = children.map((child) => new Promise<string>((resolve, reject) => {
+      child.once('message', (message: { result: string }) => resolve(message.result));
+      child.once('error', reject);
+      child.once('exit', (code) => { if (code !== 0) reject(new Error(`Worker exited: ${code}`)); });
+    }));
+    const exits = children.map((child) => new Promise<void>((resolve, reject) => {
+      child.once('exit', (code) => code === 0 ? resolve() : reject(new Error(`Worker exited: ${code}`)));
+    }));
+    children.forEach((child) => child.send('go'));
+    assert.deepEqual((await Promise.all(results)).sort(), ['created', 'memory_limit']);
+    await Promise.all(exits);
+    assert.equal(store.overview('owner-a').sessions.length, 100);
+  } finally {
+    children.forEach((child) => { if (child.connected) child.kill(); });
+    store.close();
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
 });
