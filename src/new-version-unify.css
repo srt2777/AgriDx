@@ -278,3 +278,35 @@ html.theme-dark .new-version-shell[data-ui-version="new"] select { color-scheme:
 .new-version-shell[data-ui-version="new"] .parts-drawer { background: color-mix(in srgb, var(--nv-card) 94%, transparent); color: var(--nv-text); }
 .new-version-shell[data-ui-version="new"] :is(.hall-card, .rounded-3xl.border)::before { content: none; }
 .new-version-shell[data-ui-version="new"] .parts-drawer .parts-detail ul { color: var(--nv-muted); }
+
+/* Matte modern workspace. Tokens are scoped so the classic interface stays intact. */
+.new-version-shell[data-ui-version='new'],
+html.theme-dark .new-version-shell[data-ui-version='new'] {
+  --hub-background: #0f0f11; --hub-surface: #161618; --hub-card: #1b1b1d;
+  --hub-foreground: #ededed; --hub-muted: #ababac; --hub-border: #373739;
+  --hub-primary: #c2c4c3; --hub-primary-foreground: #171719;
+  --hall-night: #0f0f11; --hall-surface: #161618; --hall-card: #1b1b1d; --hall-cyan: #c2c4c3;
+  --nv-background: #0f0f11; --nv-surface: #161618; --nv-card: #1b1b1d;
+  --nv-text: #ededed; --nv-muted: #ababac; --nv-border: #373739;
+  --nv-primary: #c2c4c3; --nv-on-primary: #171719;
+  --nv-radius-sm: 8px; --nv-radius-md: 10px; --nv-radius-lg: 12px;
+  --nv-shadow-sm: 0 2px 8px rgb(0 0 0 / 8%); --nv-shadow-lg: 0 2px 8px rgb(0 0 0 / 8%);
+  --accent: #29292b; --accent-foreground: #ededed; --muted: #242426;
+  background: #0f0f11; color: var(--nv-text); color-scheme: dark;
+}
+.new-version-shell[data-ui-version='new'] :is(.new-version-header-glass, .new-version-navigation-rail, .new-version-nav-toggle) {
+  background: #161618; border-color: #373739; border-radius: 10px; box-shadow: none; backdrop-filter: none;
+}
+.new-version-shell[data-ui-version='new'] .new-version-header-glass > :is(.agri-glass-lens, .agri-glass-optics, .agri-glass-frost) { display: none; }
+.new-version-shell[data-ui-version='new'] .new-version-nav-item { color: #ababac; background: transparent; border: 0; box-shadow: none; padding-inline: 16px; }
+.new-version-shell[data-ui-version='new'] .new-version-nav-item:hover { background: #222224; color: #ededed; }
+.new-version-shell[data-ui-version='new'] .new-version-nav-item.is-active { background: #303032; color: #fff; font-weight: 600; box-shadow: none; }
+.new-version-shell[data-ui-version='new'] :is(.nv-corners, .hall-card, .hall-metric, .hall-zone-button)::before { content: none; }
+.new-version-shell[data-ui-version='new'] :is(.chat-glass, .catalog-browser, .catalog-stats, .catalog-distribution, .evidence-entry, .parts-panel, .parts-stage-card, .parts-knowledge, .model-control-glass, .history-build, .not-found-card) { background: #1b1b1d; border-color: #373739; box-shadow: none; border-radius: 12px; }
+.new-version-shell[data-ui-version='new'] :is(input:not([type='checkbox']):not([type='range']):not([type='file']), textarea, select) { color-scheme: dark; }
+.new-version-shell[data-ui-version='new'] :is(.ui-version-switch, .ui-version-switch.is-exhibition) { background: #242426; border-color: #373739; box-shadow: none; }
+.new-version-shell[data-ui-version='new'] .ui-version-switch .liquid-selection { background: #414143; box-shadow: none; }
+.new-version-shell[data-ui-version='new'] .ui-version-switch button { color: #ababac; }
+.new-version-shell[data-ui-version='new'] .ui-version-switch button[aria-checked='true'] { color: #f2f2f2; }
+.new-version-shell[data-ui-version='new'] .new-version-language { background: transparent; color: #ababac; }
+.new-version-shell[data-ui-version='new'] .wheat-line { display: none; }

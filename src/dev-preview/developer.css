@@ -114,3 +114,13 @@
 }
 
 .console-eyebrow { color: var(--wheat); }
+/* Trend lines preserve per-day keyboard access in the labels below the plot. */
+.console-chart { display: flex; flex-direction: column; gap: 8px; border: 0; }
+.console-chart svg { width: 100%; flex: 1; min-height: 0; overflow: visible; }
+.console-chart-grid { stroke: var(--border); stroke-width: .5; vector-effect: non-scaling-stroke; }
+.console-chart-line { fill: none; stroke: #82918a; stroke-width: 1.75; vector-effect: non-scaling-stroke; }
+.console-chart-line.visitors { stroke: #a39c90; stroke-dasharray: 4 3; }
+.console-chart-labels { display: flex; color: var(--muted-foreground); font-size: 12px; }
+.console-chart-labels span { flex: 1; min-width: 0; text-align: center; }
+.console-chart-legend i { background: #82918a; }
+.console-chart-legend span:last-child i { background: #a39c90; }
