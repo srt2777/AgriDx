@@ -37,7 +37,7 @@
 
 ### 关联 PR
 
-- 本批独立PR链接随GitHub保存补充。
+- [PR #170](https://github.com/srt2777/AgriDx/pull/170)：13000条知识目录与FAO术语来源、检索边界。
 
 ### 部署记录
 
