@@ -58,6 +58,8 @@ function isLibrary(value: unknown): boolean {
     if (!isRecord(entry) || (value.collection !== 'all' && entry.collection !== value.collection)) return false;
     if (entry.collection === 'archive') return isEntry(entry) && typeof entry.brand === 'string' && isStrings(entry.models);
     return entry.collection === 'learning' && entry.entryType === '通识学习' && entry.diagnosticEvidence === false &&
+      (entry.learningKind === undefined || entry.learningKind === 'terminology' && typeof entry.sourceUrl === 'string' &&
+        /^http:\/\/aims\.fao\.org\/aos\/agrovoc\/c_[a-zA-Z0-9]+$/.test(entry.sourceUrl)) &&
       ['entryId', 'title', 'content', 'topic', 'status', 'knowledgePath'].every(key => typeof entry[key] === 'string');
   });
   const total = Number(value.total), page = Number(value.page);

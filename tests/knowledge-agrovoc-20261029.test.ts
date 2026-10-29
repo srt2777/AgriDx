@@ -9,6 +9,7 @@ import { describeSource, retrieve, stats } from '../server/knowledge/retriever';
 import { hasDiagnosticEvidence } from '../server/knowledge/systemPrompt';
 import { buildDiagnosticReply, renderDiagnosticReply } from '../server/diagnosis/reply';
 import { decideCoordination } from '../server/knowledge/coordination';
+import { parseKnowledgeCatalog } from '../src/features/knowledge/catalog-api';
 
 test('1540条FAO术语逐条对应官方来源子集，累计目录13000条且保留原6000条通识', () => {
   const result = spawnSync(process.execPath, ['scripts/agrovoc-learning.mjs', '--check'], { encoding: 'utf8' });
@@ -55,6 +56,12 @@ test('术语关系可显式查阅，不能成为故障证据或挤占症状检�
   assert.match(renderDiagnosticReply(reply), /词表直接上位概念/);
   assert.match(renderDiagnosticReply(reply), /aims.fao.org/);
   assert.equal(getKnowledgeCatalog({ collection: 'learning', q: 'TK-7540' }).library!.total, 1);
+  const catalog = structuredClone(getKnowledgeCatalog({ collection: 'learning', q: 'TK-7540' }));
+  assert.equal(parseKnowledgeCatalog(catalog), catalog);
+  const term = catalog.library!.entries[0];
+  assert.equal(term.collection, 'learning');
+  term.sourceUrl = 'javascript:alert(1)';
+  assert.throws(() => parseKnowledgeCatalog(catalog));
 });
 
 test('术语原始概念错绑时拒绝切换快照，继续提供上次完整知识库', t => {
