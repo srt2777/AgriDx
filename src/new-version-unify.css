@@ -134,7 +134,7 @@ html.theme-dark .new-version-shell[data-ui-version="new"] {
 /* Remove decorative corner marks and top ticks. */
 .new-version-shell[data-ui-version="new"] :is(.nv-corners, .chat-context, .chat-source, .catalog-brand-pills button, .catalog-model-grid button, .evidence-entry, .hall-metric, .hall-zone-button)::before { content: none; }
 .new-version-shell[data-ui-version="new"] .wheat-line { display: none; background: var(--nv-primary); }
-.new-version-shell[data-ui-version="new"] :is(.knowledge-page-heading, .model-page > div:first-child, .not-found-card) .wheat-line { display: block; }
+.new-version-shell[data-ui-version="new"] :is(.knowledge-page-heading, .model-page > div:first-child, .not-found-card) .wheat-line { display: none; }
 
 /* 4–5. Quiet, opaque content surfaces; glass remains on chrome and popovers. */
 .new-version-shell[data-ui-version="new"] :is(.chat-glass, .chat-bar-glass, .chat-input-glass, .chat-context, .chat-source, .chat-chip, .chat-composer, .catalog-browser, .catalog-stats, .catalog-distribution, .catalog-model-grid button, .catalog-brand-pills button, .evidence-entry, .parts-panel, .parts-stage-card, .parts-knowledge, .model-control-glass, .history-build, .history-detail-body, .not-found-card) {
@@ -310,3 +310,31 @@ html.theme-dark .new-version-shell[data-ui-version='new'] {
 .new-version-shell[data-ui-version='new'] .ui-version-switch button[aria-checked='true'] { color: #f2f2f2; }
 .new-version-shell[data-ui-version='new'] .new-version-language { background: transparent; color: #ababac; }
 .new-version-shell[data-ui-version='new'] .wheat-line { display: none; }
+/* The exhibition has its own Material palette; keep it consistent with the shell. */
+.new-version-shell[data-ui-version='new'] .expo-page {
+  --background: #0f0f11; --foreground: #ededed; --card: #1b1b1d;
+  --card-foreground: #ededed; --popover: #222224; --popover-foreground: #ededed;
+  --muted: #242426; --muted-foreground: #ababac; --border: #373739;
+  --primary: #c2c4c3; --primary-foreground: #171719; --accent: #29292b;
+  --accent-foreground: #ededed; --ring: #c2c4c3;
+  --md-on-surface: #ededed; --md-on-surface-variant: #ababac;
+  --md-primary: #c2c4c3; --md-on-primary: #171719; --md-secondary-container: #303032;
+  color: var(--foreground); background: var(--background);
+}
+.new-version-shell[data-ui-version='new'] .ui-version-switch.is-exhibition { --selection-fill: #414143; --selection-shadow: none; }
+.new-version-shell[data-ui-version='new'] .ui-version-switch.is-exhibition button[aria-pressed='true'] { color: #f2f2f2; }
+.new-version-shell[data-ui-version='new'] :is(.expo-world-stage, .campus-equipment-catalog, .expo-zone-card, .expo-catalog, .expo-dock-glass, .expo-guide-glass) {
+  background: #161618; border: 1px solid #373739; border-radius: 12px; box-shadow: none;
+}
+.new-version-shell[data-ui-version='new'] .campus-equipment-catalog { margin: 24px 0; padding: 24px; }
+.new-version-shell[data-ui-version='new'] .campus-equipment-list { gap: 16px; }
+.new-version-shell[data-ui-version='new'] .campus-equipment-catalog button { border-radius: 8px; box-shadow: none; }
+.new-version-shell[data-ui-version='new'] .campus-equipment-catalog button[aria-pressed='true'] { background: #303032; border-color: #373739; font-weight: 600; }
+.new-version-shell[data-ui-version='new'] .expo-page :is(.expo-icon-button, .expo-start-button, .expo-zone-actions button, .expo-catalog-trigger, .expo-direct-links button, .expo-direct-links a, .expo-zone-nav > button) { border-radius: 10px; box-shadow: none; }
+.new-version-shell[data-ui-version='new'] .expo-page :is(.agri-glass-lens, .agri-glass-optics, .agri-glass-frost) { display: none; }
+.new-version-shell[data-ui-version='new'] .expo-page :is(.equipment-status-online) { color: #82988a; stroke: #82988a; }
+.new-version-shell[data-ui-version='new'] .expo-page :is(.equipment-status-standby) { color: #89979d; stroke: #89979d; }
+.new-version-shell[data-ui-version='new'] .expo-page :is(.equipment-status-maintenance) { color: #a59b88; stroke: #a59b88; }
+.new-version-shell[data-ui-version='new'] .expo-page :is(.equipment-status-offline) { color: #8d8d8f; stroke: #8d8d8f; }
+@media (max-width: 600px) { .new-version-shell[data-ui-version='new'] .campus-equipment-catalog { margin: 16px 0; padding: 16px; } }
+.new-version-shell[data-ui-version='new'] :is(.knowledge-page-heading, .model-page, .not-found-card) .wheat-line { display: none !important; }

@@ -124,3 +124,5 @@
 .console-chart-labels span { flex: 1; min-width: 0; text-align: center; }
 .console-chart-legend i { background: #82918a; }
 .console-chart-legend span:last-child i { background: #a39c90; }
+.console-chart-point { fill: #82918a; }
+.console-chart-point.visitors { fill: #a39c90; }

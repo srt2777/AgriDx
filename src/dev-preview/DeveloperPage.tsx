@@ -130,7 +130,7 @@ export default function DeveloperPage() {
   const isRefreshing = summary.loading || ((tab === 'visitors' || tab === 'questions') && records.loading) || (tab === 'system' && system.loading);
   const activeError = summary.error || ((tab === 'visitors' || tab === 'questions') ? records.error : '') || (tab === 'system' ? system.error : '') || (user ? loginError : '');
   const stats = summary.data;
-  const maxViews = Math.max(1, ...stats?.trend.map(v => v.views) || []);
+  const maxViews = Math.max(1, ...stats?.trend.flatMap(v => [v.views, v.visitors]) || []);
   const git = system.data && ('error' in system.data.github ? system.data.github.stale : system.data.github);
 
   return <div className="dev-console">
@@ -165,10 +165,10 @@ export default function DeveloperPage() {
             <div className="console-metrics">
               {[{ label: t('匿名访客', 'Anonymous visitors'), value: stats?.visitors, icon: Users, detail: t('按浏览器标识去重', 'Unique browser identifiers') }, { label: t('页面访问', 'Page views'), value: stats?.views, icon: Activity, detail: t('首页及三个功能页面', 'Home and three feature pages') }, { label: t('用户提问', 'Questions'), value: stats?.questions, icon: MessageSquare, detail: stats ? t(`${stats.answered || 0}次完成回复`, `${stats.answered || 0} completed replies`) : '—' }, { label: t('有来源的回复', 'Replies with evidence'), value: stats ? stats.grounded || 0 : undefined, icon: ShieldCheck, detail: stats?.latencyMs != null ? t(`本地诊断平均${stats.latencyMs}毫秒`, `Local diagnosis average: ${stats.latencyMs} ms`) : t('尚无诊断耗时记录', 'No diagnosis timing yet') }].map(item => <div className="console-metric" key={item.label}><div><span>{item.label}</span><item.icon size={19} /></div><strong>{item.value === undefined ? '—' : item.value.toLocaleString(locale)}</strong><p>{item.detail}</p></div>)}
             </div>
-            <Panel title={t('访问趋势', 'Visit trend')} description={t('每天的页面访问与匿名访客。', 'Daily page views and anonymous visitors.')}><div className="console-chart-legend"><span><i />{t('页面访问', 'Page views')}</span><span><i />{t('匿名访客', 'Visitors')}</span></div>{stats ? <div className="console-chart" aria-label={t('每日访问趋势', 'Daily visit trend')}>
+            <Panel title={t('访问趋势', 'Visit trend')} description={t('每天的页面访问与匿名访客。', 'Daily page views and anonymous visitors.')}><div className="console-chart-legend"><span><i />{t('页面访问', 'Page views')}</span><span><i />{t('匿名访客', 'Visitors')}</span></div>{stats ? <div className="console-chart" role="group" aria-label={t('每日访问趋势', 'Daily visit trend')}>
               <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
                 {[25, 50, 75, 100].map(y => <line key={y} x1="0" y1={y} x2="100" y2={y} className="console-chart-grid" />)}
-                {(['views', 'visitors'] as const).map(series => <polyline key={series} className={`console-chart-line ${series}`} points={stats.trend.map((entry, i) => `${stats.trend.length === 1 ? 50 : i * 100 / (stats.trend.length - 1)},${100 - entry[series] / maxViews * 96}`).join(' ')} />)}
+                {(['views', 'visitors'] as const).map(series => stats.trend.length === 1 ? <circle key={series} className={`console-chart-point ${series}`} cx="50" cy={100 - stats.trend[0][series] / maxViews * 96} r="1" /> : <polyline key={series} className={`console-chart-line ${series}`} points={stats.trend.map((entry, i) => `${i * 100 / (stats.trend.length - 1)},${100 - entry[series] / maxViews * 96}`).join(' ')} />)}
               </svg>
               <div className="console-chart-labels">{stats.trend.map((entry, i) => <span key={entry.date} tabIndex={0} aria-label={`${entry.date}: ${entry.views} PV / ${entry.visitors} UV`} title={`${entry.date}: ${entry.views} PV / ${entry.visitors} UV`}>{i % Math.ceil(days / 7) === 0 ? entry.date.slice(5) : ''}</span>)}</div>
             </div> : <div className="console-empty">{summary.error ? t('读取失败', 'Read failed') : t('正在读取访问记录…', 'Loading visits…')}</div>}{stats?.views === 0 && <p className="console-help">{t('所选时间段尚无页面访问记录。', 'No page visits in this period.')}</p>}</Panel>
