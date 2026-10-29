@@ -4,9 +4,71 @@ import { randomUUID } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import type { DeviceProfile, MemoryDevice, MemoryMessage, MemoryOverview, MemorySession, SessionDetail, PriorDeviceReport } from '../../shared/memory';
+import type { PlannerState } from '../../agent/planner/types';
+import { canonical, createPlan, identifier, PLANNER_LIMITS, scopeKey } from '../../agent/planner/reducer';
 
 import { MemoryError, summarizeReports } from '../../shared/memory-validation';
 export { MemoryError, validId, profileFrom, summarizeReports } from '../../shared/memory-validation';
+
+/** Private server-side data, never accepted from a chat client or returned with messages. */
+export interface PlannerCheckpoint {
+  sessionId: string;
+  deviceId: string;
+  topicKey: string;
+  /** Original fault text, bound to this episode and hidden with the checkpoint. */
+  topicRoot?: string;
+  /** Pending topic/step disambiguation; server-owned, never exposed to clients. */
+  topicPending?: 'topic' | 'step';
+  state: PlannerState;
+}
+export interface PlannerCheckpointCommit {
+  checkpoint: PlannerCheckpoint | null;
+  previous: { episodeId: string; planVersion: number } | null;
+}
+type StoredMessage = MemoryMessage & { _plannerCheckpoint?: PlannerCheckpoint | null; _plannerTurnEventId?: string };
+const MAX_CHECKPOINT_BYTES = 1024 * 1024;
+
+/** Check stored data before it can enter the rule engine; SQLite is not a trusted schema validator. */
+function validCheckpoint(value: unknown, sessionId: string, deviceId: string): value is PlannerCheckpoint {
+  try {
+    if (!value || typeof value !== 'object' || Array.isArray(value) || Buffer.byteLength(JSON.stringify(value), 'utf8') > MAX_CHECKPOINT_BYTES) return false;
+    const checkpoint = value as PlannerCheckpoint, state = checkpoint.state;
+    if (checkpoint.sessionId !== sessionId || checkpoint.deviceId !== deviceId || typeof checkpoint.topicKey !== 'string' ||
+        !checkpoint.topicKey.trim() || checkpoint.topicKey.length > 500 ||
+        (checkpoint.topicRoot !== undefined && (typeof checkpoint.topicRoot !== 'string' || !checkpoint.topicRoot.trim() || checkpoint.topicRoot.length > 2000)) ||
+        (checkpoint.topicPending !== undefined && !['topic', 'step'].includes(checkpoint.topicPending)) || !state || state.schemaVersion !== 1 ||
+        !Number.isSafeInteger(state.planVersion) || state.planVersion < 1 || state.planVersion > 4096 ||
+        !['active', 'awaiting_user', 'paused', 'resolved_reported', 'escalated', 'cancelled', 'exhausted'].includes(state.status) ||
+        state.scopeKey !== scopeKey(state.scope)) return false;
+    const template = createPlan({ planId: state.planId, episodeId: state.episodeId, scope: state.scope, steps: state.steps, evidence: state.evidence,
+      budget: { maxActions: state.budget.maxActions, maxNoProgress: state.budget.maxNoProgress } });
+    if (state.steps.some((step, i) => step.id !== template.steps[i].id || typeof step.scopeKey !== 'string' || step.scopeKey.length > 10000 ||
+        !['pending', 'awaiting_user', 'reported', 'observed', 'invalidated'].includes(step.status))) return false;
+    if (!Number.isInteger(state.budget.issuedActions) || state.budget.issuedActions < 0 || state.budget.issuedActions > state.budget.maxActions ||
+        !Number.isInteger(state.budget.noProgress) || state.budget.noProgress < 0 || state.budget.noProgress > 4096) return false;
+    if (!Array.isArray(state.askedKeys) || state.askedKeys.length > PLANNER_LIMITS.actions ||
+        state.askedKeys.some(key => typeof key !== 'string' || key.length > 20000) ||
+        !Array.isArray(state.audit) || state.audit.length > PLANNER_LIMITS.audit ||
+        !state.acceptedEvents || typeof state.acceptedEvents !== 'object' || Array.isArray(state.acceptedEvents) ||
+        Object.keys(state.acceptedEvents).length > PLANNER_LIMITS.events ||
+        !state.observations || typeof state.observations !== 'object' || Array.isArray(state.observations) ||
+        Object.keys(state.observations).length > PLANNER_LIMITS.steps) return false;
+    for (const [id, signature] of Object.entries(state.acceptedEvents)) { identifier(id); if (typeof signature !== 'string' || signature.length > 20000) return false; }
+    for (const [slot, observation] of Object.entries(state.observations)) {
+      const step = state.steps.find(item => item.expectedObservation.slot === slot);
+      if (!step || !observation || observation.stepId !== step.id || observation.slot !== slot || observation.verification !== 'unverified' ||
+          !['user_report', 'tool_result', 'simulated'].includes(observation.source) ||
+          typeof observation.scopeKey !== 'string' || observation.scopeKey.length > 10000 ||
+          typeof observation.basisKey !== 'string' || observation.basisKey.length > 20000 ||
+          !(observation.value === null || typeof observation.value === 'boolean' || typeof observation.value === 'string' && observation.value.length <= 400 ||
+            typeof observation.value === 'number' && Number.isFinite(observation.value))) return false;
+      identifier(observation.eventId); if (observation.corrects !== undefined) identifier(observation.corrects);
+    }
+    return state.audit.every(event => event && typeof event.eventId === 'string' && typeof event.type === 'string' &&
+      typeof event.from === 'string' && typeof event.to === 'string' && Array.isArray(event.evidenceIds) && event.evidenceIds.length <= PLANNER_LIMITS.evidence &&
+      event.evidenceIds.every(id => typeof id === 'string'));
+  } catch { return false; }
+}
 
 /** Native SQLite, WAL + transactions. Runtime data must live on a persistent volume. */
 export class MemoryStore {
@@ -90,7 +152,10 @@ export class MemoryStore {
     if (!row) throw new MemoryError(404, 'memory_not_found', '设备或诊断记录不存在');
     const session = this.sessionRow(row);
     const messages = this.db.prepare('SELECT payload FROM memory_messages WHERE session_id = ? ORDER BY sequence').all(id)
-      .map((r) => JSON.parse(String(r.payload)) as MemoryMessage);
+      .map((r) => {
+        const { _plannerCheckpoint: _privateCheckpoint, _plannerTurnEventId: _privateTurnId, ...message } = JSON.parse(String(r.payload)) as StoredMessage;
+        return message;
+      });
     return { ...session, device: this.device(owner, session.deviceId), messages };
   }
   /** Retrieve only user-entered checks for this exact device, outside the active session. */
@@ -115,11 +180,52 @@ export class MemoryStore {
   private checkRevision(actual: number, expected: number) {
     if (actual !== expected) throw new MemoryError(409, 'memory_conflict', '诊断记录已更新，请重新载入后继续');
   }
+  /** Read only the latest assistant's server-written checkpoint for the authorized session. */
+  plannerCheckpoint(owner: string, id: string): PlannerCheckpoint | undefined {
+    const session = this.session(owner, id);
+    const row = this.db.prepare("SELECT payload FROM memory_messages WHERE session_id = ? AND json_extract(payload, '$.role') = 'assistant' AND json_type(payload, '$._plannerCheckpoint') IS NOT NULL ORDER BY sequence DESC LIMIT 1").get(id);
+    if (!row) return undefined;
+    const checkpoint = (JSON.parse(String(row.payload)) as StoredMessage)._plannerCheckpoint;
+    if (checkpoint === null) return undefined;
+    if (!validCheckpoint(checkpoint, id, session.deviceId)) {
+      throw new MemoryError(409, 'memory_conflict', '诊断计划无法安全恢复，请重新载入后继续');
+    }
+    return checkpoint;
+  }
+  /** Resolve a Planner observation to its original user message inside the authorized session. */
+  plannerTurnEvidence(owner: string, id: string, eventId: string): Pick<MemoryMessage, 'id' | 'content' | 'createdAt'> | undefined {
+    this.session(owner, id);
+    if (!/^turn-(?:0|[1-9][0-9]*)$/.test(eventId) || eventId.length > 32) return undefined;
+    const row = this.db.prepare("SELECT payload FROM memory_messages WHERE session_id = ? AND json_extract(payload, '$.role') = 'user' AND json_extract(payload, '$._plannerTurnEventId') = ? LIMIT 1").get(id, eventId);
+    if (!row) return undefined;
+    const { id: messageId, content, createdAt } = JSON.parse(String(row.payload)) as StoredMessage;
+    if (typeof messageId !== 'string' || typeof content !== 'string' || typeof createdAt !== 'string') {
+      throw new MemoryError(409, 'memory_conflict', '诊断事件无法安全恢复，请重新载入后继续');
+    }
+    return { id: messageId, content, createdAt };
+  }
   appendTurn(owner: string, id: string, expected: number, user: string, assistant: Omit<MemoryMessage, 'id' | 'role' | 'createdAt'>,
-    imported: { role: 'user' | 'assistant'; content: string }[] = []): MemorySession {
+    imported: { role: 'user' | 'assistant'; content: string }[] = [], planner?: PlannerCheckpointCommit): MemorySession {
     return this.transaction(() => {
       const session = this.session(owner, id);
       this.checkRevision(session.revision, expected);
+      if (planner) {
+        const previousCheckpoint = this.plannerCheckpoint(owner, id);
+        const previous = previousCheckpoint?.state;
+        if ((previous?.episodeId ?? null) !== (planner.previous?.episodeId ?? null) ||
+            (previous?.planVersion ?? null) !== (planner.previous?.planVersion ?? null)) {
+          throw new MemoryError(409, 'memory_conflict', '诊断计划已更新，请重新载入后继续');
+        }
+        const checkpoint = planner.checkpoint;
+        if (checkpoint && !validCheckpoint(checkpoint, id, session.deviceId)) {
+          throw new MemoryError(400, 'bad_request', '诊断计划格式无效');
+        }
+        if (checkpoint && previous && checkpoint.state.episodeId === previous.episodeId &&
+            (checkpoint.topicKey !== previousCheckpoint.topicKey || checkpoint.state.planId !== previous.planId || checkpoint.state.planVersion < previous.planVersion ||
+             checkpoint.state.planVersion === previous.planVersion && canonical(checkpoint.state) !== canonical(previous))) {
+          throw new MemoryError(409, 'memory_conflict', '诊断计划版本无效，请重新载入后继续');
+        }
+      }
       const now = new Date().toISOString();
       const initial = session.messages.length ? [] : imported.map((m) => ({ ...m, id: randomUUID(), createdAt: now }));
       const added: MemoryMessage[] = [...initial, { id: randomUUID(), role: 'user', content: user, createdAt: now },
@@ -127,7 +233,12 @@ export class MemoryStore {
       const all = [...session.messages, ...added];
       if (all.length > 2000) throw new MemoryError(409, 'memory_limit', '本次诊断记录已达上限，请新建诊断');
       const insert = this.db.prepare('INSERT INTO memory_messages(session_id, payload) VALUES(?, ?)');
-      for (const message of added) insert.run(id, JSON.stringify(message));
+      for (const message of added) {
+        let stored: StoredMessage = message;
+        if (planner && message === added.at(-1)) stored = { ...message, _plannerCheckpoint: planner.checkpoint };
+        else if (planner && message === added.at(-2)) stored = { ...message, _plannerTurnEventId: `turn-${expected}` };
+        insert.run(id, JSON.stringify(stored));
+      }
       this.db.prepare('UPDATE memory_sessions SET title = ?, summary = ?, revision = revision + 1, updated_at = ? WHERE id = ? AND owner = ?')
         .run(session.messages.length ? session.title : all.find((m) => m.role === 'user')!.content.slice(0, 60), summarizeReports(all), now, id, owner);
       const { messages: _messages, device: _device, ...result } = this.session(owner, id);
