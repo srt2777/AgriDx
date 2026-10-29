@@ -10,6 +10,7 @@ import TractorModel from '@/components/TractorModel';
 import { TRACTOR_MODEL_URL } from '@/components/tractor-model-info';
 import SceneFallback from '@/components/SceneFallback';
 import { useLang } from '@/hooks/useLang';
+import { useTheme } from '@/hooks/useTheme';
 import { frameEase, MOTION, rateFor } from '@/lib/motion-tokens';
 import { bindContextLoss, probeWebGL } from '@/lib/webgl';
 import { equipmentCamera } from '@/features/campus-equipment/campus-layout';
@@ -408,7 +409,7 @@ const SWEEP_FRAGMENT = `
 /** One grid sweep across the plaza, then the material stays put. */
 function GroundSweep({ play, reducedMotion }: { play: boolean; reducedMotion: boolean }) {
   const { invalidate, size } = useThree();
-  const dark = true;
+  const dark = useTheme() === 'dark';
   const done = useRef(!(play && !reducedMotion));
   const started = useRef<number | null>(null);
   const material = useMemo(() => new THREE.ShaderMaterial({
@@ -445,7 +446,7 @@ function GroundSweep({ play, reducedMotion }: { play: boolean; reducedMotion: bo
 }
 
 function CampusFloor() {
-  const dark = true;
+  const dark = useTheme() === 'dark';
   const small = useThree((state) => state.size.width < 700);
   const posts = useMemo(() => Array.from({ length: 12 }, (_, i) => -11 + i * 2), []);
   return (
@@ -681,7 +682,10 @@ function WorldScene({
   const live = useRef(false);
   const announced = useRef(false);
   const { camera, size, invalidate, gl } = useThree();
-  const sky = { top: '#161618', horizon: '#161618', fog: '#161618', glow: '#161618', glowAmount: 0, ambient: 0.85, sun: '#eeeeec' };
+  const dark = useTheme() === 'dark';
+  const sky = dark
+    ? { top: '#161618', horizon: '#161618', fog: '#161618', glow: '#161618', glowAmount: 0, ambient: 0.85, sun: '#eeeeec' }
+    : { top: '#e9eae8', horizon: '#e9eae8', fog: '#e9eae8', glow: '#e9eae8', glowAmount: 0, ambient: 1.0, sun: '#ffffff' };
   useEffect(() => {
     cinematicOn.current = cinematic && !reducedMotion;
     if (!cinematicOn.current) return;
