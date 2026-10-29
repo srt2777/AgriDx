@@ -1,24 +1,30 @@
 import { useEffect, useState } from 'react';
 import { preloadPage } from '@/lib/page-loaders';
-import { Globe, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
+import { BookOpen, Globe, House, MessageSquare, PanelLeftClose, PanelLeftOpen, Wrench } from 'lucide-react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useLang, setLang } from '@/hooks/useLang';
 import { CommandButton } from '@/components/CommandPalette';
 import { SiteStatusBar } from '@/components/SiteStatusBar';
 import DemoNote from '@/components/DemoNote';
 import VersionSwitch from '@/components/VersionSwitch';
+import ThemeSwitch from '@/components/ThemeSwitch';
 import { beginSharedTransition } from '@/lib/shared-transition';
 import { PREMIUM_MOTION_ENABLED } from '@/components/motion/flag';
 import { MODERN_DESTINATIONS, modernLocation } from '@/lib/modern-navigation';
 import './new-version-shell.css';
 
-/** The blue exhibition chrome used by every page while the new UI is selected. */
+const NAV_ICONS = { '/': House, '/knowledge': BookOpen, '/chat': MessageSquare, '/models': Wrench } as const;
+
+/** Shared chrome for the modern workspace. */
 export function NewVersionShell() {
   const [navigationCollapsed, setNavigationCollapsed] = useState(() => {
-    try { return localStorage.getItem('agridx-modern-navigation-collapsed') === 'true'; } catch { return false; }
+    try {
+      const saved = localStorage.getItem('agridx-modern-sidebar-collapsed');
+      return window.matchMedia('(max-width: 900px)').matches || saved === 'true';
+    } catch { return false; }
   });
   useEffect(() => {
-    try { localStorage.setItem('agridx-modern-navigation-collapsed', String(navigationCollapsed)); } catch { /* The toggle also works without storage. */ }
+    try { localStorage.setItem('agridx-modern-sidebar-collapsed', String(navigationCollapsed)); } catch { /* The toggle also works without storage. */ }
   }, [navigationCollapsed]);
   const lang = useLang();
   const location = useLocation();
@@ -40,6 +46,7 @@ export function NewVersionShell() {
           <CommandButton className={PREMIUM_MOTION_ENABLED ? 'glass-press' : undefined} />
           <VersionSwitch exhibition onChange={() => navigate('/')} />
           <DemoNote />
+          <ThemeSwitch />
           <button type="button" className="new-version-language" onClick={() => setLang(lang === 'zh' ? 'en' : 'zh')} aria-label={t('切换语言', 'Switch language')}>
             <Globe size={16} />
             <span>{lang === 'zh' ? 'EN' : '中'}</span>
@@ -54,16 +61,19 @@ export function NewVersionShell() {
           <nav className="new-version-navigation" aria-label={t('主要功能', 'Main navigation')}>
             {MODERN_DESTINATIONS.map(item => {
               const active = place.sectionPath === item.path;
+              const Icon = NAV_ICONS[item.path];
               return <Link key={item.path} to={item.path}
                 aria-current={active ? location.pathname === item.path ? 'page' : 'location' : undefined}
                 onPointerEnter={() => preloadPage(item.path, 'new')}
                 onFocus={() => preloadPage(item.path, 'new')}
                 onClick={event => {
+                  if (window.matchMedia('(max-width: 900px)').matches) setNavigationCollapsed(true);
                   if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0 || location.pathname === item.path) return;
                   event.preventDefault();
                   beginSharedTransition(null, () => navigate(item.path));
                 }}
                 className={`new-version-nav-item${active ? ' is-active' : ''}`}>
+                <Icon size={18} strokeWidth={1.5} aria-hidden="true" />
                 <span className="new-version-nav-label">{t(item.zh, item.en)}</span>
               </Link>;
             })}

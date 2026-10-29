@@ -833,6 +833,13 @@
       "base": "4.0.15",
       "version": "4.0.16",
       "date": "2026-10-29"
+    },
+    {
+      "id": "restore-light-sidebar-20261029",
+      "kind": "fix",
+      "base": "4.0.16",
+      "version": "4.0.17",
+      "date": "2026-10-29"
     }
   ]
 }

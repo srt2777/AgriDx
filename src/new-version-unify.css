@@ -338,3 +338,49 @@ html.theme-dark .new-version-shell[data-ui-version='new'] {
 .new-version-shell[data-ui-version='new'] .expo-page :is(.equipment-status-offline) { color: #8d8d8f; stroke: #8d8d8f; }
 @media (max-width: 600px) { .new-version-shell[data-ui-version='new'] .campus-equipment-catalog { margin: 16px 0; padding: 16px; } }
 .new-version-shell[data-ui-version='new'] :is(.knowledge-page-heading, .model-page, .not-found-card) .wheat-line { display: none !important; }
+
+/* Desktop uses a left rail. On narrow screens the same rail becomes a dismissible drawer. */
+.new-version-shell[data-ui-version='new'] .new-version-workspace { display: grid; grid-template-columns: 176px minmax(0, 1fr); gap: 24px; align-items: start; }
+.new-version-shell[data-ui-version='new'] .new-version-workspace.is-nav-collapsed { grid-template-columns: minmax(0, 1fr); }
+.new-version-shell[data-ui-version='new'] .new-version-navigation-rail { position: sticky; top: 24px; padding: 8px; }
+.new-version-shell[data-ui-version='new'] .new-version-navigation { display: flex; flex-direction: column; align-items: stretch; gap: 8px; }
+.new-version-shell[data-ui-version='new'] .new-version-nav-item { justify-content: flex-start; gap: 12px; min-height: 44px; }
+.new-version-shell[data-ui-version='new'] .new-version-navigation-rail[hidden] { display: none; }
+@media (max-width: 900px) {
+  .new-version-shell[data-ui-version='new'] .new-version-workspace { display: block; padding-bottom: 72px; }
+  .new-version-shell[data-ui-version='new'] .new-version-navigation-rail { position: fixed; inset: 0 auto 0 0; z-index: 50; width: min(240px, 75vw); padding: 72px 16px 16px; border-radius: 0 12px 12px 0; box-shadow: 0 2px 8px rgb(0 0 0 / 8%); }
+  .new-version-shell[data-ui-version='new'] .new-version-nav-toggle { position: fixed; left: 16px; right: auto; bottom: 16px; z-index: 51; }
+  .new-version-shell[data-ui-version='new'] .new-version-nav-toggle[data-collapsed='false'] { left: 176px; top: 16px; bottom: auto; }
+}
+/* Light mode keeps the same quiet hierarchy without altering the classic UI. */
+html:not(.theme-dark) .new-version-shell[data-ui-version='new'] {
+  --hub-background: #f4f4f3; --hub-surface: #eaeae8; --hub-card: #fff;
+  --hub-foreground: #242426; --hub-muted: #646466; --hub-border: #d5d5d3;
+  --hub-primary: #464b48; --hub-primary-foreground: #fff;
+  --nv-background: #f4f4f3; --nv-surface: #eaeae8; --nv-card: #fff;
+  --nv-text: #242426; --nv-muted: #646466; --nv-border: #d5d5d3;
+  --nv-primary: #464b48; --nv-on-primary: #fff;
+  --accent: #e3e3e1; --accent-foreground: #242426; --muted: #eaeae8;
+  background: var(--nv-background); color-scheme: light;
+}
+html:not(.theme-dark) .new-version-shell[data-ui-version='new'] :is(.new-version-header-glass, .new-version-navigation-rail, .new-version-nav-toggle) { background: #eaeae8; border-color: #d5d5d3; }
+html:not(.theme-dark) .new-version-shell[data-ui-version='new'] .new-version-nav-item { color: #646466; }
+html:not(.theme-dark) .new-version-shell[data-ui-version='new'] .new-version-nav-item:hover { background: #dededc; color: #242426; }
+html:not(.theme-dark) .new-version-shell[data-ui-version='new'] .new-version-nav-item.is-active { background: #d5d5d3; color: #242426; }
+html:not(.theme-dark) .new-version-shell[data-ui-version='new'] :is(.chat-glass, .catalog-browser, .catalog-stats, .catalog-distribution, .evidence-entry, .parts-panel, .parts-stage-card, .parts-knowledge, .model-control-glass, .history-build, .not-found-card) { background: #fff; border-color: #d5d5d3; }
+html:not(.theme-dark) .new-version-shell[data-ui-version='new'] :is(input:not([type='checkbox']):not([type='range']):not([type='file']), textarea, select) { color-scheme: light; }
+html:not(.theme-dark) .new-version-shell[data-ui-version='new'] :is(.ui-version-switch, .ui-version-switch.is-exhibition) { background: #e3e3e1; border-color: #d5d5d3; --selection-fill: #c9c9c6; }
+html:not(.theme-dark) .new-version-shell[data-ui-version='new'] .ui-version-switch button { color: #646466; }
+html:not(.theme-dark) .new-version-shell[data-ui-version='new'] .ui-version-switch.is-exhibition button[aria-pressed='true'] { color: #242426; }
+html:not(.theme-dark) .new-version-shell[data-ui-version='new'] .new-version-language { color: #646466; }
+html:not(.theme-dark) .new-version-shell[data-ui-version='new'] .expo-page {
+  --background: #f4f4f3; --foreground: #242426; --card: #fff; --card-foreground: #242426;
+  --popover: #fff; --popover-foreground: #242426; --muted: #eaeae8; --muted-foreground: #646466;
+  --border: #d5d5d3; --primary: #464b48; --primary-foreground: #fff; --accent: #e3e3e1;
+  --accent-foreground: #242426; --ring: #464b48; --md-on-surface: #242426;
+  --md-on-surface-variant: #646466; --md-primary: #464b48; --md-on-primary: #fff; --md-secondary-container: #dededc;
+}
+html:not(.theme-dark) .new-version-shell[data-ui-version='new'] :is(.expo-world-stage, .campus-equipment-catalog, .expo-zone-card, .expo-catalog, .expo-dock-glass, .expo-guide-glass) { background: #fff; border-color: #d5d5d3; }
+html:not(.theme-dark) .new-version-shell[data-ui-version='new'] .campus-equipment-catalog button[aria-pressed='true'] { background: #dededc; border-color: #d5d5d3; }
+.new-version-shell[data-ui-version='new'] .knowledge-page { background: transparent; }
+html.theme-dark .new-version-shell[data-ui-version='new'] .knowledge-page { background: transparent; }
