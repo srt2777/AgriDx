@@ -10,6 +10,7 @@ import {
 import os from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
+import { LEARNING_INDEXES } from '../server/knowledge/learning';
 import { fileURLToPath } from 'node:url';
 
 const scriptPath = fileURLToPath(new URL('../scripts/tencent-deploy/update-existing.sh', import.meta.url));
@@ -443,7 +444,7 @@ test('腾讯正式启动命令从 current 软链接工作目录启动真实 Type
   const archivedEntries = readFileSync(path.join(projectRoot,
     '知识库/整理后的知识库/农用拖拉机知识库/entries.jsonl'), 'utf8')
     .trim().split(/\r?\n/).length;
-  const learningEntries = ['docs/tractor-knowledge/index.jsonl', 'docs/tractor-knowledge/expansion-5000/index.jsonl']
+  const learningEntries = LEARNING_INDEXES
     .reduce((total, file) => total + readFileSync(path.join(projectRoot, file), 'utf8').trim().split(/\r?\n/).length, 0);
   assert.deepEqual(status.knowledge, { chunks: archivedEntries + learningEntries + 9, archivedEntries, learningEntries, totalEntries: archivedEntries + learningEntries });
 });

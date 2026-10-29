@@ -69,7 +69,7 @@ test('术语原始概念错绑时拒绝切换快照，继续提供上次完整�
   const read = fs.readFileSync;
   const mock = t.mock.method(fs, 'readFileSync', (...args: Parameters<typeof fs.readFileSync>) => {
     const data = read(...args);
-    if (String(args[0]).endsWith('expansion-875/index.jsonl') && typeof data === 'string') {
+    if (String(args[0]).replaceAll('\\', '/').endsWith('expansion-875/index.jsonl') && typeof data === 'string') {
       return data.replace(/"source_uri":"[^"]+"/, '"source_uri":"http://aims.fao.org/aos/agrovoc/c_wrong"');
     }
     return data;
