@@ -840,6 +840,13 @@
       "base": "4.0.16",
       "version": "4.0.17",
       "date": "2026-10-29"
+    },
+    {
+      "id": "restore-college-mark-20261029",
+      "kind": "fix",
+      "base": "4.0.17",
+      "version": "4.0.18",
+      "date": "2026-10-29"
     }
   ]
 }
