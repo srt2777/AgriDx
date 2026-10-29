@@ -10,13 +10,10 @@ import TractorModel from '@/components/TractorModel';
 import { TRACTOR_MODEL_URL } from '@/components/tractor-model-info';
 import SceneFallback from '@/components/SceneFallback';
 import { useLang } from '@/hooks/useLang';
-import { useTheme } from '@/hooks/useTheme';
 import { frameEase, MOTION, rateFor } from '@/lib/motion-tokens';
 import { bindContextLoss, probeWebGL } from '@/lib/webgl';
-import { campusSky } from './campus-sky';
 import { equipmentCamera } from '@/features/campus-equipment/campus-layout';
 
-const CampusGlow = lazy(() => import('@/components/SceneGlow').then((mod) => ({ default: mod.CampusGlow })));
 const CampusEquipment = lazy(() => import('@/features/campus-equipment/CampusEquipment'));
 useGLTF.preload(TRACTOR_MODEL_URL);
 import {
@@ -104,7 +101,7 @@ function Block({
           roughness={0.33}
           metalness={0.55}
           emissive={glow ?? '#000000'}
-          emissiveIntensity={glow ? glowStrength : 0}
+          emissiveIntensity={glow ? Math.min(glowStrength, 0.08) : 0}
         />
       </mesh>
     );
@@ -123,7 +120,7 @@ function Block({
         roughness={0.33}
         metalness={0.55}
         emissive={glow ?? '#000000'}
-        emissiveIntensity={glow ? glowStrength : 0}
+        emissiveIntensity={glow ? Math.min(glowStrength, 0.08) : 0}
       />
     </RoundedBox>
   );
@@ -148,7 +145,7 @@ function Ring({
       <meshStandardMaterial
         color={color}
         emissive={color}
-        emissiveIntensity={1.1}
+        emissiveIntensity={0.06}
         roughness={0.2}
         metalness={0.65}
       />
@@ -263,7 +260,7 @@ function ZoneSign({ number, color }: { number: string; color: string }) {
   return (
     <mesh position={[0, 0.72, 2.15]} castShadow>
       <boxGeometry args={[0.86, 0.4, 0.05]} />
-      <meshStandardMaterial map={texture} metalness={0.2} roughness={0.42} emissive={color} emissiveIntensity={0.18} />
+      <meshStandardMaterial map={texture} metalness={0.2} roughness={0.42} emissive={color} emissiveIntensity={0.04} />
     </mesh>
   );
 }
@@ -282,7 +279,7 @@ function PavilionRoof({ id, color }: { id: ZoneId; color: string }) {
     return (
       <mesh position={[0, 3.55, -0.7]} castShadow>
         <cylinderGeometry args={[0.95, 0.2, 0.16, 6]} />
-        <meshStandardMaterial color="#f2f6f8" emissive={color} emissiveIntensity={0.45} metalness={0.4} roughness={0.3} />
+        <meshStandardMaterial color="#f2f6f8" emissive={color} emissiveIntensity={0.04} metalness={0.4} roughness={0.3} />
       </mesh>
     );
   }
@@ -357,7 +354,7 @@ function Pavilion({
       >
         <mesh position={[0, 0.13, 0]} receiveShadow castShadow>
           <cylinderGeometry args={[2.7, 2.8, 0.25, 64]} />
-          <meshStandardMaterial color={lit ? '#294b60' : '#1a3042'} emissive={color} emissiveIntensity={lit ? 0.48 : 0.22} metalness={0.72} roughness={0.35} />
+          <meshStandardMaterial color={lit ? '#294b60' : '#1a3042'} emissive={color} emissiveIntensity={lit ? 0.08 : 0.03} metalness={0.72} roughness={0.35} />
         </mesh>
         <Ring position={[0, 0.27, 0]} radius={2.65} color={color} thickness={lit ? 0.05 : 0.032} />
         <PavilionRoof id={zone.id} color={color} />
@@ -411,7 +408,7 @@ const SWEEP_FRAGMENT = `
 /** One grid sweep across the plaza, then the material stays put. */
 function GroundSweep({ play, reducedMotion }: { play: boolean; reducedMotion: boolean }) {
   const { invalidate, size } = useThree();
-  const dark = useTheme() === 'dark';
+  const dark = true;
   const done = useRef(!(play && !reducedMotion));
   const started = useRef<number | null>(null);
   const material = useMemo(() => new THREE.ShaderMaterial({
@@ -448,22 +445,22 @@ function GroundSweep({ play, reducedMotion }: { play: boolean; reducedMotion: bo
 }
 
 function CampusFloor() {
-  const dark = useTheme() === 'dark';
+  const dark = true;
   const small = useThree((state) => state.size.width < 700);
   const posts = useMemo(() => Array.from({ length: 12 }, (_, i) => -11 + i * 2), []);
   return (
     <group>
-      <Block position={[0, -0.5, 0]} size={[29, 0.9, 24]} color={dark ? '#202e3a' : '#c4d3df'} />
+      <Block position={[0, -0.5, 0]} size={[29, 0.9, 24]} color={dark ? '#262628' : '#c4d3df'} />
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.035, 0]} receiveShadow>
         <planeGeometry args={[28.7, 23.7]} />
         <MeshReflectorMaterial
           resolution={small ? 128 : 256}
           blur={small ? [0, 0] : [40, 20]}
           mixBlur={small ? 0 : 0.75}
-          mixStrength={1.3}
-          mirror={0.3}
-          color={dark ? '#1b2e3c' : '#c5d5e0'}
-          roughness={dark ? 0.4 : 0.55}
+          mixStrength={0.25}
+          mirror={0.05}
+          color={dark ? '#242426' : '#c5d5e0'}
+          roughness={dark ? 0.85 : 0.55}
           metalness={0.74}
           depthScale={0.4}
           minDepthThreshold={0.4}
@@ -634,7 +631,7 @@ function Flag({ position, color, live, reducedMotion }: { position: [number, num
       </mesh>
       <mesh ref={cloth} position={[0.38, 2.05, 0]}>
         <planeGeometry args={[0.72, 0.36]} />
-        <meshStandardMaterial color={color} emissive={color} emissiveIntensity={0.28} side={THREE.DoubleSide} />
+        <meshStandardMaterial color={color} emissive={color} emissiveIntensity={0.04} side={THREE.DoubleSide} />
       </mesh>
     </group>
   );
@@ -684,9 +681,7 @@ function WorldScene({
   const live = useRef(false);
   const announced = useRef(false);
   const { camera, size, invalidate, gl } = useThree();
-  const theme = useTheme();
-  const sky = campusSky(theme === 'dark' ? 'dark' : 'light');
-  useEffect(() => { invalidate(); }, [theme, invalidate]);
+  const sky = { top: '#161618', horizon: '#161618', fog: '#161618', glow: '#161618', glowAmount: 0, ambient: 0.85, sun: '#eeeeec' };
   useEffect(() => {
     cinematicOn.current = cinematic && !reducedMotion;
     if (!cinematicOn.current) return;
@@ -881,10 +876,10 @@ function WorldScene({
     <>
       <SkyDome top={sky.top} horizon={sky.horizon} glow={sky.glow} glowAmount={sky.glowAmount} />
       <fog attach="fog" args={[sky.fog, 52, 120]} />
-      <ambientLight intensity={sky.ambient} color="#d6e2eb" />
+      <ambientLight intensity={sky.ambient} color="#ededeb" />
       <directionalLight
         position={[-8, 18, 10]}
-        intensity={3.2}
+        intensity={2.2}
         color={sky.sun}
         castShadow
         shadow-mapSize={size.width < 700 ? [512, 512] : [1024, 1024]}
@@ -896,7 +891,7 @@ function WorldScene({
         shadow-bias={-0.00015}
         shadow-normalBias={0.025}
       />
-      <directionalLight position={[8, 6, -12]} intensity={1.8} color="#80caff" />
+      <directionalLight position={[8, 6, -12]} intensity={0.65} color="#d1d1cf" />
       <LocalEnvironment />
       <CampusFloor />
       {onEquipmentSelect && <Suspense fallback={null}><CampusEquipment selected={equipmentFocus} onSelect={onEquipmentSelect} moving={equipmentMoving} reduced={reducedMotion} /></Suspense>}
@@ -949,11 +944,6 @@ function WorldScene({
           userOrbit.current = false;
         }}
       />
-      {mode === 'overview' && !reducedMotion && size.width >= 900 && (
-        <Suspense fallback={null}>
-          <CampusGlow />
-        </Suspense>
-      )}
     </>
   );
 }
