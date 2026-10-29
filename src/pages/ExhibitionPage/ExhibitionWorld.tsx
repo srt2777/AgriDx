@@ -458,8 +458,8 @@ function CampusFloor() {
           resolution={small ? 128 : 256}
           blur={small ? [0, 0] : [40, 20]}
           mixBlur={small ? 0 : 0.75}
-          mixStrength={0.25}
-          mirror={0.05}
+          mixStrength={0.55}
+          mirror={0.14}
           color={dark ? '#242426' : '#c5d5e0'}
           roughness={dark ? 0.85 : 0.55}
           metalness={0.74}
@@ -684,8 +684,8 @@ function WorldScene({
   const { camera, size, invalidate, gl } = useThree();
   const dark = useTheme() === 'dark';
   const sky = dark
-    ? { top: '#161618', horizon: '#161618', fog: '#161618', glow: '#161618', glowAmount: 0, ambient: 0.85, sun: '#eeeeec' }
-    : { top: '#e9eae8', horizon: '#e9eae8', fog: '#e9eae8', glow: '#e9eae8', glowAmount: 0, ambient: 1.0, sun: '#ffffff' };
+    ? { top: '#0b1b2b', horizon: '#183b53', fog: '#152c3b', glow: '#2a739c', glowAmount: 0.1, ambient: 0.85, sun: '#dfeef8' }
+    : { top: '#c5d9e8', horizon: '#e6f0f5', fog: '#dce8ef', glow: '#c7e3f2', glowAmount: 0.08, ambient: 1.0, sun: '#ffffff' };
   useEffect(() => {
     cinematicOn.current = cinematic && !reducedMotion;
     if (!cinematicOn.current) return;
@@ -895,7 +895,7 @@ function WorldScene({
         shadow-bias={-0.00015}
         shadow-normalBias={0.025}
       />
-      <directionalLight position={[8, 6, -12]} intensity={0.65} color="#d1d1cf" />
+      <directionalLight position={[8, 6, -12]} intensity={0.85} color="#a7d4ee" />
       <LocalEnvironment />
       <CampusFloor />
       {onEquipmentSelect && <Suspense fallback={null}><CampusEquipment selected={equipmentFocus} onSelect={onEquipmentSelect} moving={equipmentMoving} reduced={reducedMotion} /></Suspense>}

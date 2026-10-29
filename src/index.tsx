@@ -21,6 +21,7 @@ import './ui/radix-tokens.css';
 import './ui/workspace.css';
 import './ui/classic-system.css';
 import './new-version-unify.css';
+import './new-version-mechanical.css';
 
 // 使用 HashRouter：路由挂在 URL 的 # 之后（如 /#/chat），
 // 服务器始终只收到路径 /，静态托管无需 SPA 重写即可直接打开或刷新对话页。
