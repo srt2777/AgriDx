@@ -98,13 +98,23 @@ export function buildDiagnosticReply(input: DiagnosticReplyInput): DiagnosticRep
       !candidate.excluded && candidate.modelMatch === 'exact')));
   const general = chunks.filter(chunk => chunk.entryType === '通识学习' && (chunk.generalEvidence || chunk.retrieval?.tier === 'general'));
   const reference = chunks.filter(chunk => hasIndexedReference(chunk));
+  // Entries in the same batch often carry the same long review note. Group
+  // identical notes while keeping every entry associated with its status.
+  const generalByStatus = new Map<string, string[]>();
+  for (const chunk of general) {
+    const status = chunk.status || '核验状态未说明';
+    const ids = generalByStatus.get(status) ?? [];
+    ids.push(chunk.entryId || chunk.heading);
+    generalByStatus.set(status, ids);
+  }
+  const generalSourceSummary = [...generalByStatus].map(([status, ids]) => `${ids.join('、')}（${status}）`).join('；');
   const reply: DiagnosticReply = {
     topic: query,
     understanding: `${machine ? `你咨询的是${machine}。` : ''}你描述的是“${query}”。目前还不能只凭这一现象确定具体故障。`,
     supportLevel: exact.length ? 'manual' : general.length ? 'general' : reference.length ? 'reference_only' : 'none',
     causes: [], suggestions: [], questions: [],
     sourceNote: exact.length ? `本次可参考匹配且已核对的资料：${exact.map(chunk => chunk.entryId).join('、')}。文献核对不代表本机已经确诊或实车验证。`
-      : general.length ? `本次参考${general.map(chunk => `${chunk.entryId}（${chunk.status || '核验状态未说明'}）`).join('、')}通识（无手册页码），只能解释一般原理，不能作为本机参数或维修操作依据。`
+      : general.length ? `本次参考${generalSourceSummary}通识（无手册页码），只能解释一般原理，不能作为本机参数或维修操作依据。`
       : reference.length ? '找到的资料仍需确认适用范围或核验状态，本次不据此给出具体故障原因、参数或维修步骤。'
       : coordination.retrievalOutcome === 'no_manual' ? '目前已登记来源中没有匹配本次车型的手册范围；不能据此确定部件故障或专用参数。'
       : coordination.retrievalOutcome === 'no_results' ? '本次检索没有找到支持这一问题的资料，这不代表没有该机型手册。请补充现场信息后再缩小检索范围。'

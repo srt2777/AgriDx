@@ -6,6 +6,7 @@ import {
   parseFaultCodes, parseHistory, readDiagnosticTextAttachment, saveHistory, STORAGE_KEY,
 } from '../src/features/chat/session';
 import { PreviewMemoryStore } from '../src/dev-preview/memory';
+import { compactLegacyGeneralSourceNote } from '../src/features/chat/presentation';
 
 const diagnosticReply = {
   understanding: '已记下LF1504的水温异常。', supportLevel: 'reference_only' as const,
@@ -31,6 +32,15 @@ const trace = { retrievalCount: 1, aiAttempts: 1, aiSuccesses: 0, aiProvider: nu
 const roleFlow = { symptom: [{ entryId: 'KB-TEST-001', heading: '水温观察', pages: { pdf: '12' } }], cause: [], check: [], action: [], retest: [], untaggedEntryIds: [] };
 const payload = { choices: [{ message: { content: '保存的完整原文' } }], provider: 'knowledge-base', model: '本地引擎', answerMode: 'local-evidence',
   diagnosticReply, knowledgeSources: [source], coordination, diagnosisTrace: trace, roleFlow };
+
+test('old general-source notes group repeated statuses while retaining boundaries and unfamiliar notes', () => {
+  const boundary = '通识（无手册页码），只能解释一般原理，不能作为本机参数或维修操作依据。';
+  const original = `本次参考TK-1（未核验）、TK-2（未核验）、TK-3（待复核）${boundary}\n仿真数据提醒。`;
+  assert.equal(compactLegacyGeneralSourceNote(original), `本次参考TK-1、TK-2（未核验）；TK-3（待复核）${boundary}\n仿真数据提醒。`);
+  const unusual = `本次参考TK-1（未核验、待复核）、TK-2（未核验）${boundary}`;
+  assert.equal(compactLegacyGeneralSourceNote(unusual), unusual);
+  assert.equal(compactLegacyGeneralSourceNote('来源范围仍需核对。'), '来源范围仍需核对。');
+});
 
 function storage() {
   const values = new Map<string, string>();
