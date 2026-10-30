@@ -69,7 +69,7 @@ test('saved Gemini and compatible APIs can be tested while disabled without leak
   const response = await f.call('dev-admin/ai/providers/gemini/test', {}, async (url: string, options: RequestInit) => {
     assert.equal(url, 'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions'); assert.equal(options.redirect, 'manual');
     const headers = new Headers(options.headers); assert.equal(headers.get('Authorization'), `Bearer ${secret}`); assert.equal(headers.has('Cookie'), false);
-    const payload = JSON.parse(String(options.body)); assert.equal(payload.max_tokens, 8); assert.equal(payload.model, 'test-model');
+    const payload = JSON.parse(String(options.body)); assert.equal(payload.max_tokens, 8); assert.equal(payload.model, 'test-model'); assert.equal('thinking' in payload, false);
     return Response.json({ choices: [{ message: { content: 'OK' } }] });
   });
   assert.equal(response.status, 200); const result = await response.json(); assert.equal(result.ok, true); assert.equal('content' in result, false);
@@ -78,6 +78,28 @@ test('saved Gemini and compatible APIs can be tested while disabled without leak
   await f.save('openai'); assert.equal((await f.call('dev-admin/ai/providers/openai/test', {}, async () => Response.json({ choices: [{ message: { content: 'OK' } }] }))).status, 200);
   const echoed = await f.call('dev-admin/ai/providers/openai/test', {}, async () => Response.json({ choices: [{ message: { content: secret } }] }), '192.0.2.51'); assert.equal(echoed.status, 502); assert.equal((await echoed.text()).includes(secret), false);
   const networkError = await f.call('dev-admin/ai/providers/openai/test', {}, async () => { throw Object.assign(new Error(secret), { status: 400 }); }, '192.0.2.52'); assert.equal(networkError.status, 504); assert.equal((await networkError.text()).includes(secret), false);
+});
+
+test('DeepSeek onboarding and public chat produce visible replies within the bounded token budget', async t => {
+  const f = await fixture(t); const budgets: number[] = [];
+  // Model the provider's default thinking behavior: no visible answer when the
+  // small budget is consumed by reasoning. No live credentials are used.
+  const upstream = async (_url: string, options: RequestInit) => {
+    const payload = JSON.parse(String(options.body)); budgets.push(payload.max_tokens);
+    const visible = payload.thinking?.type === 'disabled';
+    return Response.json({ choices: [{ message: { content: visible ? 'OK' : '', reasoning_content: visible ? null : 'reasoning' } }] });
+  };
+  assert.equal((await f.save('deepseek', { model: 'deepseek-flash', baseUrl: 'https://api.deepseek.com' }, upstream)).status, 200);
+  assert.equal((await f.enable(20)).status, 200);
+  const chat = await f.call('dev-ai/chat', message, upstream);
+  assert.equal(chat.status, 200); assert.equal((await chat.json()).content, 'OK');
+  assert.deepEqual(budgets, [8, 1024]);
+  Object.assign(f.env, { DEV_AI_ALLOWED_HOSTS: 'compatible.example' });
+  const compatible = await f.save('deepseek', { baseUrl: 'https://compatible.example' }, async (_url: string, options: RequestInit) => {
+    assert.equal('thinking' in JSON.parse(String(options.body)), false);
+    return Response.json({ choices: [{ message: { content: 'OK' } }] });
+  });
+  assert.equal(compatible.status, 200);
 });
 
 test('public AI starts disabled, obeys configured model/guardrails, and daily budget is atomic across visitors', async t => {

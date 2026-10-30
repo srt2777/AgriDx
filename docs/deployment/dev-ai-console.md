@@ -14,6 +14,8 @@
 
 DeepSeek/Gemini 的预填模型名沿用现有项目配置，不宣称服务商已提供这些别名；请填写当前账号支持的模型 ID，并以真实连接测试结果为准。
 
+DeepSeek 官方接口默认使用 `https://api.deepseek.com` 和 `deepseek-flash`。开发网关对官方 DeepSeek 接口明确关闭思考模式，以适配连接测试及诊断回答的有限输出和等待时间；其他供应商及自定义接口不增加此参数。实际可用性仍需使用管理员账号配置并测试。
+
 ## 存储与鉴权
 
 - 复用既有 GitHub 仓库管理员/维护者验证、到期会话、HttpOnly/Secure/SameSite Cookie 与同源写入检查。匿名访客不能读取或修改 API 配置。

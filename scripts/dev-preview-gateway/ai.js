@@ -1,6 +1,6 @@
 /** Development-only AI gateway. Keys never enter public artifacts or API responses. */
 const aiDefaults = {
-  deepseek: { provider: 'deepseek', label: 'DeepSeek', model: 'deepseek-v4-flash', baseUrl: 'https://api.deepseek.com/v1' },
+  deepseek: { provider: 'deepseek', label: 'DeepSeek', model: 'deepseek-flash', baseUrl: 'https://api.deepseek.com' },
   gemini: { provider: 'gemini', label: 'Gemini', model: 'gemini-3.8-flash', baseUrl: 'https://generativelanguage.googleapis.com/v1beta/openai' },
   openai: { provider: 'openai', label: 'OpenAI compatible', model: 'gpt-4.1-mini', baseUrl: 'https://api.openai.com/v1' },
 };
@@ -73,10 +73,14 @@ async function aiGenerate(row, messages, env, upstreamFetch, testing = false, si
   const started = Date.now();
   try {
     const timeout = AbortSignal.timeout(20_000);
+    // DeepSeek defaults to thinking mode, which can exhaust our short response budget
+    // before producing visible content. Keep this vendor-specific option off other hosts.
+    const thinking = row.provider === 'deepseek' && new URL(baseUrl).hostname === 'api.deepseek.com'
+      ? { thinking: { type: 'disabled' } } : {};
     const response = await upstreamFetch(`${baseUrl}/chat/completions`, {
       method: 'POST', redirect: 'manual', signal: signal ? AbortSignal.any([signal, timeout]) : timeout,
       headers: { Authorization: `Bearer ${secret}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ model: row.model, messages, max_tokens: testing ? 8 : 1024, stream: false }),
+      body: JSON.stringify({ model: row.model, messages, max_tokens: testing ? 8 : 1024, stream: false, ...thinking }),
     });
     if (!response.ok) {
       await response.body?.cancel();
