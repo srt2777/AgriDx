@@ -95,7 +95,35 @@ export default function ChatPage() {
   const lastMessageRef = useRef<HTMLDivElement>(null);
   const previousLastMessage = useRef<Pick<ChatMessage, 'id' | 'role'> | undefined>(undefined);
   const followThread = useRef(true);
-  const [contextOpen, setContextOpen] = useState(() => typeof window !== 'undefined' && window.matchMedia('(min-width: 1101px)').matches);
+  const [contextOpen, setContextOpen] = useState(() => version === 'old' && typeof window !== 'undefined' && window.matchMedia('(min-width: 1101px)').matches);
+  const contextTriggerRef = useRef<HTMLButtonElement>(null);
+  const contextPanelRef = useRef<HTMLElement>(null);
+  const settingsRef = useRef<HTMLDetailsElement>(null);
+  const extrasRef = useRef<HTMLDetailsElement>(null);
+
+  useEffect(() => {
+    if (version !== 'new') return;
+    const onPointerDown = (event: PointerEvent) => {
+      const target = event.target as Node;
+      if (settingsRef.current?.open && !settingsRef.current.contains(target)) settingsRef.current.open = false;
+      if (extrasRef.current?.open && !extrasRef.current.contains(target)) extrasRef.current.open = false;
+      if (contextOpen && !contextPanelRef.current?.contains(target) && !contextTriggerRef.current?.contains(target)) setContextOpen(false);
+    };
+    const onKeyDown = (event: globalThis.KeyboardEvent) => {
+      if (event.key !== 'Escape') return;
+      const openDetails = [extrasRef.current, settingsRef.current].find(details => details?.open);
+      if (openDetails) {
+        openDetails.open = false;
+        openDetails.querySelector<HTMLElement>('summary')?.focus();
+      } else if (contextOpen) {
+        setContextOpen(false);
+        contextTriggerRef.current?.focus();
+      }
+    };
+    document.addEventListener('pointerdown', onPointerDown);
+    document.addEventListener('keydown', onKeyDown);
+    return () => { document.removeEventListener('pointerdown', onPointerDown); document.removeEventListener('keydown', onKeyDown); };
+  }, [contextOpen, version]);
 
   const scrollToBottom = useCallback(() => {
     if (!followThread.current) return;
@@ -192,11 +220,39 @@ export default function ChatPage() {
     <label className={`inline-flex min-h-11 cursor-pointer items-center gap-2${version === 'old' ? ' rounded-md border border-border px-3 py-2' : ''}`}><input type="checkbox" checked={includeTelemetry} onChange={event => setIncludeTelemetry(event.target.checked)} disabled={isLoading || memory.busy} />{t('携带仿真监测摘要', 'Attach simulated monitoring summary')}</label>
     {includeTelemetry && <div className="min-w-0 rounded-md border border-amber-500/40 bg-amber-500/5 px-3 py-2"><p>{t('发送前预览；将发送给所选模型服务。', 'Preview before sending; it will be sent to the selected model service.')}</p><pre className="mt-1 max-h-20 overflow-auto whitespace-pre-wrap">{telemetrySummary?.text}</pre><p className="mt-1 font-medium">{t('以下为仿真演示数据，不是真实设备读数，不得据此给出确定性故障结论。', 'Simulation demo data, not real device readings; do not use it for a definitive fault conclusion.')}</p></div>}
   </>;
+  const clearControl = <AlertDialog>
+    <AlertDialogTrigger asChild>
+      <Button variant={version === 'new' ? 'ghost' : 'secondary'} size={version === 'new' ? 'icon' : 'sm'} className="chat-clear shrink-0" aria-label={t('清空对话', 'Clear conversation')} title={t('清空对话', 'Clear conversation')} disabled={isEmpty || isLoading || memory.busy}>
+        <Trash2 className="h-4 w-4" />
+        {version === 'old' && <span className="hidden sm:inline">{t('清空对话', 'Clear')}</span>}
+      </Button>
+    </AlertDialogTrigger>
+    <AlertDialogContent portalContainer={version === 'old' ? document.querySelector<HTMLElement>('.classic-version-shell .fluid-body') ?? undefined : undefined}>
+      <AlertDialogHeader>
+        <AlertDialogTitle>{t('确认清空对话？', 'Clear all messages?')}</AlertDialogTitle>
+        <AlertDialogDescription>{t('清空后当前所有对话记录将被删除，且无法恢复。', 'All current messages will be deleted and cannot be recovered.')}</AlertDialogDescription>
+      </AlertDialogHeader>
+      <AlertDialogFooter>
+        <AlertDialogCancel>{t('取消', 'Cancel')}</AlertDialogCancel>
+        <AlertDialogAction onClick={handleClear}>{t('确认清空', 'Clear')}</AlertDialogAction>
+      </AlertDialogFooter>
+    </AlertDialogContent>
+  </AlertDialog>;
+  const extraControl = <details ref={version === 'new' ? extrasRef : undefined} className={version === 'new' ? 'chat-input-extras is-popover' : 'chat-input-extras mb-2 text-xs'}>
+    <summary className="cursor-pointer py-1">{version === 'new' ? t('补充资料', 'Add details') : t('补充发动机、故障码或文本报告（选填）', 'Add engine, fault codes or a text report (optional)')}{version === 'new' && (engineModel.trim() || faultCodeInput.trim()) && <span className="chat-extras-active">{t('已填写', 'Added')}</span>}</summary>
+    <div className={version === 'new' ? 'chat-input-extras-panel' : undefined}>
+      <div className="mt-2 grid gap-2 sm:grid-cols-2">
+        <label>{t('发动机型号', 'Engine model')}<input value={engineModel} onChange={event => setEngineModel(event.target.value)} maxLength={100} disabled={isLoading || memory.busy} className="mt-1 h-10 w-full rounded-md border border-border bg-background px-3 text-sm" /></label>
+        <label>{t('故障码原文（逗号分隔）', 'Fault codes (comma separated)')}<input value={faultCodeInput} onChange={event => setFaultCodeInput(event.target.value)} maxLength={660} disabled={isLoading || memory.busy} className="mt-1 h-10 w-full rounded-md border border-border bg-background px-3 text-sm" /></label>
+      </div>
+      <label className="mt-2 inline-flex cursor-pointer items-center gap-1 rounded-md border border-border px-3 py-2"><Paperclip className="h-3.5 w-3.5" />{t('添加故障文本', 'Add fault text')}<input type="file" accept=".txt,.log,.csv,.json,text/plain,text/csv,application/json" disabled={isLoading || memory.busy} className="sr-only" aria-label={t('添加故障信息文本文件', 'Add a fault information text file')} onChange={async event => { const file = event.target.files?.[0]; event.target.value = ''; if (!file) return; try { setAttachment(await readDiagnosticTextAttachment(file)); } catch (error) { toast.error(error instanceof Error ? error.message : t('读取文本失败', 'Could not read text')); } }} /></label>
+      <p className="mt-1 text-muted-foreground">{t('仅UTF-8的txt/log/csv/json，最多16KB；发送时文字随问题提交。暂不支持照片识别，请勿包含密钥或个人资料。', 'UTF-8 txt/log/csv/json only, up to 16KB. Text is submitted with your question when sent. Photo recognition is unavailable; omit secrets and personal information.')}</p>
+    </div>
+  </details>;
 
   return (
     <div ref={workspaceRef} className={`flex h-[calc(100dvh-5.625rem)] flex-col chat-glass${version === 'new' ? ' is-premium' : ''}`}>
-      {/* 顶部工具栏 */}
-      <LiquidGlass
+      {version === 'old' ? <LiquidGlass
         variant="regular"
         className="chat-bar-glass"
         contentClassName="chat-bar-content flex items-center justify-between border-b border-border/60 px-4 py-3 md:px-6"
@@ -206,51 +262,41 @@ export default function ChatPage() {
             <Bot className="h-4 w-4" />
           </div>
           <div className="min-w-0">
-            <div className="truncate text-sm font-semibold text-foreground" data-shared-target={version === 'new' ? 'diagnosis' : undefined}>{format('耕知·耘诊')}{separator}{t('诊断工作台', 'Diagnosis workspace')}</div>
+            <div className="truncate text-sm font-semibold text-foreground">{format('耕知·耘诊')}{separator}{t('诊断工作台', 'Diagnosis workspace')}</div>
             <div className="flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground" role="status">
               <span title={configurationHint}>{serviceStatus}</span>
             </div>
           </div>
         </div>
-        <AlertDialog>
-          <AlertDialogTrigger asChild>
-            <Button variant="secondary" size="sm" className="gap-1.5 shrink-0" aria-label={t('清空对话', 'Clear conversation')} disabled={isEmpty || isLoading || memory.busy}>
-              <Trash2 className="h-4 w-4" />
-              <span className="hidden sm:inline">{t('清空对话', 'Clear')}</span>
-            </Button>
-          </AlertDialogTrigger>
-          <AlertDialogContent portalContainer={version === 'old' ? document.querySelector<HTMLElement>('.classic-version-shell .fluid-body') ?? undefined : undefined}>
-            <AlertDialogHeader>
-              <AlertDialogTitle>{t('确认清空对话？', 'Clear all messages?')}</AlertDialogTitle>
-              <AlertDialogDescription>
-                {t('清空后当前所有对话记录将被删除，且无法恢复。', 'All current messages will be deleted and cannot be recovered.')}
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>{t('取消', 'Cancel')}</AlertDialogCancel>
-              <AlertDialogAction onClick={handleClear}>{t('确认清空', 'Clear')}</AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-      </LiquidGlass>
+        {clearControl}
+      </LiquidGlass> : <div className="chat-toolbar">
+        <strong className="chat-toolbar-title" data-shared-target="diagnosis">{t('智能诊断', 'Diagnosis')}</strong>
+        <div className="chat-toolbar-actions">
+          <Button ref={contextTriggerRef} type="button" variant="ghost" size="sm" className="chat-machine-trigger" aria-label={`${t('机型与记录', 'Machine and history')}: ${[machineType, brand, model].filter(Boolean).join(' ') || t('选择机型', 'Choose machine')}`} aria-expanded={contextOpen} aria-controls="chat-machine-context" onClick={() => setContextOpen(open => !open)}>
+            <Settings2 className="h-4 w-4" aria-hidden="true" /><span>{[machineType, brand, model].filter(Boolean).join(' ') || t('选择机型', 'Choose machine')}</span>
+          </Button>
+          <details ref={settingsRef} className="chat-settings">
+            <summary aria-label={includeTelemetry ? t('回答设置，已附加仿真监测摘要', 'Answer settings, simulated monitoring attached') : t('回答设置', 'Answer settings')}>{t('设置', 'Settings')}{includeTelemetry && <span className="chat-settings-active">{t('仿真已附', 'Sim on')}</span>}</summary>
+            <div className="chat-settings-panel">
+              <p className="chat-service-status" role="status" title={configurationHint}>{serviceStatus}</p>
+              <div className="chat-mode-control">{modeControl}</div>
+              <div className="chat-telemetry-control">{telemetryControl}</div>
+            </div>
+          </details>
+          {clearControl}
+        </div>
+      </div>}
 
       {version === 'old' && <>
         <div className="flex items-center gap-2 border-b border-border/60 px-4 py-2 text-xs">{modeControl}</div>
         <div className="flex flex-wrap items-start gap-2 border-b border-border/60 px-4 py-2 text-xs">{telemetryControl}</div>
       </>}
-      <div className={`chat-current-context${version === 'new' ? ' is-compact' : ''}`}>
-        <div className="min-w-0"><p className="truncate font-medium">{plate || (version === 'new' ? t('未指定机型', 'No model specified') : t('尚未指定车型 · 可先描述现象', 'No model specified · describe the symptom first'))}</p>{version === 'old' && topic && <p className="truncate text-muted-foreground">{t('当前问题：', 'Current topic: ')}{topic.slice(0, 100)}</p>}</div>
+      {version === 'old' && <div className="chat-current-context">
+        <div className="min-w-0"><p className="truncate font-medium">{plate || t('尚未指定车型 · 可先描述现象', 'No model specified · describe the symptom first')}</p>{topic && <p className="truncate text-muted-foreground">{t('当前问题：', 'Current topic: ')}{topic.slice(0, 100)}</p>}</div>
         <div className="chat-context-actions">
-          {version === 'new' && <details className="chat-settings">
-            <summary>{t('回答设置', 'Answer settings')}{includeTelemetry && <span className="chat-settings-active">{t('仿真已附', 'Simulation on')}</span>}</summary>
-            <div className="chat-settings-panel">
-              <div className="chat-mode-control">{modeControl}</div>
-              <div className="chat-telemetry-control">{telemetryControl}</div>
-            </div>
-          </details>}
           <Button type="button" variant="ghost" size="sm" className="shrink-0 gap-1" aria-expanded={contextOpen} aria-controls="chat-machine-context" onClick={() => setContextOpen(open => !open)}><Settings2 className="h-4 w-4" />{t('车型与记录', 'Machine & history')}</Button>
         </div>
-      </div>
+      </div>}
       <div className={version === 'new' ? `chat-workspace${contextOpen ? '' : ' is-context-closed'}` : 'flex min-h-0 flex-1 flex-col'}>
       <div className={version === 'new' ? 'chat-thread' : 'contents'}>
       {/* 消息列表 */}
@@ -266,8 +312,8 @@ export default function ChatPage() {
                   ? <ThinkingOrbs state="listening" label={t('待命', 'Listening')} />
                   : <span className="flex h-14 w-14 items-center justify-center rounded-full bg-primary/10 text-primary"><Sparkles className="h-7 w-7" /></span>}
               </div>
-              <h2 className="font-serif text-xl font-bold text-foreground">{version === 'new' ? t('描述现象，从资料里找起点。', 'Describe the symptom. Start from the evidence.') : t('描述故障现象', 'Describe the fault')}</h2>
-              <p className="mt-2 max-w-md text-sm text-muted-foreground">{version === 'new' ? t('带上机型更好。回答依据是已索引资料，适用范围仍需核对。', 'A model helps. Answers follow indexed evidence, and scope still needs a check.') : t('可填写品牌、型号和发生工况。', 'Include the brand, model and operating conditions.')}</p>
+              <h2 className="font-serif text-xl font-bold text-foreground">{version === 'new' ? t('从描述故障开始', 'Start with the symptom') : t('描述故障现象', 'Describe the fault')}</h2>
+              <p className="mt-2 max-w-md text-sm text-muted-foreground">{version === 'new' ? t('可以先选择机型，也可以直接提问。', 'Choose a machine or ask a question directly.') : t('可填写品牌、型号和发生工况。', 'Include the brand, model and operating conditions.')}</p>
 
 
               {/* 快捷提问按钮 */}
@@ -348,16 +394,9 @@ export default function ChatPage() {
         contentClassName="chat-input-content border-t border-border/60 px-4 py-4 md:px-6"
       >
         <form onSubmit={handleSubmit} className="chat-composer mx-auto max-w-3xl">
-          <details className="chat-input-extras mb-2 text-xs"><summary className="cursor-pointer py-1">{t('补充发动机、故障码或文本报告（选填）', 'Add engine, fault codes or a text report (optional)')}</summary>
-            <div className="mt-2 grid gap-2 sm:grid-cols-2">
-              <label>{t('发动机型号', 'Engine model')}<input value={engineModel} onChange={event => setEngineModel(event.target.value)} maxLength={100} disabled={isLoading || memory.busy} className="mt-1 h-10 w-full rounded-md border border-border bg-background px-3 text-sm" /></label>
-              <label>{t('故障码原文（逗号分隔）', 'Fault codes (comma separated)')}<input value={faultCodeInput} onChange={event => setFaultCodeInput(event.target.value)} maxLength={660} disabled={isLoading || memory.busy} className="mt-1 h-10 w-full rounded-md border border-border bg-background px-3 text-sm" /></label>
-            </div>
-            <label className="mt-2 inline-flex cursor-pointer items-center gap-1 rounded-md border border-border px-3 py-2"><Paperclip className="h-3.5 w-3.5" />{t('添加故障文本', 'Add fault text')}<input type="file" accept=".txt,.log,.csv,.json,text/plain,text/csv,application/json" disabled={isLoading || memory.busy} className="sr-only" aria-label={t('添加故障信息文本文件', 'Add a fault information text file')} onChange={async event => { const file = event.target.files?.[0]; event.target.value = ''; if (!file) return; try { setAttachment(await readDiagnosticTextAttachment(file)); } catch (error) { toast.error(error instanceof Error ? error.message : t('读取文本失败', 'Could not read text')); } }} /></label>
-            <p className="mt-1 text-muted-foreground">{t('仅UTF-8的txt/log/csv/json，最多16KB；发送时文字随问题提交。暂不支持照片识别，请勿包含密钥或个人资料。', 'UTF-8 txt/log/csv/json only, up to 16KB. Text is submitted with your question when sent. Photo recognition is unavailable; omit secrets and personal information.')}</p>
-          </details>
+          {version === 'old' && extraControl}
           {attachment && <div className="chat-attachment mb-2 rounded-md border border-border p-2 text-xs"><div className="flex items-center justify-between gap-2"><span className="truncate">{attachment.name} · {attachment.text.length} {t('字符', 'characters')}</span><Button type="button" variant="ghost" size="icon" className="h-8 w-8" disabled={isLoading} aria-label={t('移除文本报告', 'Remove text report')} onClick={() => setAttachment(undefined)}><X className="h-3.5 w-3.5" /></Button></div><details><summary className="cursor-pointer">{t('预览将发送的文本', 'Preview text to send')}</summary><pre className="mt-2 max-h-32 overflow-auto whitespace-pre-wrap break-words">{attachment.text}</pre></details></div>}
-          <div className="flex items-end gap-2">
+          <div className="chat-compose-row flex items-end gap-2">
             <Textarea
               aria-label={t('故障描述', 'Fault description')}
               aria-describedby="chat-input-help"
@@ -368,7 +407,7 @@ export default function ChatPage() {
               onKeyDown={handleKeyDown}
               placeholder={t('描述您遇到的农机故障现象...', 'Describe the fault symptom...')}
               className="min-h-[60px] resize-none"
-              rows={2}
+              rows={version === 'new' ? 1 : 2}
               disabled={isLoading || memory.busy}
             />
             {isLoading ? (
@@ -386,8 +425,9 @@ export default function ChatPage() {
               <Send className="h-4 w-4" />
             </Button>}
           </div>
-          <div id="chat-input-help" className="mt-2 flex justify-between gap-3 text-xs text-muted-foreground">
-            <span><span className="hidden sm:inline">{t('Enter发送，Shift + Enter换行', 'Enter to send, Shift+Enter for newline')}</span><span className="sm:hidden">{t('点击发送；回车换行', 'Tap send; Enter adds a line')}</span></span>
+          <div className="chat-composer-footer mt-2 flex justify-between gap-3 text-xs text-muted-foreground">
+            {version === 'new' && extraControl}
+            <span id="chat-input-help" className="chat-shortcut-help"><span className="hidden sm:inline">{t('Enter发送，Shift + Enter换行', 'Enter to send, Shift+Enter for newline')}</span><span className="sm:hidden">{t('点击发送；回车换行', 'Tap send; Enter adds a line')}</span></span>
             <span className={composedLength > 2000 ? 'text-destructive' : ''}>{composedLength} / 2000</span>
           </div>
           {sendError && <p role="alert" className="mt-2 text-xs text-destructive">{sendError}</p>}
@@ -395,8 +435,8 @@ export default function ChatPage() {
       </LiquidGlass>
       </div>
       {version === 'new' && (
-        <aside id="chat-machine-context" hidden={!contextOpen} className="chat-context" aria-label={t('机具上下文', 'Machine context')}>
-          <MachineContext framed={false} {...contextProps} />
+        <aside ref={contextPanelRef} id="chat-machine-context" hidden={!contextOpen} className="chat-context" aria-label={t('机具上下文', 'Machine context')}>
+          <MachineContext framed={false} onClose={() => { setContextOpen(false); contextTriggerRef.current?.focus(); }} {...contextProps} />
         </aside>
       )}
       </div>
@@ -481,10 +521,11 @@ function DiagnosticAnswer({ message, t, onAnswer, disabled }: {
 function langLabel(row: { zh: string; en: string }, t: (zh: string, en: string) => string) { return t(row.zh, row.en); }
 
 function MachineContext({
-  framed, t, typeOptions, machineType, setMachineType, brand, setBrand, model, setModel,
+  framed, onClose, t, typeOptions, machineType, setMachineType, brand, setBrand, model, setModel,
   isLoading, memory, profile, deviceName, setDeviceName, hours, setHours, deviceNotes, setDeviceNotes, progress, setProgress,
 }: {
   framed: boolean;
+  onClose?: () => void;
   t: (zh: string, en: string) => string;
   typeOptions: readonly string[];
   machineType: string;
@@ -534,7 +575,7 @@ function MachineContext({
       )}
       <div className="mb-3 flex items-center justify-between gap-3 text-xs font-medium text-primary">
         <span>{framed ? t('诊断上下文 · 请核对现场铭牌', 'Machine context · check the machine plate') : t('机具上下文', 'Machine context')}</span>
-        <Link to="/knowledge" className="underline underline-offset-4">{t('浏览资料', 'Browse evidence')}</Link>
+        <div className="flex items-center gap-2"><Link to="/knowledge" className="underline underline-offset-4">{t('浏览资料', 'Browse evidence')}</Link>{onClose && <button type="button" className="chat-context-close" aria-label={t('关闭机型设置', 'Close machine settings')} onClick={onClose}><X className="h-4 w-4" /></button>}</div>
       </div>
       <div className="chat-fields grid grid-cols-1 gap-2 sm:grid-cols-3">
         <select aria-label={t('农机类型', 'Machine type')} value={machineType} onChange={(event) => setMachineType(event.target.value)} disabled={isLoading || memory.busy} className="h-10 rounded-md border border-border bg-background px-3 text-sm text-foreground disabled:opacity-60">

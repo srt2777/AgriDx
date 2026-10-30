@@ -861,6 +861,13 @@
       "base": "4.0.19",
       "version": "4.0.20",
       "date": "2026-10-30"
+    },
+    {
+      "id": "chat-focus-layout-20261030",
+      "kind": "maintenance",
+      "base": "4.0.20",
+      "version": "4.0.21",
+      "date": "2026-10-30"
     }
   ]
 }
