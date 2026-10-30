@@ -868,6 +868,13 @@
       "base": "4.0.20",
       "version": "4.0.21",
       "date": "2026-10-30"
+    },
+    {
+      "id": "deepseek-preview-compat-20261030",
+      "kind": "fix",
+      "base": "4.0.21",
+      "version": "4.0.22",
+      "date": "2026-10-30"
     }
   ]
 }
