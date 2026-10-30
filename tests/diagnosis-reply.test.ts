@@ -95,3 +95,18 @@ test('named machines may use explicitly labelled general principles without acqu
   assert.deepEqual(reply.background?.[0].evidenceIds, ['TK-0001']);
   assert.match(renderDiagnosticReply(reply), /非本机结论/);
 });
+
+test('general sources with identical review status are grouped without losing IDs or different statuses', () => {
+  const general = { ...manual, sourceId: undefined, indexedReference: undefined, entryType: '通识学习',
+    diagnosticEvidence: false as const, retrieval: { tier: 'general' as const, basis: ['通用原理'], referenceOnly: true } };
+  const reply = plan([
+    { ...general, entryId: 'TK-A', status: '未逐条核验' },
+    { ...general, entryId: 'TK-B', status: '未逐条核验' },
+    { ...general, entryId: 'TK-C', status: '另有核验限制' },
+  ]);
+  assert.match(reply.sourceNote, /TK-A、TK-B（未逐条核验）/);
+  assert.match(reply.sourceNote, /TK-C（另有核验限制）/);
+  assert.equal((reply.sourceNote.match(/未逐条核验/g) || []).length, 1);
+  assert.match(reply.sourceNote, /通识（无手册页码）/);
+  assert.match(reply.sourceNote, /不能作为本机参数或维修操作依据/);
+});

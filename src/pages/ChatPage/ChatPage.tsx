@@ -34,6 +34,7 @@ import { MorphingPanel } from '@/components/motion/MorphingPanel';
 import { ThinkingOrbs } from '@/components/motion/ThinkingOrbs';
 import { useDiagnosisOrb } from '@/components/motion/useDiagnosisOrb';
 import { chatPathBadge, evidenceRows } from '@/features/chat/evidence';
+import { compactLegacyGeneralSourceNote } from '@/features/chat/presentation';
 import { useTelemetry } from '@/hooks/useTelemetry';
 
 export default function ChatPage() {
@@ -91,14 +92,31 @@ export default function ChatPage() {
   }, [llmHealth, setDiagnosisMode]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const threadRef = useRef<HTMLDivElement>(null);
+  const lastMessageRef = useRef<HTMLDivElement>(null);
+  const previousLastMessage = useRef<Pick<ChatMessage, 'id' | 'role'> | undefined>(undefined);
   const followThread = useRef(true);
   const [contextOpen, setContextOpen] = useState(() => typeof window !== 'undefined' && window.matchMedia('(min-width: 1101px)').matches);
 
   const scrollToBottom = useCallback(() => {
-    if (followThread.current) messagesEndRef.current?.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'nearest' });
-  }, []);
+    if (!followThread.current) return;
+    if (version === 'new' && threadRef.current) threadRef.current.scrollTo({ top: threadRef.current.scrollHeight, behavior: 'auto' });
+    else messagesEndRef.current?.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'nearest' });
+  }, [version]);
   useEffect(() => {
+    const last = messages.at(-1);
+    const previous = previousLastMessage.current;
+    previousLastMessage.current = last && { id: last.id, role: last.role };
     if (version === 'old' && messages.length === 0) return;
+    // When a long reply replaces its loading row, start at its beginning so the
+    // first diagnosis and safety guidance are not scrolled out of view.
+    if (version === 'new' && followThread.current && previous?.id === last?.id && previous?.role === 'loading' && last?.role !== 'loading') {
+      const thread = threadRef.current;
+      const message = lastMessageRef.current;
+      if (thread && message) {
+        thread.scrollTo({ top: thread.scrollTop + message.getBoundingClientRect().top - thread.getBoundingClientRect().top - 12, behavior: 'auto' });
+        return;
+      }
+    }
     scrollToBottom();
   }, [messages, scrollToBottom, version]);
 
@@ -162,6 +180,18 @@ export default function ChatPage() {
     isLoading, memory, profile, deviceName, setDeviceName, hours, setHours,
     deviceNotes, setDeviceNotes, progress, setProgress,
   };
+  const modeControl = <>
+    <label htmlFor="diagnosis-mode">{t('回答模式', 'Answer mode')}</label>
+    <select id="diagnosis-mode" value={diagnosisMode} disabled={isLoading || memory.busy} onChange={e => setDiagnosisMode(e.target.value as DiagnosisMode)} className="rounded-md border border-border bg-background px-2 py-1">
+      <option value="auto">{t('自动协调', 'Automatic')}</option>
+      <option value="knowledge_only">{t('仅本地知识库', 'Local knowledge only')}</option>
+      <option value="ai_assisted" disabled={typeof llmHealth !== 'object' || !llmHealth.configured || llmHealth.allowExternalAi === false}>{t('AI 辅助分析', 'AI-assisted analysis')}</option>
+    </select>
+  </>;
+  const telemetryControl = <>
+    <label className={`inline-flex min-h-11 cursor-pointer items-center gap-2${version === 'old' ? ' rounded-md border border-border px-3 py-2' : ''}`}><input type="checkbox" checked={includeTelemetry} onChange={event => setIncludeTelemetry(event.target.checked)} disabled={isLoading || memory.busy} />{t('携带仿真监测摘要', 'Attach simulated monitoring summary')}</label>
+    {includeTelemetry && <div className="min-w-0 rounded-md border border-amber-500/40 bg-amber-500/5 px-3 py-2"><p>{t('发送前预览；将发送给所选模型服务。', 'Preview before sending; it will be sent to the selected model service.')}</p><pre className="mt-1 max-h-20 overflow-auto whitespace-pre-wrap">{telemetrySummary?.text}</pre><p className="mt-1 font-medium">{t('以下为仿真演示数据，不是真实设备读数，不得据此给出确定性故障结论。', 'Simulation demo data, not real device readings; do not use it for a definitive fault conclusion.')}</p></div>}
+  </>;
 
   return (
     <div ref={workspaceRef} className={`flex h-[calc(100dvh-5.625rem)] flex-col chat-glass${version === 'new' ? ' is-premium' : ''}`}>
@@ -169,7 +199,7 @@ export default function ChatPage() {
       <LiquidGlass
         variant="regular"
         className="chat-bar-glass"
-        contentClassName="flex items-center justify-between border-b border-border/60 px-4 py-3 md:px-6"
+        contentClassName="chat-bar-content flex items-center justify-between border-b border-border/60 px-4 py-3 md:px-6"
       >
         <div className="flex items-center gap-2 min-w-0">
           <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
@@ -204,27 +234,28 @@ export default function ChatPage() {
         </AlertDialog>
       </LiquidGlass>
 
-      <div className="flex items-center gap-2 border-b border-border/60 px-4 py-2 text-xs">
-        <label htmlFor="diagnosis-mode">{t('回答模式', 'Answer mode')}</label>
-        <select id="diagnosis-mode" value={diagnosisMode} disabled={isLoading || memory.busy} onChange={e => setDiagnosisMode(e.target.value as DiagnosisMode)} className="rounded-md border border-border bg-background px-2 py-1">
-          <option value="auto">{t('自动协调', 'Automatic')}</option>
-          <option value="knowledge_only">{t('仅本地知识库', 'Local knowledge only')}</option>
-          <option value="ai_assisted" disabled={typeof llmHealth !== 'object' || !llmHealth.configured || llmHealth.allowExternalAi === false}>{t('AI 辅助分析', 'AI-assisted analysis')}</option>
-        </select>
-      </div>
-      <div className="flex flex-wrap items-start gap-2 border-b border-border/60 px-4 py-2 text-xs">
-        <label className="inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-md border border-border px-3 py-2"><input type="checkbox" checked={includeTelemetry} onChange={event => setIncludeTelemetry(event.target.checked)} disabled={isLoading || memory.busy} />{t('携带仿真监测摘要', 'Attach simulated monitoring summary')}</label>
-        {includeTelemetry && <div className="min-w-0 flex-1 rounded-md border border-amber-500/40 bg-amber-500/5 px-3 py-2"><p>{t('发送前预览；将发送给所选模型服务。', 'Preview before sending; it will be sent to the selected model service.')}</p><pre className="mt-1 max-h-20 overflow-auto whitespace-pre-wrap">{telemetrySummary?.text}</pre><p className="mt-1 font-medium">{t('以下为仿真演示数据，不是真实设备读数，不得据此给出确定性故障结论。', 'Simulation demo data, not real device readings; do not use it for a definitive fault conclusion.')}</p></div>}
-      </div>
-      <div className="chat-current-context">
-        <div className="min-w-0"><p className="truncate font-medium">{plate || t('尚未指定车型 · 可先描述现象', 'No model specified · describe the symptom first')}</p>{topic && <p className="truncate text-muted-foreground">{t('当前问题：', 'Current topic: ')}{topic.slice(0, 100)}</p>}</div>
-        <Button type="button" variant="ghost" size="sm" className="shrink-0 gap-1" aria-expanded={contextOpen} aria-controls="chat-machine-context" onClick={() => setContextOpen(open => !open)}><Settings2 className="h-4 w-4" />{t('车型与记录', 'Machine & history')}</Button>
+      {version === 'old' && <>
+        <div className="flex items-center gap-2 border-b border-border/60 px-4 py-2 text-xs">{modeControl}</div>
+        <div className="flex flex-wrap items-start gap-2 border-b border-border/60 px-4 py-2 text-xs">{telemetryControl}</div>
+      </>}
+      <div className={`chat-current-context${version === 'new' ? ' is-compact' : ''}`}>
+        <div className="min-w-0"><p className="truncate font-medium">{plate || (version === 'new' ? t('未指定机型', 'No model specified') : t('尚未指定车型 · 可先描述现象', 'No model specified · describe the symptom first'))}</p>{version === 'old' && topic && <p className="truncate text-muted-foreground">{t('当前问题：', 'Current topic: ')}{topic.slice(0, 100)}</p>}</div>
+        <div className="chat-context-actions">
+          {version === 'new' && <details className="chat-settings">
+            <summary>{t('回答设置', 'Answer settings')}{includeTelemetry && <span className="chat-settings-active">{t('仿真已附', 'Simulation on')}</span>}</summary>
+            <div className="chat-settings-panel">
+              <div className="chat-mode-control">{modeControl}</div>
+              <div className="chat-telemetry-control">{telemetryControl}</div>
+            </div>
+          </details>}
+          <Button type="button" variant="ghost" size="sm" className="shrink-0 gap-1" aria-expanded={contextOpen} aria-controls="chat-machine-context" onClick={() => setContextOpen(open => !open)}><Settings2 className="h-4 w-4" />{t('车型与记录', 'Machine & history')}</Button>
+        </div>
       </div>
       <div className={version === 'new' ? `chat-workspace${contextOpen ? '' : ' is-context-closed'}` : 'flex min-h-0 flex-1 flex-col'}>
       <div className={version === 'new' ? 'chat-thread' : 'contents'}>
       {/* 消息列表 */}
       <div ref={threadRef} onScroll={() => { const node = threadRef.current; if (node) followThread.current = node.scrollHeight - node.scrollTop - node.clientHeight < 100; }} className="min-h-0 flex-1 overflow-y-auto" role="log" aria-label={t('诊断对话', 'Diagnosis conversation')} aria-live="polite">
-        <div className="mx-auto max-w-3xl px-4 py-6 md:px-6">
+        <div className="chat-message-list mx-auto max-w-3xl px-4 py-6 md:px-6">
               {version !== 'new' && contextOpen && <div id="chat-machine-context"><MachineContext framed {...contextProps} /></div>}
 
           {/* 空状态 / 欢迎态 */}
@@ -262,6 +293,7 @@ export default function ChatPage() {
           {messages.map((msg) => (
             <div
               key={msg.id}
+              ref={msg.id === messages.at(-1)?.id ? lastMessageRef : undefined}
               className={`chat-message mb-4 flex ${msg.role === 'user' ? 'is-user justify-end' : 'is-reply justify-start'}${msg.role === 'loading' ? ' is-thinking' : ''}${msg.role === 'assistant' ? ' is-answer' : ''}`}
             >
               {msg.role !== 'user' && (
@@ -313,7 +345,7 @@ export default function ChatPage() {
       <LiquidGlass
         variant="regular"
         className="chat-input-glass"
-        contentClassName="border-t border-border/60 px-4 py-4 md:px-6"
+        contentClassName="chat-input-content border-t border-border/60 px-4 py-4 md:px-6"
       >
         <form onSubmit={handleSubmit} className="chat-composer mx-auto max-w-3xl">
           <details className="chat-input-extras mb-2 text-xs"><summary className="cursor-pointer py-1">{t('补充发动机、故障码或文本报告（选填）', 'Add engine, fault codes or a text report (optional)')}</summary>
@@ -382,6 +414,7 @@ function DiagnosticAnswer({ message, t, onAnswer, disabled }: {
     : source.evidenceKind === 'prompt' ? t('信息收集提示（非手册）', 'Information prompt (not a manual)')
     : [source.sourceTitle || source.sourceId || source.source, source.pages?.pdf ? t(`PDF第${source.pages.pdf}页`, `PDF p. ${source.pages.pdf}`) : '', source.pages?.printed ? t(`印刷第${source.pages.printed}页`, `Printed p. ${source.pages.printed}`) : ''].filter(Boolean).join(' · ');
   const used = sources.filter(source => source.usage === 'answer-evidence');
+  const usedLabels = [...new Set(used.map(sourceLabel))];
   const rows = evidenceRows(message.roleFlow, sources);
   const badge = chatPathBadge(message.coordination, message.fallbackReason, message.provider);
   const badgeLabel = {
@@ -408,22 +441,22 @@ function DiagnosticAnswer({ message, t, onAnswer, disabled }: {
     <div className="mb-3 flex flex-wrap items-center gap-2 text-xs" role="status"><span className="rounded-full border border-border px-2 py-1 font-medium">{badgeLabel}</span>{badgeReason && <span className="text-muted-foreground">{badgeReason}</span>}</div>
     {reply ? <>
       <p className="whitespace-pre-wrap">{reply.understanding}</p>
-      {!!reply.background?.length && <section className="mt-4"><h3 className="mb-2 font-semibold">{t('通用原理参考（非本机结论，需核对）', 'General principles (not a vehicle diagnosis; verify)')}</h3>{reply.background.map((item, index) => <p key={index} className="mt-2">{item.text}</p>)}</section>}
+      {!!reply.background?.length && <details className="chat-answer-extra mt-4" open={!reply.causes.length && !reply.suggestions.length && !reply.aiSupplement}><summary>{t('通用原理参考（非本机结论，需核对）', 'General principles (not a vehicle diagnosis; verify)')}</summary>{reply.background.map((item, index) => <p key={index} className="mt-2">{item.text}</p>)}</details>}
       {reply.causes.length > 0 && <section className="mt-4"><h3 className="mb-2 font-semibold">{t('可能原因，仍需核实', 'Possible causes to verify')}</h3><ul className="space-y-2 pl-4 list-disc">{reply.causes.map((cause, index) => <li key={index}>{cause.text}{cause.basis === 'general_hypothesis' && <span className="ml-1 text-xs text-muted-foreground">{t('（通用分析，非本机结论）', ' (general analysis, not a vehicle diagnosis)')}</span>}</li>)}</ul></section>}
       {reply.aiSupplement && <section className="mt-4"><h3 className="mb-2 font-semibold">{t('AI 补充分析（推断，需核对）', 'AI analysis (inference, verify before use)')}</h3><div className="prose prose-sm max-w-none overflow-x-auto dark:prose-invert"><DeferredMarkdown>{reply.aiSupplement}</DeferredMarkdown></div></section>}
       {reply.suggestions.length > 0 && <section className="mt-4"><h3 className="mb-2 font-semibold">{t('建议先做', 'Suggested next steps')}</h3><ol className="list-decimal space-y-2 pl-5">{[...reply.suggestions].sort((a, b) => a.priority - b.priority).map((suggestion, index) => <li key={index}>{suggestion.text}</li>)}</ol></section>}
-      {reply.sourceNote && <p className="mt-3 text-xs leading-relaxed text-muted-foreground">{reply.sourceNote}</p>}
+      {reply.sourceNote && <p className="mt-3 text-xs leading-relaxed text-muted-foreground">{compactLegacyGeneralSourceNote(reply.sourceNote)}</p>}
       {reply.questions.length > 0 && <section className="chat-follow-up mt-4"><h3 className="mb-2 font-semibold">{t('再确认一下', 'A couple of questions')}</h3>{reply.questions.slice(0, 2).map((question, index) => <div key={index} className="mt-3"><p>{question.text}</p>{question.options?.length ? <div className="mt-2 flex flex-wrap gap-2">{question.options.slice(0, 6).map((option, optionIndex) => <button key={optionIndex} type="button" disabled={disabled} className="chat-follow-up-option rounded-lg border border-border bg-background px-3 py-2 text-left text-sm hover:border-primary disabled:opacity-50" onClick={() => onAnswer(`补充：${option}`)}>{option}</button>)}</div> : null}</div>)}</section>}
-      <section className="chat-follow-up mt-4"><h3 className="mb-2 font-semibold">{t('补充适用条件', 'Add applicability')}</h3><div className="flex flex-wrap gap-2">{contextFollowups.map(option => <button key={option} type="button" disabled={disabled} className="chat-follow-up-option min-h-11 rounded-lg border border-border bg-background px-3 py-2 text-left text-sm hover:border-primary disabled:opacity-50" onClick={() => onAnswer(`补充：${option}`)}>{option}</button>)}</div></section>
+      <details className="chat-answer-extra chat-follow-up mt-4"><summary>{t('补充适用条件', 'Add applicability')}</summary><div className="mt-2 flex flex-wrap gap-2">{contextFollowups.map(option => <button key={option} type="button" disabled={disabled} className="chat-follow-up-option min-h-11 rounded-lg border border-border bg-background px-3 py-2 text-left text-sm hover:border-primary disabled:opacity-50" onClick={() => onAnswer(`补充：${option}`)}>{option}</button>)}</div></details>
     </> : <div className="prose prose-sm max-w-none overflow-x-auto dark:prose-invert"><DeferredMarkdown>{message.localSummary || message.content}</DeferredMarkdown></div>}
-    {used.length > 0 && <p className="mt-4 border-t border-border/50 pt-2 text-xs text-muted-foreground">{t('依据：', 'Evidence: ')}{used.slice(0, 2).map(sourceLabel).join('；')}{used.length > 2 ? t(`，另${used.length - 2}条见详情`, `; ${used.length - 2} more in details`) : ''}</p>}
-    {message.role === 'assistant' && <section className="chat-evidence mt-4 border-t border-border/50 pt-3" aria-label={t('证据路径', 'Evidence path')}>
-      <h3 className="mb-3 text-sm font-semibold">{t('证据路径：现象→原因→检查→处理→复检', 'Evidence path: phenomenon → cause → check → action → retest')}</h3>
-      <div className="grid gap-2 md:grid-cols-5">{rows.map(row => <section key={row.id} className="rounded-md border border-border/60 p-2"><h4 className="font-medium">{langLabel(row, t)}</h4>{row.items.length ? <ul className="mt-2 space-y-2 text-xs">{row.items.map(item => <li key={item.entryId}><p className="text-foreground">{item.heading}</p><p>{item.source?.sourceTitle || item.source?.source || t('来源待核实', 'Source pending')}</p><p>{item.source?.pages?.pdf ? t(`PDF第${item.source.pages.pdf}页`, `PDF p. ${item.source.pages.pdf}`) : t('页码待核实', 'Page pending')}</p><p>{item.source?.scopeBoundary || t('适用范围待核实', 'Scope pending')}</p></li>)}</ul> : <p className="mt-2 text-xs text-muted-foreground">{t('暂无资料', 'No evidence yet')}</p>}</section>)}</div>
-    </section>}
+    {usedLabels.length > 0 && <p className="mt-4 border-t border-border/50 pt-2 text-xs text-muted-foreground">{t('依据：', 'Evidence: ')}{usedLabels.slice(0, 2).join('；')}{usedLabels.length > 2 ? t(`，另${usedLabels.length - 2}项见详情`, `; ${usedLabels.length - 2} more in details`) : ''}</p>}
     {message.role === 'assistant' && <details className="chat-evidence mt-4 border-t border-border/50 pt-3">
-      <summary className="cursor-pointer text-xs font-medium">{t('诊断依据与技术详情', 'Evidence and technical details')}{sources.length ? ` · ${sources.length}` : ''}</summary>
+      <summary className="cursor-pointer text-xs font-medium">{t('查看依据与证据路径', 'View evidence and evidence path')}{sources.length ? ` (${sources.length})` : ''}</summary>
       <div className="chat-evidence-body mt-3 space-y-4 text-xs leading-relaxed text-muted-foreground">
+        <section aria-label={t('证据路径', 'Evidence path')}>
+          <h3 className="mb-3 text-sm font-semibold text-foreground">{t('证据路径：现象 → 原因 → 检查 → 处理 → 复检', 'Evidence path: phenomenon → cause → check → action → retest')}</h3>
+          <div className="chat-evidence-grid">{rows.map(row => <section key={row.id} className="rounded-md border border-border/60 p-2"><h4 className="font-medium text-foreground">{langLabel(row, t)}</h4>{row.items.length ? <ul className="mt-2 space-y-2 text-xs">{row.items.map(item => <li key={item.entryId}><p className="text-foreground">{item.heading}</p><p>{item.source?.sourceTitle || item.source?.source || t('来源待核实', 'Source pending')}</p><p>{item.source?.pages?.pdf ? t(`PDF第${item.source.pages.pdf}页`, `PDF p. ${item.source.pages.pdf}`) : t('页码待核实', 'Page pending')}</p><p>{item.source?.scopeBoundary || t('适用范围待核实', 'Scope pending')}</p></li>)}</ul> : <p className="mt-2 text-xs text-muted-foreground">{t('暂无资料', 'No evidence yet')}</p>}</section>)}</div>
+        </section>
         {sources.length ? <ol className="space-y-4">{sources.map((source, index) => <li key={`${source.entryId || source.source}-${index}`} className="rounded-md border border-border/60 p-3">
           <p className="font-medium text-foreground">{index + 1}. {source.heading}</p><p>{sourceLabel(source)}</p>
           <p>{[source.entryId, source.sourceId, source.version].filter(Boolean).join(' · ')}</p>
