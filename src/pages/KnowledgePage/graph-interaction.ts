@@ -22,6 +22,14 @@ export function fitGraph(camera: GraphCamera) {
   camera.targetYaw = -.13; camera.targetPitch = -.08;
   camera.velocityYaw = 0; camera.velocityPitch = 0;
 }
+/** Center an already projected point without changing the user's current zoom. */
+export function centerGraphPoint(camera: GraphCamera, point: { x: number; y: number }, width: number, height: number) {
+  if (![point.x, point.y, width, height].every(Number.isFinite) || width <= 0 || height <= 0) return;
+  camera.targetPanX = camera.panX + width / 2 - point.x;
+  camera.targetPanY = camera.panY + height * .49 - point.y;
+  camera.targetYaw = camera.yaw; camera.targetPitch = camera.pitch; camera.targetZoom = camera.zoom;
+  camera.velocityYaw = 0; camera.velocityPitch = 0;
+}
 export function cameraMoving(camera: GraphCamera) {
   return Math.abs(camera.zoom - camera.targetZoom) > .001 || Math.abs(camera.panX - camera.targetPanX) + Math.abs(camera.panY - camera.targetPanY) > .1 || Math.abs(camera.yaw - camera.targetYaw) + Math.abs(camera.pitch - camera.targetPitch) > .0005 || Math.abs(camera.velocityYaw) + Math.abs(camera.velocityPitch) > .002;
 }

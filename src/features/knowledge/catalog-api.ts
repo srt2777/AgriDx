@@ -68,6 +68,22 @@ function isLibrary(value: unknown): boolean {
     new Set(value.entries.map(entry => entry.entryId)).size === value.entries.length;
 }
 
+/** Verify disjoint totals and unique topic identities before using them for graph navigation. */
+function isOrganization(value: unknown, totals: Record<string, unknown>): boolean {
+  if (!isRecord(value) || !isRecord(value.counts) || !Array.isArray(value.archiveTypes) || !Array.isArray(value.topics)) return false;
+  const { counts, archiveTypes, topics } = value;
+  if (!['archive', 'general', 'terminology'].every(key => isCount(counts[key])) ||
+    counts.archive !== totals.archivedEntries || Number(counts.general) + Number(counts.terminology) !== totals.learningEntries) return false;
+  if (!archiveTypes.every(item => isRecord(item) && typeof item.name === 'string' && Boolean(item.name.trim()) && isCount(item.count)) ||
+    !topics.every(item => isRecord(item) && (item.kind === 'general' || item.kind === 'terminology') &&
+      typeof item.name === 'string' && Boolean(item.name.trim()) && item.name.length <= 100 && isCount(item.count))) return false;
+  if (new Set(archiveTypes.map(item => item.name)).size !== archiveTypes.length ||
+    new Set(topics.map(item => JSON.stringify([item.kind, item.name]))).size !== topics.length) return false;
+  return archiveTypes.reduce((sum, item) => sum + Number(item.count), 0) === counts.archive &&
+    topics.filter(item => item.kind === 'general').reduce((sum, item) => sum + Number(item.count), 0) === counts.general &&
+    topics.filter(item => item.kind === 'terminology').reduce((sum, item) => sum + Number(item.count), 0) === counts.terminology;
+}
+
 /** Validate every nested collection consumed by the four-level browser before rendering it. */
 export function parseKnowledgeCatalog(value: unknown): KnowledgeCatalog {
   if (!isRecord(value) || !isRecord(value.totals)) throw new Error('Invalid knowledge catalog');
@@ -77,6 +93,7 @@ export function parseKnowledgeCatalog(value: unknown): KnowledgeCatalog {
     !Array.isArray(value.brands) || !value.brands.every(isBrand) || !isStrings(value.limitations) ||
     !isRecord(value.expansion) || value.expansion.targetLabel !== '1w+' ||
     value.expansion.countingUnit !== 'indexed-entry' || !['planned', 'reached'].includes(String(value.expansion.status)) ||
+    (value.organization !== undefined && !isOrganization(value.organization, totals)) ||
     (value.library !== undefined && !isLibrary(value.library)) ||
     (value.selected !== undefined && !isSelection(value.selected)) ||
     (value.common !== undefined && !isCommonFramework(value.common))) {

@@ -34,6 +34,11 @@ export class KnowledgeEngineRenderer {
   pick(x: number, y: number) {
     return [...this.hits].reverse().find(hit => hit.width ? x >= hit.x && x <= hit.x + hit.width && Math.abs(y - hit.y) <= 12 : Math.hypot(hit.x - x, hit.y - y) <= Math.max(5, hit.radius + 3));
   }
+  /** Includes off-canvas points so a directory or search selection can be centered. */
+  point(index: number) {
+    const point = this.points[index];
+    return point?.visible ? { x: point.x, y: point.y } : undefined;
+  }
   draw(scene: EngineScene) {
     const { canvas, context: c, network, points } = this;
     const { width, height } = canvas.getBoundingClientRect();

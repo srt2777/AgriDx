@@ -19,6 +19,7 @@ import { ErrorBoundary } from 'react-error-boundary';
 import { catalogDistributions } from '@/features/knowledge/catalog-distributions';
 import '@/control-glass.css';
 import './catalog-distributions.css';
+import './knowledge-organize.css';
 
 const CatalogDistributions = lazy(() => import('./CatalogDistributions'));
 const INFORMATION_TYPES = new Set(['资料索引', '资料核验', '机型资料', '资料缺口', '系统适用边界']);
@@ -35,7 +36,7 @@ export default function KnowledgePage() {
   const query = new URLSearchParams();
   CATALOG_FILTER_KEYS.forEach(key => { const value = params.get(key); if (value) query.set(key, value); });
   if (!machineView && !graphView) query.set('collection', params.get('collection') || 'all');
-  else ['collection', 'q', 'page'].forEach(key => query.delete(key));
+  else ['collection', 'kind', 'topic', 'entryType', 'q', 'page'].forEach(key => query.delete(key));
   const { catalog, loading, failed, retry } = useKnowledgeCatalog(query.toString());
   const brand = catalog?.brands.find(item => item.id === params.get('brand'));
   const model = brand?.models.find(item => item.id === params.get('model'));
@@ -93,7 +94,8 @@ export default function KnowledgePage() {
 
       {graphView && !loading && !failed && catalog && <KnowledgeGraph catalog={catalog} lang={lang} />}
 
-      {!loading && !failed && !graphView && !machineView && catalog?.library && <KnowledgeLibraryBrowser library={catalog.library} lang={lang} onChange={values => {
+      {!loading && !failed && !graphView && !machineView && catalog?.library && <KnowledgeLibraryBrowser library={catalog.library} organization={catalog.organization}
+        filters={{ kind: params.get('kind') ?? (params.get('collection') === 'archive' ? 'archive' : undefined), topic: params.get('topic') ?? undefined, entryType: params.get('entryType') ?? undefined }} lang={lang} onChange={values => {
         const next = new URLSearchParams(params);
         next.delete('page');
         for (const [key, value] of Object.entries(values)) { if (value) next.set(key, value); else next.delete(key); }

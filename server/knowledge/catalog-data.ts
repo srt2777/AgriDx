@@ -1,7 +1,7 @@
 import type {
   CatalogBrand, CatalogComponent, CatalogCounts, CatalogEntry, CatalogFilters,
   CatalogModel, CatalogPart, KnowledgeCatalog,
-  KnowledgeLibrary, LearningEntry, LibraryEntry, RoleCoverage, RiskCoverage,
+  KnowledgeLibrary, KnowledgeOrganization, LearningEntry, LibraryEntry, LibraryKind, RoleCoverage, RiskCoverage,
 } from '../../shared/knowledge-catalog';
 import { canonicalCatalogBrand } from '../../shared/knowledge-catalog';
 import type { ArchiveSource } from './archive';
@@ -31,6 +31,31 @@ interface CatalogState {
   sources: Map<string, SourceMetadata>;
   commonDefinition: CommonFrameworkDefinition;
   library: { entry: LibraryEntry; searchable: string }[];
+}
+
+/** Group the existing records exactly once; no facts, causal edges or applicability are inferred. */
+function organizeLibrary(archived: LibraryEntry[], learning: LearningEntry[]): KnowledgeOrganization {
+  const counts: KnowledgeOrganization['counts'] = { archive: archived.length, general: 0, terminology: 0 };
+  const archiveTypes = new Map<string, number>();
+  const topics = new Map<string, { kind: 'general' | 'terminology'; name: string; count: number }>();
+  for (const entry of archived) archiveTypes.set(entry.entryType, (archiveTypes.get(entry.entryType) ?? 0) + 1);
+  for (const entry of learning) {
+    const kind = entry.learningKind === 'terminology' ? 'terminology' : 'general';
+    counts[kind]++;
+    const key = JSON.stringify([kind, entry.topic]);
+    const item = topics.get(key) ?? { kind, name: entry.topic, count: 0 };
+    item.count++;
+    topics.set(key, item);
+  }
+  return {
+    counts,
+    archiveTypes: [...archiveTypes].map(([name, count]) => ({ name, count })).sort((a, b) => a.name.localeCompare(b.name, 'zh-CN')),
+    topics: [...topics.values()].sort((a, b) => a.kind.localeCompare(b.kind) || a.name.localeCompare(b.name, 'zh-CN')),
+  };
+}
+
+function libraryKind(entry: LibraryEntry): LibraryKind {
+  return entry.collection === 'archive' ? 'archive' : entry.learningKind === 'terminology' ? 'terminology' : 'general';
 }
 
 function roleCoverage(chunks: KnowledgeChunk[]): RoleCoverage {
@@ -196,6 +221,7 @@ export function buildKnowledgeCatalog(chunks: KnowledgeChunk[], sourceRecords: A
   };
   const archived: LibraryEntry[] = chunks.map(chunk => ({ ...asEntry(chunk), collection: 'archive',
     brand: chunk.brand!, models: modelsOf(chunk, sources) }));
+  catalog.organization = organizeLibrary(archived, learning);
   // Interleave both collections so the common entrance immediately exposes both.
   const combined: LibraryEntry[] = [];
   for (let index = 0; index < Math.max(archived.length, learning.length); index++) {
@@ -209,7 +235,7 @@ export function buildKnowledgeCatalog(chunks: KnowledgeChunk[], sourceRecords: A
   const state = { catalog, chunks, links, sources, commonDefinition, library };
   return (filters = {}) => {
     const selected = selectKnowledgeCatalog(state, filters);
-    return filters.collection || filters.q || filters.page || filters.role
+    return filters.collection || filters.kind || filters.topic || filters.entryType || filters.q || filters.page || filters.role
       ? { ...selected, library: selectLibrary(state, filters) } : selected;
   };
 }
@@ -222,6 +248,9 @@ function selectLibrary(state: CatalogState, filters: CatalogFilters): KnowledgeL
   const terms = normalizeSearch(query).split(/\s+/).filter(Boolean);
   const matches = state.library.filter(({ entry, searchable }) =>
     (collection === 'all' || entry.collection === collection) &&
+    (!filters.kind || libraryKind(entry) === filters.kind) &&
+    (!filters.topic || (entry.collection === 'learning' && entry.topic === filters.topic)) &&
+    (!filters.entryType || (entry.collection === 'archive' && entry.entryType === filters.entryType)) &&
     (!filters.role || (entry.collection === 'archive' && Boolean(entry.roles?.includes(filters.role)))) && terms.every(term => searchable.includes(term)));
   const pageSize = 20;
   const requested = Number(filters.page ?? '1');

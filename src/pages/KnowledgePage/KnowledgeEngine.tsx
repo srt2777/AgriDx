@@ -4,19 +4,21 @@ import { useUiCopy } from '@/ui/useUiCopy';
 import type { KnowledgeCatalog } from '@shared/knowledge-catalog';
 import type { TaxonomyNode } from './knowledge-taxonomy-data';
 import { createGraphFlowLoop } from './graph-flow-loop';
-import { cameraMoving, createGraphCamera, fitGraph, stepGraphCamera, zoomGraph } from './graph-interaction';
+import { cameraMoving, centerGraphPoint, createGraphCamera, fitGraph, stepGraphCamera, zoomGraph } from './graph-interaction';
 import { indexEngineCatalog, selectEngineCatalog } from './knowledge-engine-catalog';
-import { catalogNetwork } from './knowledge-engine-model';
+import { catalogNetwork, learningNetwork } from './knowledge-engine-model';
 import { KnowledgeEngineRenderer } from './knowledge-engine-renderer';
 import './knowledge-engine.css';
 const levelLabels = { brand: ['品牌', 'Brand'], model: ['机型 / 系列', 'Model / series'], component: ['系统 / 组件', 'System / component'], part: ['零部件', 'Part'] } as const;
-export default function KnowledgeEngine({ nodes, selectedId, onSelect, lang, onRelations }: {
+export default function KnowledgeEngine({ nodes, selectedId, onSelect, lang, onRelations, mode = 'archive', enabled = true }: {
     nodes: TaxonomyNode[];
     selectedId: string;
     onSelect: (id: string) => void;
     catalog: KnowledgeCatalog;
     lang: string;
     onRelations: () => void;
+    mode?: 'archive' | 'learning';
+    enabled?: boolean;
 }) {
     const { t } = useUiCopy(lang);
     const reduced = !!useReducedMotion();
@@ -31,12 +33,14 @@ export default function KnowledgeEngine({ nodes, selectedId, onSelect, lang, onR
         y: number;
     }>());
     const gesture = useRef({ startX: 0, startY: 0, x: 0, y: 0, moved: false, pinched: false, distance: 0, pan: false });
-    const network = useMemo(() => catalogNetwork(nodes), [nodes]);
+    const network = useMemo(() => mode === 'learning' ? learningNetwork(nodes) : catalogNetwork(nodes), [nodes, mode]);
     const active = useMemo(() => network.nodes.findIndex(node => node.id === selectedId), [network, selectedId]);
     const activeNode = network.nodes[active];
     const index = useMemo(() => indexEngineCatalog(nodes), [nodes]);
     const view = useMemo(() => selectEngineCatalog(index, selectedId), [index, selectedId]);
     const activeTaxonomy = view.selected;
+    const selectedLevel = mode === 'learning' ? activeTaxonomy?.level === 'brand' ? t('资料分类', 'Collection') : t('学习主题', 'Learning topic')
+        : activeTaxonomy ? t(levelLabels[activeTaxonomy.level][0], levelLabels[activeTaxonomy.level][1]) : '';
     const scopeLabel = activeTaxonomy?.scope === 'exact' ? t('具体型号', 'Specific model') : activeTaxonomy?.scope === 'series' ? t('系列范围', 'Series scope') : activeTaxonomy?.scope === 'pending' ? t('待核实', 'Unconfirmed') : t('目录分类', 'Catalog');
     const latest = useRef({ running, active, reduced });
     useLayoutEffect(() => { latest.current = { running, active, reduced }; wake.current(); }, [running, active, reduced]);
@@ -64,7 +68,7 @@ export default function KnowledgeEngine({ nodes, selectedId, onSelect, lang, onR
         let visible = true, dirty = true, lastReport = 0;
         const render = (delta = 0) => {
             const state = latest.current;
-            if (state.running && !state.reduced && !pointers.current.size)
+            if (state.running && state.active < 0 && !state.reduced && !pointers.current.size)
                 clock.current = clock.current + delta;
             stepGraphCamera(camera.current, Math.max(delta, 1 / 60), state.reduced);
             engine.draw({ time: clock.current, active: state.active, animate: !state.reduced, camera: camera.current, tooltip: tooltip.current });
@@ -74,7 +78,7 @@ export default function KnowledgeEngine({ nodes, selectedId, onSelect, lang, onR
                 lastReport = performance.now();
             }
         };
-        const loop = createGraphFlowLoop({ active: () => visible && !document.hidden && (dirty || cameraMoving(camera.current) || latest.current.running && !latest.current.reduced), render, request: requestAnimationFrame, cancel: cancelAnimationFrame });
+        const loop = createGraphFlowLoop({ active: () => visible && !document.hidden && (dirty || cameraMoving(camera.current) || latest.current.running && latest.current.active < 0 && !latest.current.reduced), render, request: requestAnimationFrame, cancel: cancelAnimationFrame });
         wake.current = () => { dirty = true; render(); loop.start(); };
         const resize = new ResizeObserver(() => wake.current());
         resize.observe(element);
@@ -99,6 +103,15 @@ export default function KnowledgeEngine({ nodes, selectedId, onSelect, lang, onR
         return () => { resize.disconnect(); intersection.disconnect(); loop.stop(); document.removeEventListener('visibilitychange', visibility); element.removeEventListener('wheel', wheel); wake.current = () => { }; renderer.current = null; };
         // Selection is read from latest so changing a card does not rebuild the 3k-node network.
     }, [network]);
+    useEffect(() => {
+        if (!enabled || active < 0 || !renderer.current || !canvas.current) return;
+        // Project after the new selection so even a detail hidden by level-of-detail is addressable.
+        wake.current();
+        const point = renderer.current.point(active), bounds = canvas.current.getBoundingClientRect();
+        if (!point || !bounds.width || !bounds.height) return;
+        centerGraphPoint(camera.current, point, bounds.width, bounds.height);
+        wake.current();
+    }, [active, network, enabled]);
     const pointerDown = (event: React.PointerEvent<HTMLCanvasElement>) => {
         event.currentTarget.setPointerCapture(event.pointerId);
         pointers.current.set(event.pointerId, { x: event.clientX, y: event.clientY });
@@ -116,6 +129,7 @@ export default function KnowledgeEngine({ nodes, selectedId, onSelect, lang, onR
             const rect = event.currentTarget.getBoundingClientRect();
             const hit = renderer.current?.pick(event.clientX - rect.left, event.clientY - rect.top);
             event.currentTarget.style.cursor = hit ? 'pointer' : 'grab';
+            event.currentTarget.title = hit ? network.nodes[hit.index]?.label ?? '' : '';
             return;
         }
         pointers.current.set(event.pointerId, { x: event.clientX, y: event.clientY });
@@ -169,7 +183,7 @@ export default function KnowledgeEngine({ nodes, selectedId, onSelect, lang, onR
       <button aria-pressed={running && !reduced} disabled={reduced} onClick={() => setRunning(value => !value)}>{reduced ? t('减少动态', 'Reduced motion') : running ? t('暂停', 'Pause') : t('播放', 'Play')}</button>
       <button onClick={() => zoom(1.4)} aria-label={t('放大图谱', 'Zoom in')}>＋</button><output aria-label={t('当前缩放比例', 'Current zoom')}>{zoomPercent}%</output><button onClick={() => zoom(1 / 1.4)} aria-label={t('缩小图谱', 'Zoom out')}>−</button>
       <button onClick={reset}>{t('复位', 'Reset')}</button><button onClick={() => { void fullScreen().catch(() => { }); }}>{t('全屏', 'Fullscreen')}</button>
-      <button onClick={onRelations}>{t('关系聚焦', 'Focus relations')}</button>
+      <button onClick={onRelations}>{mode === 'learning' ? t('打开知识目录', 'Open knowledge catalog') : t('关系聚焦', 'Focus relations')}</button>
     </div>
     <div className="knowledge-engine" ref={root} data-mode="catalog" data-phase={'CATALOG'}>
       <div className="engine-stage">
@@ -197,12 +211,12 @@ export default function KnowledgeEngine({ nodes, selectedId, onSelect, lang, onR
       </div>
       <div className="engine-dashboard">
         <Panel title={t('目录', 'Directory')} count={view.children.length}>
-          <div className="engine-directory-nav" ref={directory} tabIndex={-1} role="group" aria-label={t('当前下级目录', 'Current directory')}><button onClick={event => selectDirectory(activeTaxonomy?.parent ?? '', event.detail === 0)} disabled={!activeTaxonomy}>{t('返回上级', 'Parent')}</button><span>{activeTaxonomy?.label ?? t('全部品牌', 'All brands')}</span></div>
+          <div className="engine-directory-nav" ref={directory} tabIndex={-1} role="group" aria-label={t('当前下级目录', 'Current directory')}><button onClick={event => selectDirectory(activeTaxonomy?.parent ?? '', event.detail === 0)} disabled={!activeTaxonomy}>{t('返回上级', 'Parent')}</button><span>{activeTaxonomy?.label ?? (mode === 'learning' ? t('全部学习资料', 'All learning materials') : t('全部品牌', 'All brands'))}</span></div>
           <div className="engine-queue">{view.children.map(node => <button key={node.id} onClick={event => selectDirectory(node.id, event.detail === 0)}><span>{node.label}</span><b>{node.count ? node.count.toLocaleString() : t('待补资料', 'No entries')}</b></button>)}</div>
           {!view.children.length && <p className="engine-empty">{t('已到末级目录，请查看节点资料。', 'End of this branch. Review the node details.')}</p>}
         </Panel>
         <Panel title={t('节点资料', 'Node details')}>
-          {activeTaxonomy ? <div className="engine-inspector"><h4>{sourceTitle}</h4><p className="engine-node-path">{view.path.map(node => node.label).join(' / ')}</p><dl><dt>{t('关联资料', 'Linked entries')}</dt><dd>{activeTaxonomy.count.toLocaleString()}</dd><dt>{t('层级', 'Level')}</dt><dd>{t(levelLabels[activeTaxonomy.level][0], levelLabels[activeTaxonomy.level][1])}</dd><dt>{t('适用范围', 'Scope')}</dt><dd>{scopeLabel}</dd></dl>{activeTaxonomy.scope === 'series' && <p>{t('系列资料需核对具体型号与配置。', 'Check the specific model and configuration for series evidence.')}</p>}{!activeTaxonomy.count && <p>{t('此目录暂未关联资料。', 'No evidence linked to this node yet.')}</p>}<button className="engine-evidence-action" onClick={onRelations}>{t('查看原文与关系', 'View evidence and relations')}</button></div> : <p className="engine-empty">{t('选择图谱节点或目录，查看关联资料。', 'Select a graph node or directory to review evidence.')}</p>}
+          {activeTaxonomy ? <div className="engine-inspector"><h4>{sourceTitle}</h4><p className="engine-node-path">{view.path.map(node => node.label).join(' / ')}</p><dl><dt>{t('关联资料', 'Linked entries')}</dt><dd>{activeTaxonomy.count.toLocaleString()}</dd><dt>{t('层级', 'Level')}</dt><dd>{selectedLevel}</dd><dt>{t('适用范围', 'Scope')}</dt><dd>{mode === 'learning' ? t('通识 / 术语参考', 'General / terminology reference') : scopeLabel}</dd></dl>{activeTaxonomy.scope === 'series' && <p>{t('系列资料需核对具体型号与配置。', 'Check the specific model and configuration for series evidence.')}</p>}{!activeTaxonomy.count && <p>{t('此目录暂未关联资料。', 'No evidence linked to this node yet.')}</p>}<button className="engine-evidence-action" onClick={onRelations}>{mode === 'learning' ? t('查看主题条目', 'View topic entries') : t('查看原文与关系', 'View evidence and relations')}</button></div> : <p className="engine-empty">{t('选择图谱节点或目录，查看关联资料。', 'Select a graph node or directory to review evidence.')}</p>}
         </Panel>
       </div>
     </div>

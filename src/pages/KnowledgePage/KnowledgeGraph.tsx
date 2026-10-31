@@ -6,9 +6,22 @@ import { useKnowledgeCatalog } from '@/hooks/useKnowledgeCatalog';
 import { taxonomyNodes, visibleTaxonomyNodes, type TaxonomyNode } from './knowledge-taxonomy-data';
 import TaxonomyGraphCanvas from './TaxonomyGraphCanvas';
 import EvidenceEntry from './EvidenceEntry';
+import LearningKnowledgeGraph from './LearningKnowledgeGraph';
 import './knowledge-taxonomy.css';
 
 export default function KnowledgeGraph({ catalog, lang }: { catalog: KnowledgeCatalog; lang: string }) {
+  const { t } = useUiCopy(lang);
+  const [mode, setMode] = useState<'archive' | 'learning'>('archive');
+  return <div className="knowledge-graph-views">
+    <div className="taxonomy-view-picker" role="group" aria-label={t('选择图谱分类', 'Select graph collection')}>
+      <button type="button" aria-pressed={mode === 'archive'} onClick={() => setMode('archive')}>{t('来源归档图谱', 'Archive graph')}</button>
+      {catalog.organization && <button type="button" aria-pressed={mode === 'learning'} onClick={() => setMode('learning')}>{t('通识与术语图谱', 'Learning and terminology map')}</button>}
+    </div>
+    {mode === 'learning' && catalog.organization ? <LearningKnowledgeGraph catalog={catalog} lang={lang} /> : <ArchiveKnowledgeGraph catalog={catalog} lang={lang} />}
+  </div>;
+}
+
+function ArchiveKnowledgeGraph({ catalog, lang }: { catalog: KnowledgeCatalog; lang: string }) {
   const { t, separator } = useUiCopy(lang);
   const allNodes = useMemo(() => taxonomyNodes(catalog).filter(node => node.query.brand !== '千寻位置'), [catalog]);
   const [selectedId, setSelected] = useState('');
@@ -16,11 +29,12 @@ export default function KnowledgeGraph({ catalog, lang }: { catalog: KnowledgeCa
   const [entryTypeFilter, setEntryTypeFilter] = useState('');
   const [roleFilter, setRoleFilter] = useState<KnowledgeRole | ''>('');
   const nodes = useMemo(() => visibleTaxonomyNodes(allNodes, { entryType: entryTypeFilter || undefined, role: roleFilter || undefined }), [allNodes, entryTypeFilter, roleFilter]);
+  const nodesById = useMemo(() => new Map(nodes.map(node => [node.id, node])), [nodes]);
   const entryTypes = useMemo(() => [...new Set(allNodes.flatMap(node => node.entryTypes ?? []))].sort((a, b) => a.localeCompare(b, 'zh-CN')), [allNodes]);
-  const selected = nodes.find(node => node.id === selectedId);
+  const selected = nodesById.get(selectedId);
   const path: TaxonomyNode[] = [];
   let ancestor = selected;
-  while (ancestor) { path.unshift(ancestor); ancestor = nodes.find(node => node.id === ancestor?.parent); }
+  while (ancestor) { path.unshift(ancestor); ancestor = ancestor.parent ? nodesById.get(ancestor.parent) : undefined; }
   const selectedBrand = path.find(node => node.level === 'brand');
   const selectedModel = path.find(node => node.level === 'model');
   const selectedComponent = path.find(node => node.level === 'component');
@@ -34,7 +48,7 @@ export default function KnowledgeGraph({ catalog, lang }: { catalog: KnowledgeCa
   const pathLabel = (node: TaxonomyNode) => {
     const labels: string[] = [];
     let current: TaxonomyNode | undefined = node;
-    while (current) { labels.unshift(current.label); const parent: string | undefined = current.parent; current = nodes.find(item => item.id === parent); }
+    while (current) { labels.unshift(current.label); const parent: string | undefined = current.parent; current = parent ? nodesById.get(parent) : undefined; }
     return labels.join(' / ');
   };
   const searchTerm = search.trim().toLocaleLowerCase();
@@ -49,11 +63,11 @@ export default function KnowledgeGraph({ catalog, lang }: { catalog: KnowledgeCa
     <header className="taxonomy-heading"><div><h2 id="taxonomy-heading">{t('知识图谱', 'Knowledge graph')}</h2><p>{t('连线表示目录归属，资料以原文为准。', 'Links show catalog membership. Refer to original evidence.')}</p></div><strong>{nodes.length.toLocaleString()}<small>{t('目录节点 · 非独立知识条数', 'catalog nodes · not unique entries')}</small></strong></header>
     <div className="taxonomy-search"><label htmlFor="taxonomy-search">{t('定位知识节点', 'Find a knowledge node')}</label><input id="taxonomy-search" type="search" value={search} onChange={event => setSearch(event.target.value)} placeholder={t('搜索品牌、机型、系统或零件', 'Search brand, model, system or part')} />
       <div className="taxonomy-filters" aria-label={t('图谱过滤', 'Graph filters')}>
-        <label><span>{t('资料类型', 'Entry type')}</span><select value={entryTypeFilter} onChange={event => setEntryTypeFilter(event.target.value)}><option value="">{t('全部类型', 'All types')}</option>{entryTypes.map(type => <option key={type} value={type}>{type}</option>)}</select></label>
-        <label><span>{t('角色标注', 'Diagnostic role')}</span><select value={roleFilter} onChange={event => setRoleFilter(event.target.value as KnowledgeRole | '')}><option value="">{t('全部角色', 'All roles')}</option>{([['symptom', t('现象', 'Symptom')], ['cause', t('原因', 'Cause')], ['check', t('检查', 'Check')], ['action', t('处理', 'Action')], ['retest', t('复检', 'Retest')]] as const).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>
+        <label><span>{t('资料类型', 'Entry type')}</span><select value={entryTypeFilter} onChange={event => { setEntryTypeFilter(event.target.value); setSelected(''); }}><option value="">{t('全部类型', 'All types')}</option>{entryTypes.map(type => <option key={type} value={type}>{type}</option>)}</select></label>
+        <label><span>{t('角色标注', 'Diagnostic role')}</span><select value={roleFilter} onChange={event => { setRoleFilter(event.target.value as KnowledgeRole | ''); setSelected(''); }}><option value="">{t('全部角色', 'All roles')}</option>{([['symptom', t('现象', 'Symptom')], ['cause', t('原因', 'Cause')], ['check', t('检查', 'Check')], ['action', t('处理', 'Action')], ['retest', t('复检', 'Retest')]] as const).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>
         {(entryTypeFilter || roleFilter) && <button type="button" className="taxonomy-filter-reset" onClick={() => { setEntryTypeFilter(''); setRoleFilter(''); }}>{t('清除过滤', 'Clear filters')}</button>}
       </div>
-      <p className="taxonomy-filter-note">{t('类型与角色只按已核对的归档元数据显示；缺少标注的节点不会被涂色代替。', 'Type and role filters use reviewed archive metadata; missing labels are never implied by color.')}</p>
+      <p className="taxonomy-filter-note">{t('类型与角色分别按节点内资料汇总；组合筛选时，下方原始资料按同一条目再次过滤。', 'Type and role are aggregated separately for each node; the evidence list applies both filters to each entry.')}</p>
       {searchTerm && <div className="taxonomy-results"><p>{t(`找到 ${results.length} 个节点，显示前 50 个`, `${results.length} matches; showing the first 50`)}</p>{results.slice(0, 50).map(node => <button key={node.id} onClick={() => { setSelected(node.id); setSearch(''); }}>{node.label}<small>{pathLabel(node)}</small></button>)}{!results.length && <p>{t('无匹配节点；未生成推测知识。', 'No matches; no knowledge inferred.')}</p>}</div>}</div>
     <nav className="taxonomy-trail" aria-label={t('当前知识路径', 'Current knowledge path')}><button onClick={() => setSelected('')}>{t('全部归档', 'All archives')}</button>{path.map(node => <span key={node.id}><span aria-hidden="true"> → </span><button onClick={() => setSelected(node.id)} aria-current={selected?.id === node.id ? 'location' : undefined}>{node.label}</button></span>)}</nav>
     <p className="taxonomy-lod-note" role="status">{t(`当前显示 ${nodes.length.toLocaleString()} 个节点；远景会聚合隐藏零件，完整目录见下方列表。`, `${nodes.length.toLocaleString()} nodes shown; distant views aggregate parts. Use the directory below for the complete list.`)}</p>
