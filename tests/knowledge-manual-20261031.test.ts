@@ -91,6 +91,9 @@ test('续补保养条目可精确检索并保留配置和原文冲突', () => {
     assert.ok(condition, chunk.entryId);
     assert.ok(chunk.scopeBoundary?.includes(condition), chunk.entryId);
   }
+  const transmissionOil = added.find(chunk => chunk.entryId === 'KB-NH-T14-20261031-0201')!;
+  assert.match(transmissionOil.locator!, /214.*251/);
+  assert.match(transmissionOil.text, /62\.0 L/);
   const battery = added.find(chunk => chunk.heading.includes('蓄电池补水及周期冲突'))!;
   assert.match(battery.text, /周期.*表述不同/);
   assert.match(battery.locator!, /236.*255/);
