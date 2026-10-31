@@ -891,10 +891,17 @@
       "date": "2026-10-31"
     },
     {
-      "id": "dynamic-dev-api-20261031",
-      "kind": "feature",
+      "id": "manual-maintenance-20261031",
+      "kind": "knowledge",
       "base": "4.0.24",
       "version": "4.0.25",
+      "date": "2026-10-31"
+    },
+    {
+      "id": "dynamic-dev-api-20261031",
+      "kind": "feature",
+      "base": "4.0.25",
+      "version": "4.0.26",
       "date": "2026-10-31"
     }
   ]
