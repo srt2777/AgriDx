@@ -11,7 +11,7 @@ import { buildDiagnosticReply, renderDiagnosticReply } from '../server/diagnosis
 import { decideCoordination } from '../server/knowledge/coordination';
 import { parseKnowledgeCatalog } from '../src/features/knowledge/catalog-api';
 
-test('875条FAO术语逐条对应官方来源子集，累计目录13000条且保留原6000条通识', () => {
+test('875条FAO术语逐条对应官方来源子集，累计目录包含原13000条和新增手册知识，且保留原6000条通识', () => {
   const result = spawnSync(process.execPath, ['scripts/agrovoc-learning.mjs', '--check'], { encoding: 'utf8' });
   assert.equal(result.status, 0, result.stdout + result.stderr);
   const records = JSON.parse(fs.readFileSync('docs/tractor-knowledge/expansion-875/source-concepts.json', 'utf8'));
@@ -27,11 +27,25 @@ test('875条FAO术语逐条对应官方来源子集，累计目录13000条且保
     assert.equal(chunk.sourceId, undefined);
     assert.match(chunk.scopeBoundary!, /不表示部件组成、故障因果/);
   }
-  assert.deepEqual(stats(), { archivedEntries: 6125, learningEntries: 6875, totalEntries: 13000, chunks: 13009 });
-  assert.equal(getKnowledgeCatalog({ collection: 'all' }).library!.total, 13000);
+  assert.deepEqual(stats(), { archivedEntries: 6313, learningEntries: 6875, totalEntries: 13188, chunks: 13197 });
+  assert.equal(getKnowledgeCatalog({ collection: 'all' }).library!.total, 13188);
   const baseline = JSON.parse(fs.readFileSync('docs/tractor-knowledge/expansion-875/validation.json', 'utf8'));
   for (const [file, expected] of Object.entries(baseline.baseline_files)) {
-    assert.equal(createHash('sha256').update(fs.readFileSync(file, 'utf8').replace(/\r\n/g, '\n')).digest('hex'), expected, file);
+    let content = fs.readFileSync(file, 'utf8').replace(/\r\n/g, '\n');
+    // The 2026-10-29 snapshot is an immutable prefix, not a ban on future additions.
+    if (file.endsWith('/农用拖拉机知识库/entries.jsonl')) {
+      content = content.split('\n').slice(0, 6125).join('\n') + '\n';
+    } else if (file.endsWith('/农用拖拉机知识库/sources.json')) {
+      const nextSource = content.indexOf(',\n  {\n    "source_id": "SRC-NH-T1254B-T1404B-91783224"');
+      assert.ok(nextSource > 0);
+      content = content.slice(0, nextSource) + '\n]\n';
+    } else if (file.endsWith('/农用拖拉机知识库/hierarchy.json')) {
+      const hierarchy = JSON.parse(content);
+      hierarchy.updated_at = '2026-10-29';
+      hierarchy.entries = hierarchy.entries.slice(0, 6125);
+      content = JSON.stringify(hierarchy, null, 2) + '\n';
+    }
+    assert.equal(createHash('sha256').update(content).digest('hex'), expected, file);
   }
 });
 

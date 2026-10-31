@@ -16,7 +16,10 @@ test('服务端加载 entry-roles.jsonl，每条角色与旁路文件一致，�
   const chunks = loadArchive(undefined, { configureModels: false }).chunks;
   const byId = new Map(chunks.map((c) => [c.entryId, c]));
   for (const record of sidecar) assert.deepEqual(byId.get(record.entry_id)?.roles, record.roles);
-  assert.equal(chunks.filter((c) => c.roles?.length).length, sidecar.length);
+  const inline = fs.readFileSync(`${INDEX}/entries.jsonl`, 'utf8').split(/\r?\n/).filter(Boolean)
+    .map((line) => JSON.parse(line)).filter((entry) => entry.roles?.length);
+  for (const record of inline) assert.deepEqual(byId.get(record.entry_id)?.roles, record.roles);
+  assert.equal(chunks.filter((c) => c.roles?.length).length, sidecar.length + inline.length);
   const queued = fs.readFileSync(`${INDEX}/role-review-queue.jsonl`, 'utf8').split(/\r?\n/).filter(Boolean).map((l) => JSON.parse(l));
   for (const q of queued) assert.equal(byId.get(q.entry_id)?.roles, undefined);
   const sample = byId.get('KB-LX2620-005')!;
@@ -53,7 +56,9 @@ test('目录每个层级给出按角色的覆盖计数，条目返回角色、�
   assert.ok(component.roleCoverage.tagged <= model.roleCoverage.tagged);
   for (const part of component.parts) assert.ok(part.roleCoverage.tagged <= component.roleCoverage.tagged);
   const total = catalog.brands.reduce((n, b) => n + b.roleCoverage.tagged, 0);
-  assert.equal(total, sidecar.length);
+  const inlineCount = fs.readFileSync(`${INDEX}/entries.jsonl`, 'utf8').split(/\r?\n/).filter(Boolean)
+    .map((line) => JSON.parse(line)).filter((entry) => entry.roles?.length).length;
+  assert.equal(total, sidecar.length + inlineCount);
   const selected = getKnowledgeCatalog({ brand: brand.name, model: model.name, component: component.id }).selected!;
   const tagged = selected.entries.find((e) => e.roles?.length)!;
   assert.ok(tagged.roleBasis && tagged.sourceTitle);
