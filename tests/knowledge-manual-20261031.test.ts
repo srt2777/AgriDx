@@ -87,7 +87,7 @@ test('续补保养条目可精确检索并保留配置和原文冲突', () => {
   assert.equal(added.length, 48);
   for (const chunk of added) {
     assert.ok(retrieve(chunk.heading, 30, context).some(found => found.entryId === chunk.entryId), chunk.entryId);
-    const condition = chunk.text.match(/条目条件：([^\n]+)/)?.[1];
+    const condition = chunk.text.match(/条目条件：([^\r\n]+)/)?.[1];
     assert.ok(condition, chunk.entryId);
     assert.ok(chunk.scopeBoundary?.includes(condition), chunk.entryId);
   }
