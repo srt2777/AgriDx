@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-29",
+  "updated_at": "2026-10-31",
   "purpose": "仅为已有知识条目的分层导航；零件关联不是故障确诊，不新增维修事实、型号或兼容性。",
   "components": [
     {
@@ -65560,6 +65560,1698 @@
       "components": [
         {
           "component_id": "engine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0001",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0002",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0003",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0004",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0005",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0006",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0007",
+      "components": [
+        {
+          "component_id": "pto",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0008",
+      "components": [
+        {
+          "component_id": "pto",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0009",
+      "components": [
+        {
+          "component_id": "pto",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0010",
+      "components": [
+        {
+          "component_id": "pto",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0011",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0012",
+      "components": [
+        {
+          "component_id": "fuel",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0013",
+      "components": [
+        {
+          "component_id": "cab",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0014",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0015",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0016",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0017",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0018",
+      "components": [
+        {
+          "component_id": "fuel",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0019",
+      "components": [
+        {
+          "component_id": "fuel",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0020",
+      "components": [
+        {
+          "component_id": "fuel",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0021",
+      "components": [
+        {
+          "component_id": "cooling",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0022",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0023",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0024",
+      "components": [
+        {
+          "component_id": "cab",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0025",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0026",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0027",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0028",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0029",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0030",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0031",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0032",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0033",
+      "components": [
+        {
+          "component_id": "cooling",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0034",
+      "components": [
+        {
+          "component_id": "lubrication",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0035",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0036",
+      "components": [
+        {
+          "component_id": "fuel",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0037",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0038",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0039",
+      "components": [
+        {
+          "component_id": "brakes",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0040",
+      "components": [
+        {
+          "component_id": "chassis",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0041",
+      "components": [
+        {
+          "component_id": "fuel",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0042",
+      "components": [
+        {
+          "component_id": "fuel",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0043",
+      "components": [
+        {
+          "component_id": "fuel",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0044",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0045",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0046",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0047",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0048",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0049",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0050",
+      "components": [
+        {
+          "component_id": "fuel",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0051",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0052",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0053",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0054",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0055",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0056",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0057",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0058",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0059",
+      "components": [
+        {
+          "component_id": "lubrication",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0060",
+      "components": [
+        {
+          "component_id": "fuel",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0061",
+      "components": [
+        {
+          "component_id": "brakes",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0062",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0063",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0064",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0065",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0066",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0067",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0068",
+      "components": [
+        {
+          "component_id": "fuel",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0069",
+      "components": [
+        {
+          "component_id": "fuel",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0070",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0071",
+      "components": [
+        {
+          "component_id": "fuel",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0072",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0073",
+      "components": [
+        {
+          "component_id": "fuel",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0074",
+      "components": [
+        {
+          "component_id": "fuel",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0075",
+      "components": [
+        {
+          "component_id": "lubrication",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0076",
+      "components": [
+        {
+          "component_id": "fuel",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0077",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0078",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0079",
+      "components": [
+        {
+          "component_id": "fuel",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0080",
+      "components": [
+        {
+          "component_id": "fuel",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0081",
+      "components": [
+        {
+          "component_id": "fuel",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0082",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0083",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0084",
+      "components": [
+        {
+          "component_id": "cooling",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0085",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0086",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0087",
+      "components": [
+        {
+          "component_id": "fuel",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0088",
+      "components": [
+        {
+          "component_id": "fuel",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0089",
+      "components": [
+        {
+          "component_id": "fuel",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0090",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0091",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0092",
+      "components": [
+        {
+          "component_id": "pto",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0093",
+      "components": [
+        {
+          "component_id": "fuel",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0094",
+      "components": [
+        {
+          "component_id": "lubrication",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0095",
+      "components": [
+        {
+          "component_id": "lubrication",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0096",
+      "components": [
+        {
+          "component_id": "cooling",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0097",
+      "components": [
+        {
+          "component_id": "cooling",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0098",
+      "components": [
+        {
+          "component_id": "lubrication",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0099",
+      "components": [
+        {
+          "component_id": "cooling",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0100",
+      "components": [
+        {
+          "component_id": "cooling",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0101",
+      "components": [
+        {
+          "component_id": "cooling",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0102",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0103",
+      "components": [
+        {
+          "component_id": "cooling",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0104",
+      "components": [
+        {
+          "component_id": "cooling",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0105",
+      "components": [
+        {
+          "component_id": "cooling",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0106",
+      "components": [
+        {
+          "component_id": "cooling",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0107",
+      "components": [
+        {
+          "component_id": "cooling",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0108",
+      "components": [
+        {
+          "component_id": "cooling",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0109",
+      "components": [
+        {
+          "component_id": "cooling",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0110",
+      "components": [
+        {
+          "component_id": "cooling",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0111",
+      "components": [
+        {
+          "component_id": "lubrication",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0112",
+      "components": [
+        {
+          "component_id": "lubrication",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0113",
+      "components": [
+        {
+          "component_id": "lubrication",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0114",
+      "components": [
+        {
+          "component_id": "lubrication",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0115",
+      "components": [
+        {
+          "component_id": "fuel",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0116",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0117",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0118",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0119",
+      "components": [
+        {
+          "component_id": "fuel",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0120",
+      "components": [
+        {
+          "component_id": "fuel",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0121",
+      "components": [
+        {
+          "component_id": "fuel",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0122",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0123",
+      "components": [
+        {
+          "component_id": "pto",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0124",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0125",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0126",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0127",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0128",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0129",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0130",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0131",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0132",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0133",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0134",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0135",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0136",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0137",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0138",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0139",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0140",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0141",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0142",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0143",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0144",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0145",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0146",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0147",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0148",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0149",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0150",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0151",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0152",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0153",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0154",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0155",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0156",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0157",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0158",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0159",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0160",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0161",
+      "components": [
+        {
+          "component_id": "brakes",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0162",
+      "components": [
+        {
+          "component_id": "brakes",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0163",
+      "components": [
+        {
+          "component_id": "brakes",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0164",
+      "components": [
+        {
+          "component_id": "brakes",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0165",
+      "components": [
+        {
+          "component_id": "brakes",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0166",
+      "components": [
+        {
+          "component_id": "cab",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0167",
+      "components": [
+        {
+          "component_id": "cab",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0168",
+      "components": [
+        {
+          "component_id": "cab",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0169",
+      "components": [
+        {
+          "component_id": "cab",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0170",
+      "components": [
+        {
+          "component_id": "cab",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0171",
+      "components": [
+        {
+          "component_id": "cab",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0172",
+      "components": [
+        {
+          "component_id": "cab",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0173",
+      "components": [
+        {
+          "component_id": "cab",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0174",
+      "components": [
+        {
+          "component_id": "cab",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0175",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0176",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0177",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0178",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0179",
+      "components": [
+        {
+          "component_id": "lubrication",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0180",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0181",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0182",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0183",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0184",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0185",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0186",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0187",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-NH-T14-20261031-0188",
+      "components": [
+        {
+          "component_id": "electrical",
           "part_ids": []
         }
       ]

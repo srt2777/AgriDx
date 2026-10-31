@@ -235,7 +235,10 @@ export function resolveScope(query: string, context: RetrievalContext): Resolved
   // Powered hand tools do not identify the tractor's propulsion system.
   const queryPowerIdentity = queryIdentity.replace(/电动(?:工具|扳手|螺丝刀)|\belectric\s+(?:tools?|wrenches?|screwdrivers?)\b/gi, ' ')
     // Manual steering becoming unavailable does not identify an autonomous tractor.
-    .replace(/无人力转向/g, '人力转向');
+    .replace(/无人力转向/g, '人力转向')
+    // A named transmission control is not an electric tractor identity.
+    .replace(/电动指令变速器/g, '变速器')
+    .replace(/(?:起动|启动)电动机/g, '起动机');
   const electric = /电动|新能源|无人|electric|autonomous|new-energy/i.test([type, explicitBrand, context.model, queryPowerIdentity].filter(Boolean).join(' ')) ||
     brand === '鸿鹄' || models.includes('t70');
   const ambiguous = queryBrands.length > 1 || contextBrands.length > 1;
