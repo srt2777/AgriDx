@@ -12,13 +12,13 @@ const sourceId = 'SRC-NH-T1254B-T1404B-91783224';
 const batch = loadArchive().chunks.filter(chunk => chunk.sourceId === sourceId);
 loadKnowledgeBase();
 
-test('说明书首批有188个独立编号、人工选页、逐项候选及型号边界', () => {
-  assert.equal(batch.length, 188);
-  assert.equal(new Set(batch.map(chunk => chunk.entryId)).size, 188);
+test('说明书两批有236个独立编号、人工选页、逐项候选及型号边界', () => {
+  assert.equal(batch.length, 236);
+  assert.equal(new Set(batch.map(chunk => chunk.entryId)).size, 236);
   assert.deepEqual(batch.reduce<Record<string, number>>((counts, chunk) => {
     counts[chunk.entryType!] = (counts[chunk.entryType!] ?? 0) + 1;
     return counts;
-  }, {}), { '安全操作': 28, '操作/维护知识': 38, '维护/故障知识': 122 });
+  }, {}), { '安全操作': 28, '操作/维护知识': 86, '维护/故障知识': 122 });
   for (const chunk of batch) {
     assert.deepEqual(chunk.models, ['T1254B', 'T1404-B']);
     assert.equal(chunk.requiresExactModel, true);
@@ -78,4 +78,27 @@ test('电动指令变速器不会误判为电动拖拉机，资料范围不冒�
   const reply = buildDiagnosticReply({ query, chunks: retrieved, scope: context, coordination });
   assert.ok(reply.suggestions.every(item => !item.text.includes('本册参数不得套用')));
   assert.ok(retrieved.some(item => item.sourceId === sourceId && item.scopeBoundary?.includes('未知条件不推断')));
+});
+
+
+test('续补保养条目可精确检索并保留配置和原文冲突', () => {
+  const context = { machineType: '拖拉机', brand: '纽荷兰', model: 'T1254B' };
+  const added = batch.filter(chunk => Number(chunk.entryId?.slice(-4)) >= 189);
+  assert.equal(added.length, 48);
+  for (const chunk of added) {
+    assert.ok(retrieve(chunk.heading, 30, context).some(found => found.entryId === chunk.entryId), chunk.entryId);
+    const condition = chunk.text.match(/条目条件：([^\r\n]+)/)?.[1];
+    assert.ok(condition, chunk.entryId);
+    assert.ok(chunk.scopeBoundary?.includes(condition), chunk.entryId);
+  }
+  const transmissionOil = added.find(chunk => chunk.entryId === 'KB-NH-T14-20261031-0201')!;
+  assert.match(transmissionOil.locator!, /214.*251/);
+  assert.match(transmissionOil.text, /62\.0 L/);
+  const battery = added.find(chunk => chunk.heading.includes('蓄电池补水及周期冲突'))!;
+  assert.match(battery.text, /周期.*表述不同/);
+  assert.match(battery.locator!, /236.*255/);
+  const engineFilter = added.find(chunk => chunk.heading.includes('发动机外空气滤芯压缩空气清洁'))!;
+  const cabFilter = added.find(chunk => chunk.heading.includes('驾驶室内循环滤芯压缩空气清洁'))!;
+  assert.match(engineFilter.text, /150 mm/);
+  assert.match(cabFilter.text, /300 mm/);
 });
