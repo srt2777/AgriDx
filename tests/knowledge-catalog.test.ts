@@ -124,7 +124,7 @@ test('every advertised part has matching evidence and counts are independently d
 test('read-only catalogue HTTP API rejects malformed hierarchy filters and unknown parts', async () => {
   for (const query of ['model=LF804S', 'component=electrical', 'part=starter', 'brand=a&brand=b', 'brand=',
     'symptom=starter-slow&symptom=starter-stopped', 'configuration=unknown', 'driveConfiguration=AWD', 'emissionStage=Tier4',
-    'collection=unknown', 'page=0', 'page=-1', 'page=1.5', 'page=1000000', 'page=1&page=2', 'q=']) {
+    'collection=unknown', 'kind=unknown', 'kind=general&kind=archive', 'topic=', 'page=0', 'page=-1', 'page=1.5', 'page=1000000', 'page=1&page=2', 'q=']) {
     const response = await requestCatalog(query);
     assert.equal(response.status, 400, query);
     assert.equal((await response.json() as { code: string }).code, 'bad_request');
@@ -133,6 +133,16 @@ test('read-only catalogue HTTP API rejects malformed hierarchy filters and unkno
   const response = await requestCatalog(query);
   assert.equal(response.status, 404);
   assert.equal((await response.json() as { code: string }).code, 'knowledge_not_found');
+});
+
+test('organization HTTP filters return the selected source category and exact topic', async () => {
+  const topic = catalog.organization!.topics.find(item => item.kind === 'general')!;
+  const query = new URLSearchParams({ collection: 'learning', kind: topic.kind, topic: topic.name });
+  const response = await requestCatalog(query);
+  assert.equal(response.status, 200);
+  const result = await response.json() as KnowledgeCatalog;
+  assert.equal(result.library!.total, topic.count);
+  assert.ok(result.library!.entries.every(entry => entry.collection === 'learning' && entry.topic === topic.name && !entry.learningKind));
 });
 
 test('unified library HTTP serves both original learning batches and archive evidence', async () => {

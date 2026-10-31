@@ -118,12 +118,15 @@ test('实际浏览器构建保持完整知识目录、诊断来源与型号隔�
     for (const filters of [
       { collection: 'all' as const }, { collection: 'learning' as const, q: 'TK-6000' },
       { collection: 'archive' as const, q: 'KB-YTO-LF-MANUAL-007' }, { collection: 'learning' as const, page: '300' },
+      { collection: 'learning' as const, kind: 'general' as const, topic: '冷却与热管理' },
+      { collection: 'learning' as const, kind: 'terminology' as const, topic: '农业机械与设备' },
+      { collection: 'archive' as const, kind: 'archive' as const, entryType: '维护/故障知识' },
     ]) {
       const response = await previewFetch(`/api/knowledge/catalog?${new URLSearchParams(filters)}`);
       assert.equal(response.status, 200);
       assert.deepEqual(await response.json(), transported(getKnowledgeCatalog(filters)));
     }
-    for (const query of ['collection=unknown', 'page=0', 'page=1.5', 'page=1&page=2']) {
+    for (const query of ['collection=unknown', 'kind=unknown', 'kind=general&kind=archive', 'topic=', 'page=0', 'page=1.5', 'page=1&page=2']) {
       assert.equal((await previewFetch(`/api/knowledge/catalog?${query}`)).status, 400);
     }
     const provider = { hasAnyConfigured: () => false, chat: async () => { throw new Error('Must not call an external model'); } };

@@ -2,7 +2,7 @@ import { useUiCopy } from '@/ui/useUiCopy';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { BookOpen, ChevronRight, Search } from 'lucide-react';
-import type { KnowledgeLibrary, LibraryEntry } from '@shared/knowledge-catalog';
+import type { KnowledgeLibrary, KnowledgeOrganization, LibraryEntry, LibraryKind } from '@shared/knowledge-catalog';
 import DeferredMarkdown from '@/components/DeferredMarkdown';
 import { KnowledgePeek } from '@/components/CardPeek';
 import { useUiVersion } from '@/hooks/useUiVersion';
@@ -39,16 +39,36 @@ function LibraryCard({ entry, lang }: { entry: LibraryEntry; lang: string }) {
   </details>;
 }
 
-export default function KnowledgeLibraryBrowser({ library, lang, onChange }: {
+export default function KnowledgeLibraryBrowser({ library, organization, filters, lang, onChange }: {
   library: KnowledgeLibrary;
+  organization?: KnowledgeOrganization;
+  filters: { kind?: string; topic?: string; entryType?: string };
   lang: string;
-  onChange: (values: { q?: string; page?: string }) => void;
+  onChange: (values: { q?: string; page?: string; collection?: string; kind?: string; topic?: string; entryType?: string; role?: string }) => void;
 }) {
   const { t, format, separator } = useUiCopy(lang);
   const pages = Math.max(1, Math.ceil(library.total / library.pageSize));
+  const kinds: { id: LibraryKind; label: string }[] = [
+    { id: 'archive', label: t('来源归档', 'Source archives') },
+    { id: 'general', label: t('通用原理', 'General principles') },
+    { id: 'terminology', label: t('农业术语', 'Agricultural terminology') },
+  ];
+  const topics = organization?.topics.filter(topic => topic.kind === filters.kind) ?? [];
   return <section className="unified-library" aria-labelledby="unified-library-heading">
     <div className="catalog-evidence-heading"><h2 id="unified-library-heading">{t('知识目录', 'Knowledge catalog')}</h2>
       <span>{t(`当前 ${library.total.toLocaleString()} 条 · 第 ${library.page} / ${pages} 页`, `${library.total.toLocaleString()} entries · Page ${library.page} / ${pages}`)}</span></div>
+    {organization && <div className="library-organizer" aria-label={t('按资料分类', 'Browse by collection')}>
+      <label><span>{t('资料分类', 'Collection')}</span><select value={filters.kind ?? ''} onChange={event => {
+        const kind = event.target.value;
+        onChange({ collection: kind ? kind === 'archive' ? 'archive' : 'learning' : 'all', kind, topic: '', entryType: '', role: '' });
+      }}><option value="">{t('全部分类', 'All collections')}</option>{kinds.map(({ id, label }) => <option value={id} key={id}>{label} ({organization.counts[id].toLocaleString()})</option>)}</select></label>
+      {(filters.kind === 'general' || filters.kind === 'terminology') && <label><span>{t('主题', 'Topic')}</span><select value={filters.topic ?? ''} onChange={event => onChange({ topic: event.target.value })}>
+        <option value="">{t('全部主题', 'All topics')}</option>{topics.map(topic => <option value={topic.name} key={topic.name}>{format(topic.name)} ({topic.count})</option>)}
+      </select></label>}
+      {filters.kind === 'archive' && <label><span>{t('资料类型', 'Archive type')}</span><select value={filters.entryType ?? ''} onChange={event => onChange({ entryType: event.target.value })}>
+        <option value="">{t('全部类型', 'All types')}</option>{organization.archiveTypes.map(type => <option value={type.name} key={type.name}>{format(type.name)} ({type.count})</option>)}
+      </select></label>}
+    </div>}
     <form className="library-search" key={library.query} onSubmit={event => {
       event.preventDefault();
       onChange({ q: String(new FormData(event.currentTarget).get('q') ?? '').trim() });

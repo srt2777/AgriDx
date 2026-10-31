@@ -42,7 +42,7 @@ export function catalogDistributions(catalog: KnowledgeCatalog): { roles: RoleCo
 /** Role search is the existing archive library; keep search text and reset incompatible view/pagination filters. */
 export function roleFilterHref(current: URLSearchParams, role?: KnowledgeRole): string {
   const next = new URLSearchParams(current);
-  for (const key of ['view', 'brand', 'model', 'component', 'part', 'symptom', 'configuration', 'driveConfiguration', 'emissionStage', 'page']) next.delete(key);
+  for (const key of ['view', 'brand', 'model', 'component', 'part', 'symptom', 'configuration', 'driveConfiguration', 'emissionStage', 'kind', 'topic', 'entryType', 'page']) next.delete(key);
   next.set('collection', 'archive');
   if (role) next.set('role', role); else next.delete('role');
   return `/knowledge?${next}`;

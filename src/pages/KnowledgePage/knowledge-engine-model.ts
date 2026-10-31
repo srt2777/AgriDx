@@ -44,3 +44,22 @@ export function catalogNetwork(taxonomy: TaxonomyNode[]): EngineNetwork {
   const edges = taxonomy.flatMap((node, to) => node.parent && index.has(node.parent) ? [{ from: index.get(node.parent)!, to, born: 0 }] : []);
   return { nodes, edges, hubs: nodes.map((node, i) => node.hub ? i : -1).filter(i => i >= 0) };
 }
+
+/** Spread the two learning collections across the canvas without changing their membership. */
+export function learningNetwork(taxonomy: TaxonomyNode[]): EngineNetwork {
+  const network = catalogNetwork(taxonomy);
+  const roots = network.nodes.filter(node => node.hub);
+  const centers = [[-1.15, 0, 0], [1.55, 0, 0]];
+  return {
+    ...network,
+    nodes: network.nodes.map(node => {
+      const root = roots[node.cluster];
+      const center = centers[node.cluster];
+      if (!root || !center) return node;
+      const spread = node.cluster === 0 ? 2.5 : 1.5;
+      return { ...node, x: center[0] + (node.x - root.x) * spread,
+        y: center[1] + (node.y - root.y) * spread, z: center[2] + (node.z - root.z) * spread,
+        color: node.hub ? 'ivory' : node.cluster === 0 ? 'coral' : 'gold' };
+    }),
+  };
+}

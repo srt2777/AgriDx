@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { createGraphCamera, zoomGraph, fitGraph, stepGraphCamera, cameraMoving, graphNeighborhood, relationCoordinates, graphNodeScale, graphLabelScale } from '../src/pages/KnowledgePage/graph-interaction';
+import { centerGraphPoint, createGraphCamera, zoomGraph, fitGraph, stepGraphCamera, cameraMoving, graphNeighborhood, relationCoordinates, graphNodeScale, graphLabelScale } from '../src/pages/KnowledgePage/graph-interaction';
 import { taxonomyNodes } from '../src/pages/KnowledgePage/knowledge-taxonomy-data';
 import { loadKnowledgeCatalog } from '../server/knowledge/catalog';
 
@@ -37,6 +37,21 @@ test('rotation inertia decays and fit resets all camera targets', () => {
   const target = camera.targetYaw;
   stepGraphCamera(camera, .03, true);
   assert.equal(camera.velocityYaw, 0); assert.equal(camera.targetYaw, target);
+});
+
+test('centering a selected projected node preserves zoom and cancels stale motion', () => {
+  const camera = createGraphCamera();
+  Object.assign(camera, { zoom: 2, targetZoom: 3, panX: 25, panY: -15, yaw: .2, pitch: .3, targetYaw: .7, velocityYaw: 1 });
+  centerGraphPoint(camera, { x: 100, y: 60 }, 800, 600);
+  assert.equal(camera.targetPanX, 325);
+  assert.equal(camera.targetPanY, 219);
+  assert.equal(camera.targetZoom, 2);
+  assert.equal(camera.targetYaw, .2);
+  assert.equal(camera.targetPitch, .3);
+  assert.equal(camera.velocityYaw, 0);
+  const before = structuredClone(camera);
+  centerGraphPoint(camera, { x: NaN, y: 0 }, 800, 600);
+  assert.deepEqual(camera, before);
 });
 
 const nodes = taxonomyNodes(loadKnowledgeCatalog());

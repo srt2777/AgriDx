@@ -113,6 +113,15 @@ export type LibraryEntry = LearningEntry | (CatalogEntry & {
   models: string[];
 });
 
+/** Disjoint browsing groups derived from existing index metadata, not new evidence. */
+export const LIBRARY_KINDS = ['archive', 'general', 'terminology'] as const;
+export type LibraryKind = typeof LIBRARY_KINDS[number];
+export interface KnowledgeOrganization {
+  counts: Record<LibraryKind, number>;
+  archiveTypes: { name: string; count: number }[];
+  topics: { kind: 'general' | 'terminology'; name: string; count: number }[];
+}
+
 export interface KnowledgeLibrary {
   collection: 'all' | 'archive' | 'learning';
   query: string;
@@ -137,6 +146,8 @@ export interface KnowledgeCatalog {
   kbVersion?: string | null;
   expansion: { targetLabel: '1w+'; countingUnit: 'indexed-entry'; status: 'planned' | 'reached' };
   brands: CatalogBrand[];
+  /** Derived from the same snapshot, preserving the original records and meanings. */
+  organization?: KnowledgeOrganization;
   selected?: CatalogSelection;
   library?: KnowledgeLibrary;
   limitations: string[];
@@ -153,18 +164,22 @@ export interface CatalogFilters {
   driveConfiguration?: '2WD' | '4WD';
   emissionStage?: '国三' | '国四';
   collection?: KnowledgeLibrary['collection'];
+  kind?: LibraryKind;
+  topic?: string;
+  entryType?: string;
   q?: string;
   page?: string;
   /** Library search: only entries tagged with this role. */
   role?: KnowledgeRole;
 }
 
-export const CATALOG_FILTER_KEYS = ['brand', 'model', 'component', 'part', 'symptom', 'configuration', 'driveConfiguration', 'emissionStage', 'collection', 'q', 'page', 'role'] as const;
+export const CATALOG_FILTER_KEYS = ['brand', 'model', 'component', 'part', 'symptom', 'configuration', 'driveConfiguration', 'emissionStage', 'collection', 'kind', 'topic', 'entryType', 'q', 'page', 'role'] as const;
 export function validCatalogCondition(key: typeof CATALOG_FILTER_KEYS[number], value: string): boolean {
   if (key === 'configuration') return ['CAB', 'ROPS'].includes(value);
   if (key === 'driveConfiguration') return ['2WD', '4WD'].includes(value);
   if (key === 'emissionStage') return ['国三', '国四'].includes(value);
   if (key === 'collection') return ['all', 'archive', 'learning'].includes(value);
+  if (key === 'kind') return (LIBRARY_KINDS as readonly string[]).includes(value);
   if (key === 'role') return (KNOWLEDGE_ROLES as readonly string[]).includes(value);
   if (key === 'page') return /^[1-9]\d{0,5}$/.test(value);
   return true;
