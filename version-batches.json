@@ -889,6 +889,13 @@
       "base": "4.0.23",
       "version": "4.0.24",
       "date": "2026-10-31"
+    },
+    {
+      "id": "manual-maintenance-20261031",
+      "kind": "knowledge",
+      "base": "4.0.24",
+      "version": "4.0.25",
+      "date": "2026-10-31"
     }
   ]
 }
