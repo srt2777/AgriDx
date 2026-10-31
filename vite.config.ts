@@ -16,7 +16,7 @@ function resolveBuildCommit() {
 const buildCommit = resolveBuildCommit();
 
 export default defineConfig({
-  define: { __AGRIDX_DEV_PREVIEW__: 'false', __AGRIDX_BUILD_COMMIT__: JSON.stringify(buildCommit), __AGRIDX_GATEWAY_REQUIRED__: JSON.stringify({ minimumSchema: 2, capabilities: ['onboarding', 'modelList', 'validationState', 'readiness'], sourceHash: gatewaySourceHash() }) },
+  define: { __AGRIDX_DEV_PREVIEW__: 'false', __AGRIDX_BUILD_COMMIT__: JSON.stringify(buildCommit), __AGRIDX_GATEWAY_REQUIRED__: JSON.stringify({ minimumSchema: 2, capabilities: ['onboarding', 'modelList', 'validationState', 'readiness', 'customEndpoint'], sourceHash: gatewaySourceHash() }) },
   plugins: [react(), tailwindcss(), versionHistoryPlugin(__dirname), {
     name: 'agridx-build-identity',
     apply: 'build',

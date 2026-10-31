@@ -4,25 +4,31 @@ const aiDefaults = {
   gemini: { provider: 'gemini', label: 'Gemini', model: 'gemini-3.8-flash', baseUrl: 'https://generativelanguage.googleapis.com/v1beta/openai' },
   openai: { provider: 'openai', label: 'OpenAI compatible', model: 'gpt-4.1-mini', baseUrl: 'https://api.openai.com/v1' },
 };
-export const gatewayInfo = Object.freeze({ gatewayVersion: '1.1.0', schemaVersion: 2, capabilities: { onboarding: true, modelList: true, validationState: true, readiness: true, toolCalls: false } });
+export const gatewayInfo = Object.freeze({ gatewayVersion: '1.2.0', schemaVersion: 2, capabilities: { onboarding: true, modelList: true, validationState: true, readiness: true, customEndpoint: true, toolCalls: false } });
 const aiFail = (status, message, kind = 'unavailable', retryable = false) => { throw Object.assign(new Error(message), { status, aiError: true, kind, retryable }); };
 const aiKeyReady = env => /^[a-fA-F0-9]{64}$/.test(env.DEV_AI_ENCRYPTION_KEY || '');
 const aiHex = bytes => [...new Uint8Array(bytes)].map(v => v.toString(16).padStart(2, '0')).join('');
 const aiBytes = hex => new Uint8Array(hex.match(/.{2}/g).map(v => parseInt(v, 16)));
-function aiAllowedHosts(env) {
-  return [...new Set(['api.deepseek.com', 'generativelanguage.googleapis.com', 'api.openai.com',
-    ...(env.DEV_AI_ALLOWED_HOSTS || '').split(',').map(v => v.trim().toLowerCase()).filter(Boolean)])];
-}
-function aiEndpoint(value, env) {
+function aiEndpoint(value) {
   let url;
   try { url = new URL(value); } catch { aiFail(400, 'API 基础地址无效。', 'address'); }
-  if (url.protocol !== 'https:' || url.username || url.password || url.search || url.hash ||
-      (url.port && url.port !== '443') || !aiAllowedHosts(env).includes(url.hostname) ||
-      !/^[a-z][a-z0-9.-]*\.[a-z]{2,}$/i.test(url.hostname) || /\.(local|internal|localhost)$/.test(url.hostname) ||
-      !/^\/[a-zA-Z0-9/_-]*$/.test(url.pathname) || url.pathname.endsWith('/chat/completions')) {
-    aiFail(400, '仅允许服务端许可的 HTTPS API 基础地址，不含凭据、查询参数或 chat/completions。', 'address');
+  const labels = url.hostname.split('.');
+  const publicHostname = url.hostname.length <= 253 && labels.length > 1 && labels.at(-1).length >= 2 &&
+    /[a-z]/.test(labels.at(-1)) && labels.every(label => /^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)$/.test(label)) &&
+    !['local', 'localhost', 'localdomain', 'internal', 'lan', 'home', 'invalid', 'test', 'example', 'onion'].includes(labels.at(-1));
+  if (url.protocol !== 'https:' || url.username || url.password || value.includes('?') || value.includes('#') ||
+      url.port || !publicHostname || !/^\/[a-zA-Z0-9/_.~-]*$/.test(url.pathname)) {
+    aiFail(400, '请填写公网 HTTPS API 地址，不含凭据、查询参数或非标准端口。', 'address');
   }
+  // Accept either a base URL or the complete OpenAI-compatible chat endpoint.
+  url.pathname = url.pathname.replace(/\/chat\/completions\/?$/, '');
   return url.href.replace(/\/+$/, '');
+}
+function requireKeyForEndpointChange(endpoint, existing, provided) {
+  if (!existing?.encrypted_key || provided) return;
+  let previousOrigin;
+  try { previousOrigin = new URL(existing.base_url).origin; } catch { /* Invalid saved URLs cannot receive a retained key. */ }
+  if (previousOrigin !== new URL(endpoint).origin) aiFail(400, '更换接口主机时，请重新输入该服务的 API 密钥。', 'authentication');
 }
 async function aiCryptoKey(env) {
   if (!aiKeyReady(env)) aiFail(503, '服务端尚未配置 API 密钥加密，请由部署管理员配置 DEV_AI_ENCRYPTION_KEY。');
@@ -69,7 +75,7 @@ async function aiReadResponse(response) {
   try { return JSON.parse(raw + decoder.decode()); } catch { aiFail(502, 'API 响应不是有效 JSON。'); }
 }
 async function aiGenerate(row, messages, env, upstreamFetch, testing = false, signal) {
-  const baseUrl = aiEndpoint(row.base_url, env), secret = await aiOpen(row.encrypted_key, row.provider, env);
+  const baseUrl = aiEndpoint(row.base_url), secret = await aiOpen(row.encrypted_key, row.provider, env);
   const started = Date.now();
   try {
     const timeout = AbortSignal.timeout(20_000);
@@ -98,7 +104,7 @@ async function aiGenerate(row, messages, env, upstreamFetch, testing = false, si
   }
 }
 async function aiModels(baseUrl, secret, env, upstreamFetch, signal) {
-  const endpoint = aiEndpoint(baseUrl, env);
+  const endpoint = aiEndpoint(baseUrl);
   try {
     const timeout = AbortSignal.timeout(20_000);
     const response = await upstreamFetch(`${endpoint}/models`, { method: 'GET', redirect: 'manual', signal: signal ? AbortSignal.any([signal, timeout]) : timeout, headers: { Authorization: `Bearer ${secret}` } });
@@ -177,7 +183,7 @@ export async function handleAiRequest(request, env, helpers, upstreamFetch) {
     const settings = await aiSettings(db);
     const day = Math.floor((Date.now() + 8 * 3_600_000) / 86_400_000);
     const usage = await db.prepare('SELECT count FROM preview_rate_limits WHERE key = ?').bind(`ai-public-day:${day}`).first();
-    return json({ encryptionConfigured: aiKeyReady(env), allowedHosts: aiAllowedHosts(env), settings: { ...settings, publicEnabled: Boolean(settings.publicEnabled) },
+    return json({ encryptionConfigured: aiKeyReady(env), settings: { ...settings, publicEnabled: Boolean(settings.publicEnabled) },
       usedToday: usage?.count || 0, providers: Object.values(aiDefaults).map(v => aiMetadata(rows.results.find(row => row.provider === v.provider), v)) });
   }
   if (path === '/api/dev-admin/ai/settings' && request.method === 'POST') {
@@ -201,13 +207,14 @@ export async function handleAiRequest(request, env, helpers, upstreamFetch) {
   const existing = await aiRow(db, provider);
   if (action === 'models') {
     if (typeof data.baseUrl !== 'string' || data.baseUrl.length > 500 || (data.apiKey !== undefined && typeof data.apiKey !== 'string')) aiFail(400, 'API 基础地址或密钥格式无效。', 'address');
-    aiEndpoint(data.baseUrl, env);
+    const endpoint = aiEndpoint(data.baseUrl);
     const provided = data.apiKey?.trim() || '';
     if (provided && !/^[\x21-\x7e]{8,512}$/.test(provided)) aiFail(400, 'API 密钥格式无效。', 'authentication');
+    requireKeyForEndpointChange(endpoint, existing, provided);
     const secret = provided || (existing?.encrypted_key ? await aiOpen(existing.encrypted_key, provider, env) : '');
     if (!secret) aiFail(400, '请先填写 API 密钥。', 'authentication');
     if (data.baseUrl.includes(secret)) aiFail(400, '基础地址不能包含 API 密钥。', 'address');
-    return json(await aiModels(data.baseUrl, secret, env, upstreamFetch, request.signal));
+    return json(await aiModels(endpoint, secret, env, upstreamFetch, request.signal));
   }
   if (action === 'delete') {
     await db.batch([db.prepare('DELETE FROM preview_ai_providers WHERE provider = ?').bind(provider), db.prepare('UPDATE preview_ai_settings SET public_enabled = 0 WHERE default_provider = ?').bind(provider)]);
@@ -215,8 +222,9 @@ export async function handleAiRequest(request, env, helpers, upstreamFetch) {
   }
   if (action === 'save') {
     if (typeof data.model !== 'string' || (data.model !== '' && !/^[a-zA-Z0-9][a-zA-Z0-9._:/-]{0,119}$/.test(data.model)) || typeof data.enabled !== 'boolean' || (data.publicEnabled !== undefined && typeof data.publicEnabled !== 'boolean') || typeof data.baseUrl !== 'string' || data.baseUrl.length > 500 || (data.apiKey !== undefined && typeof data.apiKey !== 'string')) aiFail(400, '模型、基础地址或启用状态格式无效。');
-    const baseUrl = aiEndpoint(data.baseUrl, env), secret = data.apiKey?.trim() || '';
+    const baseUrl = aiEndpoint(data.baseUrl), secret = data.apiKey?.trim() || '';
     if (secret && (!/^[\x21-\x7e]{8,512}$/.test(secret))) aiFail(400, 'API 密钥格式无效。', 'authentication');
+    requireKeyForEndpointChange(baseUrl, existing, secret);
     if (!secret && !existing?.encrypted_key) aiFail(400, '首次保存需要填写 API 密钥。');
     const ciphertext = secret ? await aiSeal(secret, provider, env) : existing.encrypted_key;
     if (!aiKeyReady(env)) aiFail(503, '服务端 API 密钥加密尚未配置。');
@@ -241,7 +249,7 @@ export async function handleAiRequest(request, env, helpers, upstreamFetch) {
       db.prepare('INSERT INTO preview_ai_settings (id, public_enabled, default_provider, daily_limit, updated_at, updated_by) VALUES (1, ?, ?, ?, ?, ?) ON CONFLICT(id) DO UPDATE SET public_enabled = excluded.public_enabled, default_provider = excluded.default_provider, daily_limit = excluded.daily_limit, updated_at = excluded.updated_at, updated_by = excluded.updated_by')
         .bind(Number(publicEnabled), defaultProvider, data.publicEnabled === true ? 100 : settings.dailyLimit, now, user.login),
     ]);
-    return json({ ok: true, model, latencyMs: result.latencyMs });
+    return json({ ok: true, model, baseUrl, latencyMs: result.latencyMs });
   }
   if (!existing?.encrypted_key) aiFail(400, '请先保存 API 配置。');
   if (action === 'chat' && !existing.enabled) aiFail(400, '请先启用此服务商。');
