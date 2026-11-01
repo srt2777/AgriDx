@@ -190,7 +190,7 @@ export default function PixelStreamHero() {
         <div className="pixel-stream-head">
           <div>
             <p className="pixel-stream-kicker">{t('虚幻引擎 · 像素流', 'Unreal Engine · Pixel Streaming')}</p>
-            <h2 className="pixel-stream-title">{t('鸿鹄 T70 实时画面', 'Honghu T70 live view')}</h2>
+            <h2 className="pixel-stream-title">{t('鸿鹄 T70 · 像素流 / 网页回落', 'Honghu T70 · Pixel Streaming / Web Fallback')}</h2>
           </div>
           <span className={`pixel-stream-status pixel-stream-status--${status}`} role="status">
             {streamStatusText(status, lang)}
