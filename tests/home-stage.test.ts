@@ -120,7 +120,12 @@ test('旧版首页只有一个固定舞台，T70 仍走工坊 Meshopt 与照片�
   const loader = read('../src/components/parts-tractor/load-parts-tractor.ts');
   assert.equal(hero.includes('TractorViewer'), false);
   assert.match(hero, /鸿鹄 T70/);
-  assert.match(page, /lazy\(\(\) => import\('\.\/HomeStage'\)\)/);
+  // Pixel-streaming step 1 intentionally unmounts the scroll stage while
+  // PixelStreamHero is on the page (two WebGL canvases would fight over
+  // the viewport); HomeStage.tsx itself is kept, with its T70 loader
+  // behaviour still asserted below.
+  assert.match(page, /PixelStreamHero/);
+  assert.doesNotMatch(page, /<HomeStage/);
   assert.match(page, /home-immersive/);
   assert.match(stage, /loadPartsTractor\(HONGHU_T70_PARTS_URL/);
   assert.match(stage, /frameloop="demand"/);

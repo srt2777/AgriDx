@@ -1,4 +1,5 @@
 import HeroSection from './sections/HeroSection';
+import PixelStreamHero from './sections/PixelStreamHero';
 import PainPointsSection from './sections/PainPointsSection';
 import MultimodalSection from './sections/MultimodalSection';
 import ArchitectureSection from './sections/ArchitectureSection';
@@ -10,11 +11,14 @@ import KnowledgeCoverage from '@/components/KnowledgeCoverage';
 import { ChevronDown } from 'lucide-react';
 import { useLang } from '@/hooks/useLang';
 import { MotionConfig } from 'framer-motion';
-import { lazy, Suspense, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import './home-stage.css';
 
-const HomeStage = lazy(() => import('./HomeStage'));
+// NOTE (pixel-streaming step 1): the old scroll stage (HomeStage) is not
+// mounted while the Pixel Streaming hero is on the page, so the two WebGL
+// canvases cannot fight over the same viewport. The file is NOT deleted
+// and can be mounted again if the hero is ever removed. See the PR body.
 
 export default function HomePage() {
   const location = useLocation();
@@ -35,8 +39,8 @@ export default function HomePage() {
 
   return (
     <MotionConfig reducedMotion="user"><div className="glass-home home-immersive min-h-screen">
-      <Suspense fallback={null}><HomeStage /></Suspense>
       <HeroSection />
+      <PixelStreamHero />
       <KnowledgeCoverage />
       <div className="page-container" data-home-beat="details" data-home-side="center"><details className="capability-details"><summary><span>{lang === 'zh' ? '项目介绍' : 'About the project'}</span><ChevronDown size={20} /></summary><PainPointsSection /><TechRouteSection /><ScenariosSection /><ArchitectureSection /><SimulationSection /><MultimodalSection /><ClosingSection /></details></div>
     </div></MotionConfig>
