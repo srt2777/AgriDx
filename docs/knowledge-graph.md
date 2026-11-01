@@ -18,7 +18,15 @@ GRAPHIFY_QUERY_LOG_DISABLE=1 uvx --from graphifyy==0.9.99 graphify path '千寻�
 
 Graphify 按名称查询遇同名时会要求消歧；其路径输出只是导出的目录关联。实测自然语言 `query` 可能因相同词语混入其他机型，并且会因预算截断，不能直接用于诊断；应先限定机型范围并逐条核对来源和适用性。项目内图谱的查询直接使用同一目录计算，不要求浏览器启动 Python 或 Graphify 服务。图谱节点当前不包含通识逐条正文，学习图谱导出到主题层级；机型关联证据可按知识目录查看原始条目。语义候选、跨机型同名部件边及故障诊断没有被导出为已核验因果。
 
-[Graphify](https://github.com/Graphify-Labs/graphify) 可另行使用 DeepSeek 做文档语义抽取，但本功能未运行该抽取、未接通外部模型或自动将候选写入图谱；接入时应明确使用 DeepSeek、限制已授权输入、保留来源及逐条审核，并验证数据传输边界。Graphify 的默认查询日志可通过上面的环境变量关闭。
+[Graphify](https://github.com/Graphify-Labs/graphify) 0.9.99 自带 DeepSeek 后端。需要进行语义抽取时，先单独准备只包含授权资料的小目录，并在安全环境中设置 `DEEPSEEK_API_KEY`；保留每个文件与原始来源、版本及页码的对应记录。`INPUT_DIR` 和 `OUTPUT_DIR` 分别指向独立的输入和输出目录，不要指向整个仓库或现有知识目录：
+
+```sh
+GRAPHIFY_QUERY_LOG_DISABLE=1 uvx --from 'graphifyy[openai]==0.9.99' graphify extract "$INPUT_DIR" \
+  --backend deepseek --model deepseek-v4-flash --max-concurrency 1 --api-timeout 30 \
+  --no-cluster --out "$OUTPUT_DIR"
+```
+
+抽取会将输入目录中的文档发送至 DeepSeek 并产生 API 费用，输出位于 `$OUTPUT_DIR/graphify-out/graph.json`，不覆盖上面的目录导出，也不会自动写回项目图谱。`--no-cluster` 表示此命令不做聚类；文档和模型推断出的关系须按原始资料、适用机型、来源和定位逐条审核，不能直接作为诊断事实。本地用模拟接口验证了 DeepSeek 后端的请求及单文档抽取；未配置真实密钥，未调用真实 DeepSeek API，也未运行真实资料的语义抽取。Graphify 的默认查询日志可通过上面的环境变量关闭。
 
 入口：`/#/knowledge?view=graph`，知识页选择“知识图谱”。3.13.5起弃用球形知识星系及WebGL渲染器，改用固定分层分类浏览。
 
