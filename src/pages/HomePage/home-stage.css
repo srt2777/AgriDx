@@ -209,3 +209,209 @@
     -webkit-backdrop-filter: none;
   }
 }
+
+/* ===== Classic cinematic hero (old version only) =====
+ * Scope: only .classic-cinematic-hero inside the old home page. The
+ * classic-system reset forces 14px / no animation / no shadows on the old
+ * shell, so every rule below re-asserts its value with a higher-specificity
+ * selector plus !important. Other old pages (knowledge / chat / models) do
+ * not carry this class and are therefore untouched by this section.
+ * Hero media is a real repository asset (public/images/agri-fields.webp),
+ * rendered as an <img>, not a CSS background, so it is not affected by the
+ * reset's background-image rule. The 3D HomeStage is left untouched: the
+ * photo covers it on the first screen only, and it still shows through the
+ * transparent sections below, as before. */
+
+.fluid-workspace[data-ui-version='old'] .home-immersive .classic-cinematic-hero {
+  background-color: #101812 !important;
+  min-height: calc(100dvh - 64px) !important;
+  padding: 0 !important;
+  justify-content: flex-end !important;
+  overflow: hidden;
+}
+.fluid-workspace[data-ui-version='old'] .home-immersive .classic-cinematic-hero .classic-hero-media {
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 0 !important;
+  overflow: hidden !important;
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+}
+.fluid-workspace[data-ui-version='old'] .home-immersive .classic-cinematic-hero .classic-hero-media-img {
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  object-position: 70% 55% !important;
+  animation: classic-cinematic-fade 1s ease both !important;
+}
+.fluid-workspace[data-ui-version='old'] .home-immersive .classic-cinematic-hero .classic-hero-scrim {
+  position: absolute !important;
+  inset: 0 !important;
+  background-image: linear-gradient(180deg, rgba(0, 0, 0, 0.28) 0%, rgba(0, 0, 0, 0) 32%, rgba(0, 0, 0, 0.18) 55%, rgba(0, 0, 0, 0.68) 100%) !important;
+}
+.fluid-workspace[data-ui-version='old'] .home-immersive .classic-cinematic-hero > .hero-layout {
+  position: relative !important;
+  z-index: 1 !important;
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 48px 64px !important;
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+.fluid-workspace[data-ui-version='old'] .home-immersive .classic-cinematic-hero .hero-copy {
+  width: 100% !important;
+  max-width: 42rem !important;
+}
+.fluid-workspace[data-ui-version='old'] .home-immersive .classic-cinematic-hero .classic-hero-eyebrow {
+  font-size: 12px !important;
+  line-height: 1.6 !important;
+  letter-spacing: 0.14em !important;
+  font-weight: 600 !important;
+  color: rgba(255, 255, 255, 0.78) !important;
+  margin-bottom: 20px !important;
+}
+.fluid-workspace[data-ui-version='old'] .home-immersive .classic-cinematic-hero .hero-title {
+  font-family: "Noto Serif SC", "Songti SC", "STSong", "SimSun", serif !important;
+  font-size: clamp(2.75rem, 6.5vw, 5.25rem) !important;
+  line-height: 0.98 !important;
+  letter-spacing: -0.02em !important;
+  font-weight: 900 !important;
+  color: #ffffff !important;
+  margin-bottom: 20px !important;
+}
+.fluid-workspace[data-ui-version='old'] .home-immersive .classic-cinematic-hero .classic-hero-title-line {
+  display: block !important;
+  font-size: inherit !important;
+  line-height: inherit !important;
+  letter-spacing: inherit !important;
+  color: inherit !important;
+}
+.fluid-workspace[data-ui-version='old'] .home-immersive .classic-cinematic-hero .classic-hero-title-highlight {
+  color: #e6f0d8 !important;
+}
+.fluid-workspace[data-ui-version='old'] .home-immersive .classic-cinematic-hero .hero-description {
+  font-size: 16px !important;
+  line-height: 1.6 !important;
+  letter-spacing: 0 !important;
+  color: rgba(255, 255, 255, 0.88) !important;
+  max-width: 40rem !important;
+  margin-bottom: 28px !important;
+}
+.fluid-workspace[data-ui-version='old'] .home-immersive .classic-cinematic-hero .hero-actions {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  gap: 16px !important;
+  margin-bottom: 20px !important;
+}
+.fluid-workspace[data-ui-version='old'] .home-immersive .classic-cinematic-hero .hero-cta-primary {
+  color: #ffffff !important;
+  border-radius: 999px !important;
+  padding: 14px 28px !important;
+  min-height: 48px !important;
+  font-size: 15px !important;
+  line-height: 1.4 !important;
+  transition: transform 0.2s ease, background-color 0.2s ease !important;
+}
+.fluid-workspace[data-ui-version='old'] .home-immersive .classic-cinematic-hero .hero-cta-primary:hover {
+  transform: scale(1.03) !important;
+}
+.fluid-workspace[data-ui-version='old'] .home-immersive .classic-cinematic-hero .hero-text-link {
+  font-size: 15px !important;
+  line-height: 1.4 !important;
+  color: #ffffff !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.45) !important;
+  padding-bottom: 2px !important;
+}
+.fluid-workspace[data-ui-version='old'] .home-immersive .classic-cinematic-hero .hero-text-link:hover {
+  border-bottom-color: #ffffff !important;
+}
+.fluid-workspace[data-ui-version='old'] .home-immersive .classic-cinematic-hero .hero-evidence-note {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  font-size: 12px !important;
+  line-height: 1.6 !important;
+  color: rgba(255, 255, 255, 0.75) !important;
+  margin-top: 0 !important;
+}
+.fluid-workspace[data-ui-version='old'] .home-immersive .classic-cinematic-hero .hero-stage-note {
+  margin: 24px 0 0 !important;
+  background: transparent !important;
+  border: 0 !important;
+}
+.fluid-workspace[data-ui-version='old'] .home-immersive .classic-cinematic-hero .hero-model-caption {
+  font-size: 13px !important;
+  line-height: 1.6 !important;
+  color: rgba(255, 255, 255, 0.8) !important;
+}
+.fluid-workspace[data-ui-version='old'] .home-immersive .classic-cinematic-hero .hero-model-entry-link {
+  background: transparent !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.5) !important;
+  border-radius: 999px !important;
+  padding: 8px 16px !important;
+  min-height: 40px !important;
+  font-size: 13px !important;
+}
+.fluid-workspace[data-ui-version='old'] .home-immersive .classic-cinematic-hero .hero-affiliation {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  font-size: 12px !important;
+  line-height: 1.6 !important;
+  color: rgba(255, 255, 255, 0.65) !important;
+  margin-top: 20px !important;
+}
+@keyframes classic-cinematic-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes classic-cinematic-rise {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.fluid-workspace[data-ui-version='old'] .home-immersive .classic-cinematic-hero .classic-hero-rise {
+  animation: classic-cinematic-rise 0.8s cubic-bezier(0.22, 1, 0.36, 1) both !important;
+}
+.fluid-workspace[data-ui-version='old'] .home-immersive .classic-cinematic-hero .hero-copy > :nth-child(1) { animation-delay: 0s !important; }
+.fluid-workspace[data-ui-version='old'] .home-immersive .classic-cinematic-hero .hero-copy > :nth-child(2) { animation-delay: 0.1s !important; }
+.fluid-workspace[data-ui-version='old'] .home-immersive .classic-cinematic-hero .hero-copy > :nth-child(3) { animation-delay: 0.2s !important; }
+.fluid-workspace[data-ui-version='old'] .home-immersive .classic-cinematic-hero .hero-copy > :nth-child(4) { animation-delay: 0.3s !important; }
+.fluid-workspace[data-ui-version='old'] .home-immersive .classic-cinematic-hero .hero-copy > :nth-child(5) { animation-delay: 0.4s !important; }
+.fluid-workspace[data-ui-version='old'] .home-immersive .classic-cinematic-hero .hero-copy > :nth-child(6) { animation-delay: 0.5s !important; }
+.fluid-workspace[data-ui-version='old'] .home-immersive .classic-cinematic-hero .hero-copy > :nth-child(7) { animation-delay: 0.6s !important; }
+@media (prefers-reduced-motion: reduce) {
+  .fluid-workspace[data-ui-version='old'] .home-immersive .classic-cinematic-hero .classic-hero-media-img,
+  .fluid-workspace[data-ui-version='old'] .home-immersive .classic-cinematic-hero .classic-hero-rise,
+  .fluid-workspace[data-ui-version='old'] .home-immersive .classic-cinematic-hero .hero-cta-primary {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+@media (max-width: 959px) {
+  .fluid-workspace[data-ui-version='old'] .home-immersive .classic-cinematic-hero {
+    min-height: calc(100dvh - 46dvh) !important;
+  }
+  .fluid-workspace[data-ui-version='old'] .home-immersive .classic-cinematic-hero > .hero-layout {
+    padding: 0 20px 72px !important;
+  }
+  .fluid-workspace[data-ui-version='old'] .home-immersive .classic-cinematic-hero .classic-hero-media-img {
+    object-position: 82% 50% !important;
+  }
+  .fluid-workspace[data-ui-version='old'] .home-immersive .classic-cinematic-hero .hero-title {
+    font-size: clamp(2.25rem, 11vw, 3.25rem) !important;
+  }
+  .fluid-workspace[data-ui-version='old'] .home-immersive .classic-cinematic-hero .hero-description {
+    font-size: 15px !important;
+  }
+}

@@ -163,3 +163,13 @@
 @media (max-width: 899px) {
   .fluid-workspace[data-ui-version='old'] .home-immersive > .home-stage { left: 0; width: 100%; }
 }
+
+/* ===== Classic cinematic shell (old version only) =====
+ * Layout, collapse, drawer, topbar structure and all shell behaviour are
+ * unchanged. Only navigation typography is tightened to the cinematic
+ * scale (13px nav, within the 12-15px range); the grass accent stays on
+ * exactly the elements it was already on (primary CTA, active nav row,
+ * status dot, focus ring). */
+.classic-cinematic-shell .fluid-row { font-size: 13px !important; }
+.classic-cinematic-shell .fluid-breadcrumb { font-size: 13px !important; }
+.classic-cinematic-shell .fluid-group summary { font-size: 12px !important; }

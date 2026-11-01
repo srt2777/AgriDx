@@ -3,8 +3,8 @@ import { ArrowRight, Database, ShieldCheck, Box, Wheat } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import content, { pick } from '@/data/content';
 import { useLang } from '@/hooks/useLang';
-import { LiquidGlass } from '@/components/ui/liquid-glass';
 import { preloadPage } from '@/lib/page-loaders';
+import { publicAsset } from '@/lib/public-asset';
 
 export default function HeroSection() {
   const navigate = useNavigate();
@@ -13,16 +13,16 @@ export default function HeroSection() {
   const t = (zh: string, en: string) => lang === 'zh' ? zh : en;
   return (
     <>
-      <section className="glass-hero w-full" data-home-beat="hero" data-home-side="start">
+      <section className="glass-hero classic-cinematic-hero w-full" data-home-beat="hero" data-home-side="start">
         <div className="hero-layout page-container">
           <div className="hero-copy">
-            <div className="hero-affiliation">
-              <Wheat size={18} strokeWidth={1.5} />
-              <span>{t('南京农业大学工学院 农机智能诊断', 'College of Engineering, NAU Machinery diagnosis')}</span>
-            </div>
-            <h1 className="hero-title text-foreground">{t('农机故障诊断', 'Machinery diagnosis')}</h1>
-            <p className="hero-description">{t('按机型查阅资料，结合故障现象寻找排查依据。', 'Find machine-specific documents and evidence for troubleshooting.')}</p>
-            <div className="hero-actions">
+            <div className="classic-hero-eyebrow classic-hero-rise">{pick(h.eyebrow, lang)}</div>
+            <h1 className="hero-title classic-hero-title classic-hero-rise">
+              <span className="classic-hero-title-line">{pick(h.title1, lang)}</span>
+              <span className="classic-hero-title-line classic-hero-title-highlight">{pick(h.titleHighlight, lang)}</span>
+            </h1>
+            <p className="hero-description classic-hero-rise">{pick(h.desc, lang)}</p>
+            <div className="hero-actions classic-hero-rise">
               <Button size="lg" onPointerEnter={() => preloadPage('/chat')} onFocus={() => preloadPage('/chat')} onClick={() => navigate('/chat')} className="hero-cta-primary gap-3">
                 {pick(h.ctaPrimary, lang)}<ArrowRight size={17} />
               </Button>
@@ -30,16 +30,22 @@ export default function HeroSection() {
                 {pick(h.ctaSecondary, lang)}<ArrowRight size={16} />
               </Link>
             </div>
-            <div className="hero-evidence-note"><span className="status-dot" />{t('以资料适用范围为边界 缺口明确标注', 'Source-aware guidance visible knowledge gaps')}</div>
-            <figure className="hero-stage-note">
+            <div className="hero-evidence-note classic-hero-rise"><span className="status-dot" />{t('以资料适用范围为边界 缺口明确标注', 'Source-aware guidance visible knowledge gaps')}</div>
+            <figure className="hero-stage-note classic-hero-rise">
               <figcaption className="hero-model-caption">
                 <span>{t('鸿鹄 T70 照片色部件示意', 'Honghu T70 Photo-colored parts')}</span>
-                <LiquidGlass variant="regular" lens displacementScale={40} className="hero-model-entry" contentClassName="hero-model-entry-content">
-                  <Link to="/models" onPointerEnter={() => preloadPage('/models')} onFocus={() => preloadPage('/models')} className="hero-model-entry-link press-control"><span>{t('进入模型工坊', 'Model studio')}</span><ArrowRight size={15} /></Link>
-                </LiquidGlass>
+                <Link to="/models" onPointerEnter={() => preloadPage('/models')} onFocus={() => preloadPage('/models')} className="hero-model-entry-link press-control"><span>{t('进入模型工坊', 'Model studio')}</span><ArrowRight size={15} /></Link>
               </figcaption>
             </figure>
+            <div className="hero-affiliation classic-hero-affiliation classic-hero-rise">
+              <Wheat size={18} strokeWidth={1.5} />
+              <span>{t('南京农业大学工学院 农机智能诊断', 'College of Engineering, NAU Machinery diagnosis')}</span>
+            </div>
           </div>
+        </div>
+        <div className="classic-hero-media" aria-hidden="true">
+          <img src={publicAsset('images/agri-fields.webp')} alt="" className="classic-hero-media-img" />
+          <div className="classic-hero-scrim" />
         </div>
       </section>
       <div className="capability-strip page-container" data-home-beat="capabilities" data-home-side="band" aria-label={t('系统能力', 'Platform capabilities')}>

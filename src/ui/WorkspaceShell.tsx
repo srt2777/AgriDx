@@ -72,7 +72,7 @@ export function WorkspaceShell() {
     <div className="fluid-sidebar-bottom"><div><VersionSwitch onChange={() => navigate('/')} /></div></div>
   </>;
 
-  return <MotionConfig reducedMotion="always"><div className={`classic-version-shell fluid-workspace${collapsed ? ' is-collapsed' : ''}`} data-ui-version="old" data-route={pathname}>
+  return <MotionConfig reducedMotion="always"><div className={`classic-version-shell classic-cinematic-shell fluid-workspace${collapsed ? ' is-collapsed' : ''}`} data-ui-version="old" data-route={pathname}>
     <a className="fluid-skip-link" href="#main-content" onClick={(event) => { event.preventDefault(); document.getElementById('main-content')?.focus(); }}>{t('跳到主要内容', 'Skip to content')}</a>
     <aside className="fluid-sidebar" aria-label={t('工作空间侧边栏', 'Workspace sidebar')}>{sidebar()}</aside>
     <dialog ref={dialog} className="fluid-drawer" aria-label={t('导航菜单', 'Navigation menu')} onClick={event => { if (event.target === event.currentTarget) dialog.current?.close(); }} onClose={() => mobileTrigger.current?.focus()}>{sidebar(true)}</dialog>
