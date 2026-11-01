@@ -1,5 +1,25 @@
 # 知识库分类关系图
 
+## 2026-11-01：Graphify 查询与千寻目录修正
+
+用户更正了此前排除千寻的要求。来源归档图谱、辅助目录和关系接口恢复显示现有“千寻位置”目录；其导航系统资料保留原有来源与适用范围，不作为拖拉机整机或故障因果。知识原件、`kb_version` 及现有诊断路径没有更改。此前排除记录保留为历史，不代表当前行为。
+
+来源归档及通识/术语图谱增加“查询目录路径”：先选择节点并设为起点，再选择终点查询。算法仅遍历当前筛选下的父子目录归属；不同根节点或不存在的节点不猜测路径。每个结果节点可重新选中，并通过现有原文入口查资料。归属路径不是维修顺序或因果链。
+
+新增 `npm run knowledge:graphify -- --out <新文件路径>`，从当前本地知识快照导出 Graphify 兼容的 NetworkX node-link JSON：保留归档及学习目录节点、归档机型到索引条目的关联和原有来源、定位、页码、版本、适用范围、核验状态；**不包含条目正文**，也不自动新增推断关系。`EXTRACTED` 指目录/索引中可追溯的关联，不代表厂家或实车验证。导出文件使用独占创建，已存在时不会覆盖。输出可能较大，建议放在 git 忽略的 `graphify-out/`，不要提交含敏感数据的文件。
+
+本地示例（需 Node 24、`npm ci` 和 `uv`；使用 Graphify 0.9.99，执行前确认当前快照和目录）：
+
+```sh
+npm run knowledge:graphify -- --out graphify-out/graph.json
+GRAPHIFY_QUERY_LOG_DISABLE=1 uvx --from graphifyy==0.9.99 graphify explain '千寻位置' --graph graphify-out/graph.json
+GRAPHIFY_QUERY_LOG_DISABLE=1 uvx --from graphifyy==0.9.99 graphify path '千寻位置' 'QY210 Pro' --graph graphify-out/graph.json --undirected
+```
+
+Graphify 按名称查询遇同名时会要求消歧；其路径输出只是导出的目录关联。项目内图谱的查询直接使用同一目录计算，不要求浏览器启动 Python 或 Graphify 服务。图谱节点当前不包含通识逐条正文，学习图谱导出到主题层级；机型关联证据可按知识目录查看原始条目。语义候选、跨机型同名部件边及故障诊断没有被导出为已核验因果。
+
+[Graphify](https://github.com/Graphify-Labs/graphify) 可另行使用 DeepSeek 做文档语义抽取，但本功能未运行该抽取、未接通外部模型或自动将候选写入图谱；接入时应明确使用 DeepSeek、限制已授权输入、保留来源及逐条审核，并验证数据传输边界。Graphify 的默认查询日志可通过上面的环境变量关闭。
+
 入口：`/#/knowledge?view=graph`，知识页选择“知识图谱”。3.13.5起弃用球形知识星系及WebGL渲染器，改用固定分层分类浏览。
 
 ## 2026-10-31：归档与学习主题分开浏览

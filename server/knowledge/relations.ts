@@ -9,7 +9,7 @@ import { peekKnowledgeSnapshot } from './snapshot';
 const cache = new WeakMap<KnowledgeCatalog, KnowledgeRelations>();
 /** Builds from exactly the catalog generation held by the active knowledge snapshot. */
 export function buildKnowledgeRelations(catalog: KnowledgeCatalog, semantic: SemanticRelationsInput = {}): KnowledgeRelations {
-  const nodes = taxonomyNodes(catalog).filter(node => node.query.brand !== '千寻位置');
+  const nodes = taxonomyNodes(catalog);
   const byId = new Map(nodes.map(node => [node.id, node]));
   const membership = new Map<string, number>();
   const edges: RelationEdge[] = [];
