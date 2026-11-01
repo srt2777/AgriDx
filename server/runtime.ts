@@ -1,3 +1,4 @@
+import { InMemoryShadowReviewStore } from '../agent/shadow-review';
 import { getMemoryStore } from './memory/store';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -16,6 +17,15 @@ export interface ServerRuntime {
   getLlmStatus: () => LlmStatus;
   getCatalog: typeof getKnowledgeCatalog;
   getMemoryStore?: typeof getMemoryStore;
+  /**
+   * Shared shadow-review store, fed by the diagnosis service's
+   * onShadowReview callback. Optional so existing test fixtures that build
+   * a ServerRuntime without a shadow loop keep compiling; the production
+   * runtime created by createServerRuntime always supplies it, and
+   * createApp falls back to an isolated empty store only for runtimes
+   * that omit it (their stub diagnose functions never feed it).
+   */
+  getShadowReviewStore?: () => InMemoryShadowReviewStore;
   telemetry?: TelemetryRuntime;
 }
 
@@ -27,10 +37,18 @@ export function createServerRuntime(): ServerRuntime {
   const llm = getLlmRouter();
   const rootDirectory = process.cwd();
   const version: string = JSON.parse(fs.readFileSync(path.resolve(rootDirectory, 'package.json'), 'utf8')).version;
+  // One shared store for the whole server process: the diagnosis service
+  // appends shadow records to it, and the internal shadow-review routes
+  // read from the same instance. It is deliberately separate from the
+  // diagnosis memory store, in-memory only, and capped at 100 records.
+  const shadowReviewStore = new InMemoryShadowReviewStore();
   return {
     rootDirectory, version, getMemoryStore,
     telemetry: telemetryFromEnvironment(rootDirectory),
-    diagnose: createDiagnosticService(llm),
+    diagnose: createDiagnosticService(llm, {
+      onShadowReview: (record) => { shadowReviewStore.append(record); },
+    }),
+    getShadowReviewStore: () => shadowReviewStore,
     getKnowledgeStats: stats,
     getLlmStatus: () => llm.getStatus(),
     getCatalog: getKnowledgeCatalog,

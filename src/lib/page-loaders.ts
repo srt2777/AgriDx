@@ -8,6 +8,7 @@ export const pageLoaders = {
   knowledge: () => import('@/pages/KnowledgePage/KnowledgePage'),
   chat: () => import('@/pages/ChatPage/ChatPage'),
   models: () => import('@/pages/ModelPage/ModelPage'),
+  shadowReview: () => import('@/pages/ShadowReviewPage/ShadowReviewPage'),
 };
 
 const prefetched = new Set<keyof typeof pageLoaders>();

@@ -10,6 +10,7 @@ const KnowledgePage = lazy(pageLoaders.knowledge);
 const ModelPage = lazy(pageLoaders.models);
 const VersionHistoryPage = lazy(pageLoaders.history);
 const FaultDetectionPage = lazy(pageLoaders.faultDetection);
+const ShadowReviewPage = lazy(pageLoaders.shadowReview);
 import NotFoundPage from '@/pages/NotFoundPage/NotFoundPage';
 import CommandPalette from '@/components/CommandPalette';
 import { NewVersionDelight } from '@/components/NewVersionDelight';
@@ -65,6 +66,8 @@ export default function App() {
         <Route path="models" element={<PageContent><ModelPage /></PageContent>} />
         <Route path="fault-detection" element={<PageContent><FaultDetectionPage /></PageContent>} />
         <Route path="version-history" element={<PageContent><VersionHistoryPage /></PageContent>} />
+      {/* Internal only: direct access at /shadow-review, deliberately not linked from the main navigation. */}
+      <Route path="shadow-review" element={<PageContent><ShadowReviewPage /></PageContent>} />
         <Route path="hall" element={<LegacyHallRedirect />} />
       </Route>
       {DeveloperPage && <Route path="developer" element={<PageContent><DeveloperPage /></PageContent>} />}
