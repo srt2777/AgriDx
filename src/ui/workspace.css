@@ -163,3 +163,8 @@
 @media (max-width: 899px) {
   .fluid-workspace[data-ui-version='old'] .home-immersive > .home-stage { left: 0; width: 100%; }
 }
+
+/* 旧版壳子（交互拖拉机 hero 重做版）：导航字号收紧，与电影感 hero 保持同一套克制排版。 */
+.fluid-workspace[data-ui-version='old'] .fluid-nav .fluid-row { font-size: 13px; }
+.fluid-workspace[data-ui-version='old'] .fluid-breadcrumb { font-size: 13px; }
+.fluid-workspace[data-ui-version='old'] .fluid-group summary { font-size: 12px; }

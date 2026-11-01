@@ -10,11 +10,9 @@ import KnowledgeCoverage from '@/components/KnowledgeCoverage';
 import { ChevronDown } from 'lucide-react';
 import { useLang } from '@/hooks/useLang';
 import { MotionConfig } from 'framer-motion';
-import { lazy, Suspense, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import './home-stage.css';
-
-const HomeStage = lazy(() => import('./HomeStage'));
 
 export default function HomePage() {
   const location = useLocation();
@@ -35,7 +33,7 @@ export default function HomePage() {
 
   return (
     <MotionConfig reducedMotion="user"><div className="glass-home home-immersive min-h-screen">
-      <Suspense fallback={null}><HomeStage /></Suspense>
+      {/* 交互拖拉机 hero 已在 HeroSection 内，旧滚动舞台不再挂载（见 HeroSection 注释）。 */}
       <HeroSection />
       <KnowledgeCoverage />
       <div className="page-container" data-home-beat="details" data-home-side="center"><details className="capability-details"><summary><span>{lang === 'zh' ? '项目介绍' : 'About the project'}</span><ChevronDown size={20} /></summary><PainPointsSection /><TechRouteSection /><ScenariosSection /><ArchitectureSection /><SimulationSection /><MultimodalSection /><ClosingSection /></details></div>

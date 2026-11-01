@@ -1,0 +1,168 @@
+/* 旧版首页交互拖拉机 hero：只对 .tractor-hero 生效，不碰新版与旧版其他页。 */
+.fluid-workspace[data-ui-version='old'] .tractor-hero {
+  position: relative !important;
+  min-height: 640px !important;
+  height: calc(100svh - 64px) !important;
+  overflow: hidden !important;
+  background-color: #0d1512 !important;
+  color: #ffffff !important;
+  isolation: isolate !important;
+}
+.tractor-hero-canvas {
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 0 !important;
+  opacity: 0 !important;
+  transition: opacity 0.6s ease !important;
+}
+.tractor-hero-canvas.is-ready { opacity: 1 !important; }
+.tractor-hero-canvas canvas { display: block !important; width: 100% !important; height: 100% !important; touch-action: none !important; }
+.tractor-hero-fallback {
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  object-position: center 40% !important;
+}
+/* 文字面板用半透明实色，不用渐变背景图（旧版全局重置会清掉 background-image）。 */
+.fluid-workspace[data-ui-version='old'] .tractor-hero-copy {
+  position: relative !important;
+  z-index: 2 !important;
+  max-width: 560px !important;
+  margin: 48px 0 0 40px !important;
+  padding: 28px 28px 24px !important;
+  border-radius: 16px !important;
+  background-color: rgba(8, 16, 11, 0.58) !important;
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+}
+.fluid-workspace[data-ui-version='old'] .tractor-hero-eyebrow {
+  font-size: 12px !important;
+  letter-spacing: 0.12em !important;
+  color: rgba(255, 255, 255, 0.75) !important;
+}
+.fluid-workspace[data-ui-version='old'] .tractor-hero-title {
+  margin: 14px 0 0 !important;
+  font-family: 'Noto Serif SC', 'Songti SC', 'SimSun', serif !important;
+  font-size: clamp(40px, 5.2vw, 76px) !important;
+  line-height: 1.02 !important;
+  letter-spacing: -0.02em !important;
+  color: #ffffff !important;
+}
+.fluid-workspace[data-ui-version='old'] .tractor-hero-description {
+  margin: 18px 0 0 !important;
+  font-size: 16px !important;
+  line-height: 1.65 !important;
+  color: rgba(255, 255, 255, 0.82) !important;
+}
+.tractor-hero-actions { display: flex !important; flex-wrap: wrap !important; align-items: center !important; gap: 16px !important; margin-top: 22px !important; }
+.fluid-workspace[data-ui-version='old'] .tractor-hero-text-link {
+  font-size: 14px !important;
+  color: #ffffff !important;
+  text-decoration: underline !important;
+  text-underline-offset: 4px !important;
+}
+.fluid-workspace[data-ui-version='old'] .tractor-hero-note {
+  margin-top: 18px !important;
+  font-size: 12px !important;
+  color: rgba(255, 255, 255, 0.7) !important;
+}
+.tractor-hero-dot {
+  display: inline-block !important;
+  width: 7px !important;
+  height: 7px !important;
+  margin-right: 8px !important;
+  border-radius: 50% !important;
+  background-color: #43a047 !important;
+}
+.tractor-hero-model-note {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  gap: 12px !important;
+  margin-top: 16px !important;
+  font-size: 12px !important;
+  color: rgba(255, 255, 255, 0.7) !important;
+}
+.fluid-workspace[data-ui-version='old'] .tractor-hero-model-link {
+  font-size: 13px !important;
+  color: #ffffff !important;
+  text-decoration: underline !important;
+  text-underline-offset: 4px !important;
+}
+/* 底部控制区：模式、标注卡、零件芯片、漫游方向盘，全部压在画布上层。 */
+.tractor-hero-panel {
+  position: absolute !important;
+  left: 40px !important;
+  right: 40px !important;
+  bottom: 20px !important;
+  z-index: 3 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 10px !important;
+}
+.tractor-hero-panel-row { display: flex !important; flex-wrap: wrap !important; align-items: center !important; gap: 8px !important; }
+/* 桌面端控制区只放在文案面板右侧，避免盖住面板底部的“柴油部件机”一行
+   （写在基础规则之后，同优先级下后出现的规则生效）。 */
+@media (min-width: 900px) {
+  .tractor-hero-panel { left: 640px !important; right: 24px !important; }
+}
+.fluid-workspace[data-ui-version='old'] .tractor-hero-mode,
+.fluid-workspace[data-ui-version='old'] .tractor-hero-chip,
+.fluid-workspace[data-ui-version='old'] .tractor-hero-close {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  min-height: 36px !important;
+  padding: 8px 14px !important;
+  border-radius: 999px !important;
+  font-size: 13px !important;
+  color: #ffffff !important;
+  background-color: rgba(255, 255, 255, 0.12) !important;
+  backdrop-filter: blur(8px) !important;
+  cursor: pointer !important;
+}
+.fluid-workspace[data-ui-version='old'] .tractor-hero-mode.is-active,
+.fluid-workspace[data-ui-version='old'] .tractor-hero-chip.is-active {
+  background-color: #2e7d32 !important;
+  color: #ffffff !important;
+}
+.fluid-workspace[data-ui-version='old'] .tractor-hero-roam-hint { font-size: 12px !important; color: rgba(255, 255, 255, 0.75) !important; }
+.tractor-hero-label-card {
+  position: relative !important;
+  max-width: 560px !important;
+  padding: 14px 44px 14px 16px !important;
+  border-radius: 12px !important;
+  background-color: rgba(8, 16, 11, 0.78) !important;
+  backdrop-filter: blur(10px) !important;
+  color: #ffffff !important;
+}
+.fluid-workspace[data-ui-version='old'] .tractor-hero-label-card strong { font-size: 16px !important; }
+.fluid-workspace[data-ui-version='old'] .tractor-hero-label-card span { margin-left: 10px !important; font-size: 12px !important; color: rgba(255, 255, 255, 0.7) !important; }
+.fluid-workspace[data-ui-version='old'] .tractor-hero-label-card p { margin: 6px 0 0 !important; font-size: 13px !important; line-height: 1.6 !important; color: rgba(255, 255, 255, 0.82) !important; }
+.tractor-hero-close { position: absolute !important; top: 8px !important; right: 8px !important; min-height: 28px !important; padding: 4px 8px !important; }
+.tractor-hero-chips { display: flex !important; flex-wrap: nowrap !important; gap: 8px !important; overflow-x: auto !important; padding-bottom: 4px !important; scrollbar-width: thin !important; }
+.tractor-hero-chip { flex: none !important; }
+.fluid-workspace[data-ui-version='old'] .tractor-hero-loading { font-size: 12px !important; color: rgba(255, 255, 255, 0.75) !important; }
+.tractor-hero-pad { display: flex !important; gap: 8px !important; }
+.fluid-workspace[data-ui-version='old'] .tractor-hero-pad button {
+  width: 44px !important;
+  height: 44px !important;
+  padding: 0 !important;
+  justify-content: center !important;
+  border-radius: 50% !important;
+  font-size: 18px !important;
+  background-color: rgba(255, 255, 255, 0.14) !important;
+  color: #ffffff !important;
+}
+@media (max-width: 899px) {
+  .fluid-workspace[data-ui-version='old'] .tractor-hero { height: calc(100svh - 56px) !important; min-height: 600px !important; }
+  .fluid-workspace[data-ui-version='old'] .tractor-hero-copy { margin: 16px 16px 0 !important; padding: 16px !important; }
+  .fluid-workspace[data-ui-version='old'] .tractor-hero-title { font-size: clamp(30px, 9vw, 44px) !important; line-height: 1.08 !important; }
+  .fluid-workspace[data-ui-version='old'] .tractor-hero-subtitle { font-size: 15px !important; line-height: 1.6 !important; }
+  .tractor-hero-panel { left: 16px !important; right: 16px !important; bottom: 14px !important; }
+  .tractor-hero-label-card { max-width: none !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tractor-hero-canvas { transition: none !important; }
+}

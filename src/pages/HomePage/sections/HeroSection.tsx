@@ -1,48 +1,19 @@
-import { Link, useNavigate } from 'react-router-dom';
-import { ArrowRight, Database, ShieldCheck, Box, Wheat } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import content, { pick } from '@/data/content';
+import { Database, ShieldCheck, Box } from 'lucide-react';
 import { useLang } from '@/hooks/useLang';
-import { LiquidGlass } from '@/components/ui/liquid-glass';
-import { preloadPage } from '@/lib/page-loaders';
+import TractorHero from './TractorHero';
 
+/**
+ * 旧版首页首屏：交互拖拉机 hero（重做版）。
+ * 旧滚动舞台 HomeStage 不再挂载——它与交互 hero 是两个 WebGL 画布，
+ * 同时存在会双倍加载模型并互相遮挡；HomeStage 文件本身未删除。
+ */
 export default function HeroSection() {
-  const navigate = useNavigate();
   const lang = useLang();
-  const h = content.HERO;
-  const t = (zh: string, en: string) => lang === 'zh' ? zh : en;
+  const t = (zh: string, en: string) => (lang === 'zh' ? zh : en);
   return (
     <>
-      <section className="glass-hero w-full" data-home-beat="hero" data-home-side="start">
-        <div className="hero-layout page-container">
-          <div className="hero-copy">
-            <div className="hero-affiliation">
-              <Wheat size={18} strokeWidth={1.5} />
-              <span>{t('南京农业大学工学院 农机智能诊断', 'College of Engineering, NAU Machinery diagnosis')}</span>
-            </div>
-            <h1 className="hero-title text-foreground">{t('农机故障诊断', 'Machinery diagnosis')}</h1>
-            <p className="hero-description">{t('按机型查阅资料，结合故障现象寻找排查依据。', 'Find machine-specific documents and evidence for troubleshooting.')}</p>
-            <div className="hero-actions">
-              <Button size="lg" onPointerEnter={() => preloadPage('/chat')} onFocus={() => preloadPage('/chat')} onClick={() => navigate('/chat')} className="hero-cta-primary gap-3">
-                {pick(h.ctaPrimary, lang)}<ArrowRight size={17} />
-              </Button>
-              <Link className="hero-text-link" to="/knowledge" onPointerEnter={() => preloadPage('/knowledge')} onFocus={() => preloadPage('/knowledge')}>
-                {pick(h.ctaSecondary, lang)}<ArrowRight size={16} />
-              </Link>
-            </div>
-            <div className="hero-evidence-note"><span className="status-dot" />{t('以资料适用范围为边界 缺口明确标注', 'Source-aware guidance visible knowledge gaps')}</div>
-            <figure className="hero-stage-note">
-              <figcaption className="hero-model-caption">
-                <span>{t('鸿鹄 T70 照片色部件示意', 'Honghu T70 Photo-colored parts')}</span>
-                <LiquidGlass variant="regular" lens displacementScale={40} className="hero-model-entry" contentClassName="hero-model-entry-content">
-                  <Link to="/models" onPointerEnter={() => preloadPage('/models')} onFocus={() => preloadPage('/models')} className="hero-model-entry-link press-control"><span>{t('进入模型工坊', 'Model studio')}</span><ArrowRight size={15} /></Link>
-                </LiquidGlass>
-              </figcaption>
-            </figure>
-          </div>
-        </div>
-      </section>
-      <div className="capability-strip page-container" data-home-beat="capabilities" data-home-side="band" aria-label={t('系统能力', 'Platform capabilities')}>
+      <TractorHero />
+      <div className="capability-strip page-container" data-home-beat="capabilities" aria-label={t('系统能力', 'Platform capabilities')}>
         {[
           { icon: Database, title: t('知识有依据', 'Grounded knowledge'), detail: t('本地维修资料辅助检索', 'Retrieval from local repair documents') },
           { icon: ShieldCheck, title: t('诊断可解释', 'Explainable diagnosis'), detail: t('原因分析与分步排查建议', 'Causes and step-by-step troubleshooting') },

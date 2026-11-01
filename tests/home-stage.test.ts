@@ -113,14 +113,19 @@ test('滚动索引、短列表映射、阻尼和减少动效', () => {
   assert.equal(presentPose(DESKTOP_BEATS[6].pose, false).explode, 0.24);
 });
 
-test('旧版首页只有一个固定舞台，T70 仍走工坊 Meshopt 与照片色', () => {
+test('旧版首页交互拖拉机 hero 取代滚动舞台，T70 工坊 Meshopt 与照片色仍保留', () => {
   const hero = read('../src/pages/HomePage/sections/HeroSection.tsx');
+  const tractorHero = read('../src/pages/HomePage/sections/TractorHero.tsx');
+  const tractorScene = read('../src/pages/HomePage/sections/TractorScene.tsx');
   const page = read('../src/pages/HomePage/HomePage.tsx');
   const stage = read('../src/pages/HomePage/HomeStage.tsx');
   const loader = read('../src/components/parts-tractor/load-parts-tractor.ts');
   assert.equal(hero.includes('TractorViewer'), false);
-  assert.match(hero, /鸿鹄 T70/);
-  assert.match(page, /lazy\(\(\) => import\('\.\/HomeStage'\)\)/);
+  assert.match(hero, /TractorHero/);
+  assert.match(tractorScene, /tractor-parts\/tractor_parts\.glb/);
+  assert.match(tractorScene, /DepthOfField|Autofocus/);
+  assert.match(tractorHero, /data-home-beat="hero"/);
+  assert.equal(page.includes("lazy(() => import('./HomeStage'))"), false);
   assert.match(page, /home-immersive/);
   assert.match(stage, /loadPartsTractor\(HONGHU_T70_PARTS_URL/);
   assert.match(stage, /frameloop="demand"/);
@@ -130,6 +135,6 @@ test('旧版首页只有一个固定舞台，T70 仍走工坊 Meshopt 与照片�
   assert.match(loader, /paint\.vertexColors = false/);
   assert.match(loader, /loader\.setMeshoptDecoder\(MeshoptDecoder\)/);
   for (const id of ['hero', 'capabilities', 'painpoints', 'knowledge', 'techroute', 'scenarios', 'details', 'closing']) {
-    assert.match(`${page}\n${hero}\n${read('../src/pages/HomePage/sections/PainPointsSection.tsx')}\n${read('../src/components/KnowledgeCoverage.tsx')}\n${read('../src/pages/HomePage/sections/TechRouteSection.tsx')}\n\n${read('../src/pages/HomePage/sections/ScenariosSection.tsx')}\n${read('../src/pages/HomePage/sections/ClosingSection.tsx')}`, new RegExp(`data-home-beat="${id}"`));
+    assert.match(`${page}\n${hero}\n${tractorHero}\n${read('../src/pages/HomePage/sections/PainPointsSection.tsx')}\n${read('../src/components/KnowledgeCoverage.tsx')}\n${read('../src/pages/HomePage/sections/TechRouteSection.tsx')}\n\n${read('../src/pages/HomePage/sections/ScenariosSection.tsx')}\n${read('../src/pages/HomePage/sections/ClosingSection.tsx')}`, new RegExp(`data-home-beat="${id}"`));
   }
 });
