@@ -217,7 +217,7 @@ function csv(data, kind) {
 }
 
 /** Private records stay behind server-side GitHub authorization; public collection has no read API. */
-export async function serveDevelopment(request, env = {}, ctx = {}, upstreamFetch = fetch) {
+async function serveDevelopmentInner(request, env = {}, ctx = {}, upstreamFetch = fetch) {
   const url = new URL(request.url), path = url.pathname;
   if (path === '/api/health' && request.method === 'GET') {
     const response = await servePreview(request, upstreamFetch);
@@ -230,7 +230,7 @@ export async function serveDevelopment(request, env = {}, ctx = {}, upstreamFetc
   try {
     const db = env.DB;
     if (path === '/api/dev-admin/session' && request.method === 'GET') return apiJson({ user: await session(request, db), configured: Boolean(db), repository, ...gatewayInfo, gatewaySourceHash: globalThis.__AGRIDX_GATEWAY_RELEASE__?.sourceHash || null });
-    if (request.method === 'POST' && request.headers.get('Origin') !== url.origin) fail(403, '此操作须从开发站页面发起。');
+    if (request.method === 'POST' && request.headers.get('Origin') !== url.origin && !(path === '/api/dev-ai/chat' && request.headers.get('Origin') === 'https://agridx-dialogue-workspace.spryflint15.chatgpt.site')) fail(403, '此操作须从授权页面发起。');
     const collection = path.startsWith('/api/dev-events/');
     const publicAi = path.startsWith('/api/dev-ai/');
     const loggingIn = path === '/api/dev-admin/login';
@@ -298,6 +298,22 @@ export async function serveDevelopment(request, env = {}, ctx = {}, upstreamFetc
     if (!error.status) console.error('[dev-admin] request failed');
     return apiJson({ error: error.status ? error.message : '内部数据服务暂不可用，请稍后重试。', ...(error.kind ? { errorKind: error.kind } : {}) }, error.status || 503, error.status === 429 ? { 'Retry-After': '60' } : {});
   }
+}
+
+// This exception grants browser access only to the partner's AI route; it is not authentication.
+export async function serveDevelopment(request, env = {}, ctx = {}, upstreamFetch = fetch) {
+  const url = new URL(request.url);
+  const partner = request.headers.get('Origin') === 'https://agridx-dialogue-workspace.spryflint15.chatgpt.site';
+  const allowed = partner && url.pathname === '/api/dev-ai/chat';
+  if (allowed && request.method === 'OPTIONS') {
+    return new Response(null, { status: 204, headers: { 'Access-Control-Allow-Origin': request.headers.get('Origin'), 'Access-Control-Allow-Methods': 'POST, OPTIONS', 'Access-Control-Allow-Headers': 'content-type', 'Vary': 'Origin', 'Cache-Control': 'no-store' } });
+  }
+  const response = await serveDevelopmentInner(request, env, ctx, upstreamFetch);
+  if (!allowed || request.method !== 'POST') return response;
+  const headers = new Headers(response.headers);
+  headers.set('Access-Control-Allow-Origin', request.headers.get('Origin'));
+  headers.append('Vary', 'Origin');
+  return new Response(response.body, { status: response.status, statusText: response.statusText, headers });
 }
 
 export default { fetch: (request, env, ctx) => serveDevelopment(request, env, ctx) };
