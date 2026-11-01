@@ -16,7 +16,7 @@ GRAPHIFY_QUERY_LOG_DISABLE=1 uvx --from graphifyy==0.9.99 graphify explain '千�
 GRAPHIFY_QUERY_LOG_DISABLE=1 uvx --from graphifyy==0.9.99 graphify path '千寻位置' 'QY210 Pro' --graph graphify-out/graph.json --undirected
 ```
 
-Graphify 按名称查询遇同名时会要求消歧；其路径输出只是导出的目录关联。项目内图谱的查询直接使用同一目录计算，不要求浏览器启动 Python 或 Graphify 服务。图谱节点当前不包含通识逐条正文，学习图谱导出到主题层级；机型关联证据可按知识目录查看原始条目。语义候选、跨机型同名部件边及故障诊断没有被导出为已核验因果。
+Graphify 按名称查询遇同名时会要求消歧；其路径输出只是导出的目录关联。实测自然语言 `query` 可能因相同词语混入其他机型，并且会因预算截断，不能直接用于诊断；应先限定机型范围并逐条核对来源和适用性。项目内图谱的查询直接使用同一目录计算，不要求浏览器启动 Python 或 Graphify 服务。图谱节点当前不包含通识逐条正文，学习图谱导出到主题层级；机型关联证据可按知识目录查看原始条目。语义候选、跨机型同名部件边及故障诊断没有被导出为已核验因果。
 
 [Graphify](https://github.com/Graphify-Labs/graphify) 可另行使用 DeepSeek 做文档语义抽取，但本功能未运行该抽取、未接通外部模型或自动将候选写入图谱；接入时应明确使用 DeepSeek、限制已授权输入、保留来源及逐条审核，并验证数据传输边界。Graphify 的默认查询日志可通过上面的环境变量关闭。
 
