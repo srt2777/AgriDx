@@ -32,6 +32,11 @@ export function taxonomyNodes(catalog: KnowledgeCatalog): TaxonomyNode[] {
   return nodes;
 }
 
+/** Apply the graph display exclusion without deleting the source catalog. */
+export function graphTaxonomyNodes(catalog: KnowledgeCatalog): TaxonomyNode[] {
+  return taxonomyNodes(catalog).filter(node => node.query.brand !== '千寻位置');
+}
+
 export interface TaxonomyFilters {
   entryType?: string;
   role?: KnowledgeRole;

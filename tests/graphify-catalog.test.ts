@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { loadKnowledgeCatalog } from '../server/knowledge/catalog';
-import { taxonomyNodes, type TaxonomyNode } from '../src/pages/KnowledgePage/knowledge-taxonomy-data';
+import { graphTaxonomyNodes, taxonomyNodes, type TaxonomyNode } from '../src/pages/KnowledgePage/knowledge-taxonomy-data';
 import { membershipPath } from '../src/pages/KnowledgePage/knowledge-graph-path';
 import { buildGraphifyCatalog } from '../scripts/export-graphify';
 
@@ -15,14 +15,16 @@ test('catalog path joins branches through the nearest parent and never invents a
   assert.equal(membershipPath([sample('x', 'y'), sample('y', 'x')], 'x', 'y'), null);
 });
 
-test('Graphify export preserves catalog identities, source metadata and Qianxun without exporting evidence bodies', () => {
-  const catalog = loadKnowledgeCatalog(), original = taxonomyNodes(catalog);
+test('Graphify export preserves visible catalog identities and evidence without exporting excluded nodes or bodies', () => {
+  const catalog = loadKnowledgeCatalog(), original = taxonomyNodes(catalog), visible = graphTaxonomyNodes(catalog);
   const graph = buildGraphifyCatalog();
   assert.equal(graph.graph.kb_version, catalog.kbVersion);
   const ids = new Set(graph.nodes.map(node => node.id));
   assert.equal(ids.size, graph.nodes.length);
   assert.ok(original.some(node => node.query.brand === '千寻位置'));
-  assert.ok(original.every(node => ids.has(node.id)));
+  assert.ok(visible.every(node => ids.has(node.id)));
+  assert.ok(original.filter(node => node.query.brand === '千寻位置').every(node => !ids.has(node.id)));
+  assert.ok(!graph.nodes.some(node => node.label === '千寻位置' || node.label === 'QY210 Pro' || node.label === 'QYBD-2.5SD'));
   assert.ok(ids.has(JSON.stringify(['learning', 'general'])));
   assert.ok(ids.has(JSON.stringify(['learning', 'terminology'])));
   assert.ok(graph.links.every(edge => ids.has(edge.source) && ids.has(edge.target)));

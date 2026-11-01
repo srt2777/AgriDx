@@ -3,7 +3,7 @@ import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import type { KnowledgeCatalog, KnowledgeRole } from '@shared/knowledge-catalog';
 import { useKnowledgeCatalog } from '@/hooks/useKnowledgeCatalog';
-import { taxonomyNodes, visibleTaxonomyNodes, type TaxonomyNode } from './knowledge-taxonomy-data';
+import { graphTaxonomyNodes, visibleTaxonomyNodes, type TaxonomyNode } from './knowledge-taxonomy-data';
 import TaxonomyGraphCanvas from './TaxonomyGraphCanvas';
 import EvidenceEntry from './EvidenceEntry';
 import LearningKnowledgeGraph from './LearningKnowledgeGraph';
@@ -24,7 +24,7 @@ export default function KnowledgeGraph({ catalog, lang }: { catalog: KnowledgeCa
 
 function ArchiveKnowledgeGraph({ catalog, lang }: { catalog: KnowledgeCatalog; lang: string }) {
   const { t, separator } = useUiCopy(lang);
-  const allNodes = useMemo(() => taxonomyNodes(catalog), [catalog]);
+  const allNodes = useMemo(() => graphTaxonomyNodes(catalog), [catalog]);
   const [selectedId, setSelected] = useState('');
   const [search, setSearch] = useState('');
   const [entryTypeFilter, setEntryTypeFilter] = useState('');

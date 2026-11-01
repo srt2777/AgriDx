@@ -17,7 +17,7 @@ test('heuristic membership and shared components remain bounded and deterministi
   assert.ok(componentStrength(4,5,roles,roles,.2,.3) <= .2);
   const data=buildKnowledgeRelations(getKnowledgeCatalog());
   assert.ok(data.nodes.length >= 5636); assert.ok(data.nodes.some(id => id.includes('T1254B'))); assert.ok(data.edges.every(e=>Number.isFinite(e.strength) && e.strength>=0 && e.strength<=1));
-  assert.ok(data.nodes.some(id=>id.includes('千寻位置')));
+  assert.ok(!data.nodes.some(id=>id.includes('千寻位置')));
   assert.ok(data.edges.filter(e=>e.type==='membership' && e.evidence.childCount===0).every(e=>e.strength===0));
   assert.deepEqual(buildKnowledgeRelations(getKnowledgeCatalog()),data);
   const bytes=Buffer.byteLength(JSON.stringify(data)); console.log(`[relations] ${data.nodes.length} nodes, ${data.edges.length} edges, ${bytes} bytes uncompressed`);

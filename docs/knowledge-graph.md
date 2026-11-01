@@ -1,8 +1,8 @@
 # 知识库分类关系图
 
-## 2026-11-01：Graphify 查询与千寻目录修正
+## 2026-11-01：Graphify 查询与图谱显示范围
 
-用户更正了此前排除千寻的要求。来源归档图谱、辅助目录和关系接口恢复显示现有“千寻位置”目录；其导航系统资料保留原有来源与适用范围，不作为拖拉机整机或故障因果。知识原件、`kb_version` 及现有诊断路径没有更改。此前排除记录保留为历史，不代表当前行为。
+用户明确要求不显示“千寻位置”节点。来源归档图谱、辅助目录、关系接口及 Graphify 导出继续排除该品牌及其下级节点；源知识与其导航资料不删除。知识原件、`kb_version` 及现有诊断路径没有更改。
 
 来源归档及通识/术语图谱增加“查询目录路径”：先选择节点并设为起点，再选择终点查询。算法仅遍历当前筛选下的父子目录归属；不同根节点或不存在的节点不猜测路径。每个结果节点可重新选中，并通过现有原文入口查资料。归属路径不是维修顺序或因果链。
 
@@ -12,8 +12,8 @@
 
 ```sh
 npm run knowledge:graphify -- --out graphify-out/graph.json
-GRAPHIFY_QUERY_LOG_DISABLE=1 uvx --from graphifyy==0.9.99 graphify explain '千寻位置' --graph graphify-out/graph.json
-GRAPHIFY_QUERY_LOG_DISABLE=1 uvx --from graphifyy==0.9.99 graphify path '千寻位置' 'QY210 Pro' --graph graphify-out/graph.json --undirected
+GRAPHIFY_QUERY_LOG_DISABLE=1 uvx --from graphifyy==0.9.99 graphify explain '东方红' --graph graphify-out/graph.json
+GRAPHIFY_QUERY_LOG_DISABLE=1 uvx --from graphifyy==0.9.99 graphify path '东方红' 'LF804S' --graph graphify-out/graph.json --undirected
 ```
 
 Graphify 按名称查询遇同名时会要求消歧；其路径输出只是导出的目录关联。实测自然语言 `query` 可能因相同词语混入其他机型，并且会因预算截断，不能直接用于诊断；应先限定机型范围并逐条核对来源和适用性。项目内图谱的查询直接使用同一目录计算，不要求浏览器启动 Python 或 Graphify 服务。图谱节点当前不包含通识逐条正文，学习图谱导出到主题层级；机型关联证据可按知识目录查看原始条目。语义候选、跨机型同名部件边及故障诊断没有被导出为已核验因果。

@@ -2,13 +2,13 @@ import { mkdirSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { getKnowledgeCatalog, loadKnowledgeCatalog } from '../server/knowledge/catalog';
-import { taxonomyNodes } from '../src/pages/KnowledgePage/knowledge-taxonomy-data';
+import { graphTaxonomyNodes } from '../src/pages/KnowledgePage/knowledge-taxonomy-data';
 import { learningTaxonomy } from '../src/pages/KnowledgePage/knowledge-learning-graph';
 
 /** Export the current local catalog in Graphify/NetworkX node-link format. */
 export function buildGraphifyCatalog() {
   const catalog = loadKnowledgeCatalog();
-  const taxonomy = [...taxonomyNodes(catalog), ...(catalog.organization ? learningTaxonomy(catalog.organization, { general: '通用原理', terminology: '农业术语' }) : [])];
+  const taxonomy = [...graphTaxonomyNodes(catalog), ...(catalog.organization ? learningTaxonomy(catalog.organization, { general: '通用原理', terminology: '农业术语' }) : [])];
   const nodes: Record<string, unknown>[] = taxonomy.map(node => ({
     id: node.id, label: node.label, node_type: node.level, count: node.count,
     scope: node.scope ?? null, catalog_query: node.query, file_type: 'catalog',
@@ -18,8 +18,10 @@ export function buildGraphifyCatalog() {
     evidence: 'AgriDx 知识目录归属，非故障因果或兼容性',
   }] : []);
   const seenEntries = new Set<string>();
+  const includedModels = new Set(taxonomy.filter(node => node.level === 'model').map(node => node.id));
   for (const brand of catalog.brands) for (const model of brand.models) {
     const modelId = JSON.stringify([brand.id, model.id]);
+    if (!includedModels.has(modelId)) continue;
     const selection = getKnowledgeCatalog({ brand: brand.id, model: model.id }).selected;
     for (const entry of selection?.entries ?? []) {
       const id = `entry:${entry.entryId}`;
