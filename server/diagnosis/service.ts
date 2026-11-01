@@ -112,7 +112,7 @@ export function createDiagnosticService(llm: DiagnosticProvider, dependencies: D
           mainRoute: input.mainRoute ?? 'ai', ...(input.mainReason !== undefined ? { mainReason: input.mainReason } : {}) } } : {}) });
       return { report: { status: result.status, reason: 'reason' in result ? result.reason : null, provider: provider.name, durationMs: now() - started, toolEvents: result.toolEvents },
         ...(result.reviewRecord ? { reviewRecord: result.reviewRecord } : {}) };
-    })().catch((error: unknown): { report: ShadowLoopReport } => {
+    })().catch((error: unknown): { report: ShadowLoopReport; reviewRecord?: ShadowReviewRecord } => {
       console.warn(`[agent-shadow] failed: ${error instanceof Error ? error.name : 'unknown error'}`);
       return { report: { status: 'error', reason: 'unexpected_error', provider: provider.name, durationMs: now() - started, toolEvents: [] } };
     }).then(({ report, reviewRecord }) => {
