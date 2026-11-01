@@ -6,8 +6,10 @@ import type { KnowledgeLibrary, KnowledgeOrganization, LibraryEntry, LibraryKind
 import DeferredMarkdown from '@/components/DeferredMarkdown';
 import { KnowledgePeek } from '@/components/CardPeek';
 import { useUiVersion } from '@/hooks/useUiVersion';
+import { displayArchiveEntry, hiddenCatalogBrand } from './catalog-display';
 
-function LibraryCard({ entry, lang }: { entry: LibraryEntry; lang: string }) {
+function LibraryCard({ entry: originalEntry, lang }: { entry: LibraryEntry; lang: string }) {
+  const entry = displayArchiveEntry(originalEntry);
   const [open, setOpen] = useState(false);
   const version = useUiVersion();
   const { t, format, separator } = useUiCopy(lang);
@@ -18,6 +20,7 @@ function LibraryCard({ entry, lang }: { entry: LibraryEntry; lang: string }) {
       <span>{entry.entryId}{separator}{category}{(version === 'new' || format(entry.entryType) !== category) && <>{separator}{format(entry.entryType)}</>}</span>
     </div>{version === 'new' && <KnowledgePeek kind={entry.collection === 'learning' ? 'learning' : 'archive'} caption={entry.entryType} />}<ChevronRight size={18} className="evidence-toggle" /></summary>
     {open && <div className="evidence-entry-body">
+      {entry.collection === 'archive' && entry.brand === hiddenCatalogBrand && <p>{t('页面已隐藏品牌名称；原始资料及来源链接保留，请以原文核对。', 'Brand names are hidden in this view; the original source remains available for verification.')}</p>}
       <dl className="evidence-provenance">
         <div><dt>{t('核验状态', 'Verification status')}</dt><dd>{entry.status}</dd></div>
         {entry.collection === 'learning' ? <>
@@ -32,7 +35,7 @@ function LibraryCard({ entry, lang }: { entry: LibraryEntry; lang: string }) {
         </>}
       </dl>
       <div className="prose prose-sm max-w-none overflow-x-auto dark:prose-invert"><DeferredMarkdown>{entry.content}</DeferredMarkdown></div>
-      {entry.collection === 'archive' && <div className="evidence-entry-footer"><Link className="hero-text-link" to={`/knowledge?${new URLSearchParams({ brand: entry.brand, model: entry.models[0] })}`}>
+      {entry.collection === 'archive' && entry.brand !== hiddenCatalogBrand && <div className="evidence-entry-footer"><Link className="hero-text-link" to={`/knowledge?${new URLSearchParams({ brand: entry.brand, model: entry.models[0] })}`}>
         {t('查看这份资料的机型目录', 'Open this document’s model directory')}<ChevronRight size={15} />
       </Link></div>}
     </div>}
