@@ -1,6 +1,6 @@
 {
   "name": "agri-fault-diagnosis",
-  "version": "4.0.27",
+  "version": "4.0.28",
   "private": true,
   "type": "module",
   "scripts": {
@@ -14,6 +14,7 @@
     "knowledge:quality": "node scripts/knowledge-quality.mjs",
     "knowledge:learning:check": "node scripts/check-tractor-learning.mjs",
     "knowledge:inventory": "node --import tsx scripts/knowledge-inventory.ts",
+    "knowledge:graphify": "node --import tsx scripts/export-graphify.ts",
     "typecheck": "node scripts/typecheck.mjs",
     "lint": "eslint . --cache --cache-location node_modules/.eslintcache --report-unused-disable-directives",
     "check:version": "node scripts/check-version.mjs",

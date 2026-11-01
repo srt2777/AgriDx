@@ -3,10 +3,11 @@ import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import type { KnowledgeCatalog, KnowledgeRole } from '@shared/knowledge-catalog';
 import { useKnowledgeCatalog } from '@/hooks/useKnowledgeCatalog';
-import { taxonomyNodes, visibleTaxonomyNodes, type TaxonomyNode } from './knowledge-taxonomy-data';
+import { graphTaxonomyNodes, visibleTaxonomyNodes, type TaxonomyNode } from './knowledge-taxonomy-data';
 import TaxonomyGraphCanvas from './TaxonomyGraphCanvas';
 import EvidenceEntry from './EvidenceEntry';
 import LearningKnowledgeGraph from './LearningKnowledgeGraph';
+import GraphPathFinder from './GraphPathFinder';
 import './knowledge-taxonomy.css';
 
 export default function KnowledgeGraph({ catalog, lang }: { catalog: KnowledgeCatalog; lang: string }) {
@@ -23,7 +24,7 @@ export default function KnowledgeGraph({ catalog, lang }: { catalog: KnowledgeCa
 
 function ArchiveKnowledgeGraph({ catalog, lang }: { catalog: KnowledgeCatalog; lang: string }) {
   const { t, separator } = useUiCopy(lang);
-  const allNodes = useMemo(() => taxonomyNodes(catalog).filter(node => node.query.brand !== '千寻位置'), [catalog]);
+  const allNodes = useMemo(() => graphTaxonomyNodes(catalog), [catalog]);
   const [selectedId, setSelected] = useState('');
   const [search, setSearch] = useState('');
   const [entryTypeFilter, setEntryTypeFilter] = useState('');
@@ -70,6 +71,7 @@ function ArchiveKnowledgeGraph({ catalog, lang }: { catalog: KnowledgeCatalog; l
       <p className="taxonomy-filter-note">{t('类型与角色分别按节点内资料汇总；组合筛选时，下方原始资料按同一条目再次过滤。', 'Type and role are aggregated separately for each node; the evidence list applies both filters to each entry.')}</p>
       {searchTerm && <div className="taxonomy-results"><p>{t(`找到 ${results.length} 个节点，显示前 50 个`, `${results.length} matches; showing the first 50`)}</p>{results.slice(0, 50).map(node => <button key={node.id} onClick={() => { setSelected(node.id); setSearch(''); }}>{node.label}<small>{pathLabel(node)}</small></button>)}{!results.length && <p>{t('无匹配节点；未生成推测知识。', 'No matches; no knowledge inferred.')}</p>}</div>}</div>
     <nav className="taxonomy-trail" aria-label={t('当前知识路径', 'Current knowledge path')}><button onClick={() => setSelected('')}>{t('全部归档', 'All archives')}</button>{path.map(node => <span key={node.id}><span aria-hidden="true"> → </span><button onClick={() => setSelected(node.id)} aria-current={selected?.id === node.id ? 'location' : undefined}>{node.label}</button></span>)}</nav>
+    <GraphPathFinder nodes={nodes} selectedId={selectedId} onSelect={setSelected} lang={lang} />
     <p className="taxonomy-lod-note" role="status">{t(`当前显示 ${nodes.length.toLocaleString()} 个节点；远景会聚合隐藏零件，完整目录见下方列表。`, `${nodes.length.toLocaleString()} nodes shown; distant views aggregate parts. Use the directory below for the complete list.`)}</p>
     <TaxonomyGraphCanvas catalog={catalog} nodes={nodes} selectedId={selectedId} onSelect={setSelected} lang={lang} />
     <details className="taxonomy-accessible-directory"><summary>{t('展开目录辅助浏览（键盘 / 无图形模式）', 'Browse directory (keyboard / non-graph mode)')}</summary><div className="taxonomy-columns">{levels.map(({ level, label, parent }, index) => {

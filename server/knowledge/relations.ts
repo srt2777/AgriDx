@@ -1,7 +1,7 @@
 import type { KnowledgeCatalog } from '../../shared/knowledge-catalog';
 import type { KnowledgeRelations, RelationEdge } from '../../shared/knowledge-relations';
 import { RELATION_FORMULA_VERSION, membershipStrength, componentStrength, roleSimilarity } from '../../shared/relation-strength';
-import { taxonomyNodes, type TaxonomyNode } from '../../src/pages/KnowledgePage/knowledge-taxonomy-data';
+import { graphTaxonomyNodes, type TaxonomyNode } from '../../src/pages/KnowledgePage/knowledge-taxonomy-data';
 import { getKnowledgeCatalog } from './catalog';
 import { semanticRelations, type SemanticRelationsInput } from './relations-semantic';
 import { peekKnowledgeSnapshot } from './snapshot';
@@ -9,7 +9,7 @@ import { peekKnowledgeSnapshot } from './snapshot';
 const cache = new WeakMap<KnowledgeCatalog, KnowledgeRelations>();
 /** Builds from exactly the catalog generation held by the active knowledge snapshot. */
 export function buildKnowledgeRelations(catalog: KnowledgeCatalog, semantic: SemanticRelationsInput = {}): KnowledgeRelations {
-  const nodes = taxonomyNodes(catalog).filter(node => node.query.brand !== '千寻位置');
+  const nodes = graphTaxonomyNodes(catalog);
   const byId = new Map(nodes.map(node => [node.id, node]));
   const membership = new Map<string, number>();
   const edges: RelationEdge[] = [];

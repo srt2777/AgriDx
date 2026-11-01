@@ -4,6 +4,7 @@ import type { KnowledgeCatalog } from '@shared/knowledge-catalog';
 import { useUiCopy } from '@/ui/useUiCopy';
 import KnowledgeEngine from './KnowledgeEngine';
 import { learningTaxonomy } from './knowledge-learning-graph';
+import GraphPathFinder from './GraphPathFinder';
 
 export default function LearningKnowledgeGraph({ catalog, lang }: { catalog: KnowledgeCatalog; lang: string }) {
   const { t } = useUiCopy(lang);
@@ -27,6 +28,7 @@ export default function LearningKnowledgeGraph({ catalog, lang }: { catalog: Kno
         {results.slice(0, 50).map(node => <button type="button" key={node.id} onClick={() => { setSelected(node.id); setSearch(''); }}>{node.label}<small>{node.query.kind === 'terminology' ? labels.terminology : labels.general} / {node.count} {t('条', 'entries')}</small></button>)}
         {!results.length && <p>{t('没有匹配主题，请尝试其他关键词。', 'No matching topics. Try another keyword.')}</p>}</div>}
     </div>
+    <GraphPathFinder nodes={nodes} selectedId={selectedId} onSelect={setSelected} lang={lang} />
     <p className="taxonomy-lod-note" role="status">{t(`通用原理 ${organization.counts.general.toLocaleString()} 条，农业术语 ${organization.counts.terminology.toLocaleString()} 条。每个主题节点汇总已有条目。`, `${organization.counts.general.toLocaleString()} general entries and ${organization.counts.terminology.toLocaleString()} terminology entries. Each node groups existing records.`)}</p>
     <KnowledgeEngine catalog={catalog} nodes={nodes} selectedId={selectedId} onSelect={setSelected} lang={lang} mode="learning" onRelations={() => navigate(`/knowledge?${query}`)} />
     <div className="learning-graph-summary">{selected ? <><p>{t(`已选择“${selected.label}”，共 ${selected.count.toLocaleString()} 条；保留各条原始状态和用途。`, `Selected ${selected.label}: ${selected.count.toLocaleString()} entries with their original status and use.`)}</p>
