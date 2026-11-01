@@ -52,7 +52,7 @@ export function createPlan(input: CreatePlanInput): PlannerState {
     identifier(step.key); text(step.title); identifier(step.expectedObservation.slot); text(step.expectedObservation.label);
     if (keys.has(step.key) || slots.has(step.expectedObservation.slot)) throw new TypeError('Duplicate step key or observation slot');
     keys.add(step.key); slots.add(step.expectedObservation.slot);
-    if (!['ask_user', 'review_evidence'].includes(step.kind)) throw new TypeError('Phase one cannot execute actions');
+    if (!['ask_user', 'review_evidence', 'rescope_evidence'].includes(step.kind)) throw new TypeError('Phase one cannot execute actions');
     bounded(step.discriminationValue, 100); bounded(step.cost, 100);
     if (!Array.isArray(step.dependsOn) || step.dependsOn.length > PLANNER_LIMITS.steps || !Array.isArray(step.preconditions) || step.preconditions.length > PLANNER_LIMITS.steps) throw new TypeError('Unbounded dependencies');
     if (!Array.isArray(step.evidenceIds) || step.evidenceIds.length > PLANNER_LIMITS.evidence || step.evidenceIds.some((id: string) => !evidenceIds.has(id)) || step.kind === 'review_evidence' && !step.evidenceIds.length) throw new TypeError('Unknown or missing evidence');

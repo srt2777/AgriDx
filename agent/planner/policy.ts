@@ -40,8 +40,15 @@ export function decideNextAction(state: PlannerState, context: PlannerContext): 
   if (!ranked.length) return result('paused', pending.length ? 'no_evidence' : 'prerequisites_unmet', ['no_eligible_next_step']);
   if (state.budget.issuedActions >= state.budget.maxActions) return result('exhausted', 'action_budget_exhausted', ['proposal_budget_not_execution_count']);
   const step = ranked[0];
-  const text = `请补充已经观察或记录的“${step.expectedObservation.label}”；不要为此试车、拆检或接触危险部件。`;
-  const decision = result('awaiting_user', 'awaiting_feedback', ['safety_and_scope_passed', 'dependencies_satisfied', 'discrimination_then_cost_then_stable_id']);
+  // A rescope step is a read-only proposal to the host to re-run retrieval
+  // under a changed scope. It is not a question to the user, and it must
+  // not be phrased as one: no new physical operation is requested.
+  const text = step.kind === 'rescope_evidence'
+    ? `换范围再查一次证据：按当前范围重新检索“${step.expectedObservation.label}”相关的资料；只读，不新增物理操作。`
+    : `请补充已经观察或记录的“${step.expectedObservation.label}”；不要为此试车、拆检或接触危险部件。`;
+  const decision = result('awaiting_user', 'awaiting_feedback', step.kind === 'rescope_evidence'
+    ? ['safety_and_scope_passed', 'dependencies_satisfied', 'discrimination_then_cost_then_stable_id', 'rescope_is_host_proposal_not_user_question']
+    : ['safety_and_scope_passed', 'dependencies_satisfied', 'discrimination_then_cost_then_stable_id']);
   decision.action = { kind: step.kind, stepId: step.id, stepKey: step.key, observationSlot: step.expectedObservation.slot, text, evidenceIds: [...step.evidenceIds] };
   if (step.kind === 'ask_user') decision.questions = [{ text, ...(step.expectedObservation.options ? { options: [...step.expectedObservation.options] } : {}) }];
   return decision;

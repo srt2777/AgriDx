@@ -13,8 +13,13 @@ export interface EvidenceReference { entryId: string; sourceId: string; locator?
 export interface StepDefinition {
   key: string;
   title: string;
-  /** Phase one can only request existing observations or propose reading evidence. */
-  kind: 'ask_user' | 'review_evidence';
+  /**
+   * Phase one can only request existing observations, propose reading
+   * evidence, or propose re-reading evidence under a changed scope
+   * ('rescope_evidence'). None of these executes a physical operation,
+   * a repair, or a write.
+   */
+  kind: 'ask_user' | 'review_evidence' | 'rescope_evidence';
   dependsOn: readonly string[];
   preconditions: readonly { slot: string; equals: ObservationValue }[];
   expectedObservation: { slot: string; label: string; options?: readonly string[] };

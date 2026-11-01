@@ -5,6 +5,7 @@ import { decideNextAction } from './policy';
 
 export { createPlan, reducePlan, PLANNER_LIMITS } from './reducer';
 export { decideNextAction } from './policy';
+export { InMemoryPlannerCheckpointStore, PlannerCheckpointConflictError, resumePlannerCheckpoint } from './checkpoint';
 export type * from './types';
 export type * from './ports';
 

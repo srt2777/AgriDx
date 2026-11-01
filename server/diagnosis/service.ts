@@ -15,6 +15,7 @@ import { ProviderError, type ChatMessage } from '../llm/types';
 import type { DiagnosticRequest } from './request';
 import { diagnosticRuntimeConfig, type DiagnosticRuntimeConfig } from './config';
 import { runAgent, type AgentRunResult, type AgentToolEvent } from '../../agent/runner';
+import { InMemoryShadowReviewStore, type ShadowReviewRecord } from '../../agent/shadow-review';
 import { buildContextRegistry } from '../../agent/context-tools';
 
 export interface DiagnosticMemory {
@@ -41,6 +42,12 @@ export interface DiagnosticDependencies {
   onDecision?: (event: DiagnosticDecisionLog) => void | Promise<void>;
   /** Receives the redacted outcome of each background shadow run; defaults to a one-line server log. */
   onShadowResult?: (report: ShadowLoopReport) => void;
+  /**
+   * Receives a shadow review record, if one was built. Defaults to an
+   * in-memory review store that is separate from diagnosis memory; the
+   * record is never added to a ChatResponse and never enters user answers.
+   */
+  onShadowReview?: (record: ShadowReviewRecord) => void;
   /** Test hook for the shadow wall-clock deadline; production uses 8 s. */
   shadowTimeoutMs?: number;
 }
@@ -69,11 +76,21 @@ export function createDiagnosticService(llm: DiagnosticProvider, dependencies: D
   const search = dependencies.retrieve ?? retrieve;
   const now = dependencies.now ?? (() => performance.now());
   const reportShadow = dependencies.onShadowResult ?? logShadowResult;
+  const shadowReviewStore = new InMemoryShadowReviewStore();
+  const reportShadowReview = dependencies.onShadowReview ?? ((record: ShadowReviewRecord) => { shadowReviewStore.append(record); });
   let shadowInFlight = 0;
   let warnedNoToolProvider = false;
   /** Fire-and-forget: errors are caught and logged; the caller signal and an 8 s deadline still bound the run. */
   const startShadow = (input: { messages: ChatMessage[]; query: string; context: Record<string, unknown>; memory?: DiagnosticMemory;
-    signal?: AbortSignal; allowExternal: boolean; guard: (content: string) => string | null }) => {
+    signal?: AbortSignal; allowExternal: boolean; guard: (content: string) => string | null;
+    /** Host-supplied review context; absent means no review record is built. */
+    sessionId?: string; mainEvidenceIds?: readonly string[]; highRisk?: boolean; mainRoute?: string; mainReason?: string;
+    /** Effective diagnosis mode; 'knowledge_only' keeps the shadow closed. */
+    diagnosisMode?: string }) => {
+    // Hard gate, in addition to the existing route check at the call site:
+    // a shadow run must never start when external AI is denied or when the
+    // effective mode is knowledge-only, even if a caller passes a stale flag.
+    if (!input.allowExternal || input.diagnosisMode === 'knowledge_only') return;
     const provider = llm.toolProvider?.() ?? null;
     if (!provider) {
       if (!warnedNoToolProvider) {
@@ -88,15 +105,21 @@ export function createDiagnosticService(llm: DiagnosticProvider, dependencies: D
     }
     shadowInFlight++;
     const started = now();
-    void (async (): Promise<ShadowLoopReport> => {
+    void (async (): Promise<{ report: ShadowLoopReport; reviewRecord?: ShadowReviewRecord }> => {
       const result = await runAgent({ provider, registry: buildContextRegistry(input.memory), messages: input.messages, query: input.query, context: input.context,
-        allowedTools: SHADOW_TOOLS, allowExternal: input.allowExternal, timeoutMs: dependencies.shadowTimeoutMs ?? SHADOW_TIMEOUT_MS, signal: input.signal, guard: input.guard });
-      return { status: result.status, reason: 'reason' in result ? result.reason : null, provider: provider.name, durationMs: now() - started, toolEvents: result.toolEvents };
-    })().catch((error: unknown): ShadowLoopReport => {
+        allowedTools: SHADOW_TOOLS, allowExternal: input.allowExternal, timeoutMs: dependencies.shadowTimeoutMs ?? SHADOW_TIMEOUT_MS, signal: input.signal, guard: input.guard,
+        ...(input.sessionId ? { review: { sessionId: input.sessionId, mainEvidenceIds: input.mainEvidenceIds ?? [], highRisk: input.highRisk ?? false,
+          mainRoute: input.mainRoute ?? 'ai', ...(input.mainReason !== undefined ? { mainReason: input.mainReason } : {}) } } : {}) });
+      return { report: { status: result.status, reason: 'reason' in result ? result.reason : null, provider: provider.name, durationMs: now() - started, toolEvents: result.toolEvents },
+        ...(result.reviewRecord ? { reviewRecord: result.reviewRecord } : {}) };
+    })().catch((error: unknown): { report: ShadowLoopReport } => {
       console.warn(`[agent-shadow] failed: ${error instanceof Error ? error.name : 'unknown error'}`);
-      return { status: 'error', reason: 'unexpected_error', provider: provider.name, durationMs: now() - started, toolEvents: [] };
-    }).then(report => {
+      return { report: { status: 'error', reason: 'unexpected_error', provider: provider.name, durationMs: now() - started, toolEvents: [] } };
+    }).then(({ report, reviewRecord }) => {
       try { reportShadow(report); } catch { /* Reporting must never surface to the request. */ }
+      // Review records go only to the separate review store / callback.
+      // They are never added to a ChatResponse and never enter user answers.
+      if (reviewRecord) { try { reportShadowReview(reviewRecord); } catch { /* Review storage must never surface to the request. */ } }
     }).finally(() => { shadowInFlight--; });
   };
   return async ({ history, machineType, brand, model, engineModel, faultCodes, diagnosisMode, telemetrySummary }, memory, signal) => {
@@ -241,7 +264,10 @@ export function createDiagnosticService(llm: DiagnosticProvider, dependencies: D
       // delay, replace or bypass the coordinated answer and answerGuard.
       if (config.agentLoop === 'shadow' && coordination.route === 'ai') {
         startShadow({ messages: [systemMessage, ...(memory ? recentMessages(history) : history)], query: currentQuery, context: scope, memory, signal, allowExternal: coordination.route === 'ai',
-          guard: value => filterDiagnosticAnswer(value, promptChunks, { trustedEvidenceIds, model: scope.model }).content || null });
+          guard: value => filterDiagnosticAnswer(value, promptChunks, { trustedEvidenceIds, model: scope.model }).content || null,
+          ...(memory ? { sessionId: memory.session.id } : {}),
+          mainEvidenceIds: trace.sentKnowledgeIds, highRisk: coordination.riskLevel === 'high',
+          mainRoute: coordination.route, mainReason: coordination.reason, diagnosisMode: coordination.effectiveMode });
       }
       return finish({ choices: [{ message: { role: 'assistant', content } }], diagnosticReply,
         model: outcome.result.model, provider: outcome.result.provider, fellBack: outcome.fellBack,
