@@ -7,7 +7,7 @@ import './api-connections.css';
 type ProviderId = 'deepseek' | 'gemini' | 'openai';
 interface ProviderConfig { provider: ProviderId; label: string; model: string; baseUrl: string; enabled: boolean; hasKey: boolean; updatedAt: number | null; updatedBy: string | null; lastTestAt?: number | null; lastTestOk?: boolean | null; lastTestLatencyMs?: number | null; lastErrorKind?: string | null }
 interface Settings { publicEnabled: boolean; defaultProvider: ProviderId; dailyLimit: number }
-interface Configuration { encryptionConfigured: boolean; allowedHosts: string[]; settings: Settings; usedToday: number; providers: ProviderConfig[] }
+interface Configuration { encryptionConfigured: boolean; settings: Settings; usedToday: number; providers: ProviderConfig[] }
 interface Readiness { encryptionConfigured: boolean; migrationApplied: boolean; verifiedProvider: boolean; publicEnabled: boolean; gateway: { gatewayVersion: string; schemaVersion: number; capabilities: Record<string, boolean> } }
 class ConnectionError extends Error { constructor(public status: number, message: string) { super(message); } }
 async function request<T>(path = '', body?: unknown, signal?: AbortSignal): Promise<T> {
@@ -30,10 +30,10 @@ function ProviderCard({ config, encryptionReady, gatewayReady, saved, failed }: 
     event?.preventDefault(); setBusy(action); setMessage(''); setError('');
     try {
       const payload = action === 'save' ? { model, baseUrl, enabled, publicEnabled, ...(apiKey ? { apiKey } : {}) } : action === 'models' ? { baseUrl, ...(apiKey ? { apiKey } : {}) } : {};
-      const result = await request<{ latencyMs?: number; model?: string; available?: boolean; models?: string[]; reason?: string; truncated?: boolean }>(`/providers/${config.provider}${action === 'save' ? '' : `/${action}`}`, payload);
+      const result = await request<{ latencyMs?: number; model?: string; baseUrl?: string; available?: boolean; models?: string[]; reason?: string; truncated?: boolean }>(`/providers/${config.provider}${action === 'save' ? '' : `/${action}`}`, payload);
       setConfirmDelete(false);
       if (action === 'models') { setModels(result.available && Array.isArray(result.models) ? result.models : null); setModelHint(result.available ? result.truncated ? t('已读取前 500 个模型，可手动填写其他名称。', 'Showing the first 500 models; other names can be entered.') : t('已读取可用模型。', 'Available models loaded.') : (result.reason || t('模型列表不可用，请手动填写。', 'Model list unavailable; enter a name.'))); }
-      else if (action !== 'test') { if (action === 'save') { setKeyWasSaved(true); if (result.model) setModel(result.model); } await saved(); }
+      else if (action !== 'test') { if (action === 'save') { setApiKey(''); setKeyWasSaved(true); if (result.model) setModel(result.model); if (result.baseUrl) setBaseUrl(result.baseUrl); } await saved(); }
       else setMessage(t(`连接成功 · ${result.latencyMs} ms（测试已保存的模型配置）`, `Connected · ${result.latencyMs} ms (saved model configuration)`));
     } catch (error) { setError(errorMessage(error)); failed(error); }
     finally { setBusy(''); }
@@ -45,6 +45,7 @@ function ProviderCard({ config, encryptionReady, gatewayReady, saved, failed }: 
       <label htmlFor={`key-${config.provider}`}>API Key <input id={`key-${config.provider}`} type="password" autoComplete="new-password" spellCheck={false} maxLength={512} value={apiKey} onChange={event => { setApiKey(event.target.value); setKeyWasSaved(false); setModels(null); }} placeholder={config.hasKey ? t('留空保留已保存的密钥', 'Leave blank to keep the saved key') : t('粘贴服务商 API 密钥', 'Paste a provider API key')} disabled={!!busy || !encryptionReady || !gatewayReady} /></label>
       <label htmlFor={`model-${config.provider}`}>{t('模型名称（可自动选择）', 'Model name (automatic selection available)')}<input id={`model-${config.provider}`} list={`models-${config.provider}`} maxLength={120} value={model} placeholder={config.model} onChange={event => setModel(event.target.value)} disabled={!!busy} /><datalist id={`models-${config.provider}`}>{models?.map(item => <option key={item} value={item} />)}</datalist></label>
       <label htmlFor={`url-${config.provider}`}>{t('API 基础地址', 'API base URL')}<input id={`url-${config.provider}`} type="url" required maxLength={500} value={baseUrl} onChange={event => { setBaseUrl(event.target.value); setModels(null); setModelHint(''); }} disabled={!!busy} /></label>
+      <p className="console-api-caption">{t('可填写公网 HTTPS 地址或完整的 chat/completions 地址；更换接口主机时请重新输入密钥。', 'Enter a public HTTPS base URL or full chat/completions URL; re-enter the key when changing hosts.')}</p>
       <label className="console-api-check"><input type="checkbox" checked={enabled} onChange={event => setEnabled(event.target.checked)} disabled={!!busy} />{t('启用此服务商', 'Enable this provider')}</label>
       <label className="console-api-check"><input type="checkbox" checked={publicEnabled} onChange={event => setPublicEnabled(event.target.checked)} disabled={!!busy || !enabled} />{t('同时向访客开放（每日上限 100 次）', 'Allow visitors too (100 requests per day)')}</label>
       <div className="console-api-actions"><button type="button" onClick={() => { void act('models'); }} disabled={!!busy || !gatewayReady || (!config.hasKey && !apiKey.trim())}>{t('获取可用模型', 'Load models')}</button><button className="console-primary" type="submit" disabled={!!busy || !gatewayReady || !encryptionReady || (!config.hasKey && !apiKey.trim())}><Save size={15} />{busy === 'save' ? t('测试并保存中…', 'Testing and saving…') : enabled ? t('保存并启用', 'Save and enable') : t('验证并保存', 'Verify and save')}</button><button type="button" onClick={() => { void act('test'); }} disabled={!!busy || !config.hasKey || dirty || !encryptionReady || !gatewayReady}><Plug size={15} />{busy === 'test' ? t('测试中…', 'Testing…') : t('测试连接', 'Test connection')}</button></div>
@@ -87,7 +88,7 @@ export default function ApiConnections({ revision, onSessionExpired }: { revisio
     catch (error) { setError(errorMessage(error)); failed(error); } finally { setDebugging(false); }
   }
   const active = data?.providers.filter(provider => provider.enabled && provider.hasKey && provider.lastTestOk === true) || [];
-  const required = typeof __AGRIDX_GATEWAY_REQUIRED__ === 'undefined' ? { minimumSchema: 2, capabilities: ['onboarding', 'modelList', 'validationState', 'readiness'] } : __AGRIDX_GATEWAY_REQUIRED__;
+  const required = typeof __AGRIDX_GATEWAY_REQUIRED__ === 'undefined' ? { minimumSchema: 2, capabilities: ['onboarding', 'modelList', 'validationState', 'readiness', 'customEndpoint'] } : __AGRIDX_GATEWAY_REQUIRED__;
   const gatewayReady = gatewayMeetsRequirements(readiness?.gateway, required) && Boolean(readiness?.migrationApplied);
   return <div className="console-ai">
     <section className="console-panel"><div className="console-panel-heading"><h2><KeyRound size={19} />{t('API 接入', 'API connections')}</h2><p>{t('配置模型服务，让开发站智能诊断在需要时调用 AI；本地知识检索和来源核验继续保留。', 'Connect model services for AI-assisted diagnosis while retaining local retrieval and source checks.')}</p></div><div className="console-api-overview"><span>{t('支持 DeepSeek、Gemini 与 OpenAI 兼容接口。', 'DeepSeek, Gemini and OpenAI-compatible endpoints.')}</span><button type="button" disabled={loading} onClick={() => { void load(); }}><RefreshCw size={15} />{t('刷新配置', 'Refresh configuration')}</button></div><p className="console-api-caption">{t('连接测试和调试会向服务商发送请求，可能产生用量。密钥只在服务端加密保存，不存入浏览器持久化存储或公开产物。', 'Connection tests and debugging send provider requests and may incur usage. Keys are encrypted on the server and excluded from browser storage and public builds.')}</p>
@@ -95,8 +96,7 @@ export default function ApiConnections({ revision, onSessionExpired }: { revisio
         ? t('暂时无法读取网关就绪状态，请检查连接后重试。', 'Gateway readiness could not be checked; retry after checking the connection.')
         : t(`网关 ${readiness?.gateway?.gatewayVersion || '版本未知'} 未满足前端要求（schema ≥ ${required.minimumSchema}），请重新部署网关并应用迁移。`, `Gateway ${readiness?.gateway?.gatewayVersion || 'unknown'} does not meet frontend requirements (schema ≥ ${required.minimumSchema}); redeploy and apply migrations.`)}</p>}
       {readiness && <div aria-label={t('接入就绪状态', 'Connection readiness')}><p>{t(`密钥加密：${readiness.encryptionConfigured ? '已配置' : '待配置'}；数据库迁移：${readiness.migrationApplied ? '已应用' : '待应用'}；验证服务商：${readiness.verifiedProvider ? '已就绪' : '待验证'}；访客 AI：${readiness.publicEnabled ? '已开启' : '未开启'}。`, `Encryption: ${readiness.encryptionConfigured ? 'ready' : 'needed'}; migration: ${readiness.migrationApplied ? 'ready' : 'needed'}; verified provider: ${readiness.verifiedProvider ? 'ready' : 'needed'}; visitor AI: ${readiness.publicEnabled ? 'on' : 'off'}.`)}</p></div>}
-      <p className="console-api-caption">{t('V4 开发站当前登记为仅所有者可访问；开放访客 AI 不会改变站点访问受众。', 'The V4 development site is registered as owner-only; enabling visitor AI does not change site access.')}</p>
-      {data && <p className="console-api-caption">{t('允许的接口主机：', 'Allowed endpoint hosts: ')}{data.allowedHosts.join(' · ')}</p>}
+      <p className="console-api-caption">{t('开放访客 AI 后，能够访问当前开发站的访客都可使用；此设置不改变站点访问权限。', 'When visitor AI is enabled, visitors who can access this development site may use it; this does not change site access.')}</p>
     </section>
     {error && <p className="console-error" role="alert">{error}</p>}{loading && !data && <p role="status">{t('正在读取 API 配置…', 'Loading API configuration…')}</p>}
     {data && <><div className="console-api-grid">{data.providers.map(config => <ProviderCard key={config.provider} config={config} encryptionReady={data.encryptionConfigured} gatewayReady={gatewayReady} saved={load} failed={failed} />)}</div>

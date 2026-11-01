@@ -40,7 +40,7 @@ export default function VersionHistoryPage() {
   const { t, format, separator } = useUiCopy(lang);
   const missing = t('未记录', 'Not recorded');
   const commit = typeof __AGRIDX_BUILD_COMMIT__ !== 'undefined' ? __AGRIDX_BUILD_COMMIT__ : '';
-  const requirements = typeof __AGRIDX_GATEWAY_REQUIRED__ === 'undefined' ? { minimumSchema: 2, capabilities: ['onboarding', 'modelList', 'validationState', 'readiness'], sourceHash: '' } : __AGRIDX_GATEWAY_REQUIRED__;
+  const requirements = typeof __AGRIDX_GATEWAY_REQUIRED__ === 'undefined' ? { minimumSchema: 2, capabilities: ['onboarding', 'modelList', 'validationState', 'readiness', 'customEndpoint'], sourceHash: '' } : __AGRIDX_GATEWAY_REQUIRED__;
   const gatewayHash = gatewayHashStatus(gateway, requirements.sourceHash);
   const releases = history.releases.filter(item => !item.draft && (includeLegacy || !item.legacy));
   const drafts = history.releases.filter(item => item.draft);

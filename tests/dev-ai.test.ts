@@ -55,13 +55,46 @@ test('provider keys use randomized authenticated ciphertext, never appear in met
   await f.save(); assert.notEqual(f.sqlite.prepare('SELECT encrypted_key FROM preview_ai_providers').get()!.encrypted_key, original.encrypted_key);
 });
 
-test('missing encryption configuration fails closed; invalid and unapproved endpoints never make network requests', async t => {
+test('missing encryption configuration fails closed; invalid endpoints never make network requests', async t => {
   const f = await fixture(t);
   const response = await serveDevelopment(req('dev-admin/ai/providers/deepseek', { model: 'test', baseUrl: 'https://api.deepseek.com/v1', enabled: true, apiKey: secret }, f.cookie), { DB: f.db }); assert.equal(response.status, 503);
-  const invalidUrls = ['http://api.deepseek.com/v1', 'https://127.0.0.1/v1', 'https://[::1]/v1', 'https://169.254.169.254/v1', 'https://api.deepseek.com.attacker.example/v1', 'https://user:pass@api.deepseek.com/v1', 'https://api.deepseek.com/v1?key=x', 'https://api.deepseek.com/v1#x', 'https://api.deepseek.com:8443/v1', 'https://api.deepseek.com/v1/chat/completions'];
+  const invalidUrls = ['http://api.deepseek.com/v1', 'https://127.0.0.1/v1', 'https://[::1]/v1', 'https://169.254.169.254/v1', 'https://metadata.internal/v1', 'https://api.localhost/v1', 'https://api.deepseek.com.attacker.example/v1', 'https://user:pass@api.deepseek.com/v1', 'https://api.deepseek.com/v1?key=x', 'https://api.deepseek.com/v1#x', 'https://api.deepseek.com:8443/v1'];
   for (const [index, baseUrl] of invalidUrls.entries()) assert.equal((await f.save('deepseek', { baseUrl }, undefined, `192.0.2.${index+10}`)).status, 400, baseUrl);
   assert.equal(f.sqlite.prepare('SELECT count(*) AS n FROM preview_ai_providers').get()!.n, 0);
   assert.equal((await f.call('dev-admin/ai/settings', { publicEnabled: false, defaultProvider: 'toString', dailyLimit: 10 })).status, 400);
+});
+
+test('administrator can connect and use a custom OpenAI-compatible endpoint without a host allowlist', async t => {
+  const f = await fixture(t), seen: string[] = [];
+  const upstream = async (url: string, options: RequestInit) => {
+    seen.push(url);
+    assert.equal(options.redirect, 'manual');
+    assert.equal(new Headers(options.headers).get('Authorization'), `Bearer ${secret}`);
+    return Response.json({ choices: [{ message: { content: 'OK' } }] });
+  };
+  const saved = await f.save('openai', { baseUrl: 'https://models.example.com/v1.0/chat/completions', publicEnabled: true }, upstream);
+  assert.equal(saved.status, 200);
+  assert.equal((await saved.json()).baseUrl, 'https://models.example.com/v1.0');
+  assert.equal(f.sqlite.prepare('SELECT base_url FROM preview_ai_providers').get()!.base_url, 'https://models.example.com/v1.0');
+  const status = await (await f.call('dev-ai/status')).json();
+  assert.equal(status.enabled, true); assert.equal(status.provider, 'openai');
+  assert.equal((await f.call('dev-ai/chat', message, upstream)).status, 200);
+  assert.deepEqual(seen, ['https://models.example.com/v1.0/chat/completions', 'https://models.example.com/v1.0/chat/completions']);
+  assert.equal((await (await f.call('dev-admin/ai/readiness')).json()).gateway.capabilities.customEndpoint, true);
+});
+
+test('changing endpoint host requires a new key before model discovery or save', async t => {
+  const f = await fixture(t); assert.equal((await f.save()).status, 200);
+  const before = f.sqlite.prepare('SELECT base_url, encrypted_key FROM preview_ai_providers').get()!;
+  let calls = 0; const upstream = async () => { calls++; return Response.json({ choices: [{ message: { content: 'OK' } }] }); };
+  const baseUrl = 'https://other.example.com/v1';
+  assert.equal((await f.call('dev-admin/ai/providers/deepseek/models', { baseUrl }, upstream)).status, 400);
+  assert.equal((await f.save('deepseek', { baseUrl, apiKey: '' }, upstream)).status, 400);
+  assert.equal(calls, 0);
+  assert.deepEqual(f.sqlite.prepare('SELECT base_url, encrypted_key FROM preview_ai_providers').get(), before);
+  assert.equal((await f.save('deepseek', { baseUrl, apiKey: 'another-fake-provider-key' }, upstream)).status, 200);
+  assert.equal(calls, 1);
+  assert.equal(f.sqlite.prepare('SELECT base_url FROM preview_ai_providers').get()!.base_url, baseUrl);
 });
 
 test('saved Gemini and compatible APIs can be tested while disabled without leaking credentials or upstream errors', async t => {
@@ -94,8 +127,7 @@ test('DeepSeek onboarding and public chat produce visible replies within the bou
   const chat = await f.call('dev-ai/chat', message, upstream);
   assert.equal(chat.status, 200); assert.equal((await chat.json()).content, 'OK');
   assert.deepEqual(budgets, [8, 1024]);
-  Object.assign(f.env, { DEV_AI_ALLOWED_HOSTS: 'compatible.example' });
-  const compatible = await f.save('deepseek', { baseUrl: 'https://compatible.example' }, async (_url: string, options: RequestInit) => {
+  const compatible = await f.save('deepseek', { baseUrl: 'https://compatible.example.com' }, async (_url: string, options: RequestInit) => {
     assert.equal('thinking' in JSON.parse(String(options.body)), false);
     return Response.json({ choices: [{ message: { content: 'OK' } }] });
   });
