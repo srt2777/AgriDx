@@ -97,6 +97,16 @@ export interface ChatResponse {
 }
 
 /** Timing is measured on the executing server; scores are retrieval matches, not accuracy. */
+export interface MainLoopToolEvent {
+  step: number;
+  tool: string;
+  ok: boolean;
+  error_type: string | null;
+  duration_ms: number;
+  /** Source label only; never raw tool arguments or tool output text. */
+  source: string;
+}
+
 export interface DiagnosisTrace {
   retrievalCount: number;
   aiAttempts: number;
@@ -106,6 +116,20 @@ export interface DiagnosisTrace {
   contextChars: number;
   sentKnowledgeIds: string[];
   timings: { retrievalMs: number; decisionMs: number; externalAiMs: number; totalMs: number };
+  /**
+   * Main tool loop observability. Present whenever the diagnosis service runs,
+   * even when the loop is disabled or never ran: enabled says whether
+   * AGENT_LOOP=main was on, ran says whether the loop actually executed,
+   * status is null when it never ran, toolSteps counts desensitised tool
+   * events (not model steps), and toolEvents carry no arguments or output.
+   */
+  mainLoop?: {
+    enabled: boolean;
+    ran: boolean;
+    status: 'answered' | 'question' | 'fallback' | 'cancelled' | null;
+    toolSteps: number;
+    toolEvents: MainLoopToolEvent[];
+  };
 }
 
 export interface LlmHealth {
