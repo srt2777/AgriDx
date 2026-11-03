@@ -27,6 +27,7 @@ if (jsonOnly) {
         `reasons=${result.local.vetoReasons.join(',') || '-'} ` +
         `evidence=${result.local.breakdown.evidence_score.toFixed(2)} ` +
         `coverage=${result.local.breakdown.coverage_score.toFixed(2)} ` +
+        `rel=${result.local.breakdown.relevance_score.toFixed(2)}(${result.relevanceSource}:${result.relevanceLevel}${result.relevanceMembershipHigh === null ? '' : `,mu=${result.relevanceMembershipHigh.toFixed(2)}`}) ` +
         `winner=${result.winnerId ?? 'keep-current'}${ai}`,
     );
   }

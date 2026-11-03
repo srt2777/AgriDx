@@ -14,6 +14,7 @@ import type { RetrievalContext } from '../../server/knowledge/scope';
 import type { KnowledgeChunk } from '../../server/knowledge/types';
 import type { DiagnosisMode, RouteReason } from '../../shared/diagnosis';
 import type { EvaluationGold } from './evaluation';
+import type { FaultTreeNode } from './fault-tree';
 
 export type GoldenRoute = 'local' | 'clarify' | 'ai' | 'safe';
 
@@ -39,6 +40,15 @@ export interface GoldenCase {
   aiSupplement?: string;
   expectedRoute?: GoldenRoute;
   expectedReason?: RouteReason;
+  /**
+   * Optional fault tree for this case. It is a synthetic structural
+   * fixture, not a real manual fact: manual basic events reuse the
+   * case's synthetic evidence ids, unknown branches carry no evidence,
+   * and user-reported events are unverified. The runner analyses it
+   * and compares its minimal cut sets with expectedCutSets.
+   */
+  faultTree?: FaultTreeNode;
+  expectedCutSets?: readonly (readonly string[])[];
   gold: EvaluationGold;
 }
 
@@ -371,5 +381,125 @@ export const GOLDEN_CASES: readonly GoldenCase[] = [
       expectedQuestionKeywords: ['起动机'],
       forbiddenQuestionKeywords: ['电瓶'],
     },
+  },
+  {
+    id: 'starting-fault-tree',
+    title: '启动困难故障树：OR/AND 分解与最小割集',
+    category: 'fault-tree-starting',
+    query: '东方红LF904S起动困难怎么办',
+    scope: { brand: '东方红', model: 'LF904S' },
+    chunks: [
+      manualChunk({
+        entryId: 'EVAL-START-001',
+        brand: '东方红',
+        model: 'LF904S',
+        heading: 'EVAL-START-001｜起动困难',
+        text: '可能原因：电瓶电量不足；起动机转动无力。\n检查方法：观察电瓶接线外观；记录起动机转动情况。',
+      }),
+    ],
+    expectedRoute: 'local',
+    expectedReason: 'direct_reference',
+    faultTree: {
+      id: 'top-starting',
+      label: '起动困难（顶事件，合成结构）',
+      kind: 'or',
+      children: [
+        {
+          id: 'and-battery',
+          label: '电瓶分支（需同时成立）',
+          kind: 'and',
+          children: [
+            {
+              id: 'battery-low',
+              label: '电瓶亏电',
+              kind: 'basic',
+              source: 'manual',
+              evidenceIds: ['EVAL-START-001'],
+            },
+            {
+              id: 'connection-loose',
+              label: '接线松动（无手册证据，未知分支）',
+              kind: 'basic',
+              source: 'unknown',
+            },
+          ],
+        },
+        {
+          id: 'starter-weak',
+          label: '起动机转动无力',
+          kind: 'basic',
+          source: 'manual',
+          evidenceIds: ['EVAL-START-001'],
+        },
+        {
+          id: 'ignition-unknown',
+          label: '点火相关异常（无手册证据，未知分支）',
+          kind: 'basic',
+          source: 'unknown',
+        },
+      ],
+    },
+    expectedCutSets: [
+      ['ignition-unknown'],
+      ['starter-weak'],
+      ['battery-low', 'connection-loose'],
+    ],
+    gold: { expectedEvidenceIds: ['EVAL-START-001'], expectedQuestionKeywords: ['起动机'] },
+  },
+  {
+    id: 'overheat-fault-tree',
+    title: '过热故障树：用户报告事件恒为待核实，未知分支不是确诊',
+    category: 'fault-tree-overheat',
+    query: '东方红LF904S水温过高怎么办',
+    scope: { brand: '东方红', model: 'LF904S' },
+    chunks: [
+      manualChunk({
+        entryId: 'EVAL-OVER-001',
+        brand: '东方红',
+        model: 'LF904S',
+        heading: 'EVAL-OVER-001｜水温过高',
+        text: '可能原因：散热器表面堵塞；冷却液不足。\n检查方法：观察散热器表面有无草屑遮挡；记录报警原文和异常工况。',
+      }),
+    ],
+    expectedRoute: 'local',
+    expectedReason: 'direct_reference',
+    faultTree: {
+      id: 'top-overheat',
+      label: '水温过高（顶事件，合成结构）',
+      kind: 'or',
+      children: [
+        {
+          id: 'and-cooling',
+          label: '冷却分支（需同时成立）',
+          kind: 'and',
+          children: [
+            {
+              id: 'coolant-low-reported',
+              label: '用户报告冷却液不足（待核实）',
+              kind: 'basic',
+              source: 'user_report',
+            },
+            {
+              id: 'radiator-blocked',
+              label: '散热器表面堵塞',
+              kind: 'basic',
+              source: 'manual',
+              evidenceIds: ['EVAL-OVER-001'],
+            },
+          ],
+        },
+        {
+          id: 'pump-unknown',
+          label: '水泵异常（无手册证据，未知分支）',
+          kind: 'basic',
+          source: 'unknown',
+        },
+      ],
+    },
+    expectedCutSets: [
+      ['pump-unknown'],
+      ['coolant-low-reported', 'radiator-blocked'],
+    ],
+    gold: { expectedEvidenceIds: ['EVAL-OVER-001'], expectedQuestionKeywords: ['水温'] },
   },
 ];

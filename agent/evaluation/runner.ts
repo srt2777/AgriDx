@@ -18,14 +18,17 @@
 
 import { buildDiagnosticReply, renderDiagnosticReply } from '../../server/diagnosis/reply';
 import { DEFAULT_ROUTER_CONFIG, DiagnosisRouter } from '../../server/diagnosis/router';
-import type { DiagnosticReply } from '../../shared/diagnosis';
+import type { CoordinationDecision, DiagnosticReply } from '../../shared/diagnosis';
 import {
+  bestCoordinationRawScore,
   compareCandidates,
   evaluateCandidate,
+  evidenceMembership,
   type EvaluationCandidate,
   type EvaluationClaim,
   type EvaluationResult,
 } from './evaluation';
+import { analyzeFaultTree, type FaultTreeAnalysis } from './fault-tree';
 import { GOLDEN_CASES, type GoldenCase } from './golden-set';
 
 export interface CaseResult {
@@ -43,6 +46,14 @@ export interface CaseResult {
   aiProviderLabel: string | null;
   winnerId: string | null;
   winnerMargin: number | null;
+  /** Level actually used for the local candidate (fuzzy path or fallback). */
+  relevanceLevel: string;
+  relevanceSource: 'raw' | 'level-fallback';
+  relevanceMembershipHigh: number | null;
+  /** Best non-excluded coordination candidate's discrete evidence grade. */
+  bestEvidenceMembership: number | null;
+  faultTree: FaultTreeAnalysis | null;
+  faultTreeMatchesExpectation: boolean;
   questionCheck: {
     expectedPresent: boolean;
     forbiddenAbsent: boolean;
@@ -69,6 +80,19 @@ export interface OfflineAggregate {
   aiCandidateCases: number;
   aiVeto: number;
   aiWins: number;
+  /** Fuzzy relevance mean over raw-path cases, plus the original level distribution for comparison. */
+  relevance: {
+    fuzzyMean: number;
+    fuzzyCases: number;
+    levelDistribution: Record<string, number>;
+  };
+  /** Mean of the best-evidence discrete grade over cases that have one. */
+  evidenceMembership: {
+    cases: number;
+    mean: number | null;
+  };
+  faultTreeCases: number;
+  faultTreeMatches: number;
   byRoute: Record<string, RouteAggregate>;
   tool: {
     calls: number;
@@ -149,6 +173,24 @@ function questionCheckFor(golden: GoldenCase, reply: DiagnosticReply) {
   };
 }
 
+function deriveLevel(coordination: CoordinationDecision): string {
+  const order: Record<string, number> = { high: 3, medium: 2, low: 1, unknown: 0 };
+  let best = 'unknown';
+  for (const item of coordination.candidates ?? []) {
+    if (item.excluded) continue;
+    if (order[item.relevance.level] > order[best]) best = item.relevance.level;
+  }
+  return best;
+}
+
+function normalizeCutSets(sets: readonly (readonly string[])[]): string[][] {
+  return sets
+    .map((set) => [...new Set(set)].sort())
+    .sort((a, b) =>
+      a.length !== b.length ? a.length - b.length : a.join('|') < b.join('|') ? -1 : 1,
+    );
+}
+
 export function runOfflineEvaluation(cases: readonly GoldenCase[] = GOLDEN_CASES): OfflineReport {
   const results: CaseResult[] = [];
   for (const golden of cases) {
@@ -176,6 +218,23 @@ export function runOfflineEvaluation(cases: readonly GoldenCase[] = GOLDEN_CASES
       priorReports: [],
     });
     const content = renderDiagnosticReply(reply);
+    // Explicit raw-score supply for the fuzzy path: the best finite raw
+    // score among non-excluded coordination candidates, or undefined
+    // when there is none (then the level fallback applies and is noted).
+    const rawScore = bestCoordinationRawScore(coordination);
+    const bestEvidenceMembership = (() => {
+      let best: number | null = null;
+      for (const item of coordination.candidates ?? []) {
+        if (item.excluded) continue;
+        const grade = evidenceMembership({
+          modelMatch: item.modelMatch,
+          referenceVerification: item.referenceVerification,
+          sourceIndexed: item.sourceIndexed,
+        });
+        best = best === null ? grade : Math.max(best, grade);
+      }
+      return best;
+    })();
     const localCandidate: EvaluationCandidate = {
       reply,
       coordination,
@@ -186,6 +245,7 @@ export function runOfflineEvaluation(cases: readonly GoldenCase[] = GOLDEN_CASES
       removedIssues: [],
       claims: claimsFromReply(reply),
       alreadyReportedTexts: golden.progress ? [golden.progress] : [],
+      relevanceRawScore: rawScore ?? undefined,
     };
     const local = evaluateCandidate(localCandidate, golden.gold);
 
@@ -203,6 +263,7 @@ export function runOfflineEvaluation(cases: readonly GoldenCase[] = GOLDEN_CASES
         removedIssues: [],
         claims: claimsFromReply(reply, golden.aiSupplement),
         alreadyReportedTexts: golden.progress ? [golden.progress] : [],
+        relevanceRawScore: rawScore ?? undefined,
       };
       ai = evaluateCandidate(aiCandidate, golden.gold);
       aiProviderLabel = 'synthetic-ai-supplement';
@@ -215,6 +276,12 @@ export function runOfflineEvaluation(cases: readonly GoldenCase[] = GOLDEN_CASES
         : []),
     ];
     const comparison = compareCandidates(entries, golden.gold);
+    const faultTreeAnalysis = golden.faultTree ? analyzeFaultTree(golden.faultTree) : null;
+    const faultTreeMatchesExpectation =
+      faultTreeAnalysis === null || golden.expectedCutSets === undefined
+        ? true
+        : JSON.stringify(normalizeCutSets(faultTreeAnalysis.cutSets.map((set) => set.events))) ===
+          JSON.stringify(normalizeCutSets(golden.expectedCutSets));
     results.push({
       id: golden.id,
       title: golden.title,
@@ -232,6 +299,12 @@ export function runOfflineEvaluation(cases: readonly GoldenCase[] = GOLDEN_CASES
       aiProviderLabel,
       winnerId: comparison?.winnerId ?? null,
       winnerMargin: comparison?.margin ?? null,
+      relevanceLevel: deriveLevel(coordination),
+      relevanceSource: local.relevanceDetail.source,
+      relevanceMembershipHigh: local.relevanceDetail.membershipHigh,
+      bestEvidenceMembership,
+      faultTree: faultTreeAnalysis,
+      faultTreeMatchesExpectation,
       questionCheck: questionCheckFor(golden, reply),
     });
   }
@@ -269,6 +342,16 @@ export function runOfflineEvaluation(cases: readonly GoldenCase[] = GOLDEN_CASES
     );
   }
 
+  const fuzzyResults = results.filter((result) => result.relevanceSource === 'raw');
+  const levelDistribution: Record<string, number> = {};
+  for (const result of results) {
+    levelDistribution[result.relevanceLevel] =
+      (levelDistribution[result.relevanceLevel] ?? 0) + 1;
+  }
+  const evidenceGrades = results
+    .map((result) => result.bestEvidenceMembership)
+    .filter((grade): grade is number => grade !== null);
+
   return {
     cases: results,
     aggregate: {
@@ -277,6 +360,19 @@ export function runOfflineEvaluation(cases: readonly GoldenCase[] = GOLDEN_CASES
       aiCandidateCases: results.filter((result) => result.ai !== null).length,
       aiVeto: results.filter((result) => result.ai?.veto).length,
       aiWins: results.filter((result) => result.winnerId === 'ai').length,
+      relevance: {
+        fuzzyMean: mean(fuzzyResults.map((result) => result.local.breakdown.relevance_score)),
+        fuzzyCases: fuzzyResults.length,
+        levelDistribution,
+      },
+      evidenceMembership: {
+        cases: evidenceGrades.length,
+        mean: evidenceGrades.length ? mean(evidenceGrades) : null,
+      },
+      faultTreeCases: results.filter((result) => result.faultTree !== null).length,
+      faultTreeMatches: results.filter(
+        (result) => result.faultTree !== null && result.faultTreeMatchesExpectation,
+      ).length,
       byRoute,
       tool: {
         calls: 0,

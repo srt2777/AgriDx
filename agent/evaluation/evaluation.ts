@@ -11,6 +11,18 @@
  *
  * A veto voids the total score (score is reported as 0) while the
  * breakdown is kept, so a vetoed candidate can still be diagnosed.
+ *
+ * Three reference layers are kept strictly separate (see README.md
+ * "参考方法"):
+ *  - Boolean layer (hard): every veto below is a Boolean AND/OR/NOT
+ *    decision. Fuzzy scores never dilute a veto and never let a vetoed
+ *    answer "fuzzily pass".
+ *  - Fuzzy layer (soft): only the relevance score is continuous, via a
+ *    membership function over the raw keyword score. It changes ranking
+ *    between non-vetoed candidates only; it is never a fault probability.
+ *  - Fault-tree layer (structural): see fault-tree.ts. It decomposes a
+ *    symptom into OR/AND gates and minimal cut sets; it never asserts a
+ *    cause that has no manual evidence.
  */
 
 import { assessSuggestedAction } from '../../server/diagnosis/answerGuard';
@@ -49,6 +61,64 @@ export interface EvaluationClaim {
 
 export type RelevanceLevel = 'high' | 'medium' | 'low' | 'unknown';
 
+/**
+ * Reused router thresholds, not new ones. The existing router grades a
+ * raw keyword-weighted overlap as high at >= 8 and medium at >= 3; the
+ * membership shoulders below reuse exactly those two numbers.
+ */
+export const RELEVANCE_MEMBERSHIP_LOW_THRESHOLD = 3;
+export const RELEVANCE_MEMBERSHIP_HIGH_THRESHOLD = 8;
+
+/**
+ * Membership of a raw keyword score in "high relevance": 0 at or below
+ * the medium threshold, 1 at or above the high threshold, linear in
+ * between. This is a scoring membership only: the raw score is an
+ * uncalibrated keyword overlap (calibrated is always false), so the
+ * result is never a fault probability or a confidence.
+ */
+export function relevanceMembershipHigh(rawScore: number): number {
+  if (!Number.isFinite(rawScore)) return 0;
+  return clamp01(
+    (rawScore - RELEVANCE_MEMBERSHIP_LOW_THRESHOLD) /
+      (RELEVANCE_MEMBERSHIP_HIGH_THRESHOLD - RELEVANCE_MEMBERSHIP_LOW_THRESHOLD),
+  );
+}
+
+/** Complement shoulder for "low relevance" over the same thresholds. */
+export function relevanceMembershipLow(rawScore: number): number {
+  if (!Number.isFinite(rawScore)) return 0;
+  return clamp01(
+    (RELEVANCE_MEMBERSHIP_HIGH_THRESHOLD - rawScore) /
+      (RELEVANCE_MEMBERSHIP_HIGH_THRESHOLD - RELEVANCE_MEMBERSHIP_LOW_THRESHOLD),
+  );
+}
+
+export type EvidenceMembershipInput = {
+  modelMatch: 'exact' | 'compatible' | 'unknown' | 'conflict';
+  referenceVerification: 'verified' | 'pending' | 'unverified' | 'unspecified' | 'failed';
+  sourceIndexed: boolean;
+};
+
+/**
+ * Discrete evidence membership, deliberately not fuzzified: a candidate
+ * is either exactly matched, verified and indexed (1), merely
+ * compatible (0.6), unknown (0.3), or conflicting (0). A conflicting
+ * candidate is also excluded by the router and, when it is nevertheless
+ * answered instead of clarified, vetoed by the Boolean layer below.
+ */
+export function evidenceMembership(input: EvidenceMembershipInput): number {
+  if (input.modelMatch === 'conflict') return 0;
+  if (
+    input.modelMatch === 'exact' &&
+    input.referenceVerification === 'verified' &&
+    input.sourceIndexed
+  ) {
+    return 1;
+  }
+  if (input.modelMatch === 'compatible') return 0.6;
+  return 0.3;
+}
+
 export interface EvaluationCandidate {
   reply: DiagnosticReply;
   coordination: CoordinationDecision;
@@ -63,6 +133,15 @@ export interface EvaluationCandidate {
   claims: readonly EvaluationClaim[];
   /** When omitted, derived from coordination.candidates (non-excluded). */
   relevanceLevel?: RelevanceLevel;
+  /**
+   * Raw keyword-weighted overlap score, when the caller supplies one.
+   * Only an explicitly supplied raw score takes the fuzzy path; when it
+   * is omitted, the level mapping below is used as a fallback and the
+   * result says so. The runner supplies this from the best
+   * non-excluded coordination candidate; evaluateCandidate itself never
+   * silently picks a raw score out of the coordination list.
+   */
+  relevanceRawScore?: number | null;
   /** When omitted, derived from the reply structure (see deriveCoverage). */
   coverage?: Partial<Record<DiagnosticCoverageKey, boolean>>;
   /** Already-reported texts, used only to penalise repeated suggestions. */
@@ -85,6 +164,15 @@ export interface ScoreBreakdown {
   clarity_score: number;
 }
 
+export interface RelevanceDetail {
+  /** 'raw' when an explicit raw score was supplied, else the level fallback. */
+  source: 'raw' | 'level-fallback';
+  rawScore: number | null;
+  /** Fuzzy shoulders; null on the level-fallback path (no raw score). */
+  membershipHigh: number | null;
+  membershipLow: number | null;
+}
+
 export interface EvaluationResult {
   veto: boolean;
   vetoReasons: string[];
@@ -93,6 +181,7 @@ export interface EvaluationResult {
   /** Weighted score before the veto was applied; kept for diagnosis. */
   scoreBeforeVeto: number;
   breakdown: ScoreBreakdown;
+  relevanceDetail: RelevanceDetail;
 }
 
 export const EVALUATION_WEIGHTS = Object.freeze({
@@ -225,15 +314,24 @@ function actionabilityScore(candidate: EvaluationCandidate): number {
 }
 
 /**
- * Score one candidate against its gold expectations. Pure and
- * deterministic: the same inputs always produce the same result.
+ * Boolean veto layer (hard rules, no fuzziness).
+ *
+ * Every rule here is a Boolean AND/OR/NOT decision over already-tagged
+ * facts: a dangerous action is present OR a parameter is unsupported OR
+ * a conflict was answered instead of clarified OR a source is
+ * mislabelled OR a prohibited action appears OR a length cap is
+ * exceeded. There is no threshold, weight or membership in this layer:
+ * a single true veto voids the total score, however high the fuzzy
+ * relevance membership or any other soft score may be. Fuzzy logic
+ * only ranks candidates that survive this layer; it can never rescue
+ * a vetoed one.
  */
-export function evaluateCandidate(
+export function booleanVetoCheck(
   candidate: EvaluationCandidate,
   gold: EvaluationGold = {},
-): EvaluationResult {
+): { veto: boolean; vetoReasons: string[] } {
   const vetoReasons: string[] = [];
-  const { reply, coordination, content } = candidate;
+  const { coordination, content } = candidate;
   const claims = candidate.claims;
   const manualIds = manualEvidenceIds(claims);
 
@@ -297,6 +395,42 @@ export function evaluateCandidate(
     vetoReasons.push('local_summary_too_long');
   }
 
+  return { veto: vetoReasons.length > 0, vetoReasons };
+}
+
+/**
+ * Best finite raw keyword score among non-excluded coordination
+ * candidates, or null when there is none. The runner uses this to
+ * supply `relevanceRawScore` explicitly; evaluateCandidate never
+ * infers a raw score on its own, so a direct caller without a raw
+ * score always gets the level-fallback annotation.
+ */
+export function bestCoordinationRawScore(
+  coordination: CoordinationDecision,
+): number | null {
+  let best: number | null = null;
+  for (const item of coordination.candidates ?? []) {
+    if (item.excluded) continue;
+    const score = item.relevance.score;
+    if (typeof score === 'number' && Number.isFinite(score)) {
+      best = best === null ? score : Math.max(best, score);
+    }
+  }
+  return best;
+}
+
+/**
+ * Score one candidate against its gold expectations. Pure and
+ * deterministic: the same inputs always produce the same result.
+ */
+export function evaluateCandidate(
+  candidate: EvaluationCandidate,
+  gold: EvaluationGold = {},
+): EvaluationResult {
+  const { veto, vetoReasons } = booleanVetoCheck(candidate, gold);
+  const { coordination } = candidate;
+  const claims = candidate.claims;
+
   const factual = factualClaims(claims);
   const supported = factual.filter(
     (claim) => claim.sourceKind === 'manual' && claim.evidenceIds.length > 0,
@@ -315,13 +449,40 @@ export function evaluateCandidate(
       ? 1
       : required.filter((key) => coverage[key] === true).length / required.length;
 
+  // Fuzzy relevance layer (soft ranking only, after the Boolean veto
+  // above). An explicitly supplied raw score takes the membership
+  // shoulder; otherwise the original level mapping is kept as a
+  // fallback and the result records that fact, so a fallback score is
+  // never mistaken for a fuzzy measurement.
   const relevanceMap: Record<RelevanceLevel, number> = {
     high: 1,
     medium: 0.6,
     low: 0,
     unknown: 0,
   };
-  const relevance_score = relevanceMap[deriveRelevanceLevel(candidate)];
+  const rawScore =
+    typeof candidate.relevanceRawScore === 'number' &&
+    Number.isFinite(candidate.relevanceRawScore)
+      ? candidate.relevanceRawScore
+      : null;
+  const relevanceDetail: RelevanceDetail =
+    rawScore === null
+      ? {
+          source: 'level-fallback',
+          rawScore: null,
+          membershipHigh: null,
+          membershipLow: null,
+        }
+      : {
+          source: 'raw',
+          rawScore,
+          membershipHigh: relevanceMembershipHigh(rawScore),
+          membershipLow: relevanceMembershipLow(rawScore),
+        };
+  const relevance_score =
+    relevanceDetail.source === 'raw'
+      ? (relevanceDetail.membershipHigh ?? 0)
+      : relevanceMap[deriveRelevanceLevel(candidate)];
 
   const breakdown: ScoreBreakdown = {
     evidence_score: clamp01(evidence_score),
@@ -337,13 +498,13 @@ export function evaluateCandidate(
       EVALUATION_WEIGHTS.actionability_score * breakdown.actionability_score +
       EVALUATION_WEIGHTS.clarity_score * breakdown.clarity_score,
   );
-  const veto = vetoReasons.length > 0;
   return {
     veto,
     vetoReasons,
     score: veto ? 0 : scoreBeforeVeto,
     scoreBeforeVeto,
     breakdown,
+    relevanceDetail,
   };
 }
 

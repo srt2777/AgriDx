@@ -1,12 +1,23 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import {
+  booleanVetoCheck,
   compareCandidates,
   evaluateCandidate,
+  evidenceMembership,
+  relevanceMembershipHigh,
+  relevanceMembershipLow,
   questionValue,
   type EvaluationCandidate,
   type EvaluationClaim,
 } from '../agent/evaluation/evaluation';
+import {
+  analyzeFaultTree,
+  faultTreeQuestionComparison,
+  faultTreeQuestionValue,
+  minimalCutSets,
+  type FaultTreeNode,
+} from '../agent/evaluation/fault-tree';
 import { GOLDEN_CASES } from '../agent/evaluation/golden-set';
 import { runOfflineEvaluation } from '../agent/evaluation/runner';
 import type { CoordinationDecision, DiagnosticReply } from '../shared/diagnosis';
@@ -301,4 +312,179 @@ test('offline runner matches expected routes and vetoes both unsafe AI candidate
   const synthesis = report.cases.find((item) => item.id === 'synthesis-multiple-faults');
   assert.equal(synthesis?.route, 'ai');
   assert.equal(synthesis?.winnerId, null);
+});
+
+
+test('relevance membership uses the reused 3 and 8 shoulders, not new thresholds', () => {
+  assert.equal(relevanceMembershipHigh(3), 0);
+  assert.equal(relevanceMembershipHigh(8), 1);
+  assert.equal(relevanceMembershipHigh(5.5), 0.5);
+  assert.equal(relevanceMembershipLow(3), 1);
+  assert.equal(relevanceMembershipLow(8), 0);
+  assert.equal(relevanceMembershipLow(5.5), 0.5);
+  assert.equal(relevanceMembershipHigh(2), 0);
+  assert.equal(relevanceMembershipHigh(12), 1);
+  assert.equal(relevanceMembershipHigh(Number.NaN), 0);
+});
+
+test('an explicit raw score takes the fuzzy path; without one the level fallback is annotated', () => {
+  const fuzzy = evaluateCandidate(candidate({ relevanceRawScore: 5.5 }));
+  assert.equal(fuzzy.relevanceDetail.source, 'raw');
+  assert.equal(fuzzy.relevanceDetail.rawScore, 5.5);
+  assert.equal(fuzzy.relevanceDetail.membershipHigh, 0.5);
+  assert.equal(fuzzy.breakdown.relevance_score, 0.5);
+
+  const fallback = evaluateCandidate(candidate());
+  assert.equal(fallback.relevanceDetail.source, 'level-fallback');
+  assert.equal(fallback.relevanceDetail.rawScore, null);
+  assert.equal(fallback.relevanceDetail.membershipHigh, null);
+  assert.equal(fallback.breakdown.relevance_score, 1);
+});
+
+test('evidence membership is discrete: exact+verified+indexed is 1, compatible 0.6, unknown 0.3, conflict 0', () => {
+  assert.equal(
+    evidenceMembership({ modelMatch: 'exact', referenceVerification: 'verified', sourceIndexed: true }),
+    1,
+  );
+  assert.equal(
+    evidenceMembership({ modelMatch: 'compatible', referenceVerification: 'verified', sourceIndexed: true }),
+    0.6,
+  );
+  assert.equal(
+    evidenceMembership({ modelMatch: 'unknown', referenceVerification: 'pending', sourceIndexed: false }),
+    0.3,
+  );
+  assert.equal(
+    evidenceMembership({ modelMatch: 'conflict', referenceVerification: 'verified', sourceIndexed: true }),
+    0,
+  );
+  assert.equal(
+    evidenceMembership({ modelMatch: 'exact', referenceVerification: 'pending', sourceIndexed: true }),
+    0.3,
+  );
+});
+
+test('a Boolean veto is never diluted by a maximal fuzzy relevance score', () => {
+  const vetoed = evaluateCandidate(
+    candidate({
+      relevanceRawScore: 12,
+      content: '拆卸高压油管并把压力调至12 MPa，可以快速定位故障。',
+      claims: [{ text: '拆卸高压油管', kind: 'ai', evidenceIds: [], sourceKind: 'inference' }],
+    }),
+  );
+  assert.equal(vetoed.breakdown.relevance_score, 1);
+  assert.equal(vetoed.veto, true);
+  assert.equal(vetoed.score, 0);
+  assert.ok(vetoed.vetoReasons.includes('unsafe_action'));
+  const check = booleanVetoCheck(
+    candidate({
+      content: '拆卸高压油管并把压力调至12 MPa，可以快速定位故障。',
+      claims: [{ text: '拆卸高压油管', kind: 'ai', evidenceIds: [], sourceKind: 'inference' }],
+    }),
+  );
+  assert.equal(check.veto, true);
+  assert.ok(check.vetoReasons.includes('unsafe_action'));
+});
+
+const sampleTree: FaultTreeNode = {
+  id: 'top',
+  label: '顶事件',
+  kind: 'or',
+  children: [
+    {
+      id: 'and-branch',
+      label: 'AND 分支',
+      kind: 'and',
+      children: [
+        { id: 'a', label: 'A', kind: 'basic', source: 'manual', evidenceIds: ['EVAL-001'] },
+        { id: 'b', label: 'B', kind: 'basic', source: 'unknown' },
+      ],
+    },
+    {
+      id: 'and-redundant',
+      label: '冗余 AND 分支（应被最小化去掉）',
+      kind: 'and',
+      children: [
+        { id: 'a', label: 'A', kind: 'basic', source: 'manual', evidenceIds: ['EVAL-001'] },
+        { id: 'b', label: 'B', kind: 'basic', source: 'unknown' },
+        { id: 'c', label: 'C', kind: 'basic', source: 'user_report' },
+      ],
+    },
+    { id: 'd', label: 'D', kind: 'basic', source: 'manual', evidenceIds: ['EVAL-002'] },
+  ],
+};
+
+test('fault tree computes minimal cut sets and drops supersets', () => {
+  // The {a, b} AND branch removes the redundant {a, b, c} superset at
+  // the OR top; results are sorted by length, so {d} comes first.
+  assert.deepEqual(minimalCutSets(sampleTree), [['d'], ['a', 'b']]);
+  const analysis = analyzeFaultTree(sampleTree);
+  assert.equal(analysis.topEventId, 'top');
+  const ab = analysis.cutSets.find((set) => set.events.join(',') === 'a,b')!;
+  assert.equal(ab.hasUnknown, true);
+  assert.equal(ab.fullyManual, false);
+  assert.deepEqual(analysis.fullyManualCutSets, [['d']]);
+  assert.deepEqual(analysis.unknownCutSets, [['a', 'b']]);
+  const userEvent = analysis.basicEvents.find((event) => event.id === 'c')!;
+  assert.equal(userEvent.verification, 'unverified');
+});
+
+test('fault-tree question value counts distinguished cut sets and is compared, not merged, with the Planner ratio', () => {
+  const cutSets = [['a', 'b'], ['d']];
+  assert.equal(faultTreeQuestionValue('a', cutSets), 1);
+  assert.equal(faultTreeQuestionValue('d', cutSets), 1);
+  assert.equal(faultTreeQuestionValue('missing', cutSets), 0);
+  const comparison = faultTreeQuestionComparison('a', cutSets, 20, 1);
+  assert.equal(comparison.cutSetsEliminatedIfNormal, 1);
+  assert.equal(comparison.cutSetsRemainingIfNormal, 1);
+  assert.equal(comparison.plannerQuestionValue, 10);
+});
+
+test('fault tree rejects a manual basic event without evidence ids', () => {
+  assert.throws(
+    () =>
+      analyzeFaultTree({
+        id: 'top',
+        label: '顶事件',
+        kind: 'basic',
+        source: 'manual',
+        evidenceIds: [],
+      }),
+    /non-empty evidenceIds/,
+  );
+});
+
+test('offline runner reports fuzzy relevance, level distribution and both fault-tree cases', () => {
+  const report = runOfflineEvaluation();
+  assert.equal(report.aggregate.totalCases, GOLDEN_CASES.length);
+  assert.ok(report.aggregate.relevance.fuzzyCases > 0);
+  assert.ok(report.aggregate.relevance.fuzzyMean >= 0);
+  assert.ok(report.aggregate.relevance.fuzzyMean <= 1);
+  const levelTotal = Object.values(report.aggregate.relevance.levelDistribution).reduce(
+    (sum, count) => sum + count,
+    0,
+  );
+  assert.equal(levelTotal, GOLDEN_CASES.length);
+  assert.equal(report.aggregate.faultTreeCases, 2);
+  assert.equal(report.aggregate.faultTreeMatches, 2);
+
+  const starting = report.cases.find((item) => item.id === 'starting-fault-tree')!;
+  assert.equal(starting.faultTreeMatchesExpectation, true);
+  assert.equal(starting.relevanceSource, 'raw');
+  assert.equal(starting.relevanceMembershipHigh, 1);
+  const startingTree = starting.faultTree!;
+  assert.deepEqual(
+    startingTree.cutSets.map((set) => set.events),
+    [['ignition-unknown'], ['starter-weak'], ['battery-low', 'connection-loose']],
+  );
+  assert.equal(startingTree.unknownCutSets.length, 2);
+  assert.deepEqual(startingTree.fullyManualCutSets, [['starter-weak']]);
+
+  const overheat = report.cases.find((item) => item.id === 'overheat-fault-tree')!;
+  assert.equal(overheat.faultTreeMatchesExpectation, true);
+  const overheatTree = overheat.faultTree!;
+  assert.deepEqual(overheatTree.fullyManualCutSets, []);
+  const reported = overheatTree.basicEvents.find((event) => event.id === 'coolant-low-reported')!;
+  assert.equal(reported.verification, 'unverified');
+  assert.equal(overheatTree.unknownCutSets.length, 1);
 });
