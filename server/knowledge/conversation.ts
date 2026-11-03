@@ -9,6 +9,10 @@ export interface DiagnosticContext {
   /** Latest user text, for the answer to address the current turn. */
   currentQuery: string;
   symptomQuery: string;
+  /** Stable first symptom in the active question, excluding follow-up feedback. */
+  topicRoot: string;
+  /** Current user-declared applicability constraints, not a model inference. */
+  conditions: string[];
   /** Symptom plus user-declared identity and current applicability constraints. */
   query: string;
   scope: RetrievalContext;
@@ -103,9 +107,11 @@ function removeDeniedIdentities(text: string, scope: RetrievalContext): { text: 
 function isContinuation(text: string): boolean {
   const clean = text.trim();
   return clean.length <= 100 && (
-    /^(?:那|还|也|只|只有|仅|但是|不过|现在|刚才|补充|继续|下一步|已经|已检查|检查结果|测量结果|怎么|为什么|需要|应该|能不能|可以|是否|多久|多长|多少|什么油|有什么|怎么办|会不会|是的|对|不是|请问|具体)/.test(clean) ||
+    /^(?:那|还|也|只|只有|仅|但是|不过|现在|刚才|更正|纠正|之前说错|取消诊断|停止诊断|结束诊断|暂停诊断|先暂停|暂时暂停|故障已解决|问题已解决|已修好|补充|继续|恢复诊断|下一步|已经|已检查|检查结果|测量结果|怎么|为什么|需要|应该|能不能|可以|是否|多久|多长|多少|什么油|有什么|怎么办|会不会|是的|对|不是|请问|具体)/.test(clean) ||
     /已(?:经)?(?:检查|测量|更换|排除)|检查.*(?:正常|异常|完成)|换过|测过/.test(clean) ||
-    /空载|负载|带负荷|怠速|加油门|热车|冷车|挂挡|行驶时|作业时|启动时|起动时|报警|故障码/.test(clean)
+    /空载|负载|带负荷|怠速|加油门|热车|冷车|挂挡|行驶时|作业时|启动时|起动时|报警|故障码/.test(clean) ||
+    /^(?:正常|异常|不正常|没问题|有问题|未检查|没检查|不确定|不太清楚|不清楚|不知道|我暂时想不起来|暂时想不起来|想不起来|可能正常也可能异常|检查过了|检查过|已检查)[。！!]*$/.test(clean) ||
+    /^(?:电瓶|蓄电池|电池|冷却液泄漏|冷却液渗漏|散热器|起动机|启动机)(?:的)?(?:检查|检查结果)?(?:正常|异常|不正常|没问题|有问题|未检查|没检查|不确定)[。！!]*$/.test(clean)
   );
 }
 
@@ -117,6 +123,7 @@ function isContinuation(text: string): boolean {
 export function resolveDiagnosticContext(
   history: readonly DiagnosticHistoryMessage[],
   explicitScope: RetrievalContext = {},
+  hints?: { isFeedback: (text: string) => boolean; isNewTopic: (text: string, root: string) => boolean },
 ): DiagnosticContext {
   // Legacy API already limits its input. Persistent sessions supply the full,
   // bounded user transcript so early symptoms and corrections remain available.
@@ -194,7 +201,7 @@ export function resolveDiagnosticContext(
 
     const body = withoutSelection(text);
     if (!body || identityOnly(text, model)) continue;
-    if (symptoms.length && isContinuation(body)) symptoms = [symptoms[0], ...(symptoms.length > 1 ? symptoms.slice(-1) : []), body];
+    if (symptoms.length && !hints?.isNewTopic(text, symptoms[0]) && (isContinuation(body) || hints?.isFeedback(text))) symptoms = [symptoms[0], ...(symptoms.length > 1 ? symptoms.slice(-1) : []), body];
     else symptoms = [body];
   }
 
@@ -216,6 +223,8 @@ export function resolveDiagnosticContext(
   const currentQuery = users.at(-1)?.content.trim() ?? '';
   return {
     currentQuery,
+    topicRoot: symptoms[0] ?? '',
+    conditions: [...emissions, ...configurations, ...drives],
     symptomQuery: symptoms.join(' ').replace(/请区分本地资料依据和模型补充分析[。.]?/g, '').trim(),
     query: [
       scope.brand, scope.model, scope.machineType,

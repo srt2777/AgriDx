@@ -1,0 +1,106 @@
+{
+  "testType": "Synthetic temporary SQLite WAL checkpoint read and atomic transcript append; no retrieval, HTTP, LLM, tools or vehicle",
+  "node": "v24.19.0",
+  "platform": "linux x64",
+  "cpu": "AMD EPYC 9V74 80-Core Processor",
+  "note": "History is seeded outside measured operations; each sample uses a separate synthetic session. Plain append is followed by Planner append (one extra turn); no warmup. Individual p95 differences are not p95 overhead.",
+  "results": [
+    {
+      "historyTurns": 1,
+      "samples": 30,
+      "sessionRead": {
+        "p50Ms": 0.0576,
+        "p95Ms": 0.1367,
+        "maxMs": 0.1926
+      },
+      "checkpointRead": {
+        "p50Ms": 0.1702,
+        "p95Ms": 0.4349,
+        "maxMs": 0.4399
+      },
+      "plainAppend": {
+        "p50Ms": 0.2032,
+        "p95Ms": 0.4633,
+        "maxMs": 0.7312
+      },
+      "plannerAppend": {
+        "p50Ms": 0.6229,
+        "p95Ms": 1.6268,
+        "maxMs": 1.7769
+      }
+    },
+    {
+      "historyTurns": 20,
+      "samples": 30,
+      "sessionRead": {
+        "p50Ms": 0.4585,
+        "p95Ms": 0.8528,
+        "maxMs": 0.9242
+      },
+      "checkpointRead": {
+        "p50Ms": 0.5226,
+        "p95Ms": 1.257,
+        "maxMs": 1.3679
+      },
+      "plainAppend": {
+        "p50Ms": 0.8837,
+        "p95Ms": 1.3006,
+        "maxMs": 1.4178
+      },
+      "plannerAppend": {
+        "p50Ms": 1.5429,
+        "p95Ms": 2.5125,
+        "maxMs": 5.1547
+      }
+    },
+    {
+      "historyTurns": 100,
+      "samples": 30,
+      "sessionRead": {
+        "p50Ms": 1.6615,
+        "p95Ms": 2.3813,
+        "maxMs": 3.2973
+      },
+      "checkpointRead": {
+        "p50Ms": 1.6941,
+        "p95Ms": 2.3229,
+        "maxMs": 2.3271
+      },
+      "plainAppend": {
+        "p50Ms": 3.455,
+        "p95Ms": 4.6137,
+        "maxMs": 4.898
+      },
+      "plannerAppend": {
+        "p50Ms": 5.4248,
+        "p95Ms": 7.2249,
+        "maxMs": 7.4417
+      }
+    },
+    {
+      "historyTurns": 400,
+      "samples": 30,
+      "sessionRead": {
+        "p50Ms": 6.5659,
+        "p95Ms": 11.1292,
+        "maxMs": 12.6214
+      },
+      "checkpointRead": {
+        "p50Ms": 6.3883,
+        "p95Ms": 10.8159,
+        "maxMs": 11.7391
+      },
+      "plainAppend": {
+        "p50Ms": 12.4075,
+        "p95Ms": 21.0308,
+        "maxMs": 21.5371
+      },
+      "plannerAppend": {
+        "p50Ms": 20.431,
+        "p95Ms": 33.7024,
+        "maxMs": 37.4867
+      }
+    }
+  ],
+  "processMaxRssKiB": 146636
+}
