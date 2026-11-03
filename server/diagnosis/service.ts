@@ -51,6 +51,8 @@ export interface DiagnosticDependencies {
   onShadowResult?: (report: ShadowLoopReport) => void;
   /** Test hook for the shadow wall-clock deadline; production uses 8 s. */
   shadowTimeoutMs?: number;
+  /** Test hook for the main tool loop wall-clock deadline; production uses 8 s. */
+  mainLoopTimeoutMs?: number;
 }
 
 /** Redacted shadow outcome: tool names, timings and status only; never arguments, content or credentials. */
@@ -62,9 +64,36 @@ export interface ShadowLoopReport {
   toolEvents: AgentToolEvent[];
 }
 
-const SHADOW_TOOLS = ['resolve_machine_scope', 'search_knowledge', 'browse_knowledge', 'knowledge_stats', 'calculator', 'get_current_time',
+/**
+ * The single read-only allowlist shared by the shadow loop and the main loop.
+ * Sharing is deliberate: the main loop differs from shadow only in being
+ * awaited and in replacing the AI supplement, never in tool permissions.
+ * Both loops are bound by the host-supplied device scope, both are limited
+ * to read-only tools, and neither may write, execute repairs or choose a
+ * device. The shadow loop keeps its old name as an alias below so its
+ * existing callsite reads unchanged.
+ */
+const TOOL_LOOP_TOOLS = ['resolve_machine_scope', 'search_knowledge', 'browse_knowledge', 'knowledge_stats', 'calculator', 'get_current_time',
   'get_knowledge_entry', 'get_session_state', 'list_prior_reports', 'explore_relations', 'ask_user_for_info'] as const;
+const SHADOW_TOOLS = TOOL_LOOP_TOOLS;
 const SHADOW_TIMEOUT_MS = 8_000;
+const MAIN_LOOP_TIMEOUT_MS = 8_000;
+const MAIN_LOOP_MAX_STEPS = 4;
+
+/**
+ * Main-loop tool allowlist. When the Planner already supplied this turn's
+ * question, ask_user_for_info is removed so the loop only gathers evidence
+ * and never asks a second, competing question. The runner still requires
+ * resolve_machine_scope as its first, host-bound scope step.
+ */
+export function mainLoopAllowedTools(hasPlannerQuestions: boolean): readonly string[] {
+  return hasPlannerQuestions ? TOOL_LOOP_TOOLS.filter(tool => tool !== 'ask_user_for_info') : [...TOOL_LOOP_TOOLS];
+}
+
+/** Desensitised main-loop tool events for the diagnosis trace: no arguments, no output text. */
+function mainLoopTraceEvents(events: readonly AgentToolEvent[]): { step: number; tool: string; ok: boolean; error_type: string | null; duration_ms: number; source: string }[] {
+  return events.map(event => ({ step: event.step, tool: event.tool, ok: event.ok, error_type: event.error_type, duration_ms: event.duration_ms, source: event.source }));
+}
 const SHADOW_MAX_IN_FLIGHT = 4;
 
 function logShadowResult(report: ShadowLoopReport) {
@@ -167,7 +196,8 @@ export function createDiagnosticService(llm: DiagnosticProvider, dependencies: D
     let displayed = admissible;
     const trace: DiagnosisTrace = { retrievalCount: clarificationNeeded ? 0 : 1, aiAttempts: 0, aiSuccesses: 0, aiProvider: null,
       scoreMethod: 'keyword-weighted-overlap', contextChars: 0, sentKnowledgeIds: [],
-      timings: { retrievalMs, decisionMs, externalAiMs: 0, totalMs: 0 } };
+      timings: { retrievalMs, decisionMs, externalAiMs: 0, totalMs: 0 },
+      mainLoop: { enabled: config.agentLoop === 'main', ran: false, status: null, toolSteps: 0, toolEvents: [] } };
     const metadata = () => ({ knowledgeChunks: displayed.length, knowledgeSources: displayed.map(chunk => ({
       entryId: chunk.entryId, sourceId: chunk.sourceId, source: chunk.source, heading: chunk.heading,
       entryType: chunk.entryType, diagnosticEvidence: chunk.diagnosticEvidence,
@@ -279,6 +309,78 @@ export function createDiagnosticService(llm: DiagnosticProvider, dependencies: D
     if (memory) systemMessage.content += memoryPrompt(memory.session, memory.priorReports);
     trace.contextChars = formatForPrompt(promptChunks, config.contextMaxChars).length;
     trace.sentKnowledgeIds = promptChunks.flatMap(chunk => chunk.entryId ? [chunk.entryId] : []);
+    const trustedEvidenceIds = promptChunks.flatMap(chunk => chunk.entryId && !chunk.retrieval?.referenceOnly &&
+      coordination.candidates?.some(candidate => candidate.entryId === chunk.entryId && !candidate.excluded &&
+        candidate.modelMatch === 'exact' && candidate.sourceIndexed && candidate.referenceVerification === 'verified') ? [chunk.entryId] : []);
+    const mainLoopGuard = (value: string): string | null =>
+      filterDiagnosticAnswer(value, promptChunks, { trustedEvidenceIds, model: scope.model }).content || null;
+    // Main tool loop (AGENT_LOOP=main only). It is awaited and may replace the
+    // AI supplement, unlike the shadow loop which only records after the fact.
+    // It never runs together with shadow: the shadow branch below still checks
+    // agentLoop === 'shadow', so main mode never starts a shadow run either.
+    // Eligibility is conjunctive: route ai, external AI allowed, no Planner
+    // restriction or stop, and a configured tool-capable provider. Any gap
+    // falls through to the existing single llm.chat() path unchanged.
+    const allowExternal = coordination.effectiveMode !== 'knowledge_only' && coordinationConfig().allowExternalAi;
+    const toolProvider = config.agentLoop === 'main' && coordination.route === 'ai' && allowExternal && !planner?.restriction && !stopReason
+      ? llm.toolProvider?.() ?? null : null;
+    if (toolProvider) {
+      const mainLoopStart = now();
+      let mainLoopResult: AgentRunResult;
+      try {
+        mainLoopResult = await runAgent({ provider: toolProvider, registry: buildContextRegistry(memory),
+          messages: [systemMessage, ...(memory ? recentMessages(history) : history)], query: currentQuery, context: scope,
+          allowedTools: mainLoopAllowedTools(Boolean(planner?.questions?.length)), allowExternal: true,
+          timeoutMs: dependencies.mainLoopTimeoutMs ?? MAIN_LOOP_TIMEOUT_MS, maxSteps: MAIN_LOOP_MAX_STEPS,
+          signal, guard: mainLoopGuard });
+      } catch {
+        mainLoopResult = { status: 'fallback', reason: 'provider_or_tool_error', toolEvents: [] };
+      }
+      trace.mainLoop = { enabled: true, ran: true, status: mainLoopResult.status,
+        toolSteps: mainLoopResult.toolEvents.length, toolEvents: mainLoopTraceEvents(mainLoopResult.toolEvents) };
+      trace.timings.externalAiMs = now() - mainLoopStart;
+      if (mainLoopResult.status === 'cancelled' && signal?.aborted) {
+        displayed = admissible;
+        return localResponse(true, [], 'timeout');
+      }
+      if ((mainLoopResult.status === 'answered' || mainLoopResult.status === 'question') && mainLoopResult.content.trim()) {
+        if (mainLoopResult.status === 'answered') {
+          const diagnosticReply = { ...replyPlan(), aiSupplement: mainLoopResult.content };
+          diagnosticReply.understanding = `${[scope.brand, scope.model].filter(Boolean).join(' ')}${scope.model ? '：' : ''}${(symptomQuery || currentQuery).replace(/[。！？?!]+$/u, '')}。下面区分已有资料与通用分析，原因尚待检查验证。`;
+          if (/[？?]|请.{0,12}(?:补充|确认)/.test(mainLoopResult.content)) diagnosticReply.questions = [];
+          const content = renderDiagnosticReply(diagnosticReply);
+          if (content.length > 16000) {
+            displayed = admissible;
+            return localResponse(false, ['answer_too_long']);
+          }
+          trace.aiAttempts = 1;
+          trace.aiSuccesses = 1;
+          trace.aiProvider = toolProvider.name;
+          return finish({ choices: [{ message: { role: 'assistant', content } }], diagnosticReply,
+            model: toolProvider.model, provider: toolProvider.name, fellBack: false,
+            ...metadata(), answerMode: groundedPrompt ? answerMode : 'general-guidance', coordination, coordinationMessage: ROUTE_MESSAGES[coordination.reason] });
+        }
+        // Question status: only reachable when the Planner did not already
+        // supply this turn's question, because then ask_user_for_info is
+        // removed from the allowlist. Local facts stay exactly as built.
+        const diagnosticReply = replyPlan();
+        diagnosticReply.questions = [{ text: mainLoopResult.content }];
+        const content = renderDiagnosticReply(diagnosticReply);
+        if (content.length > 16000) {
+          displayed = admissible;
+          return localResponse(false, ['answer_too_long']);
+        }
+        trace.aiAttempts = 1;
+        trace.aiSuccesses = 1;
+        trace.aiProvider = toolProvider.name;
+        return finish({ choices: [{ message: { role: 'assistant', content } }], diagnosticReply,
+          model: toolProvider.model, provider: toolProvider.name, fellBack: false,
+          ...metadata(), answerMode: groundedPrompt ? answerMode : 'general-guidance', coordination, coordinationMessage: ROUTE_MESSAGES[coordination.reason] });
+      }
+      // Fallback (including guard rejection, timeout without an abort, tool
+      // errors and empty content) falls through to the single llm.chat()
+      // path below; only if that also fails does the local fallback run.
+    }
     const externalStart = now();
     try {
       trace.aiAttempts = 1;
@@ -287,9 +389,6 @@ export function createDiagnosticService(llm: DiagnosticProvider, dependencies: D
       trace.aiAttempts = outcome.attempts ?? 1;
       trace.aiSuccesses = 1;
       trace.aiProvider = outcome.result.provider;
-      const trustedEvidenceIds = promptChunks.flatMap(chunk => chunk.entryId && !chunk.retrieval?.referenceOnly &&
-        coordination.candidates?.some(candidate => candidate.entryId === chunk.entryId && !candidate.excluded &&
-          candidate.modelMatch === 'exact' && candidate.sourceIndexed && candidate.referenceVerification === 'verified') ? [chunk.entryId] : []);
       const filtered = filterDiagnosticAnswer(outcome.result.content, promptChunks, { trustedEvidenceIds, model: scope.model });
       if (!filtered.content) {
         displayed = admissible;
