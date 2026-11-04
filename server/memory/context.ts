@@ -7,7 +7,9 @@ export function recentMessages(messages: readonly { role: 'user' | 'assistant'; 
   const selected: ChatMessage[] = [];
   for (const m of messages.slice(-10).reverse()) {
     const content = m.content.slice(0, Math.min(remaining, m.role === 'assistant' ? 1600 : 2000));
-    if (!content) break;
+    // An empty entry must not truncate the window: skip it and keep filling
+    // from older messages, so one blank row cannot drop the whole history.
+    if (!content) continue;
     selected.unshift({ role: m.role, content });
     remaining -= content.length;
   }

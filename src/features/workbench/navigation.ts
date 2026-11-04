@@ -6,7 +6,7 @@ export const workbenchRoutes = [
   { path: '/workspace/commands', zh: '指令与响应', en: 'Commands & responses', icon: SlidersHorizontal, group: 'workspace' },
   { path: '/workspace/analytics', zh: '数据可视化', en: 'Analytics', icon: ChartNoAxesCombined, group: 'workspace' },
   { path: '/workspace/records', zh: '操作与检查记录', en: 'Activity & checks', icon: ListChecks, group: 'workspace' },
-  { path: '/chat', zh: '智能诊断', en: 'Diagnosis', icon: MessageSquare, group: 'knowledge' },
+  { path: '/chat', zh: '司稼 · 智能诊断', en: 'Sijia · Diagnosis', icon: MessageSquare, group: 'knowledge' },
   { path: '/knowledge', zh: '农机知识', en: 'Knowledge', icon: BookOpen, group: 'knowledge' },
   { path: '/models', zh: '模型工坊', en: 'Model studio', icon: Boxes, group: 'knowledge' },
   { path: '/fault-detection', zh: '故障检测演示', en: 'Fault detection demo', icon: Activity, group: 'knowledge' },

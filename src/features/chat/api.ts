@@ -4,7 +4,7 @@ import type { ChatRequest, LlmHealth } from '../../../shared/chat';
 import { ApiError, isRecord, requestJson, type FetchImplementation } from '../../lib/api-client';
 import { isAnswerMode, isChatProvider, isFallbackReason, isKnowledgeChunkCount, parseChatMetadata, type ChatMessage } from './session';
 
-export type ChatReply = Omit<ChatMessage, 'id'> & { memory?: MemorySession };
+export type ChatReply = Omit<ChatMessage, 'id'> & { memory?: MemorySession; memorySaveFailed?: boolean };
 
 export function parseChatResponse(value: unknown): ChatReply {
   if (!isRecord(value) || !Array.isArray(value.choices)) throw new Error('Invalid chat response');
@@ -19,6 +19,7 @@ export function parseChatResponse(value: unknown): ChatReply {
     localSummary: value.provider === 'knowledge-base' && typeof value.localSummary === 'string' && value.localSummary.length <= 4000 ? value.localSummary : undefined,
     coordinationMessage: typeof value.coordinationMessage === 'string' && value.coordinationMessage.length <= 500 ? value.coordinationMessage : undefined,
     memory: isRecord(value.memory) && typeof value.memory.id === 'string' && Number.isSafeInteger(value.memory.revision) && typeof value.memory.deviceId === 'string' ? value.memory as unknown as MemorySession : undefined,
+    memorySaveFailed: value.memorySaveFailed === true ? true : undefined,
     content: message.content,
     model: typeof value.model === 'string' ? value.model : undefined,
     provider: isChatProvider(value.provider) ? value.provider : undefined,

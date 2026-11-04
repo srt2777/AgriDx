@@ -125,7 +125,7 @@ export default function DeveloperPage() {
   }
   function changeTab(next: typeof tab) { setTab(next); setPage(1); setQuery(''); setDraft(''); }
   function search(event: FormEvent) { event.preventDefault(); setPage(1); setQuery(draft.trim()); }
-  const pageName = (path: string) => ({ '/': t('网站首页', 'Home'), '/knowledge': t('农机知识', 'Knowledge'), '/chat': t('智能诊断', 'Diagnosis'), '/models': t('模型工坊', 'Models') })[path] || path;
+  const pageName = (path: string) => ({ '/': t('网站首页', 'Home'), '/knowledge': t('农机知识', 'Knowledge'), '/chat': t('司稼 · 智能诊断', 'Sijia · Diagnosis'), '/models': t('模型工坊', 'Models') })[path] || path;
   const tabs = [{ id: 'overview' as const, title: t('总览', 'Overview'), icon: LayoutDashboard }, { id: 'visitors' as const, title: t('访问用户', 'Visitors'), icon: Users }, { id: 'questions' as const, title: t('用户提问', 'Questions'), icon: MessageSquare }, { id: 'system' as const, title: t('版本与服务', 'Versions & services'), icon: Server }, { id: 'ai' as const, title: t('API 接入', 'API connections'), icon: Plug }];
   const isRefreshing = summary.loading || ((tab === 'visitors' || tab === 'questions') && records.loading) || (tab === 'system' && system.loading);
   const activeError = summary.error || ((tab === 'visitors' || tab === 'questions') ? records.error : '') || (tab === 'system' ? system.error : '') || (user ? loginError : '');

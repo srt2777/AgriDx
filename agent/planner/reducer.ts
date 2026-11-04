@@ -50,6 +50,7 @@ export function createPlan(input: CreatePlanInput): PlannerState {
   }
   for (const step of input.steps) {
     identifier(step.key); text(step.title); identifier(step.expectedObservation.slot); text(step.expectedObservation.label);
+    if (step.toolName !== undefined) identifier(step.toolName);
     if (keys.has(step.key) || slots.has(step.expectedObservation.slot)) throw new TypeError('Duplicate step key or observation slot');
     keys.add(step.key); slots.add(step.expectedObservation.slot);
     if (!['ask_user', 'review_evidence'].includes(step.kind)) throw new TypeError('Phase one cannot execute actions');

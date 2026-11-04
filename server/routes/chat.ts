@@ -45,17 +45,45 @@ export function createChatRoutes(diagnose: DiagnosticService, store = getMemoryS
       const memory: DiagnosticMemory | undefined = remembered ? { session: { ...remembered, summary: summarizeReports(input.history) }, priorReports, plannerCheckpoint: store().plannerCheckpoint(owner, remembered.id),
         plannerSessionSeed: createHash('sha256').update(remembered.id).digest('hex').slice(0, 32) } : undefined;
       const payload = await diagnose(input, memory, controller.signal);
-      if (res.destroyed) return;
+      if (res.destroyed) { console.warn('[chat] response skipped: client disconnected'); return; }
       if (remembered) {
         const assistant: Omit<MemoryMessage, 'id' | 'role' | 'createdAt'> = { content: payload.choices[0].message.content };
         for (const field of ['model', 'provider', 'localSummary', 'coordinationMessage', 'answerMode', 'fallbackReason', 'knowledgeChunks', 'diagnosticReply', 'knowledgeSources', 'coordination', 'diagnosisTrace', 'roleFlow'] as const) {
           if (payload[field] !== undefined) Object.assign(assistant, { [field]: payload[field] });
         }
-        payload.memory = store().appendTurn(owner, remembered.id, remembered.revision, user.content, assistant, remembered.messages.length ? [] : input.history.slice(0, -1), payload[PLANNER_COMMIT]);
+        // The answer is already generated at this point, so a transient
+        // storage failure must not discard it (previously this threw and
+        // the whole turn came back as a memory error). Retry once, then
+        // return the answer flagged; the client keeps its old revision, so
+        // the next turn can retry against the last saved revision, and the
+        // un-saved turn's planner commit is not persisted either.
+        // Deterministic MemoryErrors are NOT degraded: a revision conflict
+        // (clear/delete/concurrent save), a record limit, or an invalid
+        // commit must still surface as an error, so a cleared or deleted
+        // diagnosis is never silently revived by a late answer.
+        let saved = false;
+        let lastAppendError: unknown;
+        for (let attempt = 0; attempt < 2; attempt++) {
+          try {
+            payload.memory = store().appendTurn(owner, remembered.id, remembered.revision, user.content, assistant, remembered.messages.length ? [] : input.history.slice(0, -1), payload[PLANNER_COMMIT]);
+            saved = true; break;
+          } catch (error) {
+            if (error instanceof MemoryError) throw error;
+            lastAppendError = error;
+            if (attempt === 0) await new Promise(resolve => setTimeout(resolve, 200));
+          }
+        }
+        if (!saved) {
+          console.error('[chat] memory append failed after diagnosis; returning answer without saving:', lastAppendError);
+          payload.memorySaveFailed = true;
+        }
         payload.relatedMemoryReports = priorReports;
       }
       res.json(payload);
     } catch (error) {
+      // The client is gone; writing a status body to a dead connection is
+      // pointless and must not mask the disconnect in logs or error counts.
+      if (res.destroyed) return;
       if (error instanceof DiagnosticInputError) { res.status(400).json({ error: error.message, code: error.code }); return; }
       if (error instanceof MemoryError || remembered || req.body?.sessionId !== undefined) { memoryFailure(error, res); return; }
       console.error('[chat] unexpected error:', error);

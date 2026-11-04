@@ -1,4 +1,5 @@
 import { ToolExecutor, type ToolRegistry } from './tools';
+import { canonical } from './tool-utils';
 import { stripDsmlMarkup } from './dsml';
 import type { ChatMessage, Provider, ToolChatOptions } from '../server/llm/types';
 
@@ -27,7 +28,7 @@ export async function runAgent(options:AgentRunOptions):Promise<AgentRunResult> 
   const interrupted=new Promise<never>((_,reject)=>{rejectOnAbort=()=>reject(new Error('agent interrupted'));controller.signal.addEventListener('abort',rejectOnAbort,{once:true});});
   void interrupted.catch(()=>{});
   const executor=new ToolExecutor(registry);
-  const sourceFor=(name:string):AgentToolEvent['source']=>['search_knowledge','browse_knowledge','get_knowledge_entry','explore_relations'].includes(name)?'混合资料':name==='calculator'||name==='get_current_time'||name==='knowledge_stats'?'通识（无手册页码）':name==='resolve_machine_scope'||name==='ask_user_for_info'?'助手推断':name==='get_session_state'||name==='list_prior_reports'?'用户报告，待核实':'未分类';
+  const sourceFor=(name:string):AgentToolEvent['source']=>['search_knowledge','browse_knowledge','get_knowledge_entry','explore_relations','fault_chain','model_fault_index','maintenance_schedule'].includes(name)?'混合资料':name==='calculator'||name==='get_current_time'||name==='knowledge_stats'?'通识（无手册页码）':name==='resolve_machine_scope'||name==='ask_user_for_info'?'助手推断':name==='get_session_state'||name==='list_prior_reports'?'用户报告，待核实':'未分类';
   const record=(step:number,offset:number)=>{for(const event of executor.trace.slice(offset))toolEvents.push({step,tool:event.tool,args:'[已脱敏]',ok:event.ok,error_type:event.error_type,duration_ms:event.duration_ms,source:sourceFor(event.tool)});};
   try {
     const allowed=new Set(options.allowedTools.filter(name=>registry.get(name)?.risk==='read'));
@@ -59,7 +60,7 @@ export async function runAgent(options:AgentRunOptions):Promise<AgentRunResult> 
         const text=typeof question.input.question==='string'?options.guard(stripDsmlMarkup(question.input.question)):null;
         return text?{status:'question',content:text,toolEvents}:{status:'fallback',reason:'answer_rejected',toolEvents};
       }
-      const boundCalls=reply.toolCalls.map(call=>{
+      const boundCalls: { type: 'tool_use'; id: string; name: string; input: Record<string, unknown> }[] = reply.toolCalls.map(call=>{
         const input={...call.input};
         if(call.name==='search_knowledge')input.context=options.context??{};
         if(call.name==='browse_knowledge'){
@@ -70,9 +71,27 @@ export async function runAgent(options:AgentRunOptions):Promise<AgentRunResult> 
         return {type:'tool_use',id:call.id,name:call.name,input};
       });
       messages.push({role:'assistant',content:stripDsmlMarkup(reply.content),tool_calls:boundCalls.map(call=>({id:call.id,type:'function',function:{name:call.name,arguments:JSON.stringify(call.input)}}))});
+      // Coordination: deduplicate identical calls within one turn AFTER
+      // host binding, so a repeated call executes once and its result is
+      // mapped back to every duplicate id. The provider still receives one
+      // tool result per id it requested. This saves step/timeout budget
+      // without changing executor semantics (repeat rejection, read-only
+      // batching, guard, and fallback paths are untouched).
+      const seenCalls = new Map<string, { id: string }>();
+      const uniqueCalls: typeof boundCalls[number][] = [];
+      const firstIdOf = new Map<string, string>();
+      for (const call of boundCalls) {
+        const key = `${call.name}:${canonical(call.input)}`;
+        if (seenCalls.has(key)) firstIdOf.set(call.id, seenCalls.get(key)!.id);
+        else { seenCalls.set(key, { id: call.id }); uniqueCalls.push(call); }
+      }
       const offset=executor.trace.length;
-      const results=await executor.execute_tool_uses(boundCalls,{signal:controller.signal});record(step,offset);
-      for(const result of results)messages.push({role:'tool',tool_call_id:String(result.tool_use_id),content:String(result.content)});
+      const uniqueResults=await executor.execute_tool_uses(uniqueCalls,{signal:controller.signal});record(step,offset);
+      const resultById = new Map(uniqueResults.map(result => [String(result.tool_use_id), result]));
+      for (const call of boundCalls) {
+        const result = resultById.get(firstIdOf.get(call.id) ?? call.id);
+        if (result) messages.push({role:'tool',tool_call_id:call.id,content:String(result.content)});
+      }
     }
     return {status:'fallback',reason:'step_budget',toolEvents};
   } catch {

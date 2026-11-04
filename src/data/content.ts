@@ -241,10 +241,10 @@ const content = {
     { zh: '联合收割机脱粒滚筒堵塞如何处理？', en: 'How to clear a combine drum blockage?' },
   ],
   CHAT_WELCOME: {
-    title: { zh: '耕知·耘诊 · 农机诊断工作台', en: 'Gengzhi · Yunzhen · Machinery Diagnosis Workspace' },
+    title: { zh: '司稼 · 拖拉机智能运维智能体', en: 'Sijia · Tractor Intelligent O&M Agent' },
     desc: {
-      zh: '您好！我是面向农机装备的故障诊断智能体。请描述故障现象（可附农机类型/品牌/型号），我会基于本地知识库给出结构化诊断与维修建议。',
-      en: 'Hello! Describe the symptom (optionally with type/brand/model); I will use the local knowledge base to give structured diagnosis and repair advice.',
+      zh: '您好！我是司稼，拖拉机智能运维智能体。请描述故障现象（可附农机类型/品牌/型号），我会基于本地知识库给出结构化诊断与维修建议。',
+      en: 'Hello! I am Sijia, the tractor intelligent operations & maintenance agent. Describe the symptom (optionally with type/brand/model); I will use the local knowledge base to give structured diagnosis and repair advice.',
     },
   },
 };

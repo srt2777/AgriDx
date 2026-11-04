@@ -19,8 +19,8 @@ export const WORLD_ZONES = [
   {
     id: 'diagnosis',
     number: '02',
-    zh: '智能诊断',
-    en: 'Diagnosis',
+    zh: '司稼 · 智能诊断',
+    en: 'Sijia · Diagnosis',
     color: '#9abacb',
     x: 7.5,
     z: -5.6,

@@ -37,6 +37,8 @@ export interface DiagnosticDecisionLog {
   route: string;
   reason: string;
   riskLevel?: string;
+  /** Guard rule codes that rejected or trimmed the AI supplement; null when nothing was rejected. */
+  outputIssues?: string[] | null;
   knowledgeIds: string[];
   provider: string;
   trace: DiagnosisTrace;
@@ -74,7 +76,8 @@ export interface ShadowLoopReport {
  * existing callsite reads unchanged.
  */
 const TOOL_LOOP_TOOLS = ['resolve_machine_scope', 'search_knowledge', 'browse_knowledge', 'knowledge_stats', 'calculator', 'get_current_time',
-  'get_knowledge_entry', 'get_session_state', 'list_prior_reports', 'explore_relations', 'ask_user_for_info'] as const;
+  'get_knowledge_entry', 'get_session_state', 'list_prior_reports', 'explore_relations', 'ask_user_for_info',
+  'fault_chain', 'model_fault_index', 'maintenance_schedule'] as const;
 const SHADOW_TOOLS = TOOL_LOOP_TOOLS;
 const SHADOW_TIMEOUT_MS = 8_000;
 const MAIN_LOOP_TIMEOUT_MS = 8_000;
@@ -242,6 +245,7 @@ export function createDiagnosticService(llm: DiagnosticProvider, dependencies: D
       // No raw question, history, device identifiers or credentials enter routing logs.
       const event: DiagnosticDecisionLog = { mode: coordination.effectiveMode, requestedMode: coordination.requestedMode, route: payload.coordination!.route,
         reason: payload.coordination!.reason, riskLevel: coordination.riskLevel,
+        outputIssues: payload.coordination?.outputIssues ?? null,
         knowledgeIds: displayed.flatMap(chunk => chunk.entryId ? [chunk.entryId] : []), provider: payload.provider, trace,
         candidates: coordination.candidates ?? [] };
       const defer = typeof setImmediate === 'function' ? setImmediate : (callback: () => void) => setTimeout(callback, 0);
