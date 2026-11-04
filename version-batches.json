@@ -945,6 +945,13 @@
       "base": "4.0.31",
       "version": "4.0.32",
       "date": "2026-11-04"
+    },
+    {
+      "id": "separate-ui-versions-20261104",
+      "kind": "maintenance",
+      "base": "4.0.32",
+      "version": "4.0.33",
+      "date": "2026-11-04"
     }
   ]
 }
