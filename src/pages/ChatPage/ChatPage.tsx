@@ -1,3 +1,4 @@
+import { EvidenceReview } from './EvidenceReview';
 import { useUiCopy } from '@/ui/useUiCopy';
 import type { DiagnosisMode } from '../../../shared/diagnosis';
 import { useRef, useEffect, useCallback, useState, type FormEvent, type KeyboardEvent } from 'react';
@@ -496,23 +497,13 @@ function DiagnosticAnswer({ message, t, onAnswer, disabled }: {
     </> : <div className="prose prose-sm max-w-none overflow-x-auto dark:prose-invert"><DeferredMarkdown>{message.localSummary || message.content}</DeferredMarkdown></div>}
     {usedLabels.length > 0 && <p className="mt-4 border-t border-border/50 pt-2 text-xs text-muted-foreground">{t('依据：', 'Evidence: ')}{usedLabels.slice(0, 2).join('；')}{usedLabels.length > 2 ? t(`，另${usedLabels.length - 2}项见详情`, `; ${usedLabels.length - 2} more in details`) : ''}</p>}
     {message.role === 'assistant' && <details className="chat-evidence mt-4 border-t border-border/50 pt-3">
-      <summary className="cursor-pointer text-xs font-medium">{t('查看依据与证据路径', 'View evidence and evidence path')}{sources.length ? ` (${sources.length})` : ''}</summary>
+      <summary className="cursor-pointer text-xs font-medium">{t('查看依据与核对项', 'View evidence and checks')}{sources.length ? ` (${sources.length})` : ''}</summary>
       <div className="chat-evidence-body mt-3 space-y-4 text-xs leading-relaxed text-muted-foreground">
         <section aria-label={t('证据路径', 'Evidence path')}>
           <h3 className="mb-3 text-sm font-semibold text-foreground">{t('证据路径：现象 → 原因 → 检查 → 处理 → 复检', 'Evidence path: phenomenon → cause → check → action → retest')}</h3>
           <div className="chat-evidence-grid">{rows.map(row => <section key={row.id} className="rounded-md border border-border/60 p-2"><h4 className="font-medium text-foreground">{langLabel(row, t)}</h4>{row.items.length ? <ul className="mt-2 space-y-2 text-xs">{row.items.map(item => <li key={item.entryId}><p className="text-foreground">{item.heading}</p><p>{item.source?.sourceTitle || item.source?.source || t('来源待核实', 'Source pending')}</p><p>{item.source?.pages?.pdf ? t(`PDF第${item.source.pages.pdf}页`, `PDF p. ${item.source.pages.pdf}`) : t('页码待核实', 'Page pending')}</p><p>{item.source?.scopeBoundary || t('适用范围待核实', 'Scope pending')}</p></li>)}</ul> : <p className="mt-2 text-xs text-muted-foreground">{t('暂无资料', 'No evidence yet')}</p>}</section>)}</div>
         </section>
-        {sources.length ? <ol className="space-y-4">{sources.map((source, index) => <li key={`${source.entryId || source.source}-${index}`} className="rounded-md border border-border/60 p-3">
-          <p className="font-medium text-foreground">{index + 1}. {source.heading}</p><p>{sourceLabel(source)}</p>
-          <p>{[source.entryId, source.sourceId, source.version].filter(Boolean).join(' · ')}</p>
-          {source.usage && <p>{source.usage === 'answer-evidence' ? t('用于当前资料分析；不代表已确诊', 'Used for evidence analysis; not a confirmed diagnosis') : source.usage === 'prompt-context' ? t('提供给AI的参考上下文，不表示每项生成内容均获支持', 'Context supplied to AI; not proof for every generated claim') : t('仅供参考，不作为本机操作依据', 'Reference only; not an instruction for this machine')}</p>}
-          {source.scopeBoundary && <p>{t('适用范围：', 'Scope: ')}{source.scopeBoundary}</p>}
-          {!!source.models?.length && <p>{t('型号：', 'Models: ')}{source.models.join('、')}</p>}
-          {source.engineModel && <p>{t('发动机：', 'Engine: ')}{source.engineModel}</p>}{!!source.faultCodes?.length && <p>{t('故障码：', 'Codes: ')}{source.faultCodes.join('、')}</p>}
-          {source.locator && <p>{t('原文位置：', 'Location: ')}{source.locator}</p>}
-          {source.status && <p>{t('原始核验说明：', 'Original review status: ')}{source.status}</p>}
-          {source.retrieval && <p>{t('检索层级：', 'Retrieval tier: ')}{source.retrieval.tier} · {source.retrieval.basis.join('；')}{source.retrieval.referenceOnly ? t('；仅参考', '; reference only') : ''}</p>}
-        </li>)}</ol> : <p>{t('这条对话没有保存结构化来源；不从历史文字推造证据。', 'This message has no saved structured sources; evidence is not inferred from older text.')}</p>}
+        <EvidenceReview sources={sources} t={t} />
         {message.coordinationMessage && <p>{message.coordinationMessage}</p>}
         <p>{[message.provider, message.model, message.answerMode].filter(Boolean).join(' · ')}{message.knowledgeChunks !== undefined ? t(` · 检索${message.knowledgeChunks}条`, ` · ${message.knowledgeChunks} snippets`) : ''}</p>
         {message.fallbackReason && <p>{message.fallbackReason === 'not_configured' ? t('外部AI未配置，本次使用本地资料。', 'External AI is not configured; using local evidence.') : t('外部AI暂不可用，本次回退本地资料。', 'External AI was unavailable; using local evidence.')}</p>}
