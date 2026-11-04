@@ -145,3 +145,108 @@
   .new-version-shell[data-ui-version='new'][data-route='/chat'] .chat-shortcut-help { display: none; }
   .new-version-shell[data-ui-version='new'][data-route='/chat'] .chat-composer-footer > span:last-child { margin-left: auto; }
 }
+
+/* ---- Classic (old) chat compact layout, 2026-11-04 ----
+   Scope is deliberately narrow: .fluid-workspace[data-ui-version='old']
+   [data-route='/chat'] only, so the new-version workspace is untouched.
+   The classic system forces backdrop-filter: none !important, 4px/8px radii
+   and solid backgrounds at a lower specificity (its :where() parts add
+   nothing), so the rules below use a longer selector plus !important only
+   where that override is required. Solid fallbacks for glass-off and for
+   browsers without backdrop-filter come after the glass rules. */
+.fluid-workspace[data-ui-version='old'][data-route='/chat'] .chat-glass .chat-message-list { padding-top: 56px; }
+.fluid-workspace[data-ui-version='old'][data-route='/chat'] .chat-glass .old-chat-compact-bar {
+  position: absolute; z-index: 20; top: 8px; left: 50%; transform: translateX(-50%);
+  width: min(768px, calc(100% - 24px)); display: flex; align-items: center; gap: 8px; min-width: 0;
+  padding: 6px 8px; border-radius: 999px !important;
+  border: 1px solid var(--border) !important;
+  background: color-mix(in srgb, var(--card) 78%, transparent) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(1.2) !important;
+  backdrop-filter: blur(16px) saturate(1.2) !important;
+  box-shadow: 0 8px 24px -12px rgb(0 0 0 / 25%) !important;
+}
+.fluid-workspace[data-ui-version='old'][data-route='/chat'] .chat-glass .old-chat-compact-plate {
+  flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  padding-left: 4px; font-size: 12px; font-weight: 600;
+}
+.fluid-workspace[data-ui-version='old'][data-route='/chat'] .chat-glass .old-chat-compact-mode { flex: none; display: flex; }
+.fluid-workspace[data-ui-version='old'][data-route='/chat'] .chat-glass .old-chat-compact-mode select {
+  width: 124px; min-height: 32px !important; padding: 4px 8px !important; font-size: 12px !important;
+  border: 1px solid var(--border) !important; border-radius: 999px !important;
+  background: color-mix(in srgb, var(--card) 88%, transparent) !important;
+}
+.fluid-workspace[data-ui-version='old'][data-route='/chat'] .chat-glass .old-chat-compact-trigger {
+  min-height: 32px !important; height: 32px !important; border-radius: 999px !important;
+  padding-inline: 10px !important; font-size: 12px !important;
+}
+.fluid-workspace[data-ui-version='old'][data-route='/chat'] .chat-glass .old-chat-compact-panel {
+  position: absolute; z-index: 21; top: 58px; left: 50%; transform: translateX(-50%);
+  width: min(768px, calc(100% - 24px));
+  max-height: min(560px, calc(100% - 200px)); overflow-y: auto;
+  padding: 14px; border-radius: 20px !important;
+  border: 1px solid var(--border) !important;
+  background: color-mix(in srgb, var(--card) 88%, transparent) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(1.2) !important;
+  backdrop-filter: blur(16px) saturate(1.2) !important;
+  box-shadow: 0 20px 40px -16px rgb(0 0 0 / 30%) !important;
+}
+.fluid-workspace[data-ui-version='old'][data-route='/chat'] .chat-glass .old-chat-compact-panel-section {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 12px; font-size: 12px;
+}
+.fluid-workspace[data-ui-version='old'][data-route='/chat'] .chat-glass .old-chat-compact-panel > div:last-child {
+  margin-bottom: 0 !important; border-radius: 12px !important;
+}
+/* Centered floating input card: same 768px (max-w-3xl) as the composer and
+   the floating bar, with side and bottom margins instead of a full-width
+   strip. The composer form inside keeps its own max-w-3xl centering. */
+.fluid-workspace[data-ui-version='old'][data-route='/chat'] .chat-glass .chat-input-glass {
+  width: min(768px, calc(100% - 24px)); align-self: center; flex-shrink: 0; margin-bottom: 12px;
+  border-radius: 22px !important; --lg-radius: 22px;
+  border: 1px solid var(--border) !important;
+  background: color-mix(in srgb, var(--card) 78%, transparent) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(1.2) !important;
+  backdrop-filter: blur(16px) saturate(1.2) !important;
+  box-shadow: 0 12px 28px -16px rgb(0 0 0 / 28%) !important;
+}
+.fluid-workspace[data-ui-version='old'][data-route='/chat'] .chat-glass .chat-composer textarea {
+  min-height: 44px !important; max-height: 150px; overflow-y: auto;
+  padding: 10px 4px !important; border: 0 !important; border-radius: 12px !important;
+  background: transparent !important; box-shadow: none !important;
+}
+.fluid-workspace[data-ui-version='old'][data-route='/chat'] .chat-glass .chat-composer-footer { margin-top: 4px; align-items: center; }
+.fluid-workspace[data-ui-version='old'][data-route='/chat'] .chat-glass .chat-compose-row button {
+  min-width: 36px !important; min-height: 36px !important; width: 36px !important; height: 36px !important;
+  border-radius: 999px !important;
+}
+/* Solid fallbacks: these come after the glass rules and use an equal or
+   longer selector, so glass-off / no-backdrop-filter / reduced-transparency
+   still get a readable solid surface instead of a broken translucent one. */
+html.glass-off .fluid-workspace[data-ui-version='old'][data-route='/chat'] .chat-glass :is(.chat-input-glass, .old-chat-compact-bar, .old-chat-compact-panel) {
+  background: var(--card) !important;
+  -webkit-backdrop-filter: none !important; backdrop-filter: none !important;
+}
+@media (prefers-reduced-transparency: reduce) {
+  .fluid-workspace[data-ui-version='old'][data-route='/chat'] .chat-glass :is(.chat-input-glass, .old-chat-compact-bar, .old-chat-compact-panel) {
+    background: var(--card) !important;
+    -webkit-backdrop-filter: none !important; backdrop-filter: none !important;
+  }
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .fluid-workspace[data-ui-version='old'][data-route='/chat'] .chat-glass :is(.chat-input-glass, .old-chat-compact-bar, .old-chat-compact-panel) {
+    background: var(--card) !important;
+    -webkit-backdrop-filter: none !important; backdrop-filter: none !important;
+  }
+}
+@media (max-width: 600px) {
+  .fluid-workspace[data-ui-version='old'][data-route='/chat'] .chat-glass .chat-message-list { padding-top: 52px; }
+  .fluid-workspace[data-ui-version='old'][data-route='/chat'] .chat-glass .old-chat-compact-bar {
+    width: calc(100% - 16px); gap: 6px; padding: 5px 6px;
+  }
+  .fluid-workspace[data-ui-version='old'][data-route='/chat'] .chat-glass .old-chat-compact-mode select { width: 104px; }
+  .fluid-workspace[data-ui-version='old'][data-route='/chat'] .chat-glass .old-chat-compact-trigger-label { display: none; }
+  .fluid-workspace[data-ui-version='old'][data-route='/chat'] .chat-glass .old-chat-compact-trigger { padding-inline: 8px !important; }
+  .fluid-workspace[data-ui-version='old'][data-route='/chat'] .chat-glass .old-chat-compact-panel {
+    width: calc(100% - 16px); padding: 12px; top: 54px;
+  }
+  .fluid-workspace[data-ui-version='old'][data-route='/chat'] .chat-glass .chat-input-glass { width: calc(100% - 16px); }
+}
