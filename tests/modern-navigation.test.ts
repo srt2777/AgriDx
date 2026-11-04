@@ -26,7 +26,7 @@ test('hall and all three features share the same destination order and current s
 test('model child pages retain the model navigation and expose a usable parent path', () => {
   assert.equal(modernLocation('/fault-detection').sectionPath, '/models');
   assert.deepEqual(modernLocation('/fault-detection').breadcrumbs.map(item => item.path), ['/', '/models', '/fault-detection']);
-  assert.equal(modernLocation('/version-history').breadcrumbs.at(-1)?.zh, '更新记录');
+  assert.equal(modernLocation('/version-history').breadcrumbs.at(-1)?.zh, '版本历史记录');
   assert.notEqual(modernLocation('/unknown').breadcrumbs.at(-1)?.zh, '智能诊断');
 });
 test('the hall has no second header, main landmark, global feature list or version switch', () => {

@@ -65,7 +65,7 @@ function WorkspaceFrame() {
         {destinations.filter(item => item.group === group).map(({ path, zh, en, icon: Icon }) => <NavLink key={path} to={path} end={path === '/'} onClick={() => dialog.current?.close()} onPointerEnter={() => preloadPage(path, 'old')} onFocus={() => preloadPage(path, 'old')} className={({ isActive }) => `fluid-row${isActive ? ' is-active' : ''}`}><Icon size={17} strokeWidth={1.7} /><span>{t(zh, en)}</span></NavLink>)}
       </details>)}
       <details open className="fluid-group"><summary>{t('项目', 'Project')}<ChevronRight size={14} /></summary>
-        <NavLink to="/version-history" onClick={() => dialog.current?.close()} className={({ isActive }) => `fluid-row${isActive ? ' is-active' : ''}`}><History size={17} strokeWidth={1.6} /><span>{t('更新记录', 'Version history')}</span></NavLink>
+        <NavLink to="/version-history" onClick={() => dialog.current?.close()} className={({ isActive }) => `fluid-row${isActive ? ' is-active' : ''}`}><History size={17} strokeWidth={1.6} /><span>{t('版本历史记录', 'Version history')}</span></NavLink>
       </details>
     </nav>
     <div className="fluid-sidebar-bottom"><div><VersionSwitch onChange={() => navigate('/')} /></div></div>
@@ -79,7 +79,7 @@ function WorkspaceFrame() {
       <header className="fluid-topbar">
         <button type="button" className="fluid-icon fluid-desktop-toggle" onClick={() => setCollapsed(!collapsed)} aria-label={collapsed ? t('展开侧边栏', 'Expand sidebar') : t('收起侧边栏', 'Collapse sidebar')} aria-expanded={!collapsed}><PanelLeftOpen size={18} /></button>
         <button ref={mobileTrigger} type="button" className="fluid-icon fluid-mobile-toggle" onClick={() => dialog.current?.showModal()} aria-label={t('打开导航', 'Open navigation')} aria-haspopup="dialog"><PanelLeftOpen size={18} /></button>
-        <span className="fluid-breadcrumb"><span>AgriDx</span><ChevronRight size={14} /><strong>{title ? t(title.zh, title.en) : t('更新记录', 'Version history')}</strong></span>
+        <span className="fluid-breadcrumb"><span>AgriDx</span><ChevronRight size={14} /><strong>{title ? t(title.zh, title.en) : t('版本历史记录', 'Version history')}</strong></span>
         <div className="fluid-tools"><ThemeSwitch /><button type="button" className="fluid-icon fluid-language" onClick={() => setLang(lang === 'zh' ? 'en' : 'zh')} aria-label={t('切换语言', 'Switch language')}><Globe size={16} /><span>{lang === 'zh' ? 'EN' : '中'}</span></button></div>
       </header>
       <main id="main-content" className="fluid-main" tabIndex={-1}><Outlet /></main>

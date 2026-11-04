@@ -24,9 +24,9 @@ export function filterCommands(query: string, routes: readonly CommandRoute[] = 
 
 export function statusPlace(pathname: string, lang: 'zh' | 'en'): string {
   const places: Record<string, [string, string]> = {
-    '/': ['园区', 'CAMPUS'],
-    '/hall': ['大厅', 'CAMPUS'],
-    '/knowledge': ['知识目录', 'CATALOG'],
+    '/': ['大厅', 'HUB'],
+    '/hall': ['大厅', 'HUB'],
+    '/knowledge': ['农机知识', 'KNOWLEDGE'],
     '/models': ['模型工坊', 'MODEL STUDIO'],
     '/version-history': ['版本历史记录', 'VERSION HISTORY'],
     '/workspace/assets': ['农机对象', 'MACHINE OBJECTS'],
