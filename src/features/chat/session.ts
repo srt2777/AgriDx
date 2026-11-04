@@ -277,6 +277,36 @@ export function createChatRequest(messages: ChatMessage[], question: string, con
   };
 }
 
+/**
+ * Classify a failed chat send by its actual failure kind, so the UI can tell
+ * the user what really happened instead of showing every failure as the same
+ * generic retry message plus a raw browser error.
+ *
+ * Evidence: the production failure showed two different texts at once — the
+ * inline "对话请求未完成，请稍后重试" row and a bottom "Failed to fetch"
+ * toast. "Failed to fetch" is the browser's TypeError for a transport
+ * failure (connection reset / network interruption): no code path in this
+ * repo produces that string, and an HTTP error from the server would have
+ * arrived as an ApiError and been rendered as a server error message
+ * instead. So a transport failure is a different kind from a 60 s client
+ * timeout (TimeoutError) and from a malformed server response, and it must
+ * be reported as such. No automatic retry is added here on purpose: the
+ * request is not idempotent — the server appends the turn to the session
+ * before responding, so retrying automatically after a lost response could
+ * silently duplicate the turn. The draft is already restored by the caller,
+ * and the user retries explicitly, as happened in production.
+ */
+export type ChatSendFailureKind = 'aborted' | 'timeout' | 'transport' | 'invalid_response' | 'unknown';
+export function classifyChatSendFailure(error: unknown): ChatSendFailureKind {
+  const name = error instanceof Error ? error.name : '';
+  const message = error instanceof Error ? error.message : '';
+  if (name === 'AbortError') return 'aborted';
+  if (name === 'TimeoutError' || message === 'Timeout') return 'timeout';
+  if (name === 'TypeError' || /Failed to fetch|NetworkError|network request failed|ERR_NETWORK/i.test(message)) return 'transport';
+  if (message === 'Empty chat response' || message === 'Invalid chat response') return 'invalid_response';
+  return 'unknown';
+}
+
 export function generateMessageId(): string {
   return `msg_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
 }

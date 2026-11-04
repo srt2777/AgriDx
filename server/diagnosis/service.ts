@@ -197,7 +197,7 @@ export function createDiagnosticService(llm: DiagnosticProvider, dependencies: D
     const trace: DiagnosisTrace = { retrievalCount: clarificationNeeded ? 0 : 1, aiAttempts: 0, aiSuccesses: 0, aiProvider: null,
       scoreMethod: 'keyword-weighted-overlap', contextChars: 0, sentKnowledgeIds: [],
       timings: { retrievalMs, decisionMs, externalAiMs: 0, totalMs: 0 },
-      mainLoop: { enabled: config.agentLoop === 'main', ran: false, status: null, toolSteps: 0, toolEvents: [] } };
+      mainLoop: { enabled: config.agentLoop === 'main', ran: false, status: null, reason: null, toolSteps: 0, toolEvents: [] } };
     const metadata = () => ({ knowledgeChunks: displayed.length, knowledgeSources: displayed.map(chunk => ({
       entryId: chunk.entryId, sourceId: chunk.sourceId, source: chunk.source, heading: chunk.heading,
       entryType: chunk.entryType, diagnosticEvidence: chunk.diagnosticEvidence,
@@ -337,6 +337,7 @@ export function createDiagnosticService(llm: DiagnosticProvider, dependencies: D
         mainLoopResult = { status: 'fallback', reason: 'provider_or_tool_error', toolEvents: [] };
       }
       trace.mainLoop = { enabled: true, ran: true, status: mainLoopResult.status,
+        reason: 'reason' in mainLoopResult ? mainLoopResult.reason : null,
         toolSteps: mainLoopResult.toolEvents.length, toolEvents: mainLoopTraceEvents(mainLoopResult.toolEvents) };
       trace.timings.externalAiMs = now() - mainLoopStart;
       if (mainLoopResult.status === 'cancelled' && signal?.aborted) {

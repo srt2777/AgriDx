@@ -3,6 +3,7 @@
  * Gemini (v1beta/openai) 与 DeepSeek 都遵循此格式，差别只在 URL/Model/Key。
  */
 import { fetchWithTimeout } from './http';
+import { parseDsmlToolCalls, stripDsmlMarkup } from '../../agent/dsml';
 import {
   ProviderError,
   type ChatMessage,
@@ -59,7 +60,7 @@ export function createOpenAICompatibleProvider(opts: OpenAICompatibleOptions): P
       const rawCalls=message?.tool_calls;
       if(rawCalls!==undefined&&(!Array.isArray(rawCalls)||rawCalls.length>4))throw new ProviderError(name,'invalid_response','invalid tool calls');
       const ids=new Set<string>();
-      const toolCalls=(rawCalls??[]).map((call:unknown)=>{
+      let toolCalls=(rawCalls??[]).map((call:unknown)=>{
         if(!call||typeof call!=='object')throw new ProviderError(name,'invalid_response','invalid tool call');
         const item=call as {id?:unknown;type?:unknown;function?:{name?:unknown;arguments?:unknown}};
         if(typeof item.id!=='string'||!item.id||item.id.length>200||ids.has(item.id)||item.type!=='function'||typeof item.function?.name!=='string'||!/^[a-zA-Z0-9_-]{1,64}$/.test(item.function.name)||typeof item.function.arguments!=='string'||item.function.arguments.length>100_000)throw new ProviderError(name,'invalid_response','invalid tool call');
@@ -68,10 +69,25 @@ export function createOpenAICompatibleProvider(opts: OpenAICompatibleOptions): P
         return {id:item.id,name:item.function.name,input:input as Record<string,unknown>};
       });
       const finish=choice?.finish_reason;
-      if(!['tool_calls','stop','length'].includes(finish)||((finish==='tool_calls')!==Boolean(toolCalls.length)))throw new ProviderError(name,'invalid_response','invalid finish reason');
-      const content=typeof message?.content==='string'?message.content.trim():'';
+      let content=typeof message?.content==='string'?message.content.trim():'';
+      // DeepSeek V4 Flash models natively emit tool calls as DSML text
+      // (see agent/dsml.ts). When the serving stack does not convert that
+      // text into structured tool_calls, translate a well-formed DSML block
+      // here instead of letting it leak into a final answer (finish "stop")
+      // or failing the turn as an invalid response (finish "tool_calls").
+      // A malformed DSML block is stripped, never half-executed: the
+      // remaining text is then validated by the usual rules below.
+      let dsmlConverted=false;
+      if(toolCalls.length===0&&(finish==='stop'||finish==='tool_calls')){
+        const dsml=parseDsmlToolCalls(content);
+        if(dsml&&dsml.length<=4){toolCalls=dsml;content=stripDsmlMarkup(content);dsmlConverted=true;}
+        else content=stripDsmlMarkup(content);
+      } else if(toolCalls.length>0) {
+        content=stripDsmlMarkup(content);
+      }
+      if(!['tool_calls','stop','length'].includes(finish)||((finish==='tool_calls')!==Boolean(toolCalls.length)&&!dsmlConverted))throw new ProviderError(name,'invalid_response','invalid finish reason');
       if(!content&&!toolCalls.length)throw new ProviderError(name,'invalid_response','missing assistant content');
-      return {content,toolCalls,stopReason:finish as ToolChatResult['stopReason']};
+      return {content,toolCalls,stopReason:dsmlConverted?'tool_calls':finish as ToolChatResult['stopReason']};
     }}),
     async chat(messages: ChatMessage[]): Promise<ChatResult> {
       const apiKey = getKey();

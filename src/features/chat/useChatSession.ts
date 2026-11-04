@@ -8,7 +8,7 @@ import type { ChatProvider, FallbackReason, ChatTelemetrySummary } from '../../.
 import { requestChat } from './api';
 import {
   createChatRequest, generateMessageId, loadChatSession, MAX_QUESTION_LENGTH,
-  saveHistory, saveMachineContext, parseHistory, parseFaultCodes, composeDiagnosticQuestion, type ChatMessage, type DiagnosticTextAttachment,
+  saveHistory, saveMachineContext, parseHistory, parseFaultCodes, composeDiagnosticQuestion, classifyChatSendFailure, type ChatMessage, type DiagnosticTextAttachment,
 } from './session';
 
 interface ChatSessionOptions {
@@ -132,15 +132,27 @@ export function useChatSession({ handoff, translate: t, focusInput, minLoadingMs
     } catch (error) {
       if (requestRef.current !== controller) return;
       resetStatus();
+      // Report the real failure kind instead of the same generic row plus a
+      // raw browser error: a transport failure used to surface as
+      // "Failed to fetch" in a toast, a 60 s timeout as "Timeout", and both
+      // were indistinguishable from a malformed response in the UI.
+      const failureKind = classifyChatSendFailure(error);
+      const failureMessage = failureKind === 'timeout'
+        ? t('请求超时（60 秒），请求未完成，请稍后重试；已有对话仍保留。', 'The request timed out (60 seconds) and did not complete. Please retry; your previous messages are preserved.')
+        : failureKind === 'transport'
+          ? t('网络连接中断，请求未完成，请检查网络后重试；已有对话仍保留。', 'The network connection was interrupted and the request did not complete. Please check the network and retry; your previous messages are preserved.')
+          : failureKind === 'invalid_response'
+            ? t('服务器返回异常，请求未完成，请稍后重试；已有对话仍保留。', 'The server returned an invalid response and the request did not complete. Please retry; your previous messages are preserved.')
+            : t('对话请求未完成，请稍后重试；已有对话仍保留。', 'The chat request did not complete. Please retry; your previous messages are preserved.');
       if (submitted) setMessages((previous) => previous.map((message) => message.id === loadingMessage.id ? {
         id: message.id,
         role: 'error',
-        content: t('对话请求未完成，请稍后重试；已有对话仍保留。', 'The chat request did not complete. Please retry; your previous messages are preserved.'),
+        content: failureMessage,
       } : message));
       if (submitted && text === input) setInput(text);
       if (selectedAttachment) setAttachment(selectedAttachment);
-      setSendError(error instanceof Error ? error.message : t('请求未完成，草稿已保留。', 'The request did not complete; your draft is preserved.'));
-      toast.error(error instanceof Error && error.name !== 'AbortError' ? error.message : t('对话服务暂不可用', 'Chat service unavailable'));
+      setSendError(failureMessage);
+      if (failureKind !== 'aborted') toast.error(failureMessage);
     } finally {
       window.clearTimeout(timeout);
       if (requestRef.current === controller) {

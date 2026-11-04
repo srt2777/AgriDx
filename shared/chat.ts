@@ -127,6 +127,8 @@ export interface DiagnosisTrace {
     enabled: boolean;
     ran: boolean;
     status: 'answered' | 'question' | 'fallback' | 'cancelled' | null;
+    /** Desensitised fallback/cancel reason from the runner (null otherwise). Added so a high fallback share can be diagnosed from logs instead of guessed: without it, production traces only showed the status count. */
+    reason: string | null;
     toolSteps: number;
     toolEvents: MainLoopToolEvent[];
   };

@@ -60,14 +60,59 @@ shadow loop, and it does not replace the safety or routing rules.
   the service returns the existing local fallback. `cancelled` without an
   abort is treated as `fallback`.
 
+## DSML tool-call translation (DeepSeek V4 Flash)
+
+DeepSeek V4 Flash models natively emit tool calls as DSML text
+(`<｜DSML｜tool_calls>` / `<｜DSML｜invoke>` / `<｜DSML｜parameter>` blocks,
+including the V4.1 spaced variant and ASCII-pipe spellings), not as
+OpenAI structured `tool_calls`, unless the serving stack converts them.
+When it does not, a turn that intended a tool call arrives as plain
+content. Two layers handle it, implemented in `agent/dsml.ts`:
+
+- Provider layer (`server/llm/openai-compatible.ts`): a well-formed DSML
+  block with no structured calls is translated into structured calls
+  (at most 4, names validated, `string="false"` parameters parsed as
+  JSON) and the markup is removed from the assistant content, so the
+  loop executes the intended call instead of leaking the markup or
+  failing as an invalid response. A malformed DSML block is stripped,
+  never half-executed; if nothing remains, the usual missing-content
+  error makes the loop fall back safely.
+- Runner layer (`agent/runner.ts`): any DSML text still present in a
+  final answer or question is stripped before the guard runs, and a
+  reply that was only a DSML block is rejected (`answer_rejected`) so
+  the service falls back to the single-call path. DSML text in an
+  assistant message that carries structured calls is likewise stripped.
+- The answer guard's safety/source veto rules are unchanged: stripping
+  happens before the guard, so a stripped answer still has to pass the
+  same guard to be shown, and stripping never removes a safety
+  condition from a paragraph.
+
 ## Observability
 
 `diagnosisTrace.mainLoop` records `enabled`, `ran`, `status`
 (`answered` | `question` | `fallback` | `cancelled` | null),
+`reason` (the runner's desensitised fallback/cancel reason, null
+otherwise — added because production traces previously showed only a
+fallback count, which cannot distinguish a deadline, a guard rejection,
+a DSML/provider error or a scope failure),
 `toolSteps` (desensitised tool event count) and `toolEvents` (step, tool,
 ok, error type, duration, source label only). It never contains tool
 arguments, tool output text or credentials, and it is not written into
 `knowledgeSources` or the frontend evidence text.
+
+## Client send failures (not a server error path)
+
+A browser `Failed to fetch` is a transport failure (connection reset /
+network interruption), not an application error: an HTTP error from the
+server arrives as a structured error response instead. The chat send
+logic (`src/features/chat/useChatSession.ts`, classification in
+`src/features/chat/session.ts`) now reports the real kind — 60 s client
+timeout, transport interruption, or malformed server response —
+instead of the same generic row plus a raw browser error string, and it
+keeps the draft for an explicit manual retry. There is deliberately no
+automatic retry: the request is not idempotent (the server appends the
+turn before responding), so retrying automatically after a lost
+response could silently duplicate the turn.
 
 ## Boundaries that do not change
 
