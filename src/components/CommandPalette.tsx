@@ -1,3 +1,4 @@
+import { workbenchRoutes } from '@/features/workbench/navigation';
 import { Search } from 'lucide-react';
 import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
@@ -33,7 +34,7 @@ export default function CommandPalette({ classic = false }: { classic?: boolean 
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [index, setIndex] = useState(0);
-  const results = useMemo(() => filterCommands(query).map(route => classic && route.id === 'hub' ? { ...route, zh: '首页', en: 'Home', hintZh: '', hintEn: '' } : route), [query, classic]);
+  const results = useMemo(() => filterCommands(query, classic ? workbenchRoutes.map(route => ({ id: route.path, path: route.path, zh: route.zh, en: route.en, hintZh: '工作台', hintEn: 'Workspace', words: `${route.zh} ${route.en}` })) : undefined).map(route => classic && route.id === 'hub' ? { ...route, zh: '首页', en: 'Home', hintZh: '', hintEn: '' } : route), [query, classic]);
   const t = (zh: string, en: string) => (lang === 'zh' ? zh : en);
 
   useEffect(() => {

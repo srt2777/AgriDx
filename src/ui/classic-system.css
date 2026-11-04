@@ -38,14 +38,12 @@
 }
 /* A bounded reset prevents legacy utility sizes, shadows and material effects leaking into the classic system. */
 .fluid-workspace[data-ui-version='old'] :where(*, *::before, *::after) {
-  font-size: 14px !important;
   border-width: 0 !important;
   border-color: var(--radix-sage-6) !important;
   box-shadow: none !important;
   text-shadow: none !important;
   background-image: none !important;
-  animation: none !important;
-  transition: none !important;
+
 }
 .fluid-workspace[data-ui-version='old'] :where(h1, h2, .hero-title, .hero-title span, .catalog-stats strong, .model-page-title) { font-size: 24px !important; line-height: 1.35 !important; letter-spacing: 0 !important; }
 .fluid-workspace[data-ui-version='old'] :where(small, kbd, .section-eyebrow, .fluid-group summary, .fluid-search, .fluid-breadcrumb, .fluid-language, .site-status-bar, .site-status-bar *, [class*='text-xs'], [class*='text-[10px]'], .evidence-entry summary span, .evidence-provenance dt, .catalog-stats span) { font-size: 12px !important; line-height: 1.6 !important; letter-spacing: 0 !important; }

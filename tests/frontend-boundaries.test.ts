@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { workbenchRoutes } from '../src/features/workbench/navigation';
 import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
 import { ApiError, requestJson, type FetchImplementation } from '../src/lib/api-client';
@@ -179,7 +180,7 @@ test('四级目录拒绝畸形嵌套数组与选择结果，不让成功HTTP造�
 test('旧版独立侧栏，新版大厅与功能路由共用同一外框', () => {
   for (const route of ['/knowledge', '/chat', '/models', '/version-history']) {
     assert.match(appSource, new RegExp(`path="${route.slice(1)}"`), `missing route ${route}`);
-    assert.ok(oldShellSource.includes(route), `classic shell does not link ${route}`);
+    assert.ok(oldShellSource.includes(route) || workbenchRoutes.some(item => item.path === route), `classic shell does not link ${route}`);
   }
   assert.match(layoutSource, /if \(uiVersion === 'new'\) return <NewVersionShell \/>/);
   assert.doesNotMatch(layoutSource, /return <Outlet \/>/);

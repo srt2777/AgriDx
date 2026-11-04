@@ -43,6 +43,12 @@ function NewVersionChrome() {
   return <NewVersionDelight />;
 }
 
+function ClassicWorkbenchRoute() {
+  const version = useUiVersion();
+  useLayoutEffect(() => { if (version !== 'old') setUiVersion('old'); }, [version]);
+  return version === 'old' ? <HomePage /> : <PageLoading />;
+}
+
 function VersionedHomePage() {
   const version = useUiVersion();
   return version === 'new' ? <ExhibitionPage /> : <HomePage />;
@@ -60,6 +66,7 @@ export default function App() {
     <Routes>
       <Route element={<Layout />}>
         <Route index element={<PageContent><VersionedHomePage /></PageContent>} />
+        {['assets', 'data', 'commands', 'analytics', 'records'].map(section => <Route key={section} path={`workspace/${section}`} element={<PageContent><ClassicWorkbenchRoute /></PageContent>} />)}
         <Route path="chat" element={<PageContent><ChatPage /></PageContent>} />
         <Route path="knowledge" element={<PageContent><KnowledgePage /></PageContent>} />
         <Route path="models" element={<PageContent><ModelPage /></PageContent>} />

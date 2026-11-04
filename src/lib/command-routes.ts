@@ -29,6 +29,11 @@ export function statusPlace(pathname: string, lang: 'zh' | 'en'): string {
     '/knowledge': ['知识目录', 'CATALOG'],
     '/models': ['模型工坊', 'MODEL STUDIO'],
     '/version-history': ['版本历史记录', 'VERSION HISTORY'],
+    '/workspace/assets': ['农机对象', 'MACHINE OBJECTS'],
+    '/workspace/data': ['数据采集', 'DATA COLLECTION'],
+    '/workspace/commands': ['指令与响应', 'COMMANDS'],
+    '/workspace/analytics': ['数据可视化', 'ANALYTICS'],
+    '/workspace/records': ['操作记录', 'ACTIVITY'],
     '/chat': ['智能诊断', 'DIAGNOSIS'],
     '/fault-detection': ['故障检测演示', 'FAULT DETECTION'],
   };
