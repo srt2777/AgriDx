@@ -1,12 +1,15 @@
 import { Router } from 'express';
 import { createHash } from 'node:crypto';
 import { DiagnosticInputError, parseDiagnosticRequest } from '../diagnosis/request';
-import { PLANNER_COMMIT, type DiagnosticService, type DiagnosticMemory } from '../diagnosis/service';
+import { dispatchPlannerTool } from '../diagnosis/plannerTools';
+import { buildContextRegistry } from '../../agent/context-tools';
+import type { ToolRegistry } from '../../agent/tool-registry';
+import { PLANNER_COMMIT, PLANNER_TOOL_CONTEXT, type DiagnosticService, type DiagnosticMemory } from '../diagnosis/service';
 import { getMemoryStore, MemoryError, summarizeReports, validId } from '../memory/store';
 import { memoryFailure, memoryOwner, revisionFrom, sameOrigin } from '../memory/routes';
 import type { MemoryMessage, SessionDetail } from '../../shared/memory';
 
-export function createChatRoutes(diagnose: DiagnosticService, store = getMemoryStore): Router {
+export function createChatRoutes(diagnose: DiagnosticService, store = getMemoryStore, plannerRegistry: (memory: DiagnosticMemory) => ToolRegistry = buildContextRegistry): Router {
   const router = Router();
   const active = new Set<string>();
   router.post('/chat', sameOrigin, async (req, res) => {
@@ -53,6 +56,15 @@ export function createChatRoutes(diagnose: DiagnosticService, store = getMemoryS
         }
         payload.memory = store().appendTurn(owner, remembered.id, remembered.revision, user.content, assistant, remembered.messages.length ? [] : input.history.slice(0, -1), payload[PLANNER_COMMIT]);
         payload.relatedMemoryReports = priorReports;
+        const toolContext = payload[PLANNER_TOOL_CONTEXT];
+        const checkpoint = payload[PLANNER_COMMIT]?.checkpoint;
+        if (!payload.diagnosisTrace?.mainLoop?.ran && toolContext && checkpoint?.state.steps.some(step => step.kind === 'read_tool') && memory && !controller.signal.aborted) {
+          const dispatched = await dispatchPlannerTool({ store: store(), owner, sessionId: remembered.id, revision: payload.memory.revision,
+            context: toolContext, registry: plannerRegistry(memory), signal: controller.signal });
+          if (dispatched.status === 'stale') throw new MemoryError(409, 'memory_conflict', '诊断记录已更新，请重新载入');
+          const { messages: _messages, device: _device, ...latest } = store().session(owner, remembered.id);
+          payload.memory = latest;
+        }
       }
       res.json(payload);
     } catch (error) {

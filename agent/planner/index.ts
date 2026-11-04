@@ -5,6 +5,8 @@ import { decideNextAction } from './policy';
 
 export { createPlan, reducePlan, PLANNER_LIMITS } from './reducer';
 export { decideNextAction } from './policy';
+export { PlannerToolPort, plannerToolEvent, PLANNER_READ_TOOLS } from './tool-port';
+export type { PlannerToolLease, PlannerToolObservation, PlannerReadTool } from './tool-port';
 export type * from './types';
 export type * from './ports';
 

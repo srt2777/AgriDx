@@ -13,8 +13,9 @@ export interface EvidenceReference { entryId: string; sourceId: string; locator?
 export interface StepDefinition {
   key: string;
   title: string;
-  /** Phase one can only request existing observations or propose reading evidence. */
-  kind: 'ask_user' | 'review_evidence';
+  /** Read tools require an explicit trusted host and never execute physical actions. */
+  kind: 'ask_user' | 'review_evidence' | 'read_tool';
+  tool?: 'resolve_machine_scope' | 'get_knowledge_entry';
   dependsOn: readonly string[];
   preconditions: readonly { slot: string; equals: ObservationValue }[];
   expectedObservation: { slot: string; label: string; options?: readonly string[] };
@@ -28,6 +29,7 @@ export interface PlanStep extends StepDefinition {
   scopeKey: string;
   status: 'pending' | 'awaiting_user' | 'reported' | 'observed' | 'invalidated';
 }
+export interface ToolProvenance { sourceId?: string; entryId?: string; sourceStatus?: string }
 export interface Observation {
   eventId: string;
   stepId: string;
@@ -39,11 +41,17 @@ export interface Observation {
   scopeKey: string;
   basisKey: string;
   corrects?: string;
+  toolProvenance?: ToolProvenance;
+  toolName?: 'resolve_machine_scope' | 'get_knowledge_entry';
+  toolCallId?: string;
+  toolOutcome?: 'success' | 'failure' | 'timeout' | 'cancelled' | 'empty';
 }
 export interface PlannerBudget { maxActions: number; issuedActions: number; maxNoProgress: number; noProgress: number }
 interface EventBase { id: string; episodeId: string }
 export type PlannerEvent = EventBase & (
   | { type: 'observation'; stepKey: string; value: ObservationValue; source: ObservationSource; corrects?: string }
+  | { type: 'tool_started'; stepKey: string; callId: string }
+  | { type: 'tool_finished'; stepKey: string; callId: string; outcome: 'success' | 'failure' | 'timeout' | 'cancelled' | 'empty'; value: ObservationValue; provenance?: ToolProvenance }
   | { type: 'scope_changed'; scope: PlannerScope }
   | { type: 'cancel' | 'pause' | 'resume' | 'resolved_reported' | 'continue' }
 );
@@ -74,6 +82,7 @@ export interface PlannerState {
   /** Event signatures allow replay detection and reject same-ID/different-content collisions. */
   acceptedEvents: Record<string, string>;
   audit: PlannerAuditEvent[];
+  toolCalls?: Record<string, { stepKey: string; startedVersion: number; basisKey: string; deadlineMs?: number; outcome: 'pending' | 'success' | 'failure' | 'timeout' | 'cancelled' | 'empty' }>;
 }
 export interface CreatePlanInput {
   planId: string;
@@ -88,6 +97,7 @@ export interface PlannerAction {
   stepId: string;
   stepKey: string;
   observationSlot: string;
+  tool?: 'resolve_machine_scope' | 'get_knowledge_entry';
   /** Requests only observations already available, never a new physical operation. */
   text: string;
   evidenceIds: readonly string[];

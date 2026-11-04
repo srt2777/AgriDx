@@ -29,7 +29,8 @@ export interface DiagnosticMemory {
 }
 export type DiagnosticProvider = Pick<LlmRouter, 'hasAnyConfigured' | 'chat'> & Partial<Pick<LlmRouter, 'getStatus' | 'toolProvider'>>;
 export const PLANNER_COMMIT = Symbol('server-only-planner-commit');
-export type DiagnosticResult = ChatResponse & { [PLANNER_COMMIT]?: PlannerCheckpointCommit };
+export const PLANNER_TOOL_CONTEXT = Symbol('server-only-planner-tool-context');
+export type DiagnosticResult = ChatResponse & { [PLANNER_COMMIT]?: PlannerCheckpointCommit; [PLANNER_TOOL_CONTEXT]?: import('../../agent/planner/ports').PlannerContext };
 export type DiagnosticService = (request: DiagnosticRequest, memory?: DiagnosticMemory, signal?: AbortSignal) => Promise<DiagnosticResult>;
 export interface DiagnosticDecisionLog {
   mode: string;
@@ -218,6 +219,7 @@ export function createDiagnosticService(llm: DiagnosticProvider, dependencies: D
     })), roleFlow: buildRoleFlow(displayed) });
     const finish = (payload: DiagnosticResult): DiagnosticResult => {
       if (planner) {
+        payload[PLANNER_TOOL_CONTEXT] = { routerInput: { ...routerInput, scope: plannerScope }, routerConfig: coordinationConfig() };
         const aiAlreadyAsked = Boolean(payload.diagnosticReply?.aiSupplement && /[？?]|请.{0,12}(?:补充|确认)/.test(payload.diagnosticReply.aiSupplement));
         // Never record a proposal as issued when an existing AI question prevents
         // us displaying it. The next turn can then propose it normally.
