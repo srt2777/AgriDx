@@ -133,7 +133,10 @@
 }
 @media (max-width: 600px) {
   .new-version-shell[data-ui-version='new'][data-route='/chat'] .chat-toolbar { gap: 4px; }
-  .new-version-shell[data-ui-version='new'][data-route='/chat'] .chat-toolbar-title { font-size: 15px; }
+  /* Narrow only: the toolbar title was flex:none + nowrap, so the long
+     English title could push the toolbar past 390px. Let it shrink with
+     an ellipsis; desktop rules above are untouched. */
+  .new-version-shell[data-ui-version='new'][data-route='/chat'] .chat-toolbar-title { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; font-size: 15px; }
   .new-version-shell[data-ui-version='new'][data-route='/chat'] .chat-machine-trigger { min-width: 36px; max-width: 38vw; padding-inline: 6px; }
   .new-version-shell[data-ui-version='new'][data-route='/chat'] .chat-settings { position: static; }
   .new-version-shell[data-ui-version='new'][data-route='/chat'] .chat-settings-panel { right: 4px; width: min(320px, calc(100% - 8px)); }

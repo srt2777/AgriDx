@@ -15,5 +15,5 @@ export function modernLocation(pathname: string): { sectionPath: string; breadcr
     const models = MODERN_DESTINATIONS.find(item => item.path === '/models')!;
     return { sectionPath: models.path, breadcrumbs: [home, models, { path, zh: '故障检测演示', en: 'Fault detection demo' }] };
   }
-  return { sectionPath: '/', breadcrumbs: [home, { path, zh: path === '/version-history' ? '更新记录' : '页面', en: path === '/version-history' ? 'Version history' : 'Page' }] };
+  return { sectionPath: '/', breadcrumbs: [home, { path, zh: path === '/version-history' ? '版本历史记录' : '页面', en: path === '/version-history' ? 'Version history' : 'Page' }] };
 }
