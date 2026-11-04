@@ -37,6 +37,8 @@ export interface DiagnosticDecisionLog {
   route: string;
   reason: string;
   riskLevel?: string;
+  /** Guard rule codes that rejected or trimmed the AI supplement; null when nothing was rejected. */
+  outputIssues?: string[] | null;
   knowledgeIds: string[];
   provider: string;
   trace: DiagnosisTrace;
@@ -242,6 +244,7 @@ export function createDiagnosticService(llm: DiagnosticProvider, dependencies: D
       // No raw question, history, device identifiers or credentials enter routing logs.
       const event: DiagnosticDecisionLog = { mode: coordination.effectiveMode, requestedMode: coordination.requestedMode, route: payload.coordination!.route,
         reason: payload.coordination!.reason, riskLevel: coordination.riskLevel,
+        outputIssues: payload.coordination?.outputIssues ?? null,
         knowledgeIds: displayed.flatMap(chunk => chunk.entryId ? [chunk.entryId] : []), provider: payload.provider, trace,
         candidates: coordination.candidates ?? [] };
       const defer = typeof setImmediate === 'function' ? setImmediate : (callback: () => void) => setTimeout(callback, 0);

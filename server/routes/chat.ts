@@ -45,7 +45,7 @@ export function createChatRoutes(diagnose: DiagnosticService, store = getMemoryS
       const memory: DiagnosticMemory | undefined = remembered ? { session: { ...remembered, summary: summarizeReports(input.history) }, priorReports, plannerCheckpoint: store().plannerCheckpoint(owner, remembered.id),
         plannerSessionSeed: createHash('sha256').update(remembered.id).digest('hex').slice(0, 32) } : undefined;
       const payload = await diagnose(input, memory, controller.signal);
-      if (res.destroyed) return;
+      if (res.destroyed) { console.warn('[chat] response skipped: client disconnected'); return; }
       if (remembered) {
         const assistant: Omit<MemoryMessage, 'id' | 'role' | 'createdAt'> = { content: payload.choices[0].message.content };
         for (const field of ['model', 'provider', 'localSummary', 'coordinationMessage', 'answerMode', 'fallbackReason', 'knowledgeChunks', 'diagnosticReply', 'knowledgeSources', 'coordination', 'diagnosisTrace', 'roleFlow'] as const) {
@@ -56,6 +56,9 @@ export function createChatRoutes(diagnose: DiagnosticService, store = getMemoryS
       }
       res.json(payload);
     } catch (error) {
+      // The client is gone; writing a status body to a dead connection is
+      // pointless and must not mask the disconnect in logs or error counts.
+      if (res.destroyed) return;
       if (error instanceof DiagnosticInputError) { res.status(400).json({ error: error.message, code: error.code }); return; }
       if (error instanceof MemoryError || remembered || req.body?.sessionId !== undefined) { memoryFailure(error, res); return; }
       console.error('[chat] unexpected error:', error);
