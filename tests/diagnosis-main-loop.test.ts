@@ -34,7 +34,14 @@ function document(overrides: Partial<KnowledgeChunk> = {}): KnowledgeChunk {
 function completeDocument(): KnowledgeChunk {
   return document({ diagnosticMetadata: { coverage: { symptom: true, causes: true, checks: true, repair: true}, riskLevel: 'low'}});
 }
-type ToolScript = 'answer' | 'question' | 'throw' | 'disallowed' | 'unsafe' | 'hang';
+type ToolScript = 'answer' | 'question' | 'throw' | 'disallowed' | 'unsafe' | 'hang' | 'dsml' | 'dsml-prose';
+const DSML_BLOCK = `<｜DSML｜tool_calls>
+<｜DSML｜invoke name="search_knowledge">
+<｜DSML｜parameter name="brand" string="true">东方红</｜DSML｜parameter>
+<｜DSML｜parameter name="model" string="true">LX2204</｜DSML｜parameter>
+<｜DSML｜parameter name="query" string="true">水温表 冷却水温度 过高</｜DSML｜parameter>
+</｜DSML｜invoke>
+</｜DSML｜tool_calls>`;
 interface Harness {
   diagnose: ReturnType<typeof createDiagnosticService>;
   generations: ChatMessage[][];
@@ -67,6 +74,8 @@ function harness(options: {
         if (callNumber === 1) return { content: '', stopReason: 'tool_calls', toolCalls: [{ id: 't1', name: 'search_knowledge', input: { query: '指示灯间歇闪烁'}}]};
         return { content: mainLoopAnswer, stopReason: 'stop', toolCalls: []};
       }
+      if (script === 'dsml') return { content: DSML_BLOCK, stopReason: 'stop', toolCalls: []};
+      if (script === 'dsml-prose') return { content: `${mainLoopAnswer}\n\n${DSML_BLOCK}`, stopReason: 'stop', toolCalls: []};
       if (script === 'question') return { content: '', stopReason: 'tool_calls', toolCalls: [{ id: 'q1', name: 'ask_user_for_info', input: { question: '请确认已有检查结果？'}}]};
       if (script === 'disallowed') return { content: '', stopReason: 'tool_calls', toolCalls: [{ id: 'd1', name: 'forbidden', input: {}}]};
       if (script === 'unsafe') return { content: '请拆卸高压油管检查。', stopReason: 'stop', toolCalls: []};
@@ -232,4 +241,24 @@ test('本轮已有 Planner 追问 → 主循环工具定义不含 ask_user_for_i
     assert.ok(h.toolCalls[0].tools.some(tool => tool.name === 'search_knowledge'));
     assert.equal(h.generations.length, 0);
     assert.ok((response.diagnosticReply?.questions?? []).some(item => item.text.includes('冷却液泄漏已有检查结果')));
+});
+test('主循环最终答案含 DSML 标记 → 定稿后正文不再含 DSML，纯 DSML 则回退单次路径', async () => {
+    const prose = harness({ docs: [document()], script: 'dsml-prose'});
+    const proseResponse = await prose.diagnose(request());
+    assert.equal(proseResponse.diagnosisTrace?.mainLoop?.status, 'answered');
+    assert.match(proseResponse.diagnosticReply?.aiSupplement ?? '', /主循环模型回复/);
+    assert.doesNotMatch(reply(proseResponse), /DSML|search_knowledge|LX2204/);
+    const pure = harness({ docs: [document()], script: 'dsml'});
+    const pureResponse = await pure.diagnose(request());
+    assert.equal(pureResponse.diagnosisTrace?.mainLoop?.status, 'fallback');
+    assert.equal(pureResponse.diagnosisTrace?.mainLoop?.reason, 'answer_rejected');
+    assert.equal(pureResponse.diagnosticReply?.aiSupplement, pure.singleAnswer);
+    assert.doesNotMatch(reply(pureResponse), /DSML|search_knowledge/);
+});
+test('主循环回退 trace 携带脱敏 reason，供生产日志区分回退触发点', async () => {
+    const h = harness({ docs: [document()], script: 'throw'});
+    const response = await h.diagnose(request());
+    assert.equal(response.diagnosisTrace?.mainLoop?.status, 'fallback');
+    assert.equal(response.diagnosisTrace?.mainLoop?.reason, 'provider_or_tool_error');
+    assert.doesNotMatch(JSON.stringify(response.diagnosisTrace?.mainLoop), /指示灯间歇闪烁怎么办/);
 });

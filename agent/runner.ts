@@ -1,4 +1,5 @@
 import { ToolExecutor, type ToolRegistry } from './tools';
+import { stripDsmlMarkup } from './dsml';
 import type { ChatMessage, Provider, ToolChatOptions } from '../server/llm/types';
 
 export interface AgentToolEvent { step:number; tool:string; args:unknown; ok:boolean; error_type:string|null; duration_ms:number; source:'混合资料'|'通识（无手册页码）'|'助手推断'|'用户报告，待核实'|'未分类' }
@@ -42,14 +43,20 @@ export async function runAgent(options:AgentRunOptions):Promise<AgentRunResult> 
       if(controller.signal.aborted)return {status:signal?.aborted?'cancelled':'fallback',reason:signal?.aborted?'cancelled':'deadline',toolEvents};
       const forced=step===maxSteps;
       const reply=await Promise.race([provider.chatWithTools(messages,{tools:definitions,toolChoice:forced?'none':'auto',signal:controller.signal}),interrupted]);
-      if(reply.toolCalls.length===0){const safe=options.guard(reply.content);return safe?{status:'answered',content:safe,toolEvents}:{status:'fallback',reason:'answer_rejected',toolEvents};}
+      // Second layer for DSML: the provider translates well-formed DSML
+      // blocks, but any provider (or a future one) may still return DSML
+      // text as a final answer. Never let a tool-call markup block reach
+      // the guard output or the user-visible supplement: strip it first,
+      // and treat a reply that was only a tool call as rejected so the
+      // service falls back to the single-call path instead of showing it.
+      if(reply.toolCalls.length===0){const cleaned=stripDsmlMarkup(reply.content);if(!cleaned)return {status:'fallback',reason:'answer_rejected',toolEvents};const safe=options.guard(cleaned);return safe?{status:'answered',content:safe,toolEvents}:{status:'fallback',reason:'answer_rejected',toolEvents};}
       if(forced||reply.toolCalls.length>4||reply.toolCalls.some(call=>!allowed.has(call.name)))return {status:'fallback',reason:'disallowed_or_excess_tools',toolEvents};
       const question=reply.toolCalls.find(call=>call.name==='ask_user_for_info');
       if(question){
         if(reply.toolCalls.length!==1)return {status:'fallback',reason:'mixed_control_call',toolEvents};
         const offset=executor.trace.length,result=await executor.execute(question.name,question.input,{signal:controller.signal});record(step,offset);
         if(!result.ok)return {status:signal?.aborted?'cancelled':'fallback',reason:result.error_type??'question_failed',toolEvents};
-        const text=typeof question.input.question==='string'?options.guard(question.input.question):null;
+        const text=typeof question.input.question==='string'?options.guard(stripDsmlMarkup(question.input.question)):null;
         return text?{status:'question',content:text,toolEvents}:{status:'fallback',reason:'answer_rejected',toolEvents};
       }
       const boundCalls=reply.toolCalls.map(call=>{
@@ -62,7 +69,7 @@ export async function runAgent(options:AgentRunOptions):Promise<AgentRunResult> 
         }
         return {type:'tool_use',id:call.id,name:call.name,input};
       });
-      messages.push({role:'assistant',content:reply.content,tool_calls:boundCalls.map(call=>({id:call.id,type:'function',function:{name:call.name,arguments:JSON.stringify(call.input)}}))});
+      messages.push({role:'assistant',content:stripDsmlMarkup(reply.content),tool_calls:boundCalls.map(call=>({id:call.id,type:'function',function:{name:call.name,arguments:JSON.stringify(call.input)}}))});
       const offset=executor.trace.length;
       const results=await executor.execute_tool_uses(boundCalls,{signal:controller.signal});record(step,offset);
       for(const result of results)messages.push({role:'tool',tool_call_id:String(result.tool_use_id),content:String(result.content)});
