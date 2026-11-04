@@ -7,6 +7,8 @@ import { ArrowLeft, ChevronDown, ExternalLink, History } from 'lucide-react';
 import history from 'virtual:agridx-version-history';
 import { version } from '../../../package.json';
 import { useLang } from '@/hooks/useLang';
+import { useUiVersion } from '@/hooks/useUiVersion';
+import { UI_RELEASES } from '@/lib/ui-versions';
 import { gatewayHashStatus, gatewayMeetsRequirements, type GatewayIdentity } from '../../dev-preview/gateway-compat';
 import './version-history.css';
 
@@ -28,6 +30,7 @@ function Markdown({ children }: { children: string }) {
 
 export default function VersionHistoryPage() {
   const lang = useLang();
+  const uiVersion = useUiVersion();
   const [includeLegacy, setIncludeLegacy] = useState(false);
   const [expanded, setExpanded] = useState<Set<string>>(() => new Set());
   const [gateway, setGateway] = useState<GatewayIdentity | null>(null);
@@ -52,7 +55,8 @@ export default function VersionHistoryPage() {
       <p>{t('每次更新的内容、资料变化与验证记录，按版本完整保留。', 'Changes, knowledge updates and recorded verification for each version.')}</p>
     </header>
     <div className="history-build" aria-label={t('当前构建', 'Current build')}>
-      <div><span>{t('当前构建版本', 'Build version')}</span><strong>v{version}</strong></div>
+      <div><span>{t('当前界面版本', 'Current UI version')}</span><strong>{UI_RELEASES[uiVersion]}</strong></div>
+      <div><span>{t('当前项目构建版本', 'Project build version')}</span><strong>v{version}</strong></div>
       <div><span>{t('构建提交', 'Build commit')}</span>{commit
         ? <a href={'https://github.com/' + history.repository + '/commit/' + commit} target="_blank" rel="noopener noreferrer"><code>{commit}</code><ExternalLink size={14} /></a>
         : <strong>{missing}</strong>}</div>
