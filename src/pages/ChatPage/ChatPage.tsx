@@ -42,7 +42,7 @@ export default function ChatPage() {
   const handoff: unknown = location.state;
   const lang = useLang();
   const version = useUiVersion();
-  const { t, format, separator } = useUiCopy(lang);
+  const { t } = useUiCopy(lang);
   const providerLabel = (provider?: ChatProvider) =>
     provider === 'knowledge-base' ? t('本地知识库', 'Local knowledge base') :
     provider === 'gemini' ? 'Gemini' : provider === 'deepseek' ? 'DeepSeek' : provider === 'openai' ? 'OpenAI compatible' : '';
@@ -262,7 +262,7 @@ export default function ChatPage() {
             <Bot className="h-4 w-4" />
           </div>
           <div className="min-w-0">
-            <div className="truncate text-sm font-semibold text-foreground">{format('耕知·耘诊')}{separator}{t('诊断工作台', 'Diagnosis workspace')}</div>
+            <div className="truncate text-sm font-semibold text-foreground">{t('司稼 · 拖拉机智能运维智能体', 'Sijia · Tractor Intelligent O&M Agent')}</div>
             <div className="flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground" role="status">
               <span title={configurationHint}>{serviceStatus}</span>
             </div>
@@ -270,7 +270,7 @@ export default function ChatPage() {
         </div>
         {clearControl}
       </LiquidGlass> : <div className="chat-toolbar">
-        <strong className="chat-toolbar-title" data-shared-target="diagnosis">{t('智能诊断', 'Diagnosis')}</strong>
+        <strong className="chat-toolbar-title" data-shared-target="diagnosis">{t('司稼 · 拖拉机智能运维智能体', 'Sijia · Tractor Intelligent O&M Agent')}</strong>
         <div className="chat-toolbar-actions">
           <Button ref={contextTriggerRef} type="button" variant="ghost" size="sm" className="chat-machine-trigger" aria-label={`${t('机型与记录', 'Machine and history')}: ${[machineType, brand, model].filter(Boolean).join(' ') || t('选择机型', 'Choose machine')}`} aria-expanded={contextOpen} aria-controls="chat-machine-context" onClick={() => setContextOpen(open => !open)}>
             <Settings2 className="h-4 w-4" aria-hidden="true" /><span>{[machineType, brand, model].filter(Boolean).join(' ') || t('选择机型', 'Choose machine')}</span>
