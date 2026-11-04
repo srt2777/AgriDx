@@ -15,6 +15,13 @@ export interface StepDefinition {
   title: string;
   /** Phase one can only request existing observations or propose reading evidence. */
   kind: 'ask_user' | 'review_evidence';
+  /**
+   * Optional read-only tool that can supply evidence for this step (must
+   * exist in the tool registry). The planner never executes it; it only
+   * records which tool the step's observation maps to. Tool results are
+   * NOT fed back into the planner in this phase.
+   */
+  toolName?: string;
   dependsOn: readonly string[];
   preconditions: readonly { slot: string; equals: ObservationValue }[];
   expectedObservation: { slot: string; label: string; options?: readonly string[] };

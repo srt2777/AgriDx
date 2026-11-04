@@ -120,6 +120,11 @@ export function useChatSession({ handoff, translate: t, focusInput, minLoadingMs
       if (remain > 0) await new Promise((resolve) => window.setTimeout(resolve, remain));
       if (requestRef.current !== controller) return;
       if (reply.memory) memory.updateSession(reply.memory);
+      // The answer above is still shown; only its record was not saved.
+      // Keep the old session revision (so the next turn can retry) and
+      // tell the user the turn is missing from the stored record instead
+      // of silently dropping it from server-side history.
+      if (reply.memorySaveFailed) setSendError(t('回答已生成，但本轮未能保存到诊断记录；已有记录不会被清空，重新载入后可恢复同步。', 'The answer was generated, but this turn was not saved to the diagnosis record; existing records are kept, and reloading can resync.'));
       if (reply.role === 'error') {
         if (text === input) setInput(text);
         if (selectedAttachment) setAttachment(selectedAttachment);

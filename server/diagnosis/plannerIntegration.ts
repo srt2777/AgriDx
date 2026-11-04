@@ -3,7 +3,7 @@ import { parsePlannerFeedback } from '../../agent/planner/feedback';
 import { recordDecision, scopeKey } from '../../agent/planner/reducer';
 import type { PlannerCheckpoint, PlannerCheckpointCommit } from '../memory/store';
 import type { CoordinationDecision, DiagnosticReply } from '../../shared/diagnosis';
-import { createDiagnosticPlan, identifyPlannerTopic, plannerStepAliases } from './plannerPlans';
+import { createDiagnosticPlan, identifyPlannerTopic, isPlannerTopic, plannerStepAliases } from './plannerPlans';
 
 /** Limited host hints: recognizable reports stay with their fault, while an
  * independently stated different fault starts a fresh episode. Unknown short
@@ -71,7 +71,7 @@ export function planDiagnosticTurn(input: {
     }
   }
   const recognizedFollowup = prior && (plannerConversationHints(prior).isFeedback(input.currentQuery) || control || Boolean(prior.topicPending === 'step' && named.length === 1));
-  const topic = identifyPlannerTopic(input.topicRoot) ?? (recognizedFollowup && (prior?.topicKey === 'overheat' || prior?.topicKey === 'starting') ? prior.topicKey : undefined);
+  const topic = identifyPlannerTopic(input.topicRoot) ?? (recognizedFollowup && isPlannerTopic(prior?.topicKey) ? prior.topicKey : undefined);
   if (!topic) {
     // Unknown wording is never assigned to an old step or silently treated as
     // a new fault. Ask for clarification while preserving its bounded history.

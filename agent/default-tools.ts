@@ -1,6 +1,8 @@
 import { getKnowledgeCatalog } from '../server/knowledge/catalog';
 import { loadKnowledgeBase, retrieveWithDiagnostics, stats } from '../server/knowledge/retriever';
 import { resolveScope } from '../server/knowledge/scope';
+import { loadKnowledgeSnapshot } from '../server/knowledge/snapshot';
+import { identifyPlannerTopic, plannerFaultChains, type PlannerTopic } from '../server/diagnosis/plannerPlans';
 import { ToolRegistry } from './tool-registry';
 import type { InputSchema } from './tool-types';
 import { calculator } from './calculator';
@@ -49,6 +51,51 @@ export function build_default_registry(): ToolRegistry {
   reg.register('get_current_time', '需要当前日期与时间用于记录时使用，返回ISO时间及上海时间。不要用于判断故障、获取历史事件或核验上线时间。', object({}), () => {
     const date = new Date();
     return { iso: date.toISOString(), timezone: 'Asia/Shanghai', local: date.toLocaleString('sv-SE', { timeZone: 'Asia/Shanghai' }) };
+  });
+  reg.register('fault_chain', '需要按故障主题查看症状→原因→证据→追问的逻辑链时使用。链来自 Planner 主题模板与已核验知识条目，不是故障概率，基本事件仍是用户报告或手册证据、待核实。返回顶事件、原因分解与每原因对应的步骤和证据 ID。', object({
+    topic: { type: 'string', enum: ['overheat', 'starting', 'fuel', 'electrical', 'hydraulic', 'transmission'], description: '故障主题，overheat/starting/fuel/electrical/hydraulic/transmission 之一' },
+    symptom: string('症状文本，未给 topic 时用它识别主题；多系统歧义时返回错误'),
+  }), ({ topic, symptom }) => {
+    const resolved: PlannerTopic | undefined = topic as PlannerTopic | undefined ?? (typeof symptom === 'string' ? identifyPlannerTopic(symptom) : undefined);
+    if (!resolved) return { error: 'TOPIC_NOT_IDENTIFIED', note: '请给出单个已知的故障主题或单系统症状文本，多系统歧义无法确定唯一逻辑链。' };
+    const chain = plannerFaultChains[resolved];
+    return { topic: resolved, topEvent: chain.topEvent, causes: chain.causes.map(cause => ({ ...cause, verification: 'unverified' })),
+      note: '原因排序即追问价值排序（区分度降序），不是故障概率；证据 ID 须经本轮检索核对后才可引用。' };
+  });
+  const modelEntries = (entryType: string, brand: string, model: string, limit: number) => {
+    const norm = (value: string) => value.trim().toUpperCase();
+    const wantedBrand = norm(brand), wantedModel = norm(model);
+    const seen = new Set<string>();
+    // Compact index rows only: no per-entry models list (the caller named
+    // the model) and no repeated full book title per entry — sources are
+    // listed once at the top level. Without this, a 20-row index exceeds
+    // the 4000-char tool output budget and the JSON is truncated.
+    const entries: { entryId: string; title: string; sourceId: string }[] = [];
+    const sources = new Map<string, string>();
+    for (const chunk of loadKnowledgeSnapshot().chunks) {
+      if (chunk.entryType !== entryType || !chunk.entryId || !chunk.sourceId || seen.has(chunk.entryId)) continue;
+      if (norm(chunk.brand ?? '') !== wantedBrand) continue;
+      if (!(chunk.models ?? []).some(m => norm(m) === wantedModel)) continue;
+      seen.add(chunk.entryId);
+      const title = chunk.heading.includes('｜') ? chunk.heading.split('｜').slice(1).join('｜') : chunk.heading;
+      entries.push({ entryId: chunk.entryId, title, sourceId: chunk.sourceId });
+      if (!sources.has(chunk.sourceId)) sources.set(chunk.sourceId, chunk.sourceTitle ?? chunk.source ?? '');
+      if (entries.length >= limit) break;
+    }
+    return { entries, sources: [...sources.entries()].map(([sourceId, sourceTitle]) => ({ sourceId, sourceTitle })) };
+  };
+  const modelSchema = () => object({
+    brand: { type: 'string', minLength: 1, maxLength: 100, description: '品牌，需与知识条目品牌一致' },
+    model: { type: 'string', minLength: 1, maxLength: 100, description: '完整型号，需与知识条目型号精确一致（大小写不敏感）' },
+    limit: { type: 'integer', minimum: 1, maximum: 20, description: '最多返回条数，默认10' },
+  }, ['brand', 'model']);
+  reg.register('model_fault_index', '需要按品牌型号列出该机型的故障表类知识条目时使用。只返回条目 ID、标题与来源 ID，不返回全文；适用性与核验状态须另行核对，不要当作已确诊故障。', modelSchema(), ({ brand, model, limit = 10 }) => {
+    const { entries, sources } = modelEntries('维护/故障知识', brand, model, limit);
+    return { brand, model, entries, sources, note: entries.length ? '仅为条目索引，正文请用 get_knowledge_entry 读取并核对适用范围。' : '该品牌型号下没有故障表类条目，或型号写法与知识条目不一致。' };
+  });
+  reg.register('maintenance_schedule', '需要按品牌型号列出该机型的操作/维护类知识条目（检查、保养类线索）时使用。返回的只是知识库条目索引，不是厂家发布的保养计划；条目适用性须另行核对，不返回全文。', modelSchema(), ({ brand, model, limit = 10 }) => {
+    const { entries, sources } = modelEntries('操作/维护知识', brand, model, limit);
+    return { brand, model, entries, sources, note: entries.length ? '仅为条目索引，正文请用 get_knowledge_entry 读取并核对适用范围。' : '该品牌型号下没有操作/维护类条目，或型号写法与知识条目不一致。' };
   });
   return reg;
 }
