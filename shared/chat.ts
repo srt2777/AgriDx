@@ -84,6 +84,13 @@ export interface ChatResponse {
   coordinationMessage?: string;
   localSummary?: string;
   memory?: MemorySession;
+  /**
+   * True when the answer was generated but its turn could not be saved to
+   * the diagnosis record (storage failure, revision conflict, or record
+   * limit). The answer is still valid; the client keeps its old revision
+   * so the next turn can retry against the last saved revision.
+   */
+  memorySaveFailed?: boolean;
   relatedMemoryReports?: PriorDeviceReport[];
   choices: { message: { role: 'assistant'; content: string } }[];
   model: string;

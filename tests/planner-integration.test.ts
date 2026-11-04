@@ -245,7 +245,7 @@ test('a different unrecognized symptom cannot retain the old starting diagnosis'
   assert.equal((await h.chat(0, '东方红 LF1504 发动机启动不了')).status, 200);
   assert.equal((await h.chat(1, '电瓶检查正常')).status, 200);
   const previous = h.checkpoint(); assert.ok(previous);
-  const next = await h.chat(2, '离合器打滑');
+  const next = await h.chat(2, '雨刮器不工作');
   assert.equal(next.status, 200);
   const checkpoint = h.checkpoint();
   if (checkpoint?.state.episodeId === previous.state.episodeId) {
@@ -259,7 +259,7 @@ test('pending topic ambiguity blocks a later unqualified normal report from beco
   const h = await harness(t);
   assert.equal((await h.chat(0, '东方红 LF1504 水温过高')).status, 200);
   const original = h.checkpoint(); assert.ok(original);
-  assert.equal((await h.chat(1, '离合器打滑')).status, 200);
+  assert.equal((await h.chat(1, '雨刮器不工作')).status, 200);
   assert.equal((await h.chat(2, '正常')).status, 200);
   const after = h.checkpoint(); assert.ok(after);
   assert.equal(after.state.episodeId, original.state.episodeId);
@@ -270,7 +270,7 @@ test('pending topic ambiguity blocks a later unqualified normal report from beco
 test('a scope change during an unknown topic cannot restore an old engine on a later turn', async t => {
   const h = await harness(t);
   assert.equal((await h.chat(0, '东方红 LF1504 水温过高', 'knowledge_only', { engineModel: 'TEST-E1' })).status, 200);
-  assert.equal((await h.chat(1, '离合器打滑', 'knowledge_only', { engineModel: 'TEST-E2' })).status, 200);
+  assert.equal((await h.chat(1, '雨刮器不工作', 'knowledge_only', { engineModel: 'TEST-E2' })).status, 200);
   assert.equal((await h.chat(2, '正常')).status, 200);
   const after = h.checkpoint();
   assert.notEqual(after?.state.scope.engineModel, 'TEST-E1');
@@ -281,7 +281,7 @@ test('unknown topics cannot silently unpause an explicitly paused episode', asyn
   assert.equal((await h.chat(0, '东方红 LF1504 水温过高')).status, 200);
   assert.equal((await h.chat(1, '暂停诊断')).status, 200);
   assert.equal(h.checkpoint()?.state.stopReason, 'user_paused');
-  assert.equal((await h.chat(2, '离合器打滑')).status, 200);
+  assert.equal((await h.chat(2, '雨刮器不工作')).status, 200);
   const after = h.checkpoint(); assert.ok(after);
   assert.equal(after.state.status, 'paused'); assert.equal(after.state.stopReason, 'user_paused');
   assert.equal((await h.chat(3, '正常')).status, 200);
@@ -293,7 +293,7 @@ test('after ambiguous topic an explicit return and named result can resume the o
   const h = await harness(t);
   assert.equal((await h.chat(0, '东方红 LF1504 水温过高')).status, 200);
   const before = h.checkpoint(); assert.ok(before);
-  assert.equal((await h.chat(1, '离合器打滑')).status, 200);
+  assert.equal((await h.chat(1, '雨刮器不工作')).status, 200);
   assert.equal((await h.chat(2, '继续原故障')).status, 200);
   assert.equal((await h.chat(3, '冷却液泄漏检查正常')).status, 200);
   const after = h.checkpoint(); assert.ok(after);
@@ -305,7 +305,7 @@ test('after ambiguous topic an explicit return and named result can resume the o
 test('pending-topic clarification and explicit return do not call an available AI provider', async t => {
   const h = await harness(t, true);
   assert.equal((await h.chat(0, '东方红 LF1504 水温过高')).status, 200);
-  const unknown = await h.chat(1, '离合器打滑', 'ai_assisted');
+  const unknown = await h.chat(1, '雨刮器不工作', 'ai_assisted');
   assert.equal(unknown.status, 200);
   assert.match(unknown.body.diagnosticReply?.questions[0]?.text ?? '', /故障|问题/);
   assert.equal(h.generations.length, 0);
@@ -317,7 +317,7 @@ test('pending-topic clarification and explicit return do not call an available A
 test('high-risk input during pending topic retains Router safe and escalates the plan', async t => {
   const h = await harness(t, true);
   assert.equal((await h.chat(0, '东方红 LF1504 水温过高')).status, 200);
-  assert.equal((await h.chat(1, '离合器打滑')).status, 200);
+  assert.equal((await h.chat(1, '雨刮器不工作')).status, 200);
   const risk = await h.chat(2, '热车拧水箱盖', 'ai_assisted');
   assert.equal(risk.status, 200);
   assert.equal(risk.body.coordination?.route, 'safe');
