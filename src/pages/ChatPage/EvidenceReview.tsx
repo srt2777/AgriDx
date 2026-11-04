@@ -35,6 +35,7 @@ export function EvidenceReview({ sources, t }: Props) {
           {!!source.models?.length && <p>{t('型号：', 'Models: ')}{source.models.join('、')}</p>}
           {source.engineModel && <p>{t('发动机：', 'Engine: ')}{source.engineModel}</p>}
           {!!source.faultCodes?.length && <p>{t('故障码：', 'Codes: ')}{source.faultCodes.join('、')}</p>}
+          {source.locator && <p>{t('原始定位：', 'Original locator: ')}{source.locator}</p>}
           {source.status && <p>{t('原始核验说明：', 'Original review status: ')}{source.status}</p>}
           {source.retrieval && <p>{t('检索层级：', 'Retrieval tier: ')}{source.retrieval.tier} · {source.retrieval.basis.join('；')}</p>}
         </div></details>
