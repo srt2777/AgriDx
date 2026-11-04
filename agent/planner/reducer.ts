@@ -52,7 +52,9 @@ export function createPlan(input: CreatePlanInput): PlannerState {
     identifier(step.key); text(step.title); identifier(step.expectedObservation.slot); text(step.expectedObservation.label);
     if (keys.has(step.key) || slots.has(step.expectedObservation.slot)) throw new TypeError('Duplicate step key or observation slot');
     keys.add(step.key); slots.add(step.expectedObservation.slot);
-    if (!['ask_user', 'review_evidence'].includes(step.kind)) throw new TypeError('Phase one cannot execute actions');
+    if (!['ask_user', 'review_evidence', 'read_tool'].includes(step.kind)) throw new TypeError('Phase one cannot execute actions');
+    if (step.kind === 'read_tool' && !['resolve_machine_scope', 'get_knowledge_entry'].includes(step.tool ?? '')) throw new TypeError('Unauthorized Planner tool');
+    if (step.kind !== 'read_tool' && step.tool !== undefined) throw new TypeError('Tool must belong to a read tool step');
     bounded(step.discriminationValue, 100); bounded(step.cost, 100);
     if (!Array.isArray(step.dependsOn) || step.dependsOn.length > PLANNER_LIMITS.steps || !Array.isArray(step.preconditions) || step.preconditions.length > PLANNER_LIMITS.steps) throw new TypeError('Unbounded dependencies');
     if (!Array.isArray(step.evidenceIds) || step.evidenceIds.length > PLANNER_LIMITS.evidence || step.evidenceIds.some((id: string) => !evidenceIds.has(id)) || step.kind === 'review_evidence' && !step.evidenceIds.length) throw new TypeError('Unknown or missing evidence');
@@ -131,7 +133,31 @@ export function reducePlan(state: PlannerState, event: PlannerEvent): PlannerSta
   if (state.status === 'cancelled' || isTerminal(state) && event.type !== 'cancel') return state;
   if (Object.keys(state.acceptedEvents).length >= PLANNER_LIMITS.events && event.type !== 'cancel') return recordDecision(state, { status: 'exhausted', reason: 'event_limit' });
   const next = structuredClone(state);
-  if (event.type === 'observation') {
+  if (event.type === 'tool_started') {
+    identifier(event.callId);
+    const step = next.steps.find(s => s.key === event.stepKey);
+    if (!step || step.kind !== 'read_tool' || step.scopeKey !== next.scopeKey || next.status !== 'active' || !next.askedKeys.includes(questionKey(next, step)) || hasObservation(next, step) || !prerequisitesSatisfied(next, step)) throw new TypeError('Invalid tool step');
+    next.toolCalls ??= {};
+    if (Object.hasOwn(next.toolCalls, event.callId) || Object.values(next.toolCalls).some(call => call.stepKey === step.key) || Object.keys(next.toolCalls).length >= 2) throw new TypeError('Tool call budget exhausted or duplicate');
+    next.toolCalls[event.callId] = { stepKey: step.key, outcome: 'pending', startedVersion: state.planVersion + 1, basisKey: basisKey(next, step) };
+  } else if (event.type === 'tool_finished') {
+    const call = next.toolCalls?.[event.callId];
+    const step = next.steps.find(s => s.key === event.stepKey);
+    if (!call || call.outcome !== 'pending' || call.stepKey !== event.stepKey || !step || step.scopeKey !== next.scopeKey || next.status !== 'active' || call.startedVersion !== state.planVersion || call.basisKey !== basisKey(next, step)) throw new TypeError('Stale or unreserved tool result');
+    if (!['success', 'failure', 'timeout', 'cancelled', 'empty'].includes(event.outcome)) throw new TypeError('Invalid tool outcome');
+    valueCheck(event.value);
+    if (event.outcome === 'success' && event.value !== 'available') throw new TypeError('Tool success may only record availability');
+    if (event.provenance !== undefined) {
+      if (!event.provenance || typeof event.provenance !== 'object' || Array.isArray(event.provenance) || Object.keys(event.provenance).some(key => !['sourceId', 'entryId', 'sourceStatus'].includes(key))) throw new TypeError('Invalid tool provenance');
+      for (const value of Object.values(event.provenance)) text(value, 120);
+    }
+    call.outcome = event.outcome;
+    next.observations[step.expectedObservation.slot] = { eventId: event.id, stepId: step.id, slot: step.expectedObservation.slot,
+      value: event.outcome === 'success' ? event.value : null, source: 'tool_result', verification: 'unverified', toolName: step.tool, toolCallId: event.callId, toolOutcome: event.outcome, ...(event.provenance ? { toolProvenance: structuredClone(event.provenance) } : {}),
+      scopeKey: next.scopeKey, basisKey: basisKey(next, step) };
+    if (event.outcome !== 'success') { next.budget.noProgress++; next.status = 'paused'; next.stopReason = 'no_progress'; }
+    else { next.status = 'active'; delete next.stopReason; }
+  } else if (event.type === 'observation') {
     if (!['user_report', 'tool_result', 'simulated'].includes(event.source)) throw new TypeError('Unknown observation provenance');
     const step = next.steps.find(s => s.key === event.stepKey);
     if (!step || step.scopeKey !== next.scopeKey) throw new TypeError('Observation refers to an absent or invalidated step');

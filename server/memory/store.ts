@@ -4,8 +4,8 @@ import { randomUUID } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import type { DeviceProfile, MemoryDevice, MemoryMessage, MemoryOverview, MemorySession, SessionDetail, PriorDeviceReport } from '../../shared/memory';
-import type { PlannerState } from '../../agent/planner/types';
-import { canonical, createPlan, identifier, PLANNER_LIMITS, scopeKey } from '../../agent/planner/reducer';
+import type { PlannerEvent, PlannerState } from '../../agent/planner/types';
+import { canonical, createPlan, identifier, PLANNER_LIMITS, reducePlan, scopeKey } from '../../agent/planner/reducer';
 
 import { MemoryError, summarizeReports } from '../../shared/memory-validation';
 export { MemoryError, validId, profileFrom, summarizeReports } from '../../shared/memory-validation';
@@ -54,6 +54,21 @@ function validCheckpoint(value: unknown, sessionId: string, deviceId: string): v
         !state.observations || typeof state.observations !== 'object' || Array.isArray(state.observations) ||
         Object.keys(state.observations).length > PLANNER_LIMITS.steps) return false;
     for (const [id, signature] of Object.entries(state.acceptedEvents)) { identifier(id); if (typeof signature !== 'string' || signature.length > 20000) return false; }
+    if (state.toolCalls !== undefined) {
+      if (!state.toolCalls || typeof state.toolCalls !== 'object' || Array.isArray(state.toolCalls) || Object.keys(state.toolCalls).length > 2) return false;
+      for (const [callId, call] of Object.entries(state.toolCalls)) {
+        identifier(callId);
+        const step = state.steps.find(item => item.key === call.stepKey);
+        if (!step || step.kind !== 'read_tool' || !Number.isSafeInteger(call.startedVersion) || call.startedVersion < 1 || call.startedVersion > state.planVersion ||
+            typeof call.basisKey !== 'string' || call.basisKey.length > 20000 ||
+            !['pending', 'success', 'failure', 'timeout', 'cancelled', 'empty'].includes(call.outcome) ||
+            !Number.isSafeInteger(call.deadlineMs) || call.deadlineMs! < 1) return false;
+        if (call.outcome !== 'pending') {
+          const observation = state.observations[step.expectedObservation.slot];
+          if (!observation || observation.source !== 'tool_result' || observation.verification !== 'unverified' || observation.toolName !== step.tool || observation.toolCallId !== callId || observation.toolOutcome !== call.outcome || (call.outcome === 'success' ? observation.value !== 'available' : observation.value !== null)) return false;
+        }
+      }
+    }
     for (const [slot, observation] of Object.entries(state.observations)) {
       const step = state.steps.find(item => item.expectedObservation.slot === slot);
       if (!step || !observation || observation.stepId !== step.id || observation.slot !== slot || observation.verification !== 'unverified' ||
@@ -62,6 +77,11 @@ function validCheckpoint(value: unknown, sessionId: string, deviceId: string): v
           typeof observation.basisKey !== 'string' || observation.basisKey.length > 20000 ||
           !(observation.value === null || typeof observation.value === 'boolean' || typeof observation.value === 'string' && observation.value.length <= 400 ||
             typeof observation.value === 'number' && Number.isFinite(observation.value))) return false;
+      if (observation.toolProvenance !== undefined) {
+        const provenance = observation.toolProvenance;
+        if (!provenance || typeof provenance !== 'object' || Array.isArray(provenance) || Object.keys(provenance).some(key => !['sourceId', 'entryId', 'sourceStatus'].includes(key)) ||
+            Object.values(provenance).some(value => typeof value !== 'string' || !value.trim() || value.length > 120 || [...value].some(char => char.charCodeAt(0) < 32))) return false;
+      }
       identifier(observation.eventId); if (observation.corrects !== undefined) identifier(observation.corrects);
     }
     return state.audit.every(event => event && typeof event.eventId === 'string' && typeof event.type === 'string' &&
@@ -70,10 +90,19 @@ function validCheckpoint(value: unknown, sessionId: string, deviceId: string): v
   } catch { return false; }
 }
 
+/** Ordinary chat commits cannot mint or rewrite tool results or budget. */
+function sameToolHistory(previous: PlannerState, next: PlannerState): boolean {
+  if (canonical(previous.toolCalls ?? {}) !== canonical(next.toolCalls ?? {})) return false;
+  for (const step of previous.steps.filter(item => item.kind === 'read_tool')) {
+    if (canonical(previous.observations[step.expectedObservation.slot] ?? null) !== canonical(next.observations[step.expectedObservation.slot] ?? null)) return false;
+  }
+  return true;
+}
+
 /** Native SQLite, WAL + transactions. Runtime data must live on a persistent volume. */
 export class MemoryStore {
   private db: DatabaseSync;
-  constructor(filename: string) {
+  constructor(filename: string, private readonly clock: () => number = Date.now) {
     if (filename !== ':memory:') {
       fs.mkdirSync(path.dirname(filename), { recursive: true, mode: 0o700 });
     }
@@ -194,6 +223,49 @@ export class MemoryStore {
     }
     return checkpoint;
   }
+  /** Server-only optimistic commit: reserve before invoking a read tool, then
+   * commit its result against the returned lease. No new table or chat message. */
+  applyPlannerToolEvent(owner: string, lease: {
+    sessionId: string; deviceId: string; episodeId: string; scopeKey: string; planVersion: number; revision: number;
+  }, event: Extract<PlannerEvent, { type: 'tool_started' | 'tool_finished' }> | (PlannerEvent & { type: 'cancel' }), timeoutMs = 1000): { checkpoint: PlannerCheckpoint; revision: number } {
+    return this.transaction(() => {
+      const session = this.session(owner, lease.sessionId);
+      this.checkRevision(session.revision, lease.revision);
+      const checkpoint = this.plannerCheckpoint(owner, lease.sessionId);
+      if (!checkpoint || session.deviceId !== lease.deviceId || checkpoint.deviceId !== lease.deviceId ||
+          checkpoint.state.episodeId !== lease.episodeId || checkpoint.state.scopeKey !== lease.scopeKey ||
+          checkpoint.state.planVersion !== lease.planVersion || event.episodeId !== lease.episodeId) {
+        throw new MemoryError(409, 'memory_conflict', '诊断计划或设备范围已变化，请重新载入');
+      }
+      const norm = (value?: string) => (value ?? '').trim().toUpperCase().replace(/\s+/g, ' ');
+      for (const field of ['machineType', 'brand', 'model'] as const) {
+        if (checkpoint.state.scope[field] && norm(checkpoint.state.scope[field]) !== norm(session.device[field]))
+          throw new MemoryError(409, 'memory_conflict', '设备信息已变化，请重新诊断');
+      }
+      const now = this.clock();
+      if (!Number.isSafeInteger(now) || now < 1) throw new MemoryError(409, 'memory_conflict', '诊断时间无效');
+      if (event.type === 'tool_started' && (!Number.isSafeInteger(timeoutMs) || timeoutMs < 1 || timeoutMs > 2000))
+        throw new MemoryError(400, 'bad_request', '工具时限无效');
+      if (event.type === 'tool_finished') {
+        const call = checkpoint.state.toolCalls?.[event.callId];
+        if (!call || call.deadlineMs === undefined || (now >= call.deadlineMs && event.outcome !== 'timeout' && event.outcome !== 'cancelled'))
+          throw new MemoryError(409, 'memory_conflict', '工具结果已过期');
+      }
+      let state: PlannerState;
+      try { state = reducePlan(checkpoint.state, event); }
+      catch { throw new MemoryError(409, 'memory_conflict', '工具事件重复或诊断计划已变化'); }
+      if (state === checkpoint.state) return { checkpoint, revision: session.revision };
+      if (event.type === 'tool_started') state.toolCalls![event.callId].deadlineMs = now + timeoutMs;
+      const next = { ...checkpoint, state };
+      if (!validCheckpoint(next, session.id, session.deviceId)) throw new MemoryError(409, 'memory_conflict', '诊断计划无法安全保存');
+      const row = this.db.prepare("SELECT sequence, payload FROM memory_messages WHERE session_id = ? AND json_extract(payload, '$.role') = 'assistant' AND json_type(payload, '$._plannerCheckpoint') IS NOT NULL ORDER BY sequence DESC LIMIT 1").get(session.id);
+      if (!row) throw new MemoryError(409, 'memory_conflict', '诊断计划不存在');
+      const message = JSON.parse(String(row.payload)) as StoredMessage;
+      this.db.prepare('UPDATE memory_messages SET payload = ? WHERE session_id = ? AND sequence = ?').run(JSON.stringify({ ...message, _plannerCheckpoint: next }), session.id, row.sequence as number);
+      this.db.prepare('UPDATE memory_sessions SET revision = revision + 1, updated_at = ? WHERE id = ? AND owner = ?').run(new Date(now).toISOString(), session.id, owner);
+      return { checkpoint: next, revision: session.revision + 1 };
+    });
+  }
   /** Resolve a Planner observation to its original user message inside the authorized session. */
   plannerTurnEvidence(owner: string, id: string, eventId: string): Pick<MemoryMessage, 'id' | 'content' | 'createdAt'> | undefined {
     this.session(owner, id);
@@ -224,7 +296,7 @@ export class MemoryStore {
         }
         if (checkpoint && previous && checkpoint.state.episodeId === previous.episodeId &&
             (checkpoint.topicKey !== previousCheckpoint.topicKey || checkpoint.state.planId !== previous.planId || checkpoint.state.planVersion < previous.planVersion ||
-             checkpoint.state.planVersion === previous.planVersion && canonical(checkpoint.state) !== canonical(previous))) {
+             checkpoint.state.planVersion === previous.planVersion && canonical(checkpoint.state) !== canonical(previous) || !sameToolHistory(previous, checkpoint.state))) {
           throw new MemoryError(409, 'memory_conflict', '诊断计划版本无效，请重新载入后继续');
         }
       }

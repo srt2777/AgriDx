@@ -34,15 +34,16 @@ export function decideNextAction(state: PlannerState, context: PlannerContext): 
   const unsafe = applicable.some(step => assessSuggestedAction([step.title, step.expectedObservation.label, ...(step.expectedObservation.options ?? [])].join('。')).restricted);
   if (unsafe) return result('escalated', 'unsafe_step', ['existing_answer_guard_rejected_rule_text']);
   // A question already issued in this prerequisite context waits; don't stream other checks every poll.
-  if (applicable.some(step => state.askedKeys.includes(questionKey(state, step)))) return result('awaiting_user', 'awaiting_feedback', ['request_already_issued']);
+  if (applicable.some(step => step.kind !== 'read_tool' && state.askedKeys.includes(questionKey(state, step)))) return result('awaiting_user', 'awaiting_feedback', ['request_already_issued']);
+  if (applicable.some(step => step.kind === 'read_tool' && state.askedKeys.includes(questionKey(state, step)))) return result('active', undefined, ['tool_in_flight_or_awaiting_dispatch']);
   const ranked = applicable.filter(step => !state.askedKeys.includes(questionKey(state, step)))
     .sort((a, b) => b.discriminationValue - a.discriminationValue || a.cost - b.cost || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
   if (!ranked.length) return result('paused', pending.length ? 'no_evidence' : 'prerequisites_unmet', ['no_eligible_next_step']);
   if (state.budget.issuedActions >= state.budget.maxActions) return result('exhausted', 'action_budget_exhausted', ['proposal_budget_not_execution_count']);
   const step = ranked[0];
-  const text = `请补充已经观察或记录的“${step.expectedObservation.label}”；不要为此试车、拆检或接触危险部件。`;
-  const decision = result('awaiting_user', 'awaiting_feedback', ['safety_and_scope_passed', 'dependencies_satisfied', 'discrimination_then_cost_then_stable_id']);
-  decision.action = { kind: step.kind, stepId: step.id, stepKey: step.key, observationSlot: step.expectedObservation.slot, text, evidenceIds: [...step.evidenceIds] };
+  const text = step.kind === 'read_tool' ? `只读查询：${step.expectedObservation.label}` : `请补充已经观察或记录的“${step.expectedObservation.label}”；不要为此试车、拆检或接触危险部件。`;
+  const decision = result(step.kind === 'read_tool' ? 'active' : 'awaiting_user', step.kind === 'read_tool' ? undefined : 'awaiting_feedback', ['safety_and_scope_passed', 'dependencies_satisfied', 'discrimination_then_cost_then_stable_id']);
+  decision.action = { kind: step.kind, stepId: step.id, stepKey: step.key, observationSlot: step.expectedObservation.slot, ...(step.kind === 'read_tool' ? { tool: step.tool } : {}), text, evidenceIds: [...step.evidenceIds] };
   if (step.kind === 'ask_user') decision.questions = [{ text, ...(step.expectedObservation.options ? { options: [...step.expectedObservation.options] } : {}) }];
   return decision;
 }
