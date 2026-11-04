@@ -68,11 +68,11 @@ test('history validates scope, source, ordering, range, window and capacity befo
 test('hook channel selection scopes model and part together, bounds multi-channel views and never borrows a foreign device', () => {
   assert.deepEqual(selectTelemetryChannels(null, {}), []); assert.deepEqual(selectTelemetryChannels(catalog, {}), []);
   const engine = selectTelemetryChannels(catalog, { modelId: 'diesel', partId: 'engine' });
-  assert.equal(engine.length, 3); assert.ok(engine.every(item => item.deviceId === 'diesel-demo' && item.partId === 'engine'));
+  assert.equal(engine.length, 4); assert.ok(engine.every(item => item.deviceId === 'diesel-demo' && item.partId === 'engine'));
   const ambiguous = structuredClone(catalog);
   ambiguous.channels.push({ ...catalog.channels.find(item => item.partId === 'battery_box')!, id: 'foreign.battery', deviceId: 'diesel-demo' });
   const battery = selectTelemetryChannels(ambiguous, { modelId: 't70', partId: 'battery_box' });
-  assert.equal(battery.length, 3); assert.ok(battery.every(item => item.deviceId === 't70-demo'));
+  assert.equal(battery.length, 4); assert.ok(battery.every(item => item.deviceId === 't70-demo'));
   assert.equal(selectTelemetryChannels(ambiguous, { modelId: 't70', channelIds: ['foreign.battery'] }).length, 0);
   assert.equal(selectTelemetryChannels(catalog, { channelIds: catalog.channels.map(item => item.id) }).length, 4);
 });
