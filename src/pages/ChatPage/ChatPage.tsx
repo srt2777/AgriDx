@@ -312,8 +312,10 @@ export default function ChatPage() {
                   ? <ThinkingOrbs state="listening" label={t('待命', 'Listening')} />
                   : <span className="flex h-14 w-14 items-center justify-center rounded-full bg-primary/10 text-primary"><Sparkles className="h-7 w-7" /></span>}
               </div>
-              <h2 className="font-serif text-xl font-bold text-foreground">{version === 'new' ? t('从描述故障开始', 'Start with the symptom') : t('描述故障现象', 'Describe the fault')}</h2>
-              <p className="mt-2 max-w-md text-sm text-muted-foreground">{version === 'new' ? t('可以先选择机型，也可以直接提问。', 'Choose a machine or ask a question directly.') : t('可填写品牌、型号和发生工况。', 'Include the brand, model and operating conditions.')}</p>
+              <h2 className="font-serif text-xl font-bold text-foreground">{pick(content.CHAT_WELCOME.title, lang)}</h2>
+              <p className="mt-2 max-w-md text-sm text-muted-foreground">{pick(content.CHAT_WELCOME.desc, lang)}</p>
+              <p className="mt-4 text-sm font-medium text-foreground">{version === 'new' ? t('从描述故障开始', 'Start with the symptom') : t('描述故障现象', 'Describe the fault')}</p>
+              <p className="mt-1 max-w-md text-sm text-muted-foreground">{version === 'new' ? t('可以先选择机型，也可以直接提问。', 'Choose a machine or ask a question directly.') : t('可填写品牌、型号和发生工况。', 'Include the brand, model and operating conditions.')}</p>
 
 
               {/* 快捷提问按钮 */}
@@ -346,6 +348,9 @@ export default function ChatPage() {
                 <div className="mr-2 mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
                   <Bot className="h-4 w-4" />
                 </div>
+              )}
+              {msg.role === 'assistant' && (
+                <span className="mr-2 mt-1 max-w-12 shrink-0 truncate text-xs font-medium text-muted-foreground">{t('司稼', 'Sijia')}</span>
               )}
               <div
                 className={`min-w-0 break-words ${msg.role === 'user' ? 'max-w-[85%] md:max-w-[75%]' : 'w-full'} rounded-2xl px-4 py-3 text-sm leading-relaxed ${

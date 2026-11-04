@@ -8,6 +8,8 @@ import { WORLD_ZONES, pavilionDestination } from '../src/pages/ExhibitionPage/wo
 test('hall and all three features share the same destination order and current section', () => {
   assert.deepEqual(MODERN_DESTINATIONS.map(item => item.path), ['/', '/knowledge', '/chat', '/models']);
   assert.deepEqual(COMMAND_ROUTES.slice(0, 4).map(item => item.path), MODERN_DESTINATIONS.map(item => item.path));
+  assert.equal(MODERN_DESTINATIONS.find(item => item.path === '/chat')?.zh, '司稼 · 智能诊断');
+  assert.equal(MODERN_DESTINATIONS.find(item => item.path === '/chat')?.en, 'Sijia · Diagnosis');
   for (const zone of WORLD_ZONES) {
     const destination = pavilionDestination(zone.id);
     const item = MODERN_DESTINATIONS.find(item => item.path === destination.path)!;
