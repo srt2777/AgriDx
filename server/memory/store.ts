@@ -3,7 +3,16 @@ import { DatabaseSync } from 'node:sqlite';
 import { randomUUID } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
-import type { DeviceProfile, MemoryDevice, MemoryMessage, MemoryOverview, MemorySession, SessionDetail, PriorDeviceReport } from '../../shared/memory';
+import type { DeviceProfile, LongTermEntry, LongTermKind, LongTermStatus, MemoryDevice, MemoryMessage, MemoryOverview, MemorySession, SessionDetail, PriorDeviceReport } from '../../shared/memory';
+
+/** Long-term promotion rules (see docs/design/long-term-memory-promotion-20261105.md). */
+export const LONG_TERM_PROMOTION_SESSIONS = 2;
+export const LONG_TERM_MAX_PER_DEVICE = 50;
+export const LONG_TERM_CANDIDATE_TTL_DAYS = 90;
+export const LONG_TERM_PROMOTED_STALE_DAYS = 180;
+export const LONG_TERM_PROMPT_MAX = 5;
+export const LONG_TERM_DEMOTE_REASONS = ['outdated', 'conflict', 'corrected', 'other'] as const;
+export type LongTermDemoteReason = (typeof LONG_TERM_DEMOTE_REASONS)[number];
 import type { PlannerState } from '../../agent/planner/types';
 import { canonical, createPlan, identifier, PLANNER_LIMITS, scopeKey } from '../../agent/planner/reducer';
 
@@ -98,6 +107,12 @@ export class MemoryStore {
         payload TEXT NOT NULL
       );
       CREATE INDEX IF NOT EXISTS memory_messages_session ON memory_messages(session_id, sequence);
+      CREATE TABLE IF NOT EXISTS memory_long_term (
+        id TEXT PRIMARY KEY, owner TEXT NOT NULL, device_id TEXT NOT NULL REFERENCES memory_devices(id) ON DELETE CASCADE,
+        kind TEXT NOT NULL, content TEXT NOT NULL, status TEXT NOT NULL, evidence_sessions TEXT NOT NULL DEFAULT '[]',
+        reason TEXT NOT NULL DEFAULT '', superseded_by TEXT, created_at TEXT NOT NULL, updated_at TEXT NOT NULL, last_confirmed_at TEXT NOT NULL
+      );
+      CREATE INDEX IF NOT EXISTS memory_long_term_device ON memory_long_term(owner, device_id, updated_at);
     `);
     if (filename !== ':memory:') fs.chmodSync(filename, 0o600);
   }
@@ -135,6 +150,9 @@ export class MemoryStore {
       if (previous && ['machineType', 'brand', 'model'].some((field) => previous[field as keyof DeviceProfile] !== profile[field as keyof DeviceProfile])) {
         // Do not save an answer prepared for the old machine after a plate correction.
         this.db.prepare('UPDATE memory_sessions SET revision = revision + 1 WHERE owner = ? AND device_id = ?').run(owner, device.id);
+        // Old-machine long-term facts may no longer apply: demote them conservatively (R9).
+        this.db.prepare("UPDATE memory_long_term SET status = 'stale', reason = 'device_identity_changed', updated_at = ? WHERE owner = ? AND device_id = ? AND status = 'promoted'")
+          .run(device.updatedAt, owner, device.id);
       }
       return device;
     });
@@ -178,6 +196,98 @@ export class MemoryStore {
       const text = `${report.question} ${report.progress}`.toLowerCase();
       return { report, score: [...terms].filter((t) => text.includes(t)).length };
     }).filter((candidate) => candidate.score > 0).sort((a, b) => b.score - a.score).slice(0, 3).map((candidate) => candidate.report);
+  }
+  private longTermRow(row: Record<string, unknown>): LongTermEntry {
+    let evidence: string[] = [];
+    try { const parsed: unknown = JSON.parse(String(row.evidence_sessions)); if (Array.isArray(parsed)) evidence = parsed.filter((s): s is string => typeof s === 'string'); } catch { evidence = []; }
+    return { id: String(row.id), deviceId: String(row.device_id), kind: String(row.kind) as LongTermKind, content: String(row.content),
+      source: 'user_reported', status: String(row.status) as LongTermStatus, confirmations: evidence.length, evidenceSessions: evidence,
+      reason: String(row.reason || ''), supersededBy: row.superseded_by === null || row.superseded_by === undefined ? null : String(row.superseded_by),
+      createdAt: String(row.created_at), updatedAt: String(row.updated_at), lastConfirmedAt: String(row.last_confirmed_at) };
+  }
+  private longTermEntry(owner: string, deviceId: string, entryId: string): LongTermEntry {
+    this.device(owner, deviceId);
+    const row = this.db.prepare('SELECT * FROM memory_long_term WHERE id = ? AND owner = ? AND device_id = ?').get(entryId, owner, deviceId);
+    if (!row) throw new MemoryError(404, 'memory_not_found', '长期记忆条目不存在');
+    return this.longTermRow(row);
+  }
+  /** All long-term entries for one device, newest first. Never filtered by status here; the prompt filters to promoted only. */
+  longTerm(owner: string, deviceId: string): LongTermEntry[] {
+    this.device(owner, deviceId);
+    return this.db.prepare('SELECT * FROM memory_long_term WHERE owner = ? AND device_id = ? ORDER BY updated_at DESC').all(owner, deviceId).map((r) => this.longTermRow(r));
+  }
+  /**
+   * Record one user-reported observation. First sighting creates a candidate;
+   * a second distinct session promotes it. Same-session repeats are idempotent
+   * and never promote. `now` is a test seam only; routes always use real time.
+   */
+  recordLongTermObservation(owner: string, deviceId: string, sessionId: string, kind: string, rawContent: string,
+    options: { supersedesId?: string; now?: string } = {}): LongTermEntry {
+    return this.transaction(() => {
+      const session = this.session(owner, sessionId);
+      if (session.deviceId !== deviceId) throw new MemoryError(404, 'memory_not_found', '设备或诊断记录不存在');
+      if (kind !== 'device_fact' && kind !== 'fault_pattern') throw new MemoryError(400, 'bad_request', '长期记忆种类无效');
+      const content = rawContent.trim().replace(/\s+/g, ' ');
+      if (content.length < 4 || content.length > 1000) throw new MemoryError(400, 'bad_request', '长期记忆内容须为 4–1000 字符');
+      const now = options.now || new Date().toISOString();
+      let superseded: LongTermEntry | undefined;
+      if (options.supersedesId) {
+        superseded = this.longTermEntry(owner, deviceId, options.supersedesId);
+        if (superseded.status !== 'candidate' && superseded.status !== 'promoted') {
+          throw new MemoryError(409, 'memory_conflict', '被取代的长期记忆条目已不在有效状态');
+        }
+      }
+      const existing = this.db.prepare('SELECT * FROM memory_long_term WHERE owner = ? AND device_id = ? AND kind = ? AND content = ? AND status IN (?, ?) ORDER BY created_at')
+        .get(owner, deviceId, kind, content, 'candidate', 'promoted');
+      if (existing) {
+        const entry = this.longTermRow(existing);
+        if (entry.evidenceSessions.includes(sessionId)) return entry;
+        const evidence = [...entry.evidenceSessions, sessionId];
+        const status: LongTermStatus = evidence.length >= LONG_TERM_PROMOTION_SESSIONS ? 'promoted' : 'candidate';
+        this.db.prepare('UPDATE memory_long_term SET status = ?, evidence_sessions = ?, updated_at = ?, last_confirmed_at = ? WHERE id = ?')
+          .run(status, JSON.stringify(evidence), now, now, entry.id);
+        return this.longTermEntry(owner, deviceId, entry.id);
+      }
+      const active = this.db.prepare("SELECT COUNT(*) AS n FROM memory_long_term WHERE owner = ? AND device_id = ? AND status IN ('candidate', 'promoted')").get(owner, deviceId) as { n: number };
+      if (active.n >= LONG_TERM_MAX_PER_DEVICE) throw new MemoryError(409, 'memory_limit', '该设备长期记忆已达上限，请先降级不再需要的条目');
+      const id = randomUUID();
+      this.db.prepare(`INSERT INTO memory_long_term(id, owner, device_id, kind, content, status, evidence_sessions, reason, superseded_by, created_at, updated_at, last_confirmed_at)
+        VALUES(?, ?, ?, ?, ?, 'candidate', ?, '', NULL, ?, ?, ?)`).run(id, owner, deviceId, kind, content, JSON.stringify([sessionId]), now, now, now);
+      if (superseded) {
+        this.db.prepare("UPDATE memory_long_term SET status = 'superseded', reason = 'superseded', superseded_by = ?, updated_at = ? WHERE id = ?")
+          .run(id, now, superseded.id);
+      }
+      return this.longTermEntry(owner, deviceId, id);
+    });
+  }
+  /** Explicit demotion: a promoted or candidate entry stops entering the prompt. */
+  demoteLongTerm(owner: string, deviceId: string, entryId: string, reason: string): LongTermEntry {
+    if (!(LONG_TERM_DEMOTE_REASONS as readonly string[]).includes(reason)) throw new MemoryError(400, 'bad_request', '降级原因无效');
+    return this.transaction(() => {
+      const entry = this.longTermEntry(owner, deviceId, entryId);
+      if (entry.status !== 'candidate' && entry.status !== 'promoted') throw new MemoryError(409, 'memory_conflict', '该长期记忆条目已不在有效状态');
+      this.db.prepare("UPDATE memory_long_term SET status = 'demoted', reason = ?, updated_at = ? WHERE id = ?").run(reason, new Date().toISOString(), entry.id);
+      return this.longTermEntry(owner, deviceId, entry.id);
+    });
+  }
+  /** Explicit expiry pass (R7): stale-promoted demotion and unpromoted-candidate removal. Not run implicitly on read. */
+  pruneLongTerm(owner: string, deviceId: string, now = new Date().toISOString()): { demoted: number; dropped: number } {
+    this.device(owner, deviceId);
+    const nowMs = Date.parse(now);
+    if (!Number.isFinite(nowMs)) throw new MemoryError(400, 'bad_request', '时间无效');
+    const day = 24 * 3600 * 1000;
+    return this.transaction(() => {
+      const entries = this.longTerm(owner, deviceId);
+      let demoted = 0, dropped = 0;
+      for (const entry of entries) {
+        if (entry.status === 'promoted' && nowMs - Date.parse(entry.lastConfirmedAt) >= LONG_TERM_PROMOTED_STALE_DAYS * day) {
+          this.db.prepare("UPDATE memory_long_term SET status = 'stale', reason = 'expired', updated_at = ? WHERE id = ?").run(now, entry.id); demoted++;
+        } else if (entry.status === 'candidate' && nowMs - Date.parse(entry.createdAt) >= LONG_TERM_CANDIDATE_TTL_DAYS * day) {
+          this.db.prepare('DELETE FROM memory_long_term WHERE id = ?').run(entry.id); dropped++;
+        }
+      }
+      return { demoted, dropped };
+    });
   }
   private checkRevision(actual: number, expected: number) {
     if (actual !== expected) throw new MemoryError(409, 'memory_conflict', '诊断记录已更新，请重新载入后继续');

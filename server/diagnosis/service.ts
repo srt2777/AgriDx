@@ -1,6 +1,6 @@
 import type { ChatResponse, DiagnosisTrace } from '../../shared/chat';
 import type { DiagnosisCandidateAssessment } from '../../shared/diagnosis';
-import type { SessionDetail, PriorDeviceReport } from '../../shared/memory';
+import type { LongTermEntry, SessionDetail, PriorDeviceReport } from '../../shared/memory';
 import { resolveDiagnosticContext } from '../knowledge/conversation';
 import { buildSystemPrompt } from '../knowledge/systemPrompt';
 import { buildDiagnosticReply, renderDiagnosticReply } from './reply';
@@ -23,6 +23,8 @@ import { buildContextRegistry } from '../../agent/context-tools';
 export interface DiagnosticMemory {
   session: SessionDetail;
   priorReports: PriorDeviceReport[];
+  /** Promoted long-term entries only reach the prompt via memoryPrompt (R11). */
+  longTerm?: LongTermEntry[];
   plannerCheckpoint?: PlannerCheckpoint;
   /** Only an owner-bound host with atomic checkpoint persistence enables Planner. */
   plannerSessionSeed?: string;
@@ -310,7 +312,7 @@ export function createDiagnosticService(llm: DiagnosticProvider, dependencies: D
         candidate.modelMatch === 'exact' && candidate.sourceIndexed && candidate.referenceVerification === 'verified'));
     systemMessage.content += '\n本次回答路径为AI补充：来源核验仅指文献核对，未实车验证。待核验、适用性待确认或未提供发动机/故障码适配元数据的资料只能作参考；不能作为本机操作或故障码含义的依据。历史回答和用户检查报告也不是手册证据。';
     if (planner?.questions?.length) systemMessage.content += '\n本轮追问由本地诊断计划提供，请专注解释和安全分析，不要再提出额外问题。';
-    if (memory) systemMessage.content += memoryPrompt(memory.session, memory.priorReports);
+    if (memory) systemMessage.content += memoryPrompt(memory.session, memory.priorReports, memory.longTerm);
     trace.contextChars = formatForPrompt(promptChunks, config.contextMaxChars).length;
     trace.sentKnowledgeIds = promptChunks.flatMap(chunk => chunk.entryId ? [chunk.entryId] : []);
     const trustedEvidenceIds = promptChunks.flatMap(chunk => chunk.entryId && !chunk.retrieval?.referenceOnly &&

@@ -52,6 +52,18 @@ memoryRouter.get('/', route((_req, res, owner) => res.json(store().overview(owne
 memoryRouter.post('/devices', route((req, res, owner) => res.status(201).json(store().saveDevice(owner, profileFrom(req.body)))));
 memoryRouter.patch('/devices/:id', route((req, res, owner) => res.json(store().saveDevice(owner, profileFrom(req.body), id(req.params.id)))));
 memoryRouter.delete('/devices/:id', route((req, res, owner) => { store().deleteDevice(owner, id(req.params.id)); res.json({ ok: true }); }));
+memoryRouter.get('/devices/:id/long-term', route((req, res, owner) => res.json(store().longTerm(owner, id(req.params.id)))));
+memoryRouter.post('/devices/:id/long-term', route((req, res, owner) => {
+  if (typeof req.body?.content !== 'string' || typeof req.body?.kind !== 'string' || typeof req.body?.sessionId !== 'string' ||
+      (req.body.supersedesId !== undefined && typeof req.body.supersedesId !== 'string')) throw new MemoryError(400, 'bad_request', '长期记忆记录格式错误');
+  res.status(201).json(store().recordLongTermObservation(owner, id(req.params.id), id(req.body.sessionId), req.body.kind, req.body.content,
+    req.body.supersedesId ? { supersedesId: id(req.body.supersedesId) } : {}));
+}));
+memoryRouter.post('/devices/:id/long-term/prune', route((req, res, owner) => res.json(store().pruneLongTerm(owner, id(req.params.id)))));
+memoryRouter.post('/devices/:id/long-term/:entryId/demote', route((req, res, owner) => {
+  if (typeof req.body?.reason !== 'string') throw new MemoryError(400, 'bad_request', '降级原因格式错误');
+  res.json(store().demoteLongTerm(owner, id(req.params.id), id(req.params.entryId), req.body.reason));
+}));
 memoryRouter.post('/sessions', route((req, res, owner) => res.status(201).json(store().createSession(owner, id(req.body?.deviceId)))));
 memoryRouter.get('/sessions/:id', route((req, res, owner) => res.json(store().session(owner, id(req.params.id)))));
 memoryRouter.patch('/sessions/:id', route((req, res, owner) => {
