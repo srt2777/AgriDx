@@ -5,11 +5,13 @@ import { MODERN_DESTINATIONS, modernLocation } from '../src/lib/modern-navigatio
 import { COMMAND_ROUTES } from '../src/lib/command-routes';
 import { WORLD_ZONES, pavilionDestination } from '../src/pages/ExhibitionPage/world-navigation';
 
-test('hall and all three features share the same destination order and current section', () => {
-  assert.deepEqual(MODERN_DESTINATIONS.map(item => item.path), ['/', '/knowledge', '/chat', '/models']);
-  assert.deepEqual(COMMAND_ROUTES.slice(0, 4).map(item => item.path), MODERN_DESTINATIONS.map(item => item.path));
+test('hall and all four features share the same destination order and current section', () => {
+  assert.deepEqual(MODERN_DESTINATIONS.map(item => item.path), ['/', '/knowledge', '/chat', '/models', '/fault-detection']);
+  assert.deepEqual(COMMAND_ROUTES.slice(0, 5).map(item => item.path), MODERN_DESTINATIONS.map(item => item.path));
   assert.equal(MODERN_DESTINATIONS.find(item => item.path === '/chat')?.zh, '司稼 · 智能诊断');
   assert.equal(MODERN_DESTINATIONS.find(item => item.path === '/chat')?.en, 'Sijia · Diagnosis');
+  assert.equal(MODERN_DESTINATIONS.find(item => item.path === '/fault-detection')?.zh, '故障检测演示');
+  assert.equal(MODERN_DESTINATIONS.find(item => item.path === '/fault-detection')?.en, 'Fault detection demo');
   for (const zone of WORLD_ZONES) {
     const destination = pavilionDestination(zone.id);
     const item = MODERN_DESTINATIONS.find(item => item.path === destination.path)!;
@@ -23,9 +25,15 @@ test('hall and all three features share the same destination order and current s
   assert.deepEqual(modernLocation('/hall').breadcrumbs.map(item => item.path), ['/']);
   assert.equal(modernLocation('/knowledge?collection=archive').sectionPath, '/knowledge');
 });
-test('model child pages retain the model navigation and expose a usable parent path', () => {
-  assert.equal(modernLocation('/fault-detection').sectionPath, '/models');
-  assert.deepEqual(modernLocation('/fault-detection').breadcrumbs.map(item => item.path), ['/', '/models', '/fault-detection']);
+test('fault detection is a top-level modern destination with its own route and nav icon', () => {
+  assert.equal(modernLocation('/fault-detection').sectionPath, '/fault-detection');
+  assert.deepEqual(modernLocation('/fault-detection').breadcrumbs.map(item => item.path), ['/', '/fault-detection']);
+  const app = readFileSync('src/app.tsx', 'utf8');
+  assert.match(app, /path="fault-detection"/);
+  const shell = readFileSync('src/components/NewVersionShell.tsx', 'utf8');
+  assert.match(shell, /'\/fault-detection': Activity/);
+});
+test('other child pages retain their parent navigation and expose a usable parent path', () => {
   assert.equal(modernLocation('/version-history').breadcrumbs.at(-1)?.zh, '更新记录');
   assert.notEqual(modernLocation('/unknown').breadcrumbs.at(-1)?.zh, '智能诊断');
 });
