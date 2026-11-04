@@ -58,10 +58,15 @@ export class PreviewMemoryStore {
       if (/^[a-z]/.test(token)) terms.add(token);
       else for (let i = 0; i < token.length - 1; i++) if (!stop.has(token.slice(i, i + 2))) terms.add(token.slice(i, i + 2));
     }
+    // Same recall hardening as the server store: a single shared bigram
+    // must not surface another session's report, so multi-term queries
+    // need at least two distinct term matches. Reports stay user-reported
+    // and unverified; this is not long-term learning.
+    const minScore = terms.size >= 2 ? 2 : 1;
     return state.sessions.filter(s => s.deviceId === deviceId && s.id !== excluded && s.progress).slice(0, 20)
       .map(s => ({ report: { sessionId: s.id, updatedAt: s.updatedAt, question: s.messages.find(m => m.role === 'user')?.content.slice(0, 400) || '', progress: s.progress.slice(0, 800) },
         score: [...terms].filter(term => `${s.messages.find(m => m.role === 'user')?.content || ''} ${s.progress}`.toLowerCase().includes(term)).length }))
-      .filter(item => item.score > 0).sort((a, b) => b.score - a.score).slice(0, 3).map(item => item.report);
+      .filter(item => item.score >= minScore).sort((a, b) => b.score - a.score).slice(0, 3).map(item => item.report);
   }
   appendTurn(id: string, expected: number, user: string, assistant: Omit<MemoryMessage, 'id' | 'role' | 'createdAt'>,
     imported: { role: 'user' | 'assistant'; content: string }[]): MemorySession {
