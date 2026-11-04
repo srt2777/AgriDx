@@ -43,6 +43,10 @@ npm.cmd run check:version
 
 4.x 按用户要求归并编号，旧记录和批次分别保存在 `docs/changelog/4.x-original.md` 与 `docs/changelog/4.x-original-batches.json`；其他历史节不改写。旧编号可能与新编号相同但内容不同，引用时必须附日期和提交。本项目 4.x 自定义编号不严格符合 SemVer 的新增功能升次版本约定。`npm run check:version`（含于 `verify`）检查最新版本的批次 ID 和更新类型，对缺失的验证及部署内容给出警告；`--release` 将内容要求作为门槛。部署状态如实写“未部署”或实际结果。PR 描述按 `.github/pull_request_template.md` 填写。
 
+## 界面版本
+
+自 2026-11-04 起，新版和旧版界面分别使用独立编号，初始为 **NV1.0** 和 **OV1.0**，当前值统一维护在 `src/lib/ui-versions.ts`。后续仅在对应界面更新时按其实际改动独立递进；共同界面改动可分别更新两者。界面编号不替代项目构建版本，也不改变项目版本、知识库版本及其他既有版本的规则。原项目历史和部署证据不改写。
+
 ## 知识库版本
 
 知识库另有独立版本 `kb_version`（`YYYY.MM.N`，与项目 SemVer 分开），记录在 `知识库/整理后的知识库/农用拖拉机知识库/kb-version.json`，附内容哈希与计数。知识条目、来源、层级、通识索引或整理 Markdown 变化时，运行 `node scripts/kb-version.mjs --bump`；`verify` 发现哈希变了而版本未升会失败。项目补丁号仍按上表照常递增。

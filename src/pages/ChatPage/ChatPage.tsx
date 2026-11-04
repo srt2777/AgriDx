@@ -1,3 +1,4 @@
+import { EvidenceReview } from './EvidenceReview';
 import { useUiCopy } from '@/ui/useUiCopy';
 import type { DiagnosisMode } from '../../../shared/diagnosis';
 import { useRef, useEffect, useCallback, useState, type FormEvent, type KeyboardEvent } from 'react';
@@ -42,7 +43,7 @@ export default function ChatPage() {
   const handoff: unknown = location.state;
   const lang = useLang();
   const version = useUiVersion();
-  const { t, format, separator } = useUiCopy(lang);
+  const { t } = useUiCopy(lang);
   const providerLabel = (provider?: ChatProvider) =>
     provider === 'knowledge-base' ? t('本地知识库', 'Local knowledge base') :
     provider === 'gemini' ? 'Gemini' : provider === 'deepseek' ? 'DeepSeek' : provider === 'openai' ? 'OpenAI compatible' : '';
@@ -95,14 +96,20 @@ export default function ChatPage() {
   const lastMessageRef = useRef<HTMLDivElement>(null);
   const previousLastMessage = useRef<Pick<ChatMessage, 'id' | 'role'> | undefined>(undefined);
   const followThread = useRef(true);
-  const [contextOpen, setContextOpen] = useState(() => version === 'old' && typeof window !== 'undefined' && window.matchMedia('(min-width: 1101px)').matches);
+  // The classic immersive context panel starts closed on every viewport: it
+  // overlays the thread instead of pushing messages down, so it is never a
+  // resident row. The new-version panel also started closed.
+  const [contextOpen, setContextOpen] = useState(false);
   const contextTriggerRef = useRef<HTMLButtonElement>(null);
   const contextPanelRef = useRef<HTMLElement>(null);
   const settingsRef = useRef<HTMLDetailsElement>(null);
   const extrasRef = useRef<HTMLDetailsElement>(null);
 
   useEffect(() => {
-    if (version !== 'new') return;
+    // Shared by both versions: the new-version settings/extras details only
+    // exist there (their refs stay null in the classic UI), while the
+    // context panel exists in both, so outside-click and Escape handling
+    // must also run for the classic floating panel.
     const onPointerDown = (event: PointerEvent) => {
       const target = event.target as Node;
       if (settingsRef.current?.open && !settingsRef.current.contains(target)) settingsRef.current.open = false;
@@ -184,8 +191,6 @@ export default function ChatPage() {
   const isEmpty = messages.length === 0;
   const composedLength = composeDiagnosticQuestion(input, attachment).length;
   const plate = [machineType, brand, model].filter(Boolean).join(' · ');
-  const topic = messages.filter(message => message.role === 'assistant').at(-1)?.diagnosticReply?.topic
-    || messages.filter(message => message.role === 'user').at(-1)?.content.split('\n')[0] || input.trim().split('\n')[0];
   const typeOptions = lang === 'zh' ? MACHINE_TYPES_ZH : MACHINE_TYPES_EN;
   const serviceStatus = currentFallbackReason === 'provider_unavailable'
     ? t('本地知识库 · LLM 暂不可用', 'Local KB · LLM temporarily unavailable')
@@ -262,7 +267,7 @@ export default function ChatPage() {
             <Bot className="h-4 w-4" />
           </div>
           <div className="min-w-0">
-            <div className="truncate text-sm font-semibold text-foreground">{format('耕知·耘诊')}{separator}{t('诊断工作台', 'Diagnosis workspace')}</div>
+            <div className="truncate text-sm font-semibold text-foreground">{t('司稼 · 拖拉机智能运维智能体', 'Sijia · Tractor Intelligent O&M Agent')}</div>
             <div className="flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground" role="status">
               <span title={configurationHint}>{serviceStatus}</span>
             </div>
@@ -270,7 +275,7 @@ export default function ChatPage() {
         </div>
         {clearControl}
       </LiquidGlass> : <div className="chat-toolbar">
-        <strong className="chat-toolbar-title" data-shared-target="diagnosis">{t('智能诊断', 'Diagnosis')}</strong>
+        <strong className="chat-toolbar-title" data-shared-target="diagnosis">{t('司稼 · 拖拉机智能运维智能体', 'Sijia · Tractor Intelligent O&M Agent')}</strong>
         <div className="chat-toolbar-actions">
           <Button ref={contextTriggerRef} type="button" variant="ghost" size="sm" className="chat-machine-trigger" aria-label={`${t('机型与记录', 'Machine and history')}: ${[machineType, brand, model].filter(Boolean).join(' ') || t('选择机型', 'Choose machine')}`} aria-expanded={contextOpen} aria-controls="chat-machine-context" onClick={() => setContextOpen(open => !open)}>
             <Settings2 className="h-4 w-4" aria-hidden="true" /><span>{[machineType, brand, model].filter(Boolean).join(' ') || t('选择机型', 'Choose machine')}</span>
@@ -287,22 +292,33 @@ export default function ChatPage() {
         </div>
       </div>}
 
-      {version === 'old' && <>
-        <div className="flex items-center gap-2 border-b border-border/60 px-4 py-2 text-xs">{modeControl}</div>
-        <div className="flex flex-wrap items-start gap-2 border-b border-border/60 px-4 py-2 text-xs">{telemetryControl}</div>
-      </>}
-      {version === 'old' && <div className="chat-current-context">
-        <div className="min-w-0"><p className="truncate font-medium">{plate || t('尚未指定车型 · 可先描述现象', 'No model specified · describe the symptom first')}</p>{topic && <p className="truncate text-muted-foreground">{t('当前问题：', 'Current topic: ')}{topic.slice(0, 100)}</p>}</div>
-        <div className="chat-context-actions">
-          <Button type="button" variant="ghost" size="sm" className="shrink-0 gap-1" aria-expanded={contextOpen} aria-controls="chat-machine-context" onClick={() => setContextOpen(open => !open)}><Settings2 className="h-4 w-4" />{t('车型与记录', 'Machine & history')}</Button>
-        </div>
+      {/* Classic compact header: the three resident rows above (answer-mode row,
+          telemetry row and current-model bar) were removed. Their controls now
+          live only in the floating bar below and in its overlay panel, so the
+          message list keeps the freed height. Nothing is deleted: modeControl,
+          telemetryControl and MachineContext are rendered verbatim below. */}
+      <div className={version === 'new' ? `chat-workspace${contextOpen ? '' : ' is-context-closed'}` : 'relative flex min-h-0 flex-1 flex-col'}>
+      {version === 'old' && <div className="old-chat-compact-bar">
+        <span className="old-chat-compact-plate" title={plate || t('尚未指定车型 · 可先描述现象', 'No model specified · describe the symptom first')}>{plate || t('尚未指定车型 · 可先描述现象', 'No model specified · describe the symptom first')}</span>
+        <label className="old-chat-compact-mode">
+          <span className="sr-only">{t('回答模式', 'Answer mode')}</span>
+          <select id="diagnosis-mode-compact" aria-label={t('回答模式', 'Answer mode')} value={diagnosisMode} disabled={isLoading || memory.busy} onChange={e => setDiagnosisMode(e.target.value as DiagnosisMode)}>
+            <option value="auto">{t('自动协调', 'Automatic')}</option>
+            <option value="knowledge_only">{t('仅本地知识库', 'Local knowledge only')}</option>
+            <option value="ai_assisted" disabled={typeof llmHealth !== 'object' || !llmHealth.configured || llmHealth.allowExternalAi === false}>{t('AI 辅助分析', 'AI-assisted analysis')}</option>
+          </select>
+        </label>
+        <Button ref={contextTriggerRef} type="button" variant="ghost" size="sm" className="old-chat-compact-trigger shrink-0 gap-1" aria-label={`${t('机型与记录', 'Machine and history')}: ${[machineType, brand, model].filter(Boolean).join(' ') || t('选择机型', 'Choose machine')}`} aria-expanded={contextOpen} aria-controls="chat-machine-context" onClick={() => setContextOpen(open => !open)}><Settings2 className="h-4 w-4" /><span className="old-chat-compact-trigger-label">{t('机型与记录', 'Machine & history')}</span></Button>
       </div>}
-      <div className={version === 'new' ? `chat-workspace${contextOpen ? '' : ' is-context-closed'}` : 'flex min-h-0 flex-1 flex-col'}>
+      {version === 'old' && contextOpen && <aside ref={contextPanelRef} id="chat-machine-context" className="old-chat-compact-panel" aria-label={t('机型与记录', 'Machine and history')}>
+        <div className="old-chat-compact-panel-section">{modeControl}</div>
+        <div className="old-chat-compact-panel-section">{telemetryControl}</div>
+        <MachineContext framed onClose={() => { setContextOpen(false); contextTriggerRef.current?.focus(); }} {...contextProps} />
+      </aside>}
       <div className={version === 'new' ? 'chat-thread' : 'contents'}>
       {/* 消息列表 */}
       <div ref={threadRef} onScroll={() => { const node = threadRef.current; if (node) followThread.current = node.scrollHeight - node.scrollTop - node.clientHeight < 100; }} className="min-h-0 flex-1 overflow-y-auto" role="log" aria-label={t('诊断对话', 'Diagnosis conversation')} aria-live="polite">
         <div className="chat-message-list mx-auto max-w-3xl px-4 py-6 md:px-6">
-              {version !== 'new' && contextOpen && <div id="chat-machine-context"><MachineContext framed {...contextProps} /></div>}
 
           {/* 空状态 / 欢迎态 */}
           {isEmpty && (
@@ -312,8 +328,10 @@ export default function ChatPage() {
                   ? <ThinkingOrbs state="listening" label={t('待命', 'Listening')} />
                   : <span className="flex h-14 w-14 items-center justify-center rounded-full bg-primary/10 text-primary"><Sparkles className="h-7 w-7" /></span>}
               </div>
-              <h2 className="font-serif text-xl font-bold text-foreground">{version === 'new' ? t('从描述故障开始', 'Start with the symptom') : t('描述故障现象', 'Describe the fault')}</h2>
-              <p className="mt-2 max-w-md text-sm text-muted-foreground">{version === 'new' ? t('可以先选择机型，也可以直接提问。', 'Choose a machine or ask a question directly.') : t('可填写品牌、型号和发生工况。', 'Include the brand, model and operating conditions.')}</p>
+              <h2 className="font-serif text-xl font-bold text-foreground">{pick(content.CHAT_WELCOME.title, lang)}</h2>
+              <p className="mt-2 max-w-md text-sm text-muted-foreground">{pick(content.CHAT_WELCOME.desc, lang)}</p>
+              <p className="mt-4 text-sm font-medium text-foreground">{version === 'new' ? t('从描述故障开始', 'Start with the symptom') : t('描述故障现象', 'Describe the fault')}</p>
+              <p className="mt-1 max-w-md text-sm text-muted-foreground">{version === 'new' ? t('可以先选择机型，也可以直接提问。', 'Choose a machine or ask a question directly.') : t('可填写品牌、型号和发生工况。', 'Include the brand, model and operating conditions.')}</p>
 
 
               {/* 快捷提问按钮 */}
@@ -346,6 +364,9 @@ export default function ChatPage() {
                 <div className="mr-2 mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
                   <Bot className="h-4 w-4" />
                 </div>
+              )}
+              {msg.role === 'assistant' && (
+                <span className="mr-2 mt-1 max-w-12 shrink-0 truncate text-xs font-medium text-muted-foreground">{t('司稼', 'Sijia')}</span>
               )}
               <div
                 className={`min-w-0 break-words ${msg.role === 'user' ? 'max-w-[85%] md:max-w-[75%]' : 'w-full'} rounded-2xl px-4 py-3 text-sm leading-relaxed ${
@@ -387,11 +408,12 @@ export default function ChatPage() {
         </div>
       </div>
 
-      {/* 输入区 */}
+      {/* 输入区：旧版改为居中悬浮卡片（见 chat-layout.css 的旧版规则），
+          不再是通栏贴边条；新版 contentClassName 保持原样。 */}
       <LiquidGlass
         variant="regular"
         className="chat-input-glass"
-        contentClassName="chat-input-content border-t border-border/60 px-4 py-4 md:px-6"
+        contentClassName={version === 'old' ? 'chat-input-content px-4 py-2 md:px-6' : 'chat-input-content border-t border-border/60 px-4 py-4 md:px-6'}
       >
         <form onSubmit={handleSubmit} className="chat-composer mx-auto max-w-3xl">
           {version === 'old' && extraControl}
@@ -406,8 +428,8 @@ export default function ChatPage() {
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder={t('描述您遇到的农机故障现象...', 'Describe the fault symptom...')}
-              className="min-h-[60px] resize-none"
-              rows={version === 'new' ? 1 : 2}
+              className={version === 'old' ? 'min-h-[44px] resize-none' : 'min-h-[60px] resize-none'}
+              rows={1}
               disabled={isLoading || memory.busy}
             />
             {isLoading ? (
@@ -491,23 +513,13 @@ function DiagnosticAnswer({ message, t, onAnswer, disabled }: {
     </> : <div className="prose prose-sm max-w-none overflow-x-auto dark:prose-invert"><DeferredMarkdown>{message.localSummary || message.content}</DeferredMarkdown></div>}
     {usedLabels.length > 0 && <p className="mt-4 border-t border-border/50 pt-2 text-xs text-muted-foreground">{t('依据：', 'Evidence: ')}{usedLabels.slice(0, 2).join('；')}{usedLabels.length > 2 ? t(`，另${usedLabels.length - 2}项见详情`, `; ${usedLabels.length - 2} more in details`) : ''}</p>}
     {message.role === 'assistant' && <details className="chat-evidence mt-4 border-t border-border/50 pt-3">
-      <summary className="cursor-pointer text-xs font-medium">{t('查看依据与证据路径', 'View evidence and evidence path')}{sources.length ? ` (${sources.length})` : ''}</summary>
+      <summary className="cursor-pointer text-xs font-medium">{t('查看依据与核对项', 'View evidence and checks')}{sources.length ? ` (${sources.length})` : ''}</summary>
       <div className="chat-evidence-body mt-3 space-y-4 text-xs leading-relaxed text-muted-foreground">
         <section aria-label={t('证据路径', 'Evidence path')}>
           <h3 className="mb-3 text-sm font-semibold text-foreground">{t('证据路径：现象 → 原因 → 检查 → 处理 → 复检', 'Evidence path: phenomenon → cause → check → action → retest')}</h3>
           <div className="chat-evidence-grid">{rows.map(row => <section key={row.id} className="rounded-md border border-border/60 p-2"><h4 className="font-medium text-foreground">{langLabel(row, t)}</h4>{row.items.length ? <ul className="mt-2 space-y-2 text-xs">{row.items.map(item => <li key={item.entryId}><p className="text-foreground">{item.heading}</p><p>{item.source?.sourceTitle || item.source?.source || t('来源待核实', 'Source pending')}</p><p>{item.source?.pages?.pdf ? t(`PDF第${item.source.pages.pdf}页`, `PDF p. ${item.source.pages.pdf}`) : t('页码待核实', 'Page pending')}</p><p>{item.source?.scopeBoundary || t('适用范围待核实', 'Scope pending')}</p></li>)}</ul> : <p className="mt-2 text-xs text-muted-foreground">{t('暂无资料', 'No evidence yet')}</p>}</section>)}</div>
         </section>
-        {sources.length ? <ol className="space-y-4">{sources.map((source, index) => <li key={`${source.entryId || source.source}-${index}`} className="rounded-md border border-border/60 p-3">
-          <p className="font-medium text-foreground">{index + 1}. {source.heading}</p><p>{sourceLabel(source)}</p>
-          <p>{[source.entryId, source.sourceId, source.version].filter(Boolean).join(' · ')}</p>
-          {source.usage && <p>{source.usage === 'answer-evidence' ? t('用于当前资料分析；不代表已确诊', 'Used for evidence analysis; not a confirmed diagnosis') : source.usage === 'prompt-context' ? t('提供给AI的参考上下文，不表示每项生成内容均获支持', 'Context supplied to AI; not proof for every generated claim') : t('仅供参考，不作为本机操作依据', 'Reference only; not an instruction for this machine')}</p>}
-          {source.scopeBoundary && <p>{t('适用范围：', 'Scope: ')}{source.scopeBoundary}</p>}
-          {!!source.models?.length && <p>{t('型号：', 'Models: ')}{source.models.join('、')}</p>}
-          {source.engineModel && <p>{t('发动机：', 'Engine: ')}{source.engineModel}</p>}{!!source.faultCodes?.length && <p>{t('故障码：', 'Codes: ')}{source.faultCodes.join('、')}</p>}
-          {source.locator && <p>{t('原文位置：', 'Location: ')}{source.locator}</p>}
-          {source.status && <p>{t('原始核验说明：', 'Original review status: ')}{source.status}</p>}
-          {source.retrieval && <p>{t('检索层级：', 'Retrieval tier: ')}{source.retrieval.tier} · {source.retrieval.basis.join('；')}{source.retrieval.referenceOnly ? t('；仅参考', '; reference only') : ''}</p>}
-        </li>)}</ol> : <p>{t('这条对话没有保存结构化来源；不从历史文字推造证据。', 'This message has no saved structured sources; evidence is not inferred from older text.')}</p>}
+        <EvidenceReview sources={sources} t={t} />
         {message.coordinationMessage && <p>{message.coordinationMessage}</p>}
         <p>{[message.provider, message.model, message.answerMode].filter(Boolean).join(' · ')}{message.knowledgeChunks !== undefined ? t(` · 检索${message.knowledgeChunks}条`, ` · ${message.knowledgeChunks} snippets`) : ''}</p>
         {message.fallbackReason && <p>{message.fallbackReason === 'not_configured' ? t('外部AI未配置，本次使用本地资料。', 'External AI is not configured; using local evidence.') : t('外部AI暂不可用，本次回退本地资料。', 'External AI was unavailable; using local evidence.')}</p>}
