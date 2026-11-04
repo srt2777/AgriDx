@@ -2,7 +2,7 @@ import { getKnowledgeCatalog } from '../server/knowledge/catalog';
 import { loadKnowledgeBase, retrieveWithDiagnostics, stats } from '../server/knowledge/retriever';
 import { resolveScope } from '../server/knowledge/scope';
 import { loadKnowledgeSnapshot } from '../server/knowledge/snapshot';
-import { identifyPlannerTopic, plannerFaultChains, type PlannerTopic } from '../server/diagnosis/plannerPlans';
+import { identifyPlannerTopic, identifyPlannerTopics, plannerFaultChains, plannerTopicLabel, type PlannerTopic } from '../server/diagnosis/plannerPlans';
 import { ToolRegistry } from './tool-registry';
 import type { InputSchema } from './tool-types';
 import { calculator } from './calculator';
@@ -57,7 +57,15 @@ export function build_default_registry(): ToolRegistry {
     symptom: string('症状文本，未给 topic 时用它识别主题；多系统歧义时返回错误'),
   }), ({ topic, symptom }) => {
     const resolved: PlannerTopic | undefined = topic as PlannerTopic | undefined ?? (typeof symptom === 'string' ? identifyPlannerTopic(symptom) : undefined);
-    if (!resolved) return { error: 'TOPIC_NOT_IDENTIFIED', note: '请给出单个已知的故障主题或单系统症状文本，多系统歧义无法确定唯一逻辑链。' };
+    if (!resolved) {
+      // Ambiguous symptoms name their candidate systems only (labels, no
+      // evidence IDs, no fault conclusion); the caller must pick one first.
+      const candidates = typeof symptom === 'string' ? identifyPlannerTopics(symptom) : [];
+      return { error: 'TOPIC_NOT_IDENTIFIED',
+        note: candidates.length >= 2
+          ? `多系统歧义，无法确定唯一逻辑链，可能涉及：${candidates.map(plannerTopicLabel).join('、')}。请先确认其中一个系统，再请求该系统的逻辑链。`
+          : '请给出单个已知的故障主题或单系统症状文本，多系统歧义无法确定唯一逻辑链。' };
+    }
     const chain = plannerFaultChains[resolved];
     return { topic: resolved, topEvent: chain.topEvent, causes: chain.causes.map(cause => ({ ...cause, verification: 'unverified' })),
       note: '原因排序即追问价值排序（区分度降序），不是故障概率；证据 ID 须经本轮检索核对后才可引用。' };

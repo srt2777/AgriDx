@@ -28,6 +28,15 @@ export async function runAgent(options:AgentRunOptions):Promise<AgentRunResult> 
   const interrupted=new Promise<never>((_,reject)=>{rejectOnAbort=()=>reject(new Error('agent interrupted'));controller.signal.addEventListener('abort',rejectOnAbort,{once:true});});
   void interrupted.catch(()=>{});
   const executor=new ToolExecutor(registry);
+  // Cross-step reuse cache, local to this run only: a successful tool
+  // result from an earlier step is reused verbatim when a later step asks
+  // the identical bound call again. It is never persisted, never shared
+  // across runs or sessions, and never seeded from client input, so a stale
+  // cross-turn result cannot leak into a new diagnosis turn (that wiring
+  // remains an open gap, see the four-parts gaps doc). Failed results are
+  // never cached, so a later retry still executes and the executor's
+  // repeat rules still apply to retries.
+  const crossStepCache = new Map<string, string>();
   const sourceFor=(name:string):AgentToolEvent['source']=>['search_knowledge','browse_knowledge','get_knowledge_entry','explore_relations','fault_chain','model_fault_index','maintenance_schedule'].includes(name)?'混合资料':name==='calculator'||name==='get_current_time'||name==='knowledge_stats'?'通识（无手册页码）':name==='resolve_machine_scope'||name==='ask_user_for_info'?'助手推断':name==='get_session_state'||name==='list_prior_reports'?'用户报告，待核实':'未分类';
   const record=(step:number,offset:number)=>{for(const event of executor.trace.slice(offset))toolEvents.push({step,tool:event.tool,args:'[已脱敏]',ok:event.ok,error_type:event.error_type,duration_ms:event.duration_ms,source:sourceFor(event.tool)});};
   try {
@@ -71,6 +80,21 @@ export async function runAgent(options:AgentRunOptions):Promise<AgentRunResult> 
         return {type:'tool_use',id:call.id,name:call.name,input};
       });
       messages.push({role:'assistant',content:stripDsmlMarkup(reply.content),tool_calls:boundCalls.map(call=>({id:call.id,type:'function',function:{name:call.name,arguments:JSON.stringify(call.input)}}))});
+      // Coordination, cross-step: identical calls already answered in an
+      // earlier step reuse that step's successful result verbatim instead
+      // of executing again, so a re-ask costs no executor time and no
+      // repeat budget. Cached reuses produce no new trace event, exactly
+      // like the same-turn dedup below; the provider still receives one
+      // tool result per id it requested. Step count (maxSteps), the shared
+      // wall-clock timeout, the allowlist, and the guard are unchanged:
+      // reuse only replaces an execution the provider asked for again.
+      const cachedById = new Map<string, string>();
+      const freshCalls: typeof boundCalls[number][] = [];
+      for (const call of boundCalls) {
+        const hit = crossStepCache.get(`${call.name}:${canonical(call.input)}`);
+        if (hit !== undefined) cachedById.set(call.id, hit);
+        else freshCalls.push(call);
+      }
       // Coordination: deduplicate identical calls within one turn AFTER
       // host binding, so a repeated call executes once and its result is
       // mapped back to every duplicate id. The provider still receives one
@@ -80,7 +104,7 @@ export async function runAgent(options:AgentRunOptions):Promise<AgentRunResult> 
       const seenCalls = new Map<string, { id: string }>();
       const uniqueCalls: typeof boundCalls[number][] = [];
       const firstIdOf = new Map<string, string>();
-      for (const call of boundCalls) {
+      for (const call of freshCalls) {
         const key = `${call.name}:${canonical(call.input)}`;
         if (seenCalls.has(key)) firstIdOf.set(call.id, seenCalls.get(key)!.id);
         else { seenCalls.set(key, { id: call.id }); uniqueCalls.push(call); }
@@ -89,8 +113,15 @@ export async function runAgent(options:AgentRunOptions):Promise<AgentRunResult> 
       const uniqueResults=await executor.execute_tool_uses(uniqueCalls,{signal:controller.signal});record(step,offset);
       const resultById = new Map(uniqueResults.map(result => [String(result.tool_use_id), result]));
       for (const call of boundCalls) {
+        const cached = cachedById.get(call.id);
+        if (cached !== undefined) { messages.push({role:'tool',tool_call_id:call.id,content:cached}); continue; }
         const result = resultById.get(firstIdOf.get(call.id) ?? call.id);
-        if (result) messages.push({role:'tool',tool_call_id:call.id,content:String(result.content)});
+        if (result) {
+          messages.push({role:'tool',tool_call_id:call.id,content:String(result.content)});
+          // Only successful results enter the cross-step cache; an error
+          // result must not pin a later step to a stale failure.
+          if (!('is_error' in result)) crossStepCache.set(`${call.name}:${canonical(call.input)}`, String(result.content));
+        }
       }
     }
     return {status:'fallback',reason:'step_budget',toolEvents};

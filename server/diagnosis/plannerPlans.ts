@@ -10,22 +10,57 @@ export function isPlannerTopic(value: unknown): value is PlannerTopic {
   return typeof value === 'string' && (PLANNER_TOPICS as readonly string[]).includes(value);
 }
 
+const PLANNER_TOPIC_PATTERNS: Record<PlannerTopic, RegExp> = {
+  overheat: /(?:水温|冷却|散热|冷却液|发动机温度).{0,24}(?:过高|太高|升高|偏高|很高|高温|过热|开锅|报警)|(?:过高|太高|偏高|高温|过热|开锅).{0,16}(?:水温|冷却|散热|发动机)/i,
+  starting: /(?:无法|不能|不易|难以|不能够|没法).{0,8}(?:启动|起动|着车)|(?:启动|起动).{0,10}(?:不了|不着|困难|失败|异常|不成功)|打不着|不着车|(?:电瓶|蓄电池|电池).{0,12}(?:亏电|没电|不充电|无法充电|故障|异常|损坏)/i,
+  // Deliberately narrow: "电瓶不充电" stays with starting (battery word +
+  // 不充电); only the charging-system lamp wording reaches electrical.
+  fuel: /(?:燃油|供油|喷油|滤清器|油泵).{0,12}(?:不足|堵塞|脏污|故障|异常|漏油|不畅|脏了|堵了|有问题)|憋熄|熄火|(?:排气|尾气).{0,4}烟|冒黑烟|冒白烟/i,
+  electrical: /(?:保险丝|线束|电气|灯光|照明|断电|供电|充电系统|发电机).{0,12}(?:熔断|松动|破损|失效|异常|故障|不亮|灯亮)?/i,
+  hydraulic: /(?:液压|农具提升|提升缓慢|提升.{0,4}抖动|悬挂|油缸)/i,
+  transmission: /(?:离合器|挂挡|换挡|变速箱|变速|起步抖动)/i,
+};
+
+/** All topics a text matches, in the fixed PLANNER_TOPICS order. Empty when the text matches none. */
+export function identifyPlannerTopics(text: string): PlannerTopic[] {
+  if (typeof text !== 'string' || text.length > 8000) return [];
+  return PLANNER_TOPICS.filter(topic => PLANNER_TOPIC_PATTERNS[topic].test(text));
+}
+
 /** Apply to the user's original fault question, not an arbitrary later reply. */
 export function identifyPlannerTopic(text: string): PlannerTopic | undefined {
-  if (typeof text !== 'string' || text.length > 8000) return undefined;
-  const patterns: Record<PlannerTopic, RegExp> = {
-    overheat: /(?:水温|冷却|散热|冷却液|发动机温度).{0,24}(?:过高|太高|升高|偏高|很高|高温|过热|开锅|报警)|(?:过高|太高|偏高|高温|过热|开锅).{0,16}(?:水温|冷却|散热|发动机)/i,
-    starting: /(?:无法|不能|不易|难以|不能够|没法).{0,8}(?:启动|起动|着车)|(?:启动|起动).{0,10}(?:不了|不着|困难|失败|异常|不成功)|打不着|不着车|(?:电瓶|蓄电池|电池).{0,12}(?:亏电|没电|不充电|无法充电|故障|异常|损坏)/i,
-    // Deliberately narrow: "电瓶不充电" stays with starting (battery word +
-    // 不充电); only the charging-system lamp wording reaches electrical.
-    fuel: /(?:燃油|供油|喷油|滤清器|油泵).{0,12}(?:不足|堵塞|脏污|故障|异常|漏油|不畅|脏了|堵了|有问题)|憋熄|熄火|(?:排气|尾气).{0,4}烟|冒黑烟|冒白烟/i,
-    electrical: /(?:保险丝|线束|电气|灯光|照明|断电|供电|充电系统|发电机).{0,12}(?:熔断|松动|破损|失效|异常|故障|不亮|灯亮)?/i,
-    hydraulic: /(?:液压|农具提升|提升缓慢|提升.{0,4}抖动|悬挂|油缸)/i,
-    transmission: /(?:离合器|挂挡|换挡|变速箱|变速|起步抖动)/i,
-  };
-  const matched = PLANNER_TOPICS.filter(topic => patterns[topic].test(text));
+  const matched = identifyPlannerTopics(text);
   // Ambiguous multi-system questions cannot safely select a single template.
   return matched.length === 1 ? matched[0] : undefined;
+}
+
+/** Short system labels for clarification only: never a diagnosis, never evidence. */
+export const PLANNER_TOPIC_LABELS: Readonly<Record<PlannerTopic, string>> = {
+  overheat: '水温过高（冷却系统）',
+  starting: '无法启动（启动系统）',
+  fuel: '燃油供给异常',
+  electrical: '电气与供电照明异常',
+  hydraulic: '液压与农具提升异常',
+  transmission: '传动与离合挂挡异常',
+};
+
+export function plannerTopicLabel(topic: PlannerTopic): string {
+  return PLANNER_TOPIC_LABELS[topic];
+}
+
+/**
+ * Evidence-constrained clarification for a multi-system ambiguous fault
+ * text. The question names only the candidate systems and asks the user to
+ * pick one; it carries no evidence IDs and states no fault conclusion, so
+ * it can be shown without selecting a template or a cause. Returns
+ * undefined for single-topic or unidentified text (those paths keep their
+ * existing handling).
+ */
+export function plannerAmbiguityQuestion(text: string): string | undefined {
+  const matched = identifyPlannerTopics(text);
+  if (matched.length < 2) return undefined;
+  const candidates = matched.map(topic => PLANNER_TOPIC_LABELS[topic]).join('、');
+  return `你描述的现象可能同时涉及以下多个系统，目前还不能确定是哪一个，也没有据此作出故障结论：${candidates}。请先确认主要想排查哪一个（只选一个），或补充最先出现、最明显的现象；确认后我再按该系统的检查步骤继续。`;
 }
 
 // These questions request only observations already available. They are not
