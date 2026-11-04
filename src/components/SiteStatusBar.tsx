@@ -12,7 +12,8 @@ export function SiteStatusBar() {
   const uiVersion = useUiVersion();
   const { pathname } = useLocation();
   const place = statusPlace(pathname, lang);
-  if (uiVersion === 'old') return <footer className="site-status-bar"><span>耕知耘诊</span><Link to="/version-history">{lang === 'zh' ? '界面' : 'UI'} {UI_RELEASES[uiVersion]} · {lang === 'zh' ? '项目' : 'Project'} v{version}</Link></footer>;
+  const uiLabel = UI_RELEASES[uiVersion].replace(/^(NV|OV)/, 'UI');
+  if (uiVersion === 'old') return <footer className="site-status-bar"><span>耕知耘诊</span><Link to="/version-history">{lang === 'zh' ? '界面' : 'UI'} {uiLabel} · {lang === 'zh' ? '项目' : 'Project'} v{version}</Link></footer>;
   return (
     <footer className="site-status-bar">
       <span>
@@ -20,7 +21,7 @@ export function SiteStatusBar() {
         {lang === 'zh' ? '南京农业大学工学院 · 农机知识与诊断' : 'COLLEGE OF ENGINEERING, NAU · KNOWLEDGE & DIAGNOSIS'}
       </span>
       <span>
-        <Link to="/version-history" className="hover:underline">{lang === 'zh' ? '更新记录' : 'Version history'} · {UI_RELEASES[uiVersion]} · v{version}</Link>
+        <Link to="/version-history" className="hover:underline">{lang === 'zh' ? '更新记录' : 'Version history'} · {uiLabel} · v{version}</Link>
         <span className="sr-only">{place}</span>
       </span>
     </footer>
