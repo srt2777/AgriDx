@@ -966,6 +966,13 @@
       "base": "4.0.34",
       "version": "4.0.35",
       "date": "2026-11-04"
+    },
+    {
+      "id": "classic-analytics-20261104",
+      "kind": "feature",
+      "base": "4.0.35",
+      "version": "4.0.36",
+      "date": "2026-11-04"
     }
   ]
 }

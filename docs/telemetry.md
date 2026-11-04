@@ -128,3 +128,7 @@ PartsStudio部件面板现接入`TelemetryScenarioControls`：从目录读取五
 ## 验证
 
 运行 `node --import tsx --test tests/telemetry-simulator.test.ts tests/telemetry-runtime.test.ts tests/telemetry-api.test.ts`。测试覆盖实际部件引用、确定性/场景/有限量程/阈值/源隔离，以及环形缓冲上限、窗口校验、重放/重置、定时采样、心跳、新鲜度、背压/断开清理、限流、关闭模式及脱敏。完整项目仍须`npm run verify`通过，GitHub CI、合并与未部署证据分别记于PR。
+
+## 旧版动态可视化扩充（2026-11-05）
+
+仿真目录扩充为29路，新增车速/能耗/液压/负载/电量/电流/独立电功率/振动；无新告警阈值，仍非厂家标准。旧版提供四路对比、多视图及固定快照回放，详见[数据探索台](ui/classic-analytics.md)。不改变诊断或真实设备接入边界。

@@ -122,8 +122,9 @@ test('history failure/loading and delayed/offline retained samples have retry, i
 
 test('CSV exports original window samples with scope, simulation watermark, threshold provenance and safe text cells', () => {
   const data = fixture(), csv = telemetryCsv(data.series, 'en');
-  assert.ok(csv.startsWith('\uFEFF')); assert.equal(csv.trim().split('\r\n').length, 10);
-  assert.equal(csv.split(TELEMETRY_WATERMARK).length - 1, 9); assert.equal(csv.split('"simulated"').length - 1, 9);
+  assert.ok(csv.startsWith('\uFEFF')); assert.equal(csv.trim().split('\r\n').length, 1 + data.series.reduce((sum, row) => sum + row.windowPoints.length, 0));
+  const sampleCount = data.series.reduce((sum, row) => sum + row.windowPoints.length, 0);
+  assert.equal(csv.split(TELEMETRY_WATERMARK).length - 1, sampleCount); assert.equal(csv.split('"simulated"').length - 1, sampleCount);
   assert.match(csv, /"t70-demo","t70\.battery-box\.temperature","battery_box"/);
   assert.match(csv, /"demo","仿真演示阈值,非厂家标准"/);
   for (const row of data.series) for (const point of row.windowPoints) assert.ok(csv.includes(`"${point.value}"`));

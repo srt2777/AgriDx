@@ -6,10 +6,10 @@ import { useTelemetry } from '@/hooks/useTelemetry';
 import { useWorkbench } from '@/features/workbench/WorkbenchContext';
 import { workbenchRoutes } from '@/features/workbench/navigation';
 import { datasetCsv, downloadFile, type Activity as ActivityRecord } from '@/features/workbench/data';
-import { telemetryCsv, telemetryValue } from '@/features/telemetry/presentation';
+import { telemetryValue } from '@/features/telemetry/presentation';
 import { TelemetryScenarioControls } from '@/components/parts-tractor/TelemetryScenarioControls';
 import { useUpdateBlocker } from '@/features/updates/useUpdateBlocker';
-import type { TelemetryWindow } from '../../../shared/telemetry';
+import { Analytics } from './Analytics';
 import { DataImport } from './DataImport';
 import { TrendChart } from './TrendChart';
 
@@ -93,26 +93,6 @@ function Commands() {
     <Panel title={t('执行路径与响应', 'Execution & response')} eyebrow="RESPONSE"><div className="wb-checklist"><p><Check size={17} />{t('对象上下文随任务传入诊断', 'Machine context travels with the task')}</p><p><Check size={17} />{t('先预览草稿，再由你发送', 'Preview the draft before sending')}</p><p><ShieldCheck size={17} />{t('沿用现有来源、适用范围和诊断边界', 'Existing evidence and applicability checks apply')}</p><p><Info size={17} />{t('不会执行实车控制指令', 'No commands are sent to physical equipment')}</p></div><p className="wb-muted">{t('诊断页展示实际服务响应、引用与降级状态，并可停止请求；在此创建草稿不表示已完成诊断。', 'The diagnosis page shows actual replies, citations and fallback state, and supports cancellation. Creating a draft does not complete a diagnosis.')}</p><div className="wb-context-card"><Workflow size={28} /><div><strong>{object || t('未限定具体型号', 'No exact model selected')}</strong><p>{t('仿真和导入数据不会自动作为维修证据发送。', 'Simulation and imported data are not automatically sent as repair evidence.')}</p></div></div></Panel></div>
     <Panel title={t('演示采集指令', 'Simulation collection controls')} eyebrow="SCENARIO CONTROL"><SourceNotice state={telemetry.connectionState} /><TelemetryScenarioControls data={telemetry} lang={lang} /></Panel>
   </>;
-}
-function Analytics() {
-  const { lang, t } = useCopy(), work = useWorkbench(), { search } = useLocation();
-  const params = new URLSearchParams(search);
-  const [source, setSource] = useState(params.has('dataset') ? 'import' : 'telemetry');
-  const [channelId, setChannelId] = useState(params.get('channel') ?? '');
-  const [datasetId, setDatasetId] = useState(params.get('dataset') ?? '');
-  const [window, setWindow] = useState<TelemetryWindow>('5m');
-  const telemetry = useTelemetry({ channelIds: channelId ? [channelId] : [], window });
-  useEffect(() => { if (!channelId && telemetry.catalog?.channels[0]) setChannelId(telemetry.catalog.channels[0].id); }, [telemetry.catalog, channelId]);
-  useEffect(() => { if (!datasetId && work.data.datasets[0]) setDatasetId(work.data.datasets[0].id); }, [work.data.datasets, datasetId]);
-  useEffect(() => { const query = new URLSearchParams(search); if (query.has('channel')) { setSource('telemetry'); setChannelId(query.get('channel')!); } else if (query.has('dataset')) { setSource('import'); setDatasetId(query.get('dataset')!); } }, [search]);
-  const row = telemetry.series[0], dataset = work.data.datasets.find(d => d.id === datasetId);
-  const points = source === 'telemetry' ? row?.windowPoints ?? [] : dataset?.points ?? [];
-  const label = source === 'telemetry' ? row?.channel.name[lang] ?? '—' : dataset?.name ?? '—';
-  const unit = source === 'telemetry' ? row?.channel.unit ?? '' : dataset?.unit ?? '';
-  function exportData() { if (!points.length) return; downloadFile(source === 'telemetry' ? telemetryCsv(telemetry.series, lang) : datasetCsv(dataset!), 'agridx-observations.csv'); work.log('export', label, source === 'telemetry' ? t('仿真数据', 'Simulation') : dataset!.object); }
-  return <><Panel title={t('数据选择与范围', 'Data selection & range')} eyebrow="VISUALIZATION" action={<button type="button" disabled={!points.length} onClick={exportData}><Download size={16} />{t('导出当前数据', 'Export current data')}</button>}><div className="wb-tabs" role="group" aria-label={t('数据来源', 'Data source')}><button type="button" aria-pressed={source === 'telemetry'} onClick={() => setSource('telemetry')}>{t('演示采集', 'Simulation')}</button><button type="button" aria-pressed={source === 'import'} onClick={() => setSource('import')}>{t('本地导入', 'Local imports')}</button></div><div className="wb-form-grid wb-two-fields">{source === 'telemetry' ? <><label>{t('采集通道', 'Channel')}<select value={channelId} onChange={e => setChannelId(e.target.value)}>{!telemetry.catalog && <option value="">—</option>}{telemetry.catalog?.channels.map(c => <option key={c.id} value={c.id}>{c.name[lang]} · {c.deviceId}</option>)}</select></label><label>{t('时间窗口', 'Time window')}<select value={window} onChange={e => setWindow(e.target.value as TelemetryWindow)}><option value="5m">{t('最近 5 分钟', 'Last 5 minutes')}</option><option value="15m">{t('最近 15 分钟', 'Last 15 minutes')}</option><option value="1h">{t('最近 1 小时', 'Last hour')}</option></select></label></> : <label>{t('数据集', 'Dataset')}<select value={datasetId} onChange={e => setDatasetId(e.target.value)}><option value="">{t('选择本地数据集', 'Choose a local dataset')}</option>{work.data.datasets.map(d => <option key={d.id} value={d.id}>{d.name} · {d.object}</option>)}</select></label>}</div>{source === 'telemetry' ? <SourceNotice state={telemetry.connectionState} /> : <p className="wb-notice">{t('用户导入 · 未核验 · 原始单位；图表不作故障判定。', 'User import · unverified · original units. Charts do not determine faults.')}</p>}</Panel>
-    <Panel title={label} eyebrow="TREND & STATISTICS"><TrendChart key={`${source}:${channelId}:${datasetId}:${window}`} points={points} label={label} unit={unit} sampleMs={source === 'telemetry' ? telemetry.catalog?.sampleMs : undefined} />{source === 'telemetry' && row?.historyStatus === 'error' && <p role="alert">{t('历史读取失败，当前仅显示已收到样本。', 'History failed; only received samples are shown.')} <button type="button" onClick={() => telemetry.retryHistory(channelId)}>{t('重试历史', 'Retry history')}</button></p>}<p className="wb-muted">{t('统计以当前范围原始样本计算。数值趋势不等于状态诊断；仿真采样中断处不连线。', 'Statistics use raw samples in the selected range. Trends are not diagnoses; missing simulation samples remain gaps.')}</p></Panel>
-    <Panel title={t('原始样本', 'Raw samples')} eyebrow="DATA TABLE"><div className="wb-table-wrap"><table><caption>{t('最近 30 条；导出包含当前范围全部样本', 'Latest 30 rows; export includes the entire selected range')}</caption><thead><tr><th>{t('采样时间', 'Sample timestamp')}</th><th>{t('数值', 'Value')}</th><th>{t('单位', 'Unit')}</th><th>{t('来源', 'Source')}</th></tr></thead><tbody>{points.slice(-30).reverse().map(p => <tr key={p.at}><td>{new Date(p.at).toISOString()}</td><td>{p.value}</td><td>{unit}</td><td>{source === 'telemetry' ? t('仿真数据', 'Simulated') : t('用户导入 · 未核验', 'User import · unverified')}</td></tr>)}</tbody></table></div>{!points.length && <Link className="wb-button" to="/workspace/data">{t('前往数据采集', 'Open data collection')}<ArrowRight size={15} /></Link>}</Panel></>;
 }
 function ActivityList({ activities }: { activities: ActivityRecord[] }) {
   const { t } = useCopy();
