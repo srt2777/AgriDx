@@ -96,14 +96,20 @@ export default function ChatPage() {
   const lastMessageRef = useRef<HTMLDivElement>(null);
   const previousLastMessage = useRef<Pick<ChatMessage, 'id' | 'role'> | undefined>(undefined);
   const followThread = useRef(true);
-  const [contextOpen, setContextOpen] = useState(() => version === 'old' && typeof window !== 'undefined' && window.matchMedia('(min-width: 1101px)').matches);
+  // The classic immersive context panel starts closed on every viewport: it
+  // overlays the thread instead of pushing messages down, so it is never a
+  // resident row. The new-version panel also started closed.
+  const [contextOpen, setContextOpen] = useState(false);
   const contextTriggerRef = useRef<HTMLButtonElement>(null);
   const contextPanelRef = useRef<HTMLElement>(null);
   const settingsRef = useRef<HTMLDetailsElement>(null);
   const extrasRef = useRef<HTMLDetailsElement>(null);
 
   useEffect(() => {
-    if (version !== 'new') return;
+    // Shared by both versions: the new-version settings/extras details only
+    // exist there (their refs stay null in the classic UI), while the
+    // context panel exists in both, so outside-click and Escape handling
+    // must also run for the classic floating panel.
     const onPointerDown = (event: PointerEvent) => {
       const target = event.target as Node;
       if (settingsRef.current?.open && !settingsRef.current.contains(target)) settingsRef.current.open = false;
@@ -185,8 +191,6 @@ export default function ChatPage() {
   const isEmpty = messages.length === 0;
   const composedLength = composeDiagnosticQuestion(input, attachment).length;
   const plate = [machineType, brand, model].filter(Boolean).join(' · ');
-  const topic = messages.filter(message => message.role === 'assistant').at(-1)?.diagnosticReply?.topic
-    || messages.filter(message => message.role === 'user').at(-1)?.content.split('\n')[0] || input.trim().split('\n')[0];
   const typeOptions = lang === 'zh' ? MACHINE_TYPES_ZH : MACHINE_TYPES_EN;
   const serviceStatus = currentFallbackReason === 'provider_unavailable'
     ? t('本地知识库 · LLM 暂不可用', 'Local KB · LLM temporarily unavailable')
@@ -288,22 +292,33 @@ export default function ChatPage() {
         </div>
       </div>}
 
-      {version === 'old' && <>
-        <div className="flex items-center gap-2 border-b border-border/60 px-4 py-2 text-xs">{modeControl}</div>
-        <div className="flex flex-wrap items-start gap-2 border-b border-border/60 px-4 py-2 text-xs">{telemetryControl}</div>
-      </>}
-      {version === 'old' && <div className="chat-current-context">
-        <div className="min-w-0"><p className="truncate font-medium">{plate || t('尚未指定车型 · 可先描述现象', 'No model specified · describe the symptom first')}</p>{topic && <p className="truncate text-muted-foreground">{t('当前问题：', 'Current topic: ')}{topic.slice(0, 100)}</p>}</div>
-        <div className="chat-context-actions">
-          <Button type="button" variant="ghost" size="sm" className="shrink-0 gap-1" aria-expanded={contextOpen} aria-controls="chat-machine-context" onClick={() => setContextOpen(open => !open)}><Settings2 className="h-4 w-4" />{t('车型与记录', 'Machine & history')}</Button>
-        </div>
+      {/* Classic compact header: the three resident rows above (answer-mode row,
+          telemetry row and current-model bar) were removed. Their controls now
+          live only in the floating bar below and in its overlay panel, so the
+          message list keeps the freed height. Nothing is deleted: modeControl,
+          telemetryControl and MachineContext are rendered verbatim below. */}
+      <div className={version === 'new' ? `chat-workspace${contextOpen ? '' : ' is-context-closed'}` : 'relative flex min-h-0 flex-1 flex-col'}>
+      {version === 'old' && <div className="old-chat-compact-bar">
+        <span className="old-chat-compact-plate" title={plate || t('尚未指定车型 · 可先描述现象', 'No model specified · describe the symptom first')}>{plate || t('尚未指定车型 · 可先描述现象', 'No model specified · describe the symptom first')}</span>
+        <label className="old-chat-compact-mode">
+          <span className="sr-only">{t('回答模式', 'Answer mode')}</span>
+          <select id="diagnosis-mode-compact" aria-label={t('回答模式', 'Answer mode')} value={diagnosisMode} disabled={isLoading || memory.busy} onChange={e => setDiagnosisMode(e.target.value as DiagnosisMode)}>
+            <option value="auto">{t('自动协调', 'Automatic')}</option>
+            <option value="knowledge_only">{t('仅本地知识库', 'Local knowledge only')}</option>
+            <option value="ai_assisted" disabled={typeof llmHealth !== 'object' || !llmHealth.configured || llmHealth.allowExternalAi === false}>{t('AI 辅助分析', 'AI-assisted analysis')}</option>
+          </select>
+        </label>
+        <Button ref={contextTriggerRef} type="button" variant="ghost" size="sm" className="old-chat-compact-trigger shrink-0 gap-1" aria-label={`${t('机型与记录', 'Machine and history')}: ${[machineType, brand, model].filter(Boolean).join(' ') || t('选择机型', 'Choose machine')}`} aria-expanded={contextOpen} aria-controls="chat-machine-context" onClick={() => setContextOpen(open => !open)}><Settings2 className="h-4 w-4" /><span className="old-chat-compact-trigger-label">{t('机型与记录', 'Machine & history')}</span></Button>
       </div>}
-      <div className={version === 'new' ? `chat-workspace${contextOpen ? '' : ' is-context-closed'}` : 'flex min-h-0 flex-1 flex-col'}>
+      {version === 'old' && contextOpen && <aside ref={contextPanelRef} id="chat-machine-context" className="old-chat-compact-panel" aria-label={t('机型与记录', 'Machine and history')}>
+        <div className="old-chat-compact-panel-section">{modeControl}</div>
+        <div className="old-chat-compact-panel-section">{telemetryControl}</div>
+        <MachineContext framed onClose={() => { setContextOpen(false); contextTriggerRef.current?.focus(); }} {...contextProps} />
+      </aside>}
       <div className={version === 'new' ? 'chat-thread' : 'contents'}>
       {/* 消息列表 */}
       <div ref={threadRef} onScroll={() => { const node = threadRef.current; if (node) followThread.current = node.scrollHeight - node.scrollTop - node.clientHeight < 100; }} className="min-h-0 flex-1 overflow-y-auto" role="log" aria-label={t('诊断对话', 'Diagnosis conversation')} aria-live="polite">
         <div className="chat-message-list mx-auto max-w-3xl px-4 py-6 md:px-6">
-              {version !== 'new' && contextOpen && <div id="chat-machine-context"><MachineContext framed {...contextProps} /></div>}
 
           {/* 空状态 / 欢迎态 */}
           {isEmpty && (
@@ -393,11 +408,12 @@ export default function ChatPage() {
         </div>
       </div>
 
-      {/* 输入区 */}
+      {/* 输入区：旧版改为居中悬浮卡片（见 chat-layout.css 的旧版规则），
+          不再是通栏贴边条；新版 contentClassName 保持原样。 */}
       <LiquidGlass
         variant="regular"
         className="chat-input-glass"
-        contentClassName="chat-input-content border-t border-border/60 px-4 py-4 md:px-6"
+        contentClassName={version === 'old' ? 'chat-input-content px-4 py-2 md:px-6' : 'chat-input-content border-t border-border/60 px-4 py-4 md:px-6'}
       >
         <form onSubmit={handleSubmit} className="chat-composer mx-auto max-w-3xl">
           {version === 'old' && extraControl}
@@ -412,8 +428,8 @@ export default function ChatPage() {
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder={t('描述您遇到的农机故障现象...', 'Describe the fault symptom...')}
-              className="min-h-[60px] resize-none"
-              rows={version === 'new' ? 1 : 2}
+              className={version === 'old' ? 'min-h-[44px] resize-none' : 'min-h-[60px] resize-none'}
+              rows={1}
               disabled={isLoading || memory.busy}
             />
             {isLoading ? (
