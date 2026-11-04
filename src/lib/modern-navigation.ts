@@ -2,7 +2,7 @@
 export const MODERN_DESTINATIONS = [
   { path: '/', zh: '大厅', en: 'Hub' },
   { path: '/knowledge', zh: '农机知识', en: 'Knowledge' },
-  { path: '/chat', zh: '智能诊断', en: 'Diagnosis' },
+  { path: '/chat', zh: '司稼 · 智能诊断', en: 'Sijia · Diagnosis' },
   { path: '/models', zh: '模型工坊', en: 'Model studio' },
 ] as const;
 export interface ModernCrumb { path: string; zh: string; en: string }

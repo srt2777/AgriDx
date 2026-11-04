@@ -43,7 +43,7 @@ export default function ChatPage() {
   const handoff: unknown = location.state;
   const lang = useLang();
   const version = useUiVersion();
-  const { t, format, separator } = useUiCopy(lang);
+  const { t } = useUiCopy(lang);
   const providerLabel = (provider?: ChatProvider) =>
     provider === 'knowledge-base' ? t('本地知识库', 'Local knowledge base') :
     provider === 'gemini' ? 'Gemini' : provider === 'deepseek' ? 'DeepSeek' : provider === 'openai' ? 'OpenAI compatible' : '';
@@ -263,7 +263,7 @@ export default function ChatPage() {
             <Bot className="h-4 w-4" />
           </div>
           <div className="min-w-0">
-            <div className="truncate text-sm font-semibold text-foreground">{format('耕知·耘诊')}{separator}{t('诊断工作台', 'Diagnosis workspace')}</div>
+            <div className="truncate text-sm font-semibold text-foreground">{t('司稼 · 拖拉机智能运维智能体', 'Sijia · Tractor Intelligent O&M Agent')}</div>
             <div className="flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground" role="status">
               <span title={configurationHint}>{serviceStatus}</span>
             </div>
@@ -271,7 +271,7 @@ export default function ChatPage() {
         </div>
         {clearControl}
       </LiquidGlass> : <div className="chat-toolbar">
-        <strong className="chat-toolbar-title" data-shared-target="diagnosis">{t('智能诊断', 'Diagnosis')}</strong>
+        <strong className="chat-toolbar-title" data-shared-target="diagnosis">{t('司稼 · 拖拉机智能运维智能体', 'Sijia · Tractor Intelligent O&M Agent')}</strong>
         <div className="chat-toolbar-actions">
           <Button ref={contextTriggerRef} type="button" variant="ghost" size="sm" className="chat-machine-trigger" aria-label={`${t('机型与记录', 'Machine and history')}: ${[machineType, brand, model].filter(Boolean).join(' ') || t('选择机型', 'Choose machine')}`} aria-expanded={contextOpen} aria-controls="chat-machine-context" onClick={() => setContextOpen(open => !open)}>
             <Settings2 className="h-4 w-4" aria-hidden="true" /><span>{[machineType, brand, model].filter(Boolean).join(' ') || t('选择机型', 'Choose machine')}</span>
@@ -313,8 +313,10 @@ export default function ChatPage() {
                   ? <ThinkingOrbs state="listening" label={t('待命', 'Listening')} />
                   : <span className="flex h-14 w-14 items-center justify-center rounded-full bg-primary/10 text-primary"><Sparkles className="h-7 w-7" /></span>}
               </div>
-              <h2 className="font-serif text-xl font-bold text-foreground">{version === 'new' ? t('从描述故障开始', 'Start with the symptom') : t('描述故障现象', 'Describe the fault')}</h2>
-              <p className="mt-2 max-w-md text-sm text-muted-foreground">{version === 'new' ? t('可以先选择机型，也可以直接提问。', 'Choose a machine or ask a question directly.') : t('可填写品牌、型号和发生工况。', 'Include the brand, model and operating conditions.')}</p>
+              <h2 className="font-serif text-xl font-bold text-foreground">{pick(content.CHAT_WELCOME.title, lang)}</h2>
+              <p className="mt-2 max-w-md text-sm text-muted-foreground">{pick(content.CHAT_WELCOME.desc, lang)}</p>
+              <p className="mt-4 text-sm font-medium text-foreground">{version === 'new' ? t('从描述故障开始', 'Start with the symptom') : t('描述故障现象', 'Describe the fault')}</p>
+              <p className="mt-1 max-w-md text-sm text-muted-foreground">{version === 'new' ? t('可以先选择机型，也可以直接提问。', 'Choose a machine or ask a question directly.') : t('可填写品牌、型号和发生工况。', 'Include the brand, model and operating conditions.')}</p>
 
 
               {/* 快捷提问按钮 */}
@@ -347,6 +349,9 @@ export default function ChatPage() {
                 <div className="mr-2 mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
                   <Bot className="h-4 w-4" />
                 </div>
+              )}
+              {msg.role === 'assistant' && (
+                <span className="mr-2 mt-1 max-w-12 shrink-0 truncate text-xs font-medium text-muted-foreground">{t('司稼', 'Sijia')}</span>
               )}
               <div
                 className={`min-w-0 break-words ${msg.role === 'user' ? 'max-w-[85%] md:max-w-[75%]' : 'w-full'} rounded-2xl px-4 py-3 text-sm leading-relaxed ${

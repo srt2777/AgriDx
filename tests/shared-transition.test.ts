@@ -26,6 +26,10 @@ test('快速前往可按中英文筛选，状态条和 404 文案跟着语言走
   assert.deepEqual(filterCommands('catalog').map((item) => item.id), ['knowledge']);
   assert.equal(filterCommands('没有这个地方').length, 0);
   assert.equal(statusPlace('/hall', 'zh'), '大厅');
+  assert.equal(statusPlace('/chat', 'zh'), '司稼 · 智能诊断');
+  assert.equal(statusPlace('/chat', 'en'), 'SIJIA · DIAGNOSIS');
+  assert.deepEqual(filterCommands('诊断').map((item) => item.id), ['chat']);
+  assert.deepEqual(filterCommands('司稼').map((item) => item.id), ['chat']);
   assert.equal(statusPlace('/models', 'en'), 'MODEL STUDIO');
   assert.equal(statusPlace('/missing', 'zh'), '未找到');
   assert.match(notFoundCopy('zh').title, /页面未找到/);
