@@ -27,3 +27,17 @@ export function timelineBounds(rows: readonly { points: readonly Observation[] }
   const populated = rows.filter(r => r.points.length);
   return populated.length ? { from: Math.min(...populated.map(r => r.points[0].at)), to: Math.max(...populated.map(r => r.points.at(-1)!.at)) } : null;
 }
+
+/** A full comparison remains editable: selecting a fifth channel replaces the oldest. */
+export function toggleComparison(ids: readonly string[], id: string): string[] {
+  if (ids.includes(id)) return ids.length > 1 ? ids.filter(value => value !== id) : [...ids];
+  return [...ids.slice(-3), id];
+}
+/** Shares are only of nonnegative, dimensionally identical readings, never mixed units. */
+export function comparisonShares(rows: readonly { unit: string; value: number }[]) {
+  if (rows.length < 2 || !rows[0].unit || rows.some(r => r.unit !== rows[0].unit || !Number.isFinite(r.value) || r.value < 0)) return null;
+  const scale = Math.max(...rows.map(r => r.value));
+  if (scale === 0) return null;
+  const total = rows.reduce((sum, r) => sum + r.value / scale, 0);
+  return rows.map(r => r.value / scale / total);
+}
