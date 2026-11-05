@@ -27,3 +27,17 @@ test('new demo channels survive public catalog and deterministic sampling withou
   const value=first.points.find(p=>p.channelId===id)!.value;assert.ok(value>=channel.range.min&&value<=channel.range.max);assert.notEqual(value,next.points.find(p=>p.channelId===id)!.value);
  }
 });
+
+test('comparison selection remains editable at capacity and retains at least one channel', async()=>{
+ const {toggleComparison}=await import('../src/features/workbench/analytics');
+ assert.deepEqual(toggleComparison(['a','b','c','d'],'e'),['b','c','d','e']);
+ assert.deepEqual(toggleComparison(['a','b'],'a'),['b']);
+ assert.deepEqual(toggleComparison(['a'],'a'),['a']);
+ assert.deepEqual(toggleComparison(['a'],'b'),['a','b']);
+});
+test('share calculation rejects incompatible, signed and empty totals and handles extreme values', async()=>{
+ const {comparisonShares}=await import('../src/features/workbench/analytics');
+ assert.deepEqual(comparisonShares([{unit:'V',value:10},{unit:'V',value:30}]),[.25,.75]);
+ assert.deepEqual(comparisonShares([{unit:'V',value:1e308},{unit:'V',value:1e308}]),[.5,.5]);
+ for(const rows of [[],[{unit:'V',value:1}],[{unit:'V',value:1},{unit:'A',value:1}],[{unit:'V',value:-1},{unit:'V',value:2}],[{unit:'V',value:0},{unit:'V',value:0}]]) assert.equal(comparisonShares(rows),null);
+});
