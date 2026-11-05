@@ -42,7 +42,7 @@ export function createChatRoutes(diagnose: DiagnosticService, store = getMemoryS
         res.set('Cache-Control', 'no-store');
       }
       const priorReports = remembered ? store().priorReports(owner, remembered.deviceId, remembered.id, user.content) : [];
-      const memory: DiagnosticMemory | undefined = remembered ? { session: { ...remembered, summary: summarizeReports(input.history) }, priorReports, plannerCheckpoint: store().plannerCheckpoint(owner, remembered.id),
+      const memory: DiagnosticMemory | undefined = remembered ? { session: { ...remembered, summary: summarizeReports(input.history) }, priorReports, longTerm: store().longTerm(owner, remembered.deviceId), plannerCheckpoint: store().plannerCheckpoint(owner, remembered.id),
         plannerSessionSeed: createHash('sha256').update(remembered.id).digest('hex').slice(0, 32) } : undefined;
       const payload = await diagnose(input, memory, controller.signal);
       if (res.destroyed) { console.warn('[chat] response skipped: client disconnected'); return; }
