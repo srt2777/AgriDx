@@ -55,3 +55,14 @@ OpenAI 兼容 provider 的 `chatWithTools` 是可选能力：接受工具 schema
 Node 请求在答复前断开会向影子循环传递 AbortSignal（答复发出后由 8 秒整体期限约束）；支持协作取消的工具与供应商会收到信号。既有普通生成路径不因此获得硬取消能力，同步工具仍不可抢占。
 
 既有六个工具均为只读、默认 30 秒，可能返回 INVALID_ARGS、TIMEOUT、CANCELLED、REPEATED_CALL 或 TOOL_ERROR；查无工具时返回 UNKNOWN_TOOL。`calculator` 的来源为通用计算；`get_current_time` 为系统时间；`knowledge_stats` 为知识快照统计，均不提供手册页码。`search_knowledge` 返回来源、范围、核验与正文，可能混合手册和通识（后者标“通识（无手册页码）”）；`browse_knowledge` 返回带范围的目录摘要，不证明适用性；`resolve_machine_scope` 返回助手范围解析及冲突，不能作为实车核验。它们的具体输入及输出限制见上方工具表。错误结果须供后续模型步骤读取，禁止盲目重复。
+
+## 学习：轨迹、奖励与 SFT 数据集（离线）
+
+`agent/learning/` 是 CMU 11-768 第 8/9/11/12 讲（SFT、RL 基础、高级 RL 算法、RL 系统）的离线落地，详见 `agent/learning/README.md`：
+
+- **轨迹记录**：每次诊断一整条轨迹（问题 → Planner 主题 → 工具调用 → 最终答案 → 结果），经 `onTrajectory` 回调交给宿主；默认开启构建、默认不写盘、不上传，`trajectoryRecording: false` 可关闭；token/成本没测到就记 null，不编；正文脱敏。
+- **奖励打分**：纯函数奖励器，规则写死（Planner 对错、是否绕过工具、数值是否只引用工具返回、缺信息是否先问、证据冲突是否提示、分步信用分配），另有 GRPO 式分组打分（同组轨迹相对打分）。只打分，不训练。
+- **SFT 数据集**：`agent/learning/data/sft-good-trajectories.jsonl`，54 条好轨迹（6 主题各 9 条），全部离线合成（只用仓库已有的主题、逻辑链和已核验证据 ID 生成，每条过奖励器且 total >= 6 才留）；工具返回不进导出文件，工具回合 `train: false`（mask，不计 loss）。
+- **示例加载**：`exemplars.ts` 只读加载数据集、按主题挑奖励分最高的 1–3 条拼成提示段，**没有接进线上诊断**，想用必须显式调用。
+
+边界：AgriDx 用的是 DeepSeek API 模型（deepseek-flash），仓库里没有训练管线，做不了对 DeepSeek 权重的 SFT/RL 梯度训练；本模块的“强化学习”是离线奖励 + 分组打分 + 好轨迹示例选择，不是权重更新。不要声称已微调/已训练模型。

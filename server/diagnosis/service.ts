@@ -7,7 +7,7 @@ import { buildDiagnosticReply, renderDiagnosticReply } from './reply';
 import { filterDiagnosticAnswer } from './answerGuard';
 import { decideCoordination, coordinationConfig, ROUTE_MESSAGES } from '../knowledge/coordination';
 import { planDiagnosticTurn, plannerConversationHints } from './plannerIntegration';
-import { identifyPlannerTopic, plannerStepAliases } from './plannerPlans';
+import { identifyPlannerTopic, isPlannerTopic, plannerStepAliases } from './plannerPlans';
 import type { PlannerCheckpoint, PlannerCheckpointCommit } from '../memory/store';
 import { hasIndexedReference, referenceVerification } from '../knowledge/evidence';
 import { retrieve, selectPromptChunks, formatForPrompt, hasApplicableManual } from '../knowledge/retriever';
@@ -18,6 +18,7 @@ import { ProviderError, type ChatMessage } from '../llm/types';
 import type { DiagnosticRequest } from './request';
 import { diagnosticRuntimeConfig, type DiagnosticRuntimeConfig } from './config';
 import { runAgent, type AgentRunResult, type AgentToolEvent } from '../../agent/runner';
+import { buildDiagnosticTrajectory, type DiagnosticTrajectory, type TrajectoryOutcome } from '../../agent/learning/trajectory';
 import { buildContextRegistry } from '../../agent/context-tools';
 
 export interface DiagnosticMemory {
@@ -51,6 +52,10 @@ export interface DiagnosticDependencies {
   now?: () => number;
   config?: Partial<DiagnosticRuntimeConfig>;
   onDecision?: (event: DiagnosticDecisionLog) => void | Promise<void>;
+  /** Receives each built diagnosis trajectory; recording is on by default (see trajectoryRecording) but nothing is persisted unless a callback is supplied. */
+  onTrajectory?: (trajectory: DiagnosticTrajectory) => void | Promise<void>;
+  /** Build (and emit, when onTrajectory is set) a trajectory for each turn. Default true. Set false to disable. Does not change the diagnosis answer. */
+  trajectoryRecording?: boolean;
   /** Receives the redacted outcome of each background shadow run; defaults to a one-line server log. */
   onShadowResult?: (report: ShadowLoopReport) => void;
   /** Test hook for the shadow wall-clock deadline; production uses 8 s. */
@@ -257,6 +262,42 @@ export function createDiagnosticService(llm: DiagnosticProvider, dependencies: D
           else console.info(`[diagnosis] ${JSON.stringify(event)}`);
         } catch { /* Logging failure must not change a diagnosis response. */ }
       });
+      // Trajectory recording (CMU 11-768 Lecture 8): one trajectory per
+      // turn, built from the same data as the decision log. On by default,
+      // but nothing is persisted unless the host supplied onTrajectory;
+      // recording never changes the diagnosis answer.
+      if (dependencies.trajectoryRecording !== false) {
+        const mainLoopEvents = trace.mainLoop?.toolEvents ?? [];
+        const mainLoopSteps = trace.mainLoop?.toolSteps ?? 0;
+        const outcome: TrajectoryOutcome = payload.provider === 'knowledge-base' ? 'local'
+          : payload.diagnosticReply?.aiSupplement ? 'answered'
+          : (payload.diagnosticReply?.questions?.length ? 'question' : 'fallback');
+        const trajectory = buildDiagnosticTrajectory({
+          source: 'live-diagnosis',
+          question: currentQuery,
+          machine: { machineType: scope.machineType, brand: scope.brand, model: scope.model },
+          plannerTopic: isPlannerTopic(activeTopic) ? activeTopic : null,
+          plannerUsed: Boolean(planner),
+          toolCalls: mainLoopEvents.map(event => ({
+            step: event.step, tool: event.tool, ok: event.ok, errorType: event.error_type,
+            durationMs: event.duration_ms, source: event.source, evidenceIds: [],
+          })),
+          // Live tool outputs are never recorded: the main-loop trace is
+          // desensitised by design. Only offline fixtures supply them.
+          toolOutputs: [],
+          evidenceIds: displayed.flatMap(chunk => chunk.entryId ? [chunk.entryId] : []),
+          answer: payload.choices[0].message.content,
+          outcome,
+          route: payload.coordination!.route,
+          reason: payload.coordination!.reason,
+          usage: { rounds: mainLoopSteps, promptTokens: null, completionTokens: null, totalTokens: null, costUsd: null },
+          correctness: 'unknown',
+        });
+        if (dependencies.onTrajectory) defer(() => {
+          try { Promise.resolve(dependencies.onTrajectory!(trajectory)).catch(() => {}); }
+          catch { /* Reporting must never surface to the request. */ }
+        });
+      }
       return payload;
     };
     const replyPlan = (route = coordination) => buildDiagnosticReply({
