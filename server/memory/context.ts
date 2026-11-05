@@ -1,6 +1,6 @@
 import type { LongTermEntry, SessionDetail, PriorDeviceReport } from '../../shared/memory';
 import type { ChatMessage } from '../llm/types';
-import { LONG_TERM_PROMPT_MAX } from './store';
+import { LONG_TERM_PROMPT_MAX } from '../../shared/memory';
 
 /** Fixed character budgets avoid replaying the entire stored transcript to providers. */
 export function recentMessages(messages: readonly { role: 'user' | 'assistant'; content: string }[]): ChatMessage[] {

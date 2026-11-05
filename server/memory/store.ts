@@ -10,7 +10,6 @@ export const LONG_TERM_PROMOTION_SESSIONS = 2;
 export const LONG_TERM_MAX_PER_DEVICE = 50;
 export const LONG_TERM_CANDIDATE_TTL_DAYS = 90;
 export const LONG_TERM_PROMOTED_STALE_DAYS = 180;
-export const LONG_TERM_PROMPT_MAX = 5;
 export const LONG_TERM_DEMOTE_REASONS = ['outdated', 'conflict', 'corrected', 'other'] as const;
 export type LongTermDemoteReason = (typeof LONG_TERM_DEMOTE_REASONS)[number];
 import type { PlannerState } from '../../agent/planner/types';
