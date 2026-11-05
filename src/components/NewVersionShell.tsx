@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { preloadPage } from '@/lib/page-loaders';
 import { publicAsset } from '@/lib/public-asset';
 import { BookOpen, Globe, House, MessageSquare, PanelLeftClose, PanelLeftOpen, Wrench, Activity } from 'lucide-react';
@@ -12,6 +12,7 @@ import ThemeSwitch from '@/components/ThemeSwitch';
 import { beginSharedTransition } from '@/lib/shared-transition';
 import { PREMIUM_MOTION_ENABLED } from '@/components/motion/flag';
 import { MODERN_DESTINATIONS, modernLocation } from '@/lib/modern-navigation';
+import { GlidingSelection } from '@/components/GlidingSelection';
 import './new-version-shell.css';
 
 const NAV_ICONS = { '/': House, '/knowledge': BookOpen, '/chat': MessageSquare, '/models': Wrench, '/fault-detection': Activity } as const;
@@ -31,6 +32,7 @@ export function NewVersionShell() {
   const location = useLocation();
   const navigate = useNavigate();
   const place = modernLocation(location.pathname);
+  const navRef = useRef<HTMLElement>(null);
   const t = (zh: string, en: string) => lang === 'zh' ? zh : en;
 
   return (
@@ -62,7 +64,8 @@ export function NewVersionShell() {
       </button>
       <div className={`new-version-workspace${navigationCollapsed ? ' is-nav-collapsed' : ''}`}>
         <aside id="modern-primary-navigation" className="new-version-navigation-rail" hidden={navigationCollapsed}>
-          <nav className="new-version-navigation" aria-label={t('主要功能', 'Main navigation')}>
+          <nav ref={navRef} className="new-version-navigation" aria-label={t('主要功能', 'Main navigation')}>
+            <GlidingSelection rootRef={navRef} activeSelector=".new-version-nav-item.is-active" className="nv-nav-pill" watch={`${location.pathname}:${navigationCollapsed}`} />
             {MODERN_DESTINATIONS.map(item => {
               const active = place.sectionPath === item.path;
               const Icon = NAV_ICONS[item.path];

@@ -79,7 +79,8 @@
 .knowledge-path-step > svg { position: absolute; right: 22px; top: 30px; color: var(--muted-foreground); }
 .knowledge-preview-footer { display: flex; justify-content: space-between; align-items: center; gap: 24px; margin-top: 26px; }
 .knowledge-live-count { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; max-width: 740px; font-size: 12px; color: var(--primary); }
-.knowledge-live-count > span { display: block; flex-basis: 100%; color: var(--muted-foreground); padding-left: 26px; font-size: 11px; }
+.knowledge-live-count > .knowledge-live-figures { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.knowledge-live-count > .knowledge-live-note { display: block; flex-basis: 100%; color: var(--muted-foreground); padding-left: 26px; font-size: 11px; }
 .research-section { background: var(--agri-surface); }
 .research-heading { display: flex; justify-content: space-between; gap: 28px; }
 .research-heading > svg { color: var(--primary); flex: none; margin-top: 38px; }
