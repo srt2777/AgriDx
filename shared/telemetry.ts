@@ -70,7 +70,7 @@ export interface TelemetryScenarioState {
   schemaVersion: 1;
   source: 'simulated';
   watermark: typeof TELEMETRY_WATERMARK;
-  scope: 'shared-service';
+  scope: 'shared-service' | 'browser-tab';
   runId: string;
   revision: number;
   id: TelemetryScenarioId;

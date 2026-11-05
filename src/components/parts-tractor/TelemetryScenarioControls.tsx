@@ -10,10 +10,11 @@ type Props = { data: Data; lang: TelemetryLanguage };
 /** Only the hook owns transport. A new sampled run resets this form's unpersisted draft. */
 export function TelemetryScenarioControls({ data, lang }: Props) {
   const t = (zh: string, en: string) => lang === 'zh' ? zh : en;
+  const preview = typeof __AGRIDX_DEV_PREVIEW__ !== 'undefined' && __AGRIDX_DEV_PREVIEW__;
   const current = data.catalog?.scenarios.find(item => item.id === data.scenario?.id);
   return <section className="telemetry-scenarios" aria-label={t('仿真场景', 'Simulation scenarios')}>
-    <h4><Users size={14} aria-hidden="true" />{t('仿真场景 · 服务共享', 'Simulation scenarios · Shared service')}</h4>
-    <p className="telemetry-note">{t('切换影响当前服务的所有监测窗口，并清空旧场景曲线。仿真场景名称不表示实车状态。', 'Switching affects every monitoring window on this service and clears previous scenario curves. Scenario names do not describe a vehicle’s condition.')}</p>
+    <h4><Users size={14} aria-hidden="true" />{preview ? t('仿真场景 · 当前浏览器页面', 'Simulation scenarios · This browser tab') : t('仿真场景 · 服务共享', 'Simulation scenarios · Shared service')}</h4>
+    <p className="telemetry-note">{preview ? t('浏览器内生成的演示数据；切换只影响本页面，清空旧曲线。刷新重新生成，不表示实车状态。', 'Browser-generated demo data. Switching affects only this tab and clears old curves. Reloading resets the demo; this is not vehicle data.') : t('切换影响当前服务的所有监测窗口，并清空旧场景曲线。仿真场景名称不表示实车状态。', 'Switching affects every monitoring window on this service and clears previous scenario curves. Scenario names do not describe a vehicle’s condition.')}</p>
     {current && data.runId && data.scenario?.revision !== undefined && data.scenario.startedAt !== undefined
       ? <ScenarioForm key={`${data.runId}:${data.scenario.revision}`} data={data} current={current} lang={lang} />
       : <p role="status">{t('等待带控制信息的仿真样本，暂不可切换场景。', 'Waiting for a simulation sample with control metadata. Switching is unavailable.')}</p>}

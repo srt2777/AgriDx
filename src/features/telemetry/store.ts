@@ -1,3 +1,4 @@
+import { createPreviewTelemetryTransport } from './preview-transport';
 import { ApiError, requestJson } from '../../lib/api-client';
 import { TELEMETRY_WATERMARK, telemetryConnectionState, type TelemetryCatalog, type TelemetryFrame, type TelemetryPoint,
   type TelemetryScenarioCommand, type TelemetryScenarioId, type TelemetryScenarioState } from '../../../shared/telemetry';
@@ -228,5 +229,5 @@ export class TelemetryStore {
 
 let browserStore: TelemetryStore | undefined;
 export function getTelemetryStore(): TelemetryStore {
-  return browserStore ??= new TelemetryStore({ supported: !(typeof __AGRIDX_DEV_PREVIEW__ !== 'undefined' && __AGRIDX_DEV_PREVIEW__) });
+  return browserStore ??= new TelemetryStore(typeof __AGRIDX_DEV_PREVIEW__ !== 'undefined' && __AGRIDX_DEV_PREVIEW__ ? createPreviewTelemetryTransport() : {});
 }

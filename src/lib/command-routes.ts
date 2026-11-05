@@ -13,6 +13,7 @@ export const COMMAND_ROUTES: readonly CommandRoute[] = [
   { id: 'knowledge', path: '/knowledge', zh: '农机知识', en: 'Knowledge', hintZh: '知识目录', hintEn: 'Catalog', words: 'catalog 目录 资料' },
   { id: 'chat', path: '/chat', zh: '司稼 · 智能诊断', en: 'Sijia · Diagnosis', hintZh: '诊断', hintEn: 'Diagnosis', words: 'chat 诊断' },
   { id: 'models', path: '/models', zh: '模型工坊', en: 'Model studio', hintZh: '结构示意', hintEn: 'Structure illustration', words: 'model tractor 模型 结构' },
+  { id: 'fault', path: '/fault-detection', zh: '故障检测演示', en: 'Fault detection demo', hintZh: '检测演示', hintEn: 'Detection demo', words: 'fault detection demo 故障 检测 演示' },
   { id: 'history', path: '/version-history', zh: '版本历史记录', en: 'Version history', hintZh: '更新日志', hintEn: 'Changelog', words: 'version history changelog 更新 版本 日志' },
 ];
 
