@@ -1,5 +1,5 @@
 /**
- * 带超时的 fetch（Node 18+ 原生 fetch）
+ * 带超时的 fetch（服务端启动时安装锁文件中的 Undici 实现）
  * 用于避免 provider 网络异常时长时间挂起。
  */
 export function fetchWithTimeout(
