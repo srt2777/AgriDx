@@ -85,7 +85,7 @@ export function parseTelemetryFrame(value: unknown, catalog: TelemetryCatalog): 
 }
 /** Control replies are metadata, never a substitute for samples received on the stream. */
 export function parseTelemetryScenarioState(value: unknown, catalog: TelemetryCatalog): TelemetryScenarioState {
-  requireData(marked(value) && value.scope === 'shared-service' && typeof value.runId === 'string' && /^[a-zA-Z0-9-]{1,64}$/.test(value.runId)
+  requireData(marked(value) && (value.scope === 'shared-service' || value.scope === 'browser-tab') && typeof value.runId === 'string' && /^[a-zA-Z0-9-]{1,64}$/.test(value.runId)
     && integer(value.revision) && integer(value.startedAt) && integer(value.elapsedMs) && typeof value.loop === 'boolean');
   const scenario = catalog.scenarios.find(item => item.id === value.id);
   requireData(scenario && (value.loop ? value.elapsedMs < scenario.durationMs : value.elapsedMs <= scenario.durationMs));
