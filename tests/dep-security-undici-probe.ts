@@ -7,7 +7,9 @@
 // Exit 0 = expected outcome and process survived 800ms afterwards.
 // Exit 2 = fetch behaved unexpectedly (wrong status / no rejection).
 // Any other exit / signal = the process died (vulnerable behaviour).
-import { ProxyAgent, setGlobalDispatcher } from 'undici';
+import assert from 'node:assert/strict';
+import { fetch as patchedFetch, Headers as PatchedHeaders, Request as PatchedRequest, Response as PatchedResponse } from 'undici';
+import { initializeEnvironment } from '../server/config/environment';
 
 function arg(name: string): string | undefined {
   const index = process.argv.indexOf(name);
@@ -23,10 +25,16 @@ if ((impl !== 'global' && impl !== 'undici') || (testCase !== 'excessive' && tes
   process.exit(2);
 }
 
-if (proxy) {
-  setGlobalDispatcher(new ProxyAgent(proxy));
-  console.log(`proxy dispatcher set: ${proxy}`);
-}
+// Exercise the real server initialization with only a local, controlled proxy.
+process.env.HTTPS_PROXY = proxy ?? '';
+process.env.https_proxy = '';
+process.env.HTTP_PROXY = '';
+process.env.http_proxy = '';
+initializeEnvironment();
+assert.equal(globalThis.fetch, patchedFetch);
+assert.equal(globalThis.Headers, PatchedHeaders);
+assert.equal(globalThis.Request, PatchedRequest);
+assert.equal(globalThis.Response, PatchedResponse);
 
 const fetchFn: typeof fetch =
   impl === 'undici' ? (await import('undici')).fetch : globalThis.fetch;
