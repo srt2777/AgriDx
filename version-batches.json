@@ -975,10 +975,24 @@
       "date": "2026-11-04"
     },
     {
-      "id": "spring-glass-polish-20261105",
-      "kind": "maintenance",
+      "id": "preview-telemetry-20261105",
+      "kind": "fix",
       "base": "4.0.36",
       "version": "4.0.37",
+      "date": "2026-11-05"
+    },
+    {
+      "id": "analytics-comparison-20261105",
+      "kind": "feature",
+      "base": "4.0.37",
+      "version": "4.0.38",
+      "date": "2026-11-05"
+    },
+    {
+      "id": "spring-glass-polish-20261105",
+      "kind": "maintenance",
+      "base": "4.0.38",
+      "version": "4.0.39",
       "date": "2026-11-05"
     }
   ]
