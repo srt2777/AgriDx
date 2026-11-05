@@ -8,6 +8,35 @@
 
 历史记录：[3.x](docs/changelog/3.x.md) / [2.x](docs/changelog/2.x.md)。
 
+## 4.0.40 — 2026-11-05
+
+- 依赖安全修复：body-parser 2.4.0、undici 8.12.4、qs 6.17.1、postcss-selector-parser 6.1.5（overrides）
+- 更新类型：fix；批次：dep-security-20261105。
+
+### 详细改动
+
+- 依赖安全修复：body-parser 2.4.0、undici 8.12.4、qs 6.17.1、postcss-selector-parser 6.1.5（overrides）
+
+### 知识库变化
+
+- 未记录
+
+### 兼容性
+
+- 未记录
+
+### 验证结果
+
+- 未记录
+
+### 关联 PR
+
+- 未记录
+
+### 部署记录
+
+- 未记录；GitHub 保存、开发站与正式站分别验收。
+
 ## 4.0.39 — 2026-11-05
 
 - 新版液态主按钮与滑动选中条，旧版章节入场与数字递增
