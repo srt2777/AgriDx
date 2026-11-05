@@ -54,3 +54,24 @@ export interface PriorDeviceReport {
   question: string;
   progress: string;
 }
+/** Long-term memory: cross-session user-reported facts. Promoted never means verified. */
+/** Max promoted long-term entries included in a prompt (kept in shared/memory so browser bundles never import the server SQLite store). */
+export const LONG_TERM_PROMPT_MAX = 5;
+export type LongTermKind = 'device_fact' | 'fault_pattern';
+export type LongTermStatus = 'candidate' | 'promoted' | 'demoted' | 'stale' | 'superseded';
+export interface LongTermEntry {
+  id: string;
+  deviceId: string;
+  kind: LongTermKind;
+  content: string;
+  source: 'user_reported';
+  status: LongTermStatus;
+  /** Distinct sessions that confirmed this entry; promotion needs >= 2. */
+  confirmations: number;
+  evidenceSessions: string[];
+  reason: string;
+  supersededBy: string | null;
+  createdAt: string;
+  updatedAt: string;
+  lastConfirmedAt: string;
+}
