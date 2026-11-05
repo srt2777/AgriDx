@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { preloadPage } from '@/lib/page-loaders';
 import { publicAsset } from '@/lib/public-asset';
-import { BookOpen, Globe, House, MessageSquare, PanelLeftClose, PanelLeftOpen, Wrench } from 'lucide-react';
+import { BookOpen, Globe, House, MessageSquare, PanelLeftClose, PanelLeftOpen, Wrench, Activity } from 'lucide-react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useLang, setLang } from '@/hooks/useLang';
 import { CommandButton } from '@/components/CommandPalette';
@@ -14,7 +14,7 @@ import { PREMIUM_MOTION_ENABLED } from '@/components/motion/flag';
 import { MODERN_DESTINATIONS, modernLocation } from '@/lib/modern-navigation';
 import './new-version-shell.css';
 
-const NAV_ICONS = { '/': House, '/knowledge': BookOpen, '/chat': MessageSquare, '/models': Wrench } as const;
+const NAV_ICONS = { '/': House, '/knowledge': BookOpen, '/chat': MessageSquare, '/models': Wrench, '/fault-detection': Activity } as const;
 
 /** Shared chrome for the modern workspace. */
 export function NewVersionShell() {
