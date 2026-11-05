@@ -172,12 +172,19 @@ export class MemoryStore {
     if (!terms.size) return [];
     const rows = this.db.prepare("SELECT id, progress, updated_at FROM memory_sessions WHERE owner = ? AND device_id = ? AND id <> ? AND progress <> '' ORDER BY updated_at DESC LIMIT 20")
       .all(owner, deviceId, excluded);
+    // Same-device recall hardening (not long-term learning): a single
+    // shared two-character bigram is too weak to surface another session's
+    // report as relevant, so multi-term queries now need at least two
+    // distinct term matches. Single-term queries keep the one-match rule.
+    // This does not create cross-session learned facts: reports stay
+    // user-reported, unverified, and explicitly labelled as such.
+    const minScore = terms.size >= 2 ? 2 : 1;
     return rows.map((row) => {
       const first = this.db.prepare("SELECT json_extract(payload, '$.content') AS question FROM memory_messages WHERE session_id = ? AND json_extract(payload, '$.role') = 'user' ORDER BY sequence LIMIT 1").get(String(row.id));
       const report = { sessionId: String(row.id), updatedAt: String(row.updated_at), question: String(first?.question || '').slice(0, 400), progress: String(row.progress).slice(0, 800) };
       const text = `${report.question} ${report.progress}`.toLowerCase();
       return { report, score: [...terms].filter((t) => text.includes(t)).length };
-    }).filter((candidate) => candidate.score > 0).sort((a, b) => b.score - a.score).slice(0, 3).map((candidate) => candidate.report);
+    }).filter((candidate) => candidate.score >= minScore).sort((a, b) => b.score - a.score).slice(0, 3).map((candidate) => candidate.report);
   }
   private checkRevision(actual: number, expected: number) {
     if (actual !== expected) throw new MemoryError(409, 'memory_conflict', '诊断记录已更新，请重新载入后继续');

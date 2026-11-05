@@ -12,5 +12,5 @@ export function modernLocation(pathname: string): { sectionPath: string; breadcr
   const home = MODERN_DESTINATIONS[0];
   const current = MODERN_DESTINATIONS.find(item => item.path === path || path === '/hall' && item.path === '/');
   if (current) return { sectionPath: current.path, breadcrumbs: current.path === '/' ? [home] : [home, current] };
-  return { sectionPath: '/', breadcrumbs: [home, { path, zh: path === '/version-history' ? '更新记录' : '页面', en: path === '/version-history' ? 'Version history' : 'Page' }] };
+  return { sectionPath: '/', breadcrumbs: [home, { path, zh: path === '/version-history' ? '版本历史记录' : '页面', en: path === '/version-history' ? 'Version history' : 'Page' }] };
 }

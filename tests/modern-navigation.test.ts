@@ -34,7 +34,7 @@ test('fault detection is a top-level modern destination with its own route and n
   assert.match(shell, /'\/fault-detection': Activity/);
 });
 test('other child pages retain their parent navigation and expose a usable parent path', () => {
-  assert.equal(modernLocation('/version-history').breadcrumbs.at(-1)?.zh, '更新记录');
+  assert.equal(modernLocation('/version-history').breadcrumbs.at(-1)?.zh, '版本历史记录');
   assert.notEqual(modernLocation('/unknown').breadcrumbs.at(-1)?.zh, '智能诊断');
 });
 test('the hall has no second header, main landmark, global feature list or version switch', () => {

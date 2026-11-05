@@ -3,7 +3,7 @@ import { parsePlannerFeedback } from '../../agent/planner/feedback';
 import { recordDecision, scopeKey } from '../../agent/planner/reducer';
 import type { PlannerCheckpoint, PlannerCheckpointCommit } from '../memory/store';
 import type { CoordinationDecision, DiagnosticReply } from '../../shared/diagnosis';
-import { createDiagnosticPlan, identifyPlannerTopic, isPlannerTopic, plannerStepAliases } from './plannerPlans';
+import { createDiagnosticPlan, identifyPlannerTopic, isPlannerTopic, plannerAmbiguityQuestion, plannerStepAliases } from './plannerPlans';
 
 /** Limited host hints: recognizable reports stay with their fault, while an
  * independently stated different fault starts a fresh episode. Unknown short
@@ -74,12 +74,21 @@ export function planDiagnosticTurn(input: {
   const topic = identifyPlannerTopic(input.topicRoot) ?? (recognizedFollowup && isPlannerTopic(prior?.topicKey) ? prior.topicKey : undefined);
   if (!topic) {
     // Unknown wording is never assigned to an old step or silently treated as
-    // a new fault. Ask for clarification while preserving its bounded history.
-    if (!prior || explicitNewTopic || ['cancelled', 'resolved_reported', 'escalated', 'exhausted'].includes(prior.state.status)) return { commit: { previous, checkpoint: null } };
+    // a new fault. A multi-system ambiguous fault text gets the specific
+    // candidate-system question (labels only, no evidence IDs, no fault
+    // conclusion); other unknown wording keeps the generic clarification.
+    // With a live prior episode the question rides on topicPending, which
+    // the service turns into a planner_clarify local downgrade; without an
+    // episode the question is returned with a null checkpoint, and the
+    // user's single-system reply becomes the next turn's topic root.
+    const ambiguityQuestion = plannerAmbiguityQuestion(input.topicRoot);
+    if (!prior || explicitNewTopic || ['cancelled', 'resolved_reported', 'escalated', 'exhausted'].includes(prior.state.status)) {
+      return { commit: { previous, checkpoint: null }, ...(ambiguityQuestion ? { questions: [{ text: ambiguityQuestion }] } : {}) };
+    }
     const updated = reducePlan(prior.state, { type: 'continue', id: `turn-${input.revision}`, episodeId: prior.state.episodeId });
     const state = prior.state.stopReason === 'user_paused' ? updated : recordDecision(updated, { status: 'paused', reason: 'no_progress' });
     return { commit: { previous, checkpoint: { ...prior, state, topicPending: 'topic' } }, questions: prior.state.status === 'paused' ? []
-      : [{ text: '请确认这条信息是在补充刚才的故障，还是在描述另一个问题，并说明对应的检查或故障现象。' }] };
+      : [{ text: ambiguityQuestion ?? '请确认这条信息是在补充刚才的故障，还是在描述另一个问题，并说明对应的检查或故障现象。' }] };
   }
   const sameEpisode = !explicitNewTopic && prior?.topicKey === topic && prior.state.scopeKey === scopeKey(input.scope);
   let state = sameEpisode ? prior!.state : createDiagnosticPlan({ topic, scope: input.scope, sessionSeed: input.sessionSeed, revision: input.revision });
