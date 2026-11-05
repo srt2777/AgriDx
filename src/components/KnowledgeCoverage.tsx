@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { ArrowRight, ChevronRight, Database, Loader2 } from 'lucide-react';
 import { useLang } from '@/hooks/useLang';
 import { useKnowledgeCatalog } from '@/hooks/useKnowledgeCatalog';
+import { ScrollCount } from '@/components/ScrollCount';
 
 
 export default function KnowledgeCoverage() {
@@ -24,9 +25,8 @@ export default function KnowledgeCoverage() {
         ].map(([name, detail], index) => <div key={name} className="knowledge-path-step"><span className="knowledge-step-no">0{index + 1}</span><strong>{name}</strong><p>{detail}</p>{index < 3 && <ChevronRight size={18} aria-hidden="true" />}</div>)}
       </div>
       <div className="knowledge-preview-footer">
-        <div className="knowledge-live-count" aria-live="polite"><Database size={18} />
-          {loading ? <><Loader2 size={14} className="animate-spin" />{t('读取实际整理数量', 'Loading knowledge counts')}</> : failed ? t('数量暂不可用 可进入知识浏览重试', 'Counts unavailable retry in the knowledge browser') : catalog ? t(`知识合计 ${catalog.totals.entries} 条 来源归档 ${catalog.totals.archivedEntries} 通识学习 ${catalog.totals.learningEntries}`, `${catalog.totals.entries} knowledge entries ${catalog.totals.archivedEntries} archived ${catalog.totals.learningEntries} learning`) : null}
-          <span>{t('分层体系已建立，整机性能全覆盖仍在推进。', 'The hierarchy is established; full-machine coverage is still in progress.')}</span>
+        <div className="knowledge-live-count"><span className="knowledge-live-figures">{loading ? <span role="status"><Database size={18} /><Loader2 size={14} className="animate-spin" />{t('读取实际整理数量', 'Loading knowledge counts')}</span> : failed ? <><Database size={18} />{t('数量暂不可用 可进入知识浏览重试', 'Counts unavailable retry in the knowledge browser')}</> : catalog ? <><Database size={18} />{lang === 'zh' ? <>知识合计 <ScrollCount value={catalog.totals.entries} /> 条 来源归档 <ScrollCount value={catalog.totals.archivedEntries} /> 通识学习 <ScrollCount value={catalog.totals.learningEntries} /></> : <><ScrollCount value={catalog.totals.entries} /> knowledge entries <ScrollCount value={catalog.totals.archivedEntries} /> archived <ScrollCount value={catalog.totals.learningEntries} /> learning</>}</> : null}</span>
+          <span className="knowledge-live-note">{t('分层体系已建立，整机性能全覆盖仍在推进。', 'The hierarchy is established; full-machine coverage is still in progress.')}</span>
         </div>
         <Link to="/knowledge" className="hero-text-link">{t('查看知识与覆盖缺口', 'Explore knowledge & gaps')}<ArrowRight size={17} /></Link>
       </div>

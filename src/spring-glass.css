@@ -1,0 +1,158 @@
+/* Spring / glass polish for the new UI. Classic pages do not use these classes. */
+
+.nv-liquid-cta {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, white 42%, transparent);
+  background: color-mix(in srgb, var(--card) 28%, transparent);
+  color: var(--foreground);
+  box-shadow: inset 0 1px 0 color-mix(in srgb, white 62%, transparent);
+  -webkit-backdrop-filter: blur(16px) saturate(1.45);
+  backdrop-filter: blur(16px) saturate(1.45);
+}
+.nv-liquid-cta > * { position: relative; z-index: 1; }
+.nv-liquid-cta::after {
+  content: '';
+  position: absolute;
+  inset: -20% 0;
+  z-index: 0;
+  background: linear-gradient(105deg, transparent 34%, color-mix(in srgb, var(--primary) 62%, white) 50%, transparent 66%);
+  transform: translate3d(-130%, 0, 0);
+  pointer-events: none;
+}
+.expo-page .expo-world-dock > button.nv-liquid-cta,
+.expo-page .expo-zone-actions > button.nv-liquid-cta,
+.campus-equipment-catalog > header > button.nv-liquid-cta {
+  border: 1px solid color-mix(in srgb, white 42%, transparent);
+  background: color-mix(in srgb, var(--card) 28%, transparent);
+  color: var(--foreground);
+  box-shadow: inset 0 1px 0 color-mix(in srgb, white 62%, transparent);
+}
+.expo-page .expo-world-dock > button.nv-liquid-cta[aria-pressed='true'],
+.campus-equipment-catalog > header > button.nv-liquid-cta[aria-pressed='true'] {
+  background: color-mix(in srgb, var(--primary) 24%, transparent);
+  border-color: color-mix(in srgb, var(--primary) 48%, transparent);
+}
+.expo-page .expo-zone-actions > button.nv-liquid-cta:hover,
+.campus-equipment-catalog > header > button.nv-liquid-cta:hover {
+  filter: none;
+  background: color-mix(in srgb, var(--card) 36%, transparent);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .expo-page .expo-world-dock > button.nv-liquid-cta,
+  .expo-page .expo-zone-actions > button.nv-liquid-cta,
+  .campus-equipment-catalog > header > button.nv-liquid-cta,
+  .nv-liquid-cta {
+    transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .nv-liquid-cta::after {
+    transition: transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .nv-liquid-cta:hover::after { transform: translate3d(130%, 0, 0); }
+  .expo-page .expo-world-dock > button.nv-liquid-cta:active,
+  .expo-page .expo-zone-actions > button.nv-liquid-cta:active,
+  .campus-equipment-catalog > header > button.nv-liquid-cta:active {
+    transform: scale(0.97);
+  }
+}
+
+.new-version-navigation { position: relative; }
+.nv-nav-pill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 0;
+  border-radius: 12px;
+  pointer-events: none;
+  background: color-mix(in srgb, var(--hub-primary, var(--primary)) 18%, var(--accent));
+  border: 1px solid color-mix(in srgb, var(--hub-primary, var(--primary)) 42%, var(--border));
+  box-shadow: inset 0 1px 0 color-mix(in srgb, white 35%, transparent);
+}
+html.theme-dark .new-version-shell .nv-nav-pill {
+  background: #303032;
+  border-color: transparent;
+}
+html:not(.theme-dark) .new-version-shell .nv-nav-pill {
+  background: #d5d5d3;
+  border-color: transparent;
+}
+html .new-version-shell[data-ui-version='new'] .new-version-navigation .new-version-nav-item {
+  position: relative;
+  z-index: 1;
+}
+html .new-version-shell[data-ui-version='new'] .new-version-navigation .new-version-nav-item.is-active,
+html .new-version-shell[data-ui-version='new'] .new-version-navigation .new-version-nav-item.is-active:hover {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+  color: var(--foreground);
+}
+html.theme-dark .new-version-shell[data-ui-version='new'] .new-version-navigation .new-version-nav-item.is-active {
+  color: #fff;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .nv-nav-pill {
+    transition:
+      transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
+      width 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
+      height 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+}
+.nv-nav-pill.is-instant { transition: none; }
+
+@keyframes chapter-rise {
+  from { opacity: 0; transform: translate3d(0, 14px, 0); }
+  to { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .wb-page[data-chapter-motion='on'] .chapter-line {
+    opacity: 0;
+    transform: translate3d(0, 14px, 0);
+  }
+  .wb-page[data-chapter-motion='on'] .chapter-line.is-revealed {
+    animation: chapter-rise 0.72s cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation-delay: calc(var(--chapter-i, 0) * 90ms);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .wb-page .chapter-line { opacity: 1; transform: none; animation: none; }
+}
+
+.scroll-count {
+  display: inline-block;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nv-liquid-cta,
+  .nv-liquid-cta::after,
+  .nv-nav-pill {
+    transition: none !important;
+    animation: none !important;
+  }
+  .nv-liquid-cta::after { transform: none; opacity: 0; }
+  .nv-liquid-cta:active,
+  .expo-page .nv-liquid-cta:active { transform: none; }
+}
+
+@media (forced-colors: active) {
+  .nv-liquid-cta { background: ButtonFace; color: ButtonText; border: 1px solid ButtonText; backdrop-filter: none; }
+  .nv-liquid-cta::after,
+  .nv-nav-pill { display: none; }
+  html .new-version-shell[data-ui-version='new'] .new-version-navigation .new-version-nav-item.is-active {
+    background: Highlight;
+    color: HighlightText;
+  }
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .nv-liquid-cta,
+  .expo-page .expo-world-dock > button.nv-liquid-cta,
+  .expo-page .expo-zone-actions > button.nv-liquid-cta,
+  .campus-equipment-catalog > header > button.nv-liquid-cta {
+    background: var(--card);
+  }
+}

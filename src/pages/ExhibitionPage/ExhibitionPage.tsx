@@ -459,7 +459,7 @@ export default function ExhibitionPage() {
                 {selectedZone.id === 'diagnosis' && <Link className="expo-fault-link" to="/fault-detection" onPointerEnter={() => preloadPage('/fault-detection')} onFocus={() => preloadPage('/fault-detection')}>
                   {t('故障检测演示工作台', 'Fault detection demo workbench')}<ArrowRight size={15} />
                 </Link>}
-                <button type="button" className={PREMIUM_MOTION_ENABLED ? 'glass-press' : undefined} data-motion={PREMIUM_MOTION_ENABLED ? 'glass-press' : undefined} onPointerEnter={() => preloadPage(selectedZone.path ?? '/', selectedZone.path ? 'new' : 'old')} onFocus={() => preloadPage(selectedZone.path ?? '/', selectedZone.path ? 'new' : 'old')} onClick={(event) => enterZone(selectedZone.id, event.currentTarget.closest('.expo-zone-card')?.querySelector('h2') ?? event.currentTarget)}>
+                <button type="button" className={PREMIUM_MOTION_ENABLED ? 'glass-press nv-liquid-cta' : 'nv-liquid-cta'} data-motion={PREMIUM_MOTION_ENABLED ? 'glass-press' : undefined} onPointerEnter={() => preloadPage(selectedZone.path ?? '/', selectedZone.path ? 'new' : 'old')} onFocus={() => preloadPage(selectedZone.path ?? '/', selectedZone.path ? 'new' : 'old')} onClick={(event) => enterZone(selectedZone.id, event.currentTarget.closest('.expo-zone-card')?.querySelector('h2') ?? event.currentTarget)}>
                   {t('进入展区', 'Open zone')}
                   <ArrowRight size={15} />
                 </button>
@@ -639,7 +639,7 @@ export default function ExhibitionPage() {
                 <Compass size={17} />
                 <span>{t('园区总览', 'Overview')}</span>
               </button>
-              <button type="button" aria-pressed={mode === 'drive'} onClick={startDrive}>
+              <button type="button" className="nv-liquid-cta" aria-pressed={mode === 'drive'} onClick={startDrive}>
                 <Navigation size={16} />
                 <span>{t('驾驶漫游', 'Explore')}</span>
               </button>

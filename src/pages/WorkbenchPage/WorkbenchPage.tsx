@@ -12,13 +12,58 @@ import { useUpdateBlocker } from '@/features/updates/useUpdateBlocker';
 import { Analytics } from './Analytics';
 import { DataImport } from './DataImport';
 import { TrendChart } from './TrendChart';
+import { ScrollCount } from '@/components/ScrollCount';
 
 function useCopy() { const lang = useLang(); return { lang, t: (zh: string, en: string) => lang === 'zh' ? zh : en }; }
 function Panel({ title, eyebrow, children, action }: { title: string; eyebrow?: string; children: ReactNode; action?: ReactNode }) { return <section className="wb-panel"><div className="wb-panel-heading"><div>{eyebrow && <p className="wb-eyebrow">{eyebrow}</p>}<h2>{title}</h2></div>{action}</div>{children}</section>; }
 function Empty({ children }: { children: ReactNode }) { return <div className="wb-empty"><Database size={28} /><p>{children}</p></div>; }
 
+function inViewport(node: HTMLElement) {
+  const rect = node.getBoundingClientRect();
+  return rect.width > 0 && rect.height > 0 && rect.bottom > 0 && rect.top < window.innerHeight * 0.96;
+}
+
+function useWorkbenchReveal(pathname: string) {
+  useEffect(() => {
+    const root = document.querySelector<HTMLElement>('.wb-page');
+    if (!root) return undefined;
+    const nodes = [...root.querySelectorAll<HTMLElement>('.wb-page-heading, .wb-metric, .wb-panel')];
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      nodes.forEach(node => node.classList.add('is-revealed'));
+      return undefined;
+    }
+    nodes.forEach(node => node.classList.add('chapter-line'));
+    root.setAttribute('data-chapter-motion', 'on');
+    let frame = 0;
+    let observer: IntersectionObserver | undefined;
+    const reveal = (list: HTMLElement[]) => {
+      list.forEach((node, index) => {
+        node.style.setProperty('--chapter-i', String(index));
+        node.classList.add('is-revealed');
+      });
+    };
+    const arm = () => {
+      reveal(nodes.filter(inViewport));
+      observer = new IntersectionObserver(entries => {
+        const fresh = entries.filter(entry => entry.isIntersecting).map(entry => entry.target as HTMLElement);
+        reveal(fresh);
+        fresh.forEach(node => observer?.unobserve(node));
+      }, { threshold: 0.15, rootMargin: '0px 0px -4% 0px' });
+      nodes.filter(node => !node.classList.contains('is-revealed')).forEach(node => observer?.observe(node));
+    };
+    // Wait until a frame has painted the hidden state, then start the rise.
+    frame = requestAnimationFrame(() => { frame = requestAnimationFrame(arm); });
+    return () => {
+      cancelAnimationFrame(frame);
+      observer?.disconnect();
+      root.removeAttribute('data-chapter-motion');
+    };
+  }, [pathname]);
+}
+
 export default function WorkbenchPage() {
   const { pathname } = useLocation(), { lang, t } = useCopy(), work = useWorkbench();
+  useWorkbenchReveal(pathname);
   const route = workbenchRoutes.find(r => r.path === pathname) ?? workbenchRoutes[0];
   const subtitles: Record<string, [string, string]> = {
     '/': ['从农机对象出发，让数据、知识与检查形成完整工作流。', 'Connect machine context, observations, knowledge and inspection.'],
@@ -41,7 +86,7 @@ function Overview() {
   const totals = work.catalog?.totals;
   const steps = [{ path: '/workspace/assets', zh: '选择农机', en: 'Select machine', text: t('品牌 · 型号 · 部件', 'Brand · model · part') }, { path: '/workspace/data', zh: '整理数据', en: 'Prepare data', text: t('采集 · 导入 · 映射', 'Collect · import · map') }, { path: '/workspace/analytics', zh: '观察趋势', en: 'Explore trends', text: t('曲线 · 样本 · 统计', 'Charts · samples · statistics') }, { path: '/chat', zh: '检索与诊断', en: 'Find evidence', text: t('现象 · 来源 · 建议', 'Symptoms · sources · advice') }, { path: '/workspace/records', zh: '记录与复核', en: 'Record & review', text: t('人工检查 · 导出', 'User checks · export') }];
   return <>
-    <div className="wb-metrics">{[{ label: t('知识条目', 'Knowledge entries'), value: totals?.entries, note: t('来自当前知识目录', 'Current knowledge catalog'), icon: FileText }, { label: t('归档型号', 'Catalog models'), value: totals?.models, note: t('覆盖范围不代表整机验证', 'Coverage is not validation'), icon: Tractor }, { label: t('演示采集通道', 'Simulation channels'), value: telemetry.catalog?.channels.length, note: t('仿真数据 · 未连接实车', 'Simulation · no vehicle connected'), icon: Activity }, { label: t('本地数据集', 'Local datasets'), value: work.data.datasets.length, note: t('仅保存在本浏览器', 'Stored in this browser'), icon: Database }].map(({ label, value, note, icon: Icon }) => <div className="wb-metric" key={label}><div><span>{label}</span><Icon size={19} /></div><strong>{value?.toLocaleString() ?? '—'}</strong><small>{note}</small></div>)}</div>
+    <div className="wb-metrics">{[{ label: t('知识条目', 'Knowledge entries'), value: totals?.entries, note: t('来自当前知识目录', 'Current knowledge catalog'), icon: FileText }, { label: t('归档型号', 'Catalog models'), value: totals?.models, note: t('覆盖范围不代表整机验证', 'Coverage is not validation'), icon: Tractor }, { label: t('演示采集通道', 'Simulation channels'), value: telemetry.catalog?.channels.length, note: t('仿真数据 · 未连接实车', 'Simulation · no vehicle connected'), icon: Activity }, { label: t('本地数据集', 'Local datasets'), value: work.data.datasets.length, note: t('仅保存在本浏览器', 'Stored in this browser'), icon: Database }].map(({ label, value, note, icon: Icon }) => <div className="wb-metric" key={label}><div><span>{label}</span><Icon size={19} /></div><strong>{typeof value === 'number' ? <ScrollCount value={value} /> : '—'}</strong><small>{note}</small></div>)}</div>
     <Panel title={t('一条清楚的工作路径', 'A connected workflow')} eyebrow="WORKFLOW" action={<span className="wb-tag">{t('5 个环节', '5 stages')}</span>}><div className="wb-workflow">{steps.map((s, i) => <Link to={s.path} key={s.path}><span className="wb-step-number">0{i + 1}</span><strong>{s[lang]}</strong><small>{s.text}</small><ChevronRight size={17} /></Link>)}</div></Panel>
     <div className="wb-grid-two"><Panel title={t('采集趋势速览', 'Collection trend')} eyebrow="OBSERVATIONS" action={<Link to="/workspace/analytics">{t('查看全部', 'Explore all')} <ArrowRight size={15} /></Link>}><SourceNotice state={telemetry.connectionState} />{telemetry.series[0] ? <TrendChart points={telemetry.series[0].windowPoints} unit={telemetry.series[0].channel.unit} label={telemetry.series[0].channel.name[lang]} sampleMs={telemetry.catalog?.sampleMs} /> : <Empty>{t('正在等待演示采集源；没有样本时不填充虚构读数。', 'Waiting for the simulation source. No values are invented.')}</Empty>}</Panel>
       <Panel title={t('对象与资料覆盖', 'Objects & evidence coverage')} eyebrow="MACHINE CONTEXT" action={<Link to="/workspace/assets">{t('管理选择', 'Select object')}<ArrowRight size={15} /></Link>}><ObjectPicker /><div className="wb-context-card"><Tractor size={34} /><div><strong>{work.model?.name ?? t('尚未选择型号', 'No model selected')}</strong><p>{work.brand?.name ?? t('先建立明确的查询上下文', 'Start with a clear machine context')}</p></div></div><dl className="wb-definition"><div><dt>{t('归档证据', 'Archived entries')}</dt><dd>{work.model?.entryCount ?? '—'}</dd></div><div><dt>{t('来源数量', 'Sources')}</dt><dd>{work.model?.sourceCount ?? '—'}</dd></div><div><dt>{t('结构部件', 'Components')}</dt><dd>{work.model?.components.length ?? '—'}</dd></div></dl><p className="wb-muted">{t('这里选择资料适用对象，不会将仿真通道绑定为该型号的真实读数。', 'This selects evidence scope, not a physical connection to simulated channels.')}</p></Panel></div>

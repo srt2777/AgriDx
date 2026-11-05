@@ -14,6 +14,7 @@ import type { CatalogEntry } from '@shared/knowledge-catalog';
 import { CATALOG_FILTER_KEYS } from '@shared/knowledge-catalog';
 import { LiquidGlass } from '@/components/ui/liquid-glass';
 import { StatTicker } from '@/components/StatTicker';
+import { ScrollCount } from '@/components/ScrollCount';
 import { lazy, Suspense } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import { catalogDistributions } from '@/features/knowledge/catalog-distributions';
@@ -75,7 +76,7 @@ export default function KnowledgePage() {
           [catalog?.totals.archivedEntries, t('来源归档', 'Source archive entries')],
           [catalog?.totals.learningEntries, t('通识学习', 'General learning entries')],
           [catalog?.totals.models, t('型号 / 系列目录', 'Model / series directories')],
-        ].map(([value, label]) => <div key={String(label)}><strong>{version === 'new' ? <StatTicker value={typeof value === 'number' ? value : undefined} reduced={reducedMotion} /> : (typeof value === 'number' ? value.toLocaleString() : '—')}</strong><span>{label}</span></div>)}
+        ].map(([value, label]) => <div key={String(label)}><strong>{typeof value === 'number' ? (version === 'new' ? <StatTicker value={value} reduced={reducedMotion} /> : <ScrollCount value={value} />) : '—'}</strong><span>{label}</span></div>)}
       </div>
 
       <ErrorBoundary fallback={<p role="alert">{t('分布图加载失败，请刷新后重试。目录仍可继续浏览。', 'Distribution charts failed to load. Refresh to retry; the catalog remains available.')}</p>}>

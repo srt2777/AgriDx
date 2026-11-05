@@ -197,6 +197,28 @@
   border: 0.5px solid var(--radix-sage-6) !important;
 }
 
+@media (prefers-reduced-motion: no-preference) {
+  .home-immersive[data-chapter-motion='on'] .chapter-line {
+    opacity: 0;
+    transform: translate3d(0, 14px, 0);
+  }
+  .home-immersive[data-chapter-motion='on'] [data-home-beat].is-revealed .chapter-line {
+    animation: chapter-rise 0.72s cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation-delay: calc(var(--chapter-i, 0) * 90ms);
+  }
+}
+@keyframes chapter-rise {
+  from { opacity: 0; transform: translate3d(0, 14px, 0); }
+  to { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .home-immersive .chapter-line {
+    opacity: 1;
+    transform: none;
+    animation: none;
+  }
+}
+
 @media (prefers-reduced-transparency: reduce) {
   .home-immersive [data-home-side="start"] > :first-child,
   .home-immersive [data-home-side="end"] > :first-child,
