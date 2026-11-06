@@ -14,6 +14,7 @@ export const COMMAND_ROUTES: readonly CommandRoute[] = [
   { id: 'chat', path: '/chat', zh: '司稼 · 智能诊断', en: 'Sijia · Diagnosis', hintZh: '诊断', hintEn: 'Diagnosis', words: 'chat 诊断' },
   { id: 'models', path: '/models', zh: '模型工坊', en: 'Model studio', hintZh: '结构示意', hintEn: 'Structure illustration', words: 'model tractor 模型 结构' },
   { id: 'fault', path: '/fault-detection', zh: '故障检测演示', en: 'Fault detection demo', hintZh: '检测演示', hintEn: 'Detection demo', words: 'fault detection demo 故障 检测 演示' },
+  { id: 'field', path: '/field-overview', zh: '农机作业总览', en: 'Field overview', hintZh: '机组与作业面积', hintEn: 'Fleet and area', words: 'farm field fleet 作业 农场 台账 机组' },
   { id: 'history', path: '/version-history', zh: '版本历史记录', en: 'Version history', hintZh: '更新日志', hintEn: 'Changelog', words: 'version history changelog 更新 版本 日志' },
 ];
 
@@ -30,6 +31,7 @@ export function statusPlace(pathname: string, lang: 'zh' | 'en'): string {
     '/knowledge': ['农机知识', 'KNOWLEDGE'],
     '/models': ['模型工坊', 'MODEL STUDIO'],
     '/version-history': ['版本历史记录', 'VERSION HISTORY'],
+    '/field-overview': ['农机作业总览', 'FIELD OVERVIEW'],
     '/workspace/assets': ['农机对象', 'MACHINE OBJECTS'],
     '/workspace/data': ['数据采集', 'DATA COLLECTION'],
     '/workspace/commands': ['指令与响应', 'COMMANDS'],
