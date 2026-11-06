@@ -86,9 +86,11 @@ export interface ChatResponse {
   memory?: MemorySession;
   /**
    * True when the answer was generated but its turn could not be saved to
-   * the diagnosis record (storage failure, revision conflict, or record
-   * limit). The answer is still valid; the client keeps its old revision
-   * so the next turn can retry against the last saved revision.
+   * the diagnosis record because of a transient storage failure. The answer
+   * is still valid; the client keeps its old revision so the next turn can
+   * retry against the last saved revision. Deterministic errors — a
+   * revision conflict, a record limit, a device change — are NOT folded
+   * into this flag; they still come back as errors.
    */
   memorySaveFailed?: boolean;
   relatedMemoryReports?: PriorDeviceReport[];
