@@ -1003,10 +1003,24 @@
       "date": "2026-11-05"
     },
     {
-      "id": "workbench-indexeddb-20261106",
-      "kind": "fix",
+      "id": "field-overview-20261106",
+      "kind": "feature",
       "base": "4.0.40",
       "version": "4.0.41",
+      "date": "2026-11-06"
+    },
+    {
+      "id": "diagnosis-recovery-20261106",
+      "kind": "fix",
+      "base": "4.0.41",
+      "version": "4.0.42",
+      "date": "2026-11-06"
+    },
+    {
+      "id": "workbench-indexeddb-20261106",
+      "kind": "fix",
+      "base": "4.0.42",
+      "version": "4.0.43",
       "date": "2026-11-06"
     }
   ]
