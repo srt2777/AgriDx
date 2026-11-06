@@ -30,10 +30,25 @@ export const apiNotFound: RequestHandler = (_req, res) => {
   res.status(404).json({ error: '接口不存在', code: 'not_found' });
 };
 
-export const errorHandler: ErrorRequestHandler = (error: Error & { type?: string }, _req, res, next) => {
+export const errorHandler: ErrorRequestHandler = (error: Error & { type?: string; status?: number; statusCode?: number }, _req, res, next) => {
   if (res.headersSent) return next(error);
   if (error.type === 'entity.parse.failed') {
     res.status(400).json({ error: '请求体必须为有效的 JSON 对象', code: 'bad_request' });
+    return;
+  }
+  // PR1 依赖安全：body-parser 的读取错误此前全部落到 500。超限、非法编码与
+  // 字符集错误已有明确的客户端状态码，应如实返回而非记为服务器内部错误。
+  if (error.type === 'entity.too.large') {
+    res.status(413).json({ error: '请求体过大', code: 'entity_too_large' });
+    return;
+  }
+  if (error.type === 'encoding.unsupported' || error.type === 'charset.unsupported') {
+    res.status(415).json({ error: '不支持的请求编码或字符集', code: 'unsupported_media' });
+    return;
+  }
+  // 解压读取失败（如无效 gzip 体）带有 http-errors 的 400 状态但无 type。
+  if ((error.status === 400 || error.statusCode === 400) && !error.type) {
+    res.status(400).json({ error: '请求体无法读取', code: 'bad_request' });
     return;
   }
   console.error('[server] unhandled:', error.message);

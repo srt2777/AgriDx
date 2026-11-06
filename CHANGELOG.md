@@ -8,7 +8,7 @@
 
 历史记录：[3.x](docs/changelog/3.x.md) / [2.x](docs/changelog/2.x.md)。
 
-## 4.0.40 — 2026-11-06
+## 4.0.41 — 2026-11-06
 
 - 诊断保存失败恢复流程：未保存状态阻止继续发送，重新载入已保存记录后恢复草稿再提交
 - 更新类型：fix；批次：diagnosis-recovery-20261106。
@@ -27,13 +27,44 @@
 
 ### 验证结果
 
-- 完整验证 `npm run verify`：941 项、938 通过、1 失败、2 跳过；唯一失败为 `tests/tencent-deploy.test.ts:153` 启动超时（已知抖动项，未动文件），单跑该文件 11/11 通过；类型检查、lint（0 错误，2 处既有警告在未动文件）、构建均通过。
-- 针对性测试：`tests/diagnosis-recovery.test.ts` 8/8 通过（两次保存失败保留回答且版本/检查点不推进、确定性错误仍返回错误）；`tests/dev-preview.test.ts` 2/2 通过（含预览版保存失败降级为 `memorySaveFailed`）。
+- 针对性测试：`tests/diagnosis-recovery.test.ts` 8/8 通过（两次保存失败保留回答且版本/检查点不推进、确定性错误仍返回错误）；`tests/dev-preview.test.ts` 2/2 通过（含预览版保存失败降级为 `memorySaveFailed`），合计 10/10。
+- 完整验证 `npm run verify`（新基底 main 9ececeb，`npm ci` 后）：963 项、960 通过、1 失败、2 跳过；唯一失败为 `tests/tencent-deploy.test.ts:153` 启动超时（已知抖动项，未动文件），单跑该文件 11/11 通过。类型检查、知识库版本检查均通过；lint 与构建因 verify 在测试阶段失败后中止而未运行，托管 CI 将覆盖。
 - 未运行：真实浏览器双标签页/窄视口人工验收（子代理无 live browser，需父代理另行安排）。
 
 ### 关联 PR
 
-- 未记录（草案 PR 待推送后创建）
+- 未记录
+
+### 部署记录
+
+- 未记录；GitHub 保存、开发站与正式站分别验收。
+
+## 4.0.40 — 2026-11-05
+
+- 依赖安全修复：body-parser 2.4.0、undici 8.12.4、qs 6.17.1、postcss-selector-parser 6.1.5（overrides）
+- 服务端启动时安装锁定版本的 Undici fetch 及配套 Web API，覆盖 Node 内置版本仍受影响的受支持运行环境；代理沿用现有配置。浏览器预览继续使用浏览器原生接口。
+- 对请求体过大、不支持的编码及无效压缩数据返回对应的客户端错误。
+- 更新类型：fix；批次：dep-security-20261105。
+
+### 详细改动
+
+- 依赖安全修复：body-parser 2.4.0、undici 8.12.4、qs 6.17.1、postcss-selector-parser 6.1.5（overrides）
+
+### 知识库变化
+
+- 无知识库内容变化。
+
+### 兼容性
+
+- 保留现有 Node 版本范围与压缩请求支持；服务端全局 fetch 及相关 Web API 使用 npm Undici 实现。
+
+### 验证结果
+
+- npm ci 与生产依赖 npm audit 通过；隔离子进程验证异常压缩请求与恶意上游，覆盖服务端初始化、直连、代理、取消和超时；完整验证及 CI 以实际运行结果为准。
+
+### 关联 PR
+
+- PR #214。
 
 ### 部署记录
 
