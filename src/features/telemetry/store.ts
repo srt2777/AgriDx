@@ -11,6 +11,7 @@ export interface TelemetryScenarioControl {
 }
 const IDLE_CONTROL: TelemetryScenarioControl = { phase: 'idle', error: null, conflict: null };
 
+export type TelemetryHistoryStatus = 'loading' | 'ready' | 'empty' | 'error';
 export interface TelemetrySnapshot {
   catalog: TelemetryCatalog | null;
   phase: 'loading' | 'ready' | 'empty' | 'error';
@@ -23,7 +24,7 @@ export interface TelemetrySnapshot {
   now: number;
   latest: Record<string, TelemetryPoint>;
   points: Record<string, readonly TelemetryPoint[]>;
-  historyStatus: Record<string, 'loading' | 'ready' | 'error'>;
+  historyStatus: Record<string, TelemetryHistoryStatus>;
   alerts: TelemetryFrame['alerts'];
   scenario: TelemetryFrame['scenario'] | null;
   scenarioControl: TelemetryScenarioControl;
@@ -106,12 +107,14 @@ export class TelemetryStore {
       const frame = parseTelemetryFrame(data, this.snapshot.catalog);
       if (this.snapshot.runId && frame.runId !== this.snapshot.runId) this.clearData();
       if (frame.sequence <= this.snapshot.sequence) return;
-      const points = { ...this.snapshot.points }, latest = { ...this.snapshot.latest };
+      const points = { ...this.snapshot.points }, latest = { ...this.snapshot.latest }, historyStatus = { ...this.snapshot.historyStatus };
       for (const point of frame.points) {
         points[point.channelId] = mergeTelemetryPoints(points[point.channelId] ?? [], [point]);
         if (!latest[point.channelId] || point.at >= latest[point.channelId].at) latest[point.channelId] = point;
+        // A channel whose history returned zero samples becomes ready once a live sample arrives.
+        if (historyStatus[point.channelId] === 'empty') historyStatus[point.channelId] = 'ready';
       }
-      this.update({ points, latest, runId: frame.runId, sequence: frame.sequence, alerts: frame.alerts, scenario: frame.scenario,
+      this.update({ points, latest, historyStatus, runId: frame.runId, sequence: frame.sequence, alerts: frame.alerts, scenario: frame.scenario,
         receivedAt: this.now(), phase: 'ready', error: null, connected: true });
     });
     event('reset', data => {
@@ -165,7 +168,7 @@ export class TelemetryStore {
         const merged = mergeTelemetryPoints(history.points, this.snapshot.points[channelId] ?? []), last = merged.at(-1);
         const latest = { ...this.snapshot.latest }; if (last) latest[channelId] = last;
         this.update({ runId: history.runId, points: { ...this.snapshot.points, [channelId]: merged }, latest,
-          historyStatus: { ...this.snapshot.historyStatus, [channelId]: 'ready' },
+          historyStatus: { ...this.snapshot.historyStatus, [channelId]: merged.length ? 'ready' : 'empty' },
           phase: this.snapshot.phase === 'loading' ? (Object.keys(latest).length ? 'ready' : 'empty') : this.snapshot.phase });
       } catch {
         if (epoch === this.snapshot.epoch && !controller.signal.aborted) this.update({ historyStatus: { ...this.snapshot.historyStatus, [channelId]: 'error' } });

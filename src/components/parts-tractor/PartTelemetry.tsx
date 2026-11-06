@@ -32,7 +32,9 @@ export function TelemetryPanel({ data, lang, onWindowChange, onAlertSelect }: { 
   const StateIcon = state === 'offline' ? Unplug : state === 'delayed' ? Clock3 : FlaskConical;
   const stateLabel = state === 'offline' ? t('离线', 'Offline') : state === 'delayed' ? t('延迟', 'Delayed') : t('仿真', 'Simulated');
   function download() {
-    const blob = new Blob([telemetryCsv(data.series, lang)], { type: 'text/csv;charset=utf-8' });
+    const history = { entries: data.series.map(row => ({ channelId: row.channel.id, label: row.channel.name[lang], status: row.historyStatus, samples: row.windowPoints.length })),
+      runId: data.runId, window: data.window, source: 'simulated', mode: 'live' as const, capturedAt: null };
+    const blob = new Blob([telemetryCsv(data.series, lang, { history })], { type: 'text/csv;charset=utf-8' });
     const url = URL.createObjectURL(blob), link = document.createElement('a');
     link.href = url; link.download = `agridx-simulated-${data.series[0]?.channel.partId ?? 'part'}-${data.window}.csv`; link.click();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
@@ -62,6 +64,7 @@ export function TelemetryPanel({ data, lang, onWindowChange, onAlertSelect }: { 
       </article>)}</div>
       <div className="telemetry-window" role="group" aria-label={t('趋势时间窗', 'Trend time window')}>{(['5m', '15m', '1h'] as const).map(window => <button type="button" key={window} aria-pressed={data.window === window} onClick={() => { setCursor(null); onWindowChange(window); }}>{window === '1h' ? t('1小时', '1 hour') : window === '5m' ? t('5分钟', '5 min') : t('15分钟', '15 min')}</button>)}</div>
       {data.series.some(row => row.historyStatus === 'loading') && <p role="status">{t('历史加载中；先显示已收到的样本。', 'Loading history; showing received samples meanwhile.')}</p>}
+      {data.series.filter(row => row.historyStatus === 'empty').map(row => <p role="status" key={row.channel.id}>{row.channel.name[lang]} · {t('历史请求已完成，当前时间窗暂无样本。', 'History request completed; no samples in this time window yet.')}</p>)}
       {data.series.filter(row => row.historyStatus === 'error').map(row => <div className="telemetry-message" role="alert" key={row.channel.id}><TriangleAlert size={14} aria-hidden="true" /><p>{row.channel.name[lang]} · {t('历史读取失败，当前趋势可能不完整。', 'History failed; the current trend may be incomplete.')}</p><button type="button" onClick={() => void data.retryHistory(row.channel.id)}>{t('重试历史', 'Retry history')}</button></div>)}
       {!hasPoints && <p role="status">{t('当前时间窗暂无数据，未推测读数。', 'No data in this time window. No readings are estimated.')}</p>}
       {hasPoints && <figure className="telemetry-chart" aria-labelledby={`${id}-title`}>
@@ -92,7 +95,7 @@ export function TelemetryPanel({ data, lang, onWindowChange, onAlertSelect }: { 
           return <tr key={row.channel.id}><th scope="row">{row.channel.name[lang]}</th><td>{telemetryValue(row.channel, point, lang)}<br />{point ? <time dateTime={new Date(point.at).toISOString()}>{clock(point.at)}</time> : '—'}<br />{values.length > 0 && <small>{t('本窗范围', 'Window range')} {telemetryNumber(Math.min(...values), row.channel.precision, lang)} — {telemetryNumber(Math.max(...values), row.channel.precision, lang)} {row.channel.unit}</small>}</td></tr>;
         })}</tbody></table>
       </details>
-      <button type="button" className="telemetry-export" disabled={!hasPoints} onClick={download}><Download size={14} aria-hidden="true" />{t('导出本窗仿真CSV', 'Export simulated window CSV')}</button>
+      <button type="button" className="telemetry-export" disabled={data.series.length === 0} onClick={download}><Download size={14} aria-hidden="true" />{t('导出本窗仿真CSV', 'Export simulated window CSV')}</button>
     </>}
   </section>;
 }
