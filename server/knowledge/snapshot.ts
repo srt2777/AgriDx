@@ -9,11 +9,14 @@ import type { CommonFrameworkDefinition } from '../../shared/common-knowledge';
 import type { KnowledgeChunk } from './types';
 import type { CatalogFilters, KnowledgeCatalog } from '../../shared/knowledge-catalog';
 import { readSemanticReport } from '../../scripts/lib/semantic-report.mjs';
+import { computeSnapshotSha256FromContents } from './snapshot-sha';
 import type { SemanticRelationsInput } from './relations-semantic';
 
 export interface KnowledgeSnapshot {
   /** Optional release metadata belongs to the same published generation as its data. */
   readonly kbVersion: string | null;
+  /** SHA over hierarchy.json + entries.jsonl + sources.json; any classification/entry change moves it. */
+  readonly snapshotSha256: string | null;
   readonly chunks: readonly KnowledgeChunk[];
   readonly fileCount: number;
   readonly archivedEntries: number;
@@ -98,7 +101,10 @@ export function reloadKnowledgeSnapshot(): KnowledgeSnapshot {
     fileCount++;
   }
   const archive = loadArchive(undefined, { configureModels: false });
-  const hierarchy: unknown = JSON.parse(fs.readFileSync(path.join(INDEX_ROOT, 'hierarchy.json'), 'utf8'));
+  // hierarchy.json 只读一次：原文既用于解析，也用于快照 SHA，不重读文件
+  //（快照测试要求每个索引文件在一次加载里只读一次）。
+  const hierarchyText = fs.readFileSync(path.join(INDEX_ROOT, 'hierarchy.json'), 'utf8');
+  const hierarchy: unknown = JSON.parse(hierarchyText);
   const commonData: unknown = JSON.parse(fs.readFileSync(path.join(INDEX_ROOT, '通用框架.json'), 'utf8'));
   const learning = loadLearningEntries();
   freezeData(learning);
@@ -115,7 +121,13 @@ export function reloadKnowledgeSnapshot(): KnowledgeSnapshot {
   freezeData(chunks);
   const baseCatalog = freezeData(selectCatalog());
   const kbVersion = readVersionMetadata();
-  const catalog = freezeData({ ...baseCatalog, kbVersion });
+  // 快照 SHA 用加载时已读入内存的三份索引原文算，不再重读文件。
+  const snapshotSha256 = computeSnapshotSha256FromContents({
+    'hierarchy.json': hierarchyText,
+    'entries.jsonl': archive.indexTexts['entries.jsonl'],
+    'sources.json': archive.indexTexts['sources.json'],
+  });
+  const catalog = freezeData({ ...baseCatalog, kbVersion, snapshotSha256 });
   const semanticAfter = readSemanticReport(process.cwd());
   const semantic = JSON.stringify(semanticBefore) === JSON.stringify(semanticAfter) ? semanticAfter : { reason: '载入知识快照期间语义审核报告或来源发生变化。' };
   const entryNodes = new Map<string, string[]>();
@@ -134,12 +146,12 @@ export function reloadKnowledgeSnapshot(): KnowledgeSnapshot {
     }
   }
   const next: KnowledgeSnapshot = Object.freeze({
-    kbVersion, chunks, fileCount: fileCount + archive.fileCount + new Set(learning.map(entry => entry.knowledgePath)).size, archivedEntries: archive.chunks.length,
+    kbVersion, snapshotSha256, chunks, fileCount: fileCount + archive.fileCount + new Set(learning.map(entry => entry.knowledgePath)).size, archivedEntries: archive.chunks.length,
     learningEntries: learning.length,
     retrievalOrganization, manualSourceIds, semantic: { ...semantic, entryNodes },
     getCatalog: (filters: CatalogFilters = {}) => {
       const selected = selectCatalog(filters);
-      return selected === baseCatalog ? catalog : freezeData({ ...selected, kbVersion });
+      return selected === baseCatalog ? catalog : freezeData({ ...selected, kbVersion, snapshotSha256 });
     },
   });
   // The archive loader's standalone API still configures models by default. Here it

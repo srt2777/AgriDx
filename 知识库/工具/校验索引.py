@@ -48,6 +48,31 @@ ROLE_MARKERS = {
 }
 
 
+CAUSAL_FILE = 'causal-edges.json'
+CAUSAL_FIELDS = {'edge_id', 'symptom_entry_id', 'symptom', 'cause', 'remedy', 'threshold',
+                 'source_id', 'pages', 'evidence_kind', 'strength_basis', 'brand', 'model'}
+CAUSAL_EVIDENCE_KINDS = {'故障表', '知识卡选摘'}
+CAUSAL_EDGE_ID = re.compile(r'CE-\d{6}')
+# 与 server/knowledge/archive.ts parsePages 及抽取脚本同一规则解析定位页码。
+CAUSAL_PDF_RE = re.compile(r"PDF\s*(?:物理)?\s*第?\s*(\d[\d、，,～~\-\–\s]*?)\s*页")
+CAUSAL_PRINTED_RE = re.compile(r"印刷(?:页码)?\s*第?\s*(\d[\d、，,～~\-\–]*)")
+
+
+def _norm(text):
+    return re.sub(r'\s+', ' ', str(text or '')).strip()
+
+
+def causal_pages(locator):
+    pdf = CAUSAL_PDF_RE.search(locator or '')
+    printed = CAUSAL_PRINTED_RE.search(locator or '')
+    pages = {}
+    if pdf:
+        pages['pdf'] = pdf.group(1).strip()
+    if printed:
+        pages['printed'] = printed.group(1).strip()
+    return pages
+
+
 def digest(path):
     result = hashlib.sha256()
     with path.open('rb') as handle:
@@ -442,6 +467,74 @@ class ArchiveAudit:
                     self.emit(getattr(error, 'rule', 'index.json'), str(error), path=self.relative(path), line=line,
                               field=getattr(error, 'field', ''))
 
+    def causal_checks(self, entries):
+        """因果边逐条核对：条目/来源/页码须与索引一致，原因与措施须逐字出自知识卡正文。"""
+        path = self.index / CAUSAL_FILE
+        location = (INDEX_PATH / CAUSAL_FILE).as_posix()
+        by_id = {e.get('entry_id'): e for _, e in entries if isinstance(e, dict)}
+        summary = {'edges': 0, 'symptoms': 0, 'with_threshold': 0}
+        if not path.exists():
+            self.emit('causal.missing', '因果边文件缺失', path=location)
+            return summary
+        self.track(path)
+        try:
+            payload = json.loads(path.read_text('utf8'))
+        except (ValueError, OSError) as error:
+            self.emit('causal.json', str(error), path=location)
+            return summary
+        if not isinstance(payload, dict) or payload.get('schema_version') != 1 or not isinstance(payload.get('edges'), list):
+            self.emit('causal.json', '因果边文件格式无效：须为 schema_version=1 且 edges 为数组', path=location)
+            return summary
+        seen_ids, seen_pairs, symptoms = set(), set(), set()
+        for position, edge in enumerate(payload['edges'], 1):
+            record = {'entry_id': edge.get('symptom_entry_id') if isinstance(edge, dict) else None,
+                      'source_id': edge.get('source_id') if isinstance(edge, dict) else None}
+            try:
+                require(isinstance(edge, dict), 'causal.edge', '因果边须为对象', 'edge_id')
+                extra = set(edge) - CAUSAL_FIELDS
+                require(not extra, 'causal.edge', f"因果边含未知字段：{'、'.join(sorted(extra))}", 'edge_id')
+                require(CAUSAL_EDGE_ID.fullmatch(edge.get('edge_id') or ''), 'causal.edge', '边编号须为 CE-六位数字', 'edge_id')
+                require(edge['edge_id'] not in seen_ids, 'causal.edge', '边编号重复', 'edge_id')
+                seen_ids.add(edge['edge_id'])
+                entry = by_id.get(edge.get('symptom_entry_id'))
+                require(entry is not None, 'causal.entry', '症状条目不存在', 'symptom_entry_id')
+                require(entry.get('entry_type') == '维护/故障知识', 'causal.entry', '症状条目须为维护/故障知识', 'symptom_entry_id')
+                require(edge.get('source_id') == entry.get('source_id'), 'causal.source', '边来源与条目来源不一致', 'source_id')
+                require(edge.get('brand') == entry.get('brand') and edge.get('model') == entry.get('model'),
+                        'causal.scope', '边品牌/型号与条目不一致', 'brand')
+                require(edge.get('evidence_kind') in CAUSAL_EVIDENCE_KINDS, 'causal.evidence', '证据类型须为故障表或知识卡选摘', 'evidence_kind')
+                require(edge.get('strength_basis') == '故障表候选', 'causal.strength', '强度只标故障表候选，不写概率或已验证因果', 'strength_basis')
+                require(isinstance(edge.get('pages'), dict) and bool(edge['pages']), 'causal.pages', '边须带页码', 'pages')
+                expected = causal_pages(entry.get('locator', ''))
+                require(edge['pages'] == expected, 'causal.pages', f"边页码与条目定位不一致：{edge.get('pages')} vs {expected}", 'pages')
+                pair = (edge.get('symptom_entry_id'), edge.get('cause'))
+                require(pair not in seen_pairs, 'causal.edge', '同一症状下原因重复', 'cause')
+                seen_pairs.add(pair)
+                document = self.document(entry.get('knowledge_path'))
+                section = document.get(entry['entry_id'], {})
+                body = _norm(section.get('body', ''))
+                require(bool(body), 'causal.entry', '症状条目知识卡正文缺失', 'symptom_entry_id')
+                symptom_field = re.search(r'故障现象[：:]\s*(.*?)(?=\n[-*]\s|\Z)', section.get('body', ''), re.S)
+                allowed_symptoms = {_norm(entry.get('title')),
+                                    _norm(symptom_field.group(1)) if symptom_field else ''}
+                require(_norm(edge.get('symptom')) in allowed_symptoms and bool(_norm(edge.get('symptom'))),
+                        'causal.symptom', '症状须与条目标题或卡片故障现象一致', 'symptom')
+                for field in ('cause', 'remedy'):
+                    value = _norm(edge.get(field))
+                    require(len(value) >= 2 and value in body, 'causal.text', f'{field}须逐字出自知识卡正文', field)
+                threshold = edge.get('threshold')
+                require(threshold is None or (isinstance(threshold, str) and threshold.strip() and
+                                              _norm(threshold) in _norm(edge.get('remedy'))),
+                        'causal.threshold', '阈值须出自措施原文，抽不出留空', 'threshold')
+                symptoms.add(edge['symptom_entry_id'])
+                summary['edges'] += 1
+                summary['with_threshold'] += 1 if threshold else 0
+            except (ValueError, TypeError, OSError) as error:
+                self.emit(getattr(error, 'rule', 'causal.edge'), str(error), record, location, position,
+                          getattr(error, 'field', ''))
+        summary['symptoms'] = len(symptoms)
+        return summary
+
     def run(self):
         started = time.perf_counter()
         sources, entries = self.read_indices()
@@ -507,6 +600,7 @@ class ArchiveAudit:
             if result['body_format']:
                 formats[result['body_format']] += 1
                 document_paths.add(entry['knowledge_path'])
+        causal_summary = self.causal_checks(entries)
         common_summary = None
         common_path = self.index / '通用框架.json'
         if common_path.exists():
@@ -554,7 +648,7 @@ class ArchiveAudit:
                                         'note': '未标注表示尚未整理，不表示无该角色或低风险'}},
             'verification_counts': {state: states[state] for state in STATES},
             'body_formats': dict(formats), 'sources': checked, 'errors': errors, 'notes': notes, 'findings': findings,
-            'common_framework': common_summary,
+            'common_framework': common_summary, 'causal_edges': causal_summary,
             'incremental': {'enabled': bool(self.cache.path), **{key: self.cache.stats[key] for key in
                             ['sources_checked', 'sources_reused', 'entries_checked', 'entries_reused']},
                             'global_checks': '索引解析、编号唯一性、内容哈希与输入稳定性每次重检'},

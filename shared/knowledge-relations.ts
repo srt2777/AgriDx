@@ -10,6 +10,7 @@ export interface RelationEdge {
 }
 export interface KnowledgeRelations {
   kbVersion: string | null;
+  snapshotSha256: string | null;
   formulaVersion: string;
   nodes: string[];
   edges: RelationEdge[];
