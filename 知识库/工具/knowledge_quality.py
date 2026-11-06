@@ -13,7 +13,7 @@ import re
 import tempfile
 
 SCHEMA_VERSION = 1
-RULES_VERSION = '1.1.0'
+RULES_VERSION = '1.2.0'
 STATES = ('verified', 'pending', 'unverified', 'failed', 'unspecified')
 
 # id: category, severity, suggested next action. Keep IDs stable across reports.
@@ -50,6 +50,21 @@ RULES = {
     'body.status': ('verification', 'warning', '人工核对正文与索引核验状态，保留原文本及未完成事项。'),
     'status.unspecified': ('verification', 'info', '现有严格解析器无法分类；保留原状态，人工核对后再考虑结构化映射。'),
     'snapshot.changed': ('execution', 'error', '输入在扫描期间变化；暂停使用本报告并重新运行。'),
+    # 因果边（2026-11-06 知识库第 1 步）：边表为派生关系表，校验索引.py 的
+    # causal_checks 逐条核对。文件缺失只记 warning：合成测试根目录本来就没
+    # 有该文件，缺失不阻塞语义扫描；文件存在但内容有误仍记 error。
+    'causal.missing': ('causal', 'warning', '补跑因果边抽取脚本生成 causal-edges.json，或确认当前根目录本就不需要因果边。'),
+    'causal.json': ('causal', 'error', '修正因果边 JSON 语法与顶层结构（schema_version=1、edges 为数组）后重新检查。'),
+    'causal.edge': ('causal', 'error', '按因果边字段规范修正编号、字段与去重；同一症状下原因不得重复。'),
+    'causal.entry': ('causal', 'error', '核对症状条目存在、为维护/故障知识且知识卡正文非空。'),
+    'causal.source': ('causal', 'error', '核对边来源与条目来源一致，不把不同品牌资料混用。'),
+    'causal.scope': ('causal', 'error', '核对边品牌/型号与条目一致，不跨型号补造适用范围。'),
+    'causal.evidence': ('causal', 'error', '证据类型只取故障表或知识卡选摘。'),
+    'causal.strength': ('causal', 'error', '强度只标故障表候选，不写概率或已验证因果。'),
+    'causal.pages': ('causal', 'error', '核对边页码与条目定位一致。'),
+    'causal.symptom': ('causal', 'error', '症状须与条目标题或卡片故障现象一致。'),
+    'causal.text': ('causal', 'error', '原因与措施须逐字出自知识卡正文，不改写、不补造。'),
+    'causal.threshold': ('causal', 'error', '阈值须出自措施原文，抽不出留空。'),
 }
 
 
