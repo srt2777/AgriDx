@@ -5,9 +5,9 @@ import { MODERN_DESTINATIONS, modernLocation } from '../src/lib/modern-navigatio
 import { COMMAND_ROUTES } from '../src/lib/command-routes';
 import { WORLD_ZONES, pavilionDestination } from '../src/pages/ExhibitionPage/world-navigation';
 
-test('hall and all four features share the same destination order and current section', () => {
-  assert.deepEqual(MODERN_DESTINATIONS.map(item => item.path), ['/', '/knowledge', '/chat', '/models', '/fault-detection']);
-  assert.deepEqual(COMMAND_ROUTES.slice(0, 5).map(item => item.path), MODERN_DESTINATIONS.map(item => item.path));
+test('hall and primary features share the same destination order and current section', () => {
+  assert.deepEqual(MODERN_DESTINATIONS.map(item => item.path), ['/', '/knowledge', '/chat', '/models', '/fault-detection', '/field-overview']);
+  assert.deepEqual(COMMAND_ROUTES.slice(0, MODERN_DESTINATIONS.length).map(item => item.path), MODERN_DESTINATIONS.map(item => item.path));
   assert.equal(MODERN_DESTINATIONS.find(item => item.path === '/chat')?.zh, '司稼 · 智能诊断');
   assert.equal(MODERN_DESTINATIONS.find(item => item.path === '/chat')?.en, 'Sijia · Diagnosis');
   assert.equal(MODERN_DESTINATIONS.find(item => item.path === '/fault-detection')?.zh, '故障检测演示');
