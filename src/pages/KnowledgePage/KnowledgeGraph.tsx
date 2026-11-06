@@ -3,8 +3,10 @@ import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import type { KnowledgeCatalog, KnowledgeRole } from '@shared/knowledge-catalog';
 import { useKnowledgeCatalog } from '@/hooks/useKnowledgeCatalog';
+import { useUiVersion } from '@/hooks/useUiVersion';
 import { graphTaxonomyNodes, visibleTaxonomyNodes, type TaxonomyNode } from './knowledge-taxonomy-data';
 import TaxonomyGraphCanvas from './TaxonomyGraphCanvas';
+import KnowledgeGraph3D from './KnowledgeGraph3D';
 import EvidenceEntry from './EvidenceEntry';
 import LearningKnowledgeGraph from './LearningKnowledgeGraph';
 import GraphPathFinder from './GraphPathFinder';
@@ -24,6 +26,8 @@ export default function KnowledgeGraph({ catalog, lang }: { catalog: KnowledgeCa
 
 function ArchiveKnowledgeGraph({ catalog, lang }: { catalog: KnowledgeCatalog; lang: string }) {
   const { t, separator } = useUiCopy(lang);
+  const version = useUiVersion();
+  const [graphMode, setGraphMode] = useState<'classic' | 'dynamic'>('classic');
   const allNodes = useMemo(() => graphTaxonomyNodes(catalog), [catalog]);
   const [selectedId, setSelected] = useState('');
   const [search, setSearch] = useState('');
@@ -73,7 +77,13 @@ function ArchiveKnowledgeGraph({ catalog, lang }: { catalog: KnowledgeCatalog; l
     <nav className="taxonomy-trail" aria-label={t('当前知识路径', 'Current knowledge path')}><button onClick={() => setSelected('')}>{t('全部归档', 'All archives')}</button>{path.map(node => <span key={node.id}><span aria-hidden="true"> → </span><button onClick={() => setSelected(node.id)} aria-current={selected?.id === node.id ? 'location' : undefined}>{node.label}</button></span>)}</nav>
     <GraphPathFinder nodes={nodes} selectedId={selectedId} onSelect={setSelected} lang={lang} />
     <p className="taxonomy-lod-note" role="status">{t(`当前显示 ${nodes.length.toLocaleString()} 个节点；远景会聚合隐藏零件，完整目录见下方列表。`, `${nodes.length.toLocaleString()} nodes shown; distant views aggregate parts. Use the directory below for the complete list.`)}</p>
-    <TaxonomyGraphCanvas catalog={catalog} nodes={nodes} selectedId={selectedId} onSelect={setSelected} lang={lang} />
+    {version === 'old' && <div className="taxonomy-view-mode" role="group" aria-label={t('图谱显示方式', 'Graph display mode')}>
+      <button type="button" aria-pressed={graphMode === 'classic'} onClick={() => setGraphMode('classic')}>{t('经典图谱', 'Classic graph')}</button>
+      <button type="button" aria-pressed={graphMode === 'dynamic'} onClick={() => setGraphMode('dynamic')}>{t('动感图谱', 'Dynamic graph')}</button>
+    </div>}
+    {version === 'old' && graphMode === 'dynamic'
+      ? <KnowledgeGraph3D nodes={nodes} selectedId={selectedId} onSelect={setSelected} lang={lang} onRequestClassic={() => setGraphMode('classic')} />
+      : <TaxonomyGraphCanvas catalog={catalog} nodes={nodes} selectedId={selectedId} onSelect={setSelected} lang={lang} />}
     <details className="taxonomy-accessible-directory"><summary>{t('展开目录辅助浏览（键盘 / 无图形模式）', 'Browse directory (keyboard / non-graph mode)')}</summary><div className="taxonomy-columns">{levels.map(({ level, label, parent }, index) => {
       const children = nodes.filter(node => node.level === level && (level === 'brand' || !!parent && node.parent === parent));
       return <section className="taxonomy-column" key={level} aria-label={label}><h3><span>{String(index + 1).padStart(2, '0')}</span>{label}<small>{children.length}</small></h3><div className="taxonomy-node-list">{children.map(node => <button className={node.count ? '' : 'taxonomy-gap'} key={node.id} aria-pressed={path.some(item => item.id === node.id)} onClick={() => setSelected(node.id)}><span>{node.label}</span><small>{node.count ? t(`${node.count} 条关联资料`, `${node.count} linked entries`) : t('待补资料', 'Evidence gap')}{node.scope && `${separator}${node.scope === 'exact' ? t('具体型号范围', 'Specific model') : node.scope === 'series' ? t('系列范围', 'Series scope') : t('待核实', 'Unconfirmed')}`}</small></button>)}{!children.length && <p>{parent ? t('本层尚无已定位节点；保留在上层查看资料。', 'No identified nodes; review evidence at the parent level.') : t('先选择左侧上级目录。', 'Select a parent to continue.')}</p>}</div></section>;

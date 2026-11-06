@@ -104,10 +104,32 @@ async function dispatchPreviewFetch(input: string, options: RequestInit = {}): P
         const { model, provider, localSummary, coordinationMessage, answerMode, fallbackReason, knowledgeChunks,
           diagnosticReply, knowledgeSources, coordination, diagnosisTrace, roleFlow } = payload;
         payload.relatedMemoryReports = priorReports;
-        payload.memory = store!.appendTurn(session.id, session.revision, user.content,
-          { content: payload.choices[0].message.content, model, provider, localSummary, coordinationMessage, answerMode, fallbackReason, knowledgeChunks,
-            diagnosticReply, knowledgeSources, coordination, diagnosisTrace, roleFlow },
-          session.messages.length ? [] : request.history.slice(0, -1));
+        // Same degradation as the server route: the answer is already
+        // generated, so a transient storage failure (quota, corrupt local
+        // data) must not discard it. Retry once, then return the answer
+        // flagged with memorySaveFailed; the client keeps its old revision
+        // and runs the same recovery flow as the server path. Deterministic
+        // MemoryErrors (revision conflict, record limit, device change)
+        // still throw, so a cleared or deleted diagnosis is never silently
+        // revived by a late answer.
+        let saved = false;
+        let lastAppendError: unknown;
+        for (let attempt = 0; attempt < 2; attempt++) {
+          try {
+            payload.memory = store!.appendTurn(session.id, session.revision, user.content,
+              { content: payload.choices[0].message.content, model, provider, localSummary, coordinationMessage, answerMode, fallbackReason, knowledgeChunks,
+                diagnosticReply, knowledgeSources, coordination, diagnosisTrace, roleFlow },
+              session.messages.length ? [] : request.history.slice(0, -1));
+            saved = true; break;
+          } catch (error) {
+            if (error instanceof MemoryError) throw error;
+            lastAppendError = error;
+          }
+        }
+        if (!saved) {
+          console.error('[preview chat] memory append failed after diagnosis; returning answer without saving:', lastAppendError);
+          payload.memorySaveFailed = true;
+        }
       }
       response = json(payload);
         recordQuestion({ ...question, machineType: request.machineType, brand: request.brand, model: request.model,

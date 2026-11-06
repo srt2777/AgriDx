@@ -1,0 +1,129 @@
+.knowledge-graph-3d {
+  margin-top: 16px;
+}
+
+.knowledge-graph-3d-viewport {
+  position: relative;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #171310;
+  border: 1px solid rgba(217, 164, 65, 0.35);
+  touch-action: none;
+}
+
+.knowledge-graph-3d-viewport canvas {
+  display: block;
+}
+
+.knowledge-graph-3d-loading {
+  padding: 48px 16px;
+  text-align: center;
+  color: #f5efe4;
+}
+
+.knowledge-graph-3d-status {
+  position: absolute;
+  top: 10px;
+  left: 12px;
+  margin: 0;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(23, 19, 16, 0.72);
+  color: #f5efe4;
+  font-size: 12px;
+  line-height: 1.4;
+  pointer-events: none;
+  max-width: calc(100% - 24px);
+}
+
+.knowledge-graph-3d-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.knowledge-graph-3d-controls button {
+  padding: 7px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(90, 70, 40, 0.45);
+  background: #fbf7ef;
+  color: #3a2f22;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.knowledge-graph-3d-controls button:hover {
+  border-color: #d9a441;
+}
+
+.knowledge-graph-3d-controls button[aria-pressed="true"] {
+  background: #d9a441;
+  border-color: #d9a441;
+  color: #241b0e;
+}
+
+.knowledge-graph-3d-controls button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.knowledge-graph-3d-controls button:focus-visible {
+  outline: 2px solid #d9a441;
+  outline-offset: 2px;
+}
+
+.knowledge-graph-3d-hint {
+  margin: 10px 0 0;
+  color: #6b5d4a;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.knowledge-graph-3d-fallback {
+  padding: 20px;
+  border: 1px solid rgba(90, 70, 40, 0.45);
+  border-radius: 14px;
+  background: #fbf7ef;
+}
+
+.knowledge-graph-3d-fallback button {
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid #d9a441;
+  background: #d9a441;
+  color: #241b0e;
+  cursor: pointer;
+}
+
+.taxonomy-view-mode {
+  display: inline-flex;
+  gap: 4px;
+  margin: 4px 0 12px;
+  padding: 4px;
+  border-radius: 999px;
+  border: 1px solid rgba(90, 70, 40, 0.35);
+  background: #fbf7ef;
+}
+
+.taxonomy-view-mode button {
+  padding: 6px 14px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: #3a2f22;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.taxonomy-view-mode button[aria-pressed="true"] {
+  background: #d9a441;
+  color: #241b0e;
+}
+
+@media (max-width: 640px) {
+  .knowledge-graph-3d-controls button {
+    padding: 7px 10px;
+    font-size: 12px;
+  }
+}
