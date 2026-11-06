@@ -8,7 +8,7 @@
 
 历史记录：[3.x](docs/changelog/3.x.md) / [2.x](docs/changelog/2.x.md)。
 
-## 4.0.43 — 2026-11-06
+## Unreleased
 
 - 工作台改用 IndexedDB 事务存储
 - 更新类型：fix；批次：workbench-indexeddb-20261106。
