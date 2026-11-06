@@ -1010,8 +1010,8 @@
       "date": "2026-11-06"
     },
     {
-      "id": "campus-graph-layout-20261106",
-      "kind": "maintenance",
+      "id": "diagnosis-recovery-20261106",
+      "kind": "fix",
       "base": "4.0.41",
       "version": "4.0.42",
       "date": "2026-11-06"

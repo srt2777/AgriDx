@@ -11,7 +11,8 @@ export default function CampusEquipmentCatalog({ onSelect, moving, onMotion, red
   const zh = useLang() === 'zh';
   const [zone, setZone] = useState<HallZoneId | 'all'>('all');
   const [search, setSearch] = useState('');
-  const shown = HALL_EXAMPLE_DEVICES.filter(item => (zone === 'all' || item.zone === zone) && item.name.toLocaleLowerCase().includes(search.trim().toLocaleLowerCase()));
+  const query = search.trim().toLocaleLowerCase();
+  const shown = HALL_EXAMPLE_DEVICES.filter(item => (zone === 'all' || item.zone === zone) && (!query || item.name.toLocaleLowerCase().includes(query) || item.specZh.toLocaleLowerCase().includes(query) || item.specEn.toLocaleLowerCase().includes(query)));
   let offset = 0;
   return <section id="campus-equipment-catalog" className="campus-equipment-catalog" aria-labelledby="campus-equipment-heading">
     <header><div><span>THE CAMPUS / EQUIPMENT</span><h2 id="campus-equipment-heading">{zh ? '大厅装备陈列' : 'Campus equipment collection'}</h2><p>{zh ? `${CAMPUS_EXHIBITS.length} 个三维结构示意 · ${HALL_EXAMPLE_TOTAL} 条示例设备记录。点击设备在园区定位；这些不是实车模型、铭牌规格或在线机队。` : `${CAMPUS_EXHIBITS.length} 3D schematics · ${HALL_EXAMPLE_TOTAL} example device records. Select a device to locate its schematic in the campus. Not measured models, plate specs or a live fleet.`}</p></div>
