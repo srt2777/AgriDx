@@ -39,11 +39,11 @@
 - 针对性回归（新基底 main 9ececeb，`npm ci` 后）：`tests/workbench-store.test.ts` 14/14 通过、`tests/workbench-data.test.ts` 7/7 通过，合计 21/21。
 - 完整 `npm run verify`：969 项，966 通过、1 失败、2 跳过。唯一失败为 `tests/tencent-deploy.test.ts:153`（腾讯正式启动命令启动超时，已知抖动项，与本批改动无关）；单跑该文件 11/11 通过（含该用例，83.6 秒）。
 - 其余阶段：版本/知识库版本/类型检查通过；verify 在测试阶段失败后中止，lint 与构建单独补跑：lint 0 错误、2 警告（均为既有模式：`button.tsx` 与 `WorkbenchContext.tsx` 的 react-refresh 导出警告）；前后端构建通过。
-- 未运行：推送、建草案 PR、托管 CI（Ubuntu/Windows/汇总）、真实浏览器双标签页验收——均列为 open，见交付说明。
+- 未运行：托管 CI（Ubuntu/Windows/汇总，见 PR #217 checks）、真实浏览器双标签页验收——均列为 open。
 
 ### 关联 PR
 
-- 未记录
+- PR #217。
 
 ### 部署记录
 
