@@ -1,0 +1,373 @@
+/* 新版手机端协调层（2026-11-06，PR codex/new-ui-old-style-mobile-20261106）。
+ *
+ * 对照实测（390×844 竖屏、844×390 横屏，新版 vs 旧版，Playwright 量测 +
+ * 截图）发现的新版不协调点，按旧版节奏收敛；只改样式与布局：
+ * - 风格不变：不改品牌色、不改文案、不改功能、不改路由、不改诊断逻辑。
+ * - 只作用于新版壳 [data-ui-version='new']；旧版（classic）完全不动。
+ * - 本文件在 src/index.tsx 最后加载，靠作用域与加载顺序取胜，不用 !important。
+ * - 不 bump 项目版本：下一项目版本号 4.0.41 已被 PR2 #218 / PR3 #217 /
+ *   PR4 #219 占用（留待合并时协调）。界面独立编号按仓库规则递进：
+ *   本轮只改新版，NV1.3 -> NV1.4（src/lib/ui-versions.ts），旧版 OV1.6 不动。
+ *
+ * 旧版协调的关键做法（实测）：标题 24px/行高 1.35/字距 0；正文 14px/
+ * 行高 1.6；小字 12px；0.5px 细边框；8px/4px 小圆角；无大阴影；顶栏
+ * 单行 56–65px；导航开关在顶栏内，不悬浮压正文；页面顶部留白紧凑。
+ * 新版偏离最远的三处：页头 110px（三行）、h1 32px/字距 -0.03em、
+ * 首页舞台 780px（占满一屏）；横屏另有舞台 680px、对话空态标题被
+ * 自动滚出可视区、导航开关压住正文。
+ */
+
+/* ============ 竖屏手机：<=600px ============ */
+@media (max-width: 600px) {
+  /* 1. 字号与行高：向旧版收敛。 */
+  .new-version-shell[data-ui-version='new'] {
+    --nv-text-xl: 24px; /* h1 32px -> 24px，与旧版标题一致 */
+    --nv-text-md: 14px; /* 正文 16px -> 14px，与旧版正文一致 */
+    --nv-text-leading: 1.6; /* 正文行高 1.5 -> 1.6 */
+    --nv-heading-leading: 1.35; /* 标题行高 1.25 -> 1.35 */
+  }
+  .new-version-shell[data-ui-version='new'] .new-version-main h1 {
+    letter-spacing: 0; /* 去掉 -0.03em，回到旧版的 0 */
+    line-height: 1.35;
+  }
+  /* 知识页副标题、模型页副标题、对话欢迎语：15px/1.7 -> 14px/1.6。 */
+  .new-version-shell[data-ui-version='new'] .knowledge-page-heading p,
+  .new-version-shell[data-ui-version='new'] .new-version-main .text-sm.leading-7,
+  .new-version-shell[data-ui-version='new'] .chat-empty p {
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  /* 2. 页头：110px -> 88px（实测）。品牌行与工具行收紧，工具按钮 40px -> 36px
+     （旧版顶栏按钮约 36px）；版本切换按钮收到 40px，工具行不再超宽。 */
+  .new-version-shell[data-ui-version='new'] .new-version-header-content {
+    min-height: 0;
+    gap: 6px;
+    padding: 6px 8px 6px 48px; /* 左侧 48px 给收进来的导航开关 */
+  }
+  .new-version-shell[data-ui-version='new'] .new-version-header-glass {
+    border-radius: 12px;
+  }
+  .new-version-shell[data-ui-version='new'] .new-version-college-mark {
+    width: 32px;
+    height: 32px;
+  }
+  .new-version-shell[data-ui-version='new'] .new-version-wordmark strong {
+    font-size: 14px;
+  }
+  .new-version-shell[data-ui-version='new'] .new-version-header .command-launch,
+  .new-version-shell[data-ui-version='new'] .new-version-header .theme-switch,
+  .new-version-shell[data-ui-version='new'] .new-version-header .new-version-language,
+  .new-version-shell[data-ui-version='new'] .new-version-header .demo-note-button {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    min-height: 36px;
+  }
+  /* 版本切换是带 3px 内边距的双钮胶囊：只收按钮会剩 44px 的容器。
+     内边距收到 2px、按钮收到 30px，容器正好 36px，与其它工具按钮齐平。 */
+  .new-version-shell[data-ui-version='new'] .new-version-header .ui-version-switch {
+    padding: 2px;
+  }
+  .new-version-shell[data-ui-version='new'] .new-version-header .ui-version-switch button {
+    min-width: 40px;
+    min-height: 30px;
+    padding-inline: 6px;
+  }
+
+  /* 3. 导航开关：从左下悬浮（压住正文）收进页头第一行，像旧版一样
+     待在顶栏里。抽屉打开时仍用 unify 的定位（left: 176px，特性值更高）。 */
+  .new-version-shell[data-ui-version='new'] .new-version-nav-toggle {
+    position: fixed;
+    top: 16px;
+    left: 20px;
+    right: auto;
+    bottom: auto;
+    z-index: 60;
+    width: 36px;
+    height: 36px;
+  }
+  /* 对话页的开关在 chat-layout 里另有 bottom 定位（特性值 0,5,0），
+     这里用同样长度的选择器覆盖。 */
+  .new-version-shell[data-ui-version='new'][data-route='/chat'] .new-version-nav-toggle[data-collapsed='true'] {
+    top: 16px;
+    left: 20px;
+    bottom: auto;
+  }
+
+  /* 4. 页面顶部留白：面包屑、知识页、模型页、故障页的空隙收紧。 */
+  .new-version-shell[data-ui-version='new'] .new-version-breadcrumb {
+    padding: 8px 0;
+  }
+  .new-version-shell[data-ui-version='new'] .knowledge-page {
+    padding-block: 12px 48px;
+  }
+  .new-version-shell[data-ui-version='new'] .knowledge-page .page-container {
+    padding-top: 8px;
+  }
+  .new-version-shell[data-ui-version='new'] .knowledge-page-heading {
+    margin-block: 16px 20px;
+  }
+  .new-version-shell[data-ui-version='new'] .knowledge-page-heading h1 {
+    letter-spacing: 0;
+  }
+  .new-version-shell[data-ui-version='new'] .knowledge-back {
+    padding-block: 8px;
+  }
+  /* 知识统计大数字 32px -> 20px（旧版 16px；卡片内保留一级层级）。 */
+  .new-version-shell[data-ui-version='new'] .catalog-stats {
+    padding-block: 16px;
+    border-radius: 12px;
+  }
+  .new-version-shell[data-ui-version='new'] .catalog-stats > div {
+    padding: 12px;
+  }
+  .new-version-shell[data-ui-version='new'] .catalog-stats strong,
+  .new-version-shell[data-ui-version='new'] .catalog-stats strong span {
+    font-size: 20px;
+  }
+  /* 模型页 h1 是 Tailwind text-3xl（30px），令牌改不到，单独收。 */
+  .new-version-shell[data-ui-version='new'] .new-version-main .model-page h1 {
+    font-size: 24px;
+    letter-spacing: 0;
+    line-height: 1.35;
+  }
+  .new-version-shell[data-ui-version='new'] .new-version-main .model-page > div:first-child {
+    margin-bottom: 20px;
+  }
+  .new-version-shell[data-ui-version='new'] .new-version-main .model-page .rounded-3xl {
+    border-radius: 12px;
+  }
+  .new-version-shell[data-ui-version='new'] .fault-heading {
+    margin: 16px 0;
+  }
+
+  /* 5. 首页舞台：780px -> clamp(420px, 56svh, 560px)，首屏能看到下一节；
+     圆角 20px -> 12px，大阴影收小；画布与浮层跟着收。 */
+  .new-version-shell[data-ui-version='new'] .expo-world-stage {
+    height: clamp(420px, 56svh, 560px);
+    min-height: 420px;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgb(8 24 36 / 10%);
+  }
+  .new-version-shell[data-ui-version='new'] .expo-world-canvas {
+    top: 170px;
+    bottom: 64px;
+  }
+  .new-version-shell[data-ui-version='new'] .expo-hero strong {
+    font-size: 26px;
+  }
+  .new-version-shell[data-ui-version='new'] .expo-world-guide h2 {
+    font-size: 24px;
+  }
+  .new-version-shell[data-ui-version='new'] .expo-scene-bar {
+    min-height: 48px;
+  }
+  .new-version-shell[data-ui-version='new'] .expo-zone-card,
+  .new-version-shell[data-ui-version='new'] .expo-drive-pad {
+    bottom: 80px;
+  }
+  /* 首页 dock：unify 通则把按钮字号提到 14px 后，5 个按钮天然宽约 375px、
+     容器只有 332px，flex 会把带 overflow: hidden 的“驾驶漫游”钮压到
+     40–44px、文字被裁。字号回 11px、收紧内边距与间距后天然宽 fit 进
+     容器，390px 与 360px 下均不再裁切（实测 spanClipped 全 false）。 */
+  .new-version-shell[data-ui-version='new'] .expo-world-dock {
+    gap: 2px;
+    padding: 4px;
+  }
+  .new-version-shell[data-ui-version='new'] .expo-world-dock > button {
+    padding-inline: 4px;
+    gap: 4px;
+    /* dock 按钮字号被 unify 的 button 通则提到了 14px（原设计 11px），
+       4 个汉字占 56px 才挤爆 332px 的容器；回到 11px 才能放得下。 */
+    font-size: 11px;
+  }
+
+  /* 6. 对话空态：顶部留白 clamp(28px, 8vh, 72px) -> 12px。 */
+  .new-version-shell[data-ui-version='new'][data-route='/chat'] .new-version-main .chat-empty {
+    margin-top: 12px;
+  }
+
+  /* 7. 开关已收进页头，收起导航时页面底部不再留 56px 给悬浮按钮。 */
+  .new-version-shell[data-ui-version='new']:not([data-route='/chat']) .new-version-workspace.is-nav-collapsed {
+    padding-bottom: 24px;
+  }
+}
+
+/* 320px 窄屏：工具行再收 16px，避免语言按钮溢出页头。 */
+@media (max-width: 360px) {
+  .new-version-shell[data-ui-version='new'] .new-version-tools {
+    gap: 2px;
+  }
+  .new-version-shell[data-ui-version='new'] .new-version-header .ui-version-switch button {
+    min-width: 36px;
+  }
+  /* dock 在 360px 下再收一档，避免“驾驶漫游”被挤压裁切。 */
+  .new-version-shell[data-ui-version='new'] .expo-world-dock > button {
+    padding-inline: 2px;
+    font-size: 10px;
+  }
+}
+
+/* ============ 横屏手机：宽高比反转、高度 <=500px ============ */
+@media (orientation: landscape) and (max-height: 500px) {
+  .new-version-shell[data-ui-version='new'] {
+    --nv-text-xl: 24px;
+    --nv-text-md: 14px;
+    --nv-heading-leading: 1.35;
+  }
+  .new-version-shell[data-ui-version='new'] .new-version-main h1 {
+    letter-spacing: 0;
+    line-height: 1.35;
+  }
+
+  /* 页头单行收紧：内容 4px 留白，品牌 32px，工具 34px；开关同样收进页头。 */
+  .new-version-shell[data-ui-version='new'] .new-version-header-content {
+    min-height: 0;
+    gap: 8px;
+    padding: 4px 12px 4px 48px;
+  }
+  .new-version-shell[data-ui-version='new'] .new-version-college-mark {
+    width: 32px;
+    height: 32px;
+  }
+  .new-version-shell[data-ui-version='new'] .new-version-header .command-launch,
+  .new-version-shell[data-ui-version='new'] .new-version-header .theme-switch,
+  .new-version-shell[data-ui-version='new'] .new-version-header .new-version-language,
+  .new-version-shell[data-ui-version='new'] .new-version-header .demo-note-button {
+    width: 34px;
+    height: 34px;
+    min-width: 34px;
+    min-height: 34px;
+  }
+  .new-version-shell[data-ui-version='new'] .new-version-header .ui-version-switch {
+    padding: 2px;
+  }
+  .new-version-shell[data-ui-version='new'] .new-version-header .ui-version-switch button {
+    min-width: 40px;
+    min-height: 28px;
+    padding-inline: 6px;
+  }
+  .new-version-shell[data-ui-version='new'] .new-version-nav-toggle {
+    position: fixed;
+    top: 12px;
+    left: 28px;
+    right: auto;
+    bottom: auto;
+    z-index: 60;
+    width: 34px;
+    height: 34px;
+  }
+  .new-version-shell[data-ui-version='new'][data-route='/chat'] .new-version-nav-toggle[data-collapsed='true'] {
+    top: 12px;
+    left: 28px;
+    bottom: auto;
+  }
+
+  /* 页面顶部留白与标题。 */
+  .new-version-shell[data-ui-version='new'] .new-version-breadcrumb {
+    padding: 8px 0;
+  }
+  .new-version-shell[data-ui-version='new'] .knowledge-page {
+    padding-block: 12px 40px;
+  }
+  .new-version-shell[data-ui-version='new'] .knowledge-page .page-container {
+    padding-top: 8px;
+  }
+  .new-version-shell[data-ui-version='new'] .knowledge-page-heading {
+    margin-block: 16px;
+  }
+  .new-version-shell[data-ui-version='new'] .catalog-stats strong,
+  .new-version-shell[data-ui-version='new'] .catalog-stats strong span {
+    font-size: 20px;
+  }
+  .new-version-shell[data-ui-version='new'] .new-version-main .model-page h1 {
+    font-size: 24px;
+    letter-spacing: 0;
+    line-height: 1.35;
+  }
+  .new-version-shell[data-ui-version='new'] .fault-heading {
+    margin: 16px 0;
+  }
+
+  /* 首页舞台：680px -> clamp(300px, 68svh, 400px)， dock 与浮层跟着收，
+     首页不再是一屏空舞台。 */
+  .new-version-shell[data-ui-version='new'] .expo-world-stage {
+    height: clamp(300px, 68svh, 400px);
+    min-height: 300px;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgb(8 24 36 / 10%);
+  }
+  .new-version-shell[data-ui-version='new'] .expo-world-canvas {
+    top: 120px;
+    bottom: 56px;
+  }
+  .new-version-shell[data-ui-version='new'] .expo-hero strong {
+    font-size: 22px;
+  }
+  .new-version-shell[data-ui-version='new'] .expo-world-guide h2 {
+    font-size: 22px;
+  }
+  .new-version-shell[data-ui-version='new'] .expo-scene-bar {
+    min-height: 44px;
+  }
+  .new-version-shell[data-ui-version='new'] .expo-zone-card {
+    bottom: 64px;
+    width: 220px;
+  }
+  .new-version-shell[data-ui-version='new'] .expo-drive-pad {
+    bottom: 64px;
+  }
+
+  /* 对话页：把空态与输入区 chrome 收紧，给消息区腾高度。
+     收紧前挂载自动滚到底会把空态标题顶出可视区（h2 y=-69）；4 列提问 +
+     段间距收紧后标题回到可视区内（实测 h2 y=+11），输入区完整可见。 */
+  .new-version-shell[data-ui-version='new'][data-route='/chat'] .new-version-main .chat-empty {
+    margin-top: 8px;
+    padding-block: 8px;
+  }
+  .new-version-shell[data-ui-version='new'][data-route='/chat'] .chat-empty h2 {
+    font-size: 18px;
+  }
+  .new-version-shell[data-ui-version='new'][data-route='/chat'] .chat-empty p {
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  .new-version-shell[data-ui-version='new'][data-route='/chat'] .chat-empty .chat-chip {
+    padding: 8px 6px;
+  }
+  /* 横屏矮视口：快捷提问由 2 列 2 行改为 4 列 1 行，空态底部收掉约一行
+     高度，挂载滚到底后标题刚好回到可视区内（再配合同页 chrome 的收紧）。 */
+  .new-version-shell[data-ui-version='new'][data-route='/chat'] .chat-empty .grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 6px;
+  }
+  /* 空态各段间距再收 20px（mt-4 16px -> 8px、mt-6 24px -> 12px），
+     与 4 列提问合计把标题顶回可视区内。 */
+  .new-version-shell[data-ui-version='new'][data-route='/chat'] .chat-empty > p.mt-4 {
+    margin-top: 8px;
+  }
+  .new-version-shell[data-ui-version='new'][data-route='/chat'] .chat-empty > div.mt-6 {
+    margin-top: 12px;
+  }
+  .new-version-shell[data-ui-version='new'][data-route='/chat'] .chat-toolbar {
+    min-height: 36px;
+  }
+  .new-version-shell[data-ui-version='new'][data-route='/chat'] .chat-composer textarea {
+    min-height: 36px;
+    padding: 8px 4px;
+  }
+  .new-version-shell[data-ui-version='new'][data-route='/chat'] .chat-composer-footer {
+    min-height: 20px;
+  }
+  .new-version-shell[data-ui-version='new'][data-route='/chat'] .chat-input-content {
+    padding: 4px 0 2px;
+  }
+  .new-version-shell[data-ui-version='new'][data-route='/chat'] .site-status-bar {
+    min-height: 28px;
+  }
+
+  .new-version-shell[data-ui-version='new']:not([data-route='/chat']) .new-version-workspace.is-nav-collapsed {
+    padding-bottom: 24px;
+  }
+}
