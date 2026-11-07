@@ -1,5 +1,5 @@
 {
-  "name": "AgriDx schematic tractor",
+  "name": "Sijia schematic tractor",
   "schematic": true,
   "generator": "scripts/generate-tractor-model.mjs",
   "components": [
