@@ -1022,6 +1022,13 @@
       "base": "4.0.42",
       "version": "4.1.0",
       "date": "2026-11-07"
+    },
+    {
+      "id": "old-knowledge-graph-20261107",
+      "kind": "feature",
+      "base": "4.1.0",
+      "version": "4.1.1",
+      "date": "2026-11-07"
     }
   ]
 }
