@@ -1,7 +1,7 @@
-# 耕知·耘诊界面设计
+# 司稼界面设计
 
 ## 定位与参考
-面向农业科研与农机维修场景的专业产品官网。保留南京农业大学背景、耕知·耘诊名称、正式首页标题，以及首页和对话页路由。
+面向农业科研与农机维修场景的专业产品官网。保留南京农业大学背景、司稼名称、正式首页标题，以及首页和对话页路由。
 
 参考 Leonxlnx/taste-skill 的 design-taste-frontend 与 redesign-existing-projects：
 - https://github.com/Leonxlnx/taste-skill/blob/main/skills/taste-skill/SKILL.md

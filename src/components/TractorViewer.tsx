@@ -282,7 +282,7 @@ export default function TractorViewer({ component = 'all', exploded = false, mod
       setShareNote(lang === 'zh' ? '这一帧是空的，请等模型出现后再保存' : 'This frame is empty. Wait for the model, then save again.');
       return;
     }
-    const file = new File([blob], 'agridx-structure-schematic.png', { type: 'image/png' });
+    const file = new File([blob], 'sijia-structure-schematic.png', { type: 'image/png' });
     const shareData = { files: [file], title };
     try {
       if (navigator.canShare?.(shareData)) {
@@ -299,7 +299,7 @@ export default function TractorViewer({ component = 'all', exploded = false, mod
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = 'agridx-structure-schematic.png';
+    link.download = 'sijia-structure-schematic.png';
     link.click();
     window.setTimeout(() => URL.revokeObjectURL(url), 1500);
     setShareNote(lang === 'zh' ? '已保存结构示意' : 'Structure illustration saved');

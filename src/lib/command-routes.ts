@@ -51,13 +51,13 @@ export function openCommandPalette() {
 export function notFoundCopy(lang: 'zh' | 'en') {
   if (lang === 'zh') {
     return {
-      kicker: '耕知 · 耘诊',
+      kicker: '司稼',
       title: '页面未找到',
       note: '这个地址没有对应的大厅或资料。',
     };
   }
   return {
-    kicker: 'GENGZHI · YUNZHEN',
+    kicker: 'SIJIA',
     title: 'Page not found',
     note: 'This address has no campus or catalog.',
   };

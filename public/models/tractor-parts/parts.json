@@ -2,7 +2,7 @@
   "version": 2,
   "units": "metres",
   "up_axis": "Y (glTF/three.js). explode_dir = offset vector in metres (multiply by factor 0..1). Groups (is_group) are empty nodes whose child meshes carry their own explode_dir and part_id = group name.",
-  "total_triangles": 84788,
+  "total_triangles": 80548,
   "parts": [
     {
       "name": "wheel_rl",
@@ -274,7 +274,7 @@
         "decal_yellow",
         "decal_white"
       ],
-      "triangles": 21028
+      "triangles": 16788
     },
     {
       "name": "headlights",

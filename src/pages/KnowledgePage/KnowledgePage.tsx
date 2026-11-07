@@ -66,7 +66,7 @@ export default function KnowledgePage() {
     <div className="page-container">
       {!graphView && <><Link to="/" className="knowledge-back"><ArrowLeft size={15} />{t('返回首页', 'Back to home')}</Link>
       <header className="knowledge-page-heading">
-        <div><div className="section-eyebrow">{t('耕知 · 知识目录', 'GENGZHI · CATALOG')}</div><h1 data-shared-target={version === 'new' ? 'knowledge' : undefined}>{t('知识检索与诊断支持', 'Knowledge & diagnostic support')}</h1><p>{t('按品牌、机型和部件查找。条数是已索引记录；每条保留来源、核验和适用范围。', 'Search by brand, model, and part. Counts are indexed records. Each entry keeps its source, check, and scope.')}</p>{version === 'new' && <span className="wheat-line" aria-hidden="true" />}</div>
+        <div><div className="section-eyebrow">{t('司稼 · 知识目录', 'SIJIA · CATALOG')}</div><h1 data-shared-target={version === 'new' ? 'knowledge' : undefined}>{t('知识检索与诊断支持', 'Knowledge & diagnostic support')}</h1><p>{t('按品牌、机型和部件查找。条数是已索引记录；每条保留来源、核验和适用范围。', 'Search by brand, model, and part. Counts are indexed records. Each entry keeps its source, check, and scope.')}</p>{version === 'new' && <span className="wheat-line" aria-hidden="true" />}</div>
         <div className="knowledge-heading-icon" aria-hidden="true"><Layers size={38} strokeWidth={1.15} /><span>01 — 04</span></div>
       </header></>}
 

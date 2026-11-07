@@ -132,7 +132,7 @@ export default function FieldOverview() {
           <strong>
             Agri<span>Dx</span>
           </strong>
-          <small>{t('耕知 · 耘诊', 'Field workspace')}</small>
+          <small>{t('司稼', 'Field workspace')}</small>
         </div>
         {mobile && (
           <button

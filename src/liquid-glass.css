@@ -1,4 +1,4 @@
-/* Gengzhi · Yunzhen: forest accent, neutral surfaces, restrained glass controls.
+/* Sijia: forest accent, neutral surfaces, restrained glass controls.
    The web glass is an approximation, not Apple's native Liquid Glass renderer. */
 body { font-family: var(--font-sans); }
 button, a { -webkit-tap-highlight-color: transparent; }

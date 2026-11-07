@@ -130,7 +130,7 @@ function useWorkbenchState() {
   }, []);
   const exportLegacyRecovery = useCallback(() => {
     const raw = migrationCorruptRaw ?? localStorage.getItem(WORKBENCH_KEY);
-    if (raw !== null) downloadFile(raw, 'agridx-workbench-legacy-recovery.json', 'application/json');
+    if (raw !== null) downloadFile(raw, 'sijia-workbench-legacy-recovery.json', 'application/json');
   }, [migrationCorruptRaw]);
   const brand = catalog?.brands.find(b => b.id === brandId), model = brand?.models.find(m => m.id === modelId);
   return { catalog, catalogStatus, refresh: () => { clearCachedKnowledgeCatalog(''); setRevision(n => n + 1); }, brandId, modelId, brand, model, chooseBrand: (id: string) => { setBrandId(id); setModelId(''); }, chooseModel: setModelId, data, ready, busy, storageError, migrationCorruptRaw, legacyWriteDetected, retryMigration, exportLegacyRecovery, log, addDataset, deleteDataset, clearActivities };

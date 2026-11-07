@@ -353,8 +353,8 @@ for s_ in (1, -1):
         h.append(box((0.44, 0.03, 0.018), (1.66, yy*1.01, 0.96 + i*0.048), M['dark'], 0.006, rot=(s_*0.5, 0, 0)))
     h.append(box((1.40, 0.008, 0.035), (1.08, s_*0.437, 1.40 - 0.0), M['decal'], 0.003, rot=(0, 0.05, 0)))
     h.append(box((1.40, 0.008, 0.010), (1.08, s_*0.437, 1.355), M['decal'], 0.002, rot=(0, 0.05, 0)))
-    h.append(text_mesh("AgriDx", 0.13, (1.02, s_*0.441, 1.22), M['decal'], s_, LAT))
-    h.append(text_mesh("耕知·耘诊", 0.095, (1.02, s_*0.441, 1.07), M['decal_white'], s_, CJK))
+    h.append(text_mesh("SIJIA", 0.13, (1.02, s_*0.441, 1.22), M['decal'], s_, LAT))
+    h.append(text_mesh("司稼", 0.095, (1.02, s_*0.441, 1.07), M['decal_white'], s_, CJK))
 part("engine_hood", "发动机罩", h, (0.2, 0, 1.4))
 
 # ---------------- headlights (group: front L/R, cab work lights) ----------------
