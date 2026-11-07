@@ -94,10 +94,10 @@ test('协调层不带任何版本号', () => {
   assert.ok(!css.includes('4.0.40'), '不得出现 4.0.40');
 });
 
-/* 手机协调合入时为 NV1.6 / OV1.8。本分支界面改动将编号协调为 NV1.7 / OV1.9。 */
+/* 手机协调合入时为 NV1.6 / OV1.8。本分支界面改动将编号协调为 NV1.7 / OV1.10。 */
 test('界面编号与本分支改动一致', () => {
   const versions = read('../src/lib/ui-versions.ts');
   assert.ok(versions.includes("new: 'NV1.7'"), '新版界面编号应为 NV1.7');
-  assert.ok(versions.includes("old: 'OV1.9'"), '旧版界面编号应为 OV1.9');
+  assert.ok(versions.includes("old: 'OV1.10'"), '旧版界面编号应为 OV1.10');
   assert.ok(!versions.includes('NV1.3'), '旧的新版编号 NV1.3 不应残留');
 });
