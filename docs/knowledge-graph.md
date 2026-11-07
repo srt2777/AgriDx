@@ -1,5 +1,15 @@
 # 知识库分类关系图
 
+## 2026-11-06：社区报告（知识库第 4 步）
+
+按品牌 / 机型 / 系统把已有归档条目聚成主题摘要（借 GraphRAG 社区报告的思路，只做总结，不做诊断），用于“这台机子常见问题有哪些”这类全局问题，不用于单次故障确诊。
+
+- 分组与分类：与 `hierarchy.json` / `/api/knowledge/catalog` 的分类完全一致（品牌 → 机型 → 系统/组件），不另起一套分类，不另存第二份图数据，不改图谱派生规则；编号用与分类节点相同的 `[品牌, 型号, 组件]` 形式。
+- 只覆盖来源归档：通识学习条目没有机型与系统归属，不进入社区报告；“千寻位置”按 2026-11-01 的决定不显示，源知识不删除。
+- 每句话都有来源：报告句子只由确定性计数与索引字段生成（条目类型、已标注角色、来源贡献、已评审风险），不用 LLM 自由生成新事实；每句的 `sources` 列出它所计数或点名的全部条目（`entry_id` + `source_id` + 定位页码；定位无 PDF 页码时页码为 `null` 并保留完整定位文字）。
+- 快照绑定：每份报告带 `kbVersion` 与 `snapshotSha`（快照加载时对归档条目及分层关联算出的 SHA-256）；快照一变报告随之重建，旧报告比对不上当前快照时判为 `stale` 并明示过期，不静默使用。
+- 接口：`GET /api/knowledge/community-reports`，可用 `brand` / `model` / `component` 依次筛选单个分组，用 `offset` / `limit` 分页（与关系接口相同的分页规则）；实现见 `server/knowledge/community-reports.ts`，类型见 `shared/knowledge-community-reports.ts`，测试见 `tests/knowledge-community-reports.test.ts`，抽查记录见 `docs/knowledge-community-reports-audit.md`。
+
 ## 2026-11-01：Graphify 查询与图谱显示范围
 
 用户明确要求不显示“千寻位置”节点。来源归档图谱、辅助目录、关系接口及 Graphify 导出继续排除该品牌及其下级节点；源知识与其导航资料不删除。知识原件、`kb_version` 及现有诊断路径没有更改。
