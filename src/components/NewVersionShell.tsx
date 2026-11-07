@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { preloadPage } from '@/lib/page-loaders';
 import { publicAsset } from '@/lib/public-asset';
-import { BookOpen, Globe, House, MessageSquare, PanelLeftClose, PanelLeftOpen, Wrench, Activity } from 'lucide-react';
+import { BookOpen, Globe, House, MessageSquare, PanelLeftClose, PanelLeftOpen, Wrench, Activity, Tractor } from 'lucide-react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useLang, setLang } from '@/hooks/useLang';
 import { CommandButton } from '@/components/CommandPalette';
@@ -15,7 +15,7 @@ import { MODERN_DESTINATIONS, modernLocation } from '@/lib/modern-navigation';
 import { GlidingSelection } from '@/components/GlidingSelection';
 import './new-version-shell.css';
 
-const NAV_ICONS = { '/': House, '/knowledge': BookOpen, '/chat': MessageSquare, '/models': Wrench, '/fault-detection': Activity } as const;
+const NAV_ICONS = { '/': House, '/knowledge': BookOpen, '/chat': MessageSquare, '/models': Wrench, '/fault-detection': Activity, '/field-overview': Tractor } as const;
 
 /** Shared chrome for the modern workspace. */
 export function NewVersionShell() {
@@ -28,6 +28,12 @@ export function NewVersionShell() {
   useEffect(() => {
     try { localStorage.setItem('agridx-modern-sidebar-collapsed', String(navigationCollapsed)); } catch { /* The toggle also works without storage. */ }
   }, [navigationCollapsed]);
+  useEffect(() => {
+    const mobile = window.matchMedia('(max-width: 900px)');
+    const closeForMobile = () => { if (mobile.matches) setNavigationCollapsed(true); };
+    mobile.addEventListener('change', closeForMobile);
+    return () => mobile.removeEventListener('change', closeForMobile);
+  }, []);
   const lang = useLang();
   const location = useLocation();
   const navigate = useNavigate();

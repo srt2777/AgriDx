@@ -1,6 +1,7 @@
 import type { UiVersion } from '@/hooks/useUiVersion';
 
 export const pageLoaders = {
+  field: () => import('@/pages/FieldOverview/FieldOverview'),
   faultDetection: () => import('@/pages/FaultDetectionPage/FaultDetectionPage'),
   history: () => import('@/pages/VersionHistoryPage/VersionHistoryPage'),
   classic: () => import('@/pages/WorkbenchPage/WorkbenchPage'),
@@ -19,7 +20,7 @@ export function preloadPage(path: string, version: UiVersion = 'new') {
   const requested = path.split(/[?#]/, 1)[0];
   const pathname = requested === '/hall' ? '/' : requested;
   const page = pathname === '/' ? version === 'new' ? 'exhibition' : 'classic'
-    : pathname.startsWith('/workspace/') ? 'classic' : pathname === '/knowledge' ? 'knowledge' : pathname === '/chat' ? 'chat'
+    : pathname === '/field-overview' ? 'field' : pathname.startsWith('/workspace/') ? 'classic' : pathname === '/knowledge' ? 'knowledge' : pathname === '/chat' ? 'chat'
       : pathname === '/fault-detection' ? 'faultDetection' : pathname === '/version-history' ? 'history' : pathname === '/models' ? 'models' : null;
   if (!page || prefetched.has(page)) return;
   prefetched.add(page);
