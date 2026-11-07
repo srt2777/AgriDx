@@ -134,3 +134,57 @@ DEEPSEEK_BASE_URL=https://api.deepseek.com GRAPHIFY_QUERY_LOG_DISABLE=1 \
 报告在同一快照载入前后各校验一次；开发预览构建时验证并仅打包必要候选编号，不把原始手册放入浏览器。默认响应包含全部关系；可传 `?offset=0&limit=2000` 分页（上限 10000），响应 `page.total` 与 `page.hasMore` 明示范围。分页不改变关系本身，调用者需逐页读取完整图。
 
 本地 2026-10-27 实测 3,984 节点、135,517 边、约 50,084,427 字节未压缩 JSON（无语义报告），构造耗时随设备和缓存变化；跨机型同名边数量高，地形视图必须另行测量和处理，不能把这些数字写成已经达成帧率目标。已有报告示例是旧快照节选，不能作为当前语义结果。
+
+## 2026-11-06：第 1 步——因果边与图谱实时同步
+
+### 因果边（派生关系表，不是第二份事实）
+
+- 数据：`知识库/整理后的知识库/农用拖拉机知识库/causal-edges.json`，
+  由 `知识库/工具/抽取因果边.py` 从已有知识卡确定性抽取（不调用 LLM），
+  不新增、不修改任何知识条目。2026-11-06 共 2050 条边、1453 个症状条目、
+  7 条带阈值；跳过 no_cause 479、no_remedy 8、no_pages 168、no_section 0。
+- 每条边：`edge_id`（`CE-六位数字`）、症状条目 `symptom_entry_id`、症状、
+  候选原因、措施、阈值（有才填，无为 null）、`source_id`、页码
+  （PDF / 印刷）、`evidence_kind`（故障表 / 知识卡选摘）、`strength_basis`
+  恒为“故障表候选”、品牌、型号。强度只标故障表候选，不写概率或已验证因果。
+- 阈值仅当措施原文出现数字 + 单位（分钟 / 小时 / 秒 / ℃ / °C / MPa / kPa / bar /
+  r/min / mm / cm / m / V / A / % / L / N·m）时取第一处原文短语。
+- 校验：`知识库/工具/校验索引.py` 的 `causal_checks` 逐条核对症状条目存在且为
+  “维护/故障知识”、来源 / 品牌 / 型号与条目一致、页码与 locator 用同一规则
+  解析后相等、原因与措施逐字出自知识卡正文、阈值出自措施原文、边编号唯一。
+  50 条人工复核记录见 `docs/knowledge-causal-edges-review.md`（等距抽样，
+  来源、页码、方向全对才算过；三轮复核中发现的抽取错误都修了抽取器并重新生成）。
+- 服务端：`server/knowledge/causal.ts` 加载边并按快照逐条校验，不匹配的边剔除
+  并记入 `degraded`，不抛错；路由 `GET /api/knowledge/causal-edges`。
+
+### 快照 SHA 与图谱实时同步
+
+- 快照：`server/knowledge/snapshot-sha.ts` 的 `computeSnapshotSha256` 对
+  `hierarchy.json` + `entries.jsonl` + `sources.json` 做 SHA-256；
+  加载时 `reloadKnowledgeSnapshot()` 用 `computeSnapshotSha256FromContents`
+  直接对已读入内存的三份索引原文算 SHA，不重读文件
+  （快照测试要求每个索引文件在一次加载里只读一次；两种算式结果相同，
+  当前快照 SHA 为 `cf9565090ff169d3afa94642a5bfb9dbea74b375a79035acfa3be144f4a9534`）；
+  `server/knowledge/snapshot.ts` 把 `snapshotSha256` 注入 catalog，
+  `shared/knowledge-catalog.ts` 与 `shared/knowledge-relations.ts` 各自携带该字段，
+  `server/knowledge/relations.ts` 从 catalog 填充。
+- 图谱节点 / 边必须从同一份知识快照派生（`/api/knowledge/catalog` +
+  `hierarchy.json` + `entries.jsonl` + `sources.json`），不另存第二份分类 /
+  事实数据；分类一变图谱整体切换。
+- 前端：`src/features/knowledge/relations-api.ts` 的 `relationsMatchCatalog`
+  要求两边 SHA 都存在且相等、kbVersion 不矛盾才算匹配；catalog 变化时
+  `KnowledgeGraph.tsx` 用 relations 只取 1 条边探查版本字段，显示同步状态
+  （正在核对 / 一致 / 不一致降级为仅显示目录归属 / 校验不可用）。
+- “千寻位置”继续只在图谱展示中排除（`graphTaxonomyNodes`），源知识不删；
+  同名零件不跨机型合并，节点 id 含完整上级路径。
+
+### 可复现验证步骤（改分类 / 条目后图谱同步验收）
+
+1. 在本地改一个分类（`hierarchy.json`）或一条条目，重建快照。
+2. 打开图谱页：同步状态应显示一致，新分类 / 条目出现在图谱中，
+   旧节点不残留；新 relations 节点集等于新目录节点集。
+3. 用旧快照的 relations 调新 catalog：`relationsMatchCatalog` 应返回 false，
+   图谱明示降级为仅显示目录归属。
+4. 自动化覆盖：`node --import tsx --test tests/knowledge-causal-edges.test.ts`
+   “graph sync” 一项（改分类后旧节点不残留、新 relations 节点集等于新目录节点集、
+   旧 relations 被 `parseKnowledgeRelations` 以 'Invalid relation node' 拒绝）。

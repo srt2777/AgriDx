@@ -1,0 +1,605 @@
+html:not(.theme-dark) .new-version-shell[data-ui-version="new"] {
+  --field-ink: #18364f;
+  --field-sub: #526d83;
+  --field-line: #cfdfed;
+  --field-card: #fafcff;
+  --field-wash: #e8f2fc;
+  --field-blue: #206db3;
+  background: linear-gradient(120deg, #ecf5fc, #edf3f8 68%, #e6f0f9);
+  color: var(--field-ink);
+}
+html.theme-dark .new-version-shell[data-ui-version="new"] {
+  --field-ink: #e5f1fc;
+  --field-sub: #b1c7da;
+  --field-line: #354f64;
+  --field-card: #142939;
+  --field-wash: #233b50;
+  --field-blue: #9bceff;
+}
+.new-version-shell[data-ui-version="new"] .new-version-header-glass,
+.new-version-shell[data-ui-version="new"] .new-version-navigation-rail {
+  background: var(--field-card);
+  border: 1px solid var(--field-line);
+  box-shadow: 0 3px 13px #27466412;
+  border-radius: 14px;
+}
+.new-version-shell[data-ui-version="new"] .new-version-nav-item {
+  border-radius: 9px;
+  color: var(--field-sub);
+}
+.new-version-shell[data-ui-version="new"] .new-version-nav-item.is-active {
+  color: var(--field-blue);
+  background: var(--field-wash);
+  box-shadow: inset 0 0 0 1px var(--field-line);
+}
+.new-version-shell[data-ui-version="new"] .nv-nav-pill {
+  background: var(--field-wash);
+}
+.new-version-shell[data-ui-version="new"] .campus-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0 0 14px;
+  padding: 20px 24px;
+  border: 1px solid var(--field-line);
+  border-radius: 15px;
+  background: linear-gradient(100deg, var(--field-card), var(--field-wash));
+  color: var(--field-ink);
+}
+.new-version-shell .campus-heading p {
+  margin: 0 0 5px;
+  color: var(--field-blue);
+  font:
+    650 10px/1.5 Arial,
+    sans-serif;
+  letter-spacing: 1.6px;
+}
+.new-version-shell .campus-heading h1 {
+  font:
+    650 clamp(27px, 3vw, 41px) / 1.2 "Inter",
+    "PingFang SC",
+    "Microsoft YaHei",
+    sans-serif;
+  letter-spacing: -0.04em;
+}
+.campus-heading-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.new-version-shell .campus-heading-actions :is(a, button) {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 11px;
+  font-size: 13px;
+  font-weight: 550;
+  line-height: 1.4;
+  border: 1px solid var(--field-line);
+  border-radius: 8px;
+  background: var(--field-card);
+  color: var(--field-blue);
+  cursor: pointer;
+  text-decoration: none;
+}
+.new-version-shell[data-ui-version="new"] .expo-world-stage {
+  border-radius: 16px;
+  border: 1px solid var(--field-line);
+  box-shadow: 0 6px 26px #17395713;
+  min-height: 460px;
+  height: clamp(460px, 66vh, 790px);
+  overflow: hidden;
+}
+.new-version-shell[data-ui-version="new"] .campus-equipment-catalog {
+  margin: 18px 0;
+  padding: 22px;
+  background: var(--field-card);
+  border: 1px solid var(--field-line);
+  border-radius: 15px;
+  color: var(--field-ink);
+}
+.new-version-shell .campus-equipment-catalog > header h2 {
+  font-size: 22px;
+}
+.new-version-shell .campus-equipment-catalog > header p {
+  max-width: 850px;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--field-sub);
+}
+.campus-equipment-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  max-width: 390px;
+  margin-bottom: 13px;
+  border: 1px solid var(--field-line);
+  background: var(--field-wash);
+  border-radius: 8px;
+  color: var(--field-sub);
+}
+.campus-equipment-search input {
+  min-width: 0;
+  flex: 1;
+  background: transparent;
+  border: 0;
+  color: var(--field-ink);
+  outline: none;
+  font-size: 13px;
+  line-height: 1.6;
+}
+.campus-equipment-search span {
+  font: 11px/1.5 Arial;
+  white-space: nowrap;
+}
+.campus-equipment-search:focus-within {
+  outline: 2px solid var(--field-blue);
+}
+.new-version-shell[data-ui-version="new"] .campus-equipment-filters {
+  gap: 7px;
+}
+.new-version-shell[data-ui-version="new"] .campus-equipment-filters button {
+  background: var(--field-card);
+  border-color: var(--field-line);
+  border-radius: 8px;
+  color: var(--field-sub);
+}
+.new-version-shell[data-ui-version="new"]
+  .campus-equipment-filters
+  button[aria-pressed="true"] {
+  background: var(--field-wash);
+  color: var(--field-blue);
+}
+.new-version-shell[data-ui-version="new"] .campus-equipment-list > li > button {
+  border: 1px solid var(--field-line);
+  border-radius: 11px;
+  background: var(--field-card);
+  padding: 16px;
+  color: var(--field-ink);
+  box-shadow: 0 2px 7px #27466408;
+}
+.new-version-shell[data-ui-version="new"]
+  .campus-equipment-list
+  > li
+  > button:hover {
+  background: var(--field-wash);
+  border-color: var(--field-blue);
+}
+.new-version-shell .campus-heading-actions :is(a, button):focus-visible {
+  outline: 3px solid var(--field-blue);
+  outline-offset: 3px;
+}
+@media (max-width: 680px) {
+  .new-version-shell[data-ui-version="new"] .campus-heading {
+    padding: 15px 12px;
+    align-items: flex-start;
+  }
+  .new-version-shell .campus-heading-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .new-version-shell .campus-heading-actions :is(a, button) {
+    font-size: 11px;
+    padding: 6px;
+  }
+  .new-version-shell[data-ui-version="new"] .expo-world-stage {
+    min-height: 490px;
+    height: 70svh;
+  }
+  .new-version-shell[data-ui-version="new"] .campus-equipment-catalog {
+    padding: 15px;
+  }
+  .new-version-shell[data-ui-version="new"] .new-version-navigation-rail {
+    border-radius: 12px 12px 0 0;
+  }
+}
+.new-version-shell .knowledge-graph-views {
+  --nv-text: var(--field-ink);
+  --nv-muted: var(--field-sub);
+  --nv-card: var(--field-card);
+  --nv-border: var(--field-line);
+  --nv-surface: var(--field-wash);
+  --nv-primary: var(--field-blue);
+}
+.new-version-shell .knowledge-graph-views .knowledge-taxonomy {
+  border: 1px solid var(--field-line);
+  border-radius: 15px;
+  background: var(--field-card);
+  color: var(--field-ink);
+  margin-top: 12px;
+}
+.new-version-shell .taxonomy-view-picker {
+  display: inline-flex;
+  gap: 4px;
+  padding: 4px;
+  background: var(--field-wash);
+  border: 1px solid var(--field-line);
+  border-radius: 10px;
+}
+.new-version-shell .taxonomy-view-picker button {
+  background: transparent;
+  border: 0;
+  border-radius: 7px;
+  color: var(--field-sub);
+  font-size: 12px;
+}
+.new-version-shell .taxonomy-view-picker button[aria-pressed="true"] {
+  background: var(--field-card);
+  color: var(--field-blue);
+  box-shadow: 0 2px 5px #27466415;
+}
+.new-version-shell .taxonomy-heading {
+  padding: 20px 24px;
+  border-color: var(--field-line);
+  background: linear-gradient(110deg, var(--field-card), var(--field-wash));
+  align-items: center;
+}
+.new-version-shell .taxonomy-heading :is(h1, h2) {
+  margin: 0 0 7px;
+  font-size: 25px;
+}
+.new-version-shell .taxonomy-heading p {
+  margin: 0;
+  color: var(--field-sub);
+  font-size: 12px;
+}
+.new-version-shell .taxonomy-heading > strong {
+  color: var(--field-blue);
+  font:
+    600 26px/1.25 Arial,
+    sans-serif;
+  text-align: right;
+}
+.new-version-shell .taxonomy-heading > strong small {
+  font:
+    11px/1.5 "PingFang SC",
+    sans-serif;
+  color: var(--field-sub);
+}
+.new-version-shell .taxonomy-search {
+  padding: 15px 24px 10px;
+}
+.new-version-shell .taxonomy-search > input {
+  background: var(--field-wash);
+  border: 1px solid var(--field-line);
+  border-radius: 8px;
+  min-height: 40px;
+  color: var(--field-ink);
+}
+.graph-advanced {
+  margin-top: 10px;
+}
+.graph-advanced summary,
+.graph-path-disclosure summary {
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 550;
+  padding: 7px 0;
+  color: var(--field-sub, var(--muted-foreground));
+}
+.graph-path-disclosure {
+  margin: 0 24px 8px;
+}
+.graph-path-disclosure .taxonomy-path-finder {
+  margin: 6px 0;
+  border-radius: 8px;
+}
+.new-version-shell .taxonomy-filters label {
+  font-size: 12px;
+}
+.new-version-shell .taxonomy-filters select {
+  border-color: var(--field-line);
+  background: var(--field-card);
+  border-radius: 8px;
+  min-height: 38px;
+}
+.new-version-shell .taxonomy-trail {
+  padding: 9px 24px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+  align-items: center;
+}
+.new-version-shell .taxonomy-trail button {
+  border-radius: 6px;
+  font-size: 12px;
+  color: var(--field-blue);
+}
+.new-version-shell .taxonomy-trail button[aria-current] {
+  background: var(--field-wash);
+  font-weight: 600;
+}
+.new-version-shell .taxonomy-lod-note {
+  padding: 0 24px;
+  font-size: 11px;
+  color: var(--field-sub);
+}
+.new-version-shell .knowledge-engine-shell {
+  font-family: "Inter", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+  border-block: 1px solid var(--field-line);
+}
+.new-version-shell .knowledge-engine-shell .engine-controls {
+  padding: 9px 14px;
+  gap: 6px;
+  background: var(--field-wash);
+  border-bottom: 1px solid var(--field-line);
+}
+.new-version-shell .engine-controls button,
+.new-version-shell .engine-directory-nav button,
+.new-version-shell .engine-evidence-action {
+  border-radius: 7px;
+  background: var(--field-card);
+  border-color: var(--field-line);
+}
+.new-version-shell .knowledge-engine {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 290px;
+}
+.new-version-shell .knowledge-engine .engine-stage {
+  height: 550px;
+  aspect-ratio: auto;
+  min-width: 0;
+  background: #080c12;
+}
+.new-version-shell .knowledge-engine .engine-dashboard {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr) minmax(0, 1fr);
+  height: 550px;
+  padding: 0 15px;
+  gap: 0;
+  border-left: 1px solid var(--field-line);
+}
+.new-version-shell .knowledge-engine .engine-panel {
+  height: auto;
+  min-height: 0;
+  border-top: 0;
+}
+.new-version-shell .knowledge-engine .engine-panel + .engine-panel {
+  border-top: 1px solid var(--field-line);
+}
+.new-version-shell .engine-panel > header {
+  padding: 12px 0;
+}
+.new-version-shell .engine-panel > header h4 {
+  font-size: 13px;
+}
+.new-version-shell .engine-queue button {
+  border-color: var(--field-line);
+  padding: 8px 7px;
+  border-radius: 6px;
+  font-size: 12px;
+}
+.new-version-shell .engine-inspector {
+  font-size: 12px;
+  padding-bottom: 12px;
+}
+.new-version-shell .engine-inspector dl {
+  margin: 9px 0;
+  gap: 4px 9px;
+}
+.new-version-shell .engine-inspector h4 {
+  font-size: 15px;
+}
+.new-version-shell .engine-node-card {
+  border-radius: 9px;
+  box-shadow: 0 4px 14px #071f3944;
+}
+.new-version-shell .taxonomy-accessible-directory {
+  margin: 15px 24px;
+  border: 1px solid var(--field-line);
+  border-radius: 9px;
+}
+.new-version-shell .taxonomy-evidence {
+  border-top: 1px solid var(--field-line);
+  background: var(--field-card);
+}
+.new-version-shell .taxonomy-results {
+  max-height: 330px;
+  overflow: auto;
+  border: 1px solid var(--field-line);
+  border-radius: 8px;
+  padding: 10px;
+  margin-top: 8px;
+  scrollbar-width: thin;
+}
+@media (max-width: 1100px) {
+  .new-version-shell .knowledge-engine {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .new-version-shell .knowledge-engine .engine-stage {
+    height: 420px;
+  }
+  .new-version-shell .knowledge-engine .engine-dashboard {
+    height: 300px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: minmax(0, 1fr);
+    gap: 15px;
+    border-left: 0;
+    border-top: 1px solid var(--field-line);
+  }
+  .new-version-shell .knowledge-engine .engine-panel + .engine-panel {
+    border-top: 0;
+  }
+}
+@media (max-width: 600px) {
+  .new-version-shell .taxonomy-heading {
+    padding: 15px;
+    gap: 10px;
+  }
+  .new-version-shell .taxonomy-heading :is(h1, h2) {
+    font-size: 21px;
+  }
+  .new-version-shell .taxonomy-heading > strong {
+    font-size: 20px;
+  }
+  .new-version-shell .taxonomy-search {
+    padding: 14px;
+  }
+  .new-version-shell .taxonomy-trail {
+    padding: 8px 14px;
+  }
+  .graph-path-disclosure {
+    margin-inline: 14px;
+  }
+  .new-version-shell .taxonomy-lod-note {
+    padding-inline: 14px;
+  }
+  .new-version-shell .knowledge-engine .engine-stage {
+    height: 340px;
+  }
+  .new-version-shell .knowledge-engine .engine-dashboard {
+    height: auto;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto;
+  }
+  .new-version-shell .knowledge-engine .engine-panel {
+    max-height: 290px;
+    padding-bottom: 12px;
+  }
+  .new-version-shell .taxonomy-accessible-directory {
+    margin-inline: 14px;
+  }
+  .new-version-shell .taxonomy-filters label {
+    min-width: 0;
+    flex: 1;
+  }
+  .new-version-shell .taxonomy-filters select {
+    max-width: 100%;
+  }
+}
+
+html
+  .new-version-shell[data-ui-version="new"]
+  .new-version-navigation
+  .new-version-nav-item.is-active {
+  color: var(--field-blue);
+  background: transparent;
+}
+html
+  .new-version-shell[data-ui-version="new"]
+  .new-version-navigation
+  .nv-nav-pill {
+  background: var(--field-wash);
+  border: 1px solid var(--field-line);
+  box-shadow: 0 2px 6px #24456812;
+}
+.new-version-shell .knowledge-workbench-page .library-collections {
+  margin: 6px 0 12px;
+  border: 1px solid var(--field-line);
+  border-radius: 11px;
+  padding: 7px;
+}
+.new-version-shell .knowledge-workbench-page .library-collections button {
+  border-radius: 7px;
+  font-size: 12px;
+  padding: 7px 10px;
+}
+.new-version-shell
+  .knowledge-workbench-page
+  .library-collections
+  button[aria-pressed="true"] {
+  background: var(--field-wash);
+  border-color: var(--field-line);
+  color: var(--field-blue);
+}
+
+/* Keep graph controls compact so the visualization appears in the first view. */
+html
+  .new-version-shell[data-ui-version="new"]
+  .knowledge-workbench-page
+  .page-container {
+  padding-top: 0;
+}
+.new-version-shell .knowledge-workbench-page {
+  padding-top: 0;
+}
+.new-version-shell .taxonomy-heading {
+  padding: 14px 20px;
+  display: flex;
+}
+.new-version-shell .taxonomy-heading > strong {
+  margin-top: 0;
+}
+.new-version-shell .taxonomy-search {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px 14px;
+  align-items: start;
+  padding: 12px 20px 6px;
+}
+.new-version-shell .taxonomy-search > label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.new-version-shell .taxonomy-search > input {
+  grid-column: 1;
+  height: 40px;
+  padding: 8px 12px;
+  font-size: 13px;
+  line-height: 22px;
+}
+.new-version-shell .taxonomy-search .graph-advanced {
+  margin-top: 0;
+}
+.new-version-shell .graph-advanced summary {
+  padding: 10px 0;
+}
+.new-version-shell .graph-advanced[open],
+.new-version-shell .taxonomy-results {
+  grid-column: 1 / -1;
+}
+.new-version-shell .taxonomy-search:not(:has(.graph-advanced)) > input {
+  grid-column: 1 / -1;
+}
+.new-version-shell .taxonomy-trail {
+  padding: 6px 20px 10px;
+}
+.new-version-shell .graph-path-disclosure {
+  margin-top: 10px;
+}
+.new-version-shell .taxonomy-heading > strong small {
+  white-space: normal;
+}
+@media (max-width: 600px) {
+  .new-version-shell .knowledge-workbench-page .library-collections {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+  }
+  .new-version-shell .knowledge-workbench-page .library-collections button {
+    flex-shrink: 0;
+  }
+  .new-version-shell .taxonomy-heading {
+    padding: 14px;
+    gap: 12px;
+  }
+  .new-version-shell .taxonomy-heading > div {
+    flex: 1;
+  }
+  .new-version-shell .taxonomy-heading > strong {
+    max-width: 95px;
+    font-size: 21px;
+  }
+  .new-version-shell .taxonomy-heading p {
+    font-size: 12px;
+    line-height: 1.5;
+  }
+  .new-version-shell .taxonomy-search {
+    padding: 10px 14px 4px;
+  }
+  .new-version-shell .taxonomy-trail {
+    padding: 6px 14px 10px;
+  }
+}
+
+.new-version-shell .knowledge-engine-shell:fullscreen .engine-stage,
+.new-version-shell .knowledge-engine-shell:fullscreen .engine-dashboard {
+  height: 70dvh;
+}
