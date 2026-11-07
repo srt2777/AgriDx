@@ -77,3 +77,7 @@ npm.cmd run check:version
 - `npm run version:log -- --batch ID --verified "实际验证" --pr 123 --deploy "未部署"` 补充指定批次；已有内容需要 `--replace` 才会覆盖。
 - `npm run version:rebase -- --dry-run` 在更新 origin/main 后预演单个新批次的版本协调；历史冲突、多个本分支批次或无法安全合并的文件会拒绝并要求人工处理。去掉 `--dry-run` 才写入；不执行 git rebase、提交或部署。
 - `npm run version:verify-live -- --url https://站点` 核对版本文件、健康接口、网页提交、GitHub main 与工作流；缺项或不一致均标记未验证。私有站点需自行解决访问，工具不获取或保存用户凭据。
+
+## 2026-11-07 批量发布协调
+
+用户本轮明确选择“按截图统一为 4.1.0”。本批在最新 main 4.0.42 基础上协调阶段版本 **4.1.0**，批次 `release-reconcile-20261107`，更新类型 maintenance；自动脚本预演后按本次授权人工协调次版本。归集大厅图谱及已合入的工作台存储、社区报告，保留各批次原始验证记录和历史 Git 编号。未合入的草稿不因同批计划而视作已发布；NV / OV 与知识库版本独立维护。此协调不改变后续一般更新按补丁递进的规则。
