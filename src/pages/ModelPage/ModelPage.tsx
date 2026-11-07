@@ -97,7 +97,7 @@ export default function ModelPage() {
 
   return <div className={`mx-auto px-4 pb-16 md:px-6 ${version === 'new' ? 'model-page max-w-[1240px] pt-4 md:pt-6' : 'max-w-6xl pt-10 md:pt-16'}`}>
     <div className="mb-8 max-w-3xl">
-      <p className="text-xs font-semibold tracking-[.14em] text-primary">{t('耕知 · 模型工坊', 'GENGZHI · MODEL STUDIO')}</p>
+      <p className="text-xs font-semibold tracking-[.14em] text-primary">{t('司稼 · 模型工坊', 'SIJIA · MODEL STUDIO')}</p>
       <h1 className="mt-3 text-3xl font-semibold tracking-tight text-foreground md:text-4xl" data-shared-target={version === 'new' ? 'models' : undefined}>{t('看清结构，再对资料。', 'See the structure, then check the evidence.')}</h1>
       <p className="mt-4 text-sm leading-7 text-muted-foreground">{version === 'new'
         ? t('在柴油拖拉机内部观察发动机联动，结合透视与拆解查看结构；也可切换鸿鹄 T70 电动部件模型。维修结论仍需核对对应机型资料。', 'Inspect the moving engine inside the diesel tractor using x-ray and exploded views, or switch to the electric Honghu T70 parts model. Repair decisions require model-specific evidence.')

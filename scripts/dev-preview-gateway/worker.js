@@ -290,7 +290,7 @@ async function serveDevelopmentInner(request, env = {}, ctx = {}, upstreamFetch 
         const kind = url.searchParams.get('kind');
         if (!['visitors', 'questions'].includes(kind)) fail(400, '导出类型无效。');
         const data = await listRecords(db, url, kind, true);
-        return new Response(csv(data, kind), { headers: { ...privateHeaders, 'Content-Type': 'text/csv; charset=utf-8', 'Content-Disposition': `attachment; filename="agridx-${kind}.csv"` } });
+        return new Response(csv(data, kind), { headers: { ...privateHeaders, 'Content-Type': 'text/csv; charset=utf-8', 'Content-Disposition': `attachment; filename="sijia-${kind}.csv"` } });
       }
     }
     return apiJson({ error: '接口或请求方式不存在。' }, 404);

@@ -56,12 +56,12 @@ export default function ClosingSection() {
                     <path d="M12 6v10" />
                   </svg>
                 </div>
-                <span className="font-serif text-lg font-bold text-foreground">耕知 耘诊</span>
+                <span className="font-serif text-lg font-bold text-foreground">司稼</span>
               </div>
               <p className="mt-3 max-w-sm text-sm text-muted-foreground">
                 {t(
-                  '耕知沉淀农机知识，耘诊连接故障与依据。从机型、组件到零部件，让诊断路径更清楚，让资料边界看得见。',
-                  'Gengzhi organizes machinery knowledge; Yunzhen connects symptoms to evidence. From models and components to parts, make troubleshooting clearer and knowledge boundaries visible.',
+                  '司稼整理农机知识，连接故障与依据。从机型、组件到零部件，让诊断路径更清楚，让资料边界看得见。',
+                  'Sijia organizes machinery knowledge and connects symptoms to evidence. From models and components to parts, make troubleshooting clearer and knowledge boundaries visible.',
                 )}
               </p>
             </div>
@@ -89,7 +89,7 @@ export default function ClosingSection() {
           </div>
 
           <div className="mt-8 flex flex-col items-center justify-between gap-2 border-t border-border/50 pt-6 text-xs text-muted-foreground/70 md:flex-row">
-            <div>{t('© 2026 耕知 耘诊 农业机械智能诊断平台', '© 2026 Gengzhi Yunzhen Agricultural Machinery Diagnosis')} <Link to="/version-history" className="hover:underline">{t('版本历史记录', 'Version history')} v{version}</Link></div>
+            <div>{t('© 2026 司稼 农业机械智能诊断平台', '© 2026 Sijia Agricultural Machinery Diagnosis')} <Link to="/version-history" className="hover:underline">{t('版本历史记录', 'Version history')} v{version}</Link></div>
             <div>{t('资料覆盖持续完善 现场处置请结合专业人员复核', 'Coverage is growing review on-site actions with a qualified technician')}</div>
           </div>
         </div>

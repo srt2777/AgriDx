@@ -39,7 +39,7 @@ function WorkspaceFrame() {
   useEffect(() => { dialog.current?.close(); }, [pathname]);
   useEffect(() => {
     const original = document.title;
-    document.title = '耕知耘诊 农机诊断平台';
+    document.title = '司稼 农机诊断平台';
     return () => { document.title = original; };
   }, []);
   useEffect(() => {
@@ -54,7 +54,7 @@ function WorkspaceFrame() {
       <a href="https://coe.njau.edu.cn/" target="_blank" rel="noopener noreferrer" aria-label={t('南京农业大学工学院官网', 'College of Engineering, NAU website')}>
         <img src={publicAsset('images/njau-engineering-mark.jpg')} alt={t('工学院院徽', 'College emblem')} style={{ objectPosition: theme === 'dark' ? 'right' : 'left' }} />
       </a>
-      <Link to="/" onClick={() => dialog.current?.close()}><strong>耕知耘诊</strong><small>AGRIDX WORKSPACE</small></Link>
+      <Link to="/" onClick={() => dialog.current?.close()}><strong>司稼</strong><small>SIJIA WORKSPACE</small></Link>
       <button type="button" className="fluid-icon" onClick={() => mobile ? dialog.current?.close() : setCollapsed(true)} aria-label={mobile ? t('关闭导航', 'Close navigation') : t('收起侧边栏', 'Collapse sidebar')}>
         {mobile ? <X size={17} /> : <PanelLeftClose size={17} />}
       </button>
@@ -79,7 +79,7 @@ function WorkspaceFrame() {
       <header className="fluid-topbar">
         <button type="button" className="fluid-icon fluid-desktop-toggle" onClick={() => setCollapsed(!collapsed)} aria-label={collapsed ? t('展开侧边栏', 'Expand sidebar') : t('收起侧边栏', 'Collapse sidebar')} aria-expanded={!collapsed}><PanelLeftOpen size={18} /></button>
         <button ref={mobileTrigger} type="button" className="fluid-icon fluid-mobile-toggle" onClick={() => dialog.current?.showModal()} aria-label={t('打开导航', 'Open navigation')} aria-haspopup="dialog"><PanelLeftOpen size={18} /></button>
-        <span className="fluid-breadcrumb"><span>AgriDx</span><ChevronRight size={14} /><strong>{title ? t(title.zh, title.en) : t('版本历史记录', 'Version history')}</strong></span>
+        <span className="fluid-breadcrumb"><span>司稼</span><ChevronRight size={14} /><strong>{title ? t(title.zh, title.en) : t('版本历史记录', 'Version history')}</strong></span>
         <div className="fluid-tools"><ThemeSwitch /><button type="button" className="fluid-icon fluid-language" onClick={() => setLang(lang === 'zh' ? 'en' : 'zh')} aria-label={t('切换语言', 'Switch language')}><Globe size={16} /><span>{lang === 'zh' ? 'EN' : '中'}</span></button></div>
       </header>
       <main id="main-content" className="fluid-main" tabIndex={-1}><Outlet /></main>

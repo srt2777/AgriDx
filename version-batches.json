@@ -1057,6 +1057,13 @@
       "base": "4.1.4",
       "version": "4.1.5",
       "date": "2026-11-07"
+    },
+    {
+      "id": "sijia-brand-20261107",
+      "kind": "maintenance",
+      "base": "4.1.5",
+      "version": "4.1.6",
+      "date": "2026-11-07"
     }
   ]
 }

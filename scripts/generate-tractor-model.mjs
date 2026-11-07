@@ -6,7 +6,7 @@ import { mergeGeometries, mergeVertices } from 'three/examples/jsm/utils/BufferG
 
 // Original schematic model, generated locally. It does not represent a documented machine.
 const scene = new T.Scene();
-scene.name = 'AgriDx schematic tractor';
+scene.name = 'Sijia schematic tractor';
 scene.userData = { schematic: true, creator: 'AgriDx-v2', source: 'scripts/generate-tractor-model.mjs' };
 const parts = Object.fromEntries(['body', 'engine', 'drivetrain', 'hydraulics', 'electrical', 'wheels', 'cab'].map(id => {
   const group = new T.Group();
@@ -164,5 +164,5 @@ globalThis.FileReader = class {
 const buffer = await new GLTFExporter().parseAsync(scene, { binary: true, onlyVisible: true });
 await fs.mkdir('public/models', { recursive: true });
 await fs.writeFile('public/models/tractor-detailed-v1.glb', Buffer.from(buffer));
-await fs.writeFile('public/models/tractor-detailed-v1.json', JSON.stringify({ name: 'AgriDx schematic tractor', schematic: true, generator: 'scripts/generate-tractor-model.mjs', components: Object.keys(parts), meshes, triangles, bytes: buffer.byteLength }, null, 2) + '\n');
+await fs.writeFile('public/models/tractor-detailed-v1.json', JSON.stringify({ name: 'Sijia schematic tractor', schematic: true, generator: 'scripts/generate-tractor-model.mjs', components: Object.keys(parts), meshes, triangles, bytes: buffer.byteLength }, null, 2) + '\n');
 console.log(JSON.stringify({ file: 'public/models/tractor-detailed-v1.glb', bytes: buffer.byteLength, triangles, meshes }));

@@ -14,6 +14,7 @@ test('telemetry summary is optional, simulated-only and bounded', () => {
 
 test('prompt carries an explicit simulation disclaimer only when supplied', () => {
   const common = { query: '发动机异常', currentQuery: '发动机异常', retrieved: [] as never[] };
+  assert.match(buildSystemPrompt(common).message.content, /你是「司稼」/);
   assert.doesNotMatch(buildSystemPrompt(common).message.content, /不是真实设备读数/);
   assert.match(buildSystemPrompt({ ...common, telemetrySummary: '冷却液温度：34 °C' }).message.content, /仿真演示数据，不是真实设备读数，不得据此给出确定性故障结论/);
 });

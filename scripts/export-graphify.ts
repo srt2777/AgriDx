@@ -15,7 +15,7 @@ export function buildGraphifyCatalog() {
   }));
   const links: Record<string, unknown>[] = taxonomy.flatMap(node => node.parent ? [{
     source: node.parent, target: node.id, relation: 'catalog_membership', confidence: 'EXTRACTED',
-    evidence: 'AgriDx 知识目录归属，非故障因果或兼容性',
+    evidence: '司稼知识目录归属，非故障因果或兼容性',
   }] : []);
   const seenEntries = new Set<string>();
   const includedModels = new Set(taxonomy.filter(node => node.level === 'model').map(node => node.id));
@@ -33,7 +33,7 @@ export function buildGraphifyCatalog() {
           applicability: entry.scopeBoundary, review_status: entry.status });
       }
       links.push({ source: modelId, target: id, relation: 'catalog_evidence', confidence: 'EXTRACTED',
-        evidence: 'AgriDx 目录中的资料关联；适用范围和核验状态见原始条目' });
+        evidence: '司稼目录中的资料关联；适用范围和核验状态见原始条目' });
     }
   }
   return { directed: true, multigraph: false,

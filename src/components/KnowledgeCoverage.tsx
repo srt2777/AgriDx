@@ -12,7 +12,7 @@ export default function KnowledgeCoverage() {
   return <section id="knowledge" className="knowledge-section" data-home-beat="knowledge" data-home-side="end">
     <div className="page-container">
       <div className="section-heading">
-        <div className="section-eyebrow">{t('耕知 从资料到结构', 'GENGZHI FROM DOCUMENTS TO STRUCTURE')}</div>
+        <div className="section-eyebrow">{t('司稼 从资料到结构', 'SIJIA FROM DOCUMENTS TO STRUCTURE')}</div>
         <h2>{t('从零部件，到整机表现。', 'From individual parts to the whole machine.')}</h2>
         <p className="mt-4">{t('按品牌与机型找到适用资料，沿组件与零部件查看运行故障表现和对应策略。覆盖多少、缺少什么，都在知识浏览中看得见。', 'Find applicable documents by brand and model, then explore symptoms and strategies by component and part. Coverage and gaps remain visible.')}</p>
       </div>

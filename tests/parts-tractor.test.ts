@@ -213,3 +213,23 @@ function glbDocument(relative = '../public/models/tractor-parts/tractor_parts.gl
   const length = bytes.readUInt32LE(12);
   return JSON.parse(bytes.subarray(20, 20 + length).toString('utf8')) as { nodes: GltfNode[]; meshes: { primitives: GltfPrimitive[] }[] };
 }
+
+test('柴油部件模型的三角面数与目录一致，机罩仍可作为独立部件', () => {
+  const bytes = readFileSync(new URL('../public/models/tractor-parts/tractor_parts.glb', import.meta.url));
+  const size = bytes.readUInt32LE(12);
+  const model = JSON.parse(bytes.subarray(20, 20 + size).toString('utf8')) as {
+    nodes: GltfNode[];
+    meshes: { primitives: { indices: number }[] }[];
+    accessors: { count: number }[];
+  };
+  const manifest = JSON.parse(readFileSync(new URL('../public/models/tractor-parts/parts.json', import.meta.url), 'utf8')) as {
+    total_triangles: number;
+    parts: { name: string; triangles?: number }[];
+  };
+  const triangles = (mesh: number) => model.meshes[mesh].primitives.reduce((sum, primitive) => sum + model.accessors[primitive.indices].count / 3, 0);
+  const hood = model.nodes.find(node => node.name === 'engine_hood');
+  assert.equal(hood?.extras?.part_id, 'engine_hood');
+  assert.notEqual(hood?.mesh, undefined);
+  assert.equal(triangles(hood!.mesh!), manifest.parts.find(part => part.name === 'engine_hood')?.triangles);
+  assert.equal(model.nodes.reduce((sum, node) => sum + (node.mesh === undefined ? 0 : triangles(node.mesh)), 0), manifest.total_triangles);
+});

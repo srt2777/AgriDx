@@ -36,7 +36,7 @@ export function TelemetryPanel({ data, lang, onWindowChange, onAlertSelect }: { 
       runId: data.runId, window: data.window, source: 'simulated', mode: 'live' as const, capturedAt: null };
     const blob = new Blob([telemetryCsv(data.series, lang, { history })], { type: 'text/csv;charset=utf-8' });
     const url = URL.createObjectURL(blob), link = document.createElement('a');
-    link.href = url; link.download = `agridx-simulated-${data.series[0]?.channel.partId ?? 'part'}-${data.window}.csv`; link.click();
+    link.href = url; link.download = `sijia-simulated-${data.series[0]?.channel.partId ?? 'part'}-${data.window}.csv`; link.click();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
   return <section className="telemetry-panel" data-source="simulated" data-phase={data.phase} data-state={state} aria-label={t('部件仿真监测', 'Part simulation monitoring')} aria-live="off">

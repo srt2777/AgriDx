@@ -105,7 +105,7 @@ export default function FaultDetectionPage() {
 
   return <main className="fault-page page-container">
     <Link className="fault-back" to="/"><ArrowLeft size={16} />{t('返回园区', 'Back to campus')}</Link>
-    <header className="fault-heading"><div><p>AGRIDX / DIAGNOSTIC LAB</p><h1>{t('故障检测演示工作台', 'Fault detection demo workbench')}</h1>
+    <header className="fault-heading"><div><p>SIJIA / DIAGNOSTIC LAB</p><h1>{t('故障检测演示工作台', 'Fault detection demo workbench')}</h1>
       <p>{t('观察异常，核对依据，逐步记录检查。', 'Observe anomalies, review evidence and record checks.')}</p></div>
       <Link to="/chat">{t('打开聊天诊断', 'Open diagnostic chat')}<ArrowRight size={16} /></Link></header>
     <div className="fault-simulation" role="note"><TriangleAlert size={18} /><strong>{t('模拟演示，未连接实车', 'SIMULATION · NO LIVE MACHINE')}</strong>

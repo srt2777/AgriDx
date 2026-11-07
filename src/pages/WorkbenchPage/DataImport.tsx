@@ -38,7 +38,7 @@ export function DataImport() {
     } catch (e) { setError(e instanceof Error ? e.message : 'Import failed'); }
     finally { setBusy(false); }
   }
-  return <section className="wb-panel"><div className="wb-panel-heading"><div><p className="wb-eyebrow">LOCAL DATA</p><h2>{t('导入与字段映射', 'Import & field mapping')}</h2></div><button type="button" onClick={() => downloadFile('time_iso,value\r\n', 'agridx-observations-template.csv')}><Download size={15} />{t('下载空模板', 'Blank template')}</button></div>
+  return <section className="wb-panel"><div className="wb-panel-heading"><div><p className="wb-eyebrow">LOCAL DATA</p><h2>{t('导入与字段映射', 'Import & field mapping')}</h2></div><button type="button" onClick={() => downloadFile('time_iso,value\r\n', 'sijia-observations-template.csv')}><Download size={15} />{t('下载空模板', 'Blank template')}</button></div>
     <p className="wb-muted">{t('UTF-8 CSV · 2 MB / 5000 行 · 最多 5 个数据集。数据留在本浏览器，不上传；清除网站数据会删除记录。导入内容标为用户提供，未核验。', 'UTF-8 CSV · 2 MB / 5000 rows · up to 5 datasets. Stored in this browser, never uploaded; clearing site data removes records. Imports are unverified user observations.')}</p>
     <div className="wb-import-drop"><Upload size={26} /><label>{t('选择采集文件', 'Choose observations file')}<input type="file" accept=".csv,text/csv" disabled={busy} onChange={e => { void read(e.target.files?.[0]); e.target.value = ''; }} /></label><span>{busy ? t('读取中…', 'Reading…') : t('先选择文件，再映射时间与数值字段', 'Choose a file, then map time and value fields')}</span></div>
     {rows.length > 0 && <div className="wb-import-form"><ol className="wb-steps"><li className="is-done"><Check size={15} />{t('读取文件', 'Read file')}</li><li className="is-current">02 {t('映射字段', 'Map fields')}</li><li>03 {t('校验并保存', 'Validate & save')}</li></ol>

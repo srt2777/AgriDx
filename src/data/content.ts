@@ -6,15 +6,15 @@ export type Lang = 'zh' | 'en';
 const content = {
   HERO: {
     eyebrow: {
-      zh: '耕知为根，耘诊有据',
+      zh: '司稼 · 农机知识与诊断',
       en: 'Know the machine. Ground the diagnosis.',
     },
     title1: { zh: '读懂农机故障，', en: 'Understand the fault.' },
     titleHighlight: { zh: '让每一步都有据。', en: 'Ground every step.' },
     title2: { zh: '农机知识与故障诊断平台', en: 'Agricultural knowledge & diagnosis' },
     desc: {
-      zh: '农忙时的一次熄火、一声异响，都需要清楚的下一步。耕知·耘诊从品牌与机型出发，把分散的农机资料连成可追溯的排查路径，帮助你理解故障、核对依据、制定处置方案。',
-      en: 'A stalled engine or an unusual sound needs a clear next step. Gengzhi · Yunzhen connects machine-specific documents to traceable troubleshooting, helping you understand symptoms, check evidence and plan action.',
+      zh: '农忙时的一次熄火、一声异响，都需要清楚的下一步。司稼从品牌与机型出发，把分散的农机资料连成可追溯的排查路径，帮助你理解故障、核对依据、制定处置方案。',
+      en: 'A stalled engine or an unusual sound needs a clear next step. Sijia connects machine-specific documents to traceable troubleshooting, helping you understand symptoms, check evidence and plan action.',
     },
     ctaPrimary: { zh: '开始诊断', en: 'Start Diagnosis' },
     ctaSecondary: { zh: '浏览农机知识', en: 'Explore machine knowledge' },

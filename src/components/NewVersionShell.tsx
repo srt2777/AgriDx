@@ -49,8 +49,8 @@ export function NewVersionShell() {
           <a href="https://coe.njau.edu.cn/" target="_blank" rel="noopener noreferrer" className="new-version-college-mark" aria-label={t('南京农业大学工学院官网首页', 'College of Engineering, NAU official homepage')}>
             <img src={publicAsset('images/njau-engineering-mark.jpg')} alt={t('南京农业大学工学院院徽', 'College of Engineering, NAU emblem')} width="857" height="411" />
           </a>
-          <Link to="/" className="new-version-wordmark" aria-label={t('耕知·耘诊大厅', 'Gengzhi · Yunzhen hub')}>
-            <strong>耕知 · 耘诊</strong>
+          <Link to="/" className="new-version-wordmark" aria-label={t('司稼大厅', 'Sijia hub')}>
+            <strong>司稼</strong>
           </Link>
         </div>
 

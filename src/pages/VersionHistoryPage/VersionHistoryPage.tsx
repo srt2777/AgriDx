@@ -50,7 +50,7 @@ export default function VersionHistoryPage() {
   return <section className="version-history-page" aria-labelledby="history-title">
     <Link className="history-back" to="/"><ArrowLeft size={18} />{t('返回首页', 'Back to home')}</Link>
     <header className="history-heading">
-      <span className="history-eyebrow"><History size={16} />{format('AGRIDX · CHANGELOG')}</span>
+      <span className="history-eyebrow"><History size={16} />{format('SIJIA · CHANGELOG')}</span>
       <h1 id="history-title">{t('版本历史记录', 'Version history')}</h1>
       <p>{t('每次更新的内容、资料变化与验证记录，按版本完整保留。', 'Changes, knowledge updates and recorded verification for each version.')}</p>
     </header>
