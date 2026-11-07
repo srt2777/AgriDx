@@ -19,7 +19,7 @@
 1. PR 通过项目检查、审阅并合入 main。现有 `Development preview` 自动验证、构建并发布固定[开发网址](https://agridx-dev-preview.z3464715478.chatgpt.site)，构建记录 `/dev-preview.json` 包含版本和源码完整提交。
 2. main 的跨平台 `CI` 成功后，[`Tencent production`](../../.github/workflows/tencent-production.yml) 为同一提交更新 `tencent-production-ready` 分支指针。只接受本仓库 main 的 push / 手动 CI；PR、个人分支、失败 CI 和过期提交不产生请求。请求指针仅快进，不强推；手动运行正式工作流必须选择 main，连接发布请求前再次执行完整验证。
 3. 腾讯服务器新安装的 systemd timer 每 20 秒检查公开 Git refs。只有请求 SHA 等于当时最新 main，且尚未部署时，才调用[现有分目录更新脚本](../../scripts/tencent-deploy/update-existing.sh)。不恢复旧 `cloud-pull.sh`、旧 cron 或香港初始化脚本。
-4. 现有脚本继续完成独立目录构建、临时私网健康检查、current 原子切换、本机 Nginx/健康验收及失败回退；旧版本、EnvironmentFile、证书、DNS、防火墙和其他服务保留。同一失败提交五分钟内不会反复构建，新 main 可立即尝试。systemd 与 flock 串行执行部署，GitHub 等待任务被取消不会中断服务器部署。
+4. 现有脚本继续完成独立目录构建、临时私网健康检查、current 原子切换、本机 Nginx/健康验收及失败回退；部署成功切换后只保留当前、上一版与最新一个更早版，清理更早的版本命名目录（非版本命名目录不动），失败部署的目录保留用于排查。EnvironmentFile、证书、DNS、防火墙和其他服务保留。同一失败提交五分钟内不会反复构建，新 main 可立即尝试。systemd 与 flock 串行执行部署，GitHub 等待任务被取消不会中断服务器部署。
 5. 公开 `deployment.json` 只记录版本、完整提交和首页/主题脚本/入口 JS、CSS 摘要。Actions 等待服务器更新，并从正式 HTTPS 域名核对后端版本、知识条数、提交和资源 SHA-256，识别 CDN 旧文件。先用独立参数确认目标源站资源已就绪，再检查无查询参数、无强制回源头的普通首页、发布清单、健康和知识目录。普通首页必须匹配同一HTML摘要，接口版本/计数及清单必须一致；只要普通入口仍旧就以`cdn_cache_stale`失败，不把防缓存请求成功写成用户访问已同步。main 已前进时，旧验收任务停止等待，交由新任务发布最新请求。
 
 若服务器尚未接入，Actions 只发布请求，明确记录待接入，不宣称网站更新完成。接入后的公网最终验收失败会使 Actions 报错；不擅自回滚本机已经健康的新版本。验收范围不包括全部页面交互或真实外部模型问答。

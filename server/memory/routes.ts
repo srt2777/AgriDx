@@ -32,7 +32,16 @@ export function revisionFrom(value: unknown): number {
 export function memoryFailure(error: unknown, res: Response) {
   if (error instanceof MemoryError) res.status(error.status).json({ code: error.code, error: error.message });
   else {
-    console.warn('[memory] storage operation failed');
+    // The 503 body must stay sanitized, but the underlying store error has
+    // to reach the server log: without it the failure is undiagnosable from
+    // logs (2026-11-04 only "[memory] storage operation failed" was
+    // recorded, with no SQLite text). The detail comes from the store
+    // (SQLite), never from request content or credentials.
+    const code = (error as { code?: unknown })?.code;
+    const detail = error instanceof Error
+      ? `${error.name}: ${error.message}${typeof code === 'string' || typeof code === 'number' ? ` (code=${code})` : ''}`
+      : String(error);
+    console.warn('[memory] storage operation failed', detail);
     res.status(503).json({ code: 'memory_unavailable', error: '诊断记忆暂时无法保存或读取，请稍后重试；已有记录不会被清空' });
   }
 }
