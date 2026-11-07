@@ -273,3 +273,22 @@ test('unavailable storage returns a sanitized error without silently discarding 
   const legacy = await request<ChatResponse>('/api/chat', 'POST', { messages: [{ role: 'user', content: '热车难启动' }] });
   assert.equal(legacy.status, 200); assert.equal(legacy.body.provider, 'knowledge-base');
 });
+
+test('storage failure logs the underlying store error for operators without exposing it to the client', async () => {
+  // Runs last: closing the store poisons later tests, like the
+  // 'unavailable storage' test above. No setup() here: the closed store
+  // itself is the failure under test.
+  const warnings: string[] = [];
+  const originalWarn = console.warn;
+  console.warn = (...args: unknown[]) => { warnings.push(args.map(String).join(' ')); };
+  try {
+    getMemoryStore().close();
+    const unavailable = await request<MemoryOverview>('/api/memory');
+    assert.equal(unavailable.status, 503); assert.equal(unavailable.body.code, 'memory_unavailable');
+    assert.ok(!JSON.stringify(unavailable.body).includes(dir));
+  } finally { console.warn = originalWarn; }
+  const logged = warnings.find((line) => line.includes('storage operation failed'));
+  assert.ok(logged, 'expected a storage failure warning');
+  assert.ok(logged.length > '[memory] storage operation failed'.length + 1,
+    'warning must include the underlying store error, not just the fixed prefix');
+});

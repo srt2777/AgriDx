@@ -458,3 +458,33 @@ test('腾讯旧212条版本可更新到1213条，暂存和正式服务数量一�
   assert.ok(context.calls().some(call => call.command === 'curl' && call.args.at(-1) === 'http://127.0.0.1/theme-init.js'));
   context.assertPreserved();
 });
+
+test('腾讯成功更新后清理旧版本目录，只保留当前、上一版与最新一个更早版', { skip: unixOnly }, t => {
+  const context = fixture(t);
+  const older = ['20250101T000000Z-aaaaaaaaaaaa-111', '20250201T000000Z-bbbbbbbbbbbb-222', '20250301T000000Z-cccccccccccc-333'];
+  for (const name of older) mkdirSync(path.join(context.releases, name));
+  mkdirSync(path.join(context.releases, 'manual-backup'));
+  const result = context.execute();
+  assert.equal(result.status, 0, result.stderr || result.error?.message);
+  const release = readlinkSync(context.current);
+  const remaining = readdirSync(context.releases);
+  assert.ok(remaining.includes(path.basename(release)));
+  assert.ok(remaining.includes('previous'));
+  assert.ok(remaining.includes('20250301T000000Z-cccccccccccc-333'));
+  assert.ok(remaining.includes('manual-backup'));
+  assert.ok(!remaining.includes('20250101T000000Z-aaaaaaaaaaaa-111'));
+  assert.ok(!remaining.includes('20250201T000000Z-bbbbbbbbbbbb-222'));
+  assert.match(result.stdout, /已清理旧版本/);
+  context.assertPreserved();
+});
+
+test('腾讯构建失败时不清理旧版本目录，保留回退与排查材料', { skip: unixOnly }, t => {
+  const context = fixture(t, { failure: 'build' });
+  const older = '20250101T000000Z-aaaaaaaaaaaa-111';
+  mkdirSync(path.join(context.releases, older));
+  const result = context.execute();
+  assert.equal(result.status, 1, result.stderr || result.error?.message);
+  assert.ok(existsSync(path.join(context.releases, older)));
+  assert.equal(readlinkSync(context.current), context.previous);
+  context.assertPreserved();
+});

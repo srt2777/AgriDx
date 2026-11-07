@@ -267,6 +267,29 @@ check_nginx_release() {
     --header "Host: $NGINX_HOST" http://127.0.0.1/api/health | validate_health "$EXPECTED_VERSION" "$EXPECTED_CHUNKS" "$EXPECTED_ENTRIES"
 }
 
+# Successful switch keeps the current and previous releases plus the newest
+# older one; anything older is removed so superseded release directories
+# cannot accumulate without bound. Only directories whose name matches the
+# release layout (UTC timestamp + commit + pid) are touched, and cleanup
+# never fails a deployment that already passed its health checks.
+prune_old_releases() {
+  local keep_older=1 entry name candidates=() count index
+  for entry in "$RELEASES"/*/; do
+    entry=${entry%/}
+    [[ -d "$entry" && ! -L "$entry" ]] || continue
+    name=${entry##*/}
+    [[ "$name" =~ ^[0-9]{8}T[0-9]{6}Z-[0-9a-f]{12}-[0-9]+$ ]] || continue
+    [[ "$entry" == "$RELEASE" || "$entry" == "$ORIGINAL_RELEASE" ]] && continue
+    candidates+=("$entry")
+  done
+  count=${#candidates[@]}
+  (( count <= keep_older )) && return 0
+  for (( index = 0; index < count - keep_older; index++ )); do
+    if rm -rf "${candidates[$index]}"; then info "已清理旧版本：${candidates[$index]}"; else info "旧版本清理未完成：${candidates[$index]}" >&2; fi
+  done
+  return 0
+}
+
 info "准备独立版本目录：$RELEASE；现有服务继续运行。"
 install -d -m 0755 -o "$APP_USER" -g "$APP_USER" "$RELEASE"
 as_app git clone --depth=1 --no-checkout "$REPOSITORY" "$RELEASE"
@@ -380,6 +403,7 @@ check_nginx_release || fail 'Nginx 网页、脚本或 API 检查未通过。'
 [[ "$(service_property ActiveState)" == active && "$(readlink -f "$CURRENT")" == "$RELEASE" ]] ||
   fail '正式服务或 current 状态不匹配。'
 SUCCESS=true
+prune_old_releases
 info "部署完成：version=$EXPECTED_VERSION commit=$COMMIT"
 info "上一版本保留：$ORIGINAL_RELEASE"
 info 'Nginx、证书、DNS、防火墙、cron 和现有 EnvironmentFile 未修改。'
