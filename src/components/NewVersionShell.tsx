@@ -28,6 +28,12 @@ export function NewVersionShell() {
   useEffect(() => {
     try { localStorage.setItem('agridx-modern-sidebar-collapsed', String(navigationCollapsed)); } catch { /* The toggle also works without storage. */ }
   }, [navigationCollapsed]);
+  useEffect(() => {
+    const mobile = window.matchMedia('(max-width: 900px)');
+    const closeForMobile = () => { if (mobile.matches) setNavigationCollapsed(true); };
+    mobile.addEventListener('change', closeForMobile);
+    return () => mobile.removeEventListener('change', closeForMobile);
+  }, []);
   const lang = useLang();
   const location = useLocation();
   const navigate = useNavigate();
