@@ -3,9 +3,11 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import type { KnowledgeCatalog, KnowledgeRole } from '@shared/knowledge-catalog';
 import { useKnowledgeCatalog } from '@/hooks/useKnowledgeCatalog';
+import { useUiVersion } from '@/hooks/useUiVersion';
 import { fetchKnowledgeRelations, relationsMatchCatalog } from '@/features/knowledge/relations-api';
 import { graphTaxonomyNodes, visibleTaxonomyNodes, type TaxonomyNode } from './knowledge-taxonomy-data';
 import TaxonomyGraphCanvas from './TaxonomyGraphCanvas';
+import KnowledgeGraph3D from './KnowledgeGraph3D';
 import EvidenceEntry from './EvidenceEntry';
 import LearningKnowledgeGraph from './LearningKnowledgeGraph';
 import GraphPathFinder from './GraphPathFinder';
@@ -37,6 +39,8 @@ export default function KnowledgeGraph({ catalog, lang }: { catalog: KnowledgeCa
 
 function ArchiveKnowledgeGraph({ catalog, lang, selectedId, onSelect: setSelected }: { catalog: KnowledgeCatalog; lang: string; selectedId: string; onSelect: (id: string) => void }) {
   const { t, separator } = useUiCopy(lang);
+  const version = useUiVersion();
+  const [graphMode, setGraphMode] = useState<'classic' | 'dynamic'>('classic');
   const allNodes = useMemo(() => graphTaxonomyNodes(catalog), [catalog]);
   const nodeIds = useMemo(() => new Set(allNodes.map(node => node.id)), [allNodes]);
   // The graph nodes come from the catalog prop; relations are fetched for the
@@ -99,7 +103,13 @@ function ArchiveKnowledgeGraph({ catalog, lang, selectedId, onSelect: setSelecte
       <p className="taxonomy-filter-note">{t('类型与角色分别按节点内资料汇总；组合筛选时，下方原始资料按同一条目再次过滤。', 'Type and role are aggregated separately for each node; the evidence list applies both filters to each entry.')}</p></details>
       {searchTerm && <div className="taxonomy-results"><p>{t(`找到 ${results.length} 个节点，显示前 50 个`, `${results.length} matches; showing the first 50`)}</p>{results.slice(0, 50).map(node => <button key={node.id} onClick={() => { setSelected(node.id); setSearch(''); }}>{node.label}<small>{pathLabel(node)}</small></button>)}{!results.length && <p>{t('无匹配节点；未生成推测知识。', 'No matches; no knowledge inferred.')}</p>}</div>}</div>
     <nav className="taxonomy-trail" aria-label={t('当前知识路径', 'Current knowledge path')}><button onClick={() => setSelected('')}>{t('全部归档', 'All archives')}</button>{path.map(node => <span key={node.id}><span aria-hidden="true"> → </span><button onClick={() => setSelected(node.id)} aria-current={selected?.id === node.id ? 'location' : undefined}>{node.label}</button></span>)}</nav>
-    <TaxonomyGraphCanvas catalog={catalog} nodes={nodes} selectedId={selected?.id ?? ''} onSelect={setSelected} lang={lang} />
+    {version === 'old' && <div className="taxonomy-view-mode" role="group" aria-label={t('图谱显示方式', 'Graph display mode')}>
+      <button type="button" aria-pressed={graphMode === 'classic'} onClick={() => setGraphMode('classic')}>{t('经典图谱', 'Classic graph')}</button>
+      <button type="button" aria-pressed={graphMode === 'dynamic'} onClick={() => setGraphMode('dynamic')}>{t('动感图谱', 'Dynamic graph')}</button>
+    </div>}
+    {version === 'old' && graphMode === 'dynamic'
+      ? <KnowledgeGraph3D nodes={nodes} selectedId={selected?.id ?? ''} onSelect={setSelected} lang={lang} onRequestClassic={() => setGraphMode('classic')} />
+      : <TaxonomyGraphCanvas catalog={catalog} nodes={nodes} selectedId={selected?.id ?? ''} onSelect={setSelected} lang={lang} />}
     <details className="graph-path-disclosure"><summary>{t('查询两个节点的目录路径', 'Find the path between nodes')}</summary><GraphPathFinder nodes={nodes} selectedId={selected?.id ?? ''} onSelect={setSelected} lang={lang} /></details>
     <p className="taxonomy-lod-note" role="status">{t(`当前显示 ${nodes.length.toLocaleString()} 个节点；远景会聚合隐藏零件，完整目录见下方列表。`, `${nodes.length.toLocaleString()} nodes shown; distant views aggregate parts. Use the directory below for the complete list.`)}</p>
     <details className="taxonomy-accessible-directory"><summary>{t('展开目录辅助浏览（键盘 / 无图形模式）', 'Browse directory (keyboard / non-graph mode)')}</summary><div className="taxonomy-columns">{levels.map(({ level, label, parent }, index) => {
