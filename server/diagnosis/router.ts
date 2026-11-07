@@ -106,7 +106,8 @@ export function decideDiagnosisRoute(input: DiagnosisRouterInput, config: Readon
     const coverageSufficient = requiredCoverage.every(key => coverage[key] === true);
     const level = score === null ? 'unknown' : score >= config.highRelevanceThreshold ? 'high' : score >= config.mediumRelevanceThreshold ? 'medium' : 'low';
     const learningReference = chunk.entryType === '通识学习' && chunk.diagnosticEvidence === false;
-    const structuralReference = chunk.retrieval?.referenceOnly && ['component', 'general'].includes(chunk.retrieval.tier);
+    const structuralReference = chunk.retrieval?.referenceOnly &&
+      (['component', 'general'].includes(chunk.retrieval.tier) || chunk.retrieval.recall === 'vector');
     const excluded = invalidScore || verification === 'failed' || modelMatch === 'conflict' || level === 'low' && !structuralReference || Boolean(chunk.entryId && !sourceIndexed && !learningReference);
     const directEligible = !isAssisted && !excluded && !chunk.retrieval?.referenceOnly &&
       !['component', 'general'].includes(chunk.retrieval?.tier ?? '') && sourceIndexed && TECHNICAL.has(chunk.entryType ?? '') && modelMatch === 'exact' && verification === 'verified' &&
@@ -127,7 +128,12 @@ export function decideDiagnosisRoute(input: DiagnosisRouterInput, config: Readon
   const direct = candidates.filter(candidate => candidate.directEligible);
   // Unindexed information-collection templates may list risky systems merely
   // as follow-up examples. Such boilerplate is not evidence of this query's risk.
+  // 向量-only 命中也不参与高风险判定：它是无关键词重叠的语义猜测（分 0），
+  // 不能仅凭它把路由推向 safe——否则一次同义补位就会打断原故障的观察记录
+  //（planner-integration “原故障恢复”回归）；高风险升级仍以关键词命中的
+  // 证据为准。
   const indexedHighRisk = candidates.some((candidate, index) => !candidate.excluded && candidate.sourceIndexed &&
+    candidate.retrieval?.recall !== 'vector' &&
     TECHNICAL.has(input.retrieved[index].entryType ?? '') && candidate.riskLevel === 'high');
   const riskLevel: DiagnosticRiskLevel = HIGH_RISK.test(`${input.query}\n${input.currentQuery}`) || indexedHighRisk ? 'high'
     : usable.length && usable.every(candidate => candidate.riskLevel === 'low') ? 'low' : 'unknown';

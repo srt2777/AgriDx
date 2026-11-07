@@ -146,6 +146,44 @@ test('实际浏览器构建保持完整知识目录、诊断来源与型号隔�
       assert.equal(actual.provider, 'knowledge-base');
     }
     assert.equal((await previewFetch('/api/chat', { method: 'POST', body: '{' })).status, 400);
+    // PR2: preview chat degrades like the server route — a transient
+    // storage failure returns the answer with memorySaveFailed instead of
+    // throwing it away, while a deterministic conflict still returns 409.
+    {
+      const values = new Map<string, string>();
+      let failing = false;
+      const fakeStorage = {
+        getItem: (key: string) => values.get(key) ?? null,
+        setItem: (key: string, value: string) => { if (failing) throw new Error('QuotaExceeded'); values.set(key, value); },
+        removeItem: (key: string) => { values.delete(key); },
+      };
+      (globalThis as unknown as Record<string, unknown>).localStorage = fakeStorage;
+      try {
+        const device = await (await previewFetch('/api/memory/devices', { method: 'POST', body: JSON.stringify({ name: '预览恢复车', machineType: '拖拉机', brand: '东方红', model: 'LF1504', hours: null, notes: '' }) })).json();
+        const session = await (await previewFetch('/api/memory/sessions', { method: 'POST', body: JSON.stringify({ deviceId: device.id }) })).json();
+        assert.equal(session.revision, 0);
+        const chatBody = (revision: number, content: string) => JSON.stringify({ sessionId: session.id, revision, diagnosisMode: 'knowledge_only', messages: [{ role: 'user', content }] });
+        const saved = await (await previewFetch('/api/chat', { method: 'POST', body: chatBody(0, '东方红 LF1504 水温过高怎么办') })).json();
+        assert.equal(saved.memorySaveFailed, undefined);
+        assert.equal(saved.memory.revision, 1);
+        failing = true;
+        const failed = await (await previewFetch('/api/chat', { method: 'POST', body: chatBody(1, '冷却液泄漏检查正常') })).json();
+        assert.equal(failed.memorySaveFailed, true);
+        assert.equal(failed.memory, undefined);
+        assert.ok(String(failed.choices[0].message.content).trim().length > 0, 'the generated preview answer must survive the storage failure');
+        const restored = await (await previewFetch(`/api/memory/sessions/${session.id}`)).json();
+        assert.equal(restored.revision, 1, 'no turn was persisted, so the revision is unchanged');
+        assert.equal(restored.messages.length, 2);
+        failing = false;
+        const conflict = await previewFetch('/api/chat', { method: 'POST', body: chatBody(0, '用旧版本再问一次') });
+        assert.equal(conflict.status, 409);
+        const conflictBody = await conflict.json();
+        assert.equal(conflictBody.code, 'memory_conflict');
+        assert.equal(conflictBody.memorySaveFailed, undefined);
+      } finally {
+        delete (globalThis as unknown as Record<string, unknown>).localStorage;
+      }
+    }
     assert.equal((await previewFetch('/api/chat', { method: 'POST', body: '{}' })).status, 400);
     assert.equal((await previewFetch('/api/chat', { method: 'GET' })).status, 404);
     assert.equal((await previewFetch('/api/unknown')).status, 404);

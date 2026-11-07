@@ -5,6 +5,7 @@ import PageLoading from '@/components/PageLoading';
 import { pageLoaders } from '@/lib/page-loaders';
 import AutoUpdateStatus from '@/features/updates/AutoUpdateStatus';
 const HomePage = lazy(pageLoaders.classic);
+const FieldOverview = lazy(pageLoaders.field);
 const ChatPage = lazy(pageLoaders.chat);
 const KnowledgePage = lazy(pageLoaders.knowledge);
 const ModelPage = lazy(pageLoaders.models);
@@ -74,6 +75,7 @@ export default function App() {
         <Route path="version-history" element={<PageContent><VersionHistoryPage /></PageContent>} />
         <Route path="hall" element={<LegacyHallRedirect />} />
       </Route>
+      <Route path="field-overview" element={<Suspense fallback={<PageLoading />}><FieldOverview /></Suspense>} />
       {DeveloperPage && <Route path="developer" element={<PageContent><DeveloperPage /></PageContent>} />}
       <Route path="*" element={<NotFoundPage />} />
     </Routes>

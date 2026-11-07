@@ -80,7 +80,7 @@ export function Analytics() {
     // zero-sample failed channels. With no samples at all the file still carries the status list.
     const section = source === 'telemetry' ? historyStatusCsvSection(displayHistory,
       { runId: snapshot?.runId ?? telemetry.runId, window: windowSize, source: 'simulated', mode: snapshot ? 'snapshot' : 'live', capturedAt: snapshot?.capturedAt ?? null }, lang) : '';
-    downloadFile('\uFEFF'+table.map(row=>row.map(v=>typeof v==='number'?String(v):csvCell(v)).join(',')).join('\r\n')+section,'agridx-analytics.csv');work.log('export',t('多通道可视化样本','Multichannel visualization samples'),source==='telemetry'?'simulated':dataset?.object??''); }
+    downloadFile('\uFEFF'+table.map(row=>row.map(v=>typeof v==='number'?String(v):csvCell(v)).join(',')).join('\r\n')+section,'agridx-analytics.csv');work.log('export',t('多通道可视化样本','Multichannel visualization samples'),source==='telemetry'?'simulated':dataset?.object??'').catch(() => undefined); }
   return <>
     <section className="wb-panel wb-analytics-selector"><div className="wb-panel-heading"><div><p className="wb-eyebrow">OBSERVATION STUDIO</p><h2>{t('数据探索台','Observation studio')}</h2></div><span className="wb-tag">{source==='telemetry'?t(`${telemetry.catalog?.channels.length??0} 种通道 · 最多四路对比`,`${telemetry.catalog?.channels.length??0} channels · up to four at once`):t('原始观测 · 用户提供','Raw user observations')}</span></div>
       <div className="wb-tabs" role="group" aria-label={t('数据来源','Data source')}>{[['telemetry',t('仿真监测','Simulation')],['import',t('本地数据','Local data')]].map(([id,label])=><button key={id} aria-pressed={source===id} onClick={()=>{reset();setSource(id);}}>{label}</button>)}</div>
