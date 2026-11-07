@@ -32,6 +32,7 @@
     "dev-ai:keygen": "node scripts/dev-ai-keygen.mjs"
   },
   "dependencies": {
+    "@epicgames-ps/lib-pixelstreamingfrontend-ue5.6": "^0.3.1",
     "@radix-ui/colors": "^3.0.0",
     "@radix-ui/react-alert-dialog": "^1.1.14",
     "@radix-ui/react-slot": "^1.2.3",
