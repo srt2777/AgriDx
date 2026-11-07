@@ -1,6 +1,55 @@
 import { TELEMETRY_WATERMARK, type TelemetryChannel, type TelemetryPoint } from '../../../shared/telemetry';
+import type { TelemetryHistoryStatus } from './store';
 
+export type { TelemetryHistoryStatus };
 export type TelemetryLanguage = 'zh' | 'en';
+/** A history request that returned successfully but found no samples is 'empty', never 'ready'. */
+export function historyStatusLabel(status: TelemetryHistoryStatus, lang: TelemetryLanguage): string {
+  return status === 'loading' ? (lang === 'zh' ? '历史加载中' : 'Loading history')
+    : status === 'ready' ? (lang === 'zh' ? '历史请求已完成' : 'History request completed')
+    : status === 'empty' ? (lang === 'zh' ? '历史请求已完成 · 暂无样本' : 'History request completed · no samples yet')
+    : (lang === 'zh' ? '历史读取失败' : 'History request failed');
+}
+export interface TelemetryHistoryExportEntry { channelId: string; label: string; status: TelemetryHistoryStatus; samples: number }
+export interface TelemetryHistoryExportMeta { runId: string | null; window: string; source: string; mode: 'live' | 'snapshot'; capturedAt: number | null }
+export interface TelemetryHistoryExport extends TelemetryHistoryExportMeta { entries: readonly TelemetryHistoryExportEntry[] }
+const csvCell = (value: string | number) => `"${(typeof value === 'number' ? String(value) : value.replace(/^\s*[=+@-]/, "'$&")).replaceAll('"', '""')}"`;
+/**
+ * Status section appended to an export, after the original sample rows. Every selected channel
+ * appears once, including zero-sample failed channels; the incomplete list names only channels
+ * whose history is still loading or failed. 'Completed' only means the request returned, never
+ * that the window has no gaps or that the data is verified.
+ */
+export function historyStatusCsvSection(entries: readonly TelemetryHistoryExportEntry[], meta: TelemetryHistoryExportMeta, lang: TelemetryLanguage): string {
+  const lines: (string | number)[][] = [[
+    'history_status', 'channel_id', 'channel', 'samples', 'status', 'status_text',
+  ]];
+  for (const entry of entries) lines.push(['history_status', entry.channelId, entry.label, entry.samples, entry.status, historyStatusLabel(entry.status, lang)]);
+  const count = (status: TelemetryHistoryStatus) => entries.filter(entry => entry.status === status).length;
+  lines.push(['history_summary', 'run_id', 'window', 'source', 'mode', 'captured_at', 'ready', 'empty', 'loading', 'error']);
+  lines.push(['history_summary', meta.runId ?? '', meta.window, meta.source, meta.mode,
+    meta.capturedAt === null ? '' : new Date(meta.capturedAt).toISOString(), count('ready'), count('empty'), count('loading'), count('error')]);
+  const incomplete = entries.filter(entry => entry.status === 'loading' || entry.status === 'error');
+  if (incomplete.length) {
+    lines.push(['history_incomplete', 'channel_id', 'channel', 'status']);
+    for (const entry of incomplete) lines.push(['history_incomplete', entry.channelId, entry.label, entry.status]);
+  }
+  return '\r\n' + lines.map(row => row.map(csvCell).join(',')).join('\r\n') + '\r\n';
+}
+export interface TelemetrySnapshotCapture<Row> {
+  rows: Row[];
+  history: Record<string, TelemetryHistoryStatus>;
+  samples: Record<string, number>;
+  capturedAt: number;
+  runId: string | null;
+  window: string;
+}
+/** Deep-copy rows and history state at freeze time; later live retries must not rewrite a frozen snapshot. */
+export function freezeTelemetrySnapshot<Row>(input: { rows: readonly Row[]; history: Record<string, TelemetryHistoryStatus>;
+  samples: Record<string, number>; capturedAt: number; runId: string | null; window: string }): TelemetrySnapshotCapture<Row> {
+  return { rows: structuredClone(input.rows) as Row[], history: { ...input.history }, samples: { ...input.samples },
+    capturedAt: input.capturedAt, runId: input.runId, window: input.window };
+}
 export function telemetryNumber(value: number, precision: number, lang: TelemetryLanguage): string {
   return value.toLocaleString(lang === 'zh' ? 'zh-CN' : 'en-US', { minimumFractionDigits: precision, maximumFractionDigits: precision });
 }
@@ -40,13 +89,16 @@ export function telemetryPlot(points: readonly TelemetryPoint[], from: number, t
   }
   return { paths, low, high, marker };
 }
-/** CSV keeps original samples, scope and simulation provenance; text cells cannot become formulas. */
-export function telemetryCsv(rows: readonly { channel: TelemetryChannel; windowPoints: readonly TelemetryPoint[] }[], lang: TelemetryLanguage): string {
-  const cell = (value: string | number) => `"${(typeof value === 'number' ? String(value) : value.replace(/^\s*[=+@-]/, "'$&")).replaceAll('"', '""')}"`;
+/** CSV keeps original samples, scope and simulation provenance; text cells cannot become formulas.
+ * With `options.history`, a history-status section is appended after the sample rows; without it
+ * the output is exactly the original one-header-plus-samples shape. */
+export function telemetryCsv(rows: readonly { channel: TelemetryChannel; windowPoints: readonly TelemetryPoint[] }[], lang: TelemetryLanguage,
+  options?: { history?: TelemetryHistoryExport }): string {
   const table: (string | number)[][] = [['watermark', 'source', 'device_id', 'channel_id', 'part_id', 'channel', 'at', 'value', 'unit', 'threshold_source', 'threshold_note']];
   for (const { channel, windowPoints } of rows) for (const point of windowPoints) table.push([
     TELEMETRY_WATERMARK, point.source, point.deviceId, point.channelId, channel.partId, channel.name[lang],
     new Date(point.at).toISOString(), point.value, channel.unit, channel.threshold?.source ?? '', channel.threshold?.note ?? '',
   ]);
-  return '\uFEFF' + table.map(row => row.map(cell).join(',')).join('\r\n') + '\r\n';
+  const body = '\uFEFF' + table.map(row => row.map(csvCell).join(',')).join('\r\n') + '\r\n';
+  return options?.history ? body + historyStatusCsvSection(options.history.entries, options.history, lang) : body;
 }
