@@ -364,6 +364,10 @@ export default function ExhibitionPage() {
   return (
     <div className={`expo-page${landed ? ' is-landed' : ''}`} data-ui-version="new" data-intro={intro ? '' : undefined} data-flight={flight ? '' : undefined}>
       <div className="expo-main">
+        <div className="campus-heading">
+          <div><p>AGRIDX · CAMPUS</p><h1>{t('农机大厅', 'Agricultural machinery campus')}</h1></div>
+          <div className="campus-heading-actions"><button type="button" onClick={() => document.getElementById('campus-equipment-catalog')?.scrollIntoView({ behavior: reducedMotion ? 'instant' : 'smooth' })}>{t('装备目录', 'Equipment directory')}<ArrowDown size={15}/></button><Link to="/field-overview">{t('作业总览', 'Field overview')}<ArrowUpRight size={15}/></Link></div>
+        </div>
         <section
           ref={stage}
           className="expo-world-stage"

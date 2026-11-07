@@ -40,7 +40,7 @@ export function buildKnowledgeRelations(catalog: KnowledgeCatalog, semantic: Sem
   edges.push(...candidates.edges);
   for (const edge of edges) { Object.freeze(edge.evidence); Object.freeze(edge); }
   Object.freeze(edges);
-  const result: KnowledgeRelations = { kbVersion: catalog.kbVersion ?? null, formulaVersion: RELATION_FORMULA_VERSION,
+  const result: KnowledgeRelations = { kbVersion: catalog.kbVersion ?? null, snapshotSha256: catalog.snapshotSha256 ?? null, formulaVersion: RELATION_FORMULA_VERSION,
     nodes: nodes.map(node => node.id), edges,
     degraded: candidates.degraded,
     limitations: ['启发式强度仅表示资料关联紧密度，不代表概率、维修因果、先修关系、适用性或兼容性。'] };

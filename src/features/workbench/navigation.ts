@@ -1,6 +1,7 @@
 import { Activity, BookOpen, Boxes, Database, LayoutDashboard, ListChecks, SlidersHorizontal, Tractor, ChartNoAxesCombined, MessageSquare } from 'lucide-react';
 export const workbenchRoutes = [
   { path: '/', zh: '工作台总览', en: 'Overview', icon: LayoutDashboard, group: 'workspace' },
+  { path: '/field-overview', zh: '农机作业总览', en: 'Field overview', icon: Tractor, group: 'workspace' },
   { path: '/workspace/assets', zh: '农机对象', en: 'Machine objects', icon: Tractor, group: 'workspace' },
   { path: '/workspace/data', zh: '数据采集', en: 'Data collection', icon: Database, group: 'workspace' },
   { path: '/workspace/commands', zh: '指令与响应', en: 'Commands & responses', icon: SlidersHorizontal, group: 'workspace' },

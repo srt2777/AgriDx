@@ -77,6 +77,14 @@ export function useChatSession({ handoff, translate: t, focusInput, minLoadingMs
   const profile: DeviceProfile = useMemo(() => ({ name: deviceName.trim(), machineType, brand: brand.trim(), model: model.trim(), hours: hours.trim() ? Number(hours) : null, notes: deviceNotes.trim() }), [deviceName, machineType, brand, model, hours, deviceNotes]);
 
   const sendMessage = useCallback(async (text: string, includeAttachment = true) => {
+    // PR2 recovery gate: while a turn is unsaved (or its save outcome is
+    // unknown), no new question may be sent along the out-of-sync record —
+    // not from the input box, a quick follow-up, or any other trigger.
+    // Editing the draft, copying and exporting stay available.
+    if (memory.syncStatus !== 'synced') {
+      setSendError(t('本轮未保存到诊断记录，继续发送已阻止；请先重新载入已保存记录，核对后再重新提交。', 'This turn was not saved to the diagnosis record, so further sending is blocked; reload the saved record and recheck it before resubmitting.'));
+      return;
+    }
     if (requestRef.current || memory.busy) return;
     const selectedAttachment = includeAttachment ? attachment : undefined;
     const trimmed = composeDiagnosticQuestion(text, selectedAttachment);
@@ -119,12 +127,17 @@ export function useChatSession({ handoff, translate: t, focusInput, minLoadingMs
       const remain = Math.max(0, minLoadingMs - (performance.now() - started));
       if (remain > 0) await new Promise((resolve) => window.setTimeout(resolve, remain));
       if (requestRef.current !== controller) return;
-      if (reply.memory) memory.updateSession(reply.memory);
+      if (reply.memory) memory.updateSession(reply.memory, { clearsPendingForQuestion: trimmed });
       // The answer above is still shown; only its record was not saved.
       // Keep the old session revision (so the next turn can retry) and
       // tell the user the turn is missing from the stored record instead
-      // of silently dropping it from server-side history.
-      if (reply.memorySaveFailed) setSendError(t('回答已生成，但本轮未能保存到诊断记录；已有记录不会被清空，重新载入后可恢复同步。', 'The answer was generated, but this turn was not saved to the diagnosis record; existing records are kept, and reloading can resync.'));
+      // of silently dropping it from server-side history. From here on the
+      // turn is a pending unsaved copy: further sends are blocked until the
+      // saved record is reloaded and the question is resubmitted.
+      if (reply.memorySaveFailed) {
+        memory.markSaveFailed(trimmed, reply.content);
+        setSendError(t('本轮未保存到诊断记录；回答仍保留在页面上，继续发送已阻止，请重新载入已保存记录后再重新提交。', 'This turn was not saved to the diagnosis record; the answer is still shown, further sending is blocked, please reload the saved record before resubmitting.'));
+      }
       if (reply.role === 'error') {
         if (text === input) setInput(text);
         if (selectedAttachment) setAttachment(selectedAttachment);
@@ -149,6 +162,15 @@ export function useChatSession({ handoff, translate: t, focusInput, minLoadingMs
           : failureKind === 'invalid_response'
             ? t('服务器返回异常，请求未完成，请稍后重试；已有对话仍保留。', 'The server returned an invalid response and the request did not complete. Please retry; your previous messages are preserved.')
             : t('对话请求未完成，请稍后重试；已有对话仍保留。', 'The chat request did not complete. Please retry; your previous messages are preserved.');
+      // A timeout or transport cut leaves the save outcome unknown: the
+      // turn may already be saved on the server even though no answer
+      // arrived. Never resend automatically — record the question as an
+      // uncertain pending turn, block further sends, and let the reload
+      // decide whether it was saved. The draft is still restored below.
+      if (submitted && (failureKind === 'timeout' || failureKind === 'transport') && memory.session) {
+        memory.markSaveUncertain(trimmed);
+        setSendError(t('网络中断，保存结果未确认；请先重新载入已保存记录核对是否已保存，确认未保存后再重新提交，不要重复发送。', 'The network was interrupted and the save outcome is unconfirmed; reload the saved record first to check whether it was saved, and only resubmit after confirming it was not saved.'));
+      }
       if (submitted) setMessages((previous) => previous.map((message) => message.id === loadingMessage.id ? {
         id: message.id,
         role: 'error',
@@ -156,7 +178,9 @@ export function useChatSession({ handoff, translate: t, focusInput, minLoadingMs
       } : message));
       if (submitted && text === input) setInput(text);
       if (selectedAttachment) setAttachment(selectedAttachment);
-      setSendError(failureMessage);
+      // The uncertain-save message above takes precedence over the generic
+      // failure text: the user must recheck the record before resubmitting.
+      if (!(submitted && (failureKind === 'timeout' || failureKind === 'transport') && memory.session)) setSendError(failureMessage);
       if (failureKind !== 'aborted') toast.error(failureMessage);
     } finally {
       window.clearTimeout(timeout);
@@ -184,10 +208,37 @@ export function useChatSession({ handoff, translate: t, focusInput, minLoadingMs
     toast.success(t('对话已清空', 'Chat cleared'));
   }, [stopRequest, resetStatus, t, memory]);
 
+  /** Reload the saved record; the pending question comes back as a draft for an explicit resubmission. */
+  const recoverSavedRecord = useCallback(async () => {
+    let result: Awaited<ReturnType<typeof memory.reloadSavedRecord>>;
+    try { result = await memory.reloadSavedRecord(); } catch (error) {
+      setSendError(error instanceof Error ? error.message : t('重新载入已保存记录失败，请稍后重试。', 'Reloading the saved record failed. Please try again.'));
+      return;
+    }
+    if (!result) return;
+    if (result.saved) {
+      setSendError(t('已重新载入并核对：该轮已保存到诊断记录，无需重新提交。', 'Reloaded and checked: that turn was already saved to the diagnosis record, no resubmission needed.'));
+    } else {
+      setInput(result.turn.question);
+      setSendError(t('已重新载入已保存记录，原问题已恢复为草稿；重新提交会生成新的回答，原回答不会自动保存到记录中。', 'The saved record has been reloaded and the original question restored as a draft; resubmitting will generate a new answer, and the original answer will not be saved to the record automatically.'));
+    }
+  }, [memory, t]);
+
+  // Leaving the page while a turn is unsaved would lose the pending copy
+  // when browser storage also failed; warn before the navigation happens.
+  useEffect(() => {
+    if (memory.syncStatus !== 'unsaved') return;
+    const guard = (event: BeforeUnloadEvent) => { event.preventDefault(); };
+    window.addEventListener('beforeunload', guard);
+    return () => window.removeEventListener('beforeunload', guard);
+  }, [memory.syncStatus]);
+
   return {
     messages, input, setInput, machineType, setMachineType, brand, setBrand, model, setModel,
     isLoading, currentModel, currentProvider, currentFallbackReason,
     sendMessage, stopRequest, handleClear, memory, profile,
+    syncStatus: memory.syncStatus, pendingTurn: memory.pendingTurn, pendingStorageFailed: memory.pendingStorageFailed,
+    recoverSavedRecord, discardPendingTurn: memory.discardPendingTurn,
     diagnosisMode, setDiagnosisMode, deviceName, setDeviceName, hours, setHours, deviceNotes, setDeviceNotes, progress, setProgress,
     engineModel, setEngineModel, faultCodeInput, setFaultCodeInput, attachment, setAttachment, sendError,
   };
