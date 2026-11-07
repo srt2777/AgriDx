@@ -90,6 +90,8 @@ export function parseKnowledgeCatalog(value: unknown): KnowledgeCatalog {
   const totals = value.totals;
   if (!['entries', 'archivedEntries', 'learningEntries', 'sources', 'brands', 'models', 'faultEntries', 'mappedEntries'].every(key => isCount(totals[key])) ||
     totals.entries !== Number(totals.archivedEntries) + Number(totals.learningEntries) ||
+    (value.kbVersion !== undefined && value.kbVersion !== null && typeof value.kbVersion !== 'string') ||
+    (value.snapshotSha256 !== undefined && value.snapshotSha256 !== null && (typeof value.snapshotSha256 !== 'string' || !/^[a-f0-9]{64}$/.test(value.snapshotSha256))) ||
     !Array.isArray(value.brands) || !value.brands.every(isBrand) || !isStrings(value.limitations) ||
     !isRecord(value.expansion) || value.expansion.targetLabel !== '1w+' ||
     value.expansion.countingUnit !== 'indexed-entry' || !['planned', 'reached'].includes(String(value.expansion.status)) ||

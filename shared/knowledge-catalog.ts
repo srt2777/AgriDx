@@ -144,6 +144,8 @@ export interface KnowledgeCatalog {
   };
   /** Knowledge-base release from the same immutable snapshot; null if metadata is unavailable. */
   kbVersion?: string | null;
+  /** SHA over hierarchy.json + entries.jsonl + sources.json; moves on any classification/entry change. */
+  snapshotSha256?: string | null;
   expansion: { targetLabel: '1w+'; countingUnit: 'indexed-entry'; status: 'planned' | 'reached' };
   brands: CatalogBrand[];
   /** Derived from the same snapshot, preserving the original records and meanings. */

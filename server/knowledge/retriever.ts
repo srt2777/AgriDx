@@ -12,8 +12,9 @@ import crypto from 'node:crypto';
 import type { KnowledgeChunk, DiagnosticMetadata } from './types';
 export type { KnowledgeChunk, DiagnosticMetadata } from './types';
 import { loadKnowledgeSnapshot, peekKnowledgeSnapshot, type KnowledgeSnapshot } from './snapshot';
-import { archiveApplicability, queryWithoutIdentity, resolveScope, type RetrievalContext } from './scope';
+import { archiveApplicability, queryWithoutIdentity, resolveScope, type ResolvedScope, type RetrievalContext } from './scope';
 import { mentionsEntryId, referenceVerification, requiredDiagnosticCoverage } from './evidence';
+import { buildVectorIndex, rankVectorCandidates, VECTOR_ONLY_ARCHIVE_LIMIT, VECTOR_ONLY_LEARNING_LIMIT, type VectorIndex } from './vectorRecall';
 
 interface IndexedChunk {
   chunk: KnowledgeChunk;
@@ -39,6 +40,19 @@ let cacheHits = 0;
 let scoringPasses = 0;
 const retrievalCache = new Map<string, { expiresAt: number; chunks: KnowledgeChunk[] }>();
 const manualAvailabilityCache = new Map<string, { available: boolean | undefined }>();
+/** 检索选项：vectorRecall 缺省开启；关掉只用于加向量前后的对照验收。 */
+export interface RetrieveOptions { vectorRecall?: boolean; }
+/** 向量索引按快照 generation 缓存；快照切换时重建，不跨代复用。 */
+let vectorIndex: VectorIndex | undefined;
+let vectorIndexGeneration = -1;
+/** 供测试与阈值校准直接对生产索引做召回探查；诊断服务仍只走 retrieve()。 */
+export function getVectorIndex(): VectorIndex {
+  if (!vectorIndex || vectorIndexGeneration !== generation) {
+    vectorIndex = buildVectorIndex(index.map(item => item.haystack));
+    vectorIndexGeneration = generation;
+  }
+  return vectorIndex;
+}
 
 /** Import-time parsing handles both current six-field cards and older bullet labels. */
 function diagnosticFields(text: string): Map<string, string> {
@@ -166,8 +180,8 @@ export function hasApplicableManual(query: string, context: RetrievalContext = {
 }
 
 /** Same one retrieval, plus independently checked source availability. Coverage belongs to the router. */
-export function retrieveWithDiagnostics(query: string, k = MAX_CHUNKS_IN_PROMPT, context: RetrievalContext = {}) {
-  const found = retrieve(query, k, context);
+export function retrieveWithDiagnostics(query: string, k = MAX_CHUNKS_IN_PROMPT, context: RetrievalContext = {}, options: RetrieveOptions = {}) {
+  const found = retrieve(query, k, context, options);
   const manualAvailable = hasApplicableManual(query, context);
   const outcome = manualAvailable === false ? 'no_manual' as const : found.length ? 'insufficient_evidence' as const : 'no_results' as const;
   return { chunks: found, manualAvailable, outcome };
@@ -178,6 +192,73 @@ export function loadKnowledgeBase(): { fileCount: number; chunkCount: number } {
   const snapshot = loadKnowledgeSnapshot();
   prepareSnapshot(snapshot);
   return { fileCount: snapshot.fileCount, chunkCount: snapshot.chunks.length };
+}
+
+/**
+ * 向量召回补位（知识库第 3 步）。
+ *
+ * 只在 retrieve() 主循环已过硬过滤的 eligiblePositions 里打分：
+ * - 关键词已命中的条目：只在 retrieval 上备注“向量语义亦支持（余弦 x.xx）”，
+ *   不改 relevance.score、不改排序；向量永远不替关键词决定答案。
+ * - 关键词未命中的条目：按余弦取前几名补进 scored 尾部，relevance.score 为 0
+ *   （无关键词重叠）、recall 为 'vector'、referenceOnly 为 true；归档最多补
+ *   2 条、通识最多补 1 条；通识仍按 2026-10-22 规则标注 generalEvidence。
+ * - 结构引用（componentCandidates）里的条目不重复补。
+ */
+function applyVectorRecall(args: {
+  query: string;
+  scope: ResolvedScope;
+  scored: KnowledgeChunk[];
+  eligiblePositions: number[];
+  keywordScoreByPosition: Map<number, number>;
+  scoredByPosition: Map<number, KnowledgeChunk>;
+  scoredSources: Set<KnowledgeChunk>;
+  componentSources: Set<KnowledgeChunk>;
+}): void {
+  const { query, scope, scored, eligiblePositions, keywordScoreByPosition, scoredByPosition, scoredSources, componentSources } = args;
+  // 身份词（品牌/型号）与机型通用词已在主路用掉，这里去掉，避免它们主导相似度：
+  // 服务层传给检索的 query 自带“东方红 LF1504 拖拉机”前缀，只剩通用词时
+  // （如“量子纠缠”），短篇只要含“拖拉机”就能过阈值，造成无中生有的召回。
+  const vectorQuery = queryWithoutIdentity(query).replace(GENERIC_QUERY_WORDS, ' ');
+  // 多取一些候选再按上限截断：前排被关键词命中占满时，后排的仅向量命中仍有机会。
+  const ranked = rankVectorCandidates(getVectorIndex(), vectorQuery, eligiblePositions, 40);
+  let archiveAdded = 0;
+  let learningAdded = 0;
+  for (const candidate of ranked) {
+    const indexed = index[candidate.index];
+    if (!indexed) continue;
+    const c = indexed.chunk;
+    const keywordScore = keywordScoreByPosition.get(candidate.index) ?? 0;
+    if (keywordScore > 0) {
+      const entry = scoredByPosition.get(candidate.index);
+      if (entry?.retrieval && entry.retrieval.recall !== 'keyword+vector') {
+        entry.retrieval = { ...entry.retrieval, recall: 'keyword+vector',
+          basis: [...entry.retrieval.basis, `向量语义亦支持（余弦 ${candidate.cosine.toFixed(2)}）`] };
+      }
+      continue;
+    }
+    if (scoredSources.has(c) || componentSources.has(c)) continue;
+    const learning = c.entryType === '通识学习' && c.diagnosticEvidence === false;
+    if (learning ? learningAdded >= VECTOR_ONLY_LEARNING_LIMIT : archiveAdded >= VECTOR_ONLY_ARCHIVE_LIMIT) continue;
+    const applicability = learning ? undefined : archiveApplicability(c, scope);
+    if (!learning && c.entryId && !applicability) continue;
+    const vectorNote = `向量语义召回候选（余弦 ${candidate.cosine.toFixed(2)}）；仅召回，不决定答案`;
+    const entry: KnowledgeChunk = { ...c, applicability,
+      ...(learning && scope.openArchive && c.learningKind !== 'terminology' ? { generalEvidence: true as const } : {}),
+      retrieval: learning || !c.entryId
+        ? { tier: 'general', basis: ['通用知识；无具体机型手册适用证明', vectorNote], referenceOnly: true, recall: 'vector' }
+        : { tier: c.models && c.models.length > 1 ? 'series' : 'exact',
+          basis: [c.models && c.models.length > 1 ? '来源明确列出的车型范围覆盖当前选择；未通过前缀推断' : '归档品牌与明确型号适用性筛选',
+            ...(applicability === 'pending' ? ['具体机型或配置仍待核对'] : []), vectorNote],
+          referenceOnly: true, recall: 'vector' },
+      // 无关键词重叠：词法分就是 0；相似度只写在 basis 里，不冒充词法分。
+      relevance: { score: 0, method: 'keyword-weighted-overlap', calibrated: false } };
+    scored.push(entry);
+    scoredSources.add(c);
+    scoredByPosition.set(candidate.index, entry);
+    if (learning) learningAdded++;
+    else archiveAdded++;
+  }
 }
 
 // ---- 关键词打分 ----
@@ -196,6 +277,7 @@ function tokenize(text: string): string[] {
 }
 
 /** Vocabulary only: these aliases express symptoms, never infer a failed component. */
+const GENERIC_QUERY_WORDS = /联合收割机|拖拉机|插秧机|植保机|播种机|农业机械|农用机械|农机|请问|请帮我|怎么办|怎么修|怎么处理|怎么回事|是什么原因|什么原因|我的|这台|那台|这个|那个|\b(?:tractor|combine|transplanter|sprayer)\b/gi;
 const SYMPTOM_ALIASES = [
   ['启动', '起动'],
   ['打不着', '打不着火', '不着车', '不能着车', '打不着车', '无法启动', '无法起动', '不能启动', '不能起动', '启动不了', '起动不了', '启动困难', '起动困难', '不着火'],
@@ -216,10 +298,7 @@ const SYMPTOM_ALIASES = [
 ] as const;
 
 function symptomTokens(query: string): { tokens: Map<string, number>; groups: readonly (readonly string[])[] } {
-  const text = queryWithoutIdentity(query).replace(
-    /联合收割机|拖拉机|插秧机|植保机|播种机|农业机械|农用机械|农机|请问|请帮我|怎么办|怎么修|怎么处理|怎么回事|是什么原因|什么原因|我的|这台|那台|这个|那个|\b(?:tractor|combine|transplanter|sprayer)\b/gi,
-    ' ',
-  );
+  const text = queryWithoutIdentity(query).replace(GENERIC_QUERY_WORDS, ' ');
   const tokens = new Map(tokenize(text).map((token) => [token, 1]));
   const groups: (readonly string[])[] = [];
   for (const group of SYMPTOM_ALIASES) {
@@ -257,7 +336,7 @@ function scoreChunk(indexed: IndexedChunk, queryTokens: Map<string, number>, gro
  * 根据用户问题检索最相关的知识片段。
  * 无命中时返回空数组，调用方决定 fallback。
  */
-export function retrieve(query: string, k = MAX_CHUNKS_IN_PROMPT, context: RetrievalContext = {}): KnowledgeChunk[] {
+export function retrieve(query: string, k = MAX_CHUNKS_IN_PROMPT, context: RetrievalContext = {}, options: RetrieveOptions = {}): KnowledgeChunk[] {
   retrievalRequests++;
   const snapshot = peekKnowledgeSnapshot();
   if (!snapshot) return [];
@@ -269,10 +348,12 @@ export function retrieve(query: string, k = MAX_CHUNKS_IN_PROMPT, context: Retri
   // in the digest so cached public docs cannot cross an equipment/permission boundary.
   // Browser snapshots do not expose Node crypto. Disable caching there rather than
   // retain question text or weaken the digest used by the server's shared cache.
+  // The vector-recall flag participates: on/off 对照不得共用缓存。
+  const vectorEnabled = options.vectorRecall !== false;
   const cacheKey = typeof crypto.createHash === 'function' ? crypto.createHash('sha256').update(JSON.stringify({ query, limit, generation,
     machineType: context.machineType ?? '', brand: context.brand ?? '', model: context.model ?? '',
     engineModel: context.engineModel ?? '', faultCodes: context.faultCodes ?? [],
-    permission: 'public-knowledge',
+    permission: 'public-knowledge', vectorRecall: vectorEnabled,
   })).digest('hex') : undefined;
   const now = Date.now();
   const cached = cacheKey ? retrievalCache.get(cacheKey) : undefined;
@@ -301,9 +382,18 @@ export function retrieve(query: string, k = MAX_CHUNKS_IN_PROMPT, context: Retri
   scoringPasses++;
   const scored: KnowledgeChunk[] = [];
   const componentCandidates: KnowledgeChunk[] = [];
+  // 向量召回只在已过硬过滤的条目里打分：eligiblePositions 是 index 下标，
+  // keywordScoreByPosition 记关键词分（0 表示关键词未命中）。
+  const eligiblePositions: number[] = [];
+  const keywordScoreByPosition = new Map<number, number>();
+  const scoredByPosition = new Map<number, KnowledgeChunk>();
+  const scoredSources = new Set<KnowledgeChunk>();
+  const componentSources = new Set<KnowledgeChunk>();
   // Many sections share one source/configuration scope. Resolve each distinct scope once.
   const applicabilityByScope = new Map<string, KnowledgeChunk['applicability']>();
+  let position = -1;
   for (const indexed of index) {
+    position++;
     const c = indexed.chunk;
     // A failed review cannot consume a top-k slot or reach either answer path.
     if (referenceVerification(c.status) === 'failed') continue;
@@ -323,6 +413,7 @@ export function retrieve(query: string, k = MAX_CHUNKS_IN_PROMPT, context: Retri
     // its applicable documents do not cover this question. Explicit IDs remain isolated lookups.
     if (learning ? !(scope.openArchive || generalAllowed && namedScope || (requestedIds.size && generalAllowed))
       : c.entryId ? !applicability : !scope.genericKnowledge) continue;
+    eligiblePositions.push(position);
     const term = c.learningKind === 'terminology' ? c.heading.split('｜')[1]?.split('（')[0] : undefined;
     const termMatch = term && query.includes(term) ? term.length * 10 : 0;
     const score = requestedIds.size ? 100 : scoreChunk(indexed, qTokens, groups) + termMatch;
@@ -331,23 +422,42 @@ export function retrieve(query: string, k = MAX_CHUNKS_IN_PROMPT, context: Retri
       !NON_DIAGNOSTIC_TYPES.has(c.entryType ?? '')) {
       // Structural recall is a reference, not a fabricated symptom match score.
       componentCandidates.push({ ...c, applicability,
-        retrieval: { tier: 'component', referenceOnly: true,
+        retrieval: { tier: 'component', referenceOnly: true, recall: 'keyword',
           basis: [`本机适用资料中的关联组件：${organization.entryComponents[c.entryId].filter(id => componentIds.has(id)).join('、')}`,
             `运行表现关联：${symptomMatches.map(symptom => symptom.id).join('、')}`] },
         relevance: { score: scoreChunk(indexed, qTokens, []), method: 'keyword-weighted-overlap', calibrated: false } });
+      componentSources.add(c);
     }
-    if (score > 0) scored.push({ ...c, applicability, ...(learning && scope.openArchive && c.learningKind !== 'terminology' ? { generalEvidence: true as const } : {}),
-      retrieval: learning || !c.entryId
-        ? { tier: 'general', basis: ['通用知识；无具体机型手册适用证明'], referenceOnly: true }
-        : { tier: c.models && c.models.length > 1 ? 'series' : 'exact',
-          basis: [c.models && c.models.length > 1 ? '来源明确列出的车型范围覆盖当前选择；未通过前缀推断' : '归档品牌与明确型号适用性筛选',
-            ...(applicability === 'pending' ? ['具体机型或配置仍待核对'] : [])], referenceOnly: applicability !== 'matched' },
-      relevance: { score, method: 'keyword-weighted-overlap', calibrated: false } });
+    keywordScoreByPosition.set(position, score);
+    if (score > 0) {
+      const entry: KnowledgeChunk = { ...c, applicability, ...(learning && scope.openArchive && c.learningKind !== 'terminology' ? { generalEvidence: true as const } : {}),
+        retrieval: learning || !c.entryId
+          ? { tier: 'general', basis: ['通用知识；无具体机型手册适用证明'], referenceOnly: true, recall: 'keyword' }
+          : { tier: c.models && c.models.length > 1 ? 'series' : 'exact',
+            basis: [c.models && c.models.length > 1 ? '来源明确列出的车型范围覆盖当前选择；未通过前缀推断' : '归档品牌与明确型号适用性筛选',
+              ...(applicability === 'pending' ? ['具体机型或配置仍待核对'] : [])], referenceOnly: applicability !== 'matched', recall: 'keyword' },
+        relevance: { score, method: 'keyword-weighted-overlap', calibrated: false } };
+      scored.push(entry);
+      scoredByPosition.set(position, entry);
+      scoredSources.add(c);
+    }
+  }
+  // 向量召回（第 3 步）：只在已过硬过滤的 eligiblePositions 里补候选；不碰
+  // 显式编号查找，不改关键词命中分数与排序，只把漏掉的候选补进 scored 尾部。
+  if (vectorEnabled && !requestedIds.size && qTokens.size > 0) {
+    applyVectorRecall({ query, scope, scored, eligiblePositions, keywordScoreByPosition,
+      scoredByPosition, scoredSources, componentSources });
   }
   // Manual-specific hits take precedence; sample parameters must not contradict their instructions.
   const byScore = (a: KnowledgeChunk, b: KnowledgeChunk) => b.relevance!.score - a.relevance!.score;
-  const learning = scored.filter(chunk => chunk.entryType === '通识学习').sort(byScore);
-  const archived = scored.filter(chunk => chunk.entryId && chunk.entryType !== '通识学习').sort(byScore);
+  // 关键词命中（分 > 0）与仅向量命中（分 = 0）分开：向量候选只补位，不改变
+  // 主路的主题覆盖判定与 primary 选择，不挤掉无编号通用片段。
+  const learning = scored.filter(chunk => chunk.entryType === '通识学习' && chunk.relevance!.score > 0).sort(byScore);
+  const archived = scored.filter(chunk => chunk.entryId && chunk.entryType !== '通识学习' && chunk.relevance!.score > 0).sort(byScore);
+  const vectorArchived = scored.filter(chunk => chunk.retrieval?.recall === 'vector' && chunk.entryId && chunk.entryType !== '通识学习');
+  const vectorLearning = scored.filter(chunk => chunk.retrieval?.recall === 'vector' && chunk.entryType === '通识学习');
+  const archivedAll = [...archived, ...vectorArchived];
+  const learningAll = [...learning, ...vectorLearning];
   const requiredCoverage = requiredDiagnosticCoverage(query);
   const topicCovered = archived.some(chunk => !NON_DIAGNOSTIC_TYPES.has(chunk.entryType ?? '') &&
     chunk.applicability === 'matched' && referenceVerification(chunk.status) === 'verified' &&
@@ -356,32 +466,39 @@ export function retrieve(query: string, k = MAX_CHUNKS_IN_PROMPT, context: Retri
   // preserve exact/declared-series order and can never cross a scope boundary.
   const needsSupplement = namedScope && !requestedIds.size && !topicCovered;
   const scopedArchive = needsSupplement ? [...archived, ...componentCandidates.sort(byScore)] : archived;
-  const primary = scopedArchive.length ? scopedArchive : scored.filter(chunk => !chunk.entryId).sort(byScore);
+  const primaryBase = scopedArchive.length ? scopedArchive : scored.filter(chunk => !chunk.entryId).sort(byScore);
+  // 向量候选只补在主路结果之后：不改变 primary 的选择，不挤掉无编号通用片段。
+  const primary = [...primaryBase, ...vectorArchived];
   let result: KnowledgeChunk[];
   if (scope.openArchive && !requestedIds.size && archived.length && learning.length) {
     // Open question: archive and 通识 compete in one ranking. The best hit of each kind always keeps a
     // slot, so neither the 6,000 通识 entries nor the higher-scoring book headings crowd the other out.
-    const merged = [...archived, ...learning].sort(byScore).slice(0, limit);
+    const merged = [...archivedAll, ...learningAll].sort(byScore).slice(0, limit);
     if (limit > 1) {
-      for (const best of [archived[0], learning[0]]) {
+      for (const best of [archivedAll[0], learningAll[0]]) {
         if (merged.includes(best)) continue;
         const other = best.entryType === '通识学习';
         const drop = merged.map((chunk, i) => ({ chunk, i })).reverse()
-          .find(({ chunk }) => (chunk.entryType === '通识学习') !== other && chunk !== archived[0] && chunk !== learning[0]);
+          .find(({ chunk }) => (chunk.entryType === '通识学习') !== other && chunk !== archivedAll[0] && chunk !== learningAll[0]);
         if (drop) merged[drop.i] = best;
       }
     }
     result = merged.sort(byScore);
   } else {
     // Keep manual references first and reserve context for relevant general principles.
-    const supplemental = namedScope && !needsSupplement && !requestedIds.size ? [] : learning;
+    const supplemental = namedScope && !needsSupplement && !requestedIds.size ? [] : learningAll;
     if (needsSupplement) {
       const references = componentCandidates.sort(byScore);
-      const reserve = Number(references.length > 0) + Number(supplemental.length > 0);
+      // 向量候选只补在主路结果之后：结果头用关键词归档 archived，不能用
+      // archivedAll——归档关键词为空时，仅向量命中的条目会排到结构引用前面，
+      // 改写 primary 判定（planner-integration “原故障恢复”回归：向量条目
+      // KB2000-20261015-YTOLF1504-011 曾排到 010/005 之前，导致观察未记录）。
+      const reserve = Number(references.length > 0) + Number(supplemental.length > 0) + Number(vectorArchived.length > 0);
       result = archived.slice(0, archived.length ? Math.max(1, limit - reserve) : 0);
       const componentLimit = Math.max(0, limit - result.length - Number(supplemental.length > 0 && limit > result.length + 1));
       result.push(...references.slice(0, Math.min(2, componentLimit)));
       result.push(...supplemental.slice(0, Math.min(1, Math.max(0, limit - result.length))));
+      result.push(...vectorArchived.slice(0, Math.max(0, limit - result.length)));
     } else {
       const primaryLimit = supplemental.length && limit > 1 ? limit - 1 : limit;
       result = [...primary.slice(0, primaryLimit), ...supplemental.slice(0, Math.max(0, limit - Math.min(primary.length, primaryLimit)))];
@@ -410,6 +527,13 @@ export function stats() {
 export function retrievalStats() {
   return { requests: retrievalRequests, cacheHits, scoringPasses, generation,
     cacheEntries: retrievalCache.size, cacheTtlMs: CACHE_TTL_MS, cacheMaxEntries: CACHE_MAX_ENTRIES };
+}
+
+/** 向量索引规模与构建耗时（第 3 步）；未建过索引时返回 0 值，不触发构建。 */
+export function vectorRecallStats() {
+  return vectorIndex
+    ? { ...vectorIndex.stats, generation: vectorIndexGeneration }
+    : { documents: 0, features: 0, buildMs: 0, generation: vectorIndexGeneration };
 }
 
 /** Operational invalidation also permits measuring cold retrieval without reloading manuals. */
