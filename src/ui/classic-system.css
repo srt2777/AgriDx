@@ -102,6 +102,10 @@
   .fluid-workspace[data-ui-version='old'] .library-collections button { flex-shrink: 0; }
   .fluid-workspace[data-ui-version='old'] .knowledge-page .page-container { padding-inline: 16px; }
 }
+/* Phones: five browse modes do not fit one row. nowrap hides “按机型浏览” past the right edge with no visible scrollbar. */
+@media (max-width: 600px) {
+  .fluid-workspace[data-ui-version='old'] .library-collections { flex-wrap: wrap; overflow-x: visible; }
+}
 @media (pointer: coarse) { .fluid-workspace[data-ui-version='old'] :where(button, a.fluid-row, .fluid-group summary, select) { min-height: 44px; } }
 
 .fluid-workspace[data-ui-version='old'] .fluid-topbar { padding-inline: 32px; }
