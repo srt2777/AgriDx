@@ -34,6 +34,41 @@
 
 - 未记录
 
+- 工作台改用 IndexedDB 事务存储
+- 更新类型：fix；批次：workbench-indexeddb-20261106。
+
+### 详细改动
+
+- 新增 `src/features/workbench/store.ts`：IndexedDB（库 `agridx-workbench`）为权威存储；导入、删除、增加活动、清空活动均为显式操作，每次操作在同一读写事务中读取最新记录、校验、修改并保存，事务提交后才报告成功。
+- 容量校验移到事务内：已有 5 个数据集时新导入被拒绝（`WorkbenchCapacityError`）并保留草稿，不再用 `slice(0, 5)` 截断淘汰旧数据；导入页不再用本地快照预判容量。
+- 工作台上下文改为异步初始化：读取完成前禁用写操作；写操作带忙碌状态；导入页保存按钮在读取中、保存中显示“保存中…”并禁用；人工记录表单保存失败时保留草稿。
+- 跨标签页用 `BroadcastChannel` 通知重新读取，通知不可用时改由获得焦点/恢复可见时重新读取；不依赖 Web Locks。
+- 首次启动将旧 `localStorage`（`agridx-workbench-v1`）数据迁入新库，保留原 ID、样本和来源标记；迁移标记与数据同一事务提交，只执行一次；旧键保留为恢复来源，不反复自动导入。
+- 损坏或部分无效的旧数据提示并保留恢复材料（可导出重试迁移），不直接当作空库覆盖；检测到旧版标签页仍修改旧存储时提示刷新并保留恢复入口。
+- 数据库不可用、事务失败或配额不足时保留草稿并提示导出/重试，不自动降级回 localStorage 写法。
+- 测试用开发依赖新增 `fake-indexeddb`（仅测试使用）。
+- 界面版本：旧版 OV1.7、新版 NV1.4 均已在 main（#223 合入），本分支不再另升界面版本。
+
+### 知识库变化
+
+- 无
+
+### 兼容性
+
+- 旧 `localStorage` 数据自动迁移一次；已升级页面之间多标签页并发写入不再互相覆盖；旧版标签页仍可读旧存储，但会被提示刷新，并发一致性保证仅针对已升级页面。
+- 存储接口变化仅限工作台内部：`WorkbenchContext` 的 `addDataset`/`deleteDataset`/`log`/`clearActivities` 改为异步（返回 Promise），调用方已同步更新。
+
+### 验证结果
+
+- 针对性回归（新基底 main cd113b8，`npm ci` 后）：`tests/workbench-store.test.ts` 14/14 通过、`tests/workbench-data.test.ts` 7/7 通过，合计 21/21。
+- 完整 `npm run verify`（同基底）：978 项，972 通过、4 失败、2 跳过。4 个失败全部是 `tests/tencent-deploy.test.ts` 的已知启动超时抖动（重负载下真实入口启动超时，与本批改动无关）；单跑该文件 10/11 通过，剩余 `tests/tencent-deploy.test.ts:153` 单独重跑 1/1 通过（10.3 秒）。
+- 其余阶段：版本/知识库版本/类型检查通过；verify 在测试阶段失败后中止，lint 与构建单独补跑：改动文件 lint 0 错误、1 警告（`WorkbenchContext.tsx` 既有 react-refresh 导出警告）；前后端构建通过。
+- 未运行：托管 CI（Ubuntu/Windows/汇总）、真实浏览器双标签页验收——均列为 open。
+
+### 关联 PR
+
+- PR #217。
+
 ### 部署记录
 
 - 未记录；GitHub 保存、开发站与正式站分别验收。
