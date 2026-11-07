@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { loadArchive } from './archive';
+import { sha256Hex } from '../../shared/sha256';
 import { buildKnowledgeCatalog } from './catalog-data';
 import { configureIndexedModels } from './scope';
 import { loadLearningEntries, learningChunks } from './learning';
@@ -9,11 +10,18 @@ import type { CommonFrameworkDefinition } from '../../shared/common-knowledge';
 import type { KnowledgeChunk } from './types';
 import type { CatalogFilters, KnowledgeCatalog } from '../../shared/knowledge-catalog';
 import { readSemanticReport } from '../../scripts/lib/semantic-report.mjs';
+import { computeSnapshotSha256FromContents } from './snapshot-sha';
 import type { SemanticRelationsInput } from './relations-semantic';
 
 export interface KnowledgeSnapshot {
   /** Optional release metadata belongs to the same published generation as its data. */
   readonly kbVersion: string | null;
+  /** SHA over hierarchy.json + entries.jsonl + sources.json; any classification/entry change moves it. */
+  readonly snapshotSha256: string | null;
+  /** Content hash of the archived entries and their hierarchy links; changes whenever report input changes. */
+  readonly snapshotSha: string;
+  /** Archived entry id to the exact catalog models it belongs to (chunk.models ?? source model). */
+  readonly entryModels: ReadonlyMap<string, readonly string[]>;
   readonly chunks: readonly KnowledgeChunk[];
   readonly fileCount: number;
   readonly archivedEntries: number;
@@ -35,6 +43,22 @@ function readVersionMetadata(): string | null {
     const value: unknown = JSON.parse(fs.readFileSync(path.join(INDEX_ROOT, 'kb-version.json'), 'utf8')).kb_version;
     return typeof value === 'string' ? value : null;
   } catch { return null; }
+}
+
+/** Hash exactly the archived input community reports are built from: entries plus their hierarchy links. */
+function computeKnowledgeSnapshotSha(chunks: readonly KnowledgeChunk[], entryComponents: Readonly<Record<string, readonly string[]>>): string {
+  // Pure-TS SHA-256 (shared/sha256.ts): the hash must also work inside the
+  // browser bundle, where node:crypto is externalized and unusable.
+  const archived = chunks
+    .filter((chunk) => chunk.entryId && chunk.diagnosticEvidence !== false)
+    .map((chunk) => [chunk.entryId, chunk.sourceId, chunk.brand, chunk.model, chunk.models ?? null,
+      chunk.entryType, chunk.locator, chunk.roles ?? null, chunk.roleBasis ?? null,
+      chunk.riskLevel ?? null, chunk.riskBasis ?? null, chunk.pages ?? null, chunk.sourceTitle ?? null])
+    .sort((a, b) => String(a[0]).localeCompare(String(b[0])));
+  const links: [string, string[]][] = Object.entries(entryComponents)
+    .map(([entryId, components]): [string, string[]] => [entryId, [...components].sort()])
+    .sort((a, b) => a[0].localeCompare(b[0]));
+  return sha256Hex(JSON.stringify(archived) + JSON.stringify(links));
 }
 
 /** Freeze plain data recursively so response consumers cannot corrupt cached evidence. */
@@ -98,7 +122,10 @@ export function reloadKnowledgeSnapshot(): KnowledgeSnapshot {
     fileCount++;
   }
   const archive = loadArchive(undefined, { configureModels: false });
-  const hierarchy: unknown = JSON.parse(fs.readFileSync(path.join(INDEX_ROOT, 'hierarchy.json'), 'utf8'));
+  // hierarchy.json 只读一次：原文既用于解析，也用于快照 SHA，不重读文件
+  //（快照测试要求每个索引文件在一次加载里只读一次）。
+  const hierarchyText = fs.readFileSync(path.join(INDEX_ROOT, 'hierarchy.json'), 'utf8');
+  const hierarchy: unknown = JSON.parse(hierarchyText);
   const commonData: unknown = JSON.parse(fs.readFileSync(path.join(INDEX_ROOT, '通用框架.json'), 'utf8'));
   const learning = loadLearningEntries();
   freezeData(learning);
@@ -115,16 +142,28 @@ export function reloadKnowledgeSnapshot(): KnowledgeSnapshot {
   freezeData(chunks);
   const baseCatalog = freezeData(selectCatalog());
   const kbVersion = readVersionMetadata();
-  const catalog = freezeData({ ...baseCatalog, kbVersion });
+  // 快照 SHA 用加载时已读入内存的三份索引原文算，不再重读文件。
+  const snapshotSha256 = computeSnapshotSha256FromContents({
+    'hierarchy.json': hierarchyText,
+    'entries.jsonl': archive.indexTexts['entries.jsonl'],
+    'sources.json': archive.indexTexts['sources.json'],
+  });
+  const catalog = freezeData({ ...baseCatalog, kbVersion, snapshotSha256 });
   const semanticAfter = readSemanticReport(process.cwd());
   const semantic = JSON.stringify(semanticBefore) === JSON.stringify(semanticAfter) ? semanticAfter : { reason: '载入知识快照期间语义审核报告或来源发生变化。' };
   const entryNodes = new Map<string, string[]>();
+  const sourceModels = new Map(archive.sources.map(source => [source.source_id, source.model]));
+  const entryModels = new Map<string, readonly string[]>();
+  for (const chunk of archive.chunks) {
+    if (!chunk.entryId) continue;
+    const models = chunk.models ?? [sourceModels.get(chunk.sourceId!)].filter((model): model is string => Boolean(model));
+    entryModels.set(chunk.entryId, Object.freeze(models));
+  }
   if (semantic.report) {
     const byEntry = new Map((hierarchy as { entries: { entry_id: string; components: { component_id: string; part_ids: string[] }[] }[] }).entries.map(item => [item.entry_id, item.components]));
-    const sourceModels = new Map(archive.sources.map(source => [source.source_id, source.model]));
     for (const chunk of archive.chunks) {
       if (!chunk.entryId || !chunk.brand || !chunk.sourceId) continue;
-      const models = chunk.models ?? [sourceModels.get(chunk.sourceId)].filter((model): model is string => Boolean(model));
+      const models = entryModels.get(chunk.entryId) ?? [];
       const ids: string[] = [];
       for (const model of models) for (const item of byEntry.get(chunk.entryId) ?? []) {
         if (item.part_ids.length) ids.push(...item.part_ids.map(part => JSON.stringify([chunk.brand, model, item.component_id, part])));
@@ -134,12 +173,13 @@ export function reloadKnowledgeSnapshot(): KnowledgeSnapshot {
     }
   }
   const next: KnowledgeSnapshot = Object.freeze({
-    kbVersion, chunks, fileCount: fileCount + archive.fileCount + new Set(learning.map(entry => entry.knowledgePath)).size, archivedEntries: archive.chunks.length,
+    kbVersion, snapshotSha256, snapshotSha: computeKnowledgeSnapshotSha(archive.chunks, retrievalOrganization.entryComponents), entryModels,
+    chunks, fileCount: fileCount + archive.fileCount + new Set(learning.map(entry => entry.knowledgePath)).size, archivedEntries: archive.chunks.length,
     learningEntries: learning.length,
     retrievalOrganization, manualSourceIds, semantic: { ...semantic, entryNodes },
     getCatalog: (filters: CatalogFilters = {}) => {
       const selected = selectCatalog(filters);
-      return selected === baseCatalog ? catalog : freezeData({ ...selected, kbVersion });
+      return selected === baseCatalog ? catalog : freezeData({ ...selected, kbVersion, snapshotSha256 });
     },
   });
   // The archive loader's standalone API still configures models by default. Here it

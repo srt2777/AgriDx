@@ -10,6 +10,12 @@ export interface RetrievalBasis {
   tier: 'exact' | 'series' | 'component' | 'general';
   basis: string[];
   referenceOnly: boolean;
+  /**
+   * 哪一路召回了这条：缺省为关键词主路；'vector' 表示仅向量语义召回（无关键
+   * 词重叠，referenceOnly 恒为 true，只作参考）；'keyword+vector' 表示关键
+   * 词命中且向量亦支持。向量路永远不决定答案、不升级证据等级。
+   */
+  recall?: 'keyword' | 'vector' | 'keyword+vector';
 }
 /** Only server-built, grounded facts enter the structured answer. */
 export interface DiagnosticReply {

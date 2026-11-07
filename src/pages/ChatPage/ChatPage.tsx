@@ -26,6 +26,7 @@ import { useUiVersion } from '@/hooks/useUiVersion';
 
 import type { ChatProvider } from '@shared/chat';
 import { MACHINE_TYPES_ZH, MACHINE_TYPES_EN, composeDiagnosticQuestion, readDiagnosticTextAttachment, type ChatMessage } from '@/features/chat/session';
+import { pendingTurnExportText } from '@/features/chat/sync-state';
 import { useChatSession } from '@/features/chat/useChatSession';
 import { useLlmHealth } from '@/features/chat/useLlmHealth';
 import { useUpdateBlocker } from '@/features/updates/useUpdateBlocker';
@@ -77,9 +78,29 @@ export default function ChatPage() {
     messages, input, setInput, isLoading, currentModel, currentProvider, currentFallbackReason,
     machineType, setMachineType, brand, setBrand, model, setModel,
     sendMessage, stopRequest, handleClear, memory, profile,
+    syncStatus, pendingTurn, pendingStorageFailed, recoverSavedRecord, discardPendingTurn,
     diagnosisMode, setDiagnosisMode, deviceName, setDeviceName, hours, setHours, deviceNotes, setDeviceNotes, progress, setProgress,
     engineModel, setEngineModel, faultCodeInput, setFaultCodeInput, attachment, setAttachment, sendError,
   } = useChatSession({ handoff, translate: t, focusInput, telemetrySummary, minLoadingMs: version === 'new' && PREMIUM_MOTION_ENABLED ? 900 : 0 });
+  // PR2 recovery gate: the send button, the textarea and the quick
+  // follow-ups all share this one flag, so no entry point can send along
+  // an out-of-sync record. Draft editing, copying and exporting stay on.
+  const sendBlocked = syncStatus !== 'synced';
+  const exportPendingTurn = useCallback(() => {
+    if (!pendingTurn) return;
+    const blob = new Blob([pendingTurnExportText(pendingTurn)], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement('a');
+    anchor.href = url; anchor.download = '未保存的诊断问答.txt'; anchor.click();
+    URL.revokeObjectURL(url);
+  }, [pendingTurn]);
+  const copyPendingTurn = useCallback(async () => {
+    if (!pendingTurn) return;
+    try {
+      await navigator.clipboard.writeText(pendingTurnExportText(pendingTurn));
+      toast.success(t('已复制未保存内容', 'Unsaved content copied'));
+    } catch { toast.error(t('复制失败，请使用导出保存。', 'Copy failed; use export instead.')); }
+  }, [pendingTurn, t]);
   const orb = useDiagnosisOrb(PREMIUM_MOTION_ENABLED && version === 'new' && isLoading);
   useUpdateBlocker('/chat', isLoading || memory.busy || !memory.ready || !!input.trim() || !!attachment
     || progress.trim() !== (memory.session?.progress ?? '')
@@ -394,7 +415,7 @@ export default function ChatPage() {
                 ) : msg.role === 'user' ? (
                   <div className="whitespace-pre-wrap">{msg.content}</div>
                 ) : (
-                  <DiagnosticAnswer message={msg} t={t} onAnswer={handleQuickQuestion} disabled={isLoading || memory.busy} />
+                  <DiagnosticAnswer message={msg} t={t} onAnswer={handleQuickQuestion} disabled={isLoading || memory.busy || sendBlocked} />
                 )}
               </div>
               {msg.role === 'user' && (
@@ -418,6 +439,25 @@ export default function ChatPage() {
         <form onSubmit={handleSubmit} className="chat-composer mx-auto max-w-3xl">
           {version === 'old' && extraControl}
           {attachment && <div className="chat-attachment mb-2 rounded-md border border-border p-2 text-xs"><div className="flex items-center justify-between gap-2"><span className="truncate">{attachment.name} · {attachment.text.length} {t('字符', 'characters')}</span><Button type="button" variant="ghost" size="icon" className="h-8 w-8" disabled={isLoading} aria-label={t('移除文本报告', 'Remove text report')} onClick={() => setAttachment(undefined)}><X className="h-3.5 w-3.5" /></Button></div><details><summary className="cursor-pointer">{t('预览将发送的文本', 'Preview text to send')}</summary><pre className="mt-2 max-h-32 overflow-auto whitespace-pre-wrap break-words">{attachment.text}</pre></details></div>}
+          {pendingTurn && (syncStatus === 'unsaved' || syncStatus === 'recovering' || pendingTurn.recovered) && <div role="alert" className="mb-2 rounded-md border border-amber-500/40 bg-amber-500/5 p-3 text-xs leading-relaxed">
+            <p className="font-medium">{pendingTurn.recovered
+              ? t('已重新载入已保存记录。未保存内容仍保留在下方副本中，原问题已恢复为草稿。', 'The saved record has been reloaded. The unsaved content is kept in the copy below and the original question restored as a draft.')
+              : syncStatus === 'recovering'
+                ? t('正在重新载入已保存记录…', 'Reloading the saved record…')
+                : pendingTurn.uncertain
+                  ? t('网络中断，本轮保存结果未确认；继续发送已阻止，请先重新载入已保存记录核对。', 'The network was interrupted and this turn\'s save outcome is unconfirmed; further sending is blocked, please reload the saved record first to check.')
+                  : t('本轮未保存到诊断记录；继续发送已阻止，请先重新载入已保存记录。', 'This turn was not saved to the diagnosis record; further sending is blocked, please reload the saved record first.')}</p>
+            <p className="mt-1 text-muted-foreground">{t('原问题：', 'Original question: ')}{pendingTurn.question}</p>
+            {pendingTurn.answer && <p className="mt-1 text-muted-foreground">{t('未保存的回答（仅页面副本）：', 'Unsaved answer (page copy only): ')}{pendingTurn.answer.slice(0, 200)}{pendingTurn.answer.length > 200 ? '…' : ''}</p>}
+            {pendingStorageFailed && <p className="mt-1 font-medium text-destructive">{t('浏览器存储也失败，未保存内容仅保留在当前页面；请先导出，离开页面后将丢失。', 'Browser storage also failed, so the unsaved content is kept in this page only; export it first, it will be lost when you leave the page.')}</p>}
+            <p className="mt-1 text-muted-foreground">{t('重新提交会生成新的回答，原回答不会自动保存到记录中。', 'Resubmitting will generate a new answer; the original answer will not be saved to the record automatically.')}</p>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {!pendingTurn.recovered && <Button type="button" variant="secondary" size="sm" disabled={syncStatus === 'recovering' || memory.busy} onClick={() => void recoverSavedRecord()}>{t('重新载入已保存记录', 'Reload saved record')}</Button>}
+              <Button type="button" variant="secondary" size="sm" onClick={exportPendingTurn}>{t('导出未保存内容', 'Export unsaved content')}</Button>
+              <Button type="button" variant="secondary" size="sm" onClick={() => void copyPendingTurn()}>{t('复制未保存内容', 'Copy unsaved content')}</Button>
+              <Button type="button" variant="ghost" size="sm" onClick={() => { if (window.confirm(t('丢弃未保存的问答副本？该轮将只留在已保存记录中，无法恢复。', 'Discard the unsaved copy? That turn will only remain in the saved record and cannot be recovered.'))) discardPendingTurn(); }}>{t('丢弃未保存副本', 'Discard unsaved copy')}</Button>
+            </div>
+          </div>}
           <div className="chat-compose-row flex items-end gap-2">
             <Textarea
               aria-label={t('故障描述', 'Fault description')}
@@ -430,7 +470,7 @@ export default function ChatPage() {
               placeholder={t('描述您遇到的农机故障现象...', 'Describe the fault symptom...')}
               className={version === 'old' ? 'min-h-[44px] resize-none' : 'min-h-[60px] resize-none'}
               rows={1}
-              disabled={isLoading || memory.busy}
+              disabled={isLoading || memory.busy || sendBlocked}
             />
             {isLoading ? (
               <Button type="button" size="icon" onClick={stopRequest} aria-label={t('停止等待', 'Stop waiting')} title={t('停止等待', 'Stop waiting')}>
@@ -439,7 +479,7 @@ export default function ChatPage() {
             ) : <Button
               type="submit"
               size="icon"
-              disabled={(!input.trim() && !attachment) || composedLength > 2000 || memory.busy}
+              disabled={(!input.trim() && !attachment) || composedLength > 2000 || memory.busy || sendBlocked}
               className={version === 'new' && PREMIUM_MOTION_ENABLED ? 'shrink-0 glass-press' : 'shrink-0'}
               data-motion={version === 'new' && PREMIUM_MOTION_ENABLED ? 'glass-press' : undefined}
               aria-label={t('发送', 'Send')}

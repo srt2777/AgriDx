@@ -1,8 +1,9 @@
 import { useUiCopy } from '@/ui/useUiCopy';
-import { useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useEffect, useMemo, useState } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 import type { KnowledgeCatalog, KnowledgeRole } from '@shared/knowledge-catalog';
 import { useKnowledgeCatalog } from '@/hooks/useKnowledgeCatalog';
+import { fetchKnowledgeRelations, relationsMatchCatalog } from '@/features/knowledge/relations-api';
 import { graphTaxonomyNodes, visibleTaxonomyNodes, type TaxonomyNode } from './knowledge-taxonomy-data';
 import TaxonomyGraphCanvas from './TaxonomyGraphCanvas';
 import EvidenceEntry from './EvidenceEntry';
@@ -12,20 +13,47 @@ import './knowledge-taxonomy.css';
 
 export default function KnowledgeGraph({ catalog, lang }: { catalog: KnowledgeCatalog; lang: string }) {
   const { t } = useUiCopy(lang);
-  const [mode, setMode] = useState<'archive' | 'learning'>('archive');
+  const [params, setParams] = useSearchParams();
+  const mode = params.get('graphCollection') === 'learning' ? 'learning' : 'archive';
+  const selectedId = params.get('graphNode') ?? '';
+  const selectNode = (id: string) => setParams(previous => {
+    const next = new URLSearchParams(previous);
+    if (id) next.set('graphNode', id); else next.delete('graphNode');
+    return next;
+  }, { replace: true });
+  const setMode = (mode: 'archive' | 'learning') => setParams(previous => {
+    const next = new URLSearchParams(previous);
+    next.set('graphCollection', mode); next.delete('graphNode');
+    return next;
+  }, { replace: true });
   return <div className="knowledge-graph-views">
     <div className="taxonomy-view-picker" role="group" aria-label={t('选择图谱分类', 'Select graph collection')}>
       <button type="button" aria-pressed={mode === 'archive'} onClick={() => setMode('archive')}>{t('来源归档图谱', 'Archive graph')}</button>
       {catalog.organization && <button type="button" aria-pressed={mode === 'learning'} onClick={() => setMode('learning')}>{t('通识与术语图谱', 'Learning and terminology map')}</button>}
     </div>
-    {mode === 'learning' && catalog.organization ? <LearningKnowledgeGraph catalog={catalog} lang={lang} /> : <ArchiveKnowledgeGraph catalog={catalog} lang={lang} />}
+    {mode === 'learning' && catalog.organization ? <LearningKnowledgeGraph catalog={catalog} lang={lang} selectedId={selectedId} onSelect={selectNode} /> : <ArchiveKnowledgeGraph catalog={catalog} lang={lang} selectedId={selectedId} onSelect={selectNode} />}
   </div>;
 }
 
-function ArchiveKnowledgeGraph({ catalog, lang }: { catalog: KnowledgeCatalog; lang: string }) {
+function ArchiveKnowledgeGraph({ catalog, lang, selectedId, onSelect: setSelected }: { catalog: KnowledgeCatalog; lang: string; selectedId: string; onSelect: (id: string) => void }) {
   const { t, separator } = useUiCopy(lang);
   const allNodes = useMemo(() => graphTaxonomyNodes(catalog), [catalog]);
-  const [selectedId, setSelected] = useState('');
+  const nodeIds = useMemo(() => new Set(allNodes.map(node => node.id)), [allNodes]);
+  // The graph nodes come from the catalog prop; relations are fetched for the
+  // same snapshot and checked by kbVersion + snapshot SHA. A mismatch degrades
+  // to membership-only display instead of showing a stale graph. The probe
+  // fetches one edge only: the version fields, not the whole relation set.
+  const [syncState, setSyncState] = useState<'checking' | 'matched' | 'degraded' | 'unavailable'>('checking');
+  useEffect(() => {
+    if (!catalog.snapshotSha256) { setSyncState('degraded'); return; }
+    const controller = new AbortController();
+    let active = true;
+    setSyncState('checking');
+    fetchKnowledgeRelations(nodeIds, controller.signal, { offset: 0, limit: 1 })
+      .then(relations => { if (active) setSyncState(relationsMatchCatalog(relations, catalog) ? 'matched' : 'degraded'); })
+      .catch(() => { if (active) setSyncState('unavailable'); });
+    return () => { active = false; controller.abort(); };
+  }, [catalog, nodeIds]);
   const [search, setSearch] = useState('');
   const [entryTypeFilter, setEntryTypeFilter] = useState('');
   const [roleFilter, setRoleFilter] = useState<KnowledgeRole | ''>('');
@@ -52,8 +80,8 @@ function ArchiveKnowledgeGraph({ catalog, lang }: { catalog: KnowledgeCatalog; l
     while (current) { labels.unshift(current.label); const parent: string | undefined = current.parent; current = parent ? nodesById.get(parent) : undefined; }
     return labels.join(' / ');
   };
-  const searchTerm = search.trim().toLocaleLowerCase();
-  const results = searchTerm ? nodes.filter(node => node.label.toLocaleLowerCase().includes(searchTerm)) : [];
+  const searchTerm = search.trim().normalize('NFKC').toLocaleLowerCase();
+  const results = searchTerm ? nodes.filter(node => node.label.normalize('NFKC').toLocaleLowerCase().includes(searchTerm)) : [];
   const levels = [
     { level: 'brand', label: t('品牌', 'Brand'), parent: undefined },
     { level: 'model', label: t('机型 / 系列', 'Model / series'), parent: selectedBrand?.id },
@@ -61,19 +89,19 @@ function ArchiveKnowledgeGraph({ catalog, lang }: { catalog: KnowledgeCatalog; l
     { level: 'part', label: t('零部件', 'Part'), parent: selectedComponent?.id },
   ];
   return <section className="knowledge-taxonomy" aria-labelledby="taxonomy-heading">
-    <header className="taxonomy-heading"><div><h2 id="taxonomy-heading">{t('知识图谱', 'Knowledge graph')}</h2><p>{t('连线表示目录归属，资料以原文为准。', 'Links show catalog membership. Refer to original evidence.')}</p></div><strong>{nodes.length.toLocaleString()}<small>{t('目录节点 · 非独立知识条数', 'catalog nodes · not unique entries')}</small></strong></header>
+    <header className="taxonomy-heading"><div><h1 id="taxonomy-heading">{t('知识图谱', 'Knowledge graph')}</h1><p>{t('连线表示目录归属，资料以原文为准。', 'Links show catalog membership. Refer to original evidence.')}</p><p role="status" className="taxonomy-sync-note">{syncState === 'matched' ? t('图谱关系与当前目录快照一致。', 'Graph relations match the current catalog snapshot.') : syncState === 'degraded' ? t('图谱关系与当前目录快照不一致，已降级为仅显示目录归属；请刷新后重试。', 'Graph relations do not match the current catalog snapshot; showing membership only. Refresh to retry.') : syncState === 'unavailable' ? t('关系校验暂时不可用，仅显示目录归属。', 'Relation check unavailable; showing membership only.') : t('正在核对图谱与目录快照…', 'Checking graph snapshot…')}</p></div><strong>{nodes.length.toLocaleString()}<small>{t('目录节点 · 非独立知识条数', 'catalog nodes · not unique entries')}</small></strong></header>
     <div className="taxonomy-search"><label htmlFor="taxonomy-search">{t('定位知识节点', 'Find a knowledge node')}</label><input id="taxonomy-search" type="search" value={search} onChange={event => setSearch(event.target.value)} placeholder={t('搜索品牌、机型、系统或零件', 'Search brand, model, system or part')} />
-      <div className="taxonomy-filters" aria-label={t('图谱过滤', 'Graph filters')}>
+      <details className="graph-advanced"><summary>{t('筛选资料', 'Filter evidence')}{(entryTypeFilter || roleFilter) && <span>{t(' · 已启用', ' · Active')}</span>}</summary><div className="taxonomy-filters" aria-label={t('图谱过滤', 'Graph filters')}>
         <label><span>{t('资料类型', 'Entry type')}</span><select value={entryTypeFilter} onChange={event => { setEntryTypeFilter(event.target.value); setSelected(''); }}><option value="">{t('全部类型', 'All types')}</option>{entryTypes.map(type => <option key={type} value={type}>{type}</option>)}</select></label>
         <label><span>{t('角色标注', 'Diagnostic role')}</span><select value={roleFilter} onChange={event => { setRoleFilter(event.target.value as KnowledgeRole | ''); setSelected(''); }}><option value="">{t('全部角色', 'All roles')}</option>{([['symptom', t('现象', 'Symptom')], ['cause', t('原因', 'Cause')], ['check', t('检查', 'Check')], ['action', t('处理', 'Action')], ['retest', t('复检', 'Retest')]] as const).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>
         {(entryTypeFilter || roleFilter) && <button type="button" className="taxonomy-filter-reset" onClick={() => { setEntryTypeFilter(''); setRoleFilter(''); }}>{t('清除过滤', 'Clear filters')}</button>}
       </div>
-      <p className="taxonomy-filter-note">{t('类型与角色分别按节点内资料汇总；组合筛选时，下方原始资料按同一条目再次过滤。', 'Type and role are aggregated separately for each node; the evidence list applies both filters to each entry.')}</p>
+      <p className="taxonomy-filter-note">{t('类型与角色分别按节点内资料汇总；组合筛选时，下方原始资料按同一条目再次过滤。', 'Type and role are aggregated separately for each node; the evidence list applies both filters to each entry.')}</p></details>
       {searchTerm && <div className="taxonomy-results"><p>{t(`找到 ${results.length} 个节点，显示前 50 个`, `${results.length} matches; showing the first 50`)}</p>{results.slice(0, 50).map(node => <button key={node.id} onClick={() => { setSelected(node.id); setSearch(''); }}>{node.label}<small>{pathLabel(node)}</small></button>)}{!results.length && <p>{t('无匹配节点；未生成推测知识。', 'No matches; no knowledge inferred.')}</p>}</div>}</div>
     <nav className="taxonomy-trail" aria-label={t('当前知识路径', 'Current knowledge path')}><button onClick={() => setSelected('')}>{t('全部归档', 'All archives')}</button>{path.map(node => <span key={node.id}><span aria-hidden="true"> → </span><button onClick={() => setSelected(node.id)} aria-current={selected?.id === node.id ? 'location' : undefined}>{node.label}</button></span>)}</nav>
-    <GraphPathFinder nodes={nodes} selectedId={selectedId} onSelect={setSelected} lang={lang} />
+    <TaxonomyGraphCanvas catalog={catalog} nodes={nodes} selectedId={selected?.id ?? ''} onSelect={setSelected} lang={lang} />
+    <details className="graph-path-disclosure"><summary>{t('查询两个节点的目录路径', 'Find the path between nodes')}</summary><GraphPathFinder nodes={nodes} selectedId={selected?.id ?? ''} onSelect={setSelected} lang={lang} /></details>
     <p className="taxonomy-lod-note" role="status">{t(`当前显示 ${nodes.length.toLocaleString()} 个节点；远景会聚合隐藏零件，完整目录见下方列表。`, `${nodes.length.toLocaleString()} nodes shown; distant views aggregate parts. Use the directory below for the complete list.`)}</p>
-    <TaxonomyGraphCanvas catalog={catalog} nodes={nodes} selectedId={selectedId} onSelect={setSelected} lang={lang} />
     <details className="taxonomy-accessible-directory"><summary>{t('展开目录辅助浏览（键盘 / 无图形模式）', 'Browse directory (keyboard / non-graph mode)')}</summary><div className="taxonomy-columns">{levels.map(({ level, label, parent }, index) => {
       const children = nodes.filter(node => node.level === level && (level === 'brand' || !!parent && node.parent === parent));
       return <section className="taxonomy-column" key={level} aria-label={label}><h3><span>{String(index + 1).padStart(2, '0')}</span>{label}<small>{children.length}</small></h3><div className="taxonomy-node-list">{children.map(node => <button className={node.count ? '' : 'taxonomy-gap'} key={node.id} aria-pressed={path.some(item => item.id === node.id)} onClick={() => setSelected(node.id)}><span>{node.label}</span><small>{node.count ? t(`${node.count} 条关联资料`, `${node.count} linked entries`) : t('待补资料', 'Evidence gap')}{node.scope && `${separator}${node.scope === 'exact' ? t('具体型号范围', 'Specific model') : node.scope === 'series' ? t('系列范围', 'Series scope') : t('待核实', 'Unconfirmed')}`}</small></button>)}{!children.length && <p>{parent ? t('本层尚无已定位节点；保留在上层查看资料。', 'No identified nodes; review evidence at the parent level.') : t('先选择左侧上级目录。', 'Select a parent to continue.')}</p>}</div></section>;
