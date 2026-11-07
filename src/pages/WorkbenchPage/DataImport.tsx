@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Check, Download, Upload, X } from 'lucide-react';
 import { useLang } from '@/hooks/useLang';
 import { useWorkbench } from '@/features/workbench/WorkbenchContext';
-import { downloadFile, mapObservations, MAX_DATASETS, MAX_FILE_BYTES, parseCsv } from '@/features/workbench/data';
+import { downloadFile, mapObservations, MAX_FILE_BYTES, parseCsv } from '@/features/workbench/data';
 import { useUpdateBlocker } from '@/features/updates/useUpdateBlocker';
 
 export function DataImport() {
@@ -24,15 +24,19 @@ export function DataImport() {
     } catch (e) { if (token === request.current) setError(e instanceof Error ? e.message : 'Import failed'); }
     finally { if (token === request.current) setBusy(false); }
   }
-  function save() {
+  async function save() {
     setError('');
     try {
-      if (work.data.datasets.length >= MAX_DATASETS) throw new Error(t('最多保留 5 个数据集，请先删除不需要的数据集。', 'Keep up to five datasets. Delete one before importing.'));
       if (!name.trim() || !unit.trim() || !object.trim()) throw new Error(t('请填写名称、单位和所属对象。', 'Enter a name, unit and object.'));
       const points = mapObservations(rows, timeColumn, valueColumn, format);
-      work.addDataset({ id: crypto.randomUUID(), name: name.trim(), unit: unit.trim(), object: object.trim(), source: 'user-import', createdAt: Date.now(), points });
+      setBusy(true);
+      // Capacity is checked inside the storage transaction, so a concurrent
+      // import in another tab cannot evict data or be silently truncated.
+      // A rejection keeps this draft: reset() only runs after success.
+      await work.addDataset({ id: crypto.randomUUID(), name: name.trim(), unit: unit.trim(), object: object.trim(), source: 'user-import', createdAt: Date.now(), points });
       reset(); setMessage(t('已加入当前浏览器数据集，可在数据可视化中查看。', 'Added to browser datasets. Open Analytics to inspect it.'));
     } catch (e) { setError(e instanceof Error ? e.message : 'Import failed'); }
+    finally { setBusy(false); }
   }
   return <section className="wb-panel"><div className="wb-panel-heading"><div><p className="wb-eyebrow">LOCAL DATA</p><h2>{t('导入与字段映射', 'Import & field mapping')}</h2></div><button type="button" onClick={() => downloadFile('time_iso,value\r\n', 'agridx-observations-template.csv')}><Download size={15} />{t('下载空模板', 'Blank template')}</button></div>
     <p className="wb-muted">{t('UTF-8 CSV · 2 MB / 5000 行 · 最多 5 个数据集。数据留在本浏览器，不上传；清除网站数据会删除记录。导入内容标为用户提供，未核验。', 'UTF-8 CSV · 2 MB / 5000 rows · up to 5 datasets. Stored in this browser, never uploaded; clearing site data removes records. Imports are unverified user observations.')}</p>
@@ -41,7 +45,7 @@ export function DataImport() {
       <div className="wb-form-grid"><label>{t('数据集名称', 'Dataset name')}<input value={name} maxLength={100} onChange={e => setName(e.target.value)} /></label><label>{t('所属对象（自行填写）', 'Object (user supplied)')}<input value={object} maxLength={150} onChange={e => setObject(e.target.value)} /></label><label>{t('数值单位', 'Value unit')}<input value={unit} placeholder="°C / rpm / mm" maxLength={20} onChange={e => setUnit(e.target.value)} /></label>
         <label>{t('时间列', 'Time column')}<select value={timeColumn} onChange={e => setTimeColumn(Number(e.target.value))}>{rows[0].map((h, i) => <option value={i} key={i}>{h}</option>)}</select></label><label>{t('数值列', 'Value column')}<select value={valueColumn} onChange={e => setValueColumn(Number(e.target.value))}>{rows[0].map((h, i) => <option value={i} key={i}>{h}</option>)}</select></label><label>{t('时间格式', 'Time format')}<select value={format} onChange={e => setFormat(e.target.value as typeof format)}><option value="iso">ISO 8601 (2026-11-04T12:00:00+08:00)</option><option value="seconds">Unix seconds</option><option value="milliseconds">Unix milliseconds</option></select></label></div>
       <div className="wb-table-wrap"><table><caption>{t('原始预览（前 5 行）', 'Raw preview (first 5 rows)')}</caption><thead><tr>{rows[0].map((h, i) => <th key={i}>{h}</th>)}</tr></thead><tbody>{rows.slice(1, 6).map((r, i) => <tr key={i}>{r.map((cell, j) => <td key={j}>{cell}</td>)}</tr>)}</tbody></table></div>
-      <div className="wb-actions"><button type="button" className="wb-primary" onClick={save}><Check size={16} />{t('校验并保存', 'Validate & save')} ({rows.length - 1})</button><button type="button" onClick={reset}><X size={16} />{t('取消导入', 'Cancel import')}</button></div></div>}
+      <div className="wb-actions"><button type="button" className="wb-primary" disabled={busy || work.busy || !work.ready} onClick={() => void save()}><Check size={16} />{busy || work.busy ? t('保存中…', 'Saving…') : t('校验并保存', 'Validate & save')} ({rows.length - 1})</button><button type="button" onClick={reset}><X size={16} />{t('取消导入', 'Cancel import')}</button></div></div>}
     {error && <p role="alert" className="wb-notice">{error}</p>}{message && <p role="status" className="wb-notice">{message}</p>}
   </section>;
 }

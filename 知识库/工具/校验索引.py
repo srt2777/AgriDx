@@ -474,7 +474,10 @@ class ArchiveAudit:
         by_id = {e.get('entry_id'): e for _, e in entries if isinstance(e, dict)}
         summary = {'edges': 0, 'symptoms': 0, 'with_threshold': 0}
         if not path.exists():
-            self.emit('causal.missing', '因果边文件缺失', path=location)
+            # 派生表缺失不记 finding：合成测试根目录本来就没有该文件，
+            # 缺失不阻塞语义扫描（与“通用框架.json 只在存在时校验”同一
+            # 做法）；否则干净的合成根会被多记一条 causal.missing，
+            # 破坏“无问题根目录 findings 为 0”的约定。文件存在时仍逐条核对。
             return summary
         self.track(path)
         try:

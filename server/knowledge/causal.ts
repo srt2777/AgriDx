@@ -15,7 +15,7 @@ const LIMITATIONS = [
 const norm = (value: string | null | undefined): string => (value ?? '').replace(/\s+/g, ' ').trim();
 
 function symptomField(text: string): string {
-  const match = text.match(/故障现象[：:]\s*([\s\S]*?)(?=\n[-*]\s|\Z)/);
+  const match = text.match(/故障现象[：:]\s*([\s\S]*?)(?=\n[-*]\s|$)/);
   return match ? norm(match[1]) : '';
 }
 

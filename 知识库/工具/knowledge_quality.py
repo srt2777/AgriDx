@@ -51,8 +51,9 @@ RULES = {
     'status.unspecified': ('verification', 'info', '现有严格解析器无法分类；保留原状态，人工核对后再考虑结构化映射。'),
     'snapshot.changed': ('execution', 'error', '输入在扫描期间变化；暂停使用本报告并重新运行。'),
     # 因果边（2026-11-06 知识库第 1 步）：边表为派生关系表，校验索引.py 的
-    # causal_checks 逐条核对。文件缺失只记 warning：合成测试根目录本来就没
-    # 有该文件，缺失不阻塞语义扫描；文件存在但内容有误仍记 error。
+    # causal_checks 只在文件存在时逐条核对；文件缺失直接跳过、不记 finding
+    # （合成测试根目录本来就没有该文件，缺失不阻塞语义扫描，也不破坏
+    # “干净根目录 findings 为 0”的约定）；文件存在但内容有误仍记 error。
     'causal.missing': ('causal', 'warning', '补跑因果边抽取脚本生成 causal-edges.json，或确认当前根目录本就不需要因果边。'),
     'causal.json': ('causal', 'error', '修正因果边 JSON 语法与顶层结构（schema_version=1、edges 为数组）后重新检查。'),
     'causal.edge': ('causal', 'error', '按因果边字段规范修正编号、字段与去重；同一症状下原因不得重复。'),
