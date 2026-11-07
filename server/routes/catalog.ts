@@ -1,11 +1,17 @@
 import { Router } from 'express';
 import { CATALOG_FILTER_KEYS, canonicalCatalogBrand, validCatalogCondition, type CatalogFilters } from '../../shared/knowledge-catalog';
 import type { ServerRuntime } from '../runtime';
+import { getCausalEdges } from '../knowledge/causal';
 import { pageKnowledgeRelations, relationsForCatalog } from '../knowledge/relations';
 import { getCommunityReports, pageCommunityReports } from '../knowledge/community-reports';
 
 export function createCatalogRoutes(getCatalog: ServerRuntime['getCatalog']): Router {
   const router = Router();
+  router.get('/knowledge/causal-edges', (req, res) => {
+    res.set('Cache-Control', 'no-store');
+    try { res.json(getCausalEdges()); }
+    catch (error) { console.error('[causal-edges] unexpected error:', error); res.status(500).json({ error: '因果边暂时无法读取。', code: 'causal_edges_unavailable' }); }
+  });
   router.get('/knowledge/relations', (req, res) => {
     res.set('Cache-Control', 'no-store');
     try { res.json(pageKnowledgeRelations(relationsForCatalog(getCatalog()), new URL(req.originalUrl, 'http://localhost').searchParams)); }

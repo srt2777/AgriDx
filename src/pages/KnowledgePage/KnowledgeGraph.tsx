@@ -1,8 +1,9 @@
 import { useUiCopy } from '@/ui/useUiCopy';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import type { KnowledgeCatalog, KnowledgeRole } from '@shared/knowledge-catalog';
 import { useKnowledgeCatalog } from '@/hooks/useKnowledgeCatalog';
+import { fetchKnowledgeRelations, relationsMatchCatalog } from '@/features/knowledge/relations-api';
 import { graphTaxonomyNodes, visibleTaxonomyNodes, type TaxonomyNode } from './knowledge-taxonomy-data';
 import TaxonomyGraphCanvas from './TaxonomyGraphCanvas';
 import EvidenceEntry from './EvidenceEntry';
@@ -37,6 +38,22 @@ export default function KnowledgeGraph({ catalog, lang }: { catalog: KnowledgeCa
 function ArchiveKnowledgeGraph({ catalog, lang, selectedId, onSelect: setSelected }: { catalog: KnowledgeCatalog; lang: string; selectedId: string; onSelect: (id: string) => void }) {
   const { t, separator } = useUiCopy(lang);
   const allNodes = useMemo(() => graphTaxonomyNodes(catalog), [catalog]);
+  const nodeIds = useMemo(() => new Set(allNodes.map(node => node.id)), [allNodes]);
+  // The graph nodes come from the catalog prop; relations are fetched for the
+  // same snapshot and checked by kbVersion + snapshot SHA. A mismatch degrades
+  // to membership-only display instead of showing a stale graph. The probe
+  // fetches one edge only: the version fields, not the whole relation set.
+  const [syncState, setSyncState] = useState<'checking' | 'matched' | 'degraded' | 'unavailable'>('checking');
+  useEffect(() => {
+    if (!catalog.snapshotSha256) { setSyncState('degraded'); return; }
+    const controller = new AbortController();
+    let active = true;
+    setSyncState('checking');
+    fetchKnowledgeRelations(nodeIds, controller.signal, { offset: 0, limit: 1 })
+      .then(relations => { if (active) setSyncState(relationsMatchCatalog(relations, catalog) ? 'matched' : 'degraded'); })
+      .catch(() => { if (active) setSyncState('unavailable'); });
+    return () => { active = false; controller.abort(); };
+  }, [catalog, nodeIds]);
   const [search, setSearch] = useState('');
   const [entryTypeFilter, setEntryTypeFilter] = useState('');
   const [roleFilter, setRoleFilter] = useState<KnowledgeRole | ''>('');
@@ -72,7 +89,7 @@ function ArchiveKnowledgeGraph({ catalog, lang, selectedId, onSelect: setSelecte
     { level: 'part', label: t('零部件', 'Part'), parent: selectedComponent?.id },
   ];
   return <section className="knowledge-taxonomy" aria-labelledby="taxonomy-heading">
-    <header className="taxonomy-heading"><div><h1 id="taxonomy-heading">{t('知识图谱', 'Knowledge graph')}</h1><p>{t('连线表示目录归属，资料以原文为准。', 'Links show catalog membership. Refer to original evidence.')}</p></div><strong>{nodes.length.toLocaleString()}<small>{t('目录节点 · 非独立知识条数', 'catalog nodes · not unique entries')}</small></strong></header>
+    <header className="taxonomy-heading"><div><h1 id="taxonomy-heading">{t('知识图谱', 'Knowledge graph')}</h1><p>{t('连线表示目录归属，资料以原文为准。', 'Links show catalog membership. Refer to original evidence.')}</p><p role="status" className="taxonomy-sync-note">{syncState === 'matched' ? t('图谱关系与当前目录快照一致。', 'Graph relations match the current catalog snapshot.') : syncState === 'degraded' ? t('图谱关系与当前目录快照不一致，已降级为仅显示目录归属；请刷新后重试。', 'Graph relations do not match the current catalog snapshot; showing membership only. Refresh to retry.') : syncState === 'unavailable' ? t('关系校验暂时不可用，仅显示目录归属。', 'Relation check unavailable; showing membership only.') : t('正在核对图谱与目录快照…', 'Checking graph snapshot…')}</p></div><strong>{nodes.length.toLocaleString()}<small>{t('目录节点 · 非独立知识条数', 'catalog nodes · not unique entries')}</small></strong></header>
     <div className="taxonomy-search"><label htmlFor="taxonomy-search">{t('定位知识节点', 'Find a knowledge node')}</label><input id="taxonomy-search" type="search" value={search} onChange={event => setSearch(event.target.value)} placeholder={t('搜索品牌、机型、系统或零件', 'Search brand, model, system or part')} />
       <details className="graph-advanced"><summary>{t('筛选资料', 'Filter evidence')}{(entryTypeFilter || roleFilter) && <span>{t(' · 已启用', ' · Active')}</span>}</summary><div className="taxonomy-filters" aria-label={t('图谱过滤', 'Graph filters')}>
         <label><span>{t('资料类型', 'Entry type')}</span><select value={entryTypeFilter} onChange={event => { setEntryTypeFilter(event.target.value); setSelected(''); }}><option value="">{t('全部类型', 'All types')}</option>{entryTypes.map(type => <option key={type} value={type}>{type}</option>)}</select></label>

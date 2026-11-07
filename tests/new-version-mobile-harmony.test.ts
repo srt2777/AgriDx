@@ -2,7 +2,8 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
 
-const read = (path: string) => readFileSync(new URL(path, import.meta.url), 'utf8');
+// Git may check out CSS with CRLF on Windows; source assertions use normalized lines.
+const read = (path: string) => readFileSync(new URL(path, import.meta.url), 'utf8').replace(/\r\n/g, '\n');
 
 const stripComments = (source: string) => source.replace(/\/\*[\s\S]*?\*\//g, '');
 const css = stripComments(read('../src/new-version-mobile-harmony.css'));

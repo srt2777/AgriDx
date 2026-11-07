@@ -1,5 +1,5 @@
 /**
- * Dependency-free SHA-256 (FIPS 180-4) over UTF-8 text.
+ * Dependency-free SHA-256 (FIPS 180-4) over UTF-8 text or raw bytes.
  *
  * The knowledge snapshot hash must be computable in Node and in the browser
  * bundle alike: `node:crypto` is externalized there, so a named import breaks
@@ -21,8 +21,8 @@ function rotr(x: number, n: number): number {
   return (x >>> n) | (x << (32 - n));
 }
 
-export function sha256Hex(input: string): string {
-  const bytes = new TextEncoder().encode(input);
+export function sha256Hex(input: string | Uint8Array): string {
+  const bytes = typeof input === 'string' ? new TextEncoder().encode(input) : input;
   const bitLen = bytes.length * 8;
   const paddedLength = (((bytes.length + 9 + 63) >> 6) << 6);
   const padded = new Uint8Array(paddedLength);

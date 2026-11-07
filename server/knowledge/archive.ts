@@ -119,9 +119,10 @@ function requireStrings(value: unknown, fields: string[], label: string): void {
 }
 
 /** Only indexed entry sections are loaded; raw manuals, READMEs and pending lists are excluded. */
-export function loadArchive(archiveRoot = ARCHIVE_ROOT, options: { configureModels?: boolean } = {}): { chunks: KnowledgeChunk[]; fileCount: number; sources: ArchiveSource[] } {
+export function loadArchive(archiveRoot = ARCHIVE_ROOT, options: { configureModels?: boolean } = {}): { chunks: KnowledgeChunk[]; fileCount: number; sources: ArchiveSource[]; indexTexts: Record<'sources.json' | 'entries.jsonl', string> } {
   const INDEX_ROOT = path.join(archiveRoot, '农用拖拉机知识库');
-  const sources: unknown = JSON.parse(fs.readFileSync(path.join(INDEX_ROOT, 'sources.json'), 'utf8'));
+  const sourcesText = fs.readFileSync(path.join(INDEX_ROOT, 'sources.json'), 'utf8');
+  const sources: unknown = JSON.parse(sourcesText);
   if (!Array.isArray(sources)) throw new Error('sources.json 必须是数组');
   const sourceMap = new Map<string, ArchiveSource>();
   for (const value of sources) {
@@ -153,7 +154,8 @@ export function loadArchive(archiveRoot = ARCHIVE_ROOT, options: { configureMode
   const documents = new Map<string, Map<string, { heading: string; text: string }>>();
   const chunks: KnowledgeChunk[] = [];
   const ids = new Set<string>();
-  const lines = fs.readFileSync(path.join(INDEX_ROOT, 'entries.jsonl'), 'utf8').split(/\r?\n/).filter((line) => line.trim());
+  const entriesText = fs.readFileSync(path.join(INDEX_ROOT, 'entries.jsonl'), 'utf8');
+  const lines = entriesText.split(/\r?\n/).filter((line) => line.trim());
   for (const line of lines) {
     const value: unknown = JSON.parse(line);
     requireStrings(value, ['entry_id', 'source_id', 'brand', 'model', 'title', 'knowledge_path', 'locator', 'status', 'entry_type'], 'entries.jsonl');
@@ -246,6 +248,6 @@ export function loadArchive(archiveRoot = ARCHIVE_ROOT, options: { configureMode
   }
   for (const id of sidecar.keys()) if (!ids.has(id)) throw new Error(`entry-roles.jsonl引用的条目不存在：${id}`);
   if (options.configureModels !== false) configureIndexedModels(chunks);
-  return { chunks, fileCount: documents.size, sources: [...sourceMap.values()] };
+  return { chunks, fileCount: documents.size, sources: [...sourceMap.values()], indexTexts: { 'sources.json': sourcesText, 'entries.jsonl': entriesText } };
 }
 
