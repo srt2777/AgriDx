@@ -58,6 +58,14 @@ node --import tsx scripts/knowledge-inventory.ts --csv > knowledge-inventory.csv
 - **标注**：通识证据一律标为“通识（无手册页码）”，不附书名或页码，不得写成某本手册的说法；归档条目保留书名与页码。API `knowledgeSources` 新增 `evidenceKind`（`archive`/`general-knowledge`/`prompt`）、`evidenceLabel`（通识为“通识（无手册页码）”，归档为“手册：书名，PDF第N页…”）和 `generalEvidence`；`roleFlow.generalKnowledgeIds` 单列通识编号，不混入按书页引用的角色步骤。本地回复以【通识依据（通识·无手册页码，待验证）】展示。
 - 数据中的 `diagnostic_evidence=false` 不改（条目文件字节锁定）；证据角色只在 `server/knowledge/retriever.ts` 运行时按检索范围决定。安全风险、身份冲突、电动／无人设备和非拖拉机边界保持原规则。
 
+## 混合检索（知识库第 3 步，2026-11-06）
+
+主路不变：目录 + 关键词 + 型号硬过滤。新加一路向量语义检索，只做召回候选，不决定答案；最后统一重排，归档和通识分开打分、保底各取一条（沿用 2026-10-22 的规则）。
+
+- **实现**：`server/knowledge/vectorRecall.ts`，本地稀疏 TF-IDF 向量 + 倒排表，零依赖、零网络、零模型下载。特征是中文二元/三元字串 + 英文/数字 token，以 32 位 FNV-1a 哈希存；df = 1 的特征不建倒排表（全库 42 万去重特征里 26.5 万只出现一次，剪掉后构建约 4–12s、常驻特征 154,595）。不引入向量库 / ES / Redis / LangChain，不调用外部 embedding 服务。索引按知识快照 generation 缓存，快照切换时重建；`vectorRecallStats()` 可查篇数、特征数与构建耗时。
+- **阈值与上限**：余弦相似度 ≥ 0.12 才算向量候选（标定：去掉身份词与机型通用词后，真正同义表述的补回项 0.121，单字串误撞最高 0.114；阈值 0.12 刚好分开两者，余量薄，误召风险由补位上限与 referenceOnly 兜底）；每次检索仅向量命中的最多补归档 2 条、通识 1 条，只补在主路结果之后，不挤掉关键词命中与无编号通用片段。
+- **不变量**：向量候选只取已过型号 / 排放 / 配置 / 身份冲突 / 核验失败硬过滤的条目；向量查询先去掉身份词（品牌/型号）与机型通用词（拖拉机等，服务层传给检索的 query 自带“品牌 型号 机型”前缀），只剩通用词时不召回——无主题问题（如“量子纠缠”）仍返回空结果，不靠“拖拉机”三个字串补位；向量候选只补在主路结果之后，永远不排到关键词命中与结构引用前面——归档关键词为空时也一样，先是结构引用与通识，最后才是向量条目；仅向量命中的条目不参与高风险路由判定（不能仅凭语义猜测把路由推向 safe），也不成为 `direct_reference`；仅向量命中的条目 `relevance.score` 为 0（无关键词重叠）、`retrieval.recall` 为 `'vector'`、`referenceOnly` 为 true，路由器只把它当参考上下文，永远不能成为 `direct_reference`，也不能让检索结论变成 `sufficient`；关键词命中的分数与排序不变，向量支持只在 `retrieval` 上备注（`recall: 'keyword+vector'`）；通识仍标“通识（无手册页码）”，证据等级最高 `partial`；显式编号查找不走向量；未知型号、排放不匹配时仍无归档条目，不靠向量补位。
+- **验收**（`tests/knowledge-hybrid-retrieval.test.ts`，固定 14 问，`retrieve(..., { vectorRecall: false })` 作对照）：补回 1 条（“拖拉机提升器升不起来”→同组件参考 `KB-WZ-TSME-0470`，提升器的调整，余弦 0.12）、丢失 0 条、关键词+向量双支持 17 条；首条命中与分数 14 问全不变；未知型号（久保田 LX9999）只返回通识、身份冲突返回空、排放不匹配无归档条目；路由器对仅向量命中条目判 `insufficient_evidence`、非 `direct_reference`。
 
 ### 3.14.0 诊断参考层级
 
