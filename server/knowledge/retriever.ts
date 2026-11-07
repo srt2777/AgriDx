@@ -277,12 +277,15 @@ function tokenize(text: string): string[] {
 }
 
 /** Vocabulary only: these aliases express symptoms, never infer a failed component. */
-const GENERIC_QUERY_WORDS = /联合收割机|拖拉机|插秧机|植保机|播种机|农业机械|农用机械|农机|请问|请帮我|怎么办|怎么修|怎么处理|怎么回事|是什么原因|什么原因|我的|这台|那台|这个|那个|\b(?:tractor|combine|transplanter|sprayer)\b/gi;
+const GENERIC_QUERY_WORDS = /联合收割机|联合收获机|收割机|收获机|拖拉机|插秧机|植保机|播种机|农业机械|农用机械|农机|请问|请帮我|怎么办|怎么修|怎么处理|怎么回事|是什么原因|什么原因|我的|这台|那台|这个|那个|\b(?:tractor|combine|transplanter|sprayer)\b/gi;
 const SYMPTOM_ALIASES = [
   ['启动', '起动'],
   ['打不着', '打不着火', '不着车', '不能着车', '打不着车', '无法启动', '无法起动', '不能启动', '不能起动', '启动不了', '起动不了', '启动困难', '起动困难', '不着火'],
   ['启动马达', '起动马达', '启动电机', '起动机'],
-  ['开锅', '水温过高', '水温高', '发动机过热'],
+  // “水温表”也在此组：用户问“水温表显示90℃以上”时点名的是这块表，不加它，
+  // 症状门不会激活，别的表的标题靠“显示/正常”两个通用词就能压过水温条目
+  //（2026-11-07 实测：机油压力表条目 KB-YTO-EBUY-LXFL-033 排在水温条目之前）。
+  ['开锅', '水温过高', '水温高', '发动机过热', '水温表'],
   ['动力不足', '没劲', '没力气', '加速无力', '牵引无力'],
   ['升不起来', '升不起', '提不起来', '提升无力', '提升不起', '提升失效', '举不起来'],
   ['掉下来', '自己下降', '农具沉降', '自行下降'],
@@ -313,23 +316,62 @@ function symptomTokens(query: string): { tokens: Map<string, number>; groups: re
   return { tokens, groups };
 }
 
-function scoreChunk(indexed: IndexedChunk, queryTokens: Map<string, number>, groups: readonly (readonly string[])[]): number {
+/**
+ * 故障表标题共用的谓词 / 极性词：它们不点名任何症状主题（哪块表、哪个部件），
+ * 只出现在“XX表显示不正常 / XX表指示异常”这类通用表述里。标题命中本来 ×3，
+ * 但这些词拿 ×3 时，一块无关表的标题仅凭“显示 / 正常”两个通用词就能压过
+ * 真正点名症状的条目（2026-11-07 实测：水温问题上机油压力表条目得分反超
+ * 水温表条目）。所以它们在标题里也只按正文权重计分。
+ */
+const GENERIC_HEADING_TOKENS = new Set(['显示', '指示', '异常', '正常', '不正',
+  // “表显”是二元分词切“XX表显示…”时跨“表 / 显示”边界产生的赝词，任何一块
+  // 表的标题与任何“X表显示…”的问题都会共享它，不点名任何症状主题。
+  '表显']);
+
+/**
+ * 症状主题门（仅用于关键词打分）：问题点名了某个症状别名组时，条目必须
+ * 含有该组任一词，否则视为主题不符（打不着不能匹配打不开；水温表问题
+ * 不能匹配机油压力表条目）。向量召回不用这道门——它的职责就是补回关键
+ * 词打分为 0 的语义相关条目（见 headingSharesTopic 的另一条规则）。
+ */
+function symptomGateBlocked(indexed: IndexedChunk, groups: readonly (readonly string[])[]): boolean {
   const { heading, haystack } = indexed;
   // A shared component name or an incidental bigram does not establish that
   // a clearly stated symptom is covered (打不着 must not match 打不开).
-  if (groups.length && !groups.some((group) => group.some((term) => haystack.includes(term)))) return 0;
+  if (groups.length && !groups.some((group) => group.some((term) => haystack.includes(term)))) return true;
   // Engine power loss after warming up is not starter torque or implement lift weakness.
   const powerLoss = groups.some(group => group.includes('动力不足'));
   const startingSymptom = groups.some(group => group.includes('启动') || group.includes('起动机') || group.includes('打不着'));
-  if (powerLoss && !startingSymptom && /启动机|起动机|启动电机|起动电机|启动马达|起动马达/.test(heading)) return 0;
+  if (powerLoss && !startingSymptom && /启动机|起动机|启动电机|起动电机|启动马达|起动马达/.test(heading)) return true;
+  return false;
+}
+
+function scoreChunk(indexed: IndexedChunk, queryTokens: Map<string, number>, groups: readonly (readonly string[])[]): number {
+  const { heading, haystack } = indexed;
+  if (symptomGateBlocked(indexed, groups)) return 0;
   let score = 0;
   for (const [t, weight] of queryTokens) {
     if (haystack.includes(t)) {
-      // 标题命中权重更高
-      score += (heading.includes(t) ? 3 : 1) * weight;
+      // 标题命中权重更高；通用谓词除外（见 GENERIC_HEADING_TOKENS）。
+      score += (heading.includes(t) && !GENERIC_HEADING_TOKENS.has(t) ? 3 : 1) * weight;
     }
   }
   return score;
+}
+
+/**
+ * 标题主题重叠（仅用于向量召回准入）：条目标题与问题至少共享一个非通用
+ * 词，才允许向量相似度把它补回。标题点名的是条目的主题；与问题只共享
+ * “显示 / 正常”这类通用谓词时，它的向量相似只来自同源模板或通用表述，
+ * 不是同一故障（2026-11-07 实测：水温问题上，机油压力表条目
+ * KB-YTO-EBUY-LXFL-033 与问题只共享这两个通用词，却因与水温条目同源、
+ * 同故障表样板而被向量召回补进结果）。反过来，标题点名同一部件/症状
+ * 的条目不受影响：提升器调整条目之于提升器问题共享“提升 / 升器”，
+ * 冷却液泄漏条目之于“水温过高 + 冷却液泄漏”问题共享“泄漏 / 检查”，
+ * 混合检索的向量补位契约（仅向量命中只作参考、从不成为直接证据）保持不变。
+ */
+function headingSharesTopic(indexed: IndexedChunk, queryTokens: Map<string, number>): boolean {
+  return tokenize(indexed.heading).some((token) => !GENERIC_HEADING_TOKENS.has(token) && queryTokens.has(token));
 }
 
 /**
@@ -413,7 +455,9 @@ export function retrieve(query: string, k = MAX_CHUNKS_IN_PROMPT, context: Retri
     // its applicable documents do not cover this question. Explicit IDs remain isolated lookups.
     if (learning ? !(scope.openArchive || generalAllowed && namedScope || (requestedIds.size && generalAllowed))
       : c.entryId ? !applicability : !scope.genericKnowledge) continue;
-    eligiblePositions.push(position);
+    // 问题点名了症状组时，标题与问题无主题重叠的条目不进向量召回
+    //（见 headingSharesTopic）；没点名症状组时不设这道门。
+    if (groups.length === 0 || headingSharesTopic(indexed, qTokens)) eligiblePositions.push(position);
     const term = c.learningKind === 'terminology' ? c.heading.split('｜')[1]?.split('（')[0] : undefined;
     const termMatch = term && query.includes(term) ? term.length * 10 : 0;
     const score = requestedIds.size ? 100 : scoreChunk(indexed, qTokens, groups) + termMatch;

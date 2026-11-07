@@ -21,7 +21,9 @@ export interface DiagnosticContext {
 }
 
 const MACHINE_TYPES: [RegExp, string][] = [
-  [/联合收割机|收割机|\bcombine\b/i, '联合收割机'],
+  // “联合收获机 / 收获机”与“联合收割机 / 收割机”同指一类机型，用户两种说法都用；
+  // 只认“收割机”时，问联合收获机不会触发机型冲突（2026-11-07 实测）。
+  [/联合收割机|联合收获机|收割机|收获机|\bcombine\b/i, '联合收割机'],
   [/插秧机|\btransplanter\b/i, '插秧机'],
   [/植保机|\bsprayer\b/i, '植保机'],
   [/播种机|\bseeder\b/i, '播种机'],
@@ -34,7 +36,8 @@ function declaredMachineType(text: string): string | undefined {
   // Document references and an explicitly attached implement do not identify
   // the primary machine. Use the same implement exception as the scope gate.
   const primary = queryWithoutIdentity(text).replace(
-    /(?:挂接|连接|牵引|\bPTO\s*接)\s*(?:的\s*)?(?:收割机|插秧机|植保机|播种机|无人机|combine|transplanter|sprayer)/gi,
+    // 配套 / 配装也是挂接动词（与 scope.ts 的机具例外保持一致）。
+    /(?:挂接|连接|牵引|配套|配装|\bPTO\s*接)\s*(?:的\s*)?(?:收割机|收获机|插秧机|植保机|播种机|无人机|combine|transplanter|sprayer)/gi,
     ' ',
   );
   return MACHINE_TYPES.find(([pattern]) => pattern.test(primary))?.[1];
@@ -43,7 +46,7 @@ function declaredMachineType(text: string): string | undefined {
 /** Remove only selection constraints. They are reattached from the latest user declaration. */
 function withoutSelection(text: string): string {
   return queryWithoutIdentity(text).replace(
-    /\bcab\b|\brops\b|驾驶室|防翻滚架|防翻架|\b2wd\b|\b4wd\b|两轮驱动|二轮驱动|四轮驱动|两驱|二驱|四驱|联合收割机|收割机|插秧机|植保机|播种机|无人农机|无人拖拉机|新能源农机|电动拖拉机|电动农机|拖拉机|\b(?:tractor|combine|transplanter|sprayer|electric|autonomous)\b/gi,
+    /\bcab\b|\brops\b|驾驶室|防翻滚架|防翻架|\b2wd\b|\b4wd\b|两轮驱动|二轮驱动|四轮驱动|两驱|二驱|四驱|联合收割机|联合收获机|收割机|收获机|插秧机|植保机|播种机|无人农机|无人拖拉机|新能源农机|电动拖拉机|电动农机|拖拉机|\b(?:tractor|combine|transplanter|sprayer|electric|autonomous)\b/gi,
     ' ',
   ).trim();
 }
