@@ -224,11 +224,15 @@ export function resolveScope(query: string, context: RetrievalContext): Resolved
   if (/\b4wd\b|四驱|四轮驱动/i.test(configurationText)) driveConfigurations.push('4WD');
   const type = context.machineType?.trim();
   const tractorContext = Boolean(type && /^(拖拉机|tractor|新能源农机|new-energy|无人农机|autonomous)$/i.test(type));
-  const nonTractor = /收割机|插秧机|植保机|播种机|无人机|\b(combine|transplanter|sprayer)\b/i;
+  // “联合收获机 / 收获机”是用户对联合收割机的常用说法，与“收割机”同指一类机型；
+  // 只写“收割机”会漏掉它，导致联合收获机问题被当成拖拉机问题检索（2026-11-07 实测）。
+  const nonTractor = /收割机|收获机|插秧机|植保机|播种机|无人机|\b(combine|transplanter|sprayer)\b/i;
   const nonTractorQuery = nonTractor.test(queryIdentity);
   const tractorArchive = type ? tractorContext : !nonTractorQuery;
   // Clearly attached implements are not a change of the machine being discussed.
-  const queryTypeIdentity = queryIdentity.replace(/(?:挂接|连接|牵引|\bPTO\s*接)\s*(?:的\s*)?(?:收割机|插秧机|植保机|播种机|无人机|combine|transplanter|sprayer)/gi, ' ');
+  // 配套 / 配装也是挂接动词（归档条目 KB-WZ-TSME-0374《配套收获机械时加高一级
+  // 滤清器效果更好》说的就是拖拉机配套收获机具时的滤清器做法，不是换机型）。
+  const queryTypeIdentity = queryIdentity.replace(/(?:挂接|连接|牵引|配套|配装|\bPTO\s*接)\s*(?:的\s*)?(?:收割机|收获机|插秧机|植保机|播种机|无人机|combine|transplanter|sprayer)/gi, ' ');
   const typeConflict = Boolean(type && (tractorContext ? nonTractor.test(queryTypeIdentity)
     : nonTractor.test(type) && /拖拉机|\btractor\b/i.test(queryTypeIdentity)));
   const identityConflict = brandConflict || modelConflict || typeConflict;
