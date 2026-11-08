@@ -2,6 +2,15 @@
 
 机器可读记录：[development-sites.json](../../.openai/development-sites.json)。本表区分平台创建时间、首次发布、源码版本和实际在线版本，缺少证据的字段不补猜。
 
+## 开发站登记要求（2026-11-01 新增）
+
+- 每位开发者的 AgriDx 开发站都必须记录下来并归到表格里，不得只留在个人 Sites 账号里不登记。
+- 新站上线、访问方式变更或下线时，站主须在同一轮 PR 里同步更新以下三处，保持一致：本登记表、`../../.openai/development-sites.json`、按开发者整理的 `development-sites-overview.md` 一览表。
+- 登记必填：站名、网址、GitHub 账号、Sites 所有者显示名、建立时间（上海，附 Sites 原生回执或首次发布记录）、初始版本与提交、访问方式（公开 / 仅所有者 / 协作者）、项目 ID、当前在线版本实测（以 `/api/health` 为准）。
+- 缺少证据的字段写“未核实”，不补猜；不能把公开站默认算到某一位开发者名下。
+- 未登记的开发站不视为团队开发站，不计入一览表；下线或废弃的站标注状态，不得直接删行抹掉历史。
+- 改动走个人分支加 PR 审阅合入 main，不直接改 main；PR 里不放密钥、令牌或私人数据库。
+
 | 开发版 | 建立者与管理者 | 建立时间（上海） | 初始源码版本 | 访问与详情 |
 | --- | --- | --- | --- | --- |
 | [AgriDx v4 开发版](https://agridx-v4-development.orangeglade33.chatgpt.site) | 用户委托 Codex，通过 Sites 创建；Sites 所有者显示名 changjie；GitHub 操作账户 Changjie29 | 2026-10-26 19:36:28，来自 Sites create_site 原生回执 | 4.4.0 / `783b565e8b2ff7733d7246ff733287e80f2245dc` | 新独立站，默认仅所有者可访问；独立 D1 与密钥配置，保留完整 GitHub 源文件及完整开发构建 |
