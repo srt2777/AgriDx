@@ -1,0 +1,306 @@
+/* Classic-home Pixel Streaming hero. All annotation UI sits BELOW the
+   canvas on purpose: nothing overlays the model, so copy can never cover
+   the vehicle body. The block is fully responsive; chips and buttons wrap
+   instead of overflowing on narrow screens. */
+
+.pixel-stream-hero {
+  width: 100%;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 8px 16px 24px;
+  box-sizing: border-box;
+}
+
+/* NOTE: the old shell forces `background-image: none !important` on all
+   descendants, so gradients would vanish here. Solid background-colors
+   survive that rule, which is why this hero uses flat dark colors. */
+.pixel-stream-panel {
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 20px;
+  background-color: #0a121e;
+  padding: 20px;
+  color: #eaf1f8;
+  box-sizing: border-box;
+}
+
+.pixel-stream-panel:fullscreen {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  border-radius: 0;
+  overflow: auto;
+}
+
+.pixel-stream-panel:fullscreen .pixel-stream-stage {
+  flex: 1 1 auto;
+  aspect-ratio: auto;
+  min-height: 0;
+}
+
+.pixel-stream-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.pixel-stream-kicker {
+  margin: 0 0 4px;
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  color: #8fd8ff;
+}
+
+.pixel-stream-title {
+  margin: 0;
+  font-size: 26px;
+  line-height: 1.25;
+}
+
+.pixel-stream-status {
+  flex-shrink: 0;
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 13px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.pixel-stream-status--connected { background: rgba(34, 197, 94, 0.25); }
+.pixel-stream-status--failed { background: rgba(239, 68, 68, 0.28); }
+.pixel-stream-status--connecting { background: rgba(245, 158, 11, 0.28); }
+
+.pixel-stream-stage {
+  position: relative;
+  margin-top: 16px;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  min-height: 240px;
+  border-radius: 14px;
+  overflow: hidden;
+  background-color: #0a0f18;
+}
+
+/* The official library injects its <video> into this same element. */
+.pixel-stream-stage video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.pixel-stream-empty {
+  position: relative;
+  z-index: 1;
+  max-width: 640px;
+  padding: 20px;
+  font-size: 14px;
+  line-height: 1.7;
+  color: #d7e3ef;
+}
+
+.pixel-stream-empty p { margin: 8px 0; }
+.pixel-stream-hint { color: #9fb4c8; font-size: 13px; }
+
+.pixel-stream-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+}
+
+.pixel-stream-config-note {
+  font-size: 13px;
+  color: #9fb4c8;
+}
+
+.pixel-stream-note {
+  margin: 10px 0 0;
+  font-size: 13px;
+  line-height: 1.7;
+  color: #9fb4c8;
+}
+
+.pixel-fallback {
+  margin-top: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 20px;
+  background: rgba(8, 14, 24, 0.72);
+  padding: 20px;
+  color: #eaf1f8;
+  box-sizing: border-box;
+}
+
+.pixel-fallback-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.pixel-fallback-head h3 { margin: 0 0 6px; font-size: 20px; }
+.pixel-fallback-head p { margin: 0; font-size: 13px; line-height: 1.7; color: #b9c9da; }
+
+.pixel-fallback-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+.pixel-fallback-scene {
+  position: relative;
+  margin-top: 14px;
+  border-radius: 14px;
+  overflow: hidden;
+  background-color: #0a0f18;
+}
+
+.pixel-fallback-canvas {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  min-height: 240px;
+}
+
+.pixel-fallback-canvas canvas {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+  touch-action: none;
+}
+
+.pixel-fallback-loading {
+  padding: 48px 16px;
+  text-align: center;
+  font-size: 14px;
+  color: #b9c9da;
+}
+
+.pixel-roam-pad {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  display: grid;
+  grid-template-columns: repeat(3, 36px);
+  grid-template-rows: repeat(2, 36px);
+  gap: 4px;
+  z-index: 2;
+}
+
+.pixel-roam-pad button {
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 8px;
+  background: rgba(6, 12, 20, 0.72);
+  color: #fff;
+  font-size: 14px;
+  cursor: pointer;
+  touch-action: none;
+}
+
+.pixel-roam-pad button:nth-child(1) { grid-column: 2; grid-row: 1; }
+.pixel-roam-pad button:nth-child(2) { grid-column: 1; grid-row: 2; }
+.pixel-roam-pad button:nth-child(3) { grid-column: 3; grid-row: 2; }
+.pixel-roam-pad button:nth-child(4) { grid-column: 2; grid-row: 2; }
+
+.pixel-fallback-photo { margin: 14px 0 0; }
+.pixel-fallback-photo img {
+  width: 100%;
+  border-radius: 14px;
+  display: block;
+}
+.pixel-fallback-photo figcaption {
+  margin-top: 8px;
+  font-size: 13px;
+  line-height: 1.7;
+  color: #9fb4c8;
+}
+
+.pixel-part-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.pixel-part-chips button {
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 999px;
+  background: transparent;
+  color: #eaf1f8;
+  padding: 7px 13px;
+  font-size: 13px;
+  cursor: pointer;
+  max-width: 100%;
+  white-space: normal;
+  text-align: center;
+}
+
+.pixel-part-chips button.is-active {
+  background: #8fd8ff;
+  border-color: #8fd8ff;
+  color: #071018;
+}
+
+/* Annotation card: a normal block under the canvas, never an overlay. */
+.pixel-part-card {
+  margin-top: 14px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.06);
+  padding: 14px 16px;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.pixel-part-card strong { font-size: 16px; }
+.pixel-part-card p { margin: 6px 0 0; color: #b9c9da; }
+
+.pixel-part-id {
+  margin-left: 10px;
+  font-size: 12px;
+  color: #8fa8bd;
+  word-break: break-all;
+}
+
+.pixel-fallback-more {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin: 14px 0 0;
+  font-size: 13px;
+}
+
+.pixel-fallback-more a,
+.pixel-fallback-more button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #8fd8ff;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.pixel-fallback-more button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.pixel-stream-hero .pixel-fallback-more a {
+  color: #d6efff;
+  font-weight: 600;
+}
+
+@media (max-width: 480px) {
+  .pixel-stream-hero { padding: 8px 10px 20px; }
+  .pixel-stream-panel, .pixel-fallback { padding: 14px; }
+  .pixel-stream-title { font-size: 21px; }
+  .pixel-stream-stage, .pixel-fallback-canvas { aspect-ratio: 4 / 3; min-height: 220px; }
+  .pixel-stream-empty { padding: 14px; }
+  .pixel-part-chips button { padding: 6px 10px; font-size: 12px; }
+}
