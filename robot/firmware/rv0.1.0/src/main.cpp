@@ -3,6 +3,7 @@
 // 架构：司稼跑在正式站 agridx.xyz；机器人只做交互终端（问答 + 监控）。
 //   - 问答：POST /api/chat（不发 Origin 头，见方案 §3.2）
 //   - 监控：GET /api/telemetry/history（每 15 秒轮询三通道）+ GET /api/telemetry/scenario（每 60 秒）
+//   - OTA：联网自动更新（WiFi 存 NVS，version.json 查新版，HTTPUpdate 下载，见 FLASHING.md §8）
 //   - 遥测限流：正式站每 IP 每分钟 30 次请求；本固件遥测约 13 次/分钟，留足余量给手机/网页。
 // 流畅要点：DMA 刷新 + PSRAM 双缓冲 + LVGL 局部重绘 + SPI 40MHz；网络在独立任务里跑，不卡界面。
 // 中文字库：src/fonts/font_zh_16.c（lv_font_conv 子集，见 README “字库”一节）。
@@ -11,6 +12,10 @@
 #include <WiFi.h>
 #include <WiFiClientSecure.h>
 #include <HTTPClient.h>
+#if ENABLE_OTA
+#include <HTTPUpdate.h>
+#endif
+#include <Preferences.h>
 #include <ArduinoJson.h>
 #include <TFT_eSPI.h>
 #include <XPT2046_Touchscreen.h>
@@ -21,6 +26,7 @@
 #include <freertos/semphr.h>
 #include "display_config.h"
 #include "secrets.h"
+#include "version.h"
 
 // ---------- 颜色（旧版 UI1.14 浅色规范，见方案 §3.5）----------
 #define C_BG       lv_color_hex(0xFBFDFC)
@@ -46,7 +52,12 @@ static TFT_eSPI tft;
 static XPT2046_Touchscreen ts(PIN_TOUCH_CS, PIN_TOUCH_IRQ);
 static lv_display_t *disp = nullptr;
 static uint16_t *drawBuf1 = nullptr, *drawBuf2 = nullptr;
+// 显存：S3 有 PSRAM，双缓冲 40 行放 PSRAM；C3 无 PSRAM，双缓冲改 20 行放内部 RAM。
+#ifdef CONFIG_SPIRAM
 static const uint16_t DRAW_BUF_LINES = 40;   // 每缓冲 40 行，PSRAM
+#else
+static const uint16_t DRAW_BUF_LINES = 20;   // 每缓冲 20 行，内部 RAM
+#endif
 
 static void flush_cb(lv_display_t *d, const lv_area_t *area, uint8_t *color_p) {
   uint32_t w = area->x2 - area->x1 + 1, h = area->y2 - area->y1 + 1;
@@ -127,6 +138,20 @@ static SemaphoreHandle_t g_resultMutex = nullptr;
 static volatile bool g_chatPending = false;
 static String g_pendingQuestion;
 static volatile bool g_telePending = false;
+
+#if ENABLE_OTA
+// OTA 状态（网络任务写，主循环读；网络任务绝不直接碰 LVGL）
+enum OtaState { OTA_IDLE = 0, OTA_UPDATING, OTA_FAILED };
+struct OtaStatus { bool dirty = false; int state = OTA_IDLE; };
+static OtaStatus g_otaStatus;
+
+static void otaSetState(int state) {
+  if (g_resultMutex) xSemaphoreTake(g_resultMutex, portMAX_DELAY);
+  g_otaStatus.state = state;
+  g_otaStatus.dirty = true;
+  if (g_resultMutex) xSemaphoreGive(g_resultMutex);
+}
+#endif
 
 // ---------- 小工具 ----------
 // 答案是 Markdown 风格文本：去 **、行首 #、反引号，保留换行与序号。
@@ -272,11 +297,94 @@ static bool netFetchScenario() {
   return true;
 }
 
+#if ENABLE_OTA
+// ---------- OTA 联网自动更新 ----------
+// version.json 在分支上（合到 main 后 URL 改 main，见 FLASHING.md §8）。
+static const char *OTA_VERSION_URL =
+    "https://raw.githubusercontent.com/srt2777/AgriDx/codex/robot-section-20261109/"
+    "robot/firmware/rv0.1.0/version.json";
+
+// 版本号按数字分段比较（0.1.10 > 0.1.9；字符串比较会错判）：-1 更小，0 相同，1 更大。
+static int compareVersions(const String &a, const String &b) {
+  size_t ia = 0, ib = 0;
+  while (ia < a.length() || ib < b.length()) {
+    long na = 0, nb = 0;
+    while (ia < a.length() && a[ia] != '.') {
+      if (isdigit((unsigned char)a[ia])) na = na * 10 + (a[ia] - '0');
+      ia++;
+    }
+    while (ib < b.length() && b[ib] != '.') {
+      if (isdigit((unsigned char)b[ib])) nb = nb * 10 + (b[ib] - '0');
+      ib++;
+    }
+    if (na != nb) return na < nb ? -1 : 1;
+    ia++;
+    ib++;
+  }
+  return 0;
+}
+
+// 查一次新版；有新版就下载并重启。失败只记日志，下次检查再试，不死循环。
+static void otaCheckAndUpdate() {
+  String body = httpGet(String(OTA_VERSION_URL), 60000);
+  if (body.length() == 0) {
+    Serial.println("[OTA] 版本检查失败（无响应），下次再试");
+    return;
+  }
+  JsonDocument doc;
+  if (deserializeJson(doc, body)) {
+    Serial.println("[OTA] version.json 解析失败，下次再试");
+    return;
+  }
+  const char *ver = doc["version"];
+  const char *url = doc["url"];
+  if (!ver || !url || !*url) {
+    Serial.println("[OTA] version.json 缺 version/url，下次再试");
+    return;
+  }
+  if (compareVersions(String(ver), String(FIRMWARE_VERSION)) <= 0) {
+    Serial.printf("[OTA] 已是最新（当前 %s，远程 %s）\n", FIRMWARE_VERSION, ver);
+    return;
+  }
+  Serial.printf("[OTA] 发现新版 %s，开始下载\n", ver);
+  otaSetState(OTA_UPDATING);
+  WiFiClientSecure client;
+  client.setInsecure();  // 演示用：跳过证书校验（取舍见 FLASHING.md §8）
+  httpUpdate.setFollowRedirects(HTTPC_FORCE_FOLLOW_REDIRECTS);
+  httpUpdate.rebootOnUpdate(true);
+  t_httpUpdate_return ret = httpUpdate.update(client, String(url));
+  if (ret == HTTP_UPDATE_OK) {
+    // 正常情况下 update() 内部已重启；走到这里是兜底。
+    Serial.println("[OTA] 下载成功，重启进新版");
+    delay(500);
+    ESP.restart();
+  } else {
+    Serial.printf("[OTA] 更新失败：%s\n", httpUpdate.getLastErrorString().c_str());
+    otaSetState(OTA_FAILED);
+  }
+}
+#endif  // ENABLE_OTA
+
 static void netTask(void *param) {
   (void)param;
   int teleCycle = 0;
+#if ENABLE_OTA
+  // OTA 检查：联网后约 10 秒查第一次，之后每 24 小时查一次。
+  uint32_t otaLastCheckMs = 0;
+  uint32_t otaIntervalMs = 10000;
+  bool otaWifiSeen = false;
+#endif
   for (;;) {
     if (WiFi.status() != WL_CONNECTED) { vTaskDelay(pdMS_TO_TICKS(1000)); continue; }
+#if ENABLE_OTA
+    if (!otaWifiSeen) { otaWifiSeen = true; otaLastCheckMs = millis(); }
+    if (!g_chatPending && !g_telePending &&
+        (millis() - otaLastCheckMs >= otaIntervalMs)) {
+      otaLastCheckMs = millis();
+      otaIntervalMs = 24UL * 3600UL * 1000UL;
+      otaCheckAndUpdate();
+    }
+#endif
     if (g_chatPending) {
       g_chatPending = false;
       ChatResult r;
@@ -869,6 +977,26 @@ static void applyTeleResult() {
   else if (g_lastTeleOk > 0) lv_label_set_text(g_updatedLabel, "离线，显示上次数据");
 }
 
+#if ENABLE_OTA
+static void applyOtaStatus() {
+  int state = OTA_IDLE;
+  if (g_resultMutex) xSemaphoreTake(g_resultMutex, portMAX_DELAY);
+  if (!g_otaStatus.dirty) { if (g_resultMutex) xSemaphoreGive(g_resultMutex); return; }
+  state = g_otaStatus.state;
+  g_otaStatus.dirty = false;
+  if (g_resultMutex) xSemaphoreGive(g_resultMutex);
+  if (state == OTA_UPDATING) {
+    lv_label_set_text(g_topStatus, "更新中…");
+    lv_obj_set_style_text_color(g_topStatus, C_AMBER, 0);
+    showToast("发现新版本，正在更新…");
+  } else if (state == OTA_FAILED) {
+    lv_label_set_text(g_topStatus, g_online ? "在线" : "离线");
+    lv_obj_set_style_text_color(g_topStatus, g_online ? C_DARKGREEN : C_RED, 0);
+    showToast("更新失败，继续使用当前版本");
+  }
+}
+#endif
+
 static void onUpdatedTick(lv_timer_t *t) {
   (void)t;
   if (g_lastTeleOk == 0) return;
@@ -884,11 +1012,32 @@ static void onTeleTimer(lv_timer_t *t) {
   g_telePending = true;
 }
 
+// WiFi 凭证（NVS；首次开机从 secrets.h 取值并存入，之后只读 NVS）
+// 注意：首次开机前必须先填好真实的 secrets.h——如果先用占位值开机，NVS 会存下占位值，
+// 之后改 secrets.h 重烧也不会生效，只能整片擦除重烧（见 FLASHING.md §8）。
+static String g_wifiSsid, g_wifiPass;
+static void loadWifiCreds() {
+  Preferences prefs;
+  prefs.begin("sijia", false);
+  String ssid = prefs.getString("ssid", "");
+  String pass = prefs.getString("pass", "");
+  if (ssid.length() == 0) {
+    ssid = String(WIFI_SSID);
+    pass = String(WIFI_PASSWORD);
+    prefs.putString("ssid", ssid);
+    prefs.putString("pass", pass);
+    Serial.println("[司稼] NVS 首次写入 WiFi 账号（来自 secrets.h）");
+  }
+  prefs.end();
+  g_wifiSsid = ssid;
+  g_wifiPass = pass;
+}
+
 // ---------- setup / loop ----------
 void setup() {
   Serial.begin(115200);
   delay(500);
-  Serial.println("\n[司稼] RV0.1.0 启动");
+  Serial.printf("\n[司稼] 固件 %s 启动\n", FIRMWARE_VERSION);
   g_sessionId = "rv010-" + String((uint32_t)ESP.getEfuseMac(), HEX);
   g_resultMutex = xSemaphoreCreateMutex();
   // 背光
@@ -905,10 +1054,16 @@ void setup() {
   disp = lv_display_create(SCREEN_WIDTH, SCREEN_HEIGHT);
   lv_display_set_flush_cb(disp, flush_cb);
   size_t bufBytes = SCREEN_WIDTH * DRAW_BUF_LINES * 2;
+#ifdef CONFIG_SPIRAM
   drawBuf1 = (uint16_t *)heap_caps_malloc(bufBytes, MALLOC_CAP_SPIRAM);
   drawBuf2 = (uint16_t *)heap_caps_malloc(bufBytes, MALLOC_CAP_SPIRAM);
   if (!drawBuf1) drawBuf1 = (uint16_t *)malloc(bufBytes);
   if (!drawBuf2) drawBuf2 = (uint16_t *)malloc(bufBytes);
+#else
+  // C3 无 PSRAM：双缓冲放内部 RAM（20 行，见 DRAW_BUF_LINES）。
+  drawBuf1 = (uint16_t *)malloc(bufBytes);
+  drawBuf2 = (uint16_t *)malloc(bufBytes);
+#endif
   lv_display_set_buffers(disp, drawBuf1, drawBuf2, bufBytes, LV_DISPLAY_RENDER_MODE_PARTIAL);
   lv_indev_t *indev = lv_indev_create();
   lv_indev_set_type(indev, LV_INDEV_TYPE_POINTER);
@@ -916,9 +1071,12 @@ void setup() {
   lv_indev_set_display(indev, disp);
   buildUi();
   // WiFi（异步连；界面先出来，状态栏显示连接中）
+  // 凭证存 NVS（命名空间 sijia，键 ssid/pass）：首次开机用 secrets.h 的值并存入 NVS，
+  // 以后联网一律读 NVS；OTA 升级只写 app 分区，绝不碰 NVS，升级后不断网。
   WiFi.mode(WIFI_STA);
   WiFi.setHostname("sijia-robot");
-  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+  loadWifiCreds();
+  WiFi.begin(g_wifiSsid.c_str(), g_wifiPass.c_str());
   uint32_t t0 = millis();
   while (WiFi.status() != WL_CONNECTED && millis() - t0 < 15000) {
     lv_tick_inc(5);
@@ -937,7 +1095,12 @@ void setup() {
     Serial.println("[司稼] WiFi 未连上：检查 secrets.h，或用手机热点（校园网认证页连不上）");
   }
   // 网络任务 + 定时器
+#ifdef CONFIG_FREERTOS_UNICORE
+  // C3 单核：没有 core 1，不 pin 任务。
+  xTaskCreate(netTask, "sijia-net", 8192, nullptr, 1, nullptr);
+#else
   xTaskCreatePinnedToCore(netTask, "sijia-net", 8192, nullptr, 1, nullptr, 0);
+#endif
   lv_timer_create(onTeleTimer, 15000, nullptr);
   lv_timer_create(onUpdatedTick, 10000, nullptr);
   g_telePending = true;   // 启动后立刻取一次遥测
@@ -962,4 +1125,7 @@ void loop() {
   }
   applyChatResult();
   applyTeleResult();
+#if ENABLE_OTA
+  applyOtaStatus();
+#endif
 }

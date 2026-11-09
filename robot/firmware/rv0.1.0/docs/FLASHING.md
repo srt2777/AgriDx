@@ -38,6 +38,7 @@
 
 - ESP32-S3 只支持 **2.4 GHz WiFi**，不要连 5 GHz 频段；手机热点请开 2.4 GHz（或双频合一）。
 - **不要把真实 WiFi 密码提交到公开仓库**：填密码的配置文件不要 `git add` 进去；演示用的热点密码也不要写进参赛材料。
+- 首次开机会把账号存进 NVS，之后联网只读 NVS（见 §8）：换热点要整片擦除重烧，改 `secrets.h` 重烧不管用；首次烧录前先填好真实账号再开机。
 - 演示现场提前一天用同一个热点全流程彩排一遍。
 
 ### 1.4 Mac / Windows 区分（只列不一样的地方）
@@ -204,11 +205,78 @@ esptool.py --chip esp32s3 --port <串口> --baud 921600 \
 
 ---
 
-## 8. 二期 OTA（RV0.2.0，不在 RV0.1.0 做）
+## 8. 联网自动更新（OTA，本版已有）
 
-> 演示现场改代码要重新插线烧录，OTA 可无线升级。RV0.1.0 固件里没有 WebServer，接不上去，先记做法。
+> 演示现场改代码要重新插线烧录的日子过去了：机器人联网后会自动检查新版，有新版就自己下载、重启进新版，不用插线、不用人管。
 
-- 固件加三行：`#include <ElegantOTA.h>`、`ElegantOTA.begin(&server)`、`ElegantOTA.loop()`，浏览器开 `http://<设备IP>/update` 拖入 `firmware.bin` 即可升级。
-- `platformio.ini` 须加 `lib_compat_mode = strict`（否则多架构依赖解析会报错）。
-- 前提是分区表含两个 app 分区——`default_16MB.csv` 自带 ota_0 / ota_1 + otadata，**不要换成单 app 分区表**。ArduinoOTA 在 N16R8 上已有跑通实证（`upload_protocol = espota` + `upload_port = <IP>` 即可从 PlatformIO 无线上传）。
-- 注意：ElegantOTA 开源版为 AGPL-3.0，参赛作品引用时注意许可证；演示现场用手机热点时，电脑与机器人须在同一热点下才能打开 `/update`，且 mDNS（`esp32.local`）在热点下常不可用，以 IP 地址为准。
+### 8.1 怎么工作
+
+- **WiFi 凭证存 NVS，不在固件里**：首次开机从 `secrets.h` 取 SSID/密码，存进 NVS（命名空间 `sijia`，键 `ssid` / `pass`）；以后联网一律读 NVS。OTA 升级只写 app 分区，绝不碰 NVS，升级后不断网。
+- **版本检查**：联网后约 10 秒查第一次，之后每 24 小时查一次。查的是分支上的 `version.json`：
+  `https://raw.githubusercontent.com/srt2777/AgriDx/codex/robot-section-20261109/robot/firmware/rv0.1.0/version.json`
+  内容示例：`{"version":"0.1.0","url":"https://…/release/firmware.bin","notes":""}`。版本号按数字分段比（0.1.10 > 0.1.9），远程比本地新才升级。
+- **下载**：用 Arduino 自带的 HTTPUpdate，经 HTTPS 下载 `version.json` 里 `url` 指向的 `firmware.bin`，校验镜像无误才切换分区，成功后重启进新版。失败时顶栏恢复“在线”、界面提示“更新失败，继续使用当前版本”，下次检查再试，不死循环。
+- **界面提示**：发现新版开始下载时，顶栏显示“更新中…”，并弹出“发现新版本，正在更新…”；下载成功重启，不需要人管。
+
+### 8.2 发布新版的步骤
+
+1. 改 `include/version.h` 里的 `FIRMWARE_VERSION`（如 `0.1.1`）。
+2. 编译：`pio run`，产物在 `.pio/build/esp32-s3-n16r8/firmware.bin`。
+3. 把 `firmware.bin` 传到分支上的 `robot/firmware/rv0.1.0/release/firmware.bin`（.bin 不能走 API 推送，用浏览器上传）。
+4. 更新分支上的 `version.json`：`version` 改成新版本号，`url` 不变，`notes` 写改了什么。
+5. 推送到 GitHub。已联网的机器人 24 小时内会自动检查到新版并升级。
+
+> 合并到 main 之后：`version.json` 的 URL 和固件 URL 都要从分支 `codex/robot-section-20261109` 改成 `main`，否则设备一直查旧分支的版本。
+
+### 8.3 注意
+
+- **换热点要整片擦除重烧**：改 `secrets.h` 再编译上传不会改 NVS 里已存的凭证（普通上传不擦 NVS）。换热点时先 `esptool.py --port <串口> erase_flash` 再按 §3 重烧，首次开机会重新从新的 `secrets.h` 取值存入 NVS。同样，首次烧录前必须先填好真实的 `secrets.h` 再开机——如果先用占位值（“你的WiFi名称”）开机，NVS 会存下占位值，之后再改 `secrets.h` 重烧也不生效，只能整片擦除。
+- **没有自动回滚**：HTTPUpdate 会校验镜像（魔数、大小）才切换分区，但 Arduino 默认配置没有“新版起不来自动回滚旧版”。万一新版启动失败，只能 USB 重烧。**演示前不要发布新版 `version.json`**，避免演示现场正好赶上升级重启；演示前一天按 §7 彩排用的就是现场要跑的版本。
+- **证书不校验（演示取舍）**：版本检查和固件下载都用 `WiFiClientSecure + setInsecure()`，不校验服务器证书。好处是演示环境省事；风险是中间人能冒充服务器下发固件（HTTPUpdate 只校验镜像格式，不验签名）。正式使用应改成校验根证书或给固件签名。
+- **分区要求**：`default_16MB.csv` 自带 ota_0 / ota_1 + otadata，**不要换成单 app 分区表**，否则 OTA 没地方写新版。
+
+---
+
+## 9. ESP32-C3 过渡版（临时顶替 S3）
+
+> 用户手头有个 C3，先拿它顶着用，S3 到了换回去。C3 只是 RV0.1.0 的一个编译变体，**不是新版本**，版本号、方案文件都不变。
+
+### 9.1 编译
+
+- S3（默认）：`pio run` 或 `pio run -t upload`。
+- C3：`pio run -e esp32-c3-devkitm-1`，烧录：`pio run -e esp32-c3-devkitm-1 -t upload`。
+- 板型默认 `esp32-c3-devkitm-1`；自己的板子不同就改 `platformio.ini` 里 `[env:esp32-c3-devkitm-1]` 的 `board` 这一行。
+
+### 9.2 烧录
+
+- Type-C 直连，C3 用 USB Serial/JTAG（CDC），PlatformIO 里点 Upload 就行；串口监视器同 115200。
+- 大多数板子自动进下载模式；不行就按住 BOOT（GPIO9）不放，按一下 RESET，松开 RESET 再松开 BOOT，重新点 Upload。
+- C3 是 4MB Flash：`firmware.bin` 约 1.9MB，app0 分区 2.9MB 放得下（见 `partitions_c3.csv`）。
+
+### 9.3 C3 和 S3 不一样的地方
+
+- **没有 OTA**：C3 分区是单 app，无 OTA 分区；OTA 代码在 C3 环境下编译关掉（`ENABLE_OTA=0`）。C3 上升级靠 USB 重烧。
+- **没有 PSRAM**：显存双缓冲改 20 行放内部 RAM（S3 是 40 行放 PSRAM），滑动比 S3 卡一点，属正常。
+- **单核**：网络任务不 pin 核；LVGL、触摸、WiFi、遥测逻辑不变。
+- **引脚不同**：见下表，按自己的板子引脚图调整（改 `display_config.h` 的 C3 一节）。
+
+### 9.4 C3 默认接线表（DevKitM-1 默认，按自己板子调整）
+
+| 信号 | C3 引脚 | 说明 |
+|---|---|---|
+| MOSI | 7 | 硬件 SPI2 默认脚 |
+| MISO | 5 | 默认脚 GPIO2 是 strapping 脚，改用 5 |
+| SCK | 6 | 硬件 SPI2 默认脚 |
+| TFT_CS | 10 | 硬件 SPI2 CS0 默认脚 |
+| TFT_DC | 4 | |
+| TFT_RST | 3 | |
+| TFT_BL | 1 | 背光 PWM |
+| T_CS | 0 | 触摸片选 |
+| T_IRQ | 11 | 触摸中断 |
+| OLED SDA / SCL | 12 / 13 | I2C，任意 GPIO |
+
+避开的脚：strapping（2/8/9）、USB D-/D+（18/19）、UART0（20/21）。
+
+### 9.5 S3 到了换回去
+
+换回 S3 环境重新编译烧录就行：`pio run -t upload`（默认就是 S3）。WiFi 账号存在 NVS 里，跟芯片走——换了芯片要重新填 `secrets.h`、整片擦除重烧一次（新芯片的 NVS 是空的，首次开机会重新从 `secrets.h` 取值存入，见 §8）。
