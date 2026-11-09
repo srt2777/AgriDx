@@ -134,7 +134,6 @@ static const int MAX_HISTORY_MSGS = 10;   // 多轮最多带 10 条
 struct ChatMsg { String role, content; };
 static ChatMsg g_history[MAX_HISTORY_MSGS];
 static int g_historyCount = 0;
-static String g_sessionId;
 static bool g_chatBusy = false;
 static bool g_online = false;
 
@@ -298,10 +297,17 @@ static bool netPostChatOnce(const String &question, ChatResult &out) {
     m["role"] = g_history[i].role;
     m["content"] = g_history[i].content;
   }
-  JsonObject m = msgs.add<JsonObject>();
-  m["role"] = "user";
-  m["content"] = question;
-  req["sessionId"] = g_sessionId;
+  // startAsk() 已把问题追加进 g_history；只有历史已满（追加失败）时才在这里补发，
+  // 否则问题会发两遍，服务器看到的提问会被重复。
+  if (g_historyCount == 0 || g_history[g_historyCount - 1].content != question) {
+    JsonObject m = msgs.add<JsonObject>();
+    m["role"] = "user";
+    m["content"] = question;
+  }
+  // 不发 sessionId：服务器的 sessionId 必须是 UUID 且对应已建好的诊断记录，
+  // 机器人没有建记录的流程，发过去会被 400 拒绝（“诊断记录编号格式错误”）。
+  // 不带 sessionId 时服务器按无记忆方式直接回答；多轮上下文由上面发的
+  // messages 历史携带。
   String body;
   serializeJson(req, body);
   int code = http.POST(body);
@@ -1125,7 +1131,6 @@ void setup() {
   Serial.begin(115200);
   delay(500);
   Serial.printf("\n[司稼] 固件 %s 启动\n", FIRMWARE_VERSION);
-  g_sessionId = "rv010-" + String((uint32_t)ESP.getEfuseMac(), HEX);
   g_resultMutex = xSemaphoreCreateMutex();
 #if USE_OLED_DISPLAY
   // OLED 版：初始化 I2C + SSD1306（亮启动页）；背光/触摸/LVGL 都没有。
