@@ -364,7 +364,7 @@ export default function ExhibitionPage() {
   return (
     <div className={`expo-page${landed ? ' is-landed' : ''}`} data-ui-version="new" data-intro={intro ? '' : undefined} data-flight={flight ? '' : undefined}>
       <div className="expo-main">
-        <div className="campus-heading">
+        <div className="campus-heading card-spotlight">
           <div><p>SIJIA · CAMPUS</p><h1>{t('农机大厅', 'Agricultural machinery campus')}</h1></div>
           <div className="campus-heading-actions"><button type="button" onClick={() => document.getElementById('campus-equipment-catalog')?.scrollIntoView({ behavior: reducedMotion ? 'instant' : 'smooth' })}>{t('装备目录', 'Equipment directory')}<ArrowDown size={15}/></button><Link to="/field-overview">{t('作业总览', 'Field overview')}<ArrowUpRight size={15}/></Link></div>
         </div>
@@ -425,7 +425,7 @@ export default function ExhibitionPage() {
             <FloatingPanel
               key={selectedZone.id}
               as="aside"
-              className={PREMIUM_MOTION_ENABLED ? 'expo-zone-card is-beamed' : 'expo-zone-card'}
+              className={PREMIUM_MOTION_ENABLED ? 'expo-zone-card is-beamed card-spotlight' : 'expo-zone-card card-spotlight'}
               glass
               beam={PREMIUM_MOTION_ENABLED}
               style={{ '--zone-color': selectedZone.color } as CSSProperties}
@@ -478,14 +478,14 @@ export default function ExhibitionPage() {
               </div>
             </FloatingPanel>
           )}</AnimatePresence>
-          <AnimatePresence initial={false}>{equipment && !catalogOpen && <FloatingPanel key={`equipment-${equipment.id}`} as="aside" className="expo-zone-card campus-equipment-detail" glass label={t('装备示例详情', 'Example equipment detail')}>
+          <AnimatePresence initial={false}>{equipment && !catalogOpen && <FloatingPanel key={`equipment-${equipment.id}`} as="aside" className="expo-zone-card card-spotlight campus-equipment-detail" glass label={t('装备示例详情', 'Example equipment detail')}>
             <div className="expo-zone-card-top"><span>{equipmentZone ? `${equipmentZone.id} · ${t(equipmentZone.zh, equipmentZone.en)}` : t('装备详情', 'Equipment details')}</span><button ref={equipmentClose} type="button" className="expo-icon-button" aria-label={t('关闭装备详情', 'Close equipment detail')} onClick={closeEquipment}><X size={16} /></button></div>
             <h2>{equipment.name}</h2><p>{t('示例数据 · 未接实车与传感器。陈列为结构示意，不是该型号的精确模型。', 'Example data · no physical machine or sensors. The exhibit is a schematic, not an exact model.')}</p>
             <dl><dt>{t('分类', 'Category')}</dt><dd>{equipmentZone && t(equipmentZone.zh, equipmentZone.en)}</dd><dt>{t('示例状态', 'Example status')}</dt><dd>{equipmentStatus && t(equipmentStatus.zh, equipmentStatus.en)}</dd><dt>{t('示例规格', 'Example specs')}</dt><dd>{t(equipment.specZh, equipment.specEn)}</dd><dt>{t('示例管理人', 'Example manager')}</dt><dd>{equipment.manager}</dd></dl>
             {exhibitForDevice(equipment.id)?.id !== equipment.id && <p>{t('本记录没有独立模型，镜头定位到同分类代表示意。', 'No dedicated model for this record; the camera shows a representative of its category.')}</p>}
             <div className="expo-zone-actions"><Link className="expo-fault-link" to={`/knowledge?${new URLSearchParams({ collection: 'archive', q: equipment.name })}`}>{t('按名称查找资料', 'Search evidence by name')}<ArrowRight size={15} /></Link><Link className="expo-fault-link" to="/models">{t('打开模型工坊', 'Open model studio')}<ArrowRight size={15} /></Link><Link className="expo-fault-link" to="/fault-detection">{t('故障检测演示', 'Fault detection demo')}<ArrowRight size={15} /></Link></div>
           </FloatingPanel>}</AnimatePresence>
-          <AnimatePresence initial={false}>{tractorOpen && !catalogOpen && <FloatingPanel key="tractor-preview" as="aside" className="expo-zone-card" glass label={t('中央拖拉机预览', 'Central tractor preview')}>
+          <AnimatePresence initial={false}>{tractorOpen && !catalogOpen && <FloatingPanel key="tractor-preview" as="aside" className="expo-zone-card card-spotlight" glass label={t('中央拖拉机预览', 'Central tractor preview')}>
             <div className="expo-zone-card-top"><span>{t('中央拖拉机', 'CENTRAL TRACTOR')}</span><button type="button" className="expo-icon-button" aria-label={t('关闭拖拉机预览', 'Close tractor preview')} onClick={() => setTractorOpen(false)}><X size={16} /></button></div>
             <h2>{t('从结构到故障排查', 'Structure to fault checks')}</h2>
             <p>{t('园区车辆仅用于导航。故障工作台使用独立柴油结构示意与模拟数据，不是此车的实测数据。', 'The campus vehicle is for navigation. The workbench uses a separate diesel schematic and simulated data, not measurements from this vehicle.')}</p>

@@ -70,7 +70,7 @@ export default function KnowledgePage() {
         <div className="knowledge-heading-icon" aria-hidden="true"><Layers size={38} strokeWidth={1.15} /><span>01 — 04</span></div>
       </header></>}
 
-      {!graphView && <><div className="catalog-stats" aria-live="polite">
+      {!graphView && <><div className="catalog-stats card-spotlight" aria-live="polite">
         {[
           [catalog?.totals.entries, t('知识条目合计', 'Total knowledge entries')],
           [catalog?.totals.archivedEntries, t('来源归档', 'Source archive entries')],
@@ -113,7 +113,7 @@ export default function KnowledgePage() {
         }} />}
 
       {machineView && <section className="catalog-filter-section" aria-labelledby="catalog-select-heading">
-        <LiquidGlass variant="regular" className="catalog-browser catalog-filter-glass" contentClassName="catalog-filter-content">
+        <LiquidGlass variant="regular" className="catalog-browser catalog-filter-glass card-spotlight" contentClassName="catalog-filter-content">
         <div className="catalog-browser-top"><h2 id="catalog-select-heading"><Search size={18} />{t('找到你的农机', 'Find your machine')}</h2><button onClick={() => setParams({ view: 'machine' })} className="catalog-reset">{t('重置选择', 'Reset selection')}</button></div>
         <div className="catalog-selectors">
           <label><span>01 {t('品牌', 'Brand')}</span><select aria-label={t('知识浏览品牌', 'Knowledge brand')} value={brand?.id || ''} onChange={event => updateFilter('brand', event.target.value)} disabled={loading}><option value="">{t('选择品牌', 'Choose a brand')}</option>{catalog?.brands.map(item => <option key={item.id} value={item.id}>{item.name}{separator}{item.entryCount}{t(' 条', ' entries')}</option>)}</select></label>

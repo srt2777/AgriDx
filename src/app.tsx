@@ -4,7 +4,8 @@ import { Layout } from '@/components/Layout';
 import PageLoading from '@/components/PageLoading';
 import { pageLoaders } from '@/lib/page-loaders';
 import AutoUpdateStatus from '@/features/updates/AutoUpdateStatus';
-const HomePage = lazy(pageLoaders.classic);
+const ClassicHome = lazy(pageLoaders.classic);
+const WorkbenchPage = lazy(pageLoaders.workbench);
 const FieldOverview = lazy(pageLoaders.field);
 const ChatPage = lazy(pageLoaders.chat);
 const KnowledgePage = lazy(pageLoaders.knowledge);
@@ -15,6 +16,7 @@ import NotFoundPage from '@/pages/NotFoundPage/NotFoundPage';
 import CommandPalette from '@/components/CommandPalette';
 import { NewVersionDelight } from '@/components/NewVersionDelight';
 import { ThemedToaster } from '@/components/ThemedToaster';
+import { CardSpotlight } from '@/components/motion/CardSpotlight';
 import { setUiVersion, useUiVersion } from '@/hooks/useUiVersion';
 const ExhibitionPage = lazy(pageLoaders.exhibition);
 const PreviewStatus = typeof __AGRIDX_DEV_PREVIEW__ !== 'undefined' && __AGRIDX_DEV_PREVIEW__
@@ -47,12 +49,12 @@ function NewVersionChrome() {
 function ClassicWorkbenchRoute() {
   const version = useUiVersion();
   useLayoutEffect(() => { if (version !== 'old') setUiVersion('old'); }, [version]);
-  return version === 'old' ? <HomePage /> : <PageLoading />;
+  return version === 'old' ? <WorkbenchPage /> : <PageLoading />;
 }
 
 function VersionedHomePage() {
   const version = useUiVersion();
-  return version === 'new' ? <ExhibitionPage /> : <HomePage />;
+  return version === 'new' ? <ExhibitionPage /> : <ClassicHome />;
 }
 
 /** Bookmarks open the merged campus collection even when the classic UI was saved. */
@@ -67,6 +69,7 @@ export default function App() {
     <Routes>
       <Route element={<Layout />}>
         <Route index element={<PageContent><VersionedHomePage /></PageContent>} />
+        <Route path="workspace" element={<PageContent><ClassicWorkbenchRoute /></PageContent>} />
         {['assets', 'data', 'commands', 'analytics', 'records'].map(section => <Route key={section} path={`workspace/${section}`} element={<PageContent><ClassicWorkbenchRoute /></PageContent>} />)}
         <Route path="chat" element={<PageContent><ChatPage /></PageContent>} />
         <Route path="knowledge" element={<PageContent><KnowledgePage /></PageContent>} />
@@ -80,6 +83,7 @@ export default function App() {
       <Route path="*" element={<NotFoundPage />} />
     </Routes>
     {PreviewStatus && <Suspense fallback={null}><PreviewStatus /></Suspense>}
+    <CardSpotlight />
     <NewCommandPalette />
     <NewVersionChrome />
     <ThemedToaster />

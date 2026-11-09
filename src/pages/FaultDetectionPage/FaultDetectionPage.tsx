@@ -120,7 +120,7 @@ export default function FaultDetectionPage() {
       <div><dt>{t('连接状态', 'Connection')}</dt><dd>{sample.offline ? t('模拟数据中断 · 无法判断当前状态', 'SIMULATED INTERRUPTION · CURRENT STATE UNKNOWN') : t('本地演示源 · 无实车连接', 'Local simulation · no live machine')}</dd></div>
       <div><dt>{t('最后采集时间', 'Last sample')}</dt><dd>{t('场景相对时间', 'Scenario-relative time')} +{sample.sampleAt}s{sample.offline && ` · ${t('历史值', 'historical value')}`}</dd></div></dl>
     <div className="fault-workbench">
-      <section className="fault-alert-panel fault-panel" aria-labelledby="fault-alert-title"><p className="fault-eyebrow">01 / ALERTS</p><h2 id="fault-alert-title">{t('当前异常', 'Current alerts')}</h2>
+      <section className="fault-alert-panel fault-panel card-spotlight" aria-labelledby="fault-alert-title"><p className="fault-eyebrow">01 / ALERTS</p><h2 id="fault-alert-title">{t('当前异常', 'Current alerts')}</h2>
         <div aria-live="polite">{sample.offline ? <p className="fault-warning">{t('数据已中断，无法判断当前状态。最后收到的数据不代表当前状态。', 'Data interrupted. Current state is unknown; the last sample is historical.')}</p>
           : sample.alert ? <button type="button" className="fault-alert" onClick={selectAlert}><TriangleAlert size={22} /><span><strong>{t('仿真告警', 'Simulated alert')}</strong><small>{t('告警来自已收到的后端仿真帧；点击查看历史定位', 'Alert comes from a received backend simulation frame; select a history position')}</small></span><ArrowRight size={17} /></button>
           : <p>{t('当前已收到历史没有仿真告警；不表示实车正常。', 'No simulated alert is present in received history; this says nothing about a real machine.')}</p>}</div>
@@ -134,7 +134,7 @@ export default function FaultDetectionPage() {
           <Suspense fallback={<p role="status">{t('加载模型组件…', 'Loading model component…')}</p>}><FaultModel selection={selection} onSelect={setSelection} reduced={reduced} zh={zh} isolate={isolate} /></Suspense>
           <p className="fault-model-selection">{t('当前选择', 'Selection')}: {selectedPart ? partTitle(selectedPart.node, zh ? 'zh' : 'en') : t('整机', 'Whole machine')} · <Link to="/models">{t('打开完整模型工坊', 'Open model studio')}</Link></p></>}
       </details>
-      <section className="fault-chart-panel fault-panel"><p className="fault-eyebrow">03 / TELEMETRY</p><h2>{t('参数趋势', 'Parameter trend')} · {activeMetric?.name[zh ? 'zh' : 'en'] ?? t('暂无已收到通道', 'No received channel')}</h2>
+      <section className="fault-chart-panel fault-panel card-spotlight"><p className="fault-eyebrow">03 / TELEMETRY</p><h2>{t('参数趋势', 'Parameter trend')} · {activeMetric?.name[zh ? 'zh' : 'en'] ?? t('暂无已收到通道', 'No received channel')}</h2>
         <p>{t('横轴为已收到仿真样本的相对时间，纵轴量程来自目录；回放只显示已收到点。', 'X: received simulated sample time; Y: catalog range. Replay shows received points only.')}</p>
         <svg className="fault-chart" viewBox="0 0 680 210" role="img" aria-label={`${activeMetric?.name[zh ? 'zh' : 'en'] ?? 'Telemetry'}: ${selectedPoint?.value ?? '—'} ${activeMetric?.unit ?? ''}; +${sample.sampleAt}s`}>
           <title>{t('模拟参数趋势，不是实车测量', 'Simulated trend, not real measurements')}</title>
@@ -144,7 +144,7 @@ export default function FaultDetectionPage() {
           {sample.offline && <text x="355" y="90">{t('连接离线；仅保留最后已收到历史', 'Offline; only last received history is retained')}</text>}
         </svg><p>{t('当前历史定位', 'History cursor')} +{Math.floor(time)}s · {selectedPoint?.value ?? '—'} {activeMetric?.unit ?? ''} · {sample.offline ? t('历史值，当前未知', 'Historical; current unknown') : t('已收到仿真值', 'Received simulated value')}</p>
       </section>
-      <section className="fault-check-panel fault-panel"><p className="fault-eyebrow">04 / EVIDENCE & CHECKS</p><h2>{t('检查步骤与依据', 'Checks and evidence')}</h2>
+      <section className="fault-check-panel fault-panel card-spotlight"><p className="fault-eyebrow">04 / EVIDENCE & CHECKS</p><h2>{t('检查步骤与依据', 'Checks and evidence')}</h2>
         <details ref={checksRef} tabIndex={-1} open={checksOpen} onToggle={e => setChecksOpen(e.currentTarget.open)}><summary>{t('展开检查清单', 'Expand checklist')}</summary>
           <ol className="fault-checklist">{CHECKS.map(check => <li key={check.id}><strong>{zh ? check.zh : check.en}</strong><small>{currentRecords.some(row => row.checkId === check.id) ? t('已有用户演示记录，未自动确认通过', 'User demo note recorded; not automatically verified') : t('待记录', 'Not recorded')}</small></li>)}</ol>
           <form onSubmit={saveCheck}><label>{t('记录到检查项目', 'Check item')}<select aria-label={t('记录到检查项目', 'Check item')} value={checkId} onChange={e => setCheckId(e.target.value as DemoRecord['checkId'])}>{CHECKS.map(check => <option key={check.id} value={check.id}>{zh ? check.zh : check.en}</option>)}</select></label>

@@ -219,6 +219,110 @@
   }
 }
 
+/* Chapter text dissolves at the viewport edges. Sticky inside each top-level beat,
+   and only as wide as that beat's text card, so the fixed T70 stage beside the card
+   is not blurred. No scroll listener. The capability strip is a grid, so its edges
+   stay absolute and out of the tracks. */
+.home-immersive > [data-home-beat]::before,
+.home-immersive > [data-home-beat]::after {
+  content: "";
+  position: sticky;
+  z-index: 4;
+  display: block;
+  width: 100%;
+  height: 84px;
+  pointer-events: none;
+  border-radius: 12px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+.home-immersive > [data-home-beat]::before {
+  top: 64px;
+  margin-bottom: -84px;
+  background: linear-gradient(to bottom, color-mix(in srgb, var(--agri-paper) 62%, transparent), transparent);
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 28%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 0%, #000 28%, transparent 100%);
+}
+.home-immersive > [data-home-beat]::after {
+  bottom: 8px;
+  margin-top: -84px;
+  background: linear-gradient(to top, color-mix(in srgb, var(--agri-paper) 62%, transparent), transparent);
+  -webkit-mask-image: linear-gradient(to top, #000 0%, #000 28%, transparent 100%);
+  mask-image: linear-gradient(to top, #000 0%, #000 28%, transparent 100%);
+}
+.home-immersive > .glass-hero::before,
+.home-immersive > .glass-hero::after {
+  flex: 0 0 auto;
+  align-self: flex-start;
+}
+.home-immersive > .capability-strip::before,
+.home-immersive > .capability-strip::after {
+  position: absolute;
+  left: 0;
+  right: 0;
+  width: auto;
+  height: 56px;
+  margin: 0;
+}
+.home-immersive > .capability-strip::before { top: 0; }
+.home-immersive > .capability-strip::after { bottom: 0; top: auto; }
+
+@media (min-width: 960px) {
+  .home-immersive > [data-home-side="start"]::before,
+  .home-immersive > [data-home-side="start"]::after {
+    width: min(440px, calc(100% - 300px));
+    margin-left: 28px;
+    margin-right: auto;
+  }
+  .home-immersive > [data-home-side="end"]::before,
+  .home-immersive > [data-home-side="end"]::after {
+    width: min(440px, calc(100% - 300px));
+    margin-left: auto;
+    margin-right: 28px;
+  }
+}
+
+@media (max-width: 959px) {
+  .home-immersive > [data-home-beat]::before {
+    top: 56px;
+    height: 36px;
+    margin-bottom: -36px;
+  }
+  .home-immersive > [data-home-beat]::after {
+    bottom: 46svh;
+    height: 32px;
+    margin-top: -32px;
+  }
+  .home-immersive > [data-home-side="start"]::before,
+  .home-immersive > [data-home-side="start"]::after,
+  .home-immersive > [data-home-side="end"]::before,
+  .home-immersive > [data-home-side="end"]::after {
+    width: calc(100% - 24px);
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
+@media (max-width: 390px) {
+  .home-immersive > [data-home-beat]::before {
+    top: 52px;
+    height: 28px;
+    margin-bottom: -28px;
+  }
+  .home-immersive > [data-home-beat]::after {
+    height: 24px;
+    margin-top: -24px;
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .home-immersive > [data-home-beat]::before,
+  .home-immersive > [data-home-beat]::after {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}
+
 @media (prefers-reduced-transparency: reduce) {
   .home-immersive [data-home-side="start"] > :first-child,
   .home-immersive [data-home-side="end"] > :first-child,

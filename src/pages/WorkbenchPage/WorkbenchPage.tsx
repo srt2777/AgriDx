@@ -67,6 +67,7 @@ export default function WorkbenchPage() {
   const route = workbenchRoutes.find(r => r.path === pathname) ?? workbenchRoutes[0];
   const subtitles: Record<string, [string, string]> = {
     '/': ['从农机对象出发，让数据、知识与检查形成完整工作流。', 'Connect machine context, observations, knowledge and inspection.'],
+    '/workspace': ['从农机对象出发，让数据、知识与检查形成完整工作流。', 'Connect machine context, observations, knowledge and inspection.'],
     '/workspace/assets': ['按品牌、型号和部件组织资料，明确每一次查询的适用范围。', 'Organize evidence by brand, model and component.'],
     '/workspace/data': ['接收演示样本，或导入自己的观测记录并建立字段映射。', 'Receive simulation samples or map your own observation files.'],
     '/workspace/commands': ['选择对象、配置任务、读取响应，再进入下一步。', 'Select an object, configure a task and inspect its response.'],

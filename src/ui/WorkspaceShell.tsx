@@ -62,7 +62,7 @@ function WorkspaceFrame() {
     <button type="button" className="fluid-search" onClick={() => { dialog.current?.close(); openCommandPalette(); }}><Search size={16} /><span>{t('搜索', 'Search')}</span><kbd>⌘ K</kbd></button>
     <nav className="fluid-nav" aria-label={t('主要导航', 'Main navigation')}>
       {(['workspace', 'knowledge'] as const).map(group => <details key={group} open className="fluid-group"><summary>{group === 'workspace' ? t('农机工作台', 'Field workspace') : t('知识与诊断', 'Knowledge & diagnosis')}<ChevronRight size={14} /></summary>
-        {destinations.filter(item => item.group === group).map(({ path, zh, en, icon: Icon }) => <NavLink key={path} to={path} end={path === '/'} onClick={() => dialog.current?.close()} onPointerEnter={() => preloadPage(path, 'old')} onFocus={() => preloadPage(path, 'old')} className={({ isActive }) => `fluid-row${isActive ? ' is-active' : ''}`}><Icon size={17} strokeWidth={1.7} /><span>{t(zh, en)}</span></NavLink>)}
+        {destinations.filter(item => item.group === group).map(({ path, zh, en, icon: Icon }) => <NavLink key={path} to={path} end={path === '/workspace'} onClick={() => dialog.current?.close()} onPointerEnter={() => preloadPage(path, 'old')} onFocus={() => preloadPage(path, 'old')} className={({ isActive }) => `fluid-row${isActive ? ' is-active' : ''}`}><Icon size={17} strokeWidth={1.7} /><span>{t(zh, en)}</span></NavLink>)}
       </details>)}
       <details open className="fluid-group"><summary>{t('项目', 'Project')}<ChevronRight size={14} /></summary>
         <NavLink to="/version-history" onClick={() => dialog.current?.close()} className={({ isActive }) => `fluid-row${isActive ? ' is-active' : ''}`}><History size={17} strokeWidth={1.6} /><span>{t('版本历史记录', 'Version history')}</span></NavLink>
