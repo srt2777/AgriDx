@@ -1,10 +1,10 @@
 # 司稼小机器人 RV0.1.0 — 烧录文件说明
-# 构建时间：2026-11-09 08:37 CST（S3）/ 08:41 CST（C3）；合并镜像 2026-11-09 08:43 重做，已含 boot_app0
+# 构建时间：2026-11-09 11:36 CST（S3）/ 11:39 CST（C3）；合并镜像 2026-11-09 11:40 重做，已含 boot_app0（本次重建：OTA 地址改 main）
 # 构建环境：PlatformIO 6.2.0 / espressif32 8.0.0 / Arduino core 3.3.12
 # 库：LVGL 9.6.0、TFT_eSPI 2.5.43、ArduinoJson 7.4.3、XPT2046_Touchscreen（GitHub 直链 f956c5d）
 # 本版新增：联网自动更新（OTA，S3；见 docs/FLASHING.md §8）+ ESP32-C3 编译变体（见 §9）
 # 板子：ESP32-S3-N16R8（16MB Flash + 8MB PSRAM），分区 default_16MB.csv
-#   app0 0x10000 大小 0x640000（6.5MB）；固件 1,986,176 字节，余量充足。
+#   app0 0x10000 大小 0x640000（6.5MB）；固件 1,986,144 字节，余量充足。
 # C3：ESP32-C3-DevKitM-1（4MB Flash，无 PSRAM），分区 partitions_c3.csv
 #   app0 factory 0x10000 大小 0x2E0000（约 2.9MB）；固件 2,005,280 字节，放得下。
 
@@ -21,13 +21,13 @@ include/secrets.h、填入真实 WiFi 名称密码，重新 pio run，再按下�
 | bootloader.bin | 0x0 | 19,968 | 84bb365666003b051f564d04380d0cf5d9d85c420ddafe9fc863071b49e49bfc |
 | partitions.bin | 0x8000 | 3,072 | bd0f7954aca2ef7d925ee21aaa1f3dc8822d1d6ce5cbbd26a135e5886bfff6ce |
 | boot_app0.bin | 0xe000 | 8,192 | f94c5d786a7a8fab06ac5d10e33bf37711a6697636dc037559ea19cc410a17f0 |
-| firmware.bin | 0x10000 | 1,986,176 | 1280385defac709d15a5963763b33dc9ed8dd56fdfd03ee1fb75b0286ff17bcc |
-| sijia-rv0.1.0-merged-16MB.bin | 0x0（整包一次烧完，已含上面 4 个） | 2,051,712 | 53431fa421598d1b6e95a6d25f03e63b11b65055fa427a54c969925b66de7e46 |
+| firmware.bin | 0x10000 | 1,986,144 | 4e106d58e1882830ddbef5f16792748c511b1130e75b60516a75b5e23af1b4a5 |
+| sijia-rv0.1.0-merged-16MB.bin | 0x0（整包一次烧完，已含上面 4 个） | 2,051,680 | 1f24da703427ab74304c1bffa03591da35a65464850bf978018f0649c8389459 |
 
 ## C3 过渡版（单文件烧完，dio 模式）
 | 文件 | 烧录地址 | 大小（字节） | SHA256 |
 |---|---|---|---|
-| sijia-rv0.1.0-c3-merged-4MB.bin | 0x0（整包一次烧完） | 2,070,816 | 9ccb3862df0cd1819452f7867e6c77555d919debde262f2498421a9cbf699031 |
+| sijia-rv0.1.0-c3-merged-4MB.bin | 0x0（整包一次烧完） | 2,070,816 | a28923b7816ab7ef08a68c2f0caeb471a661ac1d59fbbb17c7e74892d86e33fa |
 
 注意：boot_app0.bin 是启动选择器（0xe000），全新擦除后没有它芯片起不来。
 不要用 2026-11-09 02:16 之前那版 zip 里的合并镜像——它缺 boot_app0。
