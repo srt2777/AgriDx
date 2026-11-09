@@ -1,5 +1,8 @@
 // 司稼小机器人 RV0.1.0 — LVGL 界面 + WiFi 问答 + 遥测监控
 // 硬件：ESP32-S3-N16R8 + 3.2 寸 ILI9341 触摸屏（默认配置档 A）
+//   第二个显示版本：ESP32-C3 + 0.96 寸 OLED（SSD1306 128x64，见 src/oled_ui.*）。
+//   编译宏 USE_OLED_DISPLAY=1 时编 OLED UI，=0 时编原来的 LVGL TFT UI；
+//   联网/问答/遥测/NVS/OTA 逻辑两个版本共用，显示层各自独立。
 // 架构：司稼跑在正式站 agridx.xyz；机器人只做交互终端（问答 + 监控）。
 //   - 问答：POST /api/chat（不发 Origin 头，见方案 §3.2）
 //   - 监控：GET /api/telemetry/history（每 15 秒轮询三通道）+ GET /api/telemetry/scenario（每 60 秒）
@@ -7,6 +10,11 @@
 //   - 遥测限流：正式站每 IP 每分钟 30 次请求；本固件遥测约 13 次/分钟，留足余量给手机/网页。
 // 流畅要点：DMA 刷新 + PSRAM 双缓冲 + LVGL 局部重绘 + SPI 40MHz；网络在独立任务里跑，不卡界面。
 // 中文字库：src/fonts/font_zh_16.c（lv_font_conv 子集，见 README “字库”一节）。
+
+// 显示版本选择：默认 0（LVGL TFT 版）；OLED 环境在 platformio.ini 里传 -DUSE_OLED_DISPLAY=1。
+#ifndef USE_OLED_DISPLAY
+#define USE_OLED_DISPLAY 0
+#endif
 
 #include <Arduino.h>
 #include <WiFi.h>
@@ -17,10 +25,14 @@
 #endif
 #include <Preferences.h>
 #include <ArduinoJson.h>
+#if USE_OLED_DISPLAY
+#include "oled_ui.h"
+#else
 #include <TFT_eSPI.h>
 #include <XPT2046_Touchscreen.h>
 #include <lvgl.h>
 #include <esp_heap_caps.h>
+#endif
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 #include <freertos/semphr.h>
@@ -28,7 +40,8 @@
 #include "secrets.h"
 #include "version.h"
 
-// ---------- 颜色（旧版 UI1.14 浅色规范，见方案 §3.5）----------
+// ---------- 颜色（旧版 UI1.14 浅色规范，见方案 §3.5；仅 LVGL TFT 版用）----------
+#if !USE_OLED_DISPLAY
 #define C_BG       lv_color_hex(0xFBFDFC)
 #define C_CARD     lv_color_hex(0xF7F9F8)
 #define C_SUBBG    lv_color_hex(0xEEF1F0)
@@ -80,6 +93,7 @@ static void touch_cb(lv_indev_t *indev, lv_indev_data_t *data) {
   data->point.y = constrain(sy, 0, SCREEN_HEIGHT - 1);
   data->state = LV_INDEV_STATE_PRESSED;
 }
+#endif  // !USE_OLED_DISPLAY
 
 // ---------- 预设问题（方案 §3.3；第一条是 2026-11-09 实测过的问题）----------
 static const char *PRESET_LABELS[4] = {"发动机启动困难", "水温高怎么办", "变速箱异响", "保养周期"};
@@ -138,6 +152,90 @@ static SemaphoreHandle_t g_resultMutex = nullptr;
 static volatile bool g_chatPending = false;
 static String g_pendingQuestion;
 static volatile bool g_telePending = false;
+
+// ---------- 两个显示版本共用的状态与助手函数（LVGL 与 OLED 都用同一份）----------
+// 最后一问 / 最后答案：问答页（LVGL 对话页 / OLED 问答页）都从这里取。
+static String g_lastQuestion;
+static String g_lastAnswer;
+
+// 通道状态码（-1 无数据，0 正常，1 注意，2 报警）；LVGL 与 OLED 共用同一判定。
+static int chanStateCode(const TeleChannel &ch) {
+  if (isnan(ch.value)) return -1;
+  if (ch.hasAlarm && ((!isnan(ch.alarmAbove) && ch.value > ch.alarmAbove) ||
+                      (!isnan(ch.alarmBelow) && ch.value < ch.alarmBelow))) return 2;
+  if (ch.hasAttention && ((!isnan(ch.attentionAbove) && ch.value > ch.attentionAbove) ||
+                          (!isnan(ch.attentionBelow) && ch.value < ch.attentionBelow))) return 1;
+  return 0;
+}
+
+// 发起一次提问（网络任务接手；返回 false 表示正忙或未联网，调用方自行提示）。
+// LVGL 版由预设问题按钮调；OLED 版由 BOOT 长按调。
+static bool startAsk(const char *q) {
+  if (g_chatBusy) return false;
+  if (!g_online) return false;
+  g_chatBusy = true;
+  if (g_historyCount < MAX_HISTORY_MSGS) {
+    g_history[g_historyCount].role = "user";
+    g_history[g_historyCount].content = String(q);
+    g_historyCount++;
+  }
+  g_lastQuestion = String(q);
+  g_pendingQuestion = String(q);
+  g_chatPending = true;
+  return true;
+}
+
+// 从网络任务取走一份问答结果（取走后 ready 清零）；没有新结果返回 false。
+static bool takeChatResult(ChatResult &out) {
+  if (g_resultMutex) xSemaphoreTake(g_resultMutex, portMAX_DELAY);
+  if (!g_chatResult.ready) {
+    if (g_resultMutex) xSemaphoreGive(g_resultMutex);
+    return false;
+  }
+  out = g_chatResult;
+  g_chatResult.ready = false;
+  if (g_resultMutex) xSemaphoreGive(g_resultMutex);
+  return true;
+}
+
+// 维护 WiFi 在线状态（内部每秒检查一次）；状态变了返回 true。
+// 注意：g_online 在 setup() 里由 /api/health 检查结果设定；这里只看 WiFi 链路。
+static bool maintainWifi() {
+  static uint32_t lastWifiCheck = 0;
+  if (millis() - lastWifiCheck <= 1000) return false;
+  lastWifiCheck = millis();
+  bool up = WiFi.status() == WL_CONNECTED;
+  if (up == g_online) return false;
+  g_online = up;
+  if (!up) WiFi.reconnect();
+  return true;
+}
+
+#if USE_OLED_DISPLAY
+// OLED 快照：把共享状态抄一份给 OLED 渲染（OLED 只读快照，不直接碰共享变量）。
+static OledPageData buildOledSnapshot() {
+  OledPageData s;
+  s.wifiConnected = WiFi.status() == WL_CONNECTED;
+  s.online = g_online;
+  strncpy(s.ssid, WiFi.SSID().c_str(), sizeof(s.ssid) - 1);
+  strncpy(s.ip, WiFi.localIP().toString().c_str(), sizeof(s.ip) - 1);
+  strncpy(s.scenario, g_scenarioZh, sizeof(s.scenario) - 1);
+  // OLED 上标签用短名（机油压力→油压），一行才放得下数值+状态。
+  static const char *SHORT_LABELS[3] = {"水温", "油压", "转速"};
+  for (int i = 0; i < 3; i++) {
+    s.teleLabel[i] = SHORT_LABELS[i];
+    s.teleValid[i] = !isnan(g_channels[i].value);
+    s.teleValue[i] = g_channels[i].value;
+    strncpy(s.teleUnit[i], g_channels[i].unit ? g_channels[i].unit : "", sizeof(s.teleUnit[i]) - 1);
+    s.telePrecision[i] = g_channels[i].precision;
+    s.teleState[i] = chanStateCode(g_channels[i]);
+  }
+  strncpy(s.lastQuestion, g_lastQuestion.c_str(), sizeof(s.lastQuestion) - 1);
+  strncpy(s.lastAnswer, g_lastAnswer.c_str(), sizeof(s.lastAnswer) - 1);
+  s.chatBusy = g_chatBusy;
+  return s;
+}
+#endif  // USE_OLED_DISPLAY
 
 #if ENABLE_OTA
 // OTA 状态（网络任务写，主循环读；网络任务绝不直接碰 LVGL）
@@ -409,7 +507,8 @@ static void netTask(void *param) {
   }
 }
 
-// ---------- UI ----------
+// ---------- UI（仅 LVGL TFT 版；OLED 版见 src/oled_ui.*）----------
+#if !USE_OLED_DISPLAY
 static lv_obj_t *g_topStatus = nullptr;   // 顶栏在线状态
 static lv_obj_t *g_dots[3] = {nullptr, nullptr, nullptr};
 static lv_obj_t *g_tileview = nullptr;
@@ -501,21 +600,14 @@ static void setThinking(bool on) {
 }
 
 static void askQuestion(const char *q) {
-  if (g_chatBusy) { showToast("正在诊断，请稍等"); return; }
-  if (!g_online) { showToast("未联网，请检查 WiFi"); return; }
-  g_chatBusy = true;
-  // 多轮历史：先记下这条用户问题（回答回来后再记助手回答）。
-  if (g_historyCount < MAX_HISTORY_MSGS) {
-    g_history[g_historyCount].role = "user";
-    g_history[g_historyCount].content = String(q);
-    g_historyCount++;
+  if (!startAsk(q)) {
+    showToast(g_chatBusy ? "正在诊断，请稍等" : "未联网，请检查 WiFi");
+    return;
   }
   addUserBubble(q);
   lv_tileview_set_tile_by_index(g_tileview, 1, 0, LV_ANIM_ON);
   updateDots(1);
   setThinking(true);
-  g_pendingQuestion = String(q);
-  g_chatPending = true;
 }
 
 static void onPreset(lv_event_t *e) {
@@ -551,16 +643,12 @@ static void onTileChanged(lv_event_t *e) {
 
 // ---------- 监控 ----------
 static const char *chanStateText(const TeleChannel &ch, lv_color_t *color) {
-  if (isnan(ch.value)) { *color = C_SUBTEXT; return "—"; }
-  if (ch.hasAlarm && ((!isnan(ch.alarmAbove) && ch.value > ch.alarmAbove) ||
-                      (!isnan(ch.alarmBelow) && ch.value < ch.alarmBelow))) {
-    *color = C_RED; return "报警";
+  switch (chanStateCode(ch)) {
+    case 2: *color = C_RED; return "报警";
+    case 1: *color = C_AMBER; return "注意";
+    case 0: *color = C_DARKGREEN; return "正常";
+    default: *color = C_SUBTEXT; return "—";
   }
-  if (ch.hasAttention && ((!isnan(ch.attentionAbove) && ch.value > ch.attentionAbove) ||
-                          (!isnan(ch.attentionBelow) && ch.value < ch.attentionBelow))) {
-    *color = C_AMBER; return "注意";
-  }
-  *color = C_DARKGREEN; return "正常";
 }
 
 static void applyTelemetryToUi() {
@@ -933,18 +1021,16 @@ static void buildUi() {
 // ---------- 主循环里消费网络结果 ----------
 static void applyChatResult() {
   ChatResult r;
-  if (g_resultMutex) xSemaphoreTake(g_resultMutex, portMAX_DELAY);
-  if (!g_chatResult.ready) { if (g_resultMutex) xSemaphoreGive(g_resultMutex); return; }
-  r = g_chatResult;
-  g_chatResult.ready = false;
-  if (g_resultMutex) xSemaphoreGive(g_resultMutex);
+  if (!takeChatResult(r)) return;
   setThinking(false);
   g_chatBusy = false;
   if (!r.ok) {
+    g_lastAnswer = "请求失败，请检查网络后重试。";
     addAssistantCard("请求失败，请检查网络后重试。", "司稼 · 离线");
     showToast("问答失败，请重试");
     return;
   }
+  g_lastAnswer = r.answer;
   const char *tag = (r.mode == "local-evidence" || r.provider == "knowledge-base")
                         ? "司稼 · 本地资料" : "司稼";
   addAssistantCard(r.answer.c_str(), tag);
@@ -1011,6 +1097,7 @@ static void onTeleTimer(lv_timer_t *t) {
   (void)t;
   g_telePending = true;
 }
+#endif  // !USE_OLED_DISPLAY
 
 // WiFi 凭证（NVS；首次开机从 secrets.h 取值并存入，之后只读 NVS）
 // 注意：首次开机前必须先填好真实的 secrets.h——如果先用占位值开机，NVS 会存下占位值，
@@ -1040,6 +1127,10 @@ void setup() {
   Serial.printf("\n[司稼] 固件 %s 启动\n", FIRMWARE_VERSION);
   g_sessionId = "rv010-" + String((uint32_t)ESP.getEfuseMac(), HEX);
   g_resultMutex = xSemaphoreCreateMutex();
+#if USE_OLED_DISPLAY
+  // OLED 版：初始化 I2C + SSD1306（亮启动页）；背光/触摸/LVGL 都没有。
+  oledUiBegin();
+#else
   // 背光
   analogWrite(PIN_TFT_BL, BACKLIGHT_BRIGHTNESS);
   // 屏幕 + 触摸
@@ -1070,6 +1161,7 @@ void setup() {
   lv_indev_set_read_cb(indev, touch_cb);
   lv_indev_set_display(indev, disp);
   buildUi();
+#endif  // USE_OLED_DISPLAY
   // WiFi（异步连；界面先出来，状态栏显示连接中）
   // 凭证存 NVS（命名空间 sijia，键 ssid/pass）：首次开机用 secrets.h 的值并存入 NVS，
   // 以后联网一律读 NVS；OTA 升级只写 app 分区，绝不碰 NVS，升级后不断网。
@@ -1079,19 +1171,27 @@ void setup() {
   WiFi.begin(g_wifiSsid.c_str(), g_wifiPass.c_str());
   uint32_t t0 = millis();
   while (WiFi.status() != WL_CONNECTED && millis() - t0 < 15000) {
+#if USE_OLED_DISPLAY
+    delay(100);  // OLED 版没有 LVGL 定时器要跑，等就是了
+#else
     lv_tick_inc(5);
     lv_timer_handler();
     delay(5);
+#endif
   }
   if (WiFi.status() == WL_CONNECTED) {
     Serial.printf("[司稼] WiFi 已连 %s，IP %s\n", WiFi.SSID().c_str(), WiFi.localIP().toString().c_str());
     String h = httpGet(String(SIJIA_BASE_URL) + "/api/health", 5000);
     g_online = h.length() > 0;
+#if !USE_OLED_DISPLAY
     lv_label_set_text(g_topStatus, g_online ? "在线" : "服务器不通");
     lv_obj_set_style_text_color(g_topStatus, g_online ? C_DARKGREEN : C_RED, 0);
+#endif
   } else {
+#if !USE_OLED_DISPLAY
     lv_label_set_text(g_topStatus, "离线");
     lv_obj_set_style_text_color(g_topStatus, C_RED, 0);
+#endif
     Serial.println("[司稼] WiFi 未连上：检查 secrets.h，或用手机热点（校园网认证页连不上）");
   }
   // 网络任务 + 定时器
@@ -1101,31 +1201,61 @@ void setup() {
 #else
   xTaskCreatePinnedToCore(netTask, "sijia-net", 8192, nullptr, 1, nullptr, 0);
 #endif
+#if USE_OLED_DISPLAY
+  g_telePending = true;   // 启动后立刻取一次遥测；之后 loop() 每 15 秒触发一次
+  Serial.println("[司稼] 就绪：OLED 每 5 秒轮换，BOOT 短按切页、长按提问");
+#else
   lv_timer_create(onTeleTimer, 15000, nullptr);
   lv_timer_create(onUpdatedTick, 10000, nullptr);
   g_telePending = true;   // 启动后立刻取一次遥测
   Serial.println("[司稼] 就绪：左右滑动切换 首页 / 对话 / 监控");
+#endif
 }
 
 void loop() {
+#if USE_OLED_DISPLAY
+  maintainWifi();
+  // 消费问答结果（有新结果才进；失败也记一句，供问答页显示）
+  ChatResult r;
+  if (takeChatResult(r)) {
+    g_chatBusy = false;
+    if (r.ok) {
+      g_lastAnswer = r.answer;
+      if (g_historyCount < MAX_HISTORY_MSGS) {
+        g_history[g_historyCount].role = "assistant";
+        g_history[g_historyCount].content = r.answer;
+        g_historyCount++;
+      }
+    } else {
+      g_lastAnswer = "请求失败，请检查网络后重试。";
+    }
+  }
+  // 15 秒轮询一次遥测（LVGL 版用 lv_timer，这里用 millis 节流）
+  static uint32_t lastTeleMs = 0;
+  if (millis() - lastTeleMs >= 15000) {
+    lastTeleMs = millis();
+    g_telePending = true;
+  }
+  // 刷新 OLED（内部处理自动轮换 + BOOT 切页；长按返回提问动作，由主循环执行）
+  OledPageData snap = buildOledSnapshot();
+  int action = oledUiTick(snap);
+  if (action == OLED_ACTION_ASK_PRESET_0) {
+    startAsk(PRESET_QUESTIONS[0]);  // 失败（正忙/未联网）时 OLED 下次刷新仍显示旧状态
+  }
+  delay(20);
+#else
   lv_tick_inc(5);
   lv_timer_handler();
   delay(5);
-  // WiFi 状态栏（每约 1 秒检查一次，用静态节流）
-  static uint32_t lastWifiCheck = 0;
-  if (millis() - lastWifiCheck > 1000) {
-    lastWifiCheck = millis();
-    bool up = WiFi.status() == WL_CONNECTED;
-    if (up != g_online) {
-      g_online = up;
-      lv_label_set_text(g_topStatus, up ? "在线" : "离线");
-      lv_obj_set_style_text_color(g_topStatus, up ? C_DARKGREEN : C_RED, 0);
-      if (!up) WiFi.reconnect();
-    }
+  // WiFi 状态栏（每约 1 秒检查一次，节流在 maintainWifi() 里）
+  if (maintainWifi()) {
+    lv_label_set_text(g_topStatus, g_online ? "在线" : "离线");
+    lv_obj_set_style_text_color(g_topStatus, g_online ? C_DARKGREEN : C_RED, 0);
   }
   applyChatResult();
   applyTeleResult();
 #if ENABLE_OTA
   applyOtaStatus();
 #endif
+#endif  // USE_OLED_DISPLAY
 }

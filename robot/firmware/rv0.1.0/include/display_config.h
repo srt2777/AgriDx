@@ -41,7 +41,10 @@
 #endif
 
 #ifndef SCREEN_WIDTH
+// OLED 版不接 TFT 屏，不需要屏幕配置档；TFT 版必须选一个配置档。
+#if !USE_OLED_DISPLAY
   #error "未选择屏幕配置档：请在 platformio.ini 的 build_flags 里加 -DSCREEN_PROFILE_ILI9341_320X240（或 B/C）"
+#endif
 #endif
 
 // ---- 引脚（按板子选一节；S3 节是登仕唐 ESP32-S3-N16R8，C3 节是 DevKitM-1 默认）----
@@ -59,6 +62,10 @@
 // 0.96 寸 OLED（副屏，U8g2，SSD1306 I2C）：SDA/SCL 任意 GPIO，以实物为准。
 #define PIN_OLED_SDA 12
 #define PIN_OLED_SCL 13
+// OLED I2C 地址（7 位）：模块跳线标 0x78 是 8 位写地址，折合 7 位就是 0x3C。
+#define OLED_I2C_ADDR 0x3C
+// BOOT 按键（strapping 脚；只在启动后读，OLED 版用它切页/长按提问）。
+#define PIN_BOOT_BTN  9
 #else
 // ---- S3 引脚（按登仕唐 ESP32-S3-N16R8 核心板引脚图核对；SPI 默认引脚）----
 // MOSI 11 / MISO 13 / SCK 12 / CS 10 是 ESP32-S3 硬件 SPI 默认引脚。
