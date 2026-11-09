@@ -40,7 +40,7 @@ export default function Trend({ t }: { t: Copy }) {
   }));
   const line = smoothLine(points);
   return (
-    <section className="fo-card fo-trend">
+    <section className="fo-card fo-trend card-spotlight">
       <div className="fo-panel-head">
         <h2>{t('作业面积趋势', 'Field area trend')}</h2>
         <div className="fo-segment">

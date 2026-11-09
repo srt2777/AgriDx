@@ -272,7 +272,7 @@ export default function PartsStudio({ onImport }: { onImport: (event: ChangeEven
           <div className="parts-viewport" tabIndex={staticView ? -1 : 0} role="group" aria-label={t('结构示意视图；可用二维列表选择部件', 'Structure view; use the 2D list to select parts')} onPointerDownCapture={event => {
             if ((event.target as HTMLElement).tagName === 'CANVAS') event.currentTarget.focus({ preventScroll: true });
           }}>
-            <div className="parts-kpi" aria-label={t('示例概览', 'Example overview')}>
+            <div className="parts-kpi card-spotlight" aria-label={t('示例概览', 'Example overview')}>
               <TiltCard className="parts-kpi-card"><span className="parts-chip">{t('示例数据', 'Example data')}</span></TiltCard>
               <TiltCard className="parts-kpi-card"><span><b>{parts.length}</b> {t('部件', 'Parts')}</span></TiltCard>
               <TiltCard className="parts-kpi-card"><span><b>{selectedLabel}</b> {t('选中', 'Selected')}</span></TiltCard>
@@ -314,7 +314,7 @@ export default function PartsStudio({ onImport }: { onImport: (event: ChangeEven
               {timeline.map(item => <li key={item.id}>{language === 'zh' ? item.zh : item.en}</li>)}
             </ol>
           </div>
-          <aside className="parts-panel" ref={panelRef}>
+          <aside className="parts-panel card-spotlight" ref={panelRef}>
             <p>{t('部件', 'Parts')}<span className="parts-chip">{t('示例数据', 'Example data')}</span></p>
             <p className="parts-panel-note">{staticView ? t('从列表选择部件，下方查看详情与知识目录。状态和故障是示例，没有接入实车。', 'Select a part from the list to see details and source links below. Status and faults are examples, with no live machine attached.') : t('点选部件后查看详情。状态和故障是示例，没有接入实车。', 'Select a part to view details. Status and faults are examples, with no live machine attached.')}</p>
             <div className="parts-fault">

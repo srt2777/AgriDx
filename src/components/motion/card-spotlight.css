@@ -1,0 +1,77 @@
+/* Cursor spotlight for new-version glass, info, and KPI cards.
+   Pointer position is --spot-x / --spot-y. No backdrop-filter, no per-move React render. */
+
+.new-version-shell .card-spotlight {
+  --spot-accent: var(--zone-color, var(--field-blue, #206db3));
+  --spot-x: 50%;
+  --spot-y: 40%;
+}
+
+.fo-shell .card-spotlight {
+  --spot-accent: var(--metric-color, var(--blue, #176bc3));
+  --spot-x: 50%;
+  --spot-y: 40%;
+}
+
+.new-version-shell .card-spotlight[data-spot-anchor='relative'],
+.fo-shell .card-spotlight[data-spot-anchor='relative'] {
+  position: relative;
+}
+
+.new-version-shell .card-spotlight::before,
+.new-version-shell .card-spotlight::after,
+.fo-shell .card-spotlight::before,
+.fo-shell .card-spotlight::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  z-index: 4;
+  transition: opacity 160ms linear;
+}
+
+.new-version-shell .card-spotlight::before,
+.fo-shell .card-spotlight::before {
+  background: radial-gradient(
+    168px circle at var(--spot-x) var(--spot-y),
+    color-mix(in srgb, var(--spot-accent) 38%, transparent),
+    transparent 70%
+  );
+}
+
+.new-version-shell .card-spotlight::after,
+.fo-shell .card-spotlight::after {
+  padding: 1px;
+  background: radial-gradient(
+    220px circle at var(--spot-x) var(--spot-y),
+    color-mix(in srgb, var(--spot-accent) 72%, white),
+    transparent 56%
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
+}
+
+.new-version-shell .card-spotlight[data-spot='on']::before,
+.new-version-shell .card-spotlight[data-spot='on']::after,
+.fo-shell .card-spotlight[data-spot='on']::before,
+.fo-shell .card-spotlight[data-spot='on']::after {
+  opacity: 1;
+}
+
+@media (pointer: coarse), (prefers-reduced-motion: reduce) {
+  .new-version-shell .card-spotlight::before,
+  .new-version-shell .card-spotlight::after,
+  .fo-shell .card-spotlight::before,
+  .fo-shell .card-spotlight::after {
+    content: none;
+    display: none;
+  }
+}

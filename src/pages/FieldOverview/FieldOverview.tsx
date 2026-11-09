@@ -294,7 +294,7 @@ export default function FieldOverview() {
               const change = (totals[key] / previous - 1) * 100;
               return (
                 <article
-                  className="fo-card fo-metric"
+                  className="fo-card fo-metric card-spotlight"
                   key={key}
                   style={{ '--metric-color': color, '--metric-tint': tint } as CSSProperties}
                 >

@@ -117,7 +117,7 @@ export default function ModelPage() {
           {customModel && <button type="button" className="text-muted-foreground hover:text-primary" onClick={() => { URL.revokeObjectURL(customModel.url); urls.current.delete(customModel.url); setCustomModel(null); setComponent('all'); setExploded(false); }}>{t('恢复示意模型', 'Restore schematic')}</button>}
         </div>
       </section>
-      <aside className="min-w-0 rounded-3xl border border-border bg-card p-5 sm:p-6">
+      <aside className="card-spotlight min-w-0 rounded-3xl border border-border bg-card p-5 sm:p-6">
         <p className="flex items-center gap-2 text-sm font-semibold"><Layers3 className="size-4 text-primary" />{t('从整机到组件', 'From machine to component')}</p>
         <p className="mt-3 text-xs leading-6 text-muted-foreground">{customModel ? t('本地模型的组件名称与尺寸尚未核验，先查看整体结构。', 'Component names and dimensions of the local model are not verified. Inspect its overall geometry first.') : t('选中组件，观察位置关系；展开示意查看被外壳遮挡的结构。模型没有绑定真实故障或实车尺寸。', 'Select a component or expand the schematic to inspect concealed structures. The model is not bound to real faults or measured dimensions.')}</p>
         {!customModel && <p className="mt-3 text-xs leading-6 text-primary">{t('点击模型或热点选择部件，视角会自动聚焦。拖动旋转，滚动缩放。', 'Click the model or a hotspot to select a component and focus the view. Drag to rotate and scroll to zoom.')}</p>}
@@ -133,7 +133,7 @@ export default function ModelPage() {
       </aside>
     </div>}
     {error && <p role="alert" className="mt-4 rounded-xl border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">{error}</p>}
-    <section className="mt-10 rounded-3xl border border-border bg-card p-5 md:p-8">
+    <section className="card-spotlight mt-10 rounded-3xl border border-border bg-card p-5 md:p-8">
       <div className="flex flex-wrap items-start justify-between gap-4"><div><h2 className="text-xl font-semibold">{t('准备多角度照片', 'Prepare reference views')}</h2><p className="mt-2 max-w-2xl text-xs leading-6 text-muted-foreground">{t('使用同一实物、相同光照与完整轮廓的照片。选择照片时仅在当前页面预览；点击下方“上传并生成”后才会发送到建模服务。生成并通过校验的结果会自动载入上方预览。', 'Use the same object, consistent lighting and a complete outline. Selected images remain in this page until you click Upload and generate. Results that pass the pipeline checks load in the viewer above.')}</p></div><span className="rounded-full border border-border px-3 py-1.5 text-xs text-muted-foreground">{t('img2threejs · 分阶段建模', 'img2threejs · Staged reconstruction')}</span></div>
       <label className="mt-5 block text-xs text-muted-foreground">{t('参考对象（品牌 / 型号，可选）', 'Reference object (brand / model, optional)')}<input value={identity} onChange={event => setIdentity(event.target.value.slice(0, 120))} className="mt-2 block w-full max-w-sm rounded-xl border border-border bg-background px-3 py-2.5 text-sm text-foreground" placeholder={t('如：需建模的拖拉机型号', 'Tractor model to reconstruct')} /></label>
       <div className="mt-5 grid grid-cols-2 gap-3 md:grid-cols-4">{ANGLES.map(angle => {

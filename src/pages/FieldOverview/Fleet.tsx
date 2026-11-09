@@ -17,7 +17,7 @@ const colors = { working: '#3384e9', standby: '#f3b34e', offline: '#becbdb' };
 export function FleetStatus({ t, inspect }: { t: Copy; inspect: (status: Status) => void }) {
   let offset = 0;
   return (
-    <section className="fo-card fo-status">
+    <section className="fo-card fo-status card-spotlight">
       <div className="fo-panel-head">
         <h2>{t('机组状态', 'Fleet status')}</h2>
         <span className="fo-subtle">{t('当前快照', 'Snapshot')}</span>
@@ -89,7 +89,7 @@ export function FleetTable({
       [m.id, m.plot, ...kindNames[m.kind]].join(' ').toLowerCase().includes(search.trim().toLowerCase()),
   );
   return (
-    <section className="fo-card fo-fleet" id="fo-fleet" tabIndex={-1}>
+    <section className="fo-card fo-fleet card-spotlight" id="fo-fleet" tabIndex={-1}>
       <div className="fo-panel-head">
         <div className="fo-fleet-title">
           <h2>{t('农机台账', 'Fleet register')}</h2>

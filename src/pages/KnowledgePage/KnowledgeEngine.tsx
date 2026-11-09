@@ -224,5 +224,5 @@ export default function KnowledgeEngine({ nodes, selectedId, onSelect, lang, onR
   </div>;
 }
 function Panel({ title, count, children }: { title: string; count?: number; children: React.ReactNode }) {
-    return <section className="engine-panel"><header><h4>{title}</h4>{count !== undefined && <span>{count}</span>}</header><div className="engine-panel-body">{children}</div></section>;
+    return <section className="engine-panel card-spotlight"><header><h4>{title}</h4>{count !== undefined && <span>{count}</span>}</header><div className="engine-panel-body">{children}</div></section>;
 }
