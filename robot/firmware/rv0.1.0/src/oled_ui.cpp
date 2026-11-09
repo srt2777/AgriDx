@@ -2,20 +2,28 @@
 // 硬件：SSD1315 128x64（模组 NFP1315-157B），I2C 地址 0x3C；SDA=GPIO12、SCL=GPIO13（见 display_config.h）。
 // 驱动：U8g2 全缓冲模式（128x64/8 = 1024 字节显存，C3 内部 RAM 够用）。
 //
-// 字库为什么用 U8g2 自带 wqy16（GB2312，16px），而不用小子集字库：
+// 字库：正文与标题用 U8g2 自带 wqy12（GB2312，12px），启动页大标题用 wqy16。
+// 为什么不用 16px 做正文：16px 一行只能放 8 个汉字，监测页“油压136.2kPa”一行
+// 放不下数值+单位+状态，单位会被截掉半个，数值一变截断位置跟着变，看起来“单位在跳”。
+// 12px 一行放 10 个汉字，三个通道都能完整显示数值+单位+状态；问答答案每行也多放 2 个字。
 // 问答页显示服务器返回的答案，字符集事先不可穷举——子集只能覆盖固定界面文案，
-// 答案里一有子集外的字就显示不出。wqy16 覆盖 GB2312 常用字，任意答案都能显示；
-// OLED 版不编 LVGL/TFT_eSPI/XPT2046，省出的 Flash 足够放下这一个字库，
+// 答案里一有子集外的字就显示不出。wqy12 覆盖 GB2312 常用字，任意答案都能显示；
+// OLED 版不编 LVGL/TFT_eSPI/XPT2046，省出的 Flash 足够放下这两个字库，
 // 固件仍放得进 C3 app0 分区（约 2.9MB，实测大小见 PR 说明）。
 // GB2312 之外的生僻字、Emoji：U8g2 找不到字形，会留空，不断行不花屏。
 //
-// 页面（3 页，16px 行高，每页 4 行）：
-//   0 状态页：司稼 + 在线/离线/服务器不通、WiFi 名称、IP、当前场景
-//   1 监测页：水温/油压/转速三行数值 + 右侧状态（正常/注意/报警），标题标“模拟数据”
-//   2 问答页：最后一问（截断显示）+ 答案前两行；答案写不下时末行写“请在主屏查看”
-// 切页：每 5 秒自动轮换；BOOT 按键（GPIO9）短按手动切页，长按（≥800ms）问第一条预设问题。
+// 版式（128x64，12px 正文）：
+//   标题栏（0–13px，反白：白底黑字）：“司稼 · 状态/监测/问答”，右侧放状态/模拟数据/诊断中/问答页码
+//   内容（3 行，基线 27/40/53）+ 底栏页点（3 个点，y=61，当前页实心）
+//   0 状态页：WiFi 名称、IP、当前场景（在线状态放标题栏右侧）
+//   1 监测页：水温/油压/转速三行数值 + 右侧状态（正常/注意/报警）；遥测是仿真数据，标题栏标“模拟数据”；
+//     报警时状态字反白（白底黑字），一眼看到
+//   2 问答页：最后一问 + 答案；答案长时可翻页看完全部（见下）
+// 切页：只手动换页，不自动轮换。BOOT 按键（GPIO9）短按翻页；长按（≥800ms）问第一条预设问题。
+// 问答翻页：短按先翻答案的子页（第 1 页是问题+答案前 2 行，之后每页 3 行答案），
+//   答案翻完再短按回到状态页；新答案来了自动回到问答第 1 页。
 // GPIO9 是 strapping 脚，只在启动后读按键，不影响启动；按键平时高电平，按下为低电平。
-// 重绘策略：只有翻页或快照内容变化时才重绘（全屏刷新走 I2C，频繁刷会拖慢主循环）。
+// 重绘策略：只有翻页（含问答子页）或快照内容变化时才重绘（全屏刷新走 I2C，频繁刷会拖慢主循环）。
 
 #include "oled_ui.h"
 
@@ -29,14 +37,20 @@
 #include "display_config.h"
 #include "version.h"
 
-#define OLED_FONT u8g2_font_wqy16_t_gb2312  // 16px 中文（GB2312）+ ASCII
+#define OLED_FONT u8g2_font_wqy16_t_gb2312    // 16px 中文（仅启动页大标题）
+#define OLED_FONT_S u8g2_font_wqy12_t_gb2312  // 12px 中文（标题栏与正文）
 #define OLED_W 128
 #define OLED_H 64
-#define OLED_LINE_H 16      // 行高 = 字号
+#define OLED_HEADER_H 14   // 标题栏高（反白条）
+#define OLED_LINE_H 13     // 12px 行距
+#define OLED_L1 27         // 内容行 1 基线
+#define OLED_L2 40         // 内容行 2 基线
+#define OLED_L3 53         // 内容行 3 基线
+#define OLED_DOTS_Y 61     // 底栏页点中心 y
 #define OLED_PAGE_COUNT 3
-#define OLED_AUTO_MS 5000   // 自动轮换间隔
 #define OLED_LONG_PRESS_MS 800
 #define OLED_DEBOUNCE_MS 50
+#define OLED_ANS_MAX_LINES 64  // 答案换行后最多存 64 行（512 字答案约 51 行，够用）
 
 // 硬件 I2C：U8g2 按构造参数里的时钟/数据脚调 Wire.begin(SDA, SCL)。
 // 默认地址就是 0x3C（与模块跳线 0x78 的 8 位写地址一致），不用另设。
@@ -119,8 +133,9 @@ static int wrapText(const char *text, int maxWidth, char lines[][40], int maxLin
 }
 
 // ---------- 页面状态 ----------
-static int s_page = 0;                 // 当前页：0 状态，1 监测，2 问答
-static uint32_t s_lastSwitchMs = 0;    // 上次翻页时刻（自动轮换计时）
+static int s_page = 0;                 // 当前主页面：0 状态，1 监测，2 问答
+static int s_chatSub = 0;              // 问答子页（0 起；只在问答页有效）
+static uint32_t s_lastSwitchMs = 0;    // 上次翻页时刻（保留：暂无自动轮换用不到，留作以后扩展）
 static OledPageData s_lastDrawn;       // 上次画出的快照（用于变化检测）
 static bool s_haveDrawn = false;
 static bool s_btnLast = HIGH;          // BOOT 按键上次读到的电平
@@ -128,6 +143,23 @@ static uint32_t s_btnChangeMs = 0;     // 电平上次变化时刻（消抖计�
 static bool s_btnStable = HIGH;        // 消抖后的稳定电平
 static uint32_t s_btnDownMs = 0;       // 本次按下（消抖确认后）时刻
 static bool s_btnPressed = false;      // 当前是否处于按下状态
+
+// 答案换行缓存：答案一变就重新换行（12px，行宽 128），问答页直接按行取，不用每次重算。
+// 第 0 子页：问题 + 答案第 0–1 行；第 k≥1 子页：答案第 2+3(k-1) .. 2+3k-1 行。
+static char s_ansLines[OLED_ANS_MAX_LINES][40];
+static int s_ansLineCount = 0;
+
+static void rewrapAnswer(const char *answer) {
+  u8g2.setFont(OLED_FONT_S);
+  bool hasMore = false;
+  s_ansLineCount = wrapText(answer, OLED_W, s_ansLines, OLED_ANS_MAX_LINES, &hasMore);
+}
+
+// 问答总子页数（答案行数 N：N≤2 时 1 页，否则 1 + ceil((N-2)/3)）。
+static int chatPageCount() {
+  if (s_ansLineCount <= 2) return 1;
+  return 1 + (s_ansLineCount - 2 + 2) / 3;
+}
 
 static const char *stateText(int state) {
   switch (state) {
@@ -153,30 +185,48 @@ static bool snapshotChanged(const OledPageData &a, const OledPageData &b) {
   return false;
 }
 
-// ---------- 三页绘制（y 传基线：4 行基线分别是 16/32/48/64）----------
+// ---------- 通用绘制：标题栏（反白）与底栏页点 ----------
+// 标题栏：白底条 + 黑字，左侧标题，右侧信息（右对齐；空串则不画）。
+static void drawHeader(const char *title, const char *right) {
+  u8g2.drawBox(0, 0, OLED_W, OLED_HEADER_H);
+  u8g2.setDrawColor(0);  // 黑字写在白条上
+  u8g2.drawUTF8(0, 11, title);
+  if (right && right[0]) {
+    u8g2.drawUTF8(OLED_W - u8g2.getUTF8Width(right), 11, right);
+  }
+  u8g2.setDrawColor(1);
+}
+
+// 底栏页点：3 个点居中，当前主页面实心，其余空心。
+static void drawPageDots() {
+  const int xs[OLED_PAGE_COUNT] = {56, 64, 72};
+  for (int i = 0; i < OLED_PAGE_COUNT; i++) {
+    if (i == s_page) u8g2.drawDisc(xs[i], OLED_DOTS_Y, 2);
+    else u8g2.drawCircle(xs[i], OLED_DOTS_Y, 2);
+  }
+}
+
+// ---------- 三页绘制（12px 正文；内容行基线 27/40/53）----------
 static void drawStatusPage(const OledPageData &d) {
-  // L1：司稼 + 状态（右对齐）
-  u8g2.drawUTF8(0, 16, "司稼");
+  // 标题栏右侧放在线状态；内容三行：WiFi、IP、场景。
   const char *st = !d.wifiConnected ? "离线" : (d.online ? "在线" : "服务器不通");
-  u8g2.drawUTF8(OLED_W - u8g2.getUTF8Width(st), 16, st);
-  // L2：WiFi 名称
+  drawHeader("司稼 · 状态", st);
   char line[64];
   if (d.wifiConnected) snprintf(line, sizeof(line), "WiFi %s", d.ssid);
   else snprintf(line, sizeof(line), "WiFi 未连接");
-  drawTruncated(0, 32, line, OLED_W);
-  // L3：IP
+  drawTruncated(0, OLED_L1, line, OLED_W);
   if (d.wifiConnected) snprintf(line, sizeof(line), "IP %s", d.ip);
   else snprintf(line, sizeof(line), "IP --");
-  drawTruncated(0, 48, line, OLED_W);
-  // L4：当前场景
+  drawTruncated(0, OLED_L2, line, OLED_W);
   snprintf(line, sizeof(line), "场景：%s", d.scenario);
-  drawTruncated(0, 64, line, OLED_W);
+  drawTruncated(0, OLED_L3, line, OLED_W);
+  drawPageDots();
 }
 
 static void drawMonitorPage(const OledPageData &d) {
-  // L1：标题（遥测是仿真数据，必须标“模拟数据”）
-  u8g2.drawUTF8(0, 16, "监测 · 模拟数据");
-  // L2–L4：每通道一行“标签数值单位”，状态右对齐。
+  // 标题栏右侧标“模拟数据”（遥测是仿真数据，必须标）。
+  drawHeader("司稼 · 监测", "模拟数据");
+  // 每通道一行“标签数值单位”，状态右对齐；12px 下三行都放得下单位，不会截掉。
   for (int i = 0; i < 3; i++) {
     char val[32];
     if (d.teleValid[i]) {
@@ -187,40 +237,57 @@ static void drawMonitorPage(const OledPageData &d) {
     } else {
       snprintf(val, sizeof(val), "%s--", d.teleLabel[i]);
     }
-    int y = 32 + i * OLED_LINE_H;
+    int y = OLED_L1 + i * OLED_LINE_H;
     const char *st = stateText(d.teleState[i]);
     int stW = u8g2.getUTF8Width(st);
     drawTruncated(0, y, val, OLED_W - stW - 4);  // 给右侧状态留位置
-    u8g2.drawUTF8(OLED_W - stW, y, st);
+    if (d.teleState[i] == 2) {
+      // 报警：状态字反白（白底黑字），一眼看到。
+      u8g2.drawBox(OLED_W - stW - 4, y - 11, stW + 4, 13);
+      u8g2.setDrawColor(0);
+      u8g2.drawUTF8(OLED_W - stW - 2, y, st);
+      u8g2.setDrawColor(1);
+    } else {
+      u8g2.drawUTF8(OLED_W - stW, y, st);
+    }
   }
+  drawPageDots();
 }
 
 static void drawChatPage(const OledPageData &d) {
-  // L1：标题；正在诊断时右侧显示“正在诊断…”
-  u8g2.drawUTF8(0, 16, "问答");
-  if (d.chatBusy) {
-    const char *busy = "正在诊断…";
-    u8g2.drawUTF8(OLED_W - u8g2.getUTF8Width(busy), 16, busy);
+  // 标题栏右侧：诊断中显示“正在诊断…”；答案有多页时显示“当前/总数”（如 1/3）。
+  char right[16] = "";
+  if (d.chatBusy) snprintf(right, sizeof(right), "正在诊断…");
+  else if (chatPageCount() > 1) snprintf(right, sizeof(right), "%d/%d", s_chatSub + 1, chatPageCount());
+  drawHeader("司稼 · 问答", right);
+  if (!d.lastQuestion[0] && s_ansLineCount == 0) {
+    // 还没问过：提示长按 BOOT 提问。
+    u8g2.drawUTF8(0, OLED_L1, "长按 BOOT 提问");
+    drawPageDots();
+    return;
   }
-  // L2：最后一问（截断显示）；没问过就提示长按 BOOT 提问。
-  char q[80];
-  if (d.lastQuestion[0]) snprintf(q, sizeof(q), "问：%s", d.lastQuestion);
-  else snprintf(q, sizeof(q), "长按 BOOT 提问");
-  drawTruncated(0, 32, q, OLED_W);
-  // L3–L4：答案前两行；写不下时末行写“请在主屏查看”。
-  if (d.lastAnswer[0]) {
-    char lines[2][40];
-    bool hasMore = false;
-    int n = wrapText(d.lastAnswer, OLED_W, lines, 2, &hasMore);
-    if (n >= 1) u8g2.drawUTF8(0, 48, lines[0]);
-    if (hasMore) u8g2.drawUTF8(0, 64, "请在主屏查看");
-    else if (n >= 2) u8g2.drawUTF8(0, 64, lines[1]);
+  if (s_chatSub == 0) {
+    // 第 0 子页：第 1 行是问题，第 2–3 行是答案第 0–1 行。
+    char q[80];
+    snprintf(q, sizeof(q), "问：%s", d.lastQuestion);
+    drawTruncated(0, OLED_L1, q, OLED_W);
+    if (s_ansLineCount >= 1) u8g2.drawUTF8(0, OLED_L2, s_ansLines[0]);
+    if (s_ansLineCount >= 2) u8g2.drawUTF8(0, OLED_L3, s_ansLines[1]);
+    else if (d.chatBusy) u8g2.drawUTF8(0, OLED_L2, "正在诊断…");
+  } else {
+    // 第 k≥1 子页：3 行全是答案（第 2+3(k-1) .. 2+3k-1 行）。
+    int first = 2 + (s_chatSub - 1) * 3;
+    const int ys[3] = {OLED_L1, OLED_L2, OLED_L3};
+    for (int i = 0; i < 3; i++) {
+      if (first + i < s_ansLineCount) u8g2.drawUTF8(0, ys[i], s_ansLines[first + i]);
+    }
   }
+  drawPageDots();
 }
 
 static void drawPage(const OledPageData &d) {
   u8g2.clearBuffer();
-  u8g2.setFont(OLED_FONT);
+  u8g2.setFont(OLED_FONT_S);
   switch (s_page) {
     case 0: drawStatusPage(d); break;
     case 1: drawMonitorPage(d); break;
@@ -234,12 +301,13 @@ void oledUiBegin() {
   // BOOT 按键：平时高电平，按下为低电平；只在启动后读，不影响 strapping 采样。
   pinMode(PIN_BOOT_BTN, INPUT_PULLUP);
   u8g2.begin();
-  u8g2.setFont(OLED_FONT);
-  // 启动页：先亮屏，说明这块屏通了；主循环随后按快照重绘。
+  // 启动页：大标题居中 + 分隔线 + 提示（先亮屏，说明这块屏通了；主循环随后按快照重绘）。
   u8g2.clearBuffer();
-  u8g2.drawUTF8(0, 16, "司稼");
-  u8g2.drawUTF8(0, 32, "正在启动…");
-  u8g2.drawUTF8(0, 48, "OLED 128x64");
+  u8g2.setFont(OLED_FONT);
+  u8g2.drawUTF8((OLED_W - u8g2.getUTF8Width("司稼")) / 2, 30, "司稼");
+  u8g2.drawHLine(44, 36, 40);
+  u8g2.setFont(OLED_FONT_S);
+  u8g2.drawUTF8((OLED_W - u8g2.getUTF8Width("正在启动…")) / 2, 50, "正在启动…");
   u8g2.sendBuffer();
   s_lastSwitchMs = millis();
 }
@@ -248,7 +316,13 @@ int oledUiTick(const OledPageData &d) {
   uint32_t now = millis();
   int action = OLED_ACTION_NONE;
 
-  // ---- BOOT 按键：消抖 + 短按切页 / 长按提问 ----
+  // 答案变了 → 重新换行，问答回到第 1 页（放按钮处理前面，让翻页逻辑用新的页数）。
+  if (strcmp(d.lastAnswer, s_lastDrawn.lastAnswer) != 0) {
+    rewrapAnswer(d.lastAnswer);
+    s_chatSub = 0;
+  }
+
+  // ---- BOOT 按键：消抖 + 短按翻页 / 长按提问 ----
   bool level = digitalRead(PIN_BOOT_BTN);
   if (level != s_btnLast) {
     s_btnLast = level;
@@ -263,27 +337,34 @@ int oledUiTick(const OledPageData &d) {
       s_btnPressed = false;
       if (now - s_btnDownMs >= OLED_LONG_PRESS_MS) {
         action = OLED_ACTION_ASK_PRESET_0;  // 长按：问第一条预设问题
+        s_chatSub = 0;  // 新问题来了，问答回到第 1 页
       } else {
-        s_page = (s_page + 1) % OLED_PAGE_COUNT;  // 短按：下一页
+        // 短按翻页：问答页先翻答案子页，翻完再到下一主页面；其他页直接到下一主页面。
+        if (s_page == 2 && s_chatSub < chatPageCount() - 1) {
+          s_chatSub++;
+        } else {
+          s_page = (s_page + 1) % OLED_PAGE_COUNT;
+          s_chatSub = 0;
+        }
         s_lastSwitchMs = now;
       }
     }
   }
 
-  // ---- 自动轮换：每 5 秒下一页 ----
-  if (now - s_lastSwitchMs >= OLED_AUTO_MS) {
-    s_page = (s_page + 1) % OLED_PAGE_COUNT;
-    s_lastSwitchMs = now;
-  }
+  // 注意：不自动轮换，只手动换页（用户要求）。
 
-  // ---- 按需重绘：翻页或内容变化时才刷（全屏 I2C 传输不便宜）----
+  // ---- 按需重绘：翻页（含问答子页）或内容变化时才刷（全屏 I2C 传输不便宜）----
   static int lastPageDrawn = -1;
-  bool pageChanged = (s_page != lastPageDrawn);
+  static int lastSubDrawn = -1;
+  bool pageChanged = (s_page != lastPageDrawn) || (s_chatSub != lastSubDrawn);
   if (!s_haveDrawn || pageChanged || snapshotChanged(d, s_lastDrawn)) {
+    if (s_chatSub >= chatPageCount()) s_chatSub = chatPageCount() - 1;
+    if (s_chatSub < 0) s_chatSub = 0;
     drawPage(d);
     s_lastDrawn = d;
     s_haveDrawn = true;
     lastPageDrawn = s_page;
+    lastSubDrawn = s_chatSub;
   }
   return action;
 }
