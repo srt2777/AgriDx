@@ -148,11 +148,11 @@ C3 要点：
 | VCC | 3.3V | 3.3V | OLED 用 3.3V，不要接 5V |
 | GND | GND | GND | 共地 |
 | SDA | GPIO 8 | GPIO 12 | I2C 数据 |
-| SCL | GPIO 9（见下注意） | GPIO 13 | I2C 时钟 |
+| SCL | GPIO 7 | GPIO 13 | I2C 时钟 |
 
 要点：
 
-- **⚠ S3 上 SCL 与 TFT_DC 撞脚**：`display_config.h` 里 `PIN_TFT_DC` 与 `PIN_OLED_SCL` 都是 GPIO 9，主屏和 OLED 不能同时用。写 OLED 版固件前必须先改：把 OLED 的 SCL 移到空闲 GPIO（如 GPIO 7，核对引脚图确认未被占用），同步改 `display_config.h` 里的 `PIN_OLED_SCL` 和本表。RV0.1.0 主固件不含 OLED 代码，本版不受影响。
+- **2026-11-09 已修：S3 的 OLED SCL 由 GPIO 9 移到 GPIO 7**：原来 `display_config.h` 里 `PIN_TFT_DC` 与 `PIN_OLED_SCL` 都是 GPIO 9，主屏和 OLED 不能同时用；现 SCL 已移到空闲的 GPIO 7，`display_config.h` 里的 `PIN_OLED_SCL` 和本表已同步改好（到货后仍按 §2 第 2 项核对引脚图）。
 - C3 用 SDA GPIO 12 / SCL GPIO 13（`display_config.h` C3 一节），无撞脚问题。
 - I2C 地址常见 0x3C（部分模块是 0x3D），以实物丝印 / 固件扫描结果为准；实测模块地址跳线在 0x78（即 7 位地址 0x3C），跳线改 0x7A 时地址为 0x3D。
 - OLED 是单色黑底白字，只放状态和简短问答（见方案 §2.3），不画表盘和曲线。
