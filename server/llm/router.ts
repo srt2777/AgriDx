@@ -114,6 +114,47 @@ export class LlmRouter {
     return { primary: first, secondary: second };
   }
 
+  async chatStream(messages: ChatMessage[], onDelta: (text: string) => void, options?: { signal?: AbortSignal }): Promise<RouteOutcome> {
+    const preference = getPreference();
+    if (preference === null) {
+      throw new ProviderError('deepseek', 'configuration', 'invalid LLM_PROVIDER');
+    }
+    const { primary, secondary } = this.pickPrimary(preference);
+    if (!primary.isConfigured()) {
+      throw new ProviderError(primary.name, 'configuration', 'no LLM API key configured');
+    }
+    let emitted = false;
+    const guard = (text: string) => { emitted = true; onDelta(text); };
+    const run = async (provider: Provider): Promise<ChatResult> => {
+      if (provider.chatStream) return provider.chatStream(messages, guard, options);
+      const result = await provider.chat(messages);
+      guard(result.content);
+      return result;
+    };
+    let primaryError: ProviderError;
+    try {
+      const result = await run(primary);
+      return { result, primary: primary.name, fellBack: false, attempts: 1 };
+    } catch (error) {
+      primaryError = asProviderError(primary.name, error);
+      console.warn(`[llm] primary ${primary.name} failed (${primaryError.kind})`);
+    }
+    // A stream that already emitted text cannot be replaced by the other
+    // provider: the client already saw the first provider's words, so a
+    // second provider's answer would splice onto a partial reply.
+    if (emitted) { primaryError.attempts = 1; throw primaryError; }
+    if (!secondary.isConfigured()) { primaryError.attempts = 1; throw primaryError; }
+    try {
+      const result = await run(secondary);
+      return { result, primary: primary.name, fellBack: true, fallbackReason: primaryError.kind, attempts: 2 };
+    } catch (error) {
+      const secondaryError = asProviderError(secondary.name, error);
+      secondaryError.attempts = 2;
+      console.warn(`[llm] secondary ${secondary.name} failed (${secondaryError.kind})`);
+      throw secondaryError;
+    }
+  }
+
   async chat(messages: ChatMessage[]): Promise<RouteOutcome> {
     const preference = getPreference();
     if (preference === null) {

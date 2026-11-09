@@ -126,11 +126,13 @@ export interface DiagnosisTrace {
   sentKnowledgeIds: string[];
   timings: { retrievalMs: number; decisionMs: number; externalAiMs: number; totalMs: number };
   /**
-   * Main tool loop observability. Present whenever the diagnosis service runs,
-   * even when the loop is disabled or never ran: enabled says whether
-   * AGENT_LOOP=main was on, ran says whether the loop actually executed,
-   * status is null when it never ran, toolSteps counts desensitised tool
-   * events (not model steps), and toolEvents carry no arguments or output.
+   * Awaited main tool loop observability. The loop was removed from the
+   * answer path 2026-11-10 (latency: it burned its whole 8 s budget in
+   * most production turns before the single call ran); the field stays
+   * so the trace shape is unchanged, and always reports
+   * enabled=false / ran=false / status=null now. Tool use continues
+   * only as the post-answer shadow loop (AGENT_LOOP=shadow), whose
+   * outcome is a server log line, not part of this trace.
    */
   mainLoop?: {
     enabled: boolean;

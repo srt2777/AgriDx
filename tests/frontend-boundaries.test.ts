@@ -3,7 +3,7 @@ import { workbenchRoutes } from '../src/features/workbench/navigation';
 import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
 import { ApiError, requestJson, type FetchImplementation } from '../src/lib/api-client';
-import { parseChatResponse, parseLlmHealth, requestChat } from '../src/features/chat/api';
+import { parseChatResponse, parseLlmHealth, requestChat, requestChatStream } from '../src/features/chat/api';
 import {
   createChatRequest, loadChatSession, META_KEY, parseHistory, saveHistory, saveMachineContext, STORAGE_KEY,
 } from '../src/features/chat/session';
@@ -188,4 +188,77 @@ test('旧版独立侧栏，新版大厅与功能路由共用同一外框', () =>
   assert.match(oldShellSource, /data-ui-version="old"/);
   assert.doesNotMatch(oldShellSource, /data-ui-version="new"|new-version-shell/);
   assert.match(oldShellSource, /<Outlet \/>/);
+});
+
+const streamEnvelope = { ...answer, provider: 'deepseek', model: 'stream-model', answerMode: 'general-guidance', knowledgeChunks: 2 };
+function sseFetch(body: string): FetchImplementation {
+  return async (_path, options) => {
+    assert.equal((options?.headers as Record<string, string>).Accept, 'text/event-stream');
+    return new Response(body, { headers: { 'Content-Type': 'text/event-stream' } });
+  };
+}
+
+test('流式问答按序收到增量并以 done 信封为准替换预览', async () => {
+  const deltas: string[] = [];
+  const reply = await requestChatStream(
+    { messages: [{ role: 'user', content: '问题' }] },
+    new AbortController().signal, '请重试',
+    (text) => { deltas.push(text); },
+    sseFetch(
+      'event: delta\ndata: {"text":"先区分"}\n\n'
+      + 'event: delta\ndata: {"text":"空载与负载"}\n\n'
+      + `event: done\ndata: ${JSON.stringify(streamEnvelope)}\n\n`,
+    ),
+  );
+  assert.deepEqual(deltas, ['先区分', '空载与负载']);
+  assert.equal(reply.role, 'assistant');
+  assert.equal(reply.content, '参考资料答复');
+  assert.equal(reply.provider, 'deepseek');
+  assert.equal(reply.knowledgeChunks, 2);
+});
+
+test('流式端点返回普通 JSON 时直接用 JSON 答复，不产生增量', async () => {
+  const deltas: string[] = [];
+  const reply = await requestChatStream(
+    { messages: [{ role: 'user', content: '问题' }] },
+    new AbortController().signal, '请重试',
+    (text) => { deltas.push(text); },
+    async () => Response.json(streamEnvelope),
+  );
+  assert.deepEqual(deltas, []);
+  assert.equal(reply.content, '参考资料答复');
+});
+
+test('流式 error 事件变成与 HTTP 错误相同的错误答复', async () => {
+  const reply = await requestChatStream(
+    { messages: [{ role: 'user', content: '问题' }] },
+    new AbortController().signal, '请重试',
+    () => {},
+    sseFetch('event: delta\ndata: {"text":"半截"}\n\nevent: error\ndata: {"error":"智能诊断服务暂时无法连接，请稍后重试。","code":"llm_unavailable"}\n\n'),
+  );
+  assert.deepEqual(reply, { role: 'error', content: '智能诊断服务暂时无法连接，请稍后重试。' });
+});
+
+test('流式在 done 之前断开按无效响应处理', async () => {
+  await assert.rejects(
+    requestChatStream(
+      { messages: [{ role: 'user', content: '问题' }] },
+      new AbortController().signal, '请重试',
+      () => {},
+      sseFetch('event: delta\ndata: {"text":"半截"}\n\n'),
+    ),
+    { message: 'Invalid chat response' },
+  );
+});
+
+test('流式取消在请求前发生时不调用 fetch', async () => {
+  const cancelled = new AbortController();
+  cancelled.abort();
+  let called = false;
+  const notCalled: FetchImplementation = async () => { called = true; return new Response('{}'); };
+  await assert.rejects(
+    requestChatStream({ messages: [{ role: 'user', content: '问题' }] }, cancelled.signal, '请重试', () => {}, notCalled),
+    { name: 'AbortError' },
+  );
+  assert.equal(called, false);
 });

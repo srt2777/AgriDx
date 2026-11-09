@@ -29,21 +29,24 @@ export function revisionFrom(value: unknown): number {
   if (typeof value !== 'number' || !Number.isSafeInteger(value) || value < 0) throw new MemoryError(400, 'bad_request', '请提供有效的诊断记录版本');
   return value;
 }
+/** Same mapping as memoryFailure, without writing the response: the chat route needs the payload for SSE error events after headers are sent. */
+export function memoryErrorPayload(error: unknown): { status: number; code: string; error: string } {
+  if (error instanceof MemoryError) return { status: error.status, code: error.code, error: error.message };
+  // The 503 body must stay sanitized, but the underlying store error has
+  // to reach the server log: without it the failure is undiagnosable from
+  // logs (2026-11-04 only "[memory] storage operation failed" was
+  // recorded, with no SQLite text). The detail comes from the store
+  // (SQLite), never from request content or credentials.
+  const code = (error as { code?: unknown })?.code;
+  const detail = error instanceof Error
+    ? `${error.name}: ${error.message}${typeof code === 'string' || typeof code === 'number' ? ` (code=${code})` : ''}`
+    : String(error);
+  console.warn('[memory] storage operation failed', detail);
+  return { status: 503, code: 'memory_unavailable', error: '诊断记忆暂时无法保存或读取，请稍后重试；已有记录不会被清空' };
+}
 export function memoryFailure(error: unknown, res: Response) {
-  if (error instanceof MemoryError) res.status(error.status).json({ code: error.code, error: error.message });
-  else {
-    // The 503 body must stay sanitized, but the underlying store error has
-    // to reach the server log: without it the failure is undiagnosable from
-    // logs (2026-11-04 only "[memory] storage operation failed" was
-    // recorded, with no SQLite text). The detail comes from the store
-    // (SQLite), never from request content or credentials.
-    const code = (error as { code?: unknown })?.code;
-    const detail = error instanceof Error
-      ? `${error.name}: ${error.message}${typeof code === 'string' || typeof code === 'number' ? ` (code=${code})` : ''}`
-      : String(error);
-    console.warn('[memory] storage operation failed', detail);
-    res.status(503).json({ code: 'memory_unavailable', error: '诊断记忆暂时无法保存或读取，请稍后重试；已有记录不会被清空' });
-  }
+  const payload = memoryErrorPayload(error);
+  res.status(payload.status).json({ code: payload.code, error: payload.error });
 }
 export function createMemoryRoutes(store = getMemoryStore) {
 const memoryRouter = Router();
