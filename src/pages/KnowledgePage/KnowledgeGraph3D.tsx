@@ -3,9 +3,10 @@ import type { FC, Ref } from 'react';
 import * as THREE from 'three';
 import SpriteText from 'three-spritetext';
 import { useReducedMotion } from 'framer-motion';
+import { useTheme, type Theme } from '@/hooks/useTheme';
 import { useUiCopy } from '@/ui/useUiCopy';
 import type { TaxonomyNode } from './knowledge-taxonomy-data';
-import { buildForceGraphData, labelVisible, type ForceGraphData, type ForceGraphLink, type ForceGraphNode } from './knowledge-graph-3d-data';
+import { buildForceGraphData, labelVisible, levelColorForTheme, type ForceGraphData, type ForceGraphLink, type ForceGraphNode } from './knowledge-graph-3d-data';
 import type { ForceGraphMethods, ForceGraphProps, NodeObject } from 'react-force-graph-3d';
 import './knowledge-graph-3d.css';
 
@@ -21,8 +22,24 @@ type GraphNode = NodeObject<ForceGraphNode>;
 type GraphInstance = ForceGraphMethods<ForceGraphNode, ForceGraphLink>;
 
 const DARK_BACKDROP = '#171310';
-const LINK_COLOR = '#c9a86a';
-const PARTICLE_COLOR = '#ffd97a';
+const LIGHT_BACKDROP = '#f7f2e7';
+
+interface GraphPalette {
+  backdrop: string;
+  link: string;
+  particle: string;
+  label: string;
+  /** 辉光精灵基础不透明度。 */
+  glowOpacity: number;
+  /** 品牌 / 机型光环圆环不透明度。 */
+  haloOpacity: number;
+}
+
+/** 按主题的图谱配色：浅色用暖纸面底 + 深色线条文字，深色沿用原有暖夜配色。 */
+const GRAPH_PALETTES: Record<Theme, GraphPalette> = {
+  light: { backdrop: LIGHT_BACKDROP, link: '#a8842f', particle: '#c98f1b', label: '#4a3a20', glowOpacity: 0.32, haloOpacity: 0.5 },
+  dark: { backdrop: DARK_BACKDROP, link: '#c9a86a', particle: '#ffd97a', label: '#f5efe4', glowOpacity: 0.55, haloOpacity: 0.55 },
+};
 
 let glowTexture: THREE.Texture | null = null;
 function getGlowTexture(): THREE.Texture {
@@ -84,22 +101,30 @@ interface KnowledgeGraph3DProps {
  */
 export default function KnowledgeGraph3D({ nodes, selectedId, onSelect, lang, onRequestClassic }: KnowledgeGraph3DProps) {
   const { t } = useUiCopy(lang);
+  const theme = useTheme();
+  const palette = GRAPH_PALETTES[theme];
   const reducedMotion = !!useReducedMotion();
   const [webgl] = useState(webglAvailable);
   const [expandedIds, setExpandedIds] = useState<ReadonlySet<string>>(new Set());
   const [roam, setRoam] = useState(false);
-  const [particles, setParticles] = useState(true);
+  const [particles, setParticles] = useState(!reducedMotion);
   const [paused, setPaused] = useState(false);
   const [graphReady, setGraphReady] = useState(false);
-  const [hovered, setHovered] = useState(false);
+  const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [size, setSize] = useState({ width: 720, height: 460 });
   const containerRef = useRef<HTMLDivElement>(null);
   const fgRef = useRef<GraphInstance | null>(null);
   const objectCache = useRef(new Map<string, THREE.Group>());
+  const bloomRef = useRef<{ strength: number; threshold: number } | null>(null);
   const lookAtRef = useRef({ x: 0, y: 0, z: 0 });
   const fittedOnce = useRef(false);
   const suppressFocusRef = useRef(false);
   const lastPointerRef = useRef(0);
+
+  /** 挂载即记一次时间：空闲漂移从页面打开 5 秒后才开始，而非立即环绕。 */
+  useEffect(() => {
+    lastPointerRef.current = Date.now();
+  }, []);
 
   const data: ForceGraphData = useMemo(
     () => buildForceGraphData(nodes, { expandedIds }),
@@ -121,33 +146,57 @@ export default function KnowledgeGraph3D({ nodes, selectedId, onSelect, lang, on
 
   const buildNodeObject = useCallback((node: GraphNode): THREE.Object3D => {
     const showLabel = labelVisible(node as ForceGraphNode, data.nodes.length);
-    const key = `${node.id}:${showLabel ? 'label' : 'plain'}`;
+    const key = `${node.id}:${showLabel ? 'label' : 'plain'}:${theme}`;
     const cached = objectCache.current.get(key);
     if (cached) return cached;
     const group = new THREE.Group();
     group.userData.nodeId = node.id;
     const radius = Math.max(1.4, (node.val ?? 4) * 0.9);
-    const color = node.color ?? '#d9a441';
+    const color = levelColorForTheme(node.level, theme);
+    const isMajor = node.level === 'brand' || node.level === 'model';
     const core = new THREE.Mesh(
       new THREE.SphereGeometry(radius, 20, 20),
       new THREE.MeshBasicMaterial({ color }),
     );
+    core.name = 'core';
     group.add(core);
+    // 更大更柔的辉光：柔化生硬的球体边缘。
     const glow = new THREE.Sprite(new THREE.SpriteMaterial({
       map: getGlowTexture(), color, blending: THREE.AdditiveBlending,
-      depthWrite: false, transparent: true, opacity: 0.55,
+      depthWrite: false, transparent: true, opacity: palette.glowOpacity,
     }));
-    glow.scale.setScalar(radius * 5);
+    glow.scale.setScalar(radius * 6.5);
+    glow.name = 'glow';
+    glow.userData.baseOpacity = palette.glowOpacity;
     group.add(glow);
+    // 品牌 / 机型多一圈细光环：层级不只靠尺寸区分。
+    if (isMajor) {
+      const halo = new THREE.Sprite(new THREE.SpriteMaterial({
+        map: getRingTexture(), color, blending: THREE.AdditiveBlending,
+        depthWrite: false, transparent: true, opacity: palette.haloOpacity,
+      }));
+      halo.scale.setScalar(radius * 3.4);
+      halo.name = 'halo-ring';
+      group.add(halo);
+    }
+    // 小高光点：给球体一点纵深，不再是纯平色块。
+    const highlight = new THREE.Sprite(new THREE.SpriteMaterial({
+      map: getGlowTexture(), color: '#ffffff', blending: THREE.AdditiveBlending,
+      depthWrite: false, transparent: true, opacity: theme === 'light' ? 0.5 : 0.35,
+    }));
+    highlight.scale.setScalar(radius * 2.2);
+    highlight.position.set(radius * 0.25, radius * 0.3, radius * 0.4);
+    highlight.name = 'highlight';
+    group.add(highlight);
     if (showLabel) {
       const text = new SpriteText(node.label ?? '');
       text.textHeight = Math.max(2.4, radius * 0.95);
-      text.color = '#f5efe4';
+      text.color = palette.label;
       text.position.y = radius + 3.5;
       group.add(text);
     }
     const ring = new THREE.Sprite(new THREE.SpriteMaterial({
-      map: getRingTexture(), color: PARTICLE_COLOR, blending: THREE.AdditiveBlending,
+      map: getRingTexture(), color: palette.particle, blending: THREE.AdditiveBlending,
       depthWrite: false, transparent: true, opacity: 0,
     }));
     ring.scale.setScalar(radius * 2);
@@ -156,7 +205,13 @@ export default function KnowledgeGraph3D({ nodes, selectedId, onSelect, lang, on
     group.add(ring);
     objectCache.current.set(key, group);
     return group;
-  }, [data.nodes.length]);
+  }, [data.nodes.length, palette, theme]);
+
+  /** 主题切换：丢弃按主题缓存的节点对象并让力导向图重建，旧主题颜色不残留。 */
+  useEffect(() => {
+    objectCache.current.clear();
+    fgRef.current?.refresh();
+  }, [theme]);
 
   const focusNode = useCallback((node: GraphNode | undefined, ms = 900) => {
     const fg = fgRef.current;
@@ -175,6 +230,7 @@ export default function KnowledgeGraph3D({ nodes, selectedId, onSelect, lang, on
 
   const handleNodeClick = useCallback((node: GraphNode) => {
     if (!node.id) return;
+    lastPointerRef.current = Date.now();
     onSelect(node.id);
     if (node.hasChildren && !expandedIds.has(node.id)) {
       setExpandedIds(prev => new Set(prev).add(node.id!));
@@ -226,36 +282,91 @@ export default function KnowledgeGraph3D({ nodes, selectedId, onSelect, lang, on
     return () => cancelAnimationFrame(raf);
   }, [selectedId, reducedMotion]);
 
-  /** 漫游：相机绕当前焦点缓慢环绕；用户操作后 3 秒内暂停环绕。 */
+  /** 呼吸与悬停反馈：辉光轻微起伏，悬停节点放大并增亮；减动效时保持静止。 */
   useEffect(() => {
-    if (!roam || reducedMotion) return;
+    if (reducedMotion) {
+      for (const group of objectCache.current.values()) {
+        group.scale.setScalar(1);
+        const glow = group.getObjectByName('glow') as THREE.Sprite | undefined;
+        if (glow) {
+          (glow.material as THREE.SpriteMaterial).opacity = (glow.userData.baseOpacity as number) ?? palette.glowOpacity;
+        }
+      }
+      return;
+    }
     let raf = 0;
-    const tick = () => {
-      const fg = fgRef.current;
-      if (fg && Date.now() - lastPointerRef.current > 3000) {
-        const cam = fg.camera();
-        const lookAt = lookAtRef.current;
-        const dx = cam.position.x - lookAt.x;
-        const dy = cam.position.y - lookAt.y;
-        const dz = cam.position.z - lookAt.z;
-        const r = Math.hypot(dx, dy, dz);
-        if (r > 1) {
-          const theta = Math.atan2(dz, dx) + 0.0016;
-          const phi = Math.acos(Math.max(-1, Math.min(1, dy / r)));
-          fg.cameraPosition({
-            x: lookAt.x + r * Math.sin(phi) * Math.cos(theta),
-            y: lookAt.y + r * Math.cos(phi),
-            z: lookAt.z + r * Math.sin(phi) * Math.sin(theta),
-          }, lookAt, 0);
+    const hash = (value: string) => {
+      let h = 0;
+      for (let i = 0; i < value.length; i += 1) h = (h * 31 + value.charCodeAt(i)) >>> 0;
+      return h;
+    };
+    const tick = (now: number) => {
+      const seconds = now / 1000;
+      for (const group of objectCache.current.values()) {
+        const id = group.userData.nodeId as string | undefined;
+        if (!id) continue;
+        const phase = (hash(id) % 100) / 100 * Math.PI * 2;
+        const sway = Math.sin(seconds * 0.9 + phase);
+        const isHovered = hoveredId === id;
+        group.scale.setScalar((1 + 0.06 * sway) * (isHovered ? 1.18 : 1));
+        const glow = group.getObjectByName('glow') as THREE.Sprite | undefined;
+        if (glow) {
+          const material = glow.material as THREE.SpriteMaterial;
+          const base = (glow.userData.baseOpacity as number) ?? palette.glowOpacity;
+          material.opacity = base * (isHovered ? 1.6 : 1) * (0.92 + 0.08 * sway);
         }
       }
       raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-  }, [roam, reducedMotion]);
+  }, [reducedMotion, hoveredId, palette.glowOpacity]);
 
-  /** 辉光后期处理：失败时仍保留精灵辉光，不影响图谱使用。 */
+  /** 相机绕当前焦点环绕一步；漫游与空闲漂移共用。 */
+  const orbitCamera = useCallback((step: number) => {
+    const fg = fgRef.current;
+    if (!fg) return;
+    const cam = fg.camera();
+    const lookAt = lookAtRef.current;
+    const dx = cam.position.x - lookAt.x;
+    const dy = cam.position.y - lookAt.y;
+    const dz = cam.position.z - lookAt.z;
+    const r = Math.hypot(dx, dy, dz);
+    if (r <= 1) return;
+    const theta = Math.atan2(dz, dx) + step;
+    const phi = Math.acos(Math.max(-1, Math.min(1, dy / r)));
+    fg.cameraPosition({
+      x: lookAt.x + r * Math.sin(phi) * Math.cos(theta),
+      y: lookAt.y + r * Math.cos(phi),
+      z: lookAt.z + r * Math.sin(phi) * Math.sin(theta),
+    }, lookAt, 0);
+  }, []);
+
+  /** 漫游：相机绕当前焦点缓慢环绕；用户操作后 3 秒内暂停环绕。 */
+  useEffect(() => {
+    if (!roam || reducedMotion) return;
+    let raf = 0;
+    const tick = () => {
+      if (Date.now() - lastPointerRef.current > 3000) orbitCamera(0.0016);
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [roam, reducedMotion, orbitCamera]);
+
+  /** 空闲漂移：5 秒无人操作时相机缓慢环绕，比手动漫游更慢；任意指针操作即停，手动漫游优先。 */
+  useEffect(() => {
+    if (reducedMotion || paused || roam) return;
+    let raf = 0;
+    const tick = () => {
+      if (Date.now() - lastPointerRef.current > 5000) orbitCamera(0.0008);
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [reducedMotion, paused, roam, orbitCamera]);
+
+  /** 辉光后期处理：失败时仍保留精灵辉光，不影响图谱使用；浅色下降低强度，避免纸面过曝。 */
   useEffect(() => {
     if (!webgl || !graphReady) return;
     let cancelled = false;
@@ -263,14 +374,22 @@ export default function KnowledgeGraph3D({ nodes, selectedId, onSelect, lang, on
       const fg = fgRef.current;
       if (cancelled || !fg) return;
       try {
-        const bloom = new UnrealBloomPass(new THREE.Vector2(size.width, size.height), 0.7, 0.5, 0.1);
-        fg.postProcessingComposer().addPass(bloom);
+        const strength = theme === 'light' ? 0.35 : 0.7;
+        const threshold = theme === 'light' ? 0.25 : 0.1;
+        if (bloomRef.current) {
+          bloomRef.current.strength = strength;
+          bloomRef.current.threshold = threshold;
+        } else {
+          const bloom = new UnrealBloomPass(new THREE.Vector2(size.width, size.height), strength, 0.5, threshold);
+          bloomRef.current = bloom;
+          fg.postProcessingComposer().addPass(bloom);
+        }
       } catch {
         /* Sprite glow remains as the light effect. */
       }
     }).catch(() => { /* Sprite glow remains as the light effect. */ });
     return () => { cancelled = true; };
-  }, [webgl, graphReady, size.width, size.height]);
+  }, [webgl, graphReady, size.width, size.height, theme]);
 
   const zoomBy = useCallback((factor: number) => {
     const fg = fgRef.current;
@@ -311,8 +430,9 @@ export default function KnowledgeGraph3D({ nodes, selectedId, onSelect, lang, on
     <div
       className="knowledge-graph-3d-viewport"
       ref={containerRef}
-      style={{ cursor: hovered ? 'pointer' : undefined }}
+      style={{ cursor: hoveredId ? 'pointer' : undefined }}
       onPointerDown={() => { lastPointerRef.current = Date.now(); }}
+      onPointerMove={() => { lastPointerRef.current = Date.now(); }}
     >
       <Suspense fallback={<p role="status" className="knowledge-graph-3d-loading">{t('正在加载动感图谱…', 'Loading dynamic graph…')}</p>}>
         <ForceGraph3D
@@ -326,20 +446,20 @@ export default function KnowledgeGraph3D({ nodes, selectedId, onSelect, lang, on
           nodeColor="color"
           nodeLabel={(node: GraphNode) => `${node.label ?? ''} · ${node.count ?? 0}${t(' 条关联资料', ' linked entries')}`}
           nodeThreeObject={buildNodeObject}
-          linkColor={() => LINK_COLOR}
-          linkOpacity={0.45}
+          linkColor={() => palette.link}
+          linkOpacity={0.55}
           linkWidth={1}
-          linkDirectionalParticles={particles ? 2 : 0}
-          linkDirectionalParticleWidth={2.5}
-          linkDirectionalParticleSpeed={0.006}
-          linkDirectionalParticleColor={() => PARTICLE_COLOR}
-          backgroundColor={DARK_BACKDROP}
+          linkDirectionalParticles={particles ? 3 : 0}
+          linkDirectionalParticleWidth={3}
+          linkDirectionalParticleSpeed={0.012}
+          linkDirectionalParticleColor={() => palette.particle}
+          backgroundColor={palette.backdrop}
           showNavInfo={false}
           enableNodeDrag
           enableNavigationControls
-          cooldownTicks={150}
-          d3AlphaDecay={0.02}
-          d3VelocityDecay={0.3}
+          cooldownTicks={200}
+          d3AlphaDecay={0.015}
+          d3VelocityDecay={0.28}
           width={size.width}
           height={size.height}
           onEngineStop={() => {
@@ -349,7 +469,7 @@ export default function KnowledgeGraph3D({ nodes, selectedId, onSelect, lang, on
             }
           }}
           onNodeClick={handleNodeClick}
-          onNodeHover={(node: GraphNode | null) => setHovered(!!node)}
+          onNodeHover={(node: GraphNode | null) => setHoveredId(node?.id ?? null)}
         />
       </Suspense>
       <p className="knowledge-graph-3d-status" role="status">
