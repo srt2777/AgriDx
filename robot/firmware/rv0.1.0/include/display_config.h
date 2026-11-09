@@ -77,11 +77,11 @@
 #define PIN_TFT_BL   21   // 背光，PWM 调光
 #define PIN_TOUCH_CS 15
 #define PIN_TOUCH_IRQ 16
-// 0.96 寸 OLED（副屏，U8g2，SSD1306 I2C）：SDA 是 GPIO 8、SCL 是 GPIO 9。
-// 注意：SCL 与 TFT_DC（GPIO 9）撞脚；S3 上接 OLED 前必须把 SCL 移到空闲 GPIO
-//（如 GPIO 7），同步改这里（见 docs/ASSEMBLY.md §4.3）。OLED 版目前只支持 C3（SCL 13）。
+// 0.96 寸 OLED（副屏，U8g2，SSD1306 I2C）：SDA 是 GPIO 8、SCL 是 GPIO 7。
+// 2026-11-09 已修：SCL 原为 GPIO 9，与 TFT_DC（GPIO 9）撞脚，移到空闲的 GPIO 7
+//（见 docs/ASSEMBLY.md §4.3）。S3 的 OLED 固件环境还没写，C3 版先行（SCL 13）。
 #define PIN_OLED_SDA  8
-#define PIN_OLED_SCL  9
+#define PIN_OLED_SCL  7
 #endif
 
 // ---- 触摸标定（XPT2046 原始值 0~4095；到货后按实际触摸位置微调）----
