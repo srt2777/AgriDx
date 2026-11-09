@@ -8,6 +8,7 @@ import {
   ProviderError,
   type ChatMessage,
   type ChatResult,
+  type ChatStreamOptions,
   type Provider,
   type ProviderName,
   type ToolChatOptions,
@@ -175,6 +176,117 @@ export function createOpenAICompatibleProvider(opts: OpenAICompatibleOptions): P
         content,
         provider: name,
         model: typeof record.model === 'string' && record.model.trim() ? record.model.trim() : model,
+        usage: Object.keys(usage).length ? usage : undefined,
+      };
+    },
+    async chatStream(messages: ChatMessage[], onDelta: (text: string) => void, options: ChatStreamOptions = {}): Promise<ChatResult> {
+      const apiKey = getKey();
+      if (!apiKey) {
+        throw new ProviderError(name, 'configuration', `missing ${apiKeyEnv}`);
+      }
+      // Same self-intro handling as chat(): the model must answer for
+      // itself with the configured name when asked.
+      const outgoing: ChatMessage[] = selfIntro
+        ? (() => {
+            const withIntro = [...messages];
+            if (withIntro[0]?.role === 'system') {
+              withIntro[0] = { ...withIntro[0], content: withIntro[0].content + '\n\n' + selfIntro };
+            } else {
+              withIntro.unshift({ role: 'system', content: selfIntro });
+            }
+            return withIntro;
+          })()
+        : messages;
+      let content = '';
+      let upstreamModel: string | undefined;
+      let sawDone = false;
+      const usage: ChatResult['usage'] = {};
+      const readUsage = (rawUsage: unknown) => {
+        if (!rawUsage || typeof rawUsage !== 'object') return;
+        for (const field of ['prompt_tokens', 'completion_tokens', 'total_tokens'] as const) {
+          const value = (rawUsage as Record<string, unknown>)[field];
+          if (typeof value === 'number' && Number.isFinite(value) && value >= 0) usage[field] = value;
+        }
+      };
+      const handleLine = (line: string) => {
+        if (!line.startsWith('data:')) return;
+        const data = line.slice(5).trim();
+        if (!data) return;
+        if (data === '[DONE]') { sawDone = true; return; }
+        let parsed: unknown;
+        try { parsed = JSON.parse(data); } catch { return; }
+        if (!parsed || typeof parsed !== 'object') return;
+        const record = parsed as Record<string, unknown>;
+        const choice = Array.isArray(record.choices) ? record.choices[0] : undefined;
+        const delta = choice && typeof choice === 'object' ? (choice as Record<string, unknown>).delta : undefined;
+        const text = delta && typeof delta === 'object' && typeof (delta as Record<string, unknown>).content === 'string'
+          ? (delta as Record<string, unknown>).content as string : '';
+        if (text) { content += text; onDelta(text); }
+        if (typeof record.model === 'string' && record.model.trim()) upstreamModel = record.model.trim();
+        readUsage(record.usage);
+      };
+      try {
+        await fetchWithTimeout(
+          apiUrl,
+          {
+            method: 'POST',
+            signal: options.signal,
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${apiKey}`,
+            },
+            body: JSON.stringify({
+              model,
+              messages: outgoing,
+              temperature: 0.3,
+              stream: true,
+            }),
+          },
+          timeoutMs,
+          async (response): Promise<void> => {
+            if (!response.ok) {
+              if (response.status === 401 || response.status === 403) throw new ProviderError(name, 'auth', `HTTP ${response.status}`);
+              if (response.status === 400 || response.status === 422) throw new ProviderError(name, 'bad_request', `HTTP ${response.status}`);
+              if (response.status === 429) throw new ProviderError(name, 'rate_limit', `HTTP ${response.status}`);
+              if (response.status >= 500) throw new ProviderError(name, 'server_error', `HTTP ${response.status}`);
+              throw new ProviderError(name, 'unknown', `HTTP ${response.status}`);
+            }
+            const body = response.body;
+            if (!body) throw new ProviderError(name, 'invalid_response', 'response has no body');
+            const reader = body.getReader();
+            const decoder = new TextDecoder();
+            let buffer = '';
+            for (;;) {
+              const { done, value } = await reader.read();
+              if (value) buffer += decoder.decode(value, { stream: true });
+              let newline = buffer.indexOf('\n');
+              while (newline >= 0) {
+                handleLine(buffer.slice(0, newline).replace(/\r$/, ''));
+                buffer = buffer.slice(newline + 1);
+                newline = buffer.indexOf('\n');
+              }
+              if (done) break;
+            }
+            buffer += decoder.decode();
+            if (buffer.trim()) handleLine(buffer.trim());
+          },
+        );
+      } catch (err) {
+        if (err instanceof ProviderError) throw err;
+        const kind = err instanceof Error && err.message === 'timeout' ? 'timeout'
+          : err instanceof Error && err.message === 'cancelled' ? 'cancelled' : 'network';
+        throw new ProviderError(name, kind, kind === 'timeout' ? 'request timed out' : kind === 'cancelled' ? 'request cancelled' : 'request failed');
+      }
+      if (!content.trim()) {
+        throw new ProviderError(name, 'invalid_response', 'missing assistant content');
+      }
+      if (!sawDone) {
+        throw new ProviderError(name, 'invalid_response', 'stream ended without DONE');
+      }
+      return {
+        content: content.trim(),
+        provider: name,
+        model: upstreamModel ?? model,
         usage: Object.keys(usage).length ? usage : undefined,
       };
     },

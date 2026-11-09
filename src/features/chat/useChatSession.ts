@@ -5,7 +5,7 @@ import type { DiagnosisMode } from '../../../shared/diagnosis';
 import { useCallback, useEffect, useRef, useState, useMemo } from 'react';
 import { toast } from 'sonner';
 import type { ChatProvider, FallbackReason, ChatTelemetrySummary } from '../../../shared/chat';
-import { requestChat } from './api';
+import { requestChatStream } from './api';
 import {
   createChatRequest, generateMessageId, loadChatSession, MAX_QUESTION_LENGTH,
   saveHistory, saveMachineContext, parseHistory, parseFaultCodes, composeDiagnosticQuestion, classifyChatSendFailure, type ChatMessage, type DiagnosticTextAttachment,
@@ -42,6 +42,8 @@ export function useChatSession({ handoff, translate: t, focusInput, minLoadingMs
   const [deviceNotes, setDeviceNotes] = useState('');
   const [progress, setProgress] = useState('');
   const requestRef = useRef<AbortController | null>(null);
+  /** Id of the loading row currently receiving streamed text, so Stop can remove the partial preview. */
+  const streamingMessageIdRef = useRef<string | null>(null);
 
   useEffect(() => () => {
     requestRef.current?.abort();
@@ -103,6 +105,7 @@ export function useChatSession({ handoff, translate: t, focusInput, minLoadingMs
     const timeout = window.setTimeout(() => controller.abort(new DOMException('Timeout', 'TimeoutError')), 60_000);
     const userMessage: ChatMessage = { id: generateMessageId(), role: 'user', content: trimmed };
     const loadingMessage: ChatMessage = { id: generateMessageId(), role: 'loading', content: '' };
+    streamingMessageIdRef.current = loadingMessage.id;
     setIsLoading(true);
     let submitted = false;
     try {
@@ -117,10 +120,23 @@ export function useChatSession({ handoff, translate: t, focusInput, minLoadingMs
       setMessages((previous) => [...previous, userMessage, loadingMessage]);
       if (text === input) setInput('');
       if (selectedAttachment) setAttachment(undefined);
-      const reply = await requestChat(
+      // Stream the answer: each delta turns the loading row into a live
+      // assistant preview (the AI supplement before the answer guard, so
+      // provisional). The `done` envelope below replaces the preview with
+      // the guard-filtered final reply, exactly as the old non-streaming
+      // response did. A plain JSON answer (no SSE) renders the same way,
+      // with no deltas in between.
+      let streamed = '';
+      const reply = await requestChatStream(
         request,
         controller.signal,
         t('智能诊断服务暂时无法连接，请稍后重试。', 'AI service unavailable, please try again later.'),
+        (text) => {
+          streamed += text;
+          const current = streamed;
+          setMessages((previous) => previous.map((message) => message.id === loadingMessage.id
+            ? { id: message.id, role: 'assistant', content: current } : message));
+        },
       );
       // Stop, clear or unmount can invalidate this request while its body is being read.
       if (requestRef.current !== controller) return;
@@ -186,6 +202,7 @@ export function useChatSession({ handoff, translate: t, focusInput, minLoadingMs
       window.clearTimeout(timeout);
       if (requestRef.current === controller) {
         requestRef.current = null;
+        streamingMessageIdRef.current = null;
         setIsLoading(false);
         window.setTimeout(focusInput, 0);
       }
@@ -195,8 +212,12 @@ export function useChatSession({ handoff, translate: t, focusInput, minLoadingMs
   const stopRequest = useCallback(() => {
     requestRef.current?.abort();
     requestRef.current = null;
+    // A streamed preview already converted the loading row to an assistant
+    // message; remove that partial preview as well as any loading row.
+    const streamingId = streamingMessageIdRef.current;
+    streamingMessageIdRef.current = null;
     setIsLoading(false);
-    setMessages((previous) => previous.filter((message) => message.role !== 'loading'));
+    setMessages((previous) => previous.filter((message) => message.role !== 'loading' && message.id !== streamingId));
     focusInput();
   }, [focusInput]);
 

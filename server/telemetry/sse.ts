@@ -10,7 +10,7 @@ export interface TelemetrySseSink {
 }
 
 /** Respect drain with a bounded queue; a slow client cannot grow server memory indefinitely. */
-export function createTelemetrySseWriter(sink: TelemetrySseSink, onClose: () => void, maxBytes = 262144) {
+export function createSseWriter(sink: TelemetrySseSink, onClose: () => void, maxBytes = 262144) {
   const queue: string[] = [];
   let bytes = 0, waiting = false, closed = false;
   function close(force = false) {
@@ -35,7 +35,7 @@ export function createTelemetrySseWriter(sink: TelemetrySseSink, onClose: () => 
   }
   return {
     get closed() { return closed; }, close,
-    send(event: 'catalog' | 'telemetry' | 'heartbeat' | 'reset', data: unknown, cursor?: string) {
+    send(event: string, data: unknown, cursor?: string) {
       if (closed) return false;
       let chunk: string;
       try { chunk = `${event === 'catalog' ? 'retry: 3000\n' : ''}${cursor ? `id: ${cursor}\n` : ''}event: ${event}\ndata: ${JSON.stringify(data)}\n\n`; }
@@ -47,3 +47,6 @@ export function createTelemetrySseWriter(sink: TelemetrySseSink, onClose: () => 
     },
   };
 }
+
+/** Backwards-compatible name; the writer is not telemetry-specific. */
+export const createTelemetrySseWriter = createSseWriter;

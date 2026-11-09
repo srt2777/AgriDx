@@ -557,3 +557,131 @@ test('API configuration health and server defaults cannot be bypassed by client 
   }
   assert.equal(spy.mock.callCount(), 0);
 });
+
+function postSse(body: unknown, forwardedFor?: string): Promise<{ status: number; contentType: string; raw: string; firstDataAt: number; endAt: number }> {
+  const payload = JSON.stringify(body);
+  const started = Date.now();
+  return new Promise((resolve, reject) => {
+    let firstDataAt = 0;
+    const request = http.request({
+      hostname: '127.0.0.1',
+      port,
+      path: '/api/chat',
+      method: 'POST',
+      agent: false,
+      headers: {
+        'Content-Type': 'application/json',
+        'Content-Length': Buffer.byteLength(payload),
+        Accept: 'text/event-stream',
+        ...(forwardedFor ? { 'X-Forwarded-For': forwardedFor } : {}),
+      },
+    }, (response) => {
+      let output = '';
+      response.setEncoding('utf8');
+      response.on('data', (chunk: string) => {
+        if (!firstDataAt) firstDataAt = Date.now();
+        output += chunk;
+      });
+      response.on('error', reject);
+      response.on('end', () => resolve({
+        status: response.statusCode ?? 0,
+        contentType: response.headers['content-type'] ?? '',
+        raw: output,
+        firstDataAt: firstDataAt - started,
+        endAt: Date.now() - started,
+      }));
+    });
+    request.on('error', reject);
+    request.end(payload);
+  });
+}
+
+function sseEvents(raw: string): { event: string; data: string }[] {
+  return raw.split('\n\n').filter(Boolean).map(block => ({
+    event: block.match(/^event: (.+)$/m)?.[1] ?? '',
+    data: block.match(/^data: (.+)$/m)?.[1] ?? '',
+  }));
+}
+
+/** Upstream SSE: first chunk at once, second chunk + DONE after 300 ms, so a buffering server would show no early data. */
+function delayedUpstreamSse(): Response {
+  const encoder = new TextEncoder();
+  const chunk = (text: string) => `data: ${JSON.stringify({ choices: [{ delta: { content: text } }], model: 'integration-stream-model' })}\n\n`;
+  const stream = new ReadableStream({
+    start(controller) {
+      controller.enqueue(encoder.encode(chunk('【通用分析（待验证）】先区分')));
+      setTimeout(() => {
+        controller.enqueue(encoder.encode(chunk('空载与负载时的声音。') + 'data: [DONE]\n\n'));
+        controller.close();
+      }, 300);
+    },
+  });
+  return new Response(stream, { headers: { 'Content-Type': 'text/event-stream' } });
+}
+
+test('SSE delivers the first delta well before the full answer completes', async (t) => {
+  process.env.GEMINI_API_KEY = 'integration-sse-secret';
+  let sent: (UpstreamRequest & { stream?: boolean }) | undefined;
+  const fetch = t.mock.method(globalThis, 'fetch', async (_url: unknown, init: RequestInit) => {
+    sent = JSON.parse(init.body as string) as UpstreamRequest & { stream?: boolean };
+    return delayedUpstreamSse();
+  });
+  const response = await postSse({
+    machineType: '拖拉机', brand: '常发', model: 'CFX9999',
+    messages: [{ role: 'user', content: '拖拉机尾部咔嗒异响' }],
+  }, '198.51.100.200');
+  assert.equal(response.status, 200);
+  assert.match(response.contentType, /text\/event-stream/);
+  assert.ok(response.endAt - response.firstDataAt >= 150,
+    `first delta must arrive well before the response ends (first=${response.firstDataAt}ms end=${response.endAt}ms)`);
+  const events = sseEvents(response.raw);
+  assert.deepEqual(events.map(item => item.event), ['delta', 'delta', 'done']);
+  assert.deepEqual(events.slice(0, 2).map(item => JSON.parse(item.data)), [
+    { text: '【通用分析（待验证）】先区分' }, { text: '空载与负载时的声音。' },
+  ]);
+  const done = JSON.parse(events[2].data) as ChatResponse;
+  assert.equal(done.provider, 'gemini');
+  assert.equal(done.model, 'integration-stream-model');
+  assert.equal(done.diagnosticReply?.aiSupplement, '【通用分析（待验证）】先区分空载与负载时的声音。');
+  assert.match(done.choices?.[0]?.message.content ?? '', /通用分析/);
+  assert.equal(sent?.stream, true);
+  assert.equal(fetch.mock.callCount(), 1);
+});
+
+test('SSE upstream failure still returns the local fallback envelope over SSE', async (t) => {
+  process.env.GEMINI_API_KEY = 'integration-sse-secret';
+  t.mock.method(console, 'warn', () => {});
+  const fetch = t.mock.method(globalThis, 'fetch', async () => new Response('sensitive-upstream-error', { status: 503 }));
+  const response = await postSse({
+    machineType: '拖拉机', brand: '常发', model: 'CFX9999',
+    messages: [{ role: 'user', content: '拖拉机尾部咔嗒异响' }],
+  }, '198.51.100.201');
+  assert.equal(response.status, 200);
+  assert.match(response.contentType, /text\/event-stream/);
+  const events = sseEvents(response.raw);
+  assert.deepEqual(events.map(item => item.event), ['done']);
+  const done = JSON.parse(events[0].data) as ChatResponse;
+  assert.equal(done.provider, 'knowledge-base');
+  assert.equal(done.fellBack, true);
+  assert.equal(done.fallbackReason, 'provider_unavailable');
+  assert.equal(fetch.mock.callCount(), 1);
+  assert.doesNotMatch(response.raw, /sensitive-upstream-error|integration-sse-secret/);
+});
+
+test('no Accept header keeps the plain JSON response and a non-streaming upstream call', async (t) => {
+  process.env.GEMINI_API_KEY = 'integration-sse-secret';
+  let sent: (UpstreamRequest & { stream?: boolean }) | undefined;
+  const fetch = t.mock.method(globalThis, 'fetch', async (_url: unknown, init: RequestInit) => {
+    sent = JSON.parse(init.body as string) as UpstreamRequest & { stream?: boolean };
+    return upstreamAnswer('【通用分析（待验证）】先区分空载与负载时的声音。');
+  });
+  const response = await chat({
+    machineType: '拖拉机', brand: '常发', model: 'CFX9999',
+    messages: [{ role: 'user', content: '拖拉机尾部咔嗒异响' }],
+  }, '198.51.100.202');
+  assert.equal(response.status, 200);
+  assert.equal(response.body.provider, 'gemini');
+  assert.match(response.body.choices?.[0]?.message.content ?? '', /通用分析/);
+  assert.equal(sent?.stream, false);
+  assert.equal(fetch.mock.callCount(), 1);
+});

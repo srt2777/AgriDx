@@ -30,10 +30,17 @@ export interface DiagnosticMemory {
   /** Only an owner-bound host with atomic checkpoint persistence enables Planner. */
   plannerSessionSeed?: string;
 }
-export type DiagnosticProvider = Pick<LlmRouter, 'hasAnyConfigured' | 'chat'> & Partial<Pick<LlmRouter, 'getStatus' | 'toolProvider'>>;
+export type DiagnosticProvider = Pick<LlmRouter, 'hasAnyConfigured' | 'chat'> & Partial<Pick<LlmRouter, 'getStatus' | 'toolProvider' | 'chatStream'>>;
 export const PLANNER_COMMIT = Symbol('server-only-planner-commit');
 export type DiagnosticResult = ChatResponse & { [PLANNER_COMMIT]?: PlannerCheckpointCommit };
-export type DiagnosticService = (request: DiagnosticRequest, memory?: DiagnosticMemory, signal?: AbortSignal) => Promise<DiagnosticResult>;
+/**
+ * onDelta, when supplied, receives the single-call AI supplement as it
+ * streams in (raw model text, before the answer guard runs). It is a
+ * provisional preview: the final content in the returned payload has
+ * passed the guard and may differ (for example when the guard rejects
+ * the generated text and the local fallback is used instead).
+ */
+export type DiagnosticService = (request: DiagnosticRequest, memory?: DiagnosticMemory, signal?: AbortSignal, onDelta?: (text: string) => void) => Promise<DiagnosticResult>;
 export interface DiagnosticDecisionLog {
   mode: string;
   requestedMode: string;
@@ -135,7 +142,7 @@ export function createDiagnosticService(llm: DiagnosticProvider, dependencies: D
       try { reportShadow(report); } catch { /* Reporting must never surface to the request. */ }
     }).finally(() => { shadowInFlight--; });
   };
-  return async ({ history, machineType, brand, model, engineModel, faultCodes, diagnosisMode, telemetrySummary }, memory, signal) => {
+  return async ({ history, machineType, brand, model, engineModel, faultCodes, diagnosisMode, telemetrySummary }, memory, signal, onDelta) => {
     const started = now();
     const config = { ...diagnosticRuntimeConfig(), ...dependencies.config };
     let context = resolveDiagnosticContext(history, { machineType, brand, model },
@@ -361,7 +368,9 @@ export function createDiagnosticService(llm: DiagnosticProvider, dependencies: D
     const externalStart = now();
     try {
       trace.aiAttempts = 1;
-      const outcome = await llm.chat([systemMessage, ...(memory ? recentMessages(history) : history)]);
+      const outcome = onDelta && llm.chatStream
+        ? await llm.chatStream([systemMessage, ...(memory ? recentMessages(history) : history)], onDelta, { signal })
+        : await llm.chat([systemMessage, ...(memory ? recentMessages(history) : history)]);
       trace.timings.externalAiMs = now() - externalStart;
       trace.aiAttempts = outcome.attempts ?? 1;
       trace.aiSuccesses = 1;

@@ -30,6 +30,8 @@ export interface ToolCall { id:string; name:string; input:Record<string,unknown>
 export interface ToolChatResult { content:string; toolCalls:ToolCall[]; stopReason:'tool_calls'|'stop'|'length' }
 export interface ToolChatOptions { tools:ToolDefinition[]; toolChoice?:'auto'|'none'; signal?:AbortSignal }
 
+export interface ChatStreamOptions { signal?:AbortSignal }
+
 export interface ChatResult {
   /** 模型回复正文 */
   content: string;
@@ -66,6 +68,15 @@ export interface Provider {
   isConfigured(): boolean;
   /** 发起一次 chat 调用；失败抛 ProviderError */
   chat(messages: ChatMessage[]): Promise<ChatResult>;
+  /**
+   * Optional capability; callers must fall back to chat() if absent.
+   * Streams content deltas to onDelta as they arrive and resolves with
+   * the full result. Deltas are raw model text (pre-guard); the resolved
+   * content is authoritative. If the stream fails after deltas were
+   * emitted, the caller must not silently substitute another provider's
+   * text for the partial stream.
+   */
+  chatStream?(messages: ChatMessage[], onDelta: (text: string) => void, options?: ChatStreamOptions): Promise<ChatResult>;
   /** Optional capability; callers must fall back if absent. */
   chatWithTools?(messages: ChatMessage[], options:ToolChatOptions): Promise<ToolChatResult>;
 }
