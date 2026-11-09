@@ -307,6 +307,7 @@ AgriDx/
 ├── public/              # 模型与静态资源，保留原署名
 ├── scripts/             # 跨平台检查、构建、测试与工作分支同步
 ├── tests/               # 诊断、知识边界、API、会话与维护脚本回归
+├── robot/               # 司稼小机器人：ESP32 + 触摸屏交互终端，智能体仍跑在正式站 agridx.xyz；版本规则见 robot/VERSIONS.md
 ├── docs/architecture.md # 模块职责、请求链路与维护规则
 ├── .github/workflows/ci.yml # Ubuntu / Windows 完整检查，不部署
 ├── .node-version        # 本地推荐与 CI 的 Node 24
