@@ -1,5 +1,5 @@
 // 司稼小机器人 RV0.1.0 — 0.96 寸 OLED 显示 UI（第二个显示版本）
-// 硬件：SSD1306 128x64，I2C 地址 0x3C；SDA=GPIO12、SCL=GPIO13（见 display_config.h）。
+// 硬件：SSD1315 128x64（模组 NFP1315-157B），I2C 地址 0x3C；SDA=GPIO12、SCL=GPIO13（见 display_config.h）。
 // 驱动：U8g2 全缓冲模式（128x64/8 = 1024 字节显存，C3 内部 RAM 够用）。
 //
 // 字库为什么用 U8g2 自带 wqy16（GB2312，16px），而不用小子集字库：
@@ -40,7 +40,7 @@
 
 // 硬件 I2C：U8g2 按构造参数里的时钟/数据脚调 Wire.begin(SDA, SCL)。
 // 默认地址就是 0x3C（与模块跳线 0x78 的 8 位写地址一致），不用另设。
-static U8G2_SSD1306_128X64_NONAME_F_HW_I2C u8g2(U8G2_R0, U8X8_PIN_NONE, PIN_OLED_SCL, PIN_OLED_SDA);
+static U8G2_SSD1315_128X64_NONAME_F_HW_I2C u8g2(U8G2_R0, U8X8_PIN_NONE, PIN_OLED_SCL, PIN_OLED_SDA);
 
 // ---------- UTF-8 小工具（只处理显示截断与换行；畸形字节按 U+FFFD 跳过）----------
 static const char *utf8Next(const char *p, uint32_t *cp) {
