@@ -24,6 +24,8 @@
 //   主页面切换有滑动过渡（新页从右滑入，8 帧约 200ms）；问答子页翻页不滑动，要快。
 // 动效：启动页淡入（对比度 ramp）+ 进度条 + 眨眼；诊断中标题栏转圈；
 //   问答空闲页眼睛会眨眼、左右看。动效只在可见时定时重绘（120ms），平时仍按需重绘。
+// 待机：15 秒无操作（按键/新答案到达都算操作，诊断中不进待机）自动进入，
+//   全屏两只大眼睛（会动会眨）；按一下 BOOT 唤醒（那一下只唤醒，不翻页、不提问）。
 // 切页：只手动换页，不自动轮换。BOOT 按键（GPIO9）短按翻页；长按（≥800ms）问第一条预设问题。
 // 问答翻页：短按先翻答案的子页（第 1 页是问题+答案前 2 行，之后每页 3 行答案），
 //   答案翻完再短按回到状态页；新答案来了自动回到问答第 1 页。
@@ -205,6 +207,33 @@ static void drawSpinner(int cx, int cy, uint32_t now) {
     else u8g2.drawDisc(x, y, 1);
   }
   u8g2.setDrawColor(1);
+}
+
+// 待机：15 秒无操作（按键/新答案到达都算操作，诊断中不进待机）自动进入，
+//   全屏两只大眼睛（会动会眨）；按一下 BOOT 唤醒（那一下只唤醒，不翻页、不提问）。
+#define OLED_STANDBY_MS 15000
+static bool s_standby = false;           // 是否在待机模式
+static uint32_t s_lastActivityMs = 0;    // 上次操作时刻
+static bool s_wakeConsumed = false;      // 唤醒那一下按下已被消耗（松开时不触发操作）
+
+// 待机大眼睛：全屏两只大圆眼（中心 (40,32)/(88,32)，半径 22），瞳孔会动、会眨眼。
+// 瞳孔左右上下看（两个不同频率，轨迹不单调）；眨眼时眼睛纵向压扁、瞳孔跟着变扁/藏起。
+static void drawStandbyEyes(uint32_t now) {
+  int eyeRy = eyeHeight(22, now);  // 睁开 22，闭上约 3（复用眨眼节奏：每 2.8 秒眨一次）
+  float openF = (float)eyeRy / 22.0f;
+  int lookX = (int)(sinf((float)now / 2000.0f) * 10.0f);
+  int lookY = (int)(sinf((float)now / 2600.0f) * 8.0f);
+  const int ex[2] = {40, 88};
+  for (int i = 0; i < 2; i++) {
+    u8g2.drawFilledEllipse(ex[i], 32, 22, (u8g2_uint_t)eyeRy);
+    if (eyeRy >= 8) {
+      u8g2.setDrawColor(0);
+      int pry = (int)(9.0f * openF + 0.5f);
+      if (pry < 2) pry = 2;
+      u8g2.drawFilledEllipse(ex[i] + lookX, 32 + (int)(lookY * openF), 9, (u8g2_uint_t)pry);
+      u8g2.setDrawColor(1);
+    }
+  }
 }
 
 // ---------- 页面状态 ----------
@@ -480,6 +509,7 @@ void oledUiBegin() {
   }
   u8g2.setContrast(255);
   s_lastSwitchMs = millis();
+  s_lastActivityMs = millis();  // 待机计时从开机起算：15 秒没人按就进待机大眼睛
 }
 
 void oledUiSplashProgress(float frac) {
@@ -491,9 +521,11 @@ int oledUiTick(const OledPageData &d) {
   int action = OLED_ACTION_NONE;
 
   // 答案变了 → 重新换行，问答回到第 1 页（放按钮处理前面，让翻页逻辑用新的页数）。
+  // 新答案到达也算一次“操作”：用户要读答案，待机计时重算。
   if (strcmp(d.lastAnswer, s_lastDrawn.lastAnswer) != 0) {
     rewrapAnswer(d.lastAnswer);
     s_chatSub = 0;
+    s_lastActivityMs = now;
   }
 
   // ---- BOOT 按键：消抖 + 短按翻页 / 长按提问 ----
@@ -504,12 +536,21 @@ int oledUiTick(const OledPageData &d) {
   }
   if (now - s_btnChangeMs >= OLED_DEBOUNCE_MS && level != s_btnStable) {
     s_btnStable = level;
+    s_lastActivityMs = now;  // 任何按键动作都算操作，待机计时重算
     if (level == LOW) {
       s_btnDownMs = now;
       s_btnPressed = true;
+      if (s_standby) {
+        // 待机中按一下：只唤醒，不翻页、不提问；这次按下被“消耗”掉。
+        s_standby = false;
+        s_wakeConsumed = true;
+        s_haveDrawn = false;  // 唤醒后强制重画页面（屏上现在是大眼睛）
+      }
     } else if (s_btnPressed) {
       s_btnPressed = false;
-      if (now - s_btnDownMs >= OLED_LONG_PRESS_MS) {
+      if (s_wakeConsumed) {
+        s_wakeConsumed = false;  // 唤醒那一下，松开时不触发任何操作
+      } else if (now - s_btnDownMs >= OLED_LONG_PRESS_MS) {
         action = OLED_ACTION_ASK_PRESET_0;  // 长按：问第一条预设问题
         s_chatSub = 0;  // 新问题来了，问答回到第 1 页
       } else {
@@ -537,6 +578,25 @@ int oledUiTick(const OledPageData &d) {
   }
 
   // 注意：不自动轮换，只手动换页（用户要求）。
+
+  // ---- 待机：15 秒无操作（且不在诊断中）自动进入，全屏大眼睛 ----
+  if (!s_standby && !d.chatBusy && (now - s_lastActivityMs >= OLED_STANDBY_MS)) {
+    s_standby = true;
+    if (s_animActive) s_animActive = false;  // 正在滑页就停掉，切到待机眼睛
+  }
+
+  // ---- 待机中：只画全屏大眼睛（会动会眨），不画页面；每 120ms 重绘一帧 ----
+  static uint32_t s_lastStandbyMs = 0;
+  if (s_standby) {
+    if (now - s_lastStandbyMs >= 120) {
+      s_lastStandbyMs = now;
+      u8g2.clearBuffer();
+      u8g2.setFont(OLED_FONT_S);
+      drawStandbyEyes(now);
+      u8g2.sendBuffer();
+    }
+    return action;
+  }
 
   // ---- 滑动动画进行中：每轮推进一帧（非阻塞，millis 计时），不走下面的按需重绘 ----
   static int lastPageDrawn = -1;
