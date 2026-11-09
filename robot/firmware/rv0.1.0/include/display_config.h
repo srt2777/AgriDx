@@ -52,6 +52,8 @@
 // ---- C3 引脚（过渡版；按自己的板子引脚图调整）----
 // SPI 走 GPIO 矩阵任意分配：MOSI/SCK/CS 用硬件 SPI2（FSPI）默认脚，MISO 从 strapping 脚
 // GPIO2 移到 GPIO5。避开：strapping（2/8/9）、USB D-/D+（18/19）、UART0（20/21）。
+// GPIO 0 也是 strapping 脚，本表把它用作 T_CS——烧录进不了下载模式时先拔掉 T_CS 线
+// 再烧（见 docs/FLASHING.md §2.2 与 §5）。
 // MOSI 7 / SCK 6 / CS 10 是 C3 硬件 SPI2 默认脚；MISO 默认脚 GPIO2 是 strapping 脚，改用 5。
 #define PIN_TFT_CS   10
 #define PIN_TFT_DC    4
@@ -75,7 +77,9 @@
 #define PIN_TFT_BL   21   // 背光，PWM 调光
 #define PIN_TOUCH_CS 15
 #define PIN_TOUCH_IRQ 16
-// 0.96 寸 OLED（副屏，U8g2，SSD1306 I2C）：SDA/SCL 建议 GPIO 8/9，以实物为准。
+// 0.96 寸 OLED（副屏，U8g2，SSD1306 I2C）：SDA 是 GPIO 8、SCL 是 GPIO 9。
+// 注意：SCL 与 TFT_DC（GPIO 9）撞脚；S3 上接 OLED 前必须把 SCL 移到空闲 GPIO
+//（如 GPIO 7），同步改这里（见 docs/ASSEMBLY.md §4.3）。OLED 版目前只支持 C3（SCL 13）。
 #define PIN_OLED_SDA  8
 #define PIN_OLED_SCL  9
 #endif
