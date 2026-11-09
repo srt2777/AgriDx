@@ -4,6 +4,8 @@
 // 驱动：U8g2 全缓冲模式；字库：U8g2 自带 wqy12（GB2312，12px）正文与标题，wqy16 只用于启动页大标题。
 // 版式：标题栏（反白条）+ 3 行 12px 内容 + 底栏页点；只手动换页，不自动轮换；
 //   问答页可翻子页看完整答案（第 1 页是问题+答案前 2 行，之后每页 3 行答案）。
+//   启动页：大标题 + 进度条（开机过程中按进度填充）+ 居中的“正在启动…”；
+//   从问答页翻到状态页时问答自动清除，回到问答页重新开始问。
 // 本模块只做渲染：主循环每轮把共享状态抄进 OledPageData 传进来；
 // 不碰网络、不碰 LVGL、不直接读共享变量（快照以外的状态）。
 
@@ -33,6 +35,8 @@ struct OledPageData {
 // oledUiTick() 返回值：主循环据此执行动作。
 #define OLED_ACTION_NONE 0
 #define OLED_ACTION_ASK_PRESET_0 1  // BOOT 长按：问第一条预设问题
+#define OLED_ACTION_CLEAR_CHAT 2    // 从问答页翻到状态页：清掉问答（问题+答案+历史），回到问答页重新开始问
 
 void oledUiBegin();                     // 初始化 I2C + SSD1306，显示启动页
+void oledUiSplashProgress(float frac);  // 启动页进度条：开机过程中按 frac（0~1）重绘填充，让进度条动起来
 int oledUiTick(const OledPageData &d);  // 每轮调用：处理按键/轮换，按需重绘

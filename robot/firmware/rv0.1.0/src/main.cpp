@@ -1177,6 +1177,8 @@ void setup() {
   uint32_t t0 = millis();
   while (WiFi.status() != WL_CONNECTED && millis() - t0 < 15000) {
 #if USE_OLED_DISPLAY
+    // 启动页进度条跟着动：WiFi 连接阶段 0→60%（按已等时间推进）。
+    oledUiSplashProgress((float)(millis() - t0) / 15000.0f * 0.6f);
     delay(100);  // OLED 版没有 LVGL 定时器要跑，等就是了
 #else
     lv_tick_inc(5);
@@ -1186,8 +1188,14 @@ void setup() {
   }
   if (WiFi.status() == WL_CONNECTED) {
     Serial.printf("[司稼] WiFi 已连 %s，IP %s\n", WiFi.SSID().c_str(), WiFi.localIP().toString().c_str());
+#if USE_OLED_DISPLAY
+    oledUiSplashProgress(0.75f);  // WiFi 已连，进度条到 75%
+#endif
     String h = httpGet(String(SIJIA_BASE_URL) + "/api/health", 5000);
     g_online = h.length() > 0;
+#if USE_OLED_DISPLAY
+    oledUiSplashProgress(0.95f);  // 健康检查完，进度条到 95%（随后主循环切到状态页）
+#endif
 #if !USE_OLED_DISPLAY
     lv_label_set_text(g_topStatus, g_online ? "在线" : "服务器不通");
     lv_obj_set_style_text_color(g_topStatus, g_online ? C_DARKGREEN : C_RED, 0);
@@ -1241,11 +1249,16 @@ void loop() {
     lastTeleMs = millis();
     g_telePending = true;
   }
-  // 刷新 OLED（内部处理自动轮换 + BOOT 切页；长按返回提问动作，由主循环执行）
+  // 刷新 OLED（只手动换页；长按返回提问动作、从问答页翻到状态页返回清除动作，由主循环执行）
   OledPageData snap = buildOledSnapshot();
   int action = oledUiTick(snap);
   if (action == OLED_ACTION_ASK_PRESET_0) {
     startAsk(PRESET_QUESTIONS[0]);  // 失败（正忙/未联网）时 OLED 下次刷新仍显示旧状态
+  } else if (action == OLED_ACTION_CLEAR_CHAT) {
+    // 从问答页翻到状态页：问答清掉，不保留；回到问答页重新开始问。
+    g_lastQuestion = "";
+    g_lastAnswer = "";
+    g_historyCount = 0;
   }
   delay(20);
 #else

@@ -13,7 +13,8 @@
 // GB2312 之外的生僻字、Emoji：U8g2 找不到字形，会留空，不断行不花屏。
 //
 // 版式（128x64，12px 正文）：
-//   标题栏（0–13px，反白：白底黑字）：“司稼 · 状态/监测/问答”，右侧放状态/模拟数据/诊断中/问答页码
+//   标题栏（0–13px，反白：白底黑字）：左侧是名字“司稼Agent”，右侧放状态/模拟数据/诊断中/问答页码；
+//     标题栏放不下页名（“司稼Agent · 状态”+右侧信息会超宽），页面由底栏页点和内容区分
 //   内容（3 行，基线 27/40/53）+ 底栏页点（3 个点，y=61，当前页实心）
 //   0 状态页：WiFi 名称、IP、当前场景（在线状态放标题栏右侧）
 //   1 监测页：水温/油压/转速三行数值 + 右侧状态（正常/注意/报警）；遥测是仿真数据，标题栏标“模拟数据”；
@@ -22,6 +23,7 @@
 // 切页：只手动换页，不自动轮换。BOOT 按键（GPIO9）短按翻页；长按（≥800ms）问第一条预设问题。
 // 问答翻页：短按先翻答案的子页（第 1 页是问题+答案前 2 行，之后每页 3 行答案），
 //   答案翻完再短按回到状态页；新答案来了自动回到问答第 1 页。
+//   从问答页翻到状态页时，问答自动清除（不保留），回到问答页就是重新开始问。
 // GPIO9 是 strapping 脚，只在启动后读按键，不影响启动；按键平时高电平，按下为低电平。
 // 重绘策略：只有翻页（含问答子页）或快照内容变化时才重绘（全屏刷新走 I2C，频繁刷会拖慢主循环）。
 
@@ -210,7 +212,7 @@ static void drawPageDots() {
 static void drawStatusPage(const OledPageData &d) {
   // 标题栏右侧放在线状态；内容三行：WiFi、IP、场景。
   const char *st = !d.wifiConnected ? "离线" : (d.online ? "在线" : "服务器不通");
-  drawHeader("司稼 · 状态", st);
+  drawHeader("司稼Agent", st);
   char line[64];
   if (d.wifiConnected) snprintf(line, sizeof(line), "WiFi %s", d.ssid);
   else snprintf(line, sizeof(line), "WiFi 未连接");
@@ -225,7 +227,7 @@ static void drawStatusPage(const OledPageData &d) {
 
 static void drawMonitorPage(const OledPageData &d) {
   // 标题栏右侧标“模拟数据”（遥测是仿真数据，必须标）。
-  drawHeader("司稼 · 监测", "模拟数据");
+  drawHeader("司稼Agent", "模拟数据");
   // 每通道一行“标签数值单位”，状态右对齐；12px 下三行都放得下单位，不会截掉。
   for (int i = 0; i < 3; i++) {
     char val[32];
@@ -259,7 +261,7 @@ static void drawChatPage(const OledPageData &d) {
   char right[16] = "";
   if (d.chatBusy) snprintf(right, sizeof(right), "正在诊断…");
   else if (chatPageCount() > 1) snprintf(right, sizeof(right), "%d/%d", s_chatSub + 1, chatPageCount());
-  drawHeader("司稼 · 问答", right);
+  drawHeader("司稼Agent", right);
   if (!d.lastQuestion[0] && s_ansLineCount == 0) {
     // 还没问过：提示长按 BOOT 提问。
     u8g2.drawUTF8(0, OLED_L1, "长按 BOOT 提问");
@@ -297,19 +299,37 @@ static void drawPage(const OledPageData &d) {
 }
 
 // ---------- 对外接口 ----------
+// ---------- 启动页 ----------
+// 版式（128x64，全部居中）：大标题（16px，基线 y=22）+ 进度条（外框 x=14~113、y=30~39，内填按 frac）
+//   + “正在启动…”（12px，基线 y=56，居中）。进度条在开机过程中按阶段填充（见 main.cpp setup）。
+static void drawSplashFrame(float frac) {
+  if (frac < 0.0f) frac = 0.0f;
+  if (frac > 1.0f) frac = 1.0f;
+  u8g2.clearBuffer();
+  // 大标题居中
+  u8g2.setFont(OLED_FONT);
+  u8g2.drawUTF8((OLED_W - u8g2.getUTF8Width("司稼Agent")) / 2, 22, "司稼Agent");
+  // 进度条：外框 + 按 frac 填充
+  u8g2.drawFrame(14, 30, 100, 10);
+  int fillW = (int)(frac * 96.0f + 0.5f);
+  if (fillW > 0) u8g2.drawBox(16, 32, fillW, 6);
+  // 提示居中
+  u8g2.setFont(OLED_FONT_S);
+  u8g2.drawUTF8((OLED_W - u8g2.getUTF8Width("正在启动…")) / 2, 56, "正在启动…");
+  u8g2.sendBuffer();
+}
+
 void oledUiBegin() {
   // BOOT 按键：平时高电平，按下为低电平；只在启动后读，不影响 strapping 采样。
   pinMode(PIN_BOOT_BTN, INPUT_PULLUP);
   u8g2.begin();
-  // 启动页：大标题居中 + 分隔线 + 提示（先亮屏，说明这块屏通了；主循环随后按快照重绘）。
-  u8g2.clearBuffer();
-  u8g2.setFont(OLED_FONT);
-  u8g2.drawUTF8((OLED_W - u8g2.getUTF8Width("司稼")) / 2, 30, "司稼");
-  u8g2.drawHLine(44, 36, 40);
-  u8g2.setFont(OLED_FONT_S);
-  u8g2.drawUTF8((OLED_W - u8g2.getUTF8Width("正在启动…")) / 2, 50, "正在启动…");
-  u8g2.sendBuffer();
+  // 启动页先亮屏（进度条 0%，说明这块屏通了）；主循环随后按快照重绘。
+  drawSplashFrame(0.0f);
   s_lastSwitchMs = millis();
+}
+
+void oledUiSplashProgress(float frac) {
+  drawSplashFrame(frac);
 }
 
 int oledUiTick(const OledPageData &d) {
@@ -343,6 +363,8 @@ int oledUiTick(const OledPageData &d) {
         if (s_page == 2 && s_chatSub < chatPageCount() - 1) {
           s_chatSub++;
         } else {
+          // 从问答页翻到状态页：问答答案自动清除，不保留（回到问答页重新开始问）。
+          if (s_page == 2) action = OLED_ACTION_CLEAR_CHAT;
           s_page = (s_page + 1) % OLED_PAGE_COUNT;
           s_chatSub = 0;
         }
