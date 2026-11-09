@@ -16,10 +16,14 @@
 //   标题栏（0–13px，反白：白底黑字）：左侧是名字“司稼Agent”，右侧放状态/模拟数据/诊断中/问答页码；
 //     标题栏放不下页名（“司稼Agent · 状态”+右侧信息会超宽），页面由底栏页点和内容区分
 //   内容（3 行，基线 27/40/53）+ 底栏页点（3 个点，y=61，当前页实心）
-//   0 状态页：WiFi 名称、IP、当前场景（在线状态放标题栏右侧）
-//   1 监测页：水温/油压/转速三行数值 + 右侧状态（正常/注意/报警）；遥测是仿真数据，标题栏标“模拟数据”；
-//     报警时状态字反白（白底黑字），一眼看到
-//   2 问答页：最后一问 + 答案；答案长时可翻页看完全部（见下）
+//   0 状态页：WiFi 名称、IP、当前场景（在线状态放标题栏右侧）；WiFi 行配小图标
+//   1 监测页：水温/油压/转速三行数值 + 右侧状态（正常/注意/报警）；每行配 12×12 小图标；
+//     遥测是仿真数据，标题栏标“模拟数据”；报警时状态字反白（白底黑字），一眼看到
+//   2 问答页：最后一问 + 答案；答案长时可翻页看完全部（见下）；没问过时显示眼睛 + 提示
+// 切页：只手动换页，不自动轮换。BOOT 按键（GPIO9）短按翻页；长按（≥800ms）问第一条预设问题。
+//   主页面切换有滑动过渡（新页从右滑入，8 帧约 200ms）；问答子页翻页不滑动，要快。
+// 动效：启动页淡入（对比度 ramp）+ 进度条 + 眨眼；诊断中标题栏转圈；
+//   问答空闲页眼睛会眨眼、左右看。动效只在可见时定时重绘（120ms），平时仍按需重绘。
 // 切页：只手动换页，不自动轮换。BOOT 按键（GPIO9）短按翻页；长按（≥800ms）问第一条预设问题。
 // 问答翻页：短按先翻答案的子页（第 1 页是问题+答案前 2 行，之后每页 3 行答案），
 //   答案翻完再短按回到状态页；新答案来了自动回到问答第 1 页。
@@ -35,6 +39,7 @@
 
 #include <U8g2lib.h>
 #include <Wire.h>
+#include <math.h>  // sinf/cosf（眼睛左右看、转圈）
 
 #include "display_config.h"
 #include "version.h"
@@ -134,6 +139,74 @@ static int wrapText(const char *text, int maxWidth, char lines[][40], int maxLin
   return n;
 }
 
+// ---------- 12×12 小图标（XBM，LSB=最左像素；drawXBMP 绘制）----------
+// 每行一个图标 + 数值，视觉层次比纯文字清楚；图标 12px + 2px 间距，文字从 x=14 起。
+// WiFi（弧线+圆点）、温度计（杆+圆泡）、油滴、水压表（圆盘+指针）。
+static const uint8_t ICON_WIFI[] = {
+  0x00, 0x00, 0xf8, 0x01, 0x0c, 0x03, 0x04, 0x02, 0xf8, 0x01, 0x90, 0x00,
+  0x60, 0x00, 0x60, 0x00, 0x60, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+static const uint8_t ICON_THERMO[] = {
+  0x60, 0x00, 0x60, 0x00, 0x60, 0x00, 0x60, 0x00, 0x60, 0x00, 0xf0, 0x00,
+  0xf8, 0x01, 0xf8, 0x01, 0xf8, 0x01, 0xf0, 0x00, 0x00, 0x00, 0x00, 0x00};
+static const uint8_t ICON_DROP[] = {
+  0x60, 0x00, 0xf0, 0x00, 0xf0, 0x00, 0xf8, 0x01, 0xfc, 0x03, 0xfc, 0x03,
+  0xfc, 0x03, 0xf8, 0x01, 0xf0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+static const uint8_t ICON_GAUGE[] = {
+  0xf8, 0x01, 0xfc, 0x03, 0x06, 0x06, 0x62, 0x04, 0xc2, 0x04, 0x82, 0x04,
+  0x06, 0x06, 0xfc, 0x03, 0xf8, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+#define OLED_ICON_W 12
+#define OLED_ICON_X 14  // 图标后文字起始 x
+
+// ---------- 眼睛与转圈（动效） ----------
+// 眼睛：两只圆角方块眼，瞳孔可左右看；eyeH 缩小就是眨眼/半闭。
+// cx, cy = 两眼中心；eyeW=单眼宽，eyeH=单眼高；lookX=瞳孔横向偏移（±2）。
+static void drawEyes(int cx, int cy, int eyeW, int eyeH, int lookX) {
+  int gap = 8;
+  int leftX = cx - gap / 2 - eyeW;
+  int rightX = cx + gap / 2;
+  int topY = cy - eyeH / 2;
+  u8g2.drawRBox(leftX, topY, eyeW, eyeH, 3);
+  u8g2.drawRBox(rightX, topY, eyeW, eyeH, 3);
+  if (eyeH >= 6) {
+    // 瞳孔（黑点，左右看）
+    u8g2.setDrawColor(0);
+    int pw = 4, ph = 5;
+    u8g2.drawBox(leftX + eyeW / 2 - pw / 2 + lookX, cy - ph / 2, pw, ph);
+    u8g2.drawBox(rightX + eyeW / 2 - pw / 2 + lookX, cy - ph / 2, pw, ph);
+    u8g2.setDrawColor(1);
+  }
+}
+
+// 眨眼：每 2.8 秒眨一次，闭眼 150ms（75ms 闭上、75ms 睁开）；返回眼高。
+static int eyeHeight(int fullH, uint32_t now) {
+  uint32_t t = now % 2800;
+  if (t >= 150) return fullH;
+  float f = (t < 75) ? (1.0f - (float)t / 75.0f * 0.85f)
+                     : (0.15f + (float)(t - 75) / 75.0f * 0.85f);
+  int h = (int)(fullH * f + 0.5f);
+  return h < 2 ? 2 : h;
+}
+
+// 瞳孔左右看：缓慢来回，偏移 ±2px。
+static int eyeLookX(uint32_t now) {
+  float s = sinf((float)now / 1500.0f);
+  return (int)(s * 2.0f + (s >= 0 ? 0.5f : -0.5f));
+}
+
+// 诊断中转圈：8 个点围成圈，每 100ms 亮一个（顺时针转）；画在标题栏右侧（黑点，白底上）。
+static void drawSpinner(int cx, int cy, uint32_t now) {
+  int frame = (int)((now / 100) % 8);
+  u8g2.setDrawColor(0);
+  for (int i = 0; i < 8; i++) {
+    float a = (float)i * 3.14159f / 4.0f;
+    int x = cx + (int)(4.0f * cosf(a) + 0.5f);
+    int y = cy + (int)(4.0f * sinf(a) + 0.5f);
+    if (i == frame) u8g2.drawDisc(x, y, 2);
+    else u8g2.drawDisc(x, y, 1);
+  }
+  u8g2.setDrawColor(1);
+}
+
 // ---------- 页面状态 ----------
 static int s_page = 0;                 // 当前主页面：0 状态，1 监测，2 问答
 static int s_chatSub = 0;              // 问答子页（0 起；只在问答页有效）
@@ -216,7 +289,8 @@ static void drawStatusPage(const OledPageData &d) {
   char line[64];
   if (d.wifiConnected) snprintf(line, sizeof(line), "WiFi %s", d.ssid);
   else snprintf(line, sizeof(line), "WiFi 未连接");
-  drawTruncated(0, OLED_L1, line, OLED_W);
+  u8g2.drawXBMP(0, OLED_L1 - 11, OLED_ICON_W, OLED_ICON_W, ICON_WIFI);
+  drawTruncated(OLED_ICON_X, OLED_L1, line, OLED_W - OLED_ICON_X);
   if (d.wifiConnected) snprintf(line, sizeof(line), "IP %s", d.ip);
   else snprintf(line, sizeof(line), "IP --");
   drawTruncated(0, OLED_L2, line, OLED_W);
@@ -228,7 +302,8 @@ static void drawStatusPage(const OledPageData &d) {
 static void drawMonitorPage(const OledPageData &d) {
   // 标题栏右侧标“模拟数据”（遥测是仿真数据，必须标）。
   drawHeader("司稼Agent", "模拟数据");
-  // 每通道一行“标签数值单位”，状态右对齐；12px 下三行都放得下单位，不会截掉。
+  // 每通道一行“图标 + 标签数值单位”，状态右对齐；12px 下三行都放得下单位，不会截掉。
+  static const uint8_t *ICONS[3] = {ICON_THERMO, ICON_DROP, ICON_GAUGE};
   for (int i = 0; i < 3; i++) {
     char val[32];
     if (d.teleValid[i]) {
@@ -242,7 +317,8 @@ static void drawMonitorPage(const OledPageData &d) {
     int y = OLED_L1 + i * OLED_LINE_H;
     const char *st = stateText(d.teleState[i]);
     int stW = u8g2.getUTF8Width(st);
-    drawTruncated(0, y, val, OLED_W - stW - 4);  // 给右侧状态留位置
+    u8g2.drawXBMP(0, y - 11, OLED_ICON_W, OLED_ICON_W, ICONS[i]);
+    drawTruncated(OLED_ICON_X, y, val, OLED_W - OLED_ICON_X - stW - 4);  // 给右侧状态留位置
     if (d.teleState[i] == 2) {
       // 报警：状态字反白（白底黑字），一眼看到。
       u8g2.drawBox(OLED_W - stW - 4, y - 11, stW + 4, 13);
@@ -257,14 +333,22 @@ static void drawMonitorPage(const OledPageData &d) {
 }
 
 static void drawChatPage(const OledPageData &d) {
-  // 标题栏右侧：诊断中显示“正在诊断…”；答案有多页时显示“当前/总数”（如 1/3）。
+  // 标题栏右侧：诊断中显示转圈 + “诊断中”；答案有多页时显示“当前/总数”（如 1/3）。
   char right[16] = "";
-  if (d.chatBusy) snprintf(right, sizeof(right), "正在诊断…");
+  if (d.chatBusy) snprintf(right, sizeof(right), "诊断中");
   else if (chatPageCount() > 1) snprintf(right, sizeof(right), "%d/%d", s_chatSub + 1, chatPageCount());
   drawHeader("司稼Agent", right);
+  if (d.chatBusy) {
+    // 转圈画在标题栏右侧、“诊断中”文字的左边（白底上画黑点）。
+    int textW = u8g2.getUTF8Width("诊断中");
+    drawSpinner(OLED_W - textW - 6 - 5, OLED_HEADER_H / 2, millis());
+  }
   if (!d.lastQuestion[0] && s_ansLineCount == 0) {
-    // 还没问过：提示长按 BOOT 提问。
-    u8g2.drawUTF8(0, OLED_L1, "长按 BOOT 提问");
+    // 还没问过：眼睛（等提问，会眨眼、左右看）+ 居中的提示。
+    uint32_t now = millis();
+    drawEyes(OLED_W / 2, 22, 14, eyeHeight(9, now), eyeLookX(now));
+    const char *hint = "长按 BOOT 提问";
+    u8g2.drawUTF8((OLED_W - u8g2.getUTF8Width(hint)) / 2, OLED_L2, hint);
     drawPageDots();
     return;
   }
@@ -287,7 +371,8 @@ static void drawChatPage(const OledPageData &d) {
   drawPageDots();
 }
 
-static void drawPage(const OledPageData &d) {
+// 只画进显存，不推屏（滑动动画要先把旧页/新页各画一份拷走）。
+static void renderPageContent(const OledPageData &d) {
   u8g2.clearBuffer();
   u8g2.setFont(OLED_FONT_S);
   switch (s_page) {
@@ -295,27 +380,89 @@ static void drawPage(const OledPageData &d) {
     case 1: drawMonitorPage(d); break;
     default: drawChatPage(d); break;
   }
+}
+
+static void drawPage(const OledPageData &d) {
+  renderPageContent(d);
   u8g2.sendBuffer();
+}
+
+// ---------- 滑动切页动画 ----------
+// 新页从右侧滑入、旧页向左侧滑出（8 帧，约 200ms；I2C 推一整帧约 23ms，帧再密也快不了）。
+// 实现：切页时先把旧页、新页各画进显存拷一份（renderPageContent 不推屏），
+//   再逐帧按字节合成——显存布局是 8 行 × 128 列，每字节是 1 列 8 个垂直像素，
+//   所以水平滑动就是按字节重排（display[x] = old[x+k] | new[x+k-128]），不用改任何画图调用。
+static bool s_animActive = false;
+static uint32_t s_animStartMs = 0;
+static uint8_t s_animOldBuf[1024];
+static uint8_t s_animNewBuf[1024];
+#define OLED_ANIM_FRAMES 8
+#define OLED_ANIM_FRAME_MS 25  // 8 帧 × 25ms = 200ms
+
+static void animStart(int fromPage, int fromSub, int toPage, int toSub, const OledPageData &d) {
+  int savePage = s_page, saveSub = s_chatSub;
+  s_page = fromPage; s_chatSub = fromSub;
+  renderPageContent(d);
+  memcpy(s_animOldBuf, u8g2.getBufferPtr(), 1024);
+  s_page = toPage; s_chatSub = toSub;
+  renderPageContent(d);
+  memcpy(s_animNewBuf, u8g2.getBufferPtr(), 1024);
+  s_page = toPage; s_chatSub = toSub;  // 最终状态就是新页
+  (void)savePage; (void)saveSub;
+  s_animStartMs = millis();
+  s_animActive = true;
+}
+
+// 推进一帧；动画结束时把新页画干净并返回 false（调用方据此同步重绘状态）。
+static bool animFrame(const OledPageData &d, uint32_t now) {
+  uint32_t elapsed = now - s_animStartMs;
+  int frame = (int)(elapsed / OLED_ANIM_FRAME_MS);
+  if (frame >= OLED_ANIM_FRAMES) {
+    s_animActive = false;
+    renderPageContent(d);
+    u8g2.sendBuffer();
+    return false;
+  }
+  int k = (frame + 1) * OLED_W / OLED_ANIM_FRAMES;  // 已滑过的像素：16, 32, …, 128
+  uint8_t *dst = u8g2.getBufferPtr();
+  for (int ty = 0; ty < 8; ty++) {
+    for (int x = 0; x < OLED_W; x++) {
+      uint8_t b = 0;
+      int ox = x + k;               // 旧页：向左滑出
+      if (ox < OLED_W) b |= s_animOldBuf[ty * OLED_W + ox];
+      int nx = x + k - OLED_W;      // 新页：从右侧滑入
+      if (nx >= 0) b |= s_animNewBuf[ty * OLED_W + nx];
+      dst[ty * OLED_W + x] = b;
+    }
+  }
+  u8g2.sendBuffer();
+  return true;
 }
 
 // ---------- 对外接口 ----------
 // ---------- 启动页 ----------
-// 版式（128x64，全部居中）：大标题（16px，基线 y=22）+ 进度条（外框 x=14~113、y=30~39，内填按 frac）
-//   + “正在启动…”（12px，基线 y=56，居中）。进度条在开机过程中按阶段填充（见 main.cpp setup）。
+// 版式（128x64，全部居中）：眼睛（眨眼+左右看，刚睡醒的感觉）+ 大标题（16px）
+//   + 进度条（外框 x=14~113、y=30~39，内填按 frac）+ “正在启动…”（12px，居中）。
+//   进度条在开机过程中按阶段填充（见 main.cpp setup）。
+// 注意：启动页在 setup() 里画，oledUiTick 还没跑；眼睛的眨眼/左右看按 millis() 取，
+//   每次 oledUiSplashProgress 重绘时都会更新（WiFi 等待循环每 100ms 调一次，正好让眼睛动起来）。
 static void drawSplashFrame(float frac) {
   if (frac < 0.0f) frac = 0.0f;
   if (frac > 1.0f) frac = 1.0f;
+  uint32_t now = millis();
   u8g2.clearBuffer();
+  // 眼睛（居中，12×7，会眨眼、左右看）
+  drawEyes(OLED_W / 2, 8, 12, eyeHeight(7, now), eyeLookX(now));
   // 大标题居中
   u8g2.setFont(OLED_FONT);
-  u8g2.drawUTF8((OLED_W - u8g2.getUTF8Width("司稼Agent")) / 2, 22, "司稼Agent");
+  u8g2.drawUTF8((OLED_W - u8g2.getUTF8Width("司稼Agent")) / 2, 29, "司稼Agent");
   // 进度条：外框 + 按 frac 填充
-  u8g2.drawFrame(14, 30, 100, 10);
+  u8g2.drawFrame(14, 35, 100, 10);
   int fillW = (int)(frac * 96.0f + 0.5f);
-  if (fillW > 0) u8g2.drawBox(16, 32, fillW, 6);
+  if (fillW > 0) u8g2.drawBox(16, 37, fillW, 6);
   // 提示居中
   u8g2.setFont(OLED_FONT_S);
-  u8g2.drawUTF8((OLED_W - u8g2.getUTF8Width("正在启动…")) / 2, 56, "正在启动…");
+  u8g2.drawUTF8((OLED_W - u8g2.getUTF8Width("正在启动…")) / 2, 58, "正在启动…");
   u8g2.sendBuffer();
 }
 
@@ -323,8 +470,15 @@ void oledUiBegin() {
   // BOOT 按键：平时高电平，按下为低电平；只在启动后读，不影响 strapping 采样。
   pinMode(PIN_BOOT_BTN, INPUT_PULLUP);
   u8g2.begin();
-  // 启动页先亮屏（进度条 0%，说明这块屏通了）；主循环随后按快照重绘。
+  // 启动页淡入：先画好启动页（进度条 0%），对比度从 0 慢慢 ramp 到 255（约 220ms），
+  //   画面从黑里亮出来；主循环随后按快照重绘。
+  u8g2.setContrast(0);
   drawSplashFrame(0.0f);
+  for (int c = 0; c <= 255; c += 25) {
+    u8g2.setContrast((uint8_t)c);
+    delay(20);
+  }
+  u8g2.setContrast(255);
   s_lastSwitchMs = millis();
 }
 
@@ -359,14 +513,23 @@ int oledUiTick(const OledPageData &d) {
         action = OLED_ACTION_ASK_PRESET_0;  // 长按：问第一条预设问题
         s_chatSub = 0;  // 新问题来了，问答回到第 1 页
       } else {
-        // 短按翻页：问答页先翻答案子页，翻完再到下一主页面；其他页直接到下一主页面。
+        // 短按翻页：问答页先翻答案子页（不做滑动，翻答案要快），翻完再到下一主页面；
+        //   其他页直接到下一主页面。主页面切换时启动滑动切页动画。
         if (s_page == 2 && s_chatSub < chatPageCount() - 1) {
           s_chatSub++;
         } else {
+          int oldPage = s_page, oldSub = s_chatSub;
           // 从问答页翻到状态页：问答答案自动清除，不保留（回到问答页重新开始问）。
           if (s_page == 2) action = OLED_ACTION_CLEAR_CHAT;
           s_page = (s_page + 1) % OLED_PAGE_COUNT;
           s_chatSub = 0;
+          if (s_animActive) {
+            // 上一个滑动还没跑完：先把它收尾（显存留到目标页），再开新的。
+            renderPageContent(d);
+            u8g2.sendBuffer();
+            s_animActive = false;
+          }
+          animStart(oldPage, oldSub, s_page, s_chatSub, d);
         }
         s_lastSwitchMs = now;
       }
@@ -375,11 +538,30 @@ int oledUiTick(const OledPageData &d) {
 
   // 注意：不自动轮换，只手动换页（用户要求）。
 
-  // ---- 按需重绘：翻页（含问答子页）或内容变化时才刷（全屏 I2C 传输不便宜）----
+  // ---- 滑动动画进行中：每轮推进一帧（非阻塞，millis 计时），不走下面的按需重绘 ----
   static int lastPageDrawn = -1;
   static int lastSubDrawn = -1;
+  if (s_animActive) {
+    if (!animFrame(d, now)) {
+      // 动画刚结束：同步重绘状态，避免下一轮重复画。
+      s_lastDrawn = d;
+      s_haveDrawn = true;
+      lastPageDrawn = s_page;
+      lastSubDrawn = s_chatSub;
+    }
+    return action;
+  }
+
+  // ---- 按需重绘：翻页（含问答子页）或内容变化时才刷（全屏 I2C 传输不便宜）----
+  // 动效要定时刷：诊断中转圈（100ms 一格）、问答空闲页眼睛眨眼/左右看。
+  //   只在动效可见时才定时刷，平时仍按需重绘，不拖慢主循环。
+  static uint32_t s_lastAnimRedrawMs = 0;
+  bool animVisible = (s_page == 2) &&
+                     (d.chatBusy || (!d.lastQuestion[0] && s_ansLineCount == 0));
+  bool animTick = animVisible && (now - s_lastAnimRedrawMs >= 120);
+  if (animTick) s_lastAnimRedrawMs = now;
   bool pageChanged = (s_page != lastPageDrawn) || (s_chatSub != lastSubDrawn);
-  if (!s_haveDrawn || pageChanged || snapshotChanged(d, s_lastDrawn)) {
+  if (!s_haveDrawn || pageChanged || snapshotChanged(d, s_lastDrawn) || animTick) {
     if (s_chatSub >= chatPageCount()) s_chatSub = chatPageCount() - 1;
     if (s_chatSub < 0) s_chatSub = 0;
     drawPage(d);
