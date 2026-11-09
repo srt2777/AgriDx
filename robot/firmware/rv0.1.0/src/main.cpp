@@ -299,9 +299,9 @@ static bool netFetchScenario() {
 
 #if ENABLE_OTA
 // ---------- OTA 联网自动更新 ----------
-// version.json 在分支上（合到 main 后 URL 改 main，见 FLASHING.md §8）。
+// version.json 在 main 上（见 FLASHING.md §8）。
 static const char *OTA_VERSION_URL =
-    "https://raw.githubusercontent.com/srt2777/AgriDx/codex/robot-section-20261109/"
+    "https://raw.githubusercontent.com/srt2777/AgriDx/main/"
     "robot/firmware/rv0.1.0/version.json";
 
 // 版本号按数字分段比较（0.1.10 > 0.1.9；字符串比较会错判）：-1 更小，0 相同，1 更大。

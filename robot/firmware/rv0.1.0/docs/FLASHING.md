@@ -212,8 +212,8 @@ esptool.py --chip esp32s3 --port <串口> --baud 921600 \
 ### 8.1 怎么工作
 
 - **WiFi 凭证存 NVS，不在固件里**：首次开机从 `secrets.h` 取 SSID/密码，存进 NVS（命名空间 `sijia`，键 `ssid` / `pass`）；以后联网一律读 NVS。OTA 升级只写 app 分区，绝不碰 NVS，升级后不断网。
-- **版本检查**：联网后约 10 秒查第一次，之后每 24 小时查一次。查的是分支上的 `version.json`：
-  `https://raw.githubusercontent.com/srt2777/AgriDx/codex/robot-section-20261109/robot/firmware/rv0.1.0/version.json`
+- **版本检查**：联网后约 10 秒查第一次，之后每 24 小时查一次。查的是 main 上的 `version.json`：
+  `https://raw.githubusercontent.com/srt2777/AgriDx/main/robot/firmware/rv0.1.0/version.json`
   内容示例：`{"version":"0.1.0","url":"https://…/release/firmware.bin","notes":""}`。版本号按数字分段比（0.1.10 > 0.1.9），远程比本地新才升级。
 - **下载**：用 Arduino 自带的 HTTPUpdate，经 HTTPS 下载 `version.json` 里 `url` 指向的 `firmware.bin`，校验镜像无误才切换分区，成功后重启进新版。失败时顶栏恢复“在线”、界面提示“更新失败，继续使用当前版本”，下次检查再试，不死循环。
 - **界面提示**：发现新版开始下载时，顶栏显示“更新中…”，并弹出“发现新版本，正在更新…”；下载成功重启，不需要人管。
@@ -222,11 +222,11 @@ esptool.py --chip esp32s3 --port <串口> --baud 921600 \
 
 1. 改 `include/version.h` 里的 `FIRMWARE_VERSION`（如 `0.1.1`）。
 2. 编译：`pio run`，产物在 `.pio/build/esp32-s3-n16r8/firmware.bin`。
-3. 把 `firmware.bin` 传到分支上的 `robot/firmware/rv0.1.0/release/firmware.bin`（.bin 不能走 API 推送，用浏览器上传）。
-4. 更新分支上的 `version.json`：`version` 改成新版本号，`url` 不变，`notes` 写改了什么。
+3. 把 `firmware.bin` 传到 main 上的 `robot/firmware/rv0.1.0/release/firmware.bin`（.bin 不能走 API 推送，用浏览器上传）。
+4. 更新 main 上的 `version.json`：`version` 改成新版本号，`url` 不变，`notes` 写改了什么。
 5. 推送到 GitHub。已联网的机器人 24 小时内会自动检查到新版并升级。
 
-> 合并到 main 之后：`version.json` 的 URL 和固件 URL 都要从分支 `codex/robot-section-20261109` 改成 `main`，否则设备一直查旧分支的版本。
+> `version.json` 和固件 URL 都指向 main（2026-11-09 随 PR #235 合并后改过），设备查的就是 main 上的版本。
 
 ### 8.3 注意
 
