@@ -118,26 +118,31 @@ C3 要点：
 - MISO / T_DO 冲突的查法同 S3：触摸读数乱跳而屏幕正常时，查 GPIO 5 这根线，个别模块可把屏的 MISO 脚悬空、只留 T_DO 接 GPIO 5。
 - C3 没有 PSRAM，显存双缓冲只有 20 行放内部 RAM，滑动比 S3 卡一点属正常，不是接线问题。
 
-### 4.2 I2S 语音：INMP441 麦克风 + MAX98357A 功放
+### 4.2 I2S 语音：INMP441 麦克风 + MAX98357A 功放（RV0.2.0 已实现，S3 专用）
 
-| 模块 | 信号 | 接法 | 供电 |
+| 模块 | 信号 | 接 S3 核心板 | 供电 |
 |---|---|---|---|
-| INMP441 | SCK | BCLK（与功放共用） | 3.3V |
-| INMP441 | WS | WS / LRC（与功放共用） | 3.3V |
-| INMP441 | SD | DIN（麦克风数据入） | 3.3V |
+| INMP441 | SCK | BCLK GPIO 17（与功放共用） | 3.3V |
+| INMP441 | WS | WS GPIO 18（与功放共用） | 3.3V |
+| INMP441 | SD | DIN GPIO 19（默认）或 38（后备），见下 ⚠ | 3.3V |
+| INMP441 | L/R | 接地（左声道输出） | — |
 | INMP441 | GND | GND（共地） | — |
-| MAX98357A | BCLK | BCLK（与麦克风共用） | 5V |
-| MAX98357A | LRC | WS / LRC（与麦克风共用） | 5V |
-| MAX98357A | DIN | DOUT（功放数据出） | 5V |
+| MAX98357A | BCLK | BCLK GPIO 17（与麦克风共用） | 5V |
+| MAX98357A | LRC | WS GPIO 18（与麦克风共用） | 5V |
+| MAX98357A | DIN | DOUT GPIO 20（默认）或 47（后备），见下 ⚠ | 5V |
 | MAX98357A | GND | GND（共地） | — |
 | MAX98357A | 输出 + / − | 接小喇叭（4Ω 3W）两端 | — |
 
 要点：
 
 - 麦克风和功放**共用 BCLK 和 WS 两根时钟线，数据线分开**（DIN 接麦克风、DOUT 接功放），这是 I2S 的标准接法。
-- **⚠ I2S 引脚待改（RV0.2.0 前必须改，代码改动，编译进行中时不要动）：**`display_config.h` 里 DIN / DOUT 现在是 GPIO 19 / 20，但这两个脚是 ESP32-S3 原生 USB 的 D− / D+。若登仕唐板的唯一 Type-C 走原生 USB，RV0.2.0 一启用 I2S 就会断烧录与串口；若 Type-C 是经 CH340 / CP210x 桥接芯片转串口，则可用。**到货先查明 Type-C 走哪种，再决定；若走原生 USB，把 DIN / DOUT 移到空闲 GPIO（如 38 / 47，核对引脚图确认未被板载外设占用），同步改 `display_config.h`。**RV0.1.0 不用 I2S，本版不受影响。
+- **⚠ GPIO 19/20 撞 S3 原生 USB**：GPIO 19 = USB D−、GPIO 20 = USB D+。板子到货后必须先确认 Type-C 走哪条路，再决定用默认脚还是后备脚：
+  - Type-C 直连原生 USB（D−/D+ 直接进芯片）：19/20 被 USB 占用，I2S 数据线必须改后备脚（DIN→38、DOUT→47），否则录音/播报与 USB 串口/烧录互相干扰；
+  - 板载桥接芯片（CH340/CP210x 等，Type-C 只走 UART0）：19/20 空闲，用默认脚。
+  切换方法（不用改代码）：`platformio.ini` 里 S3 环境加 `-DVOICE_I2S_USE_ALT_PINS=1`，或改 `include/display_config.h` 里 `VOICE_I2S_USE_ALT_PINS` 的默认值；改完重新编译烧录。**默认脚 19/20 与原生 USB 的冲突尚未实机确认，板子仍在途**。
+- **小喇叭 4Ω 3W 仍未到货**：MAX98357A 输出先空着不要短路；到货后再接，真机播报到时再验证。
 - I2S 的 GPIO 号以固件工程的引脚定义为准（`display_config.h`：BCLK 17、WS 18、DIN 19、DOUT 20），布线前先打开固件核对，不要自己编一组。共用 BCLK / WS 出现杂音时的后备方案：把麦克风与功放拆到两路 I2S 总线（各用自己的 BCLK / WS）。
-- **C3：I2S 引脚待 RV0.2.0 再定**（S3 的 BCLK 17 / WS 18 / DIN 19 / DOUT 20 在 C3 上是 USB D-/D+ 与 UART0，不能照搬；见 `display_config.h` 注释）。本版 C3 不接 I2S，麦克风与功放先不接。
+- **C3：不接 I2S**（S3 的 BCLK 17 / WS 18 / DIN 19 / DOUT 20 在 C3 上是 USB D-/D+ 与 UART0，不能照搬；见 `display_config.h` 注释）。C3 两个环境不编译语音代码，麦克风与功放先不接。
 - INMP441 用 3.3V 供电，MAX98357A 用 5V 供电（5V 下喇叭声音更大）。MAX98357A 的 SD（关断）引脚按模块说明处理：Adafruit 板靠板载上拉默认开启，裸片 / 其他模块悬空行为不确定，以实物为准。
 - 小喇叭线不要和麦克风线捆在一起，喇叭大声时会串进麦克风（啸叫 / 回声）；**麦克风与喇叭保持 5 cm 以上距离**。
 
