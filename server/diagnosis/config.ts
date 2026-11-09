@@ -6,12 +6,15 @@ export interface DiagnosticRuntimeConfig {
   /**
    * Tool loop mode. 'shadow' runs the tool loop only after the ordinary
    * answer is final, in the background, and never changes the answer.
-   * 'main' runs the same bounded read-only loop awaited, before the single
-   * LLM call, and may replace the AI supplement (see
-   * server/diagnosis/main-loop.md). 'main' and 'shadow' never run together:
-   * the service only starts shadow when agentLoop === 'shadow' and only
-   * attempts the main loop when agentLoop === 'main'. Anything else
-   * (including the browser preview, which has no process.env) is 'off'.
+   * 'main' used to run the same bounded read-only loop awaited, before
+   * the single LLM call; that awaited loop was removed 2026-11-10 for
+   * latency (it needed two sequential generations but only had an 8 s
+   * budget, so it usually burned the whole budget and the service paid
+   * for a second generation anyway). 'main' now behaves like 'off':
+   * the answer comes from the single llm.chat() path, and no tool loop
+   * runs. Use 'shadow' to keep running the loop in the background.
+   * Anything else (including the browser preview, which has no
+   * process.env) is 'off'.
    */
   agentLoop: 'off' | 'shadow' | 'main';
 }
