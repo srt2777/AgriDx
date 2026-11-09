@@ -38,7 +38,7 @@ interface GraphPalette {
 /** 按主题的图谱配色：浅色用暖纸面底 + 深色线条文字，深色沿用原有暖夜配色。 */
 const GRAPH_PALETTES: Record<Theme, GraphPalette> = {
   light: { backdrop: LIGHT_BACKDROP, link: '#a8842f', particle: '#c98f1b', label: '#4a3a20', glowOpacity: 0.32, haloOpacity: 0.5 },
-  dark: { backdrop: DARK_BACKDROP, link: '#c9a86a', particle: '#ffd97a', label: '#f5efe4', glowOpacity: 0.55, haloOpacity: 0.55 },
+  dark: { backdrop: DARK_BACKDROP, link: '#c9a86a', particle: '#ffd97a', label: '#f5efe4', glowOpacity: 0.4, haloOpacity: 0.4 },
 };
 
 let glowTexture: THREE.Texture | null = null;
@@ -366,16 +366,22 @@ export default function KnowledgeGraph3D({ nodes, selectedId, onSelect, lang, on
     return () => cancelAnimationFrame(raf);
   }, [reducedMotion, paused, roam, orbitCamera]);
 
-  /** 辉光后期处理：失败时仍保留精灵辉光，不影响图谱使用；浅色下降低强度，避免纸面过曝。 */
+  /** 辉光后期处理：失败时仍保留精灵辉光，不影响图谱使用。
+   *  浅色模式不加 bloom：纸面亮度 0.93 远高于阈值，整幅画面都会进 bloom 再被加回去，
+   *  节点会被白雾盖住（实测浅色下节点全不可见）；只靠精灵辉光做柔光。 */
   useEffect(() => {
     if (!webgl || !graphReady) return;
+    if (theme === 'light') {
+      if (bloomRef.current) bloomRef.current.strength = 0;
+      return;
+    }
     let cancelled = false;
     import('three/addons/postprocessing/UnrealBloomPass.js').then(({ UnrealBloomPass }) => {
       const fg = fgRef.current;
       if (cancelled || !fg) return;
       try {
-        const strength = theme === 'light' ? 0.35 : 0.7;
-        const threshold = theme === 'light' ? 0.25 : 0.1;
+        const strength = 0.4;
+        const threshold = 0.25;
         if (bloomRef.current) {
           bloomRef.current.strength = strength;
           bloomRef.current.threshold = threshold;
