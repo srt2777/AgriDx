@@ -295,6 +295,32 @@ prune_old_releases() {
   return 0
 }
 
+# Failed deploys never reach prune_old_releases, so every failed attempt left
+# a ~1.3G release directory behind until the 40G disk filled up. Remove stale
+# failed releases before a new attempt starts: only directories matching the
+# release layout, never the new release or the live/previous release; delete
+# empty directories (failed clone) and directories older than 24h. Cleanup
+# never fails the deploy.
+# NOTE: a separate daily 04:00 prune timer also removes release directories.
+# It must skip while the sync lock (/run/lock/agridx-github-sync.lock) is held,
+# or it can delete the release this deploy is still building ($RELEASE).
+prune_stale_releases() {
+  local entry name
+  for entry in "$RELEASES"/*/; do
+    entry=${entry%/}
+    [[ -d "$entry" && ! -L "$entry" ]] || continue
+    name=${entry##*/}
+    [[ "$name" =~ ^[0-9]{8}T[0-9]{6}Z-[0-9a-f]{12}-[0-9]+$ ]] || continue
+    [[ "$entry" == "$RELEASE" || "$entry" == "$ORIGINAL_RELEASE" ]] && continue
+    if [[ -z "$(find "$entry" -mindepth 1 -print -quit 2>/dev/null)" ]] ||
+       [[ -n "$(find "$entry" -maxdepth 0 -mtime +0 -print -quit 2>/dev/null)" ]]; then
+      if rm -rf "$entry"; then info "已清理过期版本：$entry"; else info "过期版本清理未完成：$entry" >&2; fi
+    fi
+  done
+  return 0
+}
+
+prune_stale_releases
 info "准备独立版本目录：$RELEASE；现有服务继续运行。"
 install -d -m 0755 -o "$APP_USER" -g "$APP_USER" "$RELEASE"
 as_app git clone --depth=1 --no-checkout "$REPOSITORY" "$RELEASE"
@@ -330,7 +356,9 @@ done
 # every npm phase, without changing the existing home/global npm configuration.
 NPM_CACHE="$RELEASE/.npm-cache"
 install -d -m 0700 -o "$APP_USER" -g "$APP_USER" "$NPM_CACHE"
-as_app env npm_config_cache="$NPM_CACHE" NPM_CONFIG_CACHE="$NPM_CACHE" bash -c \
+# The production box has 2GB RAM; an uncapped vite build exhausts the heap
+# (JavaScript heap out of memory) and leaves a ~1.3G failed release behind.
+as_app env NODE_OPTIONS=--max-old-space-size=1536 npm_config_cache="$NPM_CACHE" NPM_CONFIG_CACHE="$NPM_CACHE" bash -c \
   'cd "$1" && "$2" "$3" ci --cache "$4" --include=dev --no-audit --no-fund && "$2" "$3" run build --cache "$4" && "$2" "$3" prune --cache "$4" --omit=dev --no-audit --no-fund' \
   _ "$RELEASE" "$NODE_BIN" "$NPM_BIN" "$NPM_CACHE"
 [[ -s "$RELEASE/dist/index.html" && -s "$RELEASE/server.ts" &&
