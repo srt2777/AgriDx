@@ -2,6 +2,19 @@
 
 把司稼智能体装进单片机小机器人：单片机 + 触摸屏做交互终端，智能体仍跑在正式站（https://agridx.xyz）上，机器人通过 WiFi 调正式站接口。
 
+## 按芯片找固件（从这里开始）
+
+先看你手里是哪块芯片，再按电脑、屏幕往下找，每个叶子文件夹里都有该组合的环境名和烧录命令：
+
+| 芯片 | 电脑 | 屏幕 | 入口 |
+|---|---|---|---|
+| ESP32-C3 | Windows / Mac | 0.96 寸 OLED | [ESP32-C3/Windows/0.96inch-OLED/](ESP32-C3/Windows/0.96inch-OLED/) · [ESP32-C3/Mac/0.96inch-OLED/](ESP32-C3/Mac/0.96inch-OLED/) |
+| ESP32-C3 | Windows / Mac | 3.2 寸触摸屏 | [ESP32-C3/Windows/3.2inch-Touch/](ESP32-C3/Windows/3.2inch-Touch/) · [ESP32-C3/Mac/3.2inch-Touch/](ESP32-C3/Mac/3.2inch-Touch/) |
+| ESP32-S3 | Windows / Mac | 3.2 寸触摸屏 | [ESP32-S3/Windows/3.2inch-Touch/](ESP32-S3/Windows/3.2inch-Touch/) · [ESP32-S3/Mac/3.2inch-Touch/](ESP32-S3/Mac/3.2inch-Touch/) |
+| ESP32-S3 | Windows / Mac | 0.96 寸 OLED | 规划中，暂不可用（见 [ESP32-S3/Windows/0.96inch-OLED/](ESP32-S3/Windows/0.96inch-OLED/)） |
+
+固件源码只有一份，在 [`firmware/rv0.1.0/`](firmware/rv0.1.0/)（PlatformIO 工程）。上面各组合只是同一个工程的不同编译环境，改代码都在那一个工程里改。
+
 ## 架构（一句话）
 
 单片机不跑智能体本身，只做交互终端；司稼智能体仍跑在正式站上；机器人通过 WiFi 调正式站的诊断接口（`POST /api/chat`）和遥测接口（`GET /api/telemetry/*`），屏幕上问答和监控。
@@ -24,6 +37,7 @@
 - `VERSIONS.md` — 版本规则与版本表
 - `versions/` — 各版本方案（每版一个文件）
 - `firmware/` — 固件工程（Arduino + LVGL），随版本落地后放入
+- `ESP32-C3/`、`ESP32-S3/` — 按芯片 → 电脑 → 屏幕的烧录入口（见上面“按芯片找固件”）
 
 ## 硬件（RV0.1.0 实购，2026-11-09）
 
