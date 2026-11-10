@@ -208,6 +208,11 @@ finish() {
   fi
   if [[ "$keep_backup" != true ]]; then rm -rf "$WORK_DIR"; fi
   if [[ "$SUCCESS" != true ]]; then
+    # A failed build keeps its source for diagnosis, but node_modules from every
+    # retry will fill the disk and make the next main impossible to unpack.
+    if [[ -n "${RELEASE:-}" && -d "$RELEASE" && "$RELEASE" != "$ORIGINAL_RELEASE" ]]; then
+      rm -rf "$RELEASE/node_modules" "$RELEASE/.npm-cache" || true
+    fi
     info "本次未完成部署；新目录若已创建则保留：$RELEASE" >&2
     (( status != 0 )) || status=1
   fi
@@ -403,7 +408,23 @@ check_nginx_release || fail 'Nginx 网页、脚本或 API 检查未通过。'
 [[ "$(service_property ActiveState)" == active && "$(readlink -f "$CURRENT")" == "$RELEASE" ]] ||
   fail '正式服务或 current 状态不匹配。'
 SUCCESS=true
+# Replace the frozen controller with the scripts from this reviewed commit so
+# the next run does not keep a stale updater. The process image is already loaded.
+TOOL_DIR=/usr/local/lib/agridx-github-sync
+if [[ -d "$TOOL_DIR" && -w "$TOOL_DIR" ]]; then
+  for tool in update-existing.sh sync-main.sh install-release-cache-headers.sh; do
+    if [[ -f "$RELEASE/scripts/tencent-deploy/$tool" ]]; then
+      install -m 0700 -o root -g root "$RELEASE/scripts/tencent-deploy/$tool" "$TOOL_DIR/$tool" \
+        || info "控制器脚本未替换：$tool"
+    fi
+  done
+fi
+cache_helper="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/install-release-cache-headers.sh"
+if [[ -f "$cache_helper" ]]; then
+  /bin/bash "$cache_helper" || info '发布清单缓存头未写入，本次部署不因此回退。'
+fi
 prune_old_releases
 info "部署完成：version=$EXPECTED_VERSION commit=$COMMIT"
 info "上一版本保留：$ORIGINAL_RELEASE"
-info 'Nginx、证书、DNS、防火墙、cron 和现有 EnvironmentFile 未修改。'
+info '证书、DNS、防火墙、cron 和现有 EnvironmentFile 未修改。'
+info '发布清单缓存头只在 nginx -t 通过后增加 no-store；失败会恢复原配置。'

@@ -12,6 +12,12 @@ fail() { printf '[github-sync] %s\n' "$*" >&2; exit 1; }
 exec 9>"$LOCK"
 flock -n 9 || exit 0
 
+# The installed tools are a snapshot. Refreshing this header does not require a
+# new release, and it must run even when the public commit is already current.
+if [[ -f "$SCRIPT_DIR/install-release-cache-headers.sh" ]]; then
+  /bin/bash "$SCRIPT_DIR/install-release-cache-headers.sh" || printf '[github-sync] 发布清单缓存头未更新。\n' >&2
+fi
+
 # Public Git refs need no GitHub token or server login credential. A request is
 # eligible only while it exactly equals main; forks/history cannot select code.
 refs=$(git ls-remote --exit-code "$REPOSITORY" refs/heads/main refs/heads/tencent-production-ready)
