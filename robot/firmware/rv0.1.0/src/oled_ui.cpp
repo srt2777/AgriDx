@@ -23,7 +23,7 @@
 // 切页：只手动换页，不自动轮换。BOOT 按键（GPIO9）短按翻页；长按（≥800ms）问第一条预设问题。
 //   主页面切换有滑动过渡（新页从右滑入，8 帧约 200ms）；问答子页翻页不滑动，要快。
 // 动效：启动页淡入（对比度 ramp）+ 进度条 + 眨眼；诊断中标题栏转圈；
-//   问答空闲页眼睛会眨眼、左右看。动效只在可见时定时重绘（120ms），平时仍按需重绘。
+//   问答空闲页眼睛会眨眼、左右看。动效只在可见时定时重绘（50ms/20fps），平时仍按需重绘。
 // 待机：10 秒无操作（按键/新答案到达都算操作，诊断中不进待机）自动进入，
 //   全屏一辆拖拉机（轮子转、排气管冒烟）；按一下 BOOT 唤醒（那一下只唤醒，不翻页、不提问）。
 // 切页：只手动换页，不自动轮换。BOOT 按键（GPIO9）短按翻页；长按（≥800ms）问第一条预设问题。
@@ -59,6 +59,10 @@
 #define OLED_PAGE_COUNT 3
 #define OLED_LONG_PRESS_MS 800
 #define OLED_DEBOUNCE_MS 50
+#define OLED_ANIM_MS 50  // 动效重绘间隔（20fps；原来 120ms/约 8fps，看着卡）。
+// 帧率预算：128×64 全帧经 I2C（400kHz）发送约 23ms，50ms 间隔留约 27ms 余量；
+// 再短（33ms/30fps）只剩约 10ms，I2C 稍一抖就拖垮主循环、WiFi/HTTP 也会受挤，
+// 所以 50ms 是稳妥值。动效只在可见时才按此间隔重绘，平时仍按需重绘。
 #define OLED_ANS_MAX_LINES 64  // 答案换行后最多存 64 行（512 字答案约 51 行，够用）
 
 // 硬件 I2C：U8g2 按构造参数里的时钟/数据脚调 Wire.begin(SDA, SCL)。
@@ -222,15 +226,16 @@ static uint32_t s_lastActivityMs = 0;    // 上次操作时刻
 static bool s_wakeConsumed = false;      // 唤醒那一下按下已被消耗（松开时不触发操作）
 
 // 待机拖拉机：全屏一辆侧面拖拉机（车身、驾驶室、大后轮、小前轮、排气管），
-// 轮子转、排气管冒烟。120ms 一帧，启动页/问答页的小眼睛不受影响（只换待机屏）。
+// 轮子转、排气管冒烟。50ms 一帧（20fps），启动页/问答页的小眼睛不受影响（只换待机屏）。
 // 版式（128×64）：地面 y=54；后轮中心 (38,44) r=10；前轮中心 (96,47) r=7；
 // 驾驶室 x=28–49 y=20–41（黑窗）；发动机罩 x=62–101 y=32–43；
 // 底盘横梁 y=44–46；排气管 x=72–75 y=14–31，烟从管口 (74,12) 往上飘。
-// 画一个轮子：外胎（两圈）+ 轮毂 + 3 根辐条（直径线，120° 夹角，随时间转，每帧 30°）。
+// 画一个轮子：外胎（两圈）+ 轮毂 + 3 根辐条（直径线，120° 夹角，随时间转）。
+// 辐条角按毫秒算（1440ms 转一圈，即 0.25°/ms），与帧率无关，帧率越高越顺滑。
 static void drawStandbyWheel(int cx, int cy, int r, uint32_t now) {
   u8g2.drawCircle(cx, cy, (u8g2_uint_t)r);
   u8g2.drawCircle(cx, cy, (u8g2_uint_t)(r - 2));
-  float base = (float)((now / 120) * 30 % 360) * 3.14159f / 180.0f;
+  float base = (float)(now % 1440) * 3.14159f / 720.0f;
   for (int i = 0; i < 3; i++) {
     float a = base + (float)i * 3.14159f * 2.0f / 3.0f;
     int dx = (int)((r - 3) * cosf(a) + 0.5f);
@@ -240,21 +245,22 @@ static void drawStandbyWheel(int cx, int cy, int r, uint32_t now) {
   u8g2.drawDisc(cx, cy, 2);
 }
 
-// 尾气：每 3 帧（360ms）从排气管口冒一个烟圈，往上飘、变大、变淡、消失。
-// 烟圈按生成帧算年龄，不用存状态；年轻实心、变老空心、再老消失。
+// 尾气：每 360ms 从排气管口冒一个烟圈，往上飘、变大、变淡、消失。
+// 年龄按毫秒算（步数 = 年龄/120ms，每步上升 1px），与帧率无关；
+// 年轻实心、变老空心、再老消失。步数只增不减，帧率提高烟不会变快。
 static void drawStandbySmoke(int tipX, int tipY, uint32_t now) {
-  uint32_t frame = now / 120;
   for (int j = 0; j < 3; j++) {
-    uint32_t spawn = (frame / 3 - (uint32_t)j) * 3;
-    if (frame < spawn) continue;
-    uint32_t age = frame - spawn;
-    if (age > 8) continue;
-    int y = tipY - (int)age;  // 每帧上升 1px
-    int x = tipX - (int)((float)age * 0.5f) + (int)(sinf((float)age * 0.9f) * 1.5f);  // 往后飘 + 轻微摆动
-    int r = 2 + (int)((float)age * 0.35f);  // 变大
-    if (age <= 3) {
+    uint32_t spawn = (now / 360 - (uint32_t)j) * 360;
+    if (now < spawn) continue;
+    uint32_t ageMs = now - spawn;
+    if (ageMs > 960) continue;
+    int step = (int)(ageMs / 120);
+    int y = tipY - step;  // 每 120ms 上升 1px
+    int x = tipX - step / 2 + (int)(sinf((float)step * 0.9f) * 1.5f);  // 往后飘 + 轻微摆动
+    int r = 2 + (int)((float)step * 0.35f);  // 变大
+    if (step <= 3) {
       u8g2.drawDisc(x, y, (u8g2_uint_t)r);
-    } else if (age <= 7) {
+    } else if (step <= 7) {
       u8g2.drawCircle(x, y, (u8g2_uint_t)r);
     }
   }
@@ -630,10 +636,10 @@ int oledUiTick(const OledPageData &d) {
     if (s_animActive) s_animActive = false;  // 正在滑页就停掉，切到待机眼睛
   }
 
-  // ---- 待机中：只画拖拉机动画（轮子转、冒烟），不画页面；每 120ms 重绘一帧 ----
+  // ---- 待机中：只画拖拉机动画（轮子转、冒烟），不画页面；每 50ms 重绘一帧（20fps） ----
   static uint32_t s_lastStandbyMs = 0;
   if (s_standby) {
-    if (now - s_lastStandbyMs >= 120) {
+    if (now - s_lastStandbyMs >= OLED_ANIM_MS) {
       s_lastStandbyMs = now;
       u8g2.clearBuffer();
       u8g2.setFont(OLED_FONT_S);
@@ -663,7 +669,7 @@ int oledUiTick(const OledPageData &d) {
   static uint32_t s_lastAnimRedrawMs = 0;
   bool animVisible = (s_page == 2) &&
                      (d.chatBusy || (!d.lastQuestion[0] && s_ansLineCount == 0));
-  bool animTick = animVisible && (now - s_lastAnimRedrawMs >= 120);
+  bool animTick = animVisible && (now - s_lastAnimRedrawMs >= OLED_ANIM_MS);
   if (animTick) s_lastAnimRedrawMs = now;
   bool pageChanged = (s_page != lastPageDrawn) || (s_chatSub != lastSubDrawn);
   if (!s_haveDrawn || pageChanged || snapshotChanged(d, s_lastDrawn) || animTick) {
