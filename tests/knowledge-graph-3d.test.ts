@@ -5,6 +5,7 @@ import {
   findGraphNode,
   labelVisible,
   levelColor,
+  levelColorForTheme,
   nodeSize,
   LABEL_NODE_LIMIT,
   MAX_INITIAL_NODES,
@@ -125,4 +126,16 @@ test('默认上限覆盖真实规模：品牌加机型 168 个节点在初始上
   assert.ok(168 <= MAX_INITIAL_NODES, `168 <= ${MAX_INITIAL_NODES}`);
   assert.ok(MAX_INITIAL_NODES < MAX_TOTAL_NODES);
   assert.ok(MAX_TOTAL_NODES <= 600, '总上限 600，避免一次渲染数千节点');
+});
+
+test('主题颜色：两种主题下四层级各自互不相同，浅色品牌色不再是近白', () => {
+  for (const theme of ['light', 'dark'] as const) {
+    const colors = new Set(['brand', 'model', 'component', 'part'].map(level => levelColorForTheme(level as TaxonomyNode['level'], theme)));
+    assert.equal(colors.size, 4);
+    for (const color of colors) assert.match(color, /^#[0-9a-f]{6}$/);
+  }
+  assert.equal(levelColorForTheme('brand', 'light'), '#6b4a1f');
+  assert.notEqual(levelColorForTheme('brand', 'light'), levelColor('brand'));
+  assert.equal(levelColorForTheme('brand', 'dark'), levelColor('brand'));
+  assert.equal(levelColorForTheme('model', 'dark'), levelColor('model'));
 });
