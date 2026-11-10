@@ -435,7 +435,12 @@ test('腾讯正式启动命令从 current 软链接工作目录启动真实 Type
     request.setTimeout(250, () => request.destroy(new Error('local health timeout')));
   });
   let status: Awaited<ReturnType<typeof health>> | undefined;
-  for (let attempt = 0; attempt < 80; attempt++) {
+  // 按时间而不是按次数等服务就绪：冷启动（tsx 转译 + 全量模块 + 知识库
+  // 加载）实测约 11 秒，负载高时更久；旧的 80 次上限在连接被快速拒绝时
+  // 约 4 秒就耗尽，服务还没起来测试就判失败。45 秒截止仍在测试自身的
+  // 60 秒超时内；服务始终不起仍会失败，只是不再误判启动慢。断言本身未动。
+  const deadline = Date.now() + 45_000;
+  while (Date.now() < deadline) {
     if (child.exitCode !== null || child.signalCode !== null) break;
     try { status = await health(); break; } catch { await new Promise(resolve => setTimeout(resolve, 50)); }
   }
