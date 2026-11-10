@@ -51,7 +51,7 @@
 
 ### 关联 PR
 
-- 未记录
+- [PR #259](https://github.com/srt2777/AgriDx/pull/259)
 
 ### 部署记录
 
