@@ -21,7 +21,7 @@ test('brake stops the tractor and reverse is slower than forward', () => {
   assert.equal(rev.speed, -1.2);
 });
 
-test('turn radius is wide at full steer (indoor-safe turning)', () => {
+test('turn radius is wide at full steer (field-safe turning)', () => {
   const radius = turnRadius(2, 0.5);
   assert.ok(radius > 2 && radius < 10, `radius ${radius}`);
   assert.equal(turnRadius(2, 0), Number.POSITIVE_INFINITY);
@@ -34,9 +34,9 @@ test('resolveCollision never lets the tractor enter the T70 platform', () => {
   assert.ok(Math.abs(resolved.x) >= 3.4 + 1.9 - 0.01 || resolved.speed === 0, `x ${resolved.x}`);
 });
 
-test('clampWalk keeps the walker inside the hall and out of booths', () => {
+test('clampWalk keeps the walker inside the field and out of booths', () => {
   const out = clampWalk(100, -100);
-  assert.ok(Math.abs(out.x) <= 22 && Math.abs(out.z) <= 15);
+  assert.ok(Math.abs(out.x) <= 30 && Math.abs(out.z) <= 22);
   const booth = clampWalk(16.5, -10);
   assert.ok(Math.abs(booth.x - 16.5) > 0.4 || Math.abs(booth.z - -10) > 0.4, `booth ${booth.x},${booth.z}`);
 });

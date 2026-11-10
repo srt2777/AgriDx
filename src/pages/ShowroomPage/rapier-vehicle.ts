@@ -4,9 +4,9 @@
  * Rapier itself ships no vehicle controller, so this module builds one on
  * top of @dimforge/rapier3d-compat (Apache-2.0, lazy-loaded so the rest of
  * the app never pays for the WASM bundle):
- *  - a static world: floor + wall colliders + one cuboid collider per hall
- *    obstacle (booths / platform / planters), so the tractor genuinely
- *    collides instead of clipping through;
+ *  - a static world: floor + field-edge bound colliders + one cuboid
+ *    collider per field obstacle (booths / platform), so the tractor
+ *    genuinely collides instead of clipping through;
  *  - the tractor as a dynamic cuboid rigid body, driven by capped
  *    acceleration / steering (low speed, heavy feel, wide turn radius);
  *  - a raycast per wheel, cast straight down from each wheel hub, which

@@ -9,7 +9,7 @@
  */
 import { Suspense, use, useEffect, useMemo, useRef } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { Html, MeshReflectorMaterial, useGLTF, useProgress } from '@react-three/drei';
+import { Html, useGLTF, useProgress } from '@react-three/drei';
 import { Bloom, DepthOfField, EffectComposer, N8AO, Vignette } from '@react-three/postprocessing';
 import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js';
 import { SkeletonUtils } from 'three-stdlib';
@@ -51,19 +51,6 @@ function canvasTexture(width: number, height: number, draw: (ctx: CanvasRenderin
   return texture;
 }
 
-function wallTextTexture(): THREE.CanvasTexture {
-  return canvasTexture(1600, 320, (ctx) => {
-    ctx.fillStyle = '#f4f7f4';
-    ctx.fillRect(0, 0, 1600, 320);
-    ctx.fillStyle = '#20553f';
-    ctx.font = 'bold 120px "PingFang SC", "Microsoft YaHei", sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText('智 慧 农 业', 800, 150);
-    ctx.fillStyle = '#886423';
-    ctx.font = '44px "PingFang SC", "Microsoft YaHei", sans-serif';
-    ctx.fillText('S M A R T   A G R I C U L T U R E', 800, 240);
-  });
-}
 
 function kioskTexture(): THREE.CanvasTexture {
   return canvasTexture(1024, 576, (ctx) => {
@@ -104,6 +91,58 @@ function boardTexture(lines: string[], title: string): THREE.CanvasTexture {
     ctx.fillStyle = '#33413c';
     ctx.font = '30px "PingFang SC", sans-serif';
     lines.forEach((line, i) => ctx.fillText(line, 40, 150 + i * 52));
+  });
+}
+
+function cropTexture(): THREE.CanvasTexture {
+  return canvasTexture(128, 256, (ctx) => {
+    const g = ctx.createLinearGradient(0, 256, 0, 0);
+    g.addColorStop(0, '#3f6b28');
+    g.addColorStop(0.55, '#5d8a35');
+    g.addColorStop(1, '#c9a94e');
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, 128, 256);
+    ctx.strokeStyle = 'rgba(46, 90, 32, 0.55)';
+    ctx.lineWidth = 5;
+    for (let x = 14; x < 128; x += 24) {
+      ctx.beginPath();
+      ctx.moveTo(x, 256);
+      ctx.lineTo(x + 8, 20);
+      ctx.stroke();
+    }
+  });
+}
+
+function groundTexture(): THREE.CanvasTexture {
+  // 1024² texture over a 140×100 m field: green crop ground, brown
+  // furrow lines in the north/south crop belts, dirt track along z = 0.
+  return canvasTexture(1024, 1024, (ctx) => {
+    ctx.fillStyle = '#7fa055';
+    ctx.fillRect(0, 0, 1024, 1024);
+    ctx.fillStyle = '#74944c';
+    for (let i = 0; i < 900; i++) {
+      ctx.fillRect(Math.random() * 1024, Math.random() * 1024, 3, 3);
+    }
+    // Furrows: horizontal bands in the crop belts (top/bottom thirds).
+    ctx.strokeStyle = 'rgba(122, 90, 52, 0.5)';
+    ctx.lineWidth = 3;
+    for (let y = 40; y < 380; y += 14) {
+      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(1024, y); ctx.stroke();
+    }
+    for (let y = 650; y < 990; y += 14) {
+      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(1024, y); ctx.stroke();
+    }
+    // Dirt track along the middle (z = 0).
+    ctx.fillStyle = '#b09268';
+    ctx.fillRect(0, 470, 1024, 84);
+    ctx.fillStyle = '#a37f52';
+    ctx.fillRect(0, 470, 1024, 6);
+    ctx.fillRect(0, 548, 1024, 6);
+    ctx.strokeStyle = 'rgba(90, 66, 38, 0.45)';
+    ctx.lineWidth = 2;
+    for (let x = 0; x < 1024; x += 46) {
+      ctx.beginPath(); ctx.moveTo(x, 512); ctx.lineTo(x + 22, 512); ctx.stroke();
+    }
   });
 }
 
@@ -149,6 +188,7 @@ function T70({ sim, onPartSelect }: { sim: SimState; onPartSelect: (id: string) 
   const group = useRef<THREE.Group>(null);
   const wheelPivots = useRef<Map<string, THREE.Group>>(new Map());
   const wheelMeshes = useRef<Map<string, THREE.Object3D>>(new Map());
+  const hubMeshes = useRef<Map<string, THREE.Object3D>>(new Map());
   const radar = useRef<THREE.Group>(null);
 
   const model = useMemo(() => {
@@ -199,19 +239,76 @@ function T70({ sim, onPartSelect }: { sim: SimState; onPartSelect: (id: string) 
       if (box.isEmpty()) return null;
       const center = box.getCenter(new THREE.Vector3());
       const size = box.getSize(new THREE.Vector3());
-      return { part, position: [center.x, center.y + size.y * 0.5 + 0.12, center.z] as [number, number, number] };
+      // The four sensor hotspots sit within ~30 px of each other on
+      // screen, so their labels used to land on the same spot and
+      // overlap. The dot stays exactly on its part; only the label is
+      // fanned out into its own screen quadrant (see the CSS offsets).
+      const labelClass =
+        part.id === 'gps_antenna'
+          ? 'showroom-hotspot-label--beidou'
+          : part.id === 'sensor_roof_l'
+            ? 'showroom-hotspot-label--roof-l'
+            : part.id === 'sensor_roof_r'
+              ? 'showroom-hotspot-label--roof-r'
+              : 'showroom-hotspot-label--battery';
+      const lift = part.id === 'sensor_roof_l' ? 0.3 : 0.12;
+      return { part, labelClass, position: [center.x, center.y + size.y * 0.5 + lift, center.z] as [number, number, number] };
     }).filter((h): h is NonNullable<typeof h> => h !== null);
   }, [model]);
 
   // Wrap front wheels in steer pivots; record spin meshes.
+  // Wheel fix (see showroom-data WHEEL_SPIN_AXIS): the GLB tyre is a
+  // disc in the XY plane (axle = local Z) and the hub is a separate,
+  // smaller disc (diameter ~57% of the tyre, offset 4 cm outboard), so
+  // the annulus between hub edge and tyre inner edge is see-through —
+  // the "hollow donut" in the screenshot. A procedural filler disc
+  // (rim + centre cap, child of the wheel mesh so it steers/spins with
+  // it) closes that annulus without touching the GLB file.
   useEffect(() => {
     const nodes = findPartNodes(model);
     wheelPivots.current.clear();
     wheelMeshes.current.clear();
+    hubMeshes.current.clear();
     for (const id of ['wheel_fl', 'wheel_fr', 'wheel_rl', 'wheel_rr']) {
       const targets = nodes.get(id) ?? [];
       targets.forEach((mesh) => {
         wheelMeshes.current.set(`${id}:${mesh.uuid}`, mesh);
+        if (mesh instanceof THREE.Mesh && mesh.geometry) {
+          mesh.geometry.computeBoundingBox();
+          const bb = mesh.geometry.boundingBox;
+          if (bb) {
+            const size = new THREE.Vector3();
+            bb.getSize(size);
+            const centre = new THREE.Vector3();
+            bb.getCenter(centre);
+            const radius = (size.y / 2) * 0.88;
+            const thickness = size.z * 0.55;
+            const filler = new THREE.Group();
+            filler.position.copy(centre);
+            const rim = new THREE.Mesh(
+              new THREE.CylinderGeometry(radius, radius, thickness, 40),
+              new THREE.MeshStandardMaterial({ color: '#6f7477', metalness: 0.7, roughness: 0.35 }),
+            );
+            rim.rotation.x = Math.PI / 2;
+            rim.castShadow = true;
+            filler.add(rim);
+            const cap = new THREE.Mesh(
+              new THREE.CylinderGeometry(radius * 0.28, radius * 0.28, thickness * 1.15, 24),
+              new THREE.MeshStandardMaterial({ color: '#d7d9d6', metalness: 0.6, roughness: 0.3 }),
+            );
+            cap.rotation.x = Math.PI / 2;
+            filler.add(cap);
+            for (let s = 0; s < 5; s++) {
+              const spoke = new THREE.Mesh(
+                new THREE.BoxGeometry(radius * 1.7, radius * 0.2, thickness * 0.5),
+                new THREE.MeshStandardMaterial({ color: '#8a8f92', metalness: 0.65, roughness: 0.4 }),
+              );
+              spoke.rotation.z = (s / 5) * Math.PI;
+              filler.add(spoke);
+            }
+            mesh.add(filler);
+          }
+        }
         if (id === 'wheel_fl' || id === 'wheel_fr') {
           const parent = mesh.parent;
           if (!parent) return;
@@ -225,12 +322,22 @@ function T70({ sim, onPartSelect }: { sim: SimState; onPartSelect: (id: string) 
         }
       });
     }
+    for (const id of ['hub_fl', 'hub_fr', 'hub_rl', 'hub_rr']) {
+      (nodes.get(id) ?? []).forEach((mesh) => {
+        hubMeshes.current.set(`${id}:${mesh.uuid}`, mesh);
+      });
+    }
   }, [model]);
 
   useFrame(() => {
     const spin = sim.wheelSpin;
+    // Spin around the axle (local Z): rotating around X flipped the
+    // wheel out of its plane like a coin.
     wheelMeshes.current.forEach((mesh) => {
-      mesh.rotation.x = spin;
+      mesh.rotation.z = spin;
+    });
+    hubMeshes.current.forEach((mesh) => {
+      mesh.rotation.z = spin;
     });
     wheelPivots.current.forEach((pivot) => {
       pivot.rotation.y = sim.tractor.steer * 0.9;
@@ -256,20 +363,22 @@ function T70({ sim, onPartSelect }: { sim: SimState; onPartSelect: (id: string) 
           <meshBasicMaterial color="#7ad7ff" transparent opacity={0.35} />
         </mesh>
       </group>
-      {hotspots.map(({ part, position }) => (
-        <Html key={part.id} position={position} center zIndexRange={[30, 0]} style={{ pointerEvents: 'auto' }}>
-          <button
-            type="button"
-            className="showroom-hotspot"
-            title={part.zh}
-            onClick={(event) => {
-              event.stopPropagation();
-              onPartSelect(part.id);
-            }}
-          >
-            <span className="showroom-hotspot-dot" />
-            <span className="showroom-hotspot-label">{part.zh}</span>
-          </button>
+      {hotspots.map(({ part, labelClass, position }) => (
+        <Html key={part.id} position={position} center zIndexRange={[30, 0]} style={{ pointerEvents: 'none' }}>
+          <div className="showroom-hotspot-anchor">
+            <button
+              type="button"
+              className="showroom-hotspot-dotbtn"
+              title={part.zh}
+              onClick={(event) => {
+                event.stopPropagation();
+                onPartSelect(part.id);
+              }}
+            >
+              <span className="showroom-hotspot-dot" />
+            </button>
+            <span className={`showroom-hotspot-label ${labelClass}`}>{part.zh}</span>
+          </div>
         </Html>
       ))}
     </group>
@@ -290,29 +399,6 @@ const skyFragment = /* glsl */ `
   void main() {
     float h = normalize(vPos).y * 0.5 + 0.5;
     gl_FragColor = vec4(mix(uHorizon, uTop, smoothstep(0.0, 0.65, h)), 1.0);
-  }
-`;
-
-const dropletVertex = /* glsl */ `
-  varying vec2 vUv;
-  void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }
-`;
-const dropletFragment = /* glsl */ `
-  uniform float uDroplets; uniform float uTime;
-  varying vec2 vUv;
-  float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
-  void main() {
-    vec2 grid = vec2(46.0, 26.0);
-    vec2 cell = floor(vUv * grid);
-    vec2 f = fract(vUv * grid);
-    float r = hash(cell);
-    float fall = fract(uTime * (0.02 + r * 0.05) + r);
-    vec2 center = vec2(0.3 + r * 0.4, fall);
-    float d = distance(f, center);
-    float drop = smoothstep(0.16, 0.02, d) * step(0.35, r);
-    float streak = smoothstep(0.05, 0.0, abs(f.x - center.x)) * smoothstep(0.0, 0.5, f.y) * step(0.6, r);
-    float a = 0.06 + uDroplets * (drop * 0.55 + streak * 0.25);
-    gl_FragColor = vec4(vec3(0.82, 0.9, 0.95), a);
   }
 `;
 
@@ -394,28 +480,145 @@ function getPrecipitationPositions(): Float32Array {
     for (let i = 0; i < MAX_PARTICLES; i++) {
       arr[i * 3] = -45 + Math.random() * 90;
       arr[i * 3 + 1] = Math.random() * 26;
-      const side = Math.random() > 0.5 ? 1 : -1;
-      arr[i * 3 + 2] = side * (17 + Math.random() * 26);
+      arr[i * 3 + 2] = -30 + Math.random() * 60;
     }
     precipitationPositions = arr;
   }
   return precipitationPositions;
 }
 
-let dustGeometry: THREE.BufferGeometry | null = null;
-function getDustGeometry(): THREE.BufferGeometry {
-  if (!dustGeometry) {
-    const geo = new THREE.BufferGeometry();
-    const arr = new Float32Array(90 * 3);
-    for (let i = 0; i < 90; i++) {
-      arr[i * 3] = -20 + Math.random() * 40;
-      arr[i * 3 + 1] = 0.5 + Math.random() * 5.5;
-      arr[i * 3 + 2] = 8 + Math.random() * 6;
+/* ---------------------------------------------------------------- */
+/* Farm field: crops swaying in the wind + treeline                */
+/* ---------------------------------------------------------------- */
+
+const CROP_COUNT = 1900;
+
+/**
+ * Procedural crop rows (one InstancedMesh, ~1900 plants, 2 triangles
+ * each). Wind sway is a vertex-shader bend driven by the current
+ * weather's `sway` — no per-plant CPU work per frame, so the field
+ * stays cheap even on integrated graphics. Rows skip the dirt track
+ * and the four booth footprints.
+ */
+function CropField({ weather }: { weather: BlendedWeather }) {
+  const meshRef = useRef<THREE.InstancedMesh>(null);
+  const materialRef = useRef<THREE.MeshStandardMaterial>(null);
+  const texture = useMemo(() => cropTexture(), []);
+  const wind = useMemo(() => ({ uTime: { value: 0 }, uSway: { value: 0.15 } }), []);
+  const geometry = useMemo(() => new THREE.PlaneGeometry(0.55, 1.15, 1, 2), []);
+  const instances = useMemo(() => {
+    const list: { x: number; z: number; rot: number; s: number; shade: number }[] = [];
+    const booths: [number, number, number, number][] = [
+      [-3.4, -2.2, 3.4, 2.2],
+      [13.5, -12.5, 19.5, -7.5],
+      [-19.5, -12.5, -13.5, -7.5],
+      [13.5, 7.5, 19.5, 12.5],
+    ];
+    const blocked = (x: number, z: number) =>
+      booths.some(([minX, minZ, maxX, maxZ]) => x > minX - 1 && x < maxX + 1 && z > minZ - 1 && z < maxZ + 1);
+    let seed = 12345;
+    const rand = () => {
+      seed = (seed * 16807) % 2147483647;
+      return seed / 2147483647;
+    };
+    for (let side = 0; side < 2; side++) {
+      for (let row = 0; row < 12; row++) {
+        const z = (side === 0 ? -1 : 1) * (6.8 + row * 1.1);
+        for (let x = -28; x <= 28; x += 0.7) {
+          if (blocked(x, z)) continue;
+          list.push({ x: x + (rand() - 0.5) * 0.3, z: z + (rand() - 0.5) * 0.3, rot: rand() * Math.PI, s: 0.85 + rand() * 0.4, shade: 0.85 + rand() * 0.3 });
+        }
+      }
     }
-    geo.setAttribute('position', new THREE.BufferAttribute(arr, 3));
-    dustGeometry = geo;
-  }
-  return dustGeometry;
+    return list.slice(0, CROP_COUNT);
+  }, []);
+  useEffect(() => {
+    const mesh = meshRef.current;
+    if (!mesh) return;
+    const dummy = new THREE.Object3D();
+    const color = new THREE.Color();
+    instances.forEach((inst, i) => {
+      dummy.position.set(inst.x, 0.58 * inst.s, inst.z);
+      dummy.rotation.set(0, inst.rot, 0);
+      dummy.scale.setScalar(inst.s);
+      dummy.updateMatrix();
+      mesh.setMatrixAt(i, dummy.matrix);
+      color.setScalar(inst.shade);
+      mesh.setColorAt(i, color);
+    });
+    mesh.instanceMatrix.needsUpdate = true;
+    if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
+    mesh.count = instances.length;
+  }, [instances]);
+  useFrame(({ clock }) => {
+    wind.uTime.value = clock.elapsedTime;
+    wind.uSway.value = weather.sway;
+    if (materialRef.current) {
+      const wet = weather.wet;
+      materialRef.current.color.setRGB(1 - wet * 0.35, 1 - wet * 0.3, 1 - wet * 0.3);
+    }
+  });
+  return (
+    <instancedMesh
+      ref={meshRef}
+      args={[geometry, undefined, instances.length]}
+      frustumCulled={false}
+      castShadow={false}
+      receiveShadow
+    >
+      <meshStandardMaterial
+        ref={materialRef}
+        map={texture}
+        side={THREE.DoubleSide}
+        roughness={0.9}
+        onBeforeCompile={(shader) => {
+          shader.uniforms.uTime = wind.uTime;
+          shader.uniforms.uSway = wind.uSway;
+          shader.vertexShader = `uniform float uTime; uniform float uSway;\n${shader.vertexShader.replace(
+            '#include <begin_vertex>',
+            `#include <begin_vertex>
+            {
+              float swayH = pow(clamp(position.y / 1.15 + 0.5, 0.0, 1.0), 2.0);
+              float phase = uTime * 1.7 + float(instanceMatrix[3][0]) * 0.45 + float(instanceMatrix[3][2]) * 0.3;
+              transformed.x += sin(phase) * uSway * 0.38 * swayH;
+              transformed.z += cos(uTime * 1.3 + float(instanceMatrix[3][0]) * 0.3) * uSway * 0.12 * swayH;
+            }`,
+          )}`;
+        }}
+      />
+    </instancedMesh>
+  );
+}
+
+function Treeline() {
+  const trees = useMemo(() => {
+    let seed = 777;
+    const rand = () => {
+      seed = (seed * 16807) % 2147483647;
+      return seed / 2147483647;
+    };
+    return Array.from({ length: 56 }, (_, i) => {
+      const a = (i / 56) * Math.PI * 2 + rand() * 0.1;
+      const r = 46 + rand() * 12;
+      return { x: Math.cos(a) * r, z: Math.sin(a) * r * 0.8, s: 0.8 + rand() * 0.9 };
+    });
+  }, []);
+  return (
+    <group>
+      {trees.map((t, i) => (
+        <group key={i} position={[t.x, 0, t.z]} scale={t.s}>
+          <mesh position={[0, 1, 0]} castShadow>
+            <cylinderGeometry args={[0.22, 0.3, 2, 8]} />
+            <meshStandardMaterial color="#6b4a2f" roughness={0.9} />
+          </mesh>
+          <mesh position={[0, 3.4, 0]} castShadow>
+            <coneGeometry args={[1.9, 4.6, 10]} />
+            <meshStandardMaterial color="#2e6b34" roughness={0.9} />
+          </mesh>
+        </group>
+      ))}
+    </group>
+  );
 }
 
 function Precipitation({ weather, quality }: { weather: BlendedWeather; quality: QualityId }) {
@@ -449,42 +652,7 @@ function Precipitation({ weather, quality }: { weather: BlendedWeather; quality:
   );
 }
 
-function DustMotes() {
-  const points = useRef<THREE.Points>(null);
-  const geometry = useMemo(() => getDustGeometry(), []);
-  useFrame(({ clock }) => {
-    if (!points.current) return;
-    points.current.position.y = Math.sin(clock.elapsedTime * 0.12) * 0.15;
-  });
-  return (
-    <points ref={points} geometry={geometry} frustumCulled={false}>
-      <pointsMaterial size={0.05} color="#fff6d8" transparent opacity={0.4} sizeAttenuation depthWrite={false} />
-    </points>
-  );
-}
 
-function WindowGlass({ weather, width, height, position, rotationY }: { weather: BlendedWeather; width: number; height: number; position: [number, number, number]; rotationY: number }) {
-  const material = useMemo(
-    () =>
-      new THREE.ShaderMaterial({
-        vertexShader: dropletVertex,
-        fragmentShader: dropletFragment,
-        uniforms: { uDroplets: { value: 0 }, uTime: { value: 0 } },
-        transparent: true,
-        depthWrite: false,
-      }),
-    [],
-  );
-  useFrame(({ clock }) => {
-    material.uniforms.uTime.value = clock.elapsedTime;
-    material.uniforms.uDroplets.value = weather.droplets;
-  });
-  return (
-    <mesh material={material} position={position} rotation={[0, rotationY, 0]}>
-      <planeGeometry args={[width, height]} />
-    </mesh>
-  );
-}
 
 /* ---------------------------------------------------------------- */
 /* Hall + zones                                                      */
@@ -494,10 +662,6 @@ function GuideLine() {
   const arrows = useMemo(() => Array.from({ length: 7 }, (_, i) => -18 + i * 6), []);
   return (
     <group>
-      <mesh position={[0, 0.012, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-        <planeGeometry args={[40, 0.35]} />
-        <meshBasicMaterial color="#2e7d46" transparent opacity={0.85} />
-      </mesh>
       {arrows.map((x) => (
         <mesh key={x} position={[x, 0.02, 0]} rotation={[-Math.PI / 2, 0, Math.PI]}>
           <coneGeometry args={[0.28, 0.7, 4]} />
@@ -508,42 +672,7 @@ function GuideLine() {
   );
 }
 
-function Plant({ position }: { position: [number, number, number] }) {
-  return (
-    <group position={position}>
-      <mesh position={[0, 0.3, 0]} castShadow>
-        <cylinderGeometry args={[0.42, 0.34, 0.6, 16]} />
-        <meshStandardMaterial color="#8a8f8c" roughness={0.8} />
-      </mesh>
-      {[0, 1, 2].map((i) => (
-        <mesh key={i} position={[(i - 1) * 0.3, 1.15 + (i % 2) * 0.25, (i % 2 ? 0.15 : -0.12)]} castShadow>
-          <icosahedronGeometry args={[0.5, 1]} />
-          <meshStandardMaterial color={i % 2 ? '#2e7d46' : '#3a9a58'} roughness={0.9} />
-        </mesh>
-      ))}
-    </group>
-  );
-}
 
-function WheatSheaf({ position }: { position: [number, number, number] }) {
-  return (
-    <group position={position}>
-      <mesh position={[0, 0.45, 0]}>
-        <cylinderGeometry args={[0.16, 0.2, 0.9, 10]} />
-        <meshStandardMaterial color="#c8b18a" roughness={0.85} />
-      </mesh>
-      {Array.from({ length: 7 }, (_, i) => {
-        const a = (i / 7) * Math.PI * 2;
-        return (
-          <mesh key={i} position={[Math.cos(a) * 0.22, 1.15, Math.sin(a) * 0.22]} rotation={[Math.sin(a) * 0.25, 0, -Math.cos(a) * 0.25]}>
-            <coneGeometry args={[0.09, 0.55, 8]} />
-            <meshStandardMaterial color="#d9a441" roughness={0.7} />
-          </mesh>
-        );
-      })}
-    </group>
-  );
-}
 
 function RobotArm({ position, rotationY, color }: { position: [number, number, number]; rotationY: number; color: string }) {
   const j1 = useRef<THREE.Group>(null);
@@ -615,6 +744,10 @@ function ZoneBooth({ zone, sim, onZoneSelect }: { zone: (typeof SHOWROOM_ZONES)[
     zone.id === 'diagnosis' ? [16.5, 0, -10] : zone.id === 'embodied' ? [-16.5, 0, -10] : [16.5, 0, 10];
   return (
     <group position={center}>
+      <mesh position={[0, 0.008, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <circleGeometry args={[3.4, 40]} />
+        <meshStandardMaterial color="#a98f63" roughness={1} />
+      </mesh>
       <mesh position={[0, 0.02, 0]} rotation={[-Math.PI / 2, 0, 0]} onClick={() => onZoneSelect(zone.id)}>
         <ringGeometry args={[2.6, 2.85, 48]} />
         <meshBasicMaterial color={zone.color} transparent opacity={0.7} side={THREE.DoubleSide} />
@@ -694,7 +827,7 @@ function CameraRig({ sim, weather, onPosition, onAutopilotArrived }: { sim: SimS
   const rapierRef = useRef<RapierVehicle | null>(null);
   const rapierTried = useRef(false);
   const sunRef = useRef<THREE.DirectionalLight>(null);
-  const lampRef = useRef<THREE.Group>(null);
+  const hemiRef = useRef<THREE.HemisphereLight>(null);
 
   useEffect(() => {
     if (rapierTried.current) return;
@@ -839,13 +972,9 @@ function CameraRig({ sim, weather, onPosition, onAutopilotArrived }: { sim: SimS
     }
 
     if (sunRef.current) sunRef.current.intensity = 1.6 * weather.sun;
-    if (lampRef.current) {
-      lampRef.current.children.forEach((child) => {
-        const mesh = child as THREE.Mesh;
-        const material = mesh.material as THREE.MeshStandardMaterial;
-        if (material.emissive) material.emissiveIntensity = 0.9 * weather.lamps + 0.25;
-      });
-    }
+    // Outdoor fill: grey/rainy days get extra sky fill (was the hall's
+    // ceiling lamps; there is no ceiling in the farm field).
+    if (hemiRef.current) hemiRef.current.intensity = 0.45 + weather.lamps * 0.35;
     const now = state.clock.elapsedTime;
     if (now - lastReport.current > 0.15) {
       lastReport.current = now;
@@ -858,16 +987,7 @@ function CameraRig({ sim, weather, onPosition, onAutopilotArrived }: { sim: SimS
   return (
     <>
       <directionalLight ref={sunRef} position={[18, 22, 10]} intensity={1.6} castShadow={false} />
-      <hemisphereLight args={['#e8f0f4', '#a8aca9', 0.7]} />
-      <pointLight position={[0, 5.5, 0]} intensity={18} distance={34} decay={1.6} color="#fff2d8" />
-      <group ref={lampRef}>
-        {[-15, -5, 5, 15].map((x) => (
-          <mesh key={x} position={[x, 6.9, 0]}>
-            <boxGeometry args={[6, 0.12, 0.7]} />
-            <meshStandardMaterial color="#f5f5f2" emissive="#fff4d6" emissiveIntensity={0.9} />
-          </mesh>
-        ))}
-      </group>
+      <hemisphereLight ref={hemiRef} args={['#e8f0f4', '#8a7a5a', 0.7]} />
     </>
   );
 }
@@ -898,7 +1018,7 @@ function ProgressReporter({ onProgress }: { onProgress: (progress: number) => vo
 
 function SceneContents({ sim, weather, quality, photoRequest, onPosition, onProgress, onPartSelect, onZoneSelect, onAutopilotArrived }: ShowroomSceneProps) {
   const { gl, scene, camera } = useThree();
-  const wallTex = useMemo(() => wallTextTexture(), []);
+  const farmGroundTex = useMemo(() => groundTexture(), []);
   const photoRef = useRef(0);
   const tier = QUALITY_TIERS[quality];
 
@@ -951,88 +1071,26 @@ function SceneContents({ sim, weather, quality, photoRequest, onPosition, onProg
       <SkyDome weather={weather} />
       <Clouds weather={weather} />
       <Precipitation weather={weather} quality={quality} />
-      <DustMotes />
-      {/* Floor: subtle reflector on high/medium, plain PBR on low. */}
-      {tier.post !== 'none' ? (
-        <mesh position={[0, 0, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
-          <planeGeometry args={[HALL.halfX * 2, HALL.halfZ * 2]} />
-          <MeshReflectorMaterial
-            blur={[180, 60]}
-            resolution={1024}
-            mixBlur={0.6}
-            mixStrength={7}
-            roughness={0.55}
-            depthScale={0.6}
-            minDepthThreshold={0.4}
-            maxDepthThreshold={1.2}
-            color="#b7bbb9"
-            metalness={0.08}
-            mirror={0.22}
-          />
-        </mesh>
-      ) : (
-        <mesh position={[0, 0, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
-          <planeGeometry args={[HALL.halfX * 2, HALL.halfZ * 2]} />
-          <meshStandardMaterial color="#c9cdcb" roughness={0.6} metalness={0.05} />
-        </mesh>
-      )}
+      <CropField weather={weather} />
+      <Treeline />
+      {/* Farm ground: textured soil/grass with furrows + dirt track. */}
+      <mesh position={[0, 0, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+        <planeGeometry args={[140, 100]} />
+        <meshStandardMaterial map={farmGroundTex} roughness={1} metalness={0} />
+      </mesh>
       <GuideLine />
-      {/* Ceiling (slightly emissive so the downward face never goes black: the key light comes from above). */}
-      <mesh position={[0, HALL.height, 0]} rotation={[Math.PI / 2, 0, 0]}>
-        <planeGeometry args={[HALL.halfX * 2, HALL.halfZ * 2]} />
-        <meshStandardMaterial color="#f2f3f1" roughness={0.9} emissive="#ffffff" emissiveIntensity={0.28} />
-      </mesh>
-      {/* Walls: north/south window walls, east/west solid. */}
-      <mesh position={[0, 3.5, -HALL.halfZ]} receiveShadow>
-        <boxGeometry args={[HALL.halfX * 2, HALL.height, 0.3]} />
-        <meshStandardMaterial color="#eef0ee" roughness={0.85} />
-      </mesh>
-      <mesh position={[0, 3.5, HALL.halfZ]} receiveShadow>
-        <boxGeometry args={[HALL.halfX * 2, HALL.height, 0.3]} />
-        <meshStandardMaterial color="#eef0ee" roughness={0.85} />
-      </mesh>
-      <mesh position={[-HALL.halfX, 3.5, 0]} receiveShadow>
-        <boxGeometry args={[0.3, HALL.height, HALL.halfZ * 2]} />
-        <meshStandardMaterial color="#eef0ee" roughness={0.85} />
-      </mesh>
-      <mesh position={[HALL.halfX, 3.5, 0]} receiveShadow>
-        <boxGeometry args={[0.3, HALL.height, HALL.halfZ * 2]} />
-        <meshStandardMaterial color="#eef0ee" roughness={0.85} />
-      </mesh>
-      {/* Window glass with rain droplets (both long walls). */}
-      {[-14, -5, 5, 14].map((x) => (
-        <WindowGlass key={`n${x}`} weather={weather} width={6.4} height={3.6} position={[x, 3.6, -HALL.halfZ + 0.2]} rotationY={0} />
-      ))}
-      {[-14, -5, 5, 14].map((x) => (
-        <WindowGlass key={`s${x}`} weather={weather} width={6.4} height={3.6} position={[x, 3.6, HALL.halfZ - 0.2]} rotationY={Math.PI} />
-      ))}
-      {/* Window frames (mullions) */}
-      {[-14, -5, 5, 14].map((x) => (
-        <mesh key={`f${x}`} position={[x, 3.6, -HALL.halfZ + 0.16]}>
-          <boxGeometry args={[6.6, 0.1, 0.06]} />
-          <meshStandardMaterial color="#b9bebc" roughness={0.5} metalness={0.4} />
-        </mesh>
-      ))}
-      {/* Theme background wall: 智慧农业 */}
-      <mesh position={[-HALL.halfX + 0.2, 3.4, 0]} rotation={[0, Math.PI / 2, 0]}>
-        <planeGeometry args={[12, 2.4]} />
-        <meshStandardMaterial map={wallTex} roughness={0.85} />
-      </mesh>
-      {/* Guide light strip along the aisle edges */}
+      {/* Guide light strip along the track edges */}
       {[-3.2, 3.2].map((z) => (
         <mesh key={z} position={[0, 0.015, z]} rotation={[-Math.PI / 2, 0, 0]}>
           <planeGeometry args={[40, 0.08]} />
           <meshBasicMaterial color="#7ad7ff" transparent opacity={0.8} />
         </mesh>
       ))}
-      {/* Decor: plants in corners, wheat sheaves between zones */}
-      <Plant position={[-19.5, 0, -12.5]} />
-      <Plant position={[19.5, 0, -12.5]} />
-      <Plant position={[-19.5, 0, 12.5]} />
-      <Plant position={[19.5, 0, 12.5]} />
-      <WheatSheaf position={[-10, 0, -13.8]} />
-      <WheatSheaf position={[10, 0, -13.8]} />
-      <WheatSheaf position={[-10, 0, 13.8]} />
+      {/* Dirt patch under the T70 */}
+      <mesh position={[0, 0.008, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <circleGeometry args={[4.2, 40]} />
+        <meshStandardMaterial color="#a98f63" roughness={1} />
+      </mesh>
       {/* T70 centre stage */}
       <Suspense fallback={null}>
         <T70 sim={sim} onPartSelect={onPartSelect} />
