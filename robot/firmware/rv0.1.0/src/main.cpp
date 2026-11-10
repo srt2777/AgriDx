@@ -269,16 +269,29 @@ static int nextWifiGroup(int cur) {
   return 0;
 }
 
-// 切到指定组（异步 WiFi.begin，不阻塞）；g 无效时什么都不做。
+// 换组前先断开并等 station 回到空闲：上一组还在连着时驱动拒绝换配置
+// （E wifi:sta is connecting, cannot set config），新组根本没换过去。
+// 最多等 maxMs，以先到为准；station 已空闲时立即返回。
+static void wifiDisconnectSettle(uint32_t maxMs) {
+  WiFi.disconnect();
+  uint32_t t0 = millis();
+  while (millis() - t0 < maxMs) {
+    wl_status_t st = WiFi.status();
+    if (st == WL_DISCONNECTED || st == WL_IDLE_STATUS) break;
+    delay(10);
+  }
+}
+
+// 切到指定组（先断开并等 station 空闲 ≤100ms，再异步 WiFi.begin）；g 无效时什么都不做。
 static void switchWifiGroup(int g) {
+  if (g < 1 || g > 3) return;  // g 无效时什么都不做
+  wifiDisconnectSettle(100);
   if (g == 1) {
     WiFi.begin(g_wifiSsid.c_str(), g_wifiPass.c_str());
   } else if (g == 2) {
     WiFi.begin(g_wifiSsid2.c_str(), g_wifiPass2.c_str());
-  } else if (g == 3) {
-    WiFi.begin(g_wifiSsid3.c_str(), g_wifiPass3.c_str());
   } else {
-    return;
+    WiFi.begin(g_wifiSsid3.c_str(), g_wifiPass3.c_str());
   }
   g_wifiActive = g;
   s_wifiLastSwitch = millis();
@@ -1376,7 +1389,7 @@ static void onTeleTimer(lv_timer_t *t) {
 #endif  // !USE_OLED_DISPLAY
 
 // 占位符判定：secrets.h.example 的默认值（“你的WiFi名称/密码”）或空串都算未填。
-// 未填的第二组不写入 NVS，也不参与连接。
+// 未填的组不写入 NVS，也不参与连接。
 static bool isPlaceholderWifi(const String &ssid, const String &pass) {
   if (ssid.length() == 0 || pass.length() == 0) return true;
   if (ssid == "你的WiFi名称" || pass == "你的WiFi密码") return true;
@@ -1384,17 +1397,17 @@ static bool isPlaceholderWifi(const String &ssid, const String &pass) {
 }
 
 // WiFi 凭证（NVS；首次开机从 secrets.h 取值并存入，之后只读 NVS）
-// 注意：首次开机前必须先填好真实的 secrets.h——如果先用占位值开机，NVS 会存下占位值，
-// 之后改 secrets.h 重烧也不会生效，只能整片擦除重烧（见 FLASHING.md §8）。
+// 注意：占位符组不会写入 NVS（见下）；已写入 NVS 的真值之后改 secrets.h 重烧
+// 也不会变，只能整片擦除重烧（见 FLASHING.md §8）。
 // 三 WiFi：第一组（ssid/pass，原有）与第二组（ssid2/pass2，新增）、第三组（ssid3/pass3，新增）分开存；
-// 第二、三组只在 NVS 里没有、且 secrets.h 对应组不是占位符时才写入，
+// 三组都只在 NVS 里没有、且 secrets.h 对应组不是占位符时才写入，
 // 占位符绝不写入 NVS，也绝不覆盖已有组。之后改某组同样要擦除重烧。
 static void loadWifiCreds() {
   Preferences prefs;
   prefs.begin("sijia", false);
   String ssid = prefs.getString("ssid", "");
   String pass = prefs.getString("pass", "");
-  if (ssid.length() == 0) {
+  if (ssid.length() == 0 && !isPlaceholderWifi(String(WIFI_SSID), String(WIFI_PASSWORD))) {
     ssid = String(WIFI_SSID);
     pass = String(WIFI_PASSWORD);
     prefs.putString("ssid", ssid);
@@ -1433,6 +1446,7 @@ static void loadWifiCreds() {
 static bool tryWifi(const String &ssid, const String &pass, uint32_t timeoutMs,
                     float progFrom, float progTo) {
   if (ssid.length() == 0) return false;
+  wifiDisconnectSettle(200);  // 换组前先断开，否则驱动拒绝换配置（见上）
   WiFi.begin(ssid.c_str(), pass.c_str());
   uint32_t t0 = millis();
   while (WiFi.status() != WL_CONNECTED && millis() - t0 < timeoutMs) {

@@ -25,7 +25,7 @@
 // 动效：启动页淡入（对比度 ramp）+ 进度条 + 眨眼；诊断中标题栏转圈；
 //   问答空闲页眼睛会眨眼、左右看。动效只在可见时定时重绘（50ms/20fps），平时仍按需重绘。
 // 待机：10 秒无操作（按键/新答案到达都算操作，诊断中不进待机）自动进入，
-//   全屏一辆拖拉机（轮子转、排气管冒烟）；按一下 BOOT 唤醒（那一下只唤醒，不翻页、不提问）。
+//   全屏一辆老式蒸汽拖拉机（轮子转、烟囱冒烟、从左侧开进来，小树小草滚过）；按一下 BOOT 唤醒（那一下只唤醒，不翻页、不提问）。
 // 切页：只手动换页，不自动轮换。BOOT 按键（GPIO9）短按翻页；长按（≥800ms）问第一条预设问题。
 // 问答翻页：短按先翻答案的子页（第 1 页是问题+答案前 2 行，之后每页 3 行答案），
 //   答案翻完再短按回到状态页；新答案来了自动回到问答第 1 页。
@@ -219,72 +219,131 @@ static void drawSpinner(int cx, int cy, uint32_t now) {
 }
 
 // 待机：10 秒无操作（按键/新答案到达都算操作，诊断中不进待机）自动进入，
-//   全屏一辆拖拉机（轮子转、排气管冒烟）；按一下 BOOT 唤醒（那一下只唤醒，不翻页、不提问）。
+//   全屏一辆老式蒸汽拖拉机（轮子转、烟囱冒烟、从左侧开进来，小树小草滚过）；按一下 BOOT 唤醒（那一下只唤醒，不翻页、不提问）。
 #define OLED_STANDBY_MS 10000
 static bool s_standby = false;           // 是否在待机模式
+static uint32_t s_standbyStartMs = 0;    // 本次进入待机的时刻（开场动画计时）
 static uint32_t s_lastActivityMs = 0;    // 上次操作时刻
 static bool s_wakeConsumed = false;      // 唤醒那一下按下已被消耗（松开时不触发操作）
 
-// 待机拖拉机：全屏一辆侧面拖拉机（车身、驾驶室、大后轮、小前轮、排气管），
-// 轮子转、排气管冒烟。50ms 一帧（20fps），启动页/问答页的小眼睛不受影响（只换待机屏）。
-// 版式（128×64）：地面 y=54；后轮中心 (38,44) r=10；前轮中心 (96,47) r=7；
-// 驾驶室 x=28–49 y=20–41（黑窗）；发动机罩 x=62–101 y=32–43；
-// 底盘横梁 y=44–46；排气管 x=72–75 y=14–31，烟从管口 (74,12) 往上飘。
-// 画一个轮子：外胎（两圈）+ 轮毂 + 3 根辐条（直径线，120° 夹角，随时间转）。
-// 辐条角按毫秒算（1440ms 转一圈，即 0.25°/ms），与帧率无关，帧率越高越顺滑。
+// 待机拖拉机 v6b（最原始的蒸汽拖拉机，会动的场景）：大后轮 + 小前轮 + 卧式锅炉 + 高烟囱冒烟 + 尾部小驾驶室。
+// 动感：轮子转 + 烟囱冒烟 + 从左侧开进来 + 小树小草从右向左滚过。50ms 一帧（20fps），启动页/问答页的小眼睛不受影响（只换待机屏）。
+// 版式（128×64）：地面 y=56；大后轮中心 (38,44) r=12，小前轮中心 (80,48) r=8，车头朝右；
+// 锅炉：x=47–78，顶线微弧 y≈28–30，底 y=42；高烟囱 x=80–84，顶 y=12，喇叭口 x=78–86、y=10–12；
+// 驾驶室（v6b：右移到大后轮正上方，骑在后轮上）：x=27–49，顶棚 y=22，小窗 (33,26,10,8)，底边 y=44 与后轮顶部重叠；锅炉侧面小飞轮 (58,36) r=4；
+// 开场：待机开始后 1.5 秒内从 dx=-110 二次缓出滑到 0（停在中间偏左）；
+// 烟：每 360ms 冒一个烟圈，寿命约 1080ms，往上飘、慢慢散开、带一点往左飘；
+// 景物：256px 一循环，3 棵树 + 6 簇草，滚动速度与后轮转速对得上（后轮周长 2π×12 ≈ 75px/1440ms ≈ 0.052px/ms）。
+// 画一个轮子：外胎（两圈）+ 胎纹（10 个短辐纹，嵌在胎环里，随时间转）
+// + 6 根辐条（3 条直径线，120° 夹角，随时间转）+ 轮毂环 + 轴心。
+// 辐条角/胎纹角按毫秒算（1440ms 转一圈，即 0.25°/ms），与帧率无关，帧率越高越顺滑。
 static void drawStandbyWheel(int cx, int cy, int r, uint32_t now) {
   u8g2.drawCircle(cx, cy, (u8g2_uint_t)r);
   u8g2.drawCircle(cx, cy, (u8g2_uint_t)(r - 2));
   float base = (float)(now % 1440) * 3.14159f / 720.0f;
+  for (int k = 0; k < 10; k++) {  // 胎纹：36° 一个，嵌在胎环（r-2 到 r）里
+    float a = base + (float)k * 3.14159f * 2.0f / 10.0f;
+    int x1 = cx + (int)((r - 2) * cosf(a) + 0.5f);
+    int y1 = cy + (int)((r - 2) * sinf(a) + 0.5f);
+    int x2 = cx + (int)(r * cosf(a) + 0.5f);
+    int y2 = cy + (int)(r * sinf(a) + 0.5f);
+    u8g2.drawLine(x1, y1, x2, y2);
+  }
   for (int i = 0; i < 3; i++) {
     float a = base + (float)i * 3.14159f * 2.0f / 3.0f;
     int dx = (int)((r - 3) * cosf(a) + 0.5f);
     int dy = (int)((r - 3) * sinf(a) + 0.5f);
     u8g2.drawLine(cx - dx, cy - dy, cx + dx, cy + dy);
   }
-  u8g2.drawDisc(cx, cy, 2);
+  u8g2.drawCircle(cx, cy, 4);  // 轮毂环
+  u8g2.drawDisc(cx, cy, 2);    // 轴心
 }
 
-// 尾气：每 360ms 从排气管口冒一个烟圈，往上飘、变大、变淡、消失。
-// 年龄按毫秒算（步数 = 年龄/120ms，每步上升 1px），与帧率无关；
-// 年轻实心、变老空心、再老消失。步数只增不减，帧率提高烟不会变快。
-static void drawStandbySmoke(int tipX, int tipY, uint32_t now) {
-  for (int j = 0; j < 3; j++) {
-    uint32_t spawn = (now / 360 - (uint32_t)j) * 360;
-    if (now < spawn) continue;
-    uint32_t ageMs = now - spawn;
-    if (ageMs > 960) continue;
-    int step = (int)(ageMs / 120);
-    int y = tipY - step;  // 每 120ms 上升 1px
-    int x = tipX - step / 2 + (int)(sinf((float)step * 0.9f) * 1.5f);  // 往后飘 + 轻微摆动
-    int r = 2 + (int)((float)step * 0.35f);  // 变大
-    if (step <= 3) {
-      u8g2.drawDisc(x, y, (u8g2_uint_t)r);
-    } else if (step <= 7) {
-      u8g2.drawCircle(x, y, (u8g2_uint_t)r);
-    }
+// ---------- 待机拖拉机（v6：最原始的蒸汽拖拉机，会动的场景）----------
+// 第六版 v6b：大后轮 + 小前轮 + 卧式锅炉 + 高烟囱冒烟 + 驾驶室（右移到大后轮正上方，骑在后轮上），车头朝右；
+// 动感：轮子照样转 + 烟囱冒烟 + 从左侧开进来 + 小树小草从右向左滚过。
+// 开场滑入：t<1500ms 时 dx 从 -110 二次缓出到 0（车头朝右，整车从左侧开进来，停在中间偏左）。
+static int standbyEntryDx(uint32_t t) {
+  if (t >= 1500) return 0;
+  int f = (int)(t * 1000 / 1500);        // 0..1000
+  int e = f * (2000 - f) / 1000;         // 二次缓出 0..1000
+  return -110 + 110 * e / 1000;
+}
+
+// 烟囱冒烟：每 360ms 冒一个烟圈，寿命约 1080ms，往上飘、慢慢散开（半径变大）、带一点往左飘。
+// chimneyX = 烟囱口中心 x（已含开场偏移 dx）。
+static void drawStandbySmoke(int chimneyX, uint32_t t) {
+  uint32_t last = (t / 360) * 360;   // 最近一次冒烟的时刻
+  for (int j = 0; j < 3; j++) {      // 寿命 1080ms 内最多 3 个烟圈
+    if (last < (uint32_t)j * 360) break;
+    uint32_t born = last - (uint32_t)j * 360;
+    uint32_t age = t - born;
+    if (age >= 1080) continue;
+    int sx = chimneyX - (int)(age / 360);        // 往左飘约 3px
+    int sy = 9 - (int)(age / 110);               // 往上飘约 10px
+    int r = 1 + (int)(age / 400);                // 慢慢散开 1→3
+    u8g2.drawCircle(sx, sy, (u8g2_uint_t)r);
+  }
+}
+
+// 地面景物：小树（竖线树干 + 小三角树冠）+ 小草（3 根短竖线簇），从右向左滚过，256px 一循环，间距不整齐。
+// 滚动速度与后轮转速对得上：后轮周长 2π×12 ≈ 75px/1440ms ≈ 0.052px/ms，50ms 一帧约 2.6px。
+static void drawStandbyScenery(uint32_t t) {
+  uint32_t s = (uint32_t)((float)t * 0.0524f);    // 滚动距离 px
+  int off = (int)(s % 256);
+  static const int treeX[] = {20, 118, 201};
+  static const int grassX[] = {55, 71, 152, 168, 233, 247};
+  for (int i = 0; i < 3; i++) {
+    int x = (treeX[i] - off + 256) % 256;
+    if (x >= 128) continue;
+    u8g2.drawLine(x, 56, x, 51);                          // 树干
+    u8g2.drawTriangle(x - 3, 51, x + 3, 51, x, 46);       // 树冠小三角
+  }
+  for (int i = 0; i < 6; i++) {
+    int x = (grassX[i] - off + 256) % 256;
+    if (x >= 128) continue;
+    u8g2.drawLine(x - 2, 56, x - 2, 53);
+    u8g2.drawLine(x, 56, x, 52);
+    u8g2.drawLine(x + 2, 56, x + 2, 53);
   }
 }
 
 static void drawStandbyTractor(uint32_t now) {
+  uint32_t t = now - s_standbyStartMs;   // 待机开始后的毫秒数（开场/烟/景物都按它计时）
+  int dx = standbyEntryDx(t);
   // 地面线
-  u8g2.drawHLine(8, 54, 112);
-  // 驾驶室：白框 + 黑窗
-  u8g2.drawBox(28, 20, 22, 22);
-  u8g2.setDrawColor(0);
-  u8g2.drawBox(31, 23, 16, 10);
-  u8g2.setDrawColor(1);
-  // 发动机罩
-  u8g2.drawBox(62, 32, 40, 12);
-  // 底盘横梁（连驾驶室与发动机罩）
-  u8g2.drawBox(48, 44, 42, 3);
-  // 排气管（从发动机罩竖起）
-  u8g2.drawBox(72, 14, 4, 18);
-  // 尾气
-  drawStandbySmoke(74, 12, now);
-  // 轮子：大后轮 + 小前轮（辐条随时间转）
-  drawStandbyWheel(38, 44, 10, now);
-  drawStandbyWheel(96, 47, 7, now);
+  u8g2.drawHLine(4, 56, 119);
+  // 景物：小树小草从右向左滚过（先画，拖拉机盖在上面，树从车后经过）
+  drawStandbyScenery(t);
+  // ---- 蒸汽拖拉机本体（车头朝右，停在中间偏左；所有 x 都加开场偏移 dx）----
+  // 驾驶室（v6b：右移到大后轮正上方，骑在后轮上，底边 y=44 与后轮顶部重叠）
+  u8g2.drawLine(27 + dx, 22, 49 + dx, 22);       // 顶棚（略外伸）
+  u8g2.drawLine(29 + dx, 22, 29 + dx, 44);       // 后墙
+  u8g2.drawLine(47 + dx, 22, 47 + dx, 44);       // 前墙（连锅炉）
+  u8g2.drawFrame(33 + dx, 26, 10, 8);            // 小窗
+  u8g2.drawHLine(29 + dx, 44, 19);               // 驾驶室底
+  // 卧式锅炉：从驾驶室前沿伸到烟囱，顶线微弧（两段折线）+ 底线 + 前端盖
+  u8g2.drawLine(47 + dx, 30, 62 + dx, 28);       // 锅炉顶前半（微弧）
+  u8g2.drawLine(62 + dx, 28, 78 + dx, 30);       // 锅炉顶后半
+  u8g2.drawHLine(47 + dx, 42, 32);               // 锅炉底 47–78
+  u8g2.drawLine(78 + dx, 30, 82 + dx, 33);       // 前端盖上斜角
+  u8g2.drawLine(82 + dx, 33, 82 + dx, 39);       // 前端盖
+  u8g2.drawLine(82 + dx, 39, 78 + dx, 42);       // 前端盖下斜角
+  // 锅炉侧面小飞轮（圆圈 + 一根随轮子转的辐条）
+  float base = (float)(now % 1440) * 3.14159f / 720.0f;
+  u8g2.drawCircle(58 + dx, 36, 4);
+  int fx = (int)(4 * cosf(base) + 0.5f);
+  int fy = (int)(4 * sinf(base) + 0.5f);
+  u8g2.drawLine(58 + dx - fx, 36 - fy, 58 + dx + fx, 36 + fy);
+  // 高烟囱（车头前方）：细管 + 顶部喇叭口
+  u8g2.drawLine(80 + dx, 30, 80 + dx, 12);       // 烟囱左壁
+  u8g2.drawLine(84 + dx, 30, 84 + dx, 12);       // 烟囱右壁
+  u8g2.drawBox(78 + dx, 10, 9, 3);               // 喇叭口 x=78–86，y=10–12
+  // 烟囱冒烟（烟圈从喇叭口往上飘）
+  drawStandbySmoke(82 + dx, t);
+  // 轮子：大后轮（驱动轮）+ 小前轮（胎纹/辐条随时间转）
+  drawStandbyWheel(38 + dx, 44, 12, now);
+  drawStandbyWheel(80 + dx, 48, 8, now);
 }
 
 // ---------- 页面状态 ----------
@@ -633,6 +692,7 @@ int oledUiTick(const OledPageData &d) {
   // ---- 待机：10 秒无操作（且不在诊断中）自动进入，全屏拖拉机 ----
   if (!s_standby && !d.chatBusy && (now - s_lastActivityMs >= OLED_STANDBY_MS)) {
     s_standby = true;
+    s_standbyStartMs = now;  // 开场动画从这一刻计时
     if (s_animActive) s_animActive = false;  // 正在滑页就停掉，切到待机眼睛
   }
 
