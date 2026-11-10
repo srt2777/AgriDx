@@ -18,10 +18,15 @@ interface ChatSessionOptions {
   /** Keeps the loading row on screen long enough to read named orb states. */
   minLoadingMs?: number;
   telemetrySummary?: ChatTelemetrySummary;
+  /**
+   * Called with the final reply of each settled turn (assistant or error).
+   * ChatPage uses it to speak voice-initiated turns; text turns ignore it.
+   */
+  onTurnSettled?: (turn: { messageId: string; role: 'assistant' | 'error'; content: string }) => void;
 }
 
 /** Owns conversation lifecycle; the page renders the workspace and input controls. */
-export function useChatSession({ handoff, translate: t, focusInput, minLoadingMs = 0, telemetrySummary }: ChatSessionOptions) {
+export function useChatSession({ handoff, translate: t, focusInput, minLoadingMs = 0, telemetrySummary, onTurnSettled }: ChatSessionOptions) {
   const [initial] = useState(() => loadChatSession(handoff));
   const [messages, setMessages] = useState(initial.messages);
   const [input, setInput] = useState(initial.draft);
@@ -163,6 +168,7 @@ export function useChatSession({ handoff, translate: t, focusInput, minLoadingMs
       setCurrentFallbackReason(reply.fallbackReason);
       setMessages((previous) => previous.map((message) => message.id === loadingMessage.id
         ? { id: message.id, ...reply } : message));
+      onTurnSettled?.({ messageId: loadingMessage.id, role: reply.role === 'error' ? 'error' : 'assistant', content: reply.content });
     } catch (error) {
       if (requestRef.current !== controller) return;
       resetStatus();
@@ -192,6 +198,7 @@ export function useChatSession({ handoff, translate: t, focusInput, minLoadingMs
         role: 'error',
         content: failureMessage,
       } : message));
+      if (submitted) onTurnSettled?.({ messageId: loadingMessage.id, role: 'error', content: failureMessage });
       if (submitted && text === input) setInput(text);
       if (selectedAttachment) setAttachment(selectedAttachment);
       // The uncertain-save message above takes precedence over the generic
@@ -207,7 +214,7 @@ export function useChatSession({ handoff, translate: t, focusInput, minLoadingMs
         window.setTimeout(focusInput, 0);
       }
     }
-  }, [messages, input, attachment, machineType, brand, model, engineModel, faultCodeInput, t, focusInput, resetStatus, memory, profile, diagnosisMode, minLoadingMs, telemetrySummary]);
+  }, [messages, input, attachment, machineType, brand, model, engineModel, faultCodeInput, t, focusInput, resetStatus, memory, profile, diagnosisMode, minLoadingMs, telemetrySummary, onTurnSettled]);
 
   const stopRequest = useCallback(() => {
     requestRef.current?.abort();

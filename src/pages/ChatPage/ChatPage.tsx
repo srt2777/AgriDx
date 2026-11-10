@@ -1,8 +1,8 @@
 import { EvidenceReview } from './EvidenceReview';
 import { useUiCopy } from '@/ui/useUiCopy';
 import type { DiagnosisMode } from '../../../shared/diagnosis';
-import { useRef, useEffect, useCallback, useState, type FormEvent, type KeyboardEvent } from 'react';
-import { Send, Trash2, Loader2, Bot, User, Sparkles, Square, Paperclip, X, Settings2 } from 'lucide-react';
+import { useRef, useEffect, useCallback, useState, type ChangeEvent, type FormEvent, type KeyboardEvent } from 'react';
+import { Send, Trash2, Loader2, Bot, User, Sparkles, Square, Paperclip, X, Settings2, Mic, Volume2, VolumeX } from 'lucide-react';
 import DeferredMarkdown from '@/components/DeferredMarkdown';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -28,6 +28,8 @@ import type { ChatProvider } from '@shared/chat';
 import { MACHINE_TYPES_ZH, MACHINE_TYPES_EN, composeDiagnosticQuestion, readDiagnosticTextAttachment, type ChatMessage } from '@/features/chat/session';
 import { pendingTurnExportText } from '@/features/chat/sync-state';
 import { useChatSession } from '@/features/chat/useChatSession';
+import { useChatVoice } from '@/features/chat/useChatVoice';
+import { VOICE_MAX_RECORD_SECONDS } from '@/features/chat/voice-api';
 import { useLlmHealth } from '@/features/chat/useLlmHealth';
 import { useUpdateBlocker } from '@/features/updates/useUpdateBlocker';
 import { hasUnsavedProfile } from '@/features/updates/update-safety';
@@ -81,7 +83,16 @@ export default function ChatPage() {
     syncStatus, pendingTurn, pendingStorageFailed, recoverSavedRecord, discardPendingTurn,
     diagnosisMode, setDiagnosisMode, deviceName, setDeviceName, hours, setHours, deviceNotes, setDeviceNotes, progress, setProgress,
     engineModel, setEngineModel, faultCodeInput, setFaultCodeInput, attachment, setAttachment, sendError,
-  } = useChatSession({ handoff, translate: t, focusInput, telemetrySummary, minLoadingMs: version === 'new' && PREMIUM_MOTION_ENABLED ? 900 : 0 });
+  } = useChatSession({ handoff, translate: t, focusInput, telemetrySummary, minLoadingMs: version === 'new' && PREMIUM_MOTION_ENABLED ? 900 : 0, onTurnSettled: (turn) => voiceApiRef.current?.handleTurnSettled(turn.messageId, turn.role, turn.content) });
+  const voice = useChatVoice({
+    translate: t,
+    onTranscript: (text) => {
+      voiceDraftRef.current = true;
+      setInput(text);
+      focusInput();
+    },
+  });
+  useEffect(() => { voiceApiRef.current = voice; });
   // PR2 recovery gate: the send button, the textarea and the quick
   // follow-ups all share this one flag, so no entry point can send along
   // an out-of-sync record. Draft editing, copying and exporting stay on.
@@ -125,6 +136,12 @@ export default function ChatPage() {
   const contextPanelRef = useRef<HTMLElement>(null);
   const settingsRef = useRef<HTMLDetailsElement>(null);
   const extrasRef = useRef<HTMLDetailsElement>(null);
+  // Voice draft tracking: STT fills the composer (voice origin); any manual
+  // edit clears it, so only turns actually started from a voice draft are
+  // read aloud. The settled-turn callback reads the voice hook through a
+  // ref because useChatSession is created before the hook.
+  const voiceDraftRef = useRef(false);
+  const voiceApiRef = useRef<ReturnType<typeof useChatVoice> | null>(null);
 
   useEffect(() => {
     // Shared by both versions: the new-version settings/extras details only
@@ -181,33 +198,60 @@ export default function ChatPage() {
     return () => window.clearTimeout(timer);
   }, [focusInput, version]);
 
+  // A voice draft starts a spoken turn (its reply is read aloud); a typed
+  // draft never does. Either way a new turn stops any playback in progress.
+  const submitCurrentInput = useCallback(() => {
+    if (voiceDraftRef.current) {
+      voice.beginVoiceTurn();
+      voiceDraftRef.current = false;
+    } else {
+      voice.stopPlayback();
+    }
+    followThread.current = true;
+    sendMessage(input);
+  }, [input, sendMessage, voice]);
+
   const handleSubmit = useCallback(
     (e: FormEvent) => {
       e.preventDefault();
-      followThread.current = true;
-      sendMessage(input);
+      submitCurrentInput();
     },
-    [input, sendMessage],
+    [submitCurrentInput],
   );
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent<HTMLTextAreaElement>) => {
       if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing && e.keyCode !== 229 && window.matchMedia('(pointer: fine)').matches) {
         e.preventDefault();
-        followThread.current = true;
-        sendMessage(input);
+        submitCurrentInput();
       }
     },
-    [input, sendMessage],
+    [submitCurrentInput],
   );
 
   const handleQuickQuestion = useCallback(
     (question: string) => {
       followThread.current = true;
+      voice.stopPlayback();
       void sendMessage(question, false);
     },
-    [sendMessage],
+    [sendMessage, voice],
   );
+
+  const handleStopRequest = useCallback(() => {
+    voice.cancelPendingSpeech();
+    stopRequest();
+  }, [voice, stopRequest]);
+
+  const handleClearWithVoice = useCallback(() => {
+    voice.stopPlayback();
+    void handleClear();
+  }, [voice, handleClear]);
+
+  const handleInputChange = useCallback((e: ChangeEvent<HTMLTextAreaElement>) => {
+    voiceDraftRef.current = false;
+    setInput(e.target.value);
+  }, [setInput]);
 
   const isEmpty = messages.length === 0;
   const composedLength = composeDiagnosticQuestion(input, attachment).length;
@@ -260,7 +304,7 @@ export default function ChatPage() {
       </AlertDialogHeader>
       <AlertDialogFooter>
         <AlertDialogCancel>{t('取消', 'Cancel')}</AlertDialogCancel>
-        <AlertDialogAction onClick={handleClear}>{t('确认清空', 'Clear')}</AlertDialogAction>
+        <AlertDialogAction onClick={handleClearWithVoice}>{t('确认清空', 'Clear')}</AlertDialogAction>
       </AlertDialogFooter>
     </AlertDialogContent>
   </AlertDialog>;
@@ -417,6 +461,21 @@ export default function ChatPage() {
                 ) : (
                   <DiagnosticAnswer message={msg} t={t} onAnswer={handleQuickQuestion} disabled={isLoading || memory.busy || sendBlocked} />
                 )}
+                {msg.role === 'assistant' && voice.hasVoiceControls(msg.id) && (
+                  <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-border/50 pt-2 text-xs">
+                    {voice.playingMessageId === msg.id ? (
+                      <button type="button" onClick={() => voice.stopPlayback()} className="inline-flex min-h-8 items-center gap-1 rounded-md border border-border px-2 py-1 text-foreground hover:border-primary" aria-label={t('停止播报', 'Stop playback')}>
+                        <VolumeX className="h-3.5 w-3.5" aria-hidden="true" />{t('停止播报', 'Stop')}
+                      </button>
+                    ) : (
+                      <button type="button" onClick={() => voice.replayReply(msg.id, msg.content)} className="inline-flex min-h-8 items-center gap-1 rounded-md border border-border px-2 py-1 text-foreground hover:border-primary" aria-label={t('重播语音回答', 'Replay spoken answer')}>
+                        <Volume2 className="h-3.5 w-3.5" aria-hidden="true" />{t('重播', 'Replay')}
+                      </button>
+                    )}
+                    {voice.ttsTruncatedMessageId === msg.id && <span className="text-muted-foreground">{t('朗读已截取前 600 字', 'Spoken reply truncated to the first 600 characters')}</span>}
+                    {voice.ttsFailedMessageId === msg.id && <span className="text-muted-foreground">{t('语音播报失败，已只显示文字', 'Spoken reply failed; showing text only')}</span>}
+                  </div>
+                )}
               </div>
               {msg.role === 'user' && (
                 <div className="ml-2 mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-primary/80 text-primary-foreground">
@@ -465,15 +524,30 @@ export default function ChatPage() {
               aria-invalid={composedLength > 2000}
               ref={textareaRef}
               value={input}
-              onChange={(e) => setInput(e.target.value)}
+              onChange={handleInputChange}
               onKeyDown={handleKeyDown}
               placeholder={t('描述您遇到的农机故障现象...', 'Describe the fault symptom...')}
               className={version === 'old' ? 'min-h-[44px] resize-none' : 'min-h-[60px] resize-none'}
               rows={1}
               disabled={isLoading || memory.busy || sendBlocked}
             />
+            {voice.voiceSupported !== false && (
+              <Button
+                type="button"
+                size="icon"
+                variant={voice.isRecording ? 'destructive' : 'ghost'}
+                onClick={voice.toggleRecording}
+                disabled={voice.voiceSupported !== true || isLoading || memory.busy || sendBlocked || voice.isTranscribing}
+                className="shrink-0"
+                aria-pressed={voice.isRecording}
+                aria-label={voice.isRecording ? t('停止录音', 'Stop recording') : voice.isTranscribing ? t('正在识别语音', 'Transcribing speech') : t('开始语音输入', 'Start voice input')}
+                title={voice.isRecording ? t('停止录音', 'Stop recording') : voice.voiceSupported === null ? t('正在检查语音服务…', 'Checking voice service…') : t('开始语音输入', 'Start voice input')}
+              >
+                {voice.isTranscribing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Mic className={`h-4 w-4${voice.isRecording ? ' animate-pulse' : ''}`} />}
+              </Button>
+            )}
             {isLoading ? (
-              <Button type="button" size="icon" onClick={stopRequest} aria-label={t('停止等待', 'Stop waiting')} title={t('停止等待', 'Stop waiting')}>
+              <Button type="button" size="icon" onClick={handleStopRequest} aria-label={t('停止等待', 'Stop waiting')} title={t('停止等待', 'Stop waiting')}>
                 <Square className="h-4 w-4" />
               </Button>
             ) : <Button
@@ -487,6 +561,18 @@ export default function ChatPage() {
               <Send className="h-4 w-4" />
             </Button>}
           </div>
+          {(voice.isRecording || voice.isTranscribing) && (
+            <p role="status" className="mt-2 flex items-center gap-2 text-xs text-muted-foreground">
+              {voice.isRecording ? (
+                <>
+                  <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-destructive" aria-hidden="true" />
+                  <span>{t('录音中', 'Recording')} {Math.floor(voice.recordSeconds)} / {VOICE_MAX_RECORD_SECONDS} {t('秒', 's')} · {t('再点一次结束', 'Tap again to stop')}</span>
+                </>
+              ) : (
+                <span>{t('正在识别语音…', 'Transcribing speech…')}</span>
+              )}
+            </p>
+          )}
           <div className="chat-composer-footer mt-2 flex justify-between gap-3 text-xs text-muted-foreground">
             {version === 'new' && extraControl}
             <span id="chat-input-help" className="chat-shortcut-help"><span className="hidden sm:inline">{t('Enter发送，Shift + Enter换行', 'Enter to send, Shift+Enter for newline')}</span><span className="sm:hidden">{t('点击发送；回车换行', 'Tap send; Enter adds a line')}</span></span>
