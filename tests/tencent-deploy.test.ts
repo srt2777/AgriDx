@@ -5,7 +5,7 @@ import { get } from 'node:http';
 import { createServer } from 'node:net';
 import {
   chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readlinkSync,
-  readdirSync, rmSync, statSync, symlinkSync, writeFileSync,
+  readdirSync, rmSync, statSync, symlinkSync, utimesSync, writeFileSync,
 } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -23,6 +23,7 @@ interface CommandCall {
   args: string[];
   target?: string;
   cache?: string;
+  nodeOptions?: string;
 }
 
 // The production script has a fixed, deliberately narrow filesystem layout.
@@ -88,7 +89,10 @@ const current = path.join(root, 'app', 'current');
 const previous = path.join(root, 'app', 'releases', 'previous');
 const failure = process.env.AGRIDX_FIXTURE_FAILURE;
 const record = { command: name, args };
-if (name === 'npm') record.cache = process.env.npm_config_cache;
+if (name === 'npm') {
+    record.cache = process.env.npm_config_cache;
+    record.nodeOptions = process.env.NODE_OPTIONS;
+  }
 if (name === 'systemctl' && args[0] === 'restart') record.target = fs.readlinkSync(current);
 fs.appendFileSync(path.join(root, 'commands.jsonl'), JSON.stringify(record) + '\\n');
 function run(command, rest, extra = {}) {
@@ -238,7 +242,9 @@ if (name === 'id') {
   const executable = path.join(directory, 'update-existing.sh');
   writeFileSync(executable, source);
   chmodSync(executable, 0o755);
-  const childEnvironment = {
+  // Typed as ProcessEnv so the NODE_OPTIONS delete below (which keeps the
+  // fixture baseline clean for the build-heap assertion) typechecks.
+  const childEnvironment: NodeJS.ProcessEnv = {
     ...process.env, PATH: `${bin}:/usr/local/bin:/usr/bin:/bin`,
     AGRIDX_FIXTURE_ROOT: directory, AGRIDX_FIXTURE_FAILURE: options.failure ?? '',
     AGRIDX_FIXTURE_STAGE_PID: String(process.pid),
@@ -467,7 +473,10 @@ test('腾讯旧212条版本可更新到1213条，暂存和正式服务数量一�
 test('腾讯成功更新后清理旧版本目录，只保留当前、上一版与最新一个更早版', { skip: unixOnly }, t => {
   const context = fixture(t);
   const older = ['20250101T000000Z-aaaaaaaaaaaa-111', '20250201T000000Z-bbbbbbbbbbbb-222', '20250301T000000Z-cccccccccccc-333'];
-  for (const name of older) mkdirSync(path.join(context.releases, name));
+  for (const name of older) {
+    mkdirSync(path.join(context.releases, name));
+    writeFileSync(path.join(context.releases, name, 'build-marker'), 'recent release material');
+  }
   mkdirSync(path.join(context.releases, 'manual-backup'));
   const result = context.execute();
   assert.equal(result.status, 0, result.stderr || result.error?.message);
@@ -483,13 +492,77 @@ test('腾讯成功更新后清理旧版本目录，只保留当前、上一版�
   context.assertPreserved();
 });
 
-test('腾讯构建失败时不清理旧版本目录，保留回退与排查材料', { skip: unixOnly }, t => {
+test('腾讯构建失败时保留最近的失败版本目录，保留回退与排查材料', { skip: unixOnly }, t => {
   const context = fixture(t, { failure: 'build' });
   const older = '20250101T000000Z-aaaaaaaaaaaa-111';
   mkdirSync(path.join(context.releases, older));
+  writeFileSync(path.join(context.releases, older, 'build-marker'), 'recent failed build material');
   const result = context.execute();
   assert.equal(result.status, 1, result.stderr || result.error?.message);
   assert.ok(existsSync(path.join(context.releases, older)));
   assert.equal(readlinkSync(context.current), context.previous);
+  context.assertPreserved();
+});
+
+test('腾讯构建使用受限堆内存，适配 2GB 生产服务器', { skip: unixOnly }, t => {
+  const context = fixture(t);
+  const result = context.execute();
+  assert.equal(result.status, 0, result.stderr || result.error?.message);
+  const npmPhases = context.calls().filter(call => call.command === 'npm' && call.args[0] !== '--version');
+  assert.deepEqual(npmPhases.map(call => call.args[0]), ['ci', 'run', 'prune']);
+  for (const call of npmPhases) {
+    assert.equal(call.nodeOptions, '--max-old-space-size=1536');
+  }
+  context.assertPreserved();
+});
+
+test('腾讯成功更新时先清理空目录与超过 24 小时的失败版本，再按成功规则保留版本', { skip: unixOnly }, t => {
+  const context = fixture(t);
+  const emptyStale = '20250101T000000Z-aaaaaaaaaaaa-111';
+  const oldStale = '20250201T000000Z-bbbbbbbbbbbb-222';
+  const recent = '20250301T000000Z-cccccccccccc-333';
+  mkdirSync(path.join(context.releases, emptyStale));
+  mkdirSync(path.join(context.releases, oldStale));
+  writeFileSync(path.join(context.releases, oldStale, 'build-marker'), 'stale build material');
+  const oldTime = new Date(Date.now() - 25 * 3600 * 1000);
+  utimesSync(path.join(context.releases, oldStale), oldTime, oldTime);
+  mkdirSync(path.join(context.releases, recent));
+  writeFileSync(path.join(context.releases, recent, 'build-marker'), 'recent release material');
+  mkdirSync(path.join(context.releases, 'manual-backup'));
+  const result = context.execute();
+  assert.equal(result.status, 0, result.stderr || result.error?.message);
+  const release = readlinkSync(context.current);
+  const remaining = readdirSync(context.releases);
+  assert.ok(remaining.includes(path.basename(release)));
+  assert.ok(remaining.includes('previous'));
+  assert.ok(remaining.includes('20250301T000000Z-cccccccccccc-333'));
+  assert.ok(remaining.includes('manual-backup'));
+  assert.ok(!remaining.includes('20250101T000000Z-aaaaaaaaaaaa-111'));
+  assert.ok(!remaining.includes('20250201T000000Z-bbbbbbbbbbbb-222'));
+  assert.match(result.stdout, /已清理过期版本/);
+  context.assertPreserved();
+});
+
+test('腾讯部署开始时清理空目录与超过 24 小时的失败版本，构建失败也不再堆积', { skip: unixOnly }, t => {
+  const context = fixture(t, { failure: 'build' });
+  const emptyStale = '20250101T000000Z-aaaaaaaaaaaa-111';
+  const oldStale = '20250201T000000Z-bbbbbbbbbbbb-222';
+  const recent = '20250301T000000Z-cccccccccccc-333';
+  mkdirSync(path.join(context.releases, emptyStale));
+  mkdirSync(path.join(context.releases, oldStale));
+  writeFileSync(path.join(context.releases, oldStale, 'build-marker'), 'stale build material');
+  const oldTime = new Date(Date.now() - 25 * 3600 * 1000);
+  utimesSync(path.join(context.releases, oldStale), oldTime, oldTime);
+  mkdirSync(path.join(context.releases, recent));
+  writeFileSync(path.join(context.releases, recent, 'build-marker'), 'recent failed build material');
+  mkdirSync(path.join(context.releases, 'manual-backup'));
+  const result = context.execute();
+  assert.equal(result.status, 1, result.stderr || result.error?.message);
+  assert.equal(readlinkSync(context.current), context.previous);
+  assert.ok(!existsSync(path.join(context.releases, emptyStale)));
+  assert.ok(!existsSync(path.join(context.releases, oldStale)));
+  assert.ok(existsSync(path.join(context.releases, recent)));
+  assert.ok(existsSync(path.join(context.releases, 'manual-backup')));
+  assert.match(result.stdout, /已清理过期版本/);
   context.assertPreserved();
 });
