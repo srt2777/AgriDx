@@ -23,9 +23,9 @@
 // 切页：只手动换页，不自动轮换。BOOT 按键（GPIO9）短按翻页；长按（≥800ms）问第一条预设问题。
 //   主页面切换有滑动过渡（新页从右滑入，8 帧约 200ms）；问答子页翻页不滑动，要快。
 // 动效：启动页淡入（对比度 ramp）+ 进度条 + 眨眼；诊断中标题栏转圈；
-//   问答空闲页眼睛会眨眼、左右看。动效只在可见时定时重绘（120ms），平时仍按需重绘。
-// 待机：15 秒无操作（按键/新答案到达都算操作，诊断中不进待机）自动进入，
-//   全屏两只大眼睛（会动会眨）；按一下 BOOT 唤醒（那一下只唤醒，不翻页、不提问）。
+//   问答空闲页眼睛会眨眼、左右看。动效只在可见时定时重绘（50ms/20fps），平时仍按需重绘。
+// 待机：10 秒无操作（按键/新答案到达都算操作，诊断中不进待机）自动进入，
+//   全屏一辆拖拉机（轮子转、排气管冒烟）；按一下 BOOT 唤醒（那一下只唤醒，不翻页、不提问）。
 // 切页：只手动换页，不自动轮换。BOOT 按键（GPIO9）短按翻页；长按（≥800ms）问第一条预设问题。
 // 问答翻页：短按先翻答案的子页（第 1 页是问题+答案前 2 行，之后每页 3 行答案），
 //   答案翻完再短按回到状态页；新答案来了自动回到问答第 1 页。
@@ -59,6 +59,10 @@
 #define OLED_PAGE_COUNT 3
 #define OLED_LONG_PRESS_MS 800
 #define OLED_DEBOUNCE_MS 50
+#define OLED_ANIM_MS 50  // 动效重绘间隔（20fps；原来 120ms/约 8fps，看着卡）。
+// 帧率预算：128×64 全帧经 I2C（400kHz）发送约 23ms，50ms 间隔留约 27ms 余量；
+// 再短（33ms/30fps）只剩约 10ms，I2C 稍一抖就拖垮主循环、WiFi/HTTP 也会受挤，
+// 所以 50ms 是稳妥值。动效只在可见时才按此间隔重绘，平时仍按需重绘。
 #define OLED_ANS_MAX_LINES 64  // 答案换行后最多存 64 行（512 字答案约 51 行，够用）
 
 // 硬件 I2C：U8g2 按构造参数里的时钟/数据脚调 Wire.begin(SDA, SCL)。
@@ -167,8 +171,13 @@ static void drawEyes(int cx, int cy, int eyeW, int eyeH, int lookX) {
   int leftX = cx - gap / 2 - eyeW;
   int rightX = cx + gap / 2;
   int topY = cy - eyeH / 2;
-  u8g2.drawRBox(leftX, topY, eyeW, eyeH, 3);
-  u8g2.drawRBox(rightX, topY, eyeW, eyeH, 3);
+  // 圆角半径不能超过眼高的一半：眨眼时 eyeH 会缩到 2，
+  // 固定 r=3 会让 U8g2 drawRBox 内部 h-2r 无符号下溢（uint16_t 绕回约 65532），
+  // 眼睛那一条画成超大白块、闪一下。半径按眼高收紧，闭眼时就是一条细线。
+  int r = eyeH / 2;
+  if (r > 3) r = 3;
+  u8g2.drawRBox(leftX, topY, eyeW, eyeH, r);
+  u8g2.drawRBox(rightX, topY, eyeW, eyeH, r);
   if (eyeH >= 6) {
     // 瞳孔（黑点，左右看）
     u8g2.setDrawColor(0);
@@ -209,31 +218,73 @@ static void drawSpinner(int cx, int cy, uint32_t now) {
   u8g2.setDrawColor(1);
 }
 
-// 待机：15 秒无操作（按键/新答案到达都算操作，诊断中不进待机）自动进入，
-//   全屏两只大眼睛（会动会眨）；按一下 BOOT 唤醒（那一下只唤醒，不翻页、不提问）。
-#define OLED_STANDBY_MS 15000
+// 待机：10 秒无操作（按键/新答案到达都算操作，诊断中不进待机）自动进入，
+//   全屏一辆拖拉机（轮子转、排气管冒烟）；按一下 BOOT 唤醒（那一下只唤醒，不翻页、不提问）。
+#define OLED_STANDBY_MS 10000
 static bool s_standby = false;           // 是否在待机模式
 static uint32_t s_lastActivityMs = 0;    // 上次操作时刻
 static bool s_wakeConsumed = false;      // 唤醒那一下按下已被消耗（松开时不触发操作）
 
-// 待机大眼睛：全屏两只大圆眼（中心 (40,32)/(88,32)，半径 22），瞳孔会动、会眨眼。
-// 瞳孔左右上下看（两个不同频率，轨迹不单调）；眨眼时眼睛纵向压扁、瞳孔跟着变扁/藏起。
-static void drawStandbyEyes(uint32_t now) {
-  int eyeRy = eyeHeight(22, now);  // 睁开 22，闭上约 3（复用眨眼节奏：每 2.8 秒眨一次）
-  float openF = (float)eyeRy / 22.0f;
-  int lookX = (int)(sinf((float)now / 2000.0f) * 10.0f);
-  int lookY = (int)(sinf((float)now / 2600.0f) * 8.0f);
-  const int ex[2] = {40, 88};
-  for (int i = 0; i < 2; i++) {
-    u8g2.drawFilledEllipse(ex[i], 32, 22, (u8g2_uint_t)eyeRy);
-    if (eyeRy >= 8) {
-      u8g2.setDrawColor(0);
-      int pry = (int)(9.0f * openF + 0.5f);
-      if (pry < 2) pry = 2;
-      u8g2.drawFilledEllipse(ex[i] + lookX, 32 + (int)(lookY * openF), 9, (u8g2_uint_t)pry);
-      u8g2.setDrawColor(1);
+// 待机拖拉机：全屏一辆侧面拖拉机（车身、驾驶室、大后轮、小前轮、排气管），
+// 轮子转、排气管冒烟。50ms 一帧（20fps），启动页/问答页的小眼睛不受影响（只换待机屏）。
+// 版式（128×64）：地面 y=54；后轮中心 (38,44) r=10；前轮中心 (96,47) r=7；
+// 驾驶室 x=28–49 y=20–41（黑窗）；发动机罩 x=62–101 y=32–43；
+// 底盘横梁 y=44–46；排气管 x=72–75 y=14–31，烟从管口 (74,12) 往上飘。
+// 画一个轮子：外胎（两圈）+ 轮毂 + 3 根辐条（直径线，120° 夹角，随时间转）。
+// 辐条角按毫秒算（1440ms 转一圈，即 0.25°/ms），与帧率无关，帧率越高越顺滑。
+static void drawStandbyWheel(int cx, int cy, int r, uint32_t now) {
+  u8g2.drawCircle(cx, cy, (u8g2_uint_t)r);
+  u8g2.drawCircle(cx, cy, (u8g2_uint_t)(r - 2));
+  float base = (float)(now % 1440) * 3.14159f / 720.0f;
+  for (int i = 0; i < 3; i++) {
+    float a = base + (float)i * 3.14159f * 2.0f / 3.0f;
+    int dx = (int)((r - 3) * cosf(a) + 0.5f);
+    int dy = (int)((r - 3) * sinf(a) + 0.5f);
+    u8g2.drawLine(cx - dx, cy - dy, cx + dx, cy + dy);
+  }
+  u8g2.drawDisc(cx, cy, 2);
+}
+
+// 尾气：每 360ms 从排气管口冒一个烟圈，往上飘、变大、变淡、消失。
+// 年龄按毫秒算（步数 = 年龄/120ms，每步上升 1px），与帧率无关；
+// 年轻实心、变老空心、再老消失。步数只增不减，帧率提高烟不会变快。
+static void drawStandbySmoke(int tipX, int tipY, uint32_t now) {
+  for (int j = 0; j < 3; j++) {
+    uint32_t spawn = (now / 360 - (uint32_t)j) * 360;
+    if (now < spawn) continue;
+    uint32_t ageMs = now - spawn;
+    if (ageMs > 960) continue;
+    int step = (int)(ageMs / 120);
+    int y = tipY - step;  // 每 120ms 上升 1px
+    int x = tipX - step / 2 + (int)(sinf((float)step * 0.9f) * 1.5f);  // 往后飘 + 轻微摆动
+    int r = 2 + (int)((float)step * 0.35f);  // 变大
+    if (step <= 3) {
+      u8g2.drawDisc(x, y, (u8g2_uint_t)r);
+    } else if (step <= 7) {
+      u8g2.drawCircle(x, y, (u8g2_uint_t)r);
     }
   }
+}
+
+static void drawStandbyTractor(uint32_t now) {
+  // 地面线
+  u8g2.drawHLine(8, 54, 112);
+  // 驾驶室：白框 + 黑窗
+  u8g2.drawBox(28, 20, 22, 22);
+  u8g2.setDrawColor(0);
+  u8g2.drawBox(31, 23, 16, 10);
+  u8g2.setDrawColor(1);
+  // 发动机罩
+  u8g2.drawBox(62, 32, 40, 12);
+  // 底盘横梁（连驾驶室与发动机罩）
+  u8g2.drawBox(48, 44, 42, 3);
+  // 排气管（从发动机罩竖起）
+  u8g2.drawBox(72, 14, 4, 18);
+  // 尾气
+  drawStandbySmoke(74, 12, now);
+  // 轮子：大后轮 + 小前轮（辐条随时间转）
+  drawStandbyWheel(38, 44, 10, now);
+  drawStandbyWheel(96, 47, 7, now);
 }
 
 // ---------- 页面状态 ----------
@@ -509,7 +560,7 @@ void oledUiBegin() {
   }
   u8g2.setContrast(255);
   s_lastSwitchMs = millis();
-  s_lastActivityMs = millis();  // 待机计时从开机起算：15 秒没人按就进待机大眼睛
+  s_lastActivityMs = millis();  // 待机计时从开机起算：10 秒没人按就进待机拖拉机
 }
 
 void oledUiSplashProgress(float frac) {
@@ -544,7 +595,7 @@ int oledUiTick(const OledPageData &d) {
         // 待机中按一下：只唤醒，不翻页、不提问；这次按下被“消耗”掉。
         s_standby = false;
         s_wakeConsumed = true;
-        s_haveDrawn = false;  // 唤醒后强制重画页面（屏上现在是大眼睛）
+        s_haveDrawn = false;  // 唤醒后强制重画页面（屏上现在是拖拉机）
       }
     } else if (s_btnPressed) {
       s_btnPressed = false;
@@ -579,20 +630,20 @@ int oledUiTick(const OledPageData &d) {
 
   // 注意：不自动轮换，只手动换页（用户要求）。
 
-  // ---- 待机：15 秒无操作（且不在诊断中）自动进入，全屏大眼睛 ----
+  // ---- 待机：10 秒无操作（且不在诊断中）自动进入，全屏拖拉机 ----
   if (!s_standby && !d.chatBusy && (now - s_lastActivityMs >= OLED_STANDBY_MS)) {
     s_standby = true;
     if (s_animActive) s_animActive = false;  // 正在滑页就停掉，切到待机眼睛
   }
 
-  // ---- 待机中：只画全屏大眼睛（会动会眨），不画页面；每 120ms 重绘一帧 ----
+  // ---- 待机中：只画拖拉机动画（轮子转、冒烟），不画页面；每 50ms 重绘一帧（20fps） ----
   static uint32_t s_lastStandbyMs = 0;
   if (s_standby) {
-    if (now - s_lastStandbyMs >= 120) {
+    if (now - s_lastStandbyMs >= OLED_ANIM_MS) {
       s_lastStandbyMs = now;
       u8g2.clearBuffer();
       u8g2.setFont(OLED_FONT_S);
-      drawStandbyEyes(now);
+      drawStandbyTractor(now);
       u8g2.sendBuffer();
     }
     return action;
@@ -618,7 +669,7 @@ int oledUiTick(const OledPageData &d) {
   static uint32_t s_lastAnimRedrawMs = 0;
   bool animVisible = (s_page == 2) &&
                      (d.chatBusy || (!d.lastQuestion[0] && s_ansLineCount == 0));
-  bool animTick = animVisible && (now - s_lastAnimRedrawMs >= 120);
+  bool animTick = animVisible && (now - s_lastAnimRedrawMs >= OLED_ANIM_MS);
   if (animTick) s_lastAnimRedrawMs = now;
   bool pageChanged = (s_page != lastPageDrawn) || (s_chatSub != lastSubDrawn);
   if (!s_haveDrawn || pageChanged || snapshotChanged(d, s_lastDrawn) || animTick) {
