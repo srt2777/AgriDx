@@ -40,7 +40,7 @@
 #include "secrets.h"
 #include "version.h"
 
-// 第二组 WiFi（新增，优先）：旧版 secrets.h 里没有这两个宏时给空值，
+// 第二组 WiFi（新增，最优先）：旧版 secrets.h 里没有这两个宏时给空值，
 // 这样旧 secrets.h 也能编译（第二组视作未配置，只连第一组）；
 // 新版 secrets.h.example 里有占位符行，填入真实账号后生效。
 #ifndef WIFI_SSID_2
@@ -48,6 +48,13 @@
 #endif
 #ifndef WIFI_PASS_2
 #define WIFI_PASS_2 ""
+#endif
+// 第三组 WiFi（新增，其次）：与第二组同理，旧 secrets.h 里没有时给空值。
+#ifndef WIFI_SSID_3
+#define WIFI_SSID_3 ""
+#endif
+#ifndef WIFI_PASS_3
+#define WIFI_PASS_3 ""
 #endif
 
 // ---------- 颜色（旧版 UI1.14 浅色规范，见方案 §3.5；仅 LVGL TFT 版用）----------
@@ -211,21 +218,55 @@ static bool takeChatResult(ChatResult &out) {
   return true;
 }
 
-// ---------- 双 WiFi（第二组优先，第一组备选）----------
-// 两组账号：第一组是原有的（NVS 键 ssid/pass），第二组是新增的（NVS 键 ssid2/pass2），
-// 第二组优先。g_wifiActive 记录当前在用哪组：0 未连，1 第一组，2 第二组。
-static String g_wifiSsid, g_wifiPass;    // 第一组（原有，备选）
-static String g_wifiSsid2, g_wifiPass2;  // 第二组（新增，优先）
+// ---------- 三 WiFi（优先级：第二组 > 第三组 > 第一组）----------
+// 三组账号：第一组是原有的（NVS 键 ssid/pass，最后备选），
+// 第二组是新增的（NVS 键 ssid2/pass2，最优先），第三组是新增的（NVS 键 ssid3/pass3，其次）。
+// g_wifiActive 记录当前在用哪组：0 未连，1 第一组，2 第二组，3 第三组。
+static String g_wifiSsid, g_wifiPass;    // 第一组（原有，最后备选）
+static String g_wifiSsid2, g_wifiPass2;  // 第二组（新增，最优先）
+static String g_wifiSsid3, g_wifiPass3;  // 第三组（新增，其次）
 static int g_wifiActive = 0;
-// 掉线计时：本轮掉线开始时刻（0 表示在线）与是否已试过另一组（每轮掉线只切一次）。
+// 掉线计时：本轮掉线开始时刻（0 表示在线）与上次切组时刻。
 static uint32_t s_wifiDownSince = 0;
-static bool s_wifiSwitched = false;
+static uint32_t s_wifiLastSwitch = 0;
+
+// 按优先级（第二组 > 第三组 > 第一组）取当前组之后、下一个已配置的组；没有返回 0。
+// 当前组是 0（从未连上）时从最高优先级开始找。
+static int nextWifiGroup(int cur) {
+  const int order[3] = {2, 3, 1};
+  int start = -1;
+  for (int i = 0; i < 3; i++) {
+    if (order[i] == cur) { start = i; break; }
+  }
+  for (int k = 1; k <= 3; k++) {
+    int g = order[(start + k) % 3];
+    if (g == 1 && g_wifiSsid.length() > 0) return 1;
+    if (g == 2 && g_wifiSsid2.length() > 0) return 2;
+    if (g == 3 && g_wifiSsid3.length() > 0) return 3;
+  }
+  return 0;
+}
+
+// 切到指定组（异步 WiFi.begin，不阻塞）；g 无效时什么都不做。
+static void switchWifiGroup(int g) {
+  if (g == 1) {
+    WiFi.begin(g_wifiSsid.c_str(), g_wifiPass.c_str());
+  } else if (g == 2) {
+    WiFi.begin(g_wifiSsid2.c_str(), g_wifiPass2.c_str());
+  } else if (g == 3) {
+    WiFi.begin(g_wifiSsid3.c_str(), g_wifiPass3.c_str());
+  } else {
+    return;
+  }
+  g_wifiActive = g;
+  s_wifiLastSwitch = millis();
+  Serial.printf("[司稼] WiFi 改试第 %d 组\n", g);
+}
 
 // 维护 WiFi 在线状态（内部每秒检查一次）；状态变了返回 true。
 // 注意：g_online 在 setup() 里由 /api/health 检查结果设定；这里只看 WiFi 链路。
-// 掉线重连：刚掉线先重连当前网络（异步，不阻塞）；若连续掉线超过 15 秒，
-// 改试另一组一次（在第一组时改试第二组，在第二组时改试第一组）；
-// 连上后清掉线计时。只切一次，避免在两组之间来回跳。
+// 掉线重连：刚掉线先重连当前网络（异步，不阻塞）；若一直掉线，
+// 每 15 秒按优先级轮换到下一组，直到连上（切组间隔 15 秒，不来回跳）。
 static bool maintainWifi() {
   static uint32_t lastWifiCheck = 0;
   uint32_t now = millis();
@@ -236,27 +277,22 @@ static bool maintainWifi() {
     g_online = up;
     if (!up) {
       s_wifiDownSince = now;
-      s_wifiSwitched = false;
+      s_wifiLastSwitch = 0;
       WiFi.reconnect();
     } else {
       s_wifiDownSince = 0;
-      s_wifiSwitched = false;
+      s_wifiLastSwitch = 0;
     }
     return true;
   }
-  if (!up && s_wifiDownSince != 0 && !s_wifiSwitched &&
-      now - s_wifiDownSince >= 15000) {
-    s_wifiSwitched = true;
-    if (g_wifiActive == 1 && g_wifiSsid2.length() > 0) {
-      WiFi.begin(g_wifiSsid2.c_str(), g_wifiPass2.c_str());
-      g_wifiActive = 2;
-      Serial.println("[司稼] WiFi 掉线超 15 秒，改试第二组");
-    } else if (g_wifiActive == 2 && g_wifiSsid.length() > 0) {
-      WiFi.begin(g_wifiSsid.c_str(), g_wifiPass.c_str());
-      g_wifiActive = 1;
-      Serial.println("[司稼] WiFi 掉线超 15 秒，改试第一组");
+  if (!up && s_wifiDownSince != 0 && now - s_wifiDownSince >= 15000 &&
+      (s_wifiLastSwitch == 0 || now - s_wifiLastSwitch >= 15000)) {
+    int nxt = nextWifiGroup(g_wifiActive);
+    if (nxt != 0 && nxt != g_wifiActive) {
+      switchWifiGroup(nxt);
     } else {
       WiFi.reconnect();
+      s_wifiLastSwitch = now;
     }
   }
   return false;
@@ -1173,9 +1209,9 @@ static bool isPlaceholderWifi(const String &ssid, const String &pass) {
 // WiFi 凭证（NVS；首次开机从 secrets.h 取值并存入，之后只读 NVS）
 // 注意：首次开机前必须先填好真实的 secrets.h——如果先用占位值开机，NVS 会存下占位值，
 // 之后改 secrets.h 重烧也不会生效，只能整片擦除重烧（见 FLASHING.md §8）。
-// 双 WiFi：第一组（ssid/pass，原有）与第二组（ssid2/pass2，新增）分开存；
-// 第二组只在 NVS 里没有、且 secrets.h 第二组不是占位符时才写入，
-// 占位符绝不写入 NVS，也绝不覆盖第一组。之后改第二组同样要擦除重烧。
+// 三 WiFi：第一组（ssid/pass，原有）与第二组（ssid2/pass2，新增）、第三组（ssid3/pass3，新增）分开存；
+// 第二、三组只在 NVS 里没有、且 secrets.h 对应组不是占位符时才写入，
+// 占位符绝不写入 NVS，也绝不覆盖已有组。之后改某组同样要擦除重烧。
 static void loadWifiCreds() {
   Preferences prefs;
   prefs.begin("sijia", false);
@@ -1197,11 +1233,22 @@ static void loadWifiCreds() {
     prefs.putString("pass2", pass2);
     Serial.println("[司稼] NVS 写入第二组 WiFi 账号（来自 secrets.h）");
   }
+  String ssid3 = prefs.getString("ssid3", "");
+  String pass3 = prefs.getString("pass3", "");
+  if (ssid3.length() == 0 && !isPlaceholderWifi(String(WIFI_SSID_3), String(WIFI_PASS_3))) {
+    ssid3 = String(WIFI_SSID_3);
+    pass3 = String(WIFI_PASS_3);
+    prefs.putString("ssid3", ssid3);
+    prefs.putString("pass3", pass3);
+    Serial.println("[司稼] NVS 写入第三组 WiFi 账号（来自 secrets.h）");
+  }
   prefs.end();
   g_wifiSsid = ssid;
   g_wifiPass = pass;
   g_wifiSsid2 = ssid2;
   g_wifiPass2 = pass2;
+  g_wifiSsid3 = ssid3;
+  g_wifiPass3 = pass3;
 }
 
 // 试连一组 WiFi（ssid/pass），最多等 timeoutMs；连上返回 true。
@@ -1224,18 +1271,25 @@ static bool tryWifi(const String &ssid, const String &pass, uint32_t timeoutMs,
   return WiFi.status() == WL_CONNECTED;
 }
 
-// 双 WiFi 连接：先试第二组（优先），连不上再回落第一组（备选）。
-// 第二组未配置时直接试第一组。总耗时与原来单网 15 秒相当。
+// 三 WiFi 连接：按优先级试——第二组最先，第三组其次，第一组最后。
+// 每组最多 6 秒；总耗时与原来单网 15 秒相当。
 // 连上后 g_wifiActive 记下在用哪组，供掉线重连参考。
-static bool connectWifiDual() {
+static bool connectWifi() {
   if (g_wifiSsid2.length() > 0) {
-    if (tryWifi(g_wifiSsid2, g_wifiPass2, 8000, 0.0f, 0.3f)) {
+    if (tryWifi(g_wifiSsid2, g_wifiPass2, 6000, 0.0f, 0.2f)) {
       g_wifiActive = 2;
       return true;
     }
-    Serial.println("[司稼] 第二组 WiFi 未连上，回落第一组");
+    Serial.println("[司稼] 第二组 WiFi 未连上，试第三组");
   }
-  if (tryWifi(g_wifiSsid, g_wifiPass, 8000, 0.3f, 0.6f)) {
+  if (g_wifiSsid3.length() > 0) {
+    if (tryWifi(g_wifiSsid3, g_wifiPass3, 6000, 0.2f, 0.4f)) {
+      g_wifiActive = 3;
+      return true;
+    }
+    Serial.println("[司稼] 第三组 WiFi 未连上，回落第一组");
+  }
+  if (tryWifi(g_wifiSsid, g_wifiPass, 6000, 0.4f, 0.6f)) {
     g_wifiActive = 1;
     return true;
   }
@@ -1284,14 +1338,14 @@ void setup() {
   buildUi();
 #endif  // USE_OLED_DISPLAY
   // WiFi（界面先出来，状态栏显示连接中）
-  // 凭证存 NVS（命名空间 sijia，第一组键 ssid/pass，第二组键 ssid2/pass2）：
+  // 凭证存 NVS（命名空间 sijia，第一组键 ssid/pass，第二组键 ssid2/pass2，第三组键 ssid3/pass3）：
   // 首次开机用 secrets.h 的值并存入 NVS，以后联网一律读 NVS；
   // OTA 升级只写 app 分区，绝不碰 NVS，升级后不断网。
-  // 双 WiFi：先连第二组（优先），连不上再回落第一组（见 connectWifiDual）。
+  // 三 WiFi：按优先级试第二组、第三组、第一组（见 connectWifi）。
   WiFi.mode(WIFI_STA);
   WiFi.setHostname("sijia-robot");
   loadWifiCreds();
-  bool wifiOk = connectWifiDual();
+  bool wifiOk = connectWifi();
   if (wifiOk) {
     Serial.printf("[司稼] WiFi 已连 %s（第 %d 组），IP %s\n", WiFi.SSID().c_str(), g_wifiActive, WiFi.localIP().toString().c_str());
 #if USE_OLED_DISPLAY
