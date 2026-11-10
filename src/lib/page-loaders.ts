@@ -9,6 +9,7 @@ export const pageLoaders = {
   knowledge: () => import('@/pages/KnowledgePage/KnowledgePage'),
   chat: () => import('@/pages/ChatPage/ChatPage'),
   models: () => import('@/pages/ModelPage/ModelPage'),
+  showroom: () => import('@/pages/ShowroomPage/ShowroomPage'),
 };
 
 const prefetched = new Set<keyof typeof pageLoaders>();
@@ -20,7 +21,7 @@ export function preloadPage(path: string, version: UiVersion = 'new') {
   const requested = path.split(/[?#]/, 1)[0];
   const pathname = requested === '/hall' ? '/' : requested;
   const page = pathname === '/' ? version === 'new' ? 'exhibition' : 'classic'
-    : pathname === '/field-overview' ? 'field' : pathname.startsWith('/workspace/') ? 'classic' : pathname === '/knowledge' ? 'knowledge' : pathname === '/chat' ? 'chat'
+    : pathname === '/field-overview' ? 'field' : pathname === '/showroom' ? 'showroom' : pathname.startsWith('/workspace/') ? 'classic' : pathname === '/knowledge' ? 'knowledge' : pathname === '/chat' ? 'chat'
       : pathname === '/fault-detection' ? 'faultDetection' : pathname === '/version-history' ? 'history' : pathname === '/models' ? 'models' : null;
   if (!page || prefetched.has(page)) return;
   prefetched.add(page);

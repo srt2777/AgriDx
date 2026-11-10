@@ -139,7 +139,6 @@ static const int MAX_HISTORY_MSGS = 10;   // 多轮最多带 10 条
 struct ChatMsg { String role, content; };
 static ChatMsg g_history[MAX_HISTORY_MSGS];
 static int g_historyCount = 0;
-static String g_sessionId;
 static bool g_chatBusy = false;
 static bool g_online = false;
 
@@ -303,10 +302,17 @@ static bool netPostChatOnce(const String &question, ChatResult &out) {
     m["role"] = g_history[i].role;
     m["content"] = g_history[i].content;
   }
-  JsonObject m = msgs.add<JsonObject>();
-  m["role"] = "user";
-  m["content"] = question;
-  req["sessionId"] = g_sessionId;
+  // startAsk() 已把问题追加进 g_history；只有历史已满（追加失败）时才在这里补发，
+  // 否则问题会发两遍，服务器看到的提问会被重复。
+  if (g_historyCount == 0 || g_history[g_historyCount - 1].content != question) {
+    JsonObject m = msgs.add<JsonObject>();
+    m["role"] = "user";
+    m["content"] = question;
+  }
+  // 不发 sessionId：服务器的 sessionId 必须是 UUID 且对应已建好的诊断记录，
+  // 机器人没有建记录的流程，发过去会被 400 拒绝（“诊断记录编号格式错误”）。
+  // 不带 sessionId 时服务器按无记忆方式直接回答；多轮上下文由上面发的
+  // messages 历史携带。
   String body;
   serializeJson(req, body);
   int code = http.POST(body);
@@ -1285,7 +1291,6 @@ void setup() {
   Serial.begin(115200);
   delay(500);
   Serial.printf("\n[司稼] 固件 %s 启动\n", FIRMWARE_VERSION);
-  g_sessionId = "rv010-" + String((uint32_t)ESP.getEfuseMac(), HEX);
   g_resultMutex = xSemaphoreCreateMutex();
 #if USE_OLED_DISPLAY
   // OLED 版：初始化 I2C + SSD1306（亮启动页）；背光/触摸/LVGL 都没有。
@@ -1338,6 +1343,8 @@ void setup() {
   uint32_t t0 = millis();
   while (WiFi.status() != WL_CONNECTED && millis() - t0 < 15000) {
 #if USE_OLED_DISPLAY
+    // 启动页进度条跟着动：WiFi 连接阶段 0→60%（按已等时间推进）。
+    oledUiSplashProgress((float)(millis() - t0) / 15000.0f * 0.6f);
     delay(100);  // OLED 版没有 LVGL 定时器要跑，等就是了
 #else
     lv_tick_inc(5);
@@ -1347,8 +1354,14 @@ void setup() {
   }
   if (WiFi.status() == WL_CONNECTED) {
     Serial.printf("[司稼] WiFi 已连 %s，IP %s\n", WiFi.SSID().c_str(), WiFi.localIP().toString().c_str());
+#if USE_OLED_DISPLAY
+    oledUiSplashProgress(0.75f);  // WiFi 已连，进度条到 75%
+#endif
     String h = httpGet(String(SIJIA_BASE_URL) + "/api/health", 5000);
     g_online = h.length() > 0;
+#if USE_OLED_DISPLAY
+    oledUiSplashProgress(0.95f);  // 健康检查完，进度条到 95%（随后主循环切到状态页）
+#endif
 #if !USE_OLED_DISPLAY
     lv_label_set_text(g_topStatus, g_online ? "在线" : "服务器不通");
     lv_obj_set_style_text_color(g_topStatus, g_online ? C_DARKGREEN : C_RED, 0);
@@ -1402,11 +1415,16 @@ void loop() {
     lastTeleMs = millis();
     g_telePending = true;
   }
-  // 刷新 OLED（内部处理自动轮换 + BOOT 切页；长按返回提问动作，由主循环执行）
+  // 刷新 OLED（只手动换页；长按返回提问动作、从问答页翻到状态页返回清除动作，由主循环执行）
   OledPageData snap = buildOledSnapshot();
   int action = oledUiTick(snap);
   if (action == OLED_ACTION_ASK_PRESET_0) {
     startAsk(PRESET_QUESTIONS[0]);  // 失败（正忙/未联网）时 OLED 下次刷新仍显示旧状态
+  } else if (action == OLED_ACTION_CLEAR_CHAT) {
+    // 从问答页翻到状态页：问答清掉，不保留；回到问答页重新开始问。
+    g_lastQuestion = "";
+    g_lastAnswer = "";
+    g_historyCount = 0;
   }
   delay(20);
 #else

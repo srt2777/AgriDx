@@ -6,7 +6,7 @@ import { COMMAND_ROUTES } from '../src/lib/command-routes';
 import { WORLD_ZONES, pavilionDestination } from '../src/pages/ExhibitionPage/world-navigation';
 
 test('hall and primary features share the same destination order and current section', () => {
-  assert.deepEqual(MODERN_DESTINATIONS.map(item => item.path), ['/', '/knowledge', '/chat', '/models', '/fault-detection', '/field-overview']);
+  assert.deepEqual(MODERN_DESTINATIONS.map(item => item.path), ['/', '/knowledge', '/chat', '/models', '/fault-detection', '/field-overview', '/showroom']);
   assert.deepEqual(COMMAND_ROUTES.slice(0, MODERN_DESTINATIONS.length).map(item => item.path), MODERN_DESTINATIONS.map(item => item.path));
   assert.equal(MODERN_DESTINATIONS.find(item => item.path === '/chat')?.zh, '司稼 · 智能诊断');
   assert.equal(MODERN_DESTINATIONS.find(item => item.path === '/chat')?.en, 'Sijia · Diagnosis');
