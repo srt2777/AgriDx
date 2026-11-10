@@ -1,6 +1,6 @@
 // 司稼小机器人 RV0.1.0 — 0.96 寸 OLED 显示 UI（第二个显示版本）
 // 硬件：SSD1315 128x64，I2C，地址 0x3C（模块跳线标 0x78 是 8 位写地址）；
-//   SDA/SCL 见 display_config.h（C3：SDA=GPIO12、SCL=GPIO13）。
+//   SDA/SCL 见 display_config.h（DevKitM-1/合宙板：SDA=GPIO12、SCL=GPIO13；SuperMini：SDA=GPIO4、SCL=GPIO5）。
 // 驱动：U8g2 全缓冲模式；字库：U8g2 自带 wqy12（GB2312，12px）正文与标题，wqy16 只用于启动页大标题。
 // 版式：标题栏（反白条）+ 3 行 12px 内容 + 底栏页点；只手动换页，不自动轮换；
 //   问答页可翻子页看完整答案（第 1 页是问题+答案前 2 行，之后每页 3 行答案）。
