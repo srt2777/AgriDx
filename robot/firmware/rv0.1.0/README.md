@@ -24,23 +24,24 @@ ESP32-S3 + 3.2 寸触摸屏的问答终端 + 监控页面。司稼跑在正式�
 10 秒无操作进待机拖拉机动画），与 S3 的 3.2 寸界面同一套（从 S3 分支选择性移植，
 语音与 WiFi 改动原样保留）。编译：`pio run -e esp32-c3-devkitm-1-tft`。
 
-接线（9 根线，屏是 ILI9341 320×240 + XPT2046）：
+接线（9 根信号线，屏是 ILI9341 320×240 + XPT2046；触摸与显示共用同一组 SPI 总线，
+T_CLK 并 SCK、T_DIN 并 MOSI、T_DO 并 MISO）：
 
 | 屏 | 板子 | 说明 |
 |---|---|---|
 | VCC | 3V3 | **只能接 3V3，绝不能接 5V（已有一块 OLED 接 5V 烧屏）** |
 | GND | GND | |
-| MOSI | GPIO7 | C3 硬件 SPI2 默认脚 |
-| MISO | GPIO5 | MISO 默认脚 GPIO2 是 strapping 脚，改用 5 |
-| SCK | GPIO6 | C3 硬件 SPI2 默认脚 |
-| CS | GPIO10 | |
-| DC | GPIO4 | |
-| RST | GPIO3 | |
-| BL | GPIO11 | 背光，PWM 调光 |
-| T_CS | GPIO1 | 触摸片选 |
-| T_IRQ | GPIO0 | 触摸中断；GPIO0 是 strapping 脚，复位瞬间别按屏幕（按住会进下载模式） |
+| MOSI | GPIO7 | C3 硬件 SPI2 默认脚；T_DIN 并在这里 |
+| MISO | GPIO5 | MISO 默认脚 GPIO2 是 strapping 脚，改用 5；T_DO 并在这里 |
+| SCK | GPIO6 | C3 硬件 SPI2 默认脚；T_CLK 并在这里 |
+| CS | GPIO4 | |
+| DC | GPIO3 | |
+| RST | GPIO10 | |
+| BL | GPIO1 | 背光，PWM 调光 |
+| T_CS | GPIO0 | 触摸片选；GPIO0 是 strapping 脚，烧录进不了下载模式时先拔掉 T_CS 线再烧 |
+| T_IRQ | GPIO12 | 触摸中断 |
 
-（上表是 9 根信号线 + VCC/GND 共 11 根接线；OLED 的 GPIO12/13 这块板上不用，留空。）
+（上表是 9 根信号线 + VCC/GND 共 11 根接线；OLED 的 GPIO12/13 这块板上不用，T_IRQ 用了 GPIO12，GPIO13 留空。）
 
 注意：
 

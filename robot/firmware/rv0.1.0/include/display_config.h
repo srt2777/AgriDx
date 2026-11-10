@@ -55,30 +55,31 @@
 // ---- 引脚（按板子选一节；S3 节是登仕唐 ESP32-S3-N16R8，C3 节是 DevKitM-1 默认）----
 #ifdef CONFIG_IDF_TARGET_ESP32C3
 #ifdef SIJIA_C3_TFT
-// ---- C3 + 3.2 寸触摸屏（env esp32-c3-devkitm-1-tft；2026-11-10 按 C3 约束核对）----
-// 9 根线：MOSI 7 / MISO 5 / SCK 6 / CS 10 / DC 4 / RST 3 / BL 11 / T_CS 1 / T_IRQ 0。
+// ---- C3 + 3.2 寸触摸屏（env esp32-c3-devkitm-1-tft；用户 2026-11-10 定稿）----
+// 屏 14P，触摸与显示共用同一组 SPI 总线（T_CLK 并 SCK、T_DIN 并 MOSI、T_DO 并 MISO）。
+// 9 根信号线：MOSI 7 / MISO 5 / SCK 6 / CS 4 / DC 3 / RST 10 / BL 1 / T_CS 0 / T_IRQ 12。
 // 核对结果（ESP32-C3 约束）：
 //   - Flash（DIO）占 GPIO 14/15/16/17，绝对不能用；
 //   - strapping 脚 GPIO 2/8/9 全部避开（GPIO 9 是板载 BOOT）；
 //   - 原生 USB 是 GPIO 18(D-)/19(D+)，烧录和串口都走它，不能占；
-//   - GPIO 0 也是 strapping 脚（拉低进下载模式），本表把它用作 T_IRQ：
-//     XPT2046 的 PENIRQ 是开漏输出、模块上有上拉，平时为高，正常复位不受影响；
-//     但复位瞬间如果正按着屏幕（IRQ 被拉低），会进下载模式而不是正常启动——
-//     表现为上电不跑程序；这时松开屏幕再按 RST，或先拔掉 T_IRQ 线再烧录。
-//     不想留这个风险可改用轮询（XPT2046_Touchscreen 传 255 当 IRQ 脚），不用改线以外的任何东西。
-//   - GPIO 1/11 是普通 GPIO；OLED 的 GPIO 12/13 这块板上不用，留空。
-//   - MOSI 7 / SCK 6 / CS 10 是 C3 硬件 SPI2（FSPI）默认脚；MISO 默认脚 GPIO2 是
+//   - GPIO 0 是 strapping 脚（拉低进下载模式），本表把它用作 T_CS：
+//     T_CS 是主控驱动的输出脚，空闲时为高，正常复位不受影响；
+//     烧录进不了下载模式时先拔掉 T_CS 线再烧（旧 C3 过渡版也是这么用的）。
+//   - T_IRQ 改到 GPIO 12，不再占 strapping 脚；GPIO 12/13 是 OLED 的 SDA/SCL，
+//     3.2 寸屏接上后 OLED 不用，GPIO 12 空出来给 T_IRQ（闪存的 HD/WP 脚
+//     12/13 本来就没连闪存，见 0xfcde 根因）；GPIO 11 本表不用，留空。
+//   - MOSI 7 / SCK 6 是 C3 硬件 SPI2（FSPI）默认脚；MISO 默认脚 GPIO2 是
 //     strapping 脚，改用 GPIO 5。
 // 供电：屏 VCC 只能接板子 3V3，绝不能接 5V（2026-11-10 已有一块 OLED 接 5V 烧屏）。
 #define PIN_TFT_MOSI  7
 #define PIN_TFT_MISO  5
 #define PIN_TFT_SCK   6
-#define PIN_TFT_CS   10
-#define PIN_TFT_DC    4
-#define PIN_TFT_RST   3
-#define PIN_TFT_BL   11   // 背光，PWM 调光
-#define PIN_TOUCH_CS  1
-#define PIN_TOUCH_IRQ 0
+#define PIN_TFT_CS    4
+#define PIN_TFT_DC    3
+#define PIN_TFT_RST  10
+#define PIN_TFT_BL    1   // 背光，PWM 调光
+#define PIN_TOUCH_CS  0
+#define PIN_TOUCH_IRQ 12
 #else
 // ---- C3 引脚（过渡版；按自己的板子引脚图调整）----
 // SPI 走 GPIO 矩阵任意分配：MOSI/SCK/CS 用硬件 SPI2（FSPI）默认脚，MISO 从 strapping 脚
