@@ -18,6 +18,38 @@ ESP32-S3 + 3.2 寸触摸屏的问答终端 + 监控页面。司稼跑在正式�
 组装、接线、功耗预算、换电池/换屏幕余量：见 [docs/ASSEMBLY.md](docs/ASSEMBLY.md)。
 烧录步骤、首启检查、故障排查：见 [docs/FLASHING.md](docs/FLASHING.md)。
 
+## C3 + 3.2 寸触摸屏（原 C3 板，合宙 LuatOS ESP32-C3）
+
+环境 `esp32-c3-devkitm-1-tft`：LVGL TFT UI v2（胶囊翻页指示器、监测小卡片 + 趋势图、
+10 秒无操作进待机拖拉机动画），与 S3 的 3.2 寸界面同一套（从 S3 分支选择性移植，
+语音与 WiFi 改动原样保留）。编译：`pio run -e esp32-c3-devkitm-1-tft`。
+
+接线（9 根信号线，屏是 ILI9341 320×240 + XPT2046；触摸与显示共用同一组 SPI 总线，
+T_CLK 并 SCK、T_DIN 并 MOSI、T_DO 并 MISO）：
+
+| 屏 | 板子 | 说明 |
+|---|---|---|
+| VCC | 3V3 | **只能接 3V3，绝不能接 5V（已有一块 OLED 接 5V 烧屏）** |
+| GND | GND | |
+| MOSI | GPIO7 | C3 硬件 SPI2 默认脚；T_DIN 并在这里 |
+| MISO | GPIO5 | MISO 默认脚 GPIO2 是 strapping 脚，改用 5；T_DO 并在这里 |
+| SCK | GPIO6 | C3 硬件 SPI2 默认脚；T_CLK 并在这里 |
+| CS | GPIO4 | |
+| DC | GPIO3 | |
+| RST | GPIO10 | |
+| BL | GPIO1 | 背光，PWM 调光 |
+| T_CS | GPIO0 | 触摸片选；GPIO0 是 strapping 脚，烧录进不了下载模式时先拔掉 T_CS 线再烧 |
+| T_IRQ | GPIO12 | 触摸中断 |
+
+（上表是 9 根信号线 + VCC/GND 共 11 根接线；OLED 的 GPIO12/13 这块板上不用，T_IRQ 用了 GPIO12，GPIO13 留空。）
+
+注意：
+
+- Flash 必须是 DIO 40MHz（合宙板外置闪存只接了 DIO 两根数据线，QIO 读分区表会出错 `0xfcde`），本环境已配好，不要用旧 C3 过渡环境（默认 QIO）烧这块板。
+- 内存：C3 无 PSRAM，LVGL 堆 48KB、绘图双缓冲各 10 行（PARTIAL 渲染）；固件约 2.0MB，分区表 app0 约 2.9MB，放得下。
+- WiFi 三组与 OLED 版共用同一套逻辑（优先级 2807 > vivoS30 > 原有，换组先断开）；只烧 `firmware.bin` 到 `0x10000`，不要整片擦除（NVS 里已有 WiFi）。
+- 触摸标定是经验值（`display_config.h` 里 `TOUCH_X_MIN/MAX` 等），到货后按实际触摸位置微调。
+
 ## 快速开始（PlatformIO）
 
 1. 装 VS Code + PlatformIO 插件（或命令行 `pip install platformio`）。
