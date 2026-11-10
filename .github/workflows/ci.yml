@@ -39,10 +39,14 @@ jobs:
       - name: Check ffmpeg (Windows)
         if: matrix.os == 'windows-latest'
         run: ffmpeg -version
-      # ubuntu-latest 同样没有预装 ffmpeg，语音接口转码需要它
+      # ubuntu-latest 同样没有预装 ffmpeg，语音接口转码需要它。
+      # 注意：不要加 apt-get update——CI #645 里 update + 全量安装花了 12m22s，
+      # 撞上 15 分钟 job 上限。runner 镜像自带 apt 列表（同文件的 poppler 步骤
+      # 也是不 update 直接装），--no-install-recommends 再砍掉推荐依赖包，
+      # 整步约 1 分钟，给 verify（约 5–9 分钟）留够时间。
       - name: Install ffmpeg (Ubuntu)
         if: matrix.os == 'ubuntu-latest'
-        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+        run: sudo apt-get install -y --no-install-recommends ffmpeg
       - name: Check ffmpeg (Ubuntu)
         if: matrix.os == 'ubuntu-latest'
         run: ffmpeg -version

@@ -3,7 +3,10 @@ import type { ErrorRequestHandler, RequestHandler } from 'express';
 export const securityHeaders: RequestHandler = (_req, res, next) => {
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('Referrer-Policy', 'no-referrer');
-  res.setHeader('Permissions-Policy', 'geolocation=(), microphone=(), camera=()');
+  // microphone=(self): the chat page records voice input on this origin
+  // (MediaRecorder + getUserMedia); microphone=() would deny it outright.
+  // Third-party frames stay blocked; geolocation and camera stay off.
+  res.setHeader('Permissions-Policy', 'geolocation=(), microphone=(self), camera=()');
   next();
 };
 
