@@ -62,6 +62,23 @@
 #define WIFI_PASS_3 ""
 #endif
 
+// 第二组 WiFi（新增，最优先）：旧版 secrets.h 里没有这两个宏时给空值，
+// 这样旧 secrets.h 也能编译（第二组视作未配置，只连第一组）；
+// 新版 secrets.h.example 里有占位符行，填入真实账号后生效。
+#ifndef WIFI_SSID_2
+#define WIFI_SSID_2 ""
+#endif
+#ifndef WIFI_PASS_2
+#define WIFI_PASS_2 ""
+#endif
+// 第三组 WiFi（新增，其次）：与第二组同理，旧 secrets.h 里没有时给空值。
+#ifndef WIFI_SSID_3
+#define WIFI_SSID_3 ""
+#endif
+#ifndef WIFI_PASS_3
+#define WIFI_PASS_3 ""
+#endif
+
 // ---------- 颜色（旧版 UI1.14 浅色规范，见方案 §3.5；仅 LVGL TFT 版用）----------
 #if !USE_OLED_DISPLAY
 #define C_BG       lv_color_hex(0xFBFDFC)
