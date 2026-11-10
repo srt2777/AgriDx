@@ -1,5 +1,17 @@
 // 司稼小机器人 RV0.1.0 — LVGL 界面 + WiFi 问答 + 遥测监控
 // 硬件：ESP32-S3-N16R8 + 3.2 寸 ILI9341 触摸屏（默认配置档 A）
+//   板子已按商品图核实（2026-11-10）：ESP32-S3-WROOM-1-N16R8，双核 240MHz，
+//   16MB Flash + 8MB PSRAM（OPI）；双 Type-C：CH340 口（USB-ISP）烧录，
+//   原生 USB 口（OTG）默认不用。禁区见 display_config.h（34-37/0/45/46/19/20/48）。
+// TFT UI v2（2026-11-10）：旧版 UI1.14 浅色风格，3 页左右滑动；
+//   底部胶囊翻页指示器（当前页 18x6 绿胶囊、未选中 6x6 灰圆、200ms 过渡、可点）；
+//   按钮点按反馈（pressed 变色 + 0.96 缩放、100ms 过渡）；问答等待三点呼吸动画；
+//   10 秒无操作进待机屏（拖拉机动画：轮子转 + 排气管冒尾气 + 呼吸光晕，点一下唤醒）；
+//   监测页 3 张小卡片 + 1 张水温趋势图（不再是 3 个大圆表）。
+//   设计参考（只借鉴做法、不粘代码；GPL/无 licence 项目只看设计）：
+//   benevid/claude-usage-stick（当前页变胶囊）、muki01/Car-Dashboard-ESP32-CYD
+//   （圆点可点）、El-EnderJ/NeoCalculator（ILI9341 先 10MHz 点亮再试 40MHz）、
+//   facebookincubator/muse-gadget-sdk（Apache-2.0，局部重绘）。
 //   第二个显示版本：ESP32-C3 + 0.96 寸 OLED（SSD1306 128x64，见 src/oled_ui.*）。
 //   编译宏 USE_OLED_DISPLAY=1 时编 OLED UI，=0 时编原来的 LVGL TFT UI；
 //   联网/问答/遥测/NVS/OTA 逻辑两个版本共用，显示层各自独立。
@@ -39,6 +51,7 @@
 #include "display_config.h"
 #include "secrets.h"
 #include "version.h"
+#include <math.h>   // 待机动画用 sinf/cosf
 
 // ---------- 颜色（旧版 UI1.14 浅色规范，见方案 §3.5；仅 LVGL TFT 版用）----------
 #if !USE_OLED_DISPLAY
@@ -53,6 +66,8 @@
 #define C_GREENBG  lv_color_hex(0xC9E8CA)
 #define C_RED      lv_color_hex(0xC0392B)
 #define C_AMBER    lv_color_hex(0xB7791F)
+#define C_LIGHTRED lv_color_hex(0xFDECEA)   // 报警横条底
+#define C_LIGHTAMBER lv_color_hex(0xFDF3E0) // 注意横条底
 #define C_WHITE    lv_color_hex(0xFFFFFF)
 
 // ---------- 字库（由 lv_font_conv 生成，见 src/fonts/）----------
@@ -82,16 +97,34 @@ static void flush_cb(lv_display_t *d, const lv_area_t *area, uint8_t *color_p) {
   lv_display_flush_ready(d);
 }
 
+// ---------- 交互计时（待机 10 秒用；任何一次触摸/点按都重置）----------
+static uint32_t g_lastInteractMs = 0;
+static bool g_standbyOn = false;
+static void markActive() { g_lastInteractMs = millis(); }
+
 static void touch_cb(lv_indev_t *indev, lv_indev_data_t *data) {
   (void)indev;
-  if (!ts.touched()) { data->state = LV_INDEV_STATE_RELEASED; return; }
+  // 去抖状态：单次跳变超过 80px 视为毛刺，沿用上一次坐标（XPT2046 偶发跳点）。
+  static int32_t lx = -1, ly = -1;
+  static bool wasPressed = false;
+  if (!ts.touched()) {
+    wasPressed = false;
+    data->state = LV_INDEV_STATE_RELEASED;
+    return;
+  }
   TS_Point p = ts.getPoint();
   // 横屏 rotation 1 的常用映射；如实机上触摸轴反了/镜像了，交换下面两行或取反（见 README 排查）。
+  // 旋转方向在 LVGL 里设（tft.setRotation(1) + 本映射），不要另调库的 setRotation（会叠加）。
   int32_t sx = map(p.x, TOUCH_X_MIN, TOUCH_X_MAX, 0, SCREEN_WIDTH - 1);
   int32_t sy = map(p.y, TOUCH_Y_MIN, TOUCH_Y_MAX, 0, SCREEN_HEIGHT - 1);
-  data->point.x = constrain(sx, 0, SCREEN_WIDTH - 1);
-  data->point.y = constrain(sy, 0, SCREEN_HEIGHT - 1);
+  sx = constrain(sx, 0, SCREEN_WIDTH - 1);
+  sy = constrain(sy, 0, SCREEN_HEIGHT - 1);
+  if (wasPressed && lx >= 0 && (abs(sx - lx) > 80 || abs(sy - ly) > 80)) { sx = lx; sy = ly; }
+  lx = sx; ly = sy; wasPressed = true;
+  data->point.x = sx;
+  data->point.y = sy;
   data->state = LV_INDEV_STATE_PRESSED;
+  markActive();
 }
 #endif  // !USE_OLED_DISPLAY
 
@@ -516,19 +549,27 @@ static void netTask(void *param) {
 // ---------- UI（仅 LVGL TFT 版；OLED 版见 src/oled_ui.*）----------
 #if !USE_OLED_DISPLAY
 static lv_obj_t *g_topStatus = nullptr;   // 顶栏在线状态
+// 底部翻页指示器（胶囊式，见 buildUi 底部条带）：未选中 6x6 灰圆 #D7DAD9，
+// 当前页 18x6 绿胶囊 #46A758，全圆角；宽 + 颜色 200ms 过渡；可点跳页。
 static lv_obj_t *g_dots[3] = {nullptr, nullptr, nullptr};
 static lv_obj_t *g_tileview = nullptr;
 static lv_obj_t *g_msgList = nullptr;     // 对话消息容器
 static lv_obj_t *g_thinking = nullptr;    // “正在诊断…”行
+static lv_obj_t *g_thinkLabel = nullptr;  // “正在诊断” + 省略号循环
+static lv_obj_t *g_thinkDots[3] = {nullptr, nullptr, nullptr};  // 三点呼吸动画
+static lv_timer_t *g_thinkTimer = nullptr;
+static int g_thinkStep = 0;
 static lv_obj_t *g_sourcesBox = nullptr;  // 最新一条回答的依据区
 static lv_obj_t *g_sourcesLabel = nullptr;
 static lv_obj_t *g_sourcesBtn = nullptr;
 static lv_obj_t *g_toast = nullptr;
-static lv_obj_t *g_meterVal[3] = {nullptr, nullptr, nullptr};
-static lv_obj_t *g_meterState[3] = {nullptr, nullptr, nullptr};
-static lv_obj_t *g_meters[3] = {nullptr, nullptr, nullptr};
-static lv_obj_t *g_meterNeedle[3] = {nullptr, nullptr, nullptr};  // 表盘指针（line 对象）
-static lv_obj_t *g_alertBar = nullptr;
+// 监测页：3 张小卡片（大数字 + 单位 + 名称状态 + 底部细条）+ 1 张趋势图
+static lv_obj_t *g_meterVal[3] = {nullptr, nullptr, nullptr};   // 大数字（28px）
+static lv_obj_t *g_meterUnit[3] = {nullptr, nullptr, nullptr};  // 单位（12px）
+static lv_obj_t *g_meterName[3] = {nullptr, nullptr, nullptr};  // “水温 · 正常”
+static lv_obj_t *g_meterBarBg[3] = {nullptr, nullptr, nullptr};
+static lv_obj_t *g_meterFill[3] = {nullptr, nullptr, nullptr};  // 底部细条（按阈值变色）
+static lv_obj_t *g_alertStrip = nullptr;  // 告警横条（场景 + 状态，常驻，不弹窗）
 static lv_obj_t *g_scenarioLabel = nullptr;
 static lv_obj_t *g_updatedLabel = nullptr;
 static lv_obj_t *g_chart = nullptr;
@@ -537,6 +578,27 @@ static lv_obj_t *g_thresholdLine = nullptr;
 static lv_obj_t *g_chartTitle = nullptr;
 static uint32_t g_lastTeleOk = 0;
 static bool g_sourcesOpen = false;
+// 指示器胶囊动画：一次 lv_anim 同时插值 3 个点的 x 与宽（200ms，ease-out）。
+struct DotsAnimState { int32_t fromX[3], toX[3], fromW[3], toW[3]; };
+static DotsAnimState g_dotsAnim;
+static bool g_dotsReady = false;
+// 按钮点按反馈：pressed 变色 + 缩放 0.96，100ms 过渡（见 stylePressable）。
+static lv_style_transition_dsc_t g_pressTrans;
+static const lv_style_prop_t g_pressProps[] = {
+  LV_STYLE_BG_COLOR, LV_STYLE_TRANSFORM_SCALE_X, LV_STYLE_TRANSFORM_SCALE_Y,
+  LV_STYLE_BORDER_COLOR, (lv_style_prop_t)0};
+// ---------- 待机屏（10 秒无操作进；拖拉机动画只动轮子/尾气/光晕等小对象，
+// LVGL 只重绘这些脏区，不全屏刷新）----------
+#define STANDBY_TIMEOUT_MS 10000
+static lv_obj_t *g_standbyOverlay = nullptr;
+static lv_obj_t *g_standbyHalo = nullptr;    // 呼吸光晕
+static lv_obj_t *g_standbyTitle = nullptr;   // “待机中”
+static lv_obj_t *g_spokes[2][2] = {{nullptr, nullptr}, {nullptr, nullptr}};  // 轮辐线
+static lv_obj_t *g_puffs[3] = {nullptr, nullptr, nullptr};   // 排气管尾气
+static lv_obj_t *g_groundDots[3] = {nullptr, nullptr, nullptr};  // 地面移动点
+static float g_wheelAngle = 0.0f;
+static float g_puffPhase[3] = {0.0f, 0.33f, 0.66f};
+static int32_t g_groundX[3] = {60, 140, 220};
 
 static lv_obj_t *mkLabel(lv_obj_t *parent, const char *txt, const lv_font_t *font, lv_color_t color) {
   lv_obj_t *l = lv_label_create(parent);
@@ -554,6 +616,32 @@ static void styleCard(lv_obj_t *o) {
   lv_obj_set_style_shadow_width(o, 0, 0);
 }
 
+// ---------- 动效小件 ----------
+static void animOpaCb(void *var, int32_t v) {
+  lv_obj_set_style_opa((lv_obj_t *)var, (lv_opa_t)v, 0);
+}
+
+// 新气泡/新卡片淡入（250ms）；只影响该对象，不动全屏。
+static void fadeIn(lv_obj_t *o) {
+  lv_obj_set_style_opa(o, 0, 0);
+  lv_anim_t a;
+  lv_anim_init(&a);
+  lv_anim_set_var(&a, o);
+  lv_anim_set_values(&a, 0, 255);
+  lv_anim_set_duration(&a, 250);
+  lv_anim_set_exec_cb(&a, animOpaCb);
+  lv_anim_set_path_cb(&a, lv_anim_path_ease_out);
+  lv_anim_start(&a);
+}
+
+// 按钮点按反馈：pressed 时换底色 + 缩到 0.96，100ms 过渡（g_pressTrans 在 buildUi 里初始化）。
+static void stylePressable(lv_obj_t *b, lv_color_t pressedBg) {
+  lv_obj_set_style_transition(b, &g_pressTrans, 0);
+  lv_obj_set_style_bg_color(b, pressedBg, LV_STATE_PRESSED);
+  // LVGL 9 里缩放属性叫 TRANSFORM_SCALE（旧名 zoom 是 v8 的别名映射）
+  lv_obj_set_style_transform_scale(b, 245, LV_STATE_PRESSED);
+}
+
 static void showToast(const char *txt) {
   if (!g_toast) return;
   lv_label_set_text(lv_obj_get_child(g_toast, 0), txt);
@@ -565,10 +653,63 @@ static void showToast(const char *txt) {
   lv_timer_set_repeat_count(t, 1);
 }
 
+// 指示器目标几何：未选中 6x6，当前页 18x6，间距 8；总宽 46，底部条带居中。
+static void dotsTarget(int page, int32_t *xs, int32_t *ws) {
+  int32_t x = 0;
+  for (int i = 0; i < 3; i++) {
+    ws[i] = (i == page) ? 18 : 6;
+    xs[i] = x;
+    x += ws[i] + 8;
+  }
+}
+
+static void dotsAnimCb(void *var, int32_t v) {
+  DotsAnimState *s = (DotsAnimState *)var;
+  for (int i = 0; i < 3; i++) {
+    int32_t x = s->fromX[i] + (s->toX[i] - s->fromX[i]) * v / 256;
+    int32_t w = s->fromW[i] + (s->toW[i] - s->fromW[i]) * v / 256;
+    lv_obj_set_x(g_dots[i], x);
+    lv_obj_set_width(g_dots[i], w);
+  }
+}
+
+// 滑动结束后再更新圆点（onTileChanged 调）；颜色用样式过渡 200ms 跟着变。
 static void updateDots(int page) {
+  int32_t tx[3], tw[3];
+  dotsTarget(page, tx, tw);
   for (int i = 0; i < 3; i++) {
     lv_obj_set_style_bg_color(g_dots[i], i == page ? C_GREEN : C_BORDER, 0);
   }
+  if (!g_dotsReady) {
+    for (int i = 0; i < 3; i++) {
+      lv_obj_set_x(g_dots[i], tx[i]);
+      lv_obj_set_width(g_dots[i], tw[i]);
+    }
+    g_dotsReady = true;
+    return;
+  }
+  for (int i = 0; i < 3; i++) {
+    g_dotsAnim.fromX[i] = lv_obj_get_x(g_dots[i]);
+    g_dotsAnim.fromW[i] = lv_obj_get_width(g_dots[i]);
+    g_dotsAnim.toX[i] = tx[i];
+    g_dotsAnim.toW[i] = tw[i];
+  }
+  lv_anim_t a;
+  lv_anim_init(&a);
+  lv_anim_set_var(&a, &g_dotsAnim);
+  lv_anim_set_values(&a, 0, 256);
+  lv_anim_set_duration(&a, 200);
+  lv_anim_set_exec_cb(&a, dotsAnimCb);
+  lv_anim_set_path_cb(&a, lv_anim_path_ease_out);
+  lv_anim_start(&a);
+}
+
+// 圆点本身可点：点第 n 个跳到第 n 页。
+static void onDotClicked(lv_event_t *e) {
+  int idx = (int)(intptr_t)lv_event_get_user_data(e);
+  markActive();
+  lv_tileview_set_tile_by_index(g_tileview, idx, 0, LV_ANIM_ON);
+  updateDots(idx);
 }
 
 // ---------- 对话 ----------
@@ -583,6 +724,7 @@ static void addUserBubble(const char *q) {
   lv_obj_t *l = mkLabel(row, q, &font_zh_16, C_TEXT);
   lv_label_set_long_mode(l, LV_LABEL_LONG_WRAP);
   lv_obj_set_width(l, lv_pct(100));
+  fadeIn(row);
 }
 
 static void addAssistantCard(const char *answer, const char *tag) {
@@ -597,12 +739,44 @@ static void addAssistantCard(const char *answer, const char *tag) {
   lv_label_set_long_mode(l, LV_LABEL_LONG_WRAP);
   lv_obj_set_width(l, lv_pct(100));
   lv_obj_scroll_to_y(g_msgList, LV_COORD_MAX, LV_ANIM_ON);
+  fadeIn(row);
+}
+
+// “正在诊断”省略号循环（· 是字库符号之一）。
+static void onThinkTick(lv_timer_t *t) {
+  (void)t;
+  g_thinkStep = (g_thinkStep + 1) % 4;
+  char buf[24] = "正在诊断";
+  for (int i = 0; i < g_thinkStep; i++) strcat(buf, "·");
+  lv_label_set_text(g_thinkLabel, buf);
 }
 
 static void setThinking(bool on) {
-  if (on) lv_obj_set_hidden(g_thinking, false);
-  else lv_obj_set_hidden(g_thinking, true);
-  if (on) lv_obj_scroll_to_y(g_msgList, LV_COORD_MAX, LV_ANIM_ON);
+  if (on) {
+    lv_obj_set_hidden(g_thinking, false);
+    lv_obj_scroll_to_y(g_msgList, LV_COORD_MAX, LV_ANIM_ON);
+    // 三点呼吸：透明度 70↔255 循环，依次延迟 160ms。
+    for (int i = 0; i < 3; i++) {
+      lv_anim_t a;
+      lv_anim_init(&a);
+      lv_anim_set_var(&a, g_thinkDots[i]);
+      lv_anim_set_values(&a, 70, 255);
+      lv_anim_set_duration(&a, 500);
+      lv_anim_set_delay(&a, (uint32_t)i * 160);
+      lv_anim_set_playback_duration(&a, 500);
+      lv_anim_set_repeat_count(&a, LV_ANIM_REPEAT_INFINITE);
+      lv_anim_set_exec_cb(&a, animOpaCb);
+      lv_anim_start(&a);
+    }
+    if (g_thinkTimer) lv_timer_del(g_thinkTimer);
+    g_thinkStep = 0;
+    g_thinkTimer = lv_timer_create(onThinkTick, 450, nullptr);
+  } else {
+    lv_obj_set_hidden(g_thinking, true);
+    for (int i = 0; i < 3; i++) lv_anim_delete(g_thinkDots[i], animOpaCb);
+    if (g_thinkTimer) { lv_timer_del(g_thinkTimer); g_thinkTimer = nullptr; }
+    lv_label_set_text(g_thinkLabel, "正在诊断");
+  }
 }
 
 static void askQuestion(const char *q) {
@@ -618,14 +792,17 @@ static void askQuestion(const char *q) {
 
 static void onPreset(lv_event_t *e) {
   int idx = (int)(intptr_t)lv_event_get_user_data(e);
+  markActive();
   askQuestion(PRESET_QUESTIONS[idx]);
 }
 static void onInputPlaceholder(lv_event_t *e) {
   (void)e;
+  markActive();
   showToast("输入法在 RV0.2.0（语音版）提供，当前用预设问题提问");
 }
 static void onSourcesToggle(lv_event_t *e) {
   (void)e;
+  markActive();
   g_sourcesOpen = !g_sourcesOpen;
   if (g_sourcesOpen) lv_obj_set_hidden(g_sourcesBox, false);
   else lv_obj_set_hidden(g_sourcesBox, true);
@@ -634,6 +811,7 @@ static void onSourcesToggle(lv_event_t *e) {
 }
 static void onNewChat(lv_event_t *e) {
   (void)e;
+  markActive();
   g_historyCount = 0;
   lv_obj_clean(g_msgList);
   lv_obj_set_hidden(g_sourcesBox, true);
@@ -642,6 +820,7 @@ static void onNewChat(lv_event_t *e) {
 }
 static void onTileChanged(lv_event_t *e) {
   (void)e;
+  markActive();
   lv_obj_t *tile = lv_tileview_get_tile_active(g_tileview);
   int col = lv_obj_get_index(tile);
   updateDots(col);
@@ -658,43 +837,59 @@ static const char *chanStateText(const TeleChannel &ch, lv_color_t *color) {
 }
 
 static void applyTelemetryToUi() {
-  // 三个表盘
+  // 三张小卡片：大数字 + 单位 + 名称状态 + 底部细条（数值按阈值绿→黄→红）
   for (int i = 0; i < 3; i++) {
     TeleChannel &ch = g_channels[i];
-    char buf[32];
-    if (isnan(ch.value)) snprintf(buf, sizeof(buf), "-- %s", ch.unit);
-    else if (ch.precision == 0) snprintf(buf, sizeof(buf), "%.0f %s", ch.value, ch.unit);
-    else snprintf(buf, sizeof(buf), "%.*f %s", ch.precision, ch.value, ch.unit);
+    char buf[24];
+    if (isnan(ch.value)) snprintf(buf, sizeof(buf), "--");
+    else if (ch.precision == 0) snprintf(buf, sizeof(buf), "%.0f", ch.value);
+    else snprintf(buf, sizeof(buf), "%.*f", ch.precision, ch.value);
     lv_label_set_text(g_meterVal[i], buf);
+    lv_label_set_text(g_meterUnit[i], ch.unit);
     lv_color_t c;
-    lv_label_set_text(g_meterState[i], chanStateText(ch, &c));
-    lv_obj_set_style_text_color(g_meterState[i], c, 0);
-    if (!isnan(ch.value) && g_meters[i] && g_meterNeedle[i])
-      lv_scale_set_line_needle_value(g_meters[i], g_meterNeedle[i], 20, (int32_t)ch.value);
+    const char *st = chanStateText(ch, &c);
+    char nbuf[32];
+    snprintf(nbuf, sizeof(nbuf), "%s · %s", ch.label, st);
+    lv_label_set_text(g_meterName[i], nbuf);
+    lv_obj_set_style_text_color(g_meterName[i], c, 0);
+    // 底部细条：宽度按量程比例，颜色跟状态走
+    lv_coord_t bw = lv_obj_get_width(g_meterBarBg[i]);
+    float frac = 0.0f;
+    if (!isnan(ch.value) && ch.maxV > ch.minV)
+      frac = (ch.value - ch.minV) / (ch.maxV - ch.minV);
+    if (frac < 0) frac = 0;
+    if (frac > 1) frac = 1;
+    lv_obj_set_width(g_meterFill[i], (lv_coord_t)(frac * bw));
+    lv_obj_set_style_bg_color(g_meterFill[i], c, 0);
   }
-  // 告警横条：取最严重的一条
-  const char *worst = nullptr;
-  lv_color_t worstColor = C_DARKGREEN;
+  // 告警横条：取最严重的一条；无告警时显示场景 + 暂无告警（不弹窗）
+  int worstCode = 0;  // 0 正常，1 注意，2 报警
+  int worstIdx = 0;
   for (int i = 0; i < 3; i++) {
-    lv_color_t c;
-    const char *s = chanStateText(g_channels[i], &c);
-    if (strcmp(s, "报警") == 0) { worst = s; worstColor = C_RED; break; }
-    if (strcmp(s, "注意") == 0) { worst = s; worstColor = C_AMBER; }
+    int code = chanStateCode(g_channels[i]);
+    if (code > worstCode) { worstCode = code; worstIdx = i; }
   }
-  if (worst) {
-    char buf[64];
-    snprintf(buf, sizeof(buf), "%s：%s %.0f%s，超过阈值（模拟数据）",
-             worst, g_channels[0].label, g_channels[0].value, g_channels[0].unit);
-    lv_label_set_text(g_alertBar, buf);
-    lv_obj_set_style_text_color(g_alertBar, worstColor, 0);
+  char sbuf[64];
+  if (worstCode == 2) {
+    lv_obj_set_style_bg_color(g_alertStrip, C_LIGHTRED, 0);
+    snprintf(sbuf, sizeof(sbuf), "报警：%s %.0f%s，超过阈值",
+             g_channels[worstIdx].label, g_channels[worstIdx].value,
+             g_channels[worstIdx].unit);
+    lv_label_set_text(g_scenarioLabel, sbuf);
+    lv_obj_set_style_text_color(g_scenarioLabel, C_RED, 0);
+  } else if (worstCode == 1) {
+    lv_obj_set_style_bg_color(g_alertStrip, C_LIGHTAMBER, 0);
+    snprintf(sbuf, sizeof(sbuf), "注意：%s %.0f%s，接近阈值",
+             g_channels[worstIdx].label, g_channels[worstIdx].value,
+             g_channels[worstIdx].unit);
+    lv_label_set_text(g_scenarioLabel, sbuf);
+    lv_obj_set_style_text_color(g_scenarioLabel, C_AMBER, 0);
   } else {
-    lv_label_set_text(g_alertBar, "暂无告警，全部正常（模拟数据）");
-    lv_obj_set_style_text_color(g_alertBar, C_DARKGREEN, 0);
+    lv_obj_set_style_bg_color(g_alertStrip, C_GREENBG, 0);
+    snprintf(sbuf, sizeof(sbuf), "场景：%s · 暂无告警", g_scenarioZh);
+    lv_label_set_text(g_scenarioLabel, sbuf);
+    lv_obj_set_style_text_color(g_scenarioLabel, C_DARKGREEN, 0);
   }
-  // 场景
-  char sbuf[48];
-  snprintf(sbuf, sizeof(sbuf), "场景：%s", g_scenarioZh);
-  lv_label_set_text(g_scenarioLabel, sbuf);
   // 水温趋势图：用 history 抽稀的 60 个点重填
   if (g_trendCount > 0) {
     for (int i = 0; i < 60; i++) {
@@ -736,21 +931,6 @@ static void buildTopBar(lv_obj_t *scr) {
   lv_obj_set_flex_flow(bar, LV_FLEX_FLOW_ROW);
   lv_obj_set_flex_align(bar, LV_FLEX_ALIGN_SPACE_BETWEEN, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
   mkLabel(bar, "司稼 · 智能运维", &font_zh_16, C_TEXT);
-  lv_obj_t *dots = lv_obj_create(bar);
-  lv_obj_set_size(dots, 48, 10);
-  lv_obj_set_style_bg_opa(dots, LV_OPA_TRANSP, 0);
-  lv_obj_set_style_border_width(dots, 0, 0);
-  lv_obj_set_style_pad_all(dots, 0, 0);
-  lv_obj_set_layout(dots, LV_LAYOUT_FLEX);
-  lv_obj_set_flex_flow(dots, LV_FLEX_FLOW_ROW);
-  lv_obj_set_flex_align(dots, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
-  for (int i = 0; i < 3; i++) {
-    g_dots[i] = lv_obj_create(dots);
-    lv_obj_set_size(g_dots[i], 8, 8);
-    lv_obj_set_style_radius(g_dots[i], LV_RADIUS_CIRCLE, 0);
-    lv_obj_set_style_bg_color(g_dots[i], i == 0 ? C_GREEN : C_BORDER, 0);
-    lv_obj_set_style_border_width(g_dots[i], 0, 0);
-  }
   g_topStatus = mkLabel(bar, "连接中…", &font_zh_12, C_SUBTEXT);
 }
 
@@ -780,6 +960,7 @@ static void buildHomeTile(lv_obj_t *tile) {
     lv_obj_set_style_border_width(b, 1, 0);
     lv_obj_set_style_border_color(b, C_BORDER, 0);
     lv_obj_set_style_shadow_width(b, 0, 0);
+    stylePressable(b, C_GREENBG);  // 点按：底色变浅绿 + 缩 0.96，100ms 过渡
     lv_obj_t *l = lv_label_create(b);
     lv_label_set_text(l, PRESET_LABELS[i]);
     lv_obj_set_style_text_font(l, &font_zh_16, 0);
@@ -814,7 +995,7 @@ static void buildChatTile(lv_obj_t *tile) {
   lv_obj_t *wl = mkLabel(w, "我是司稼，拖拉机智能运维智能体。点下面的预设问题，或者从首页选一个问题问我。", &font_zh_16, C_TEXT);
   lv_label_set_long_mode(wl, LV_LABEL_LONG_WRAP);
   lv_obj_set_width(wl, lv_pct(100));
-  // 思考中
+  // 思考中：文字 + 三点呼吸动画（点按预设问题后立即出现）
   g_thinking = lv_obj_create(tile);
   lv_obj_set_width(g_thinking, lv_pct(100));
   lv_obj_set_height(g_thinking, 24);
@@ -823,10 +1004,16 @@ static void buildChatTile(lv_obj_t *tile) {
   lv_obj_set_style_pad_all(g_thinking, 0, 0);
   lv_obj_set_layout(g_thinking, LV_LAYOUT_FLEX);
   lv_obj_set_flex_flow(g_thinking, LV_FLEX_FLOW_ROW);
-  lv_obj_t *sp = lv_spinner_create(g_thinking);
-  lv_obj_set_size(sp, 18, 18);
-  lv_obj_set_style_arc_color(sp, C_GREEN, LV_PART_INDICATOR);
-  mkLabel(g_thinking, "正在诊断…", &font_zh_16, C_SUBTEXT);
+  lv_obj_set_flex_align(g_thinking, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
+  lv_obj_set_style_pad_gap(g_thinking, 4, 0);
+  g_thinkLabel = mkLabel(g_thinking, "正在诊断", &font_zh_16, C_SUBTEXT);
+  for (int i = 0; i < 3; i++) {
+    g_thinkDots[i] = lv_obj_create(g_thinking);
+    lv_obj_set_size(g_thinkDots[i], 8, 8);
+    lv_obj_set_style_radius(g_thinkDots[i], LV_RADIUS_CIRCLE, 0);
+    lv_obj_set_style_bg_color(g_thinkDots[i], C_GREEN, 0);
+    lv_obj_set_style_border_width(g_thinkDots[i], 0, 0);
+  }
   lv_obj_set_hidden(g_thinking, true);
   // 依据区（默认隐藏，回答带依据时才出现）
   g_sourcesBox = lv_obj_create(tile);
@@ -845,6 +1032,7 @@ static void buildChatTile(lv_obj_t *tile) {
   lv_obj_set_style_radius(g_sourcesBtn, 4, 0);
   lv_obj_set_style_border_width(g_sourcesBtn, 0, 0);
   lv_obj_set_style_shadow_width(g_sourcesBtn, 0, 0);
+  stylePressable(g_sourcesBtn, lv_color_hex(0xE2E7E6));
   lv_obj_t *sl = lv_label_create(g_sourcesBtn);
   lv_label_set_text(sl, "查看依据与核对项（展开）");
   lv_obj_set_style_text_font(sl, &font_zh_12, 0);
@@ -870,6 +1058,7 @@ static void buildChatTile(lv_obj_t *tile) {
   lv_obj_set_style_border_width(input, 1, 0);
   lv_obj_set_style_border_color(input, C_BORDER, 0);
   lv_obj_set_style_shadow_width(input, 0, 0);
+  stylePressable(input, C_SUBBG);
   lv_obj_t *il = lv_label_create(input);
   lv_label_set_text(il, "描述故障现象…");
   lv_obj_set_style_text_font(il, &font_zh_16, 0);
@@ -882,6 +1071,7 @@ static void buildChatTile(lv_obj_t *tile) {
   lv_obj_set_style_bg_color(nc, C_GREEN, 0);
   lv_obj_set_style_radius(nc, 4, 0);
   lv_obj_set_style_shadow_width(nc, 0, 0);
+  stylePressable(nc, C_DARKGREEN);
   lv_obj_t *nl = lv_label_create(nc);
   lv_label_set_text(nl, "新对话");
   lv_obj_set_style_text_font(nl, &font_zh_16, 0);
@@ -891,79 +1081,93 @@ static void buildChatTile(lv_obj_t *tile) {
 }
 
 static void buildMonitorTile(lv_obj_t *tile) {
+  // 320x240 放不下 3 个大圆表：上半 3 张并排小卡片（约 100x72，大数字 28px +
+  // 单位 12px + 名称状态 + 底部细条），下半一张水温趋势图；告警用顶部横条，不弹窗。
   lv_obj_set_layout(tile, LV_LAYOUT_FLEX);
   lv_obj_set_flex_flow(tile, LV_FLEX_FLOW_COLUMN);
   lv_obj_set_style_pad_all(tile, 6, 0);
   lv_obj_set_style_pad_gap(tile, 6, 0);
-  // 三个表盘
+  // 三张小卡片
   lv_obj_t *row = lv_obj_create(tile);
   lv_obj_set_width(row, lv_pct(100));
-  lv_obj_set_height(row, 96);
+  lv_obj_set_height(row, 72);
   lv_obj_set_style_bg_opa(row, LV_OPA_TRANSP, 0);
   lv_obj_set_style_border_width(row, 0, 0);
   lv_obj_set_style_pad_all(row, 0, 0);
   lv_obj_set_style_pad_gap(row, 6, 0);
   lv_obj_set_layout(row, LV_LAYOUT_FLEX);
   lv_obj_set_flex_flow(row, LV_FLEX_FLOW_ROW);
-  const int32_t meterMin[3] = {0, 0, 0}, meterMax[3] = {140, 800, 4000};
   for (int i = 0; i < 3; i++) {
     lv_obj_t *card = lv_obj_create(row);
     lv_obj_set_flex_grow(card, 1);
-    lv_obj_set_height(card, 96);
+    lv_obj_set_height(card, 72);
     styleCard(card);
-    lv_obj_set_style_pad_all(card, 4, 0);
-    lv_obj_set_style_pad_gap(card, 0, 0);
+    lv_obj_set_style_pad_all(card, 6, 0);
+    lv_obj_set_style_pad_gap(card, 2, 0);
     lv_obj_set_layout(card, LV_LAYOUT_FLEX);
     lv_obj_set_flex_flow(card, LV_FLEX_FLOW_COLUMN);
-    lv_obj_set_flex_align(card, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
-    // LVGL 9 的表盘叫 scale（meter 已删除）：270° 圆弧 + 指针
-    lv_obj_t *m = lv_scale_create(card);
-    lv_obj_set_size(m, 72, 56);
-    lv_scale_set_mode(m, LV_SCALE_MODE_ROUND_INNER);
-    lv_scale_set_total_tick_count(m, 11);
-    lv_scale_set_major_tick_every(m, 2);
-    lv_scale_set_label_show(m, false);  // 数值另有下方大字 label，盘上不印数字
-    lv_scale_set_range(m, meterMin[i], meterMax[i]);
-    lv_scale_set_angle_range(m, 270);
-    lv_scale_set_rotation(m, 135);
-    lv_obj_set_style_length(m, 4, LV_PART_ITEMS);
-    lv_obj_set_style_line_color(m, C_BORDER, LV_PART_ITEMS);
-    lv_obj_set_style_length(m, 6, LV_PART_INDICATOR);
-    lv_obj_set_style_line_color(m, C_SUBTEXT, LV_PART_INDICATOR);
-    lv_obj_t *needle = lv_line_create(m);
-    static lv_point_precise_t needlePts[2] = {{0, 0}, {0, -20}};
-    lv_line_set_points(needle, needlePts, 2);
-    lv_obj_set_style_line_color(needle, C_TEXT, 0);
-    lv_obj_set_style_line_width(needle, 2, 0);
-    lv_scale_set_line_needle_value(m, needle, 20, meterMin[i]);
-    g_meterNeedle[i] = needle;
-    g_meters[i] = m;
-    g_meterVal[i] = mkLabel(card, "--", &font_zh_16, C_TEXT);
-    g_meterState[i] = mkLabel(card, "—", &font_zh_12, C_SUBTEXT);
-    lv_obj_t *nl = mkLabel(card, g_channels[i].label, &font_zh_12, C_SUBTEXT);
-    (void)nl;
+    // 大数字 + 单位（同一行；数字用 LVGL 内建 montserrat_28，单位用中文字库 12px）
+    lv_obj_t *vrow = lv_obj_create(card);
+    lv_obj_set_width(vrow, lv_pct(100));
+    lv_obj_set_height(vrow, 30);
+    lv_obj_set_style_bg_opa(vrow, LV_OPA_TRANSP, 0);
+    lv_obj_set_style_border_width(vrow, 0, 0);
+    lv_obj_set_style_pad_all(vrow, 0, 0);
+    lv_obj_set_layout(vrow, LV_LAYOUT_FLEX);
+    lv_obj_set_flex_flow(vrow, LV_FLEX_FLOW_ROW);
+    lv_obj_set_flex_align(vrow, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_END, LV_FLEX_ALIGN_CENTER);
+    lv_obj_set_style_pad_gap(vrow, 2, 0);
+    g_meterVal[i] = lv_label_create(vrow);
+    lv_label_set_text(g_meterVal[i], "--");
+    lv_obj_set_style_text_font(g_meterVal[i], &lv_font_montserrat_28, 0);
+    lv_obj_set_style_text_color(g_meterVal[i], C_TEXT, 0);
+    g_meterUnit[i] = mkLabel(vrow, "", &font_zh_12, C_SUBTEXT);
+    // 名称 + 状态（“水温 · 正常”，状态变色）
+    g_meterName[i] = mkLabel(card, g_channels[i].label, &font_zh_12, C_SUBTEXT);
+    // 底部细条：灰底 + 按量程比例填充，颜色跟状态走
+    g_meterBarBg[i] = lv_obj_create(card);
+    lv_obj_set_width(g_meterBarBg[i], lv_pct(100));
+    lv_obj_set_height(g_meterBarBg[i], 4);
+    lv_obj_set_style_bg_color(g_meterBarBg[i], C_SUBBG, 0);
+    lv_obj_set_style_radius(g_meterBarBg[i], 2, 0);
+    lv_obj_set_style_border_width(g_meterBarBg[i], 0, 0);
+    lv_obj_set_style_pad_all(g_meterBarBg[i], 0, 0);
+    g_meterFill[i] = lv_obj_create(g_meterBarBg[i]);
+    lv_obj_set_size(g_meterFill[i], 0, 4);
+    lv_obj_set_style_bg_color(g_meterFill[i], C_GREEN, 0);
+    lv_obj_set_style_radius(g_meterFill[i], 2, 0);
+    lv_obj_set_style_border_width(g_meterFill[i], 0, 0);
+    lv_obj_set_style_pad_all(g_meterFill[i], 0, 0);
   }
-  // 场景 + 更新时间
-  lv_obj_t *srow = lv_obj_create(tile);
-  lv_obj_set_width(srow, lv_pct(100));
-  lv_obj_set_height(srow, 20);
-  lv_obj_set_style_bg_opa(srow, LV_OPA_TRANSP, 0);
-  lv_obj_set_style_border_width(srow, 0, 0);
-  lv_obj_set_style_pad_all(srow, 0, 0);
-  lv_obj_set_layout(srow, LV_LAYOUT_FLEX);
-  lv_obj_set_flex_flow(srow, LV_FLEX_FLOW_ROW);
-  lv_obj_set_flex_align(srow, LV_FLEX_ALIGN_SPACE_BETWEEN, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
-  g_scenarioLabel = mkLabel(srow, "场景：正常运行", &font_zh_12, C_TEXT);
-  g_updatedLabel = mkLabel(srow, "尚未更新", &font_zh_12, C_SUBTEXT);
-  // 告警横条
-  g_alertBar = mkLabel(tile, "暂无告警，全部正常（模拟数据）", &font_zh_12, C_DARKGREEN);
-  lv_obj_set_width(g_alertBar, lv_pct(100));
-  lv_label_set_long_mode(g_alertBar, LV_LABEL_LONG_WRAP);
-  // 水温趋势图
-  g_chartTitle = mkLabel(tile, "水温趋势 · 近 5 分钟（报警 85°C）", &font_zh_12, C_TEXT);
+  // 告警横条：左“场景：… · 暂无告警/报警…”，右常驻“模拟数据”标记
+  g_alertStrip = lv_obj_create(tile);
+  lv_obj_set_width(g_alertStrip, lv_pct(100));
+  lv_obj_set_height(g_alertStrip, 20);
+  lv_obj_set_style_bg_color(g_alertStrip, C_GREENBG, 0);
+  lv_obj_set_style_radius(g_alertStrip, 4, 0);
+  lv_obj_set_style_border_width(g_alertStrip, 0, 0);
+  lv_obj_set_style_pad_all(g_alertStrip, 4, 0);
+  lv_obj_set_layout(g_alertStrip, LV_LAYOUT_FLEX);
+  lv_obj_set_flex_flow(g_alertStrip, LV_FLEX_FLOW_ROW);
+  lv_obj_set_flex_align(g_alertStrip, LV_FLEX_ALIGN_SPACE_BETWEEN, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
+  g_scenarioLabel = mkLabel(g_alertStrip, "场景：正常运行 · 暂无告警", &font_zh_12, C_DARKGREEN);
+  mkLabel(g_alertStrip, "模拟数据", &font_zh_12, C_DARKGREEN);
+  // 趋势图标题行：左标题，右更新时间
+  lv_obj_t *trow = lv_obj_create(tile);
+  lv_obj_set_width(trow, lv_pct(100));
+  lv_obj_set_height(trow, 14);
+  lv_obj_set_style_bg_opa(trow, LV_OPA_TRANSP, 0);
+  lv_obj_set_style_border_width(trow, 0, 0);
+  lv_obj_set_style_pad_all(trow, 0, 0);
+  lv_obj_set_layout(trow, LV_LAYOUT_FLEX);
+  lv_obj_set_flex_flow(trow, LV_FLEX_FLOW_ROW);
+  lv_obj_set_flex_align(trow, LV_FLEX_ALIGN_SPACE_BETWEEN, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
+  g_chartTitle = mkLabel(trow, "水温趋势 · 近 5 分钟（报警 85°C）", &font_zh_12, C_TEXT);
+  g_updatedLabel = mkLabel(trow, "尚未更新", &font_zh_12, C_SUBTEXT);
+  // 水温趋势图：只画水温实线 + 报警阈值虚线
   g_chart = lv_chart_create(tile);
   lv_obj_set_width(g_chart, lv_pct(100));
-  lv_obj_set_height(g_chart, 72);
+  lv_obj_set_height(g_chart, 62);
   lv_obj_set_style_bg_color(g_chart, C_CARD, 0);
   lv_obj_set_style_radius(g_chart, 8, 0);
   lv_obj_set_style_border_width(g_chart, 1, 0);
@@ -972,7 +1176,6 @@ static void buildMonitorTile(lv_obj_t *tile) {
   lv_chart_set_type(g_chart, LV_CHART_TYPE_LINE);
   lv_chart_set_point_count(g_chart, 60);
   lv_chart_set_range(g_chart, LV_CHART_AXIS_PRIMARY_Y, 0, 100);
-  // LVGL 9 的 chart 已不画坐标轴刻度数字（set_axis_tick 已删除），无需再关
   g_chartSer = lv_chart_add_series(g_chart, C_GREEN, LV_CHART_AXIS_PRIMARY_Y);
   for (int i = 0; i < 60; i++) lv_chart_set_series_value_by_id(g_chart, g_chartSer, i, 0);
   // 报警阈值虚线（覆盖在图上，Y 按阈值换算）
@@ -985,7 +1188,182 @@ static void buildMonitorTile(lv_obj_t *tile) {
   lv_line_set_points(g_thresholdLine, initPts, 2);
 }
 
+// ---------- 待机屏（10 秒无操作进；拖拉机动画）----------
+static lv_obj_t *mkRect(lv_obj_t *parent, int32_t x, int32_t y, int32_t w, int32_t h,
+                        lv_color_t bg, int32_t radius) {
+  lv_obj_t *o = lv_obj_create(parent);
+  lv_obj_set_pos(o, x, y);
+  lv_obj_set_size(o, w, h);
+  lv_obj_set_style_bg_color(o, bg, 0);
+  lv_obj_set_style_radius(o, radius, 0);
+  lv_obj_set_style_border_width(o, 0, 0);
+  lv_obj_set_style_pad_all(o, 0, 0);
+  return o;
+}
+
+static void showStandby() {
+  if (g_standbyOn || !g_standbyOverlay) return;
+  g_standbyOn = true;
+  lv_obj_set_hidden(g_standbyOverlay, false);
+  fadeIn(g_standbyOverlay);
+  analogWrite(PIN_TFT_BL, 110);  // 待机调暗背光
+  Serial.println("[司稼] 10 秒无操作，进待机");
+}
+
+static void wakeStandby() {
+  if (!g_standbyOn) return;
+  g_standbyOn = false;
+  lv_obj_set_hidden(g_standbyOverlay, true);
+  analogWrite(PIN_TFT_BL, BACKLIGHT_BRIGHTNESS);
+  markActive();
+  Serial.println("[司稼] 待机唤醒");
+}
+
+static void onStandbyTap(lv_event_t *e) {
+  (void)e;
+  wakeStandby();
+}
+
+// 待机动画定时器（70ms）：只动轮辐线、尾气、地面点、光晕这几个小对象，
+// LVGL 只重绘它们的脏区，不全屏刷新。
+static void onStandbyTick(lv_timer_t *t) {
+  (void)t;
+  if (!g_standbyOn || !g_standbyOverlay) return;
+  // 轮子：两根轮辐线绕轮心转
+  g_wheelAngle += 0.30f;
+  static const int32_t WCX[2] = {104, 216};
+  static const int32_t WCY = 152;
+  static lv_point_precise_t pts[2][2][2];
+  for (int w = 0; w < 2; w++) {
+    float c = cosf(g_wheelAngle), s = sinf(g_wheelAngle);
+    const int32_t r = 11;
+    pts[w][0][0].x = WCX[w] - (int32_t)(r * c);
+    pts[w][0][0].y = WCY - (int32_t)(r * s);
+    pts[w][0][1].x = WCX[w] + (int32_t)(r * c);
+    pts[w][0][1].y = WCY + (int32_t)(r * s);
+    pts[w][1][0].x = WCX[w] + (int32_t)(r * s);
+    pts[w][1][0].y = WCY - (int32_t)(r * c);
+    pts[w][1][1].x = WCX[w] - (int32_t)(r * s);
+    pts[w][1][1].y = WCY + (int32_t)(r * c);
+    lv_line_set_points(g_spokes[w][0], pts[w][0], 2);
+    lv_line_set_points(g_spokes[w][1], pts[w][1], 2);
+  }
+  // 排气管尾气：3 团依次上升、变大、变淡
+  for (int i = 0; i < 3; i++) {
+    g_puffPhase[i] += 0.025f;
+    if (g_puffPhase[i] > 1.0f) g_puffPhase[i] -= 1.0f;
+    float p = g_puffPhase[i];
+    int32_t sz = 6 + (int32_t)(p * 8);
+    lv_obj_set_size(g_puffs[i], sz, sz);
+    lv_obj_set_pos(g_puffs[i], 236 - sz / 2, (lv_coord_t)(76 - p * 36 - sz / 2));
+    lv_obj_set_style_opa(g_puffs[i], (lv_opa_t)((1.0f - p) * 160), 0);
+  }
+  // 地面点左移（拖拉机原地开的感觉），出界绕回
+  for (int i = 0; i < 3; i++) {
+    g_groundX[i] -= 2;
+    if (g_groundX[i] < 34) g_groundX[i] = 286;
+    lv_obj_set_x(g_groundDots[i], g_groundX[i]);
+  }
+  // 呼吸光晕 + 标题呼吸
+  float ph = (float)millis() / 1200.0f;
+  float br = sinf(ph);
+  int32_t d = 150 + (int32_t)(br * 10);
+  lv_obj_set_size(g_standbyHalo, d, d);
+  lv_obj_set_pos(g_standbyHalo, 160 - d / 2, 112 - d / 2);
+  lv_obj_set_style_opa(g_standbyHalo, (lv_opa_t)(90 + br * 40), 0);
+  lv_obj_set_style_opa(g_standbyTitle, (lv_opa_t)(220 + br * 35), 0);
+}
+
+static void buildStandbyOverlay(lv_obj_t *scr) {
+  // 待机屏与 OLED 同一套语言（拖拉机动画），但按 TFT 浅色风格画：浅底 + 绿拖拉机。
+  g_standbyOverlay = lv_obj_create(scr);
+  lv_obj_set_size(g_standbyOverlay, SCREEN_WIDTH, SCREEN_HEIGHT);
+  lv_obj_set_pos(g_standbyOverlay, 0, 0);
+  lv_obj_set_style_bg_color(g_standbyOverlay, C_BG, 0);
+  lv_obj_set_style_radius(g_standbyOverlay, 0, 0);
+  lv_obj_set_style_border_width(g_standbyOverlay, 0, 0);
+  lv_obj_set_style_pad_all(g_standbyOverlay, 0, 0);
+  lv_obj_add_event_cb(g_standbyOverlay, onStandbyTap, LV_EVENT_CLICKED, nullptr);
+  // 呼吸光晕（拖拉机背后）
+  g_standbyHalo = lv_obj_create(g_standbyOverlay);
+  lv_obj_set_size(g_standbyHalo, 150, 150);
+  lv_obj_set_pos(g_standbyHalo, 85, 37);
+  lv_obj_set_style_bg_color(g_standbyHalo, C_GREENBG, 0);
+  lv_obj_set_style_radius(g_standbyHalo, LV_RADIUS_CIRCLE, 0);
+  lv_obj_set_style_border_width(g_standbyHalo, 0, 0);
+  // 地面线 + 移动点
+  static lv_point_precise_t groundPts[2] = {{36, 168}, {284, 168}};
+  lv_obj_t *gl = lv_line_create(g_standbyOverlay);
+  lv_line_set_points(gl, groundPts, 2);
+  lv_obj_set_style_line_color(gl, C_BORDER, 0);
+  lv_obj_set_style_line_width(gl, 2, 0);
+  for (int i = 0; i < 3; i++) {
+    g_groundDots[i] = lv_obj_create(g_standbyOverlay);
+    lv_obj_set_size(g_groundDots[i], 5, 5);
+    lv_obj_set_pos(g_groundDots[i], g_groundX[i], 167);
+    lv_obj_set_style_bg_color(g_groundDots[i], C_BORDER, 0);
+    lv_obj_set_style_radius(g_groundDots[i], LV_RADIUS_CIRCLE, 0);
+    lv_obj_set_style_border_width(g_groundDots[i], 0, 0);
+  }
+  // 拖拉机：车身 + 驾驶室 + 车窗 + 排气管 + 车灯 + 两个轮子
+  mkRect(g_standbyOverlay, 64, 108, 192, 40, C_GREEN, 8);       // 车身
+  mkRect(g_standbyOverlay, 92, 76, 58, 36, C_DARKGREEN, 6);     // 驾驶室
+  mkRect(g_standbyOverlay, 100, 82, 42, 22, C_BG, 4);           // 车窗
+  mkRect(g_standbyOverlay, 232, 80, 8, 32, C_TEXT, 2);          // 排气管
+  lv_obj_t *light = lv_obj_create(g_standbyOverlay);
+  lv_obj_set_size(light, 10, 10);
+  lv_obj_set_pos(light, 244, 118);
+  lv_obj_set_style_bg_color(light, C_WHITE, 0);
+  lv_obj_set_style_radius(light, LV_RADIUS_CIRCLE, 0);
+  lv_obj_set_style_border_width(light, 0, 0);
+  static const int32_t WCX[2] = {104, 216};
+  static const int32_t WCY = 152;
+  for (int w = 0; w < 2; w++) {
+    lv_obj_t *wheel = lv_obj_create(g_standbyOverlay);
+    lv_obj_set_size(wheel, 30, 30);
+    lv_obj_set_pos(wheel, WCX[w] - 15, WCY - 15);
+    lv_obj_set_style_bg_color(wheel, C_TEXT, 0);
+    lv_obj_set_style_radius(wheel, LV_RADIUS_CIRCLE, 0);
+    lv_obj_set_style_border_width(wheel, 0, 0);
+    lv_obj_t *hub = lv_obj_create(g_standbyOverlay);
+    lv_obj_set_size(hub, 10, 10);
+    lv_obj_set_pos(hub, WCX[w] - 5, WCY - 5);
+    lv_obj_set_style_bg_color(hub, C_CARD, 0);
+    lv_obj_set_style_radius(hub, LV_RADIUS_CIRCLE, 0);
+    lv_obj_set_style_border_width(hub, 0, 0);
+    for (int k = 0; k < 2; k++) {
+      g_spokes[w][k] = lv_line_create(g_standbyOverlay);
+      lv_obj_set_style_line_color(g_spokes[w][k], C_CARD, 0);
+      lv_obj_set_style_line_width(g_spokes[w][k], 2, 0);
+      static lv_point_precise_t initSp[2] = {{0, 0}, {0, 0}};
+      lv_line_set_points(g_spokes[w][k], initSp, 2);
+    }
+  }
+  // 排气管尾气（3 团，初始透明，由定时器驱动）
+  for (int i = 0; i < 3; i++) {
+    g_puffs[i] = lv_obj_create(g_standbyOverlay);
+    lv_obj_set_size(g_puffs[i], 6, 6);
+    lv_obj_set_pos(g_puffs[i], 233, 73);
+    lv_obj_set_style_bg_color(g_puffs[i], C_SUBTEXT, 0);
+    lv_obj_set_style_radius(g_puffs[i], LV_RADIUS_CIRCLE, 0);
+    lv_obj_set_style_border_width(g_puffs[i], 0, 0);
+    lv_obj_set_style_opa(g_puffs[i], 0, 0);
+  }
+  // 文案（待/唤/醒已补进三档字库，见 tools/gen_fonts.py）
+  g_standbyTitle = mkLabel(g_standbyOverlay, "待机中", &font_zh_22, C_TEXT);
+  lv_obj_set_width(g_standbyTitle, lv_pct(100));
+  lv_obj_set_style_text_align(g_standbyTitle, LV_TEXT_ALIGN_CENTER, 0);
+  lv_obj_set_pos(g_standbyTitle, 0, 180);
+  lv_obj_t *hint = mkLabel(g_standbyOverlay, "点一下唤醒", &font_zh_16, C_SUBTEXT);
+  lv_obj_set_width(hint, lv_pct(100));
+  lv_obj_set_style_text_align(hint, LV_TEXT_ALIGN_CENTER, 0);
+  lv_obj_set_pos(hint, 0, 206);
+  lv_obj_set_hidden(g_standbyOverlay, true);
+}
+
 static void buildUi() {
+  // 按钮点按反馈的过渡描述（100ms）：pressed 变色 + 缩放 0.96。
+  lv_style_transition_dsc_init(&g_pressTrans, g_pressProps, lv_anim_path_linear, 100, 0, nullptr);
   lv_obj_t *scr = lv_screen_active();
   lv_obj_set_style_bg_color(scr, C_BG, 0);
   lv_obj_set_style_text_font(scr, &font_zh_16, 0);
@@ -1007,6 +1385,35 @@ static void buildUi() {
   buildChatTile(t1);
   buildMonitorTile(t2);
   lv_obj_add_event_cb(g_tileview, onTileChanged, LV_EVENT_VALUE_CHANGED, nullptr);
+  // 底部翻页指示条带（12px 专属条带）：胶囊指示器底部居中，3 个点间距 8px。
+  lv_obj_t *strip = lv_obj_create(scr);
+  lv_obj_set_width(strip, lv_pct(100));
+  lv_obj_set_height(strip, 12);
+  lv_obj_set_style_bg_color(strip, C_BG, 0);
+  lv_obj_set_style_radius(strip, 0, 0);
+  lv_obj_set_style_border_width(strip, 0, 0);
+  lv_obj_set_style_pad_all(strip, 0, 0);
+  lv_obj_set_layout(strip, LV_LAYOUT_FLEX);
+  lv_obj_set_flex_flow(strip, LV_FLEX_FLOW_ROW);
+  lv_obj_set_flex_align(strip, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
+  lv_obj_t *wrap = lv_obj_create(strip);
+  lv_obj_set_size(wrap, 46, 6);
+  lv_obj_set_style_bg_opa(wrap, LV_OPA_TRANSP, 0);
+  lv_obj_set_style_border_width(wrap, 0, 0);
+  lv_obj_set_style_pad_all(wrap, 0, 0);
+  static lv_style_transition_dsc_t dotsTrans;
+  static const lv_style_prop_t dotsProps[] = {LV_STYLE_BG_COLOR, (lv_style_prop_t)0};
+  lv_style_transition_dsc_init(&dotsTrans, dotsProps, lv_anim_path_linear, 200, 0, nullptr);
+  for (int i = 0; i < 3; i++) {
+    g_dots[i] = lv_obj_create(wrap);
+    lv_obj_set_size(g_dots[i], 6, 6);
+    lv_obj_set_style_radius(g_dots[i], 3, 0);
+    lv_obj_set_style_bg_color(g_dots[i], C_BORDER, 0);
+    lv_obj_set_style_border_width(g_dots[i], 0, 0);
+    lv_obj_set_style_transition(g_dots[i], &dotsTrans, 0);
+    lv_obj_add_event_cb(g_dots[i], onDotClicked, LV_EVENT_CLICKED, (void *)(intptr_t)i);
+  }
+  updateDots(0);
   // Toast（悬浮提示，建在最上层）
   g_toast = lv_obj_create(scr);
   lv_obj_set_width(g_toast, lv_pct(80));
@@ -1022,6 +1429,9 @@ static void buildUi() {
   lv_label_set_long_mode(tl, LV_LABEL_LONG_WRAP);
   lv_obj_set_width(tl, lv_pct(100));
   lv_obj_set_hidden(g_toast, true);
+  // 待机屏（盖在最上层）+ 待机动画定时器
+  buildStandbyOverlay(scr);
+  lv_timer_create(onStandbyTick, 70, nullptr);
 }
 
 // ---------- 主循环里消费网络结果 ----------
@@ -1221,6 +1631,7 @@ void setup() {
   lv_timer_create(onTeleTimer, 15000, nullptr);
   lv_timer_create(onUpdatedTick, 10000, nullptr);
   g_telePending = true;   // 启动后立刻取一次遥测
+  g_lastInteractMs = millis();  // 待机计时从就绪起算（WiFi 等待期间不计，避免一开机就待机）
   Serial.println("[司稼] 就绪：左右滑动切换 首页 / 对话 / 监控");
 #endif
 }
@@ -1269,6 +1680,10 @@ void loop() {
   if (maintainWifi()) {
     lv_label_set_text(g_topStatus, g_online ? "在线" : "离线");
     lv_obj_set_style_text_color(g_topStatus, g_online ? C_DARKGREEN : C_RED, 0);
+  }
+  // 10 秒无操作（且不在问答中）进待机；点一下唤醒（待机屏的 CLICKED 事件）。
+  if (!g_standbyOn && !g_chatBusy && millis() - g_lastInteractMs > STANDBY_TIMEOUT_MS) {
+    showStandby();
   }
   applyChatResult();
   applyTeleResult();

@@ -4,11 +4,13 @@
 输出：src/fonts/font_zh_16.c（全文集）、font_zh_22.c / font_zh_12.c（UI 串集）。
 """
 import subprocess, sys
+from pathlib import Path
 from fontTools.ttLib import TTCollection
 
 TTC = "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc"
 OTF = "/tmp/NotoSansCJKsc-Regular.otf"
-OUTDIR = "/home/hatch/workspace/agridx-robot-section/robot/firmware/rv0.1.0/src/fonts"
+# 输出目录按脚本位置算（不要写死绝对路径；旧的写死路径指向已不存在的工作区）。
+OUTDIR = str(Path(__file__).resolve().parent.parent / "src" / "fonts")
 
 # 1) 取 SC 分面（TTC 里第 2 个）
 c = TTCollection(TTC)
@@ -28,6 +30,7 @@ UI = (
 "分钟前显示上次数据请求失败请检查网络后重试正在诊断请稍等未联网请检查"
 "输入法在语音版提供当前用预设问题提问已开始新对话问答失败请重试"
 "拖拉机智能运维智能体正式站"
+"待机中点一下唤醒"  # TFT 待机屏文案（2026-11-10 新增；待/唤/醒此前三档字库都没有）
 )
 COMMON = (
 "的一是在不了有和人这中大为上个国我以要他时来用们生到作地于出就分对成会可主发年动同工也能下过子说产种面而方后多定行学法所民得经十"

@@ -7,13 +7,18 @@
 #pragma once
 
 // ---- 配置档 A（默认）：DZYJ 3.2 寸 SPI 触摸屏，ILI9341 320x240 + XPT2046 ----
-// 到货核对：屏背面驱动芯片丝印应为 ILI9341；若是 ST7789/ST7796，改用配置档 B/C。
+// 到货已确认（2026-11-10 商品图）：ILI9341、320x240、SPI、16 位 RGB 65K 彩色、
+// 电阻触摸、3.3-5V、-20~60°C、带 SD 卡槽（本次不用接）、配触控笔。
+// 板子 89x55mm，显示区域 64.8x48.6mm，安装孔距 83x49mm，孔径 φ3mm。
 #ifdef SCREEN_PROFILE_ILI9341_320X240
   #define SCREEN_DRIVER_ILI9341
   #define SCREEN_WIDTH  320
   #define SCREEN_HEIGHT 240
   #define SCREEN_ROTATION 1        // 横屏
-  #define SCREEN_SPI_MHZ  40       // 不稳定时降到 27
+  // SPI 频率：首次点亮用 10MHz（多项目共识：ILI9341 先 10MHz 验证稳定再试
+  // 40MHz；80MHz 不可靠，只适用于 ST7789）。点亮稳定后可改 27 再试 40，
+  // 花屏就降回来（见 docs/FLASHING.md 故障表）。
+  #define SCREEN_SPI_MHZ  10
   #define SCREEN_TOUCH_XPT2046
 #endif
 
@@ -69,8 +74,17 @@
 // BOOT 按键（strapping 脚；只在启动后读，OLED 版用它切页/长按提问）。
 #define PIN_BOOT_BTN  9
 #else
-// ---- S3 引脚（按登仕唐 ESP32-S3-N16R8 核心板引脚图核对；SPI 默认引脚）----
-// MOSI 11 / MISO 13 / SCK 12 / CS 10 是 ESP32-S3 硬件 SPI 默认引脚。
+// ---- S3 引脚（登仕唐 ESP32-S3-N16R8 核心板，ESP32-S3-WROOM-1-N16R8 模组，
+// 双核 240MHz，16MB Flash + 8MB PSRAM，商品图 2026-11-10 已核对）----
+// 引脚已逐根核对禁区，无冲突（2026-11-10）：
+//   - GPIO 34-37 是板载 Flash/PSRAM 专用，禁止当普通 IO；
+//   - strapping 脚 GPIO 0/45/46（GPIO 0 拉低进下载模式，别占）；
+//   - 原生 USB 是 GPIO 19(D-)/20(D+)——I2S 的 19/20 冲突是实锤，
+//     TFT 本版不用 I2S 不受影响；语音版 fallback 不要再往 19/20 上想；
+//   - 板载 WS2812B RGB 灯占 GPIO 48，别当普通 IO 用；
+//   - ADC2 在 WiFi 开启时不可用，优先用 ADC1。
+// 本方案 9 根 TFT 引脚全在 GPIO 9-21 之间，均不在禁区里；MOSI 11 / MISO 13 /
+// SCK 12 / CS 10 是 ESP32-S3 硬件 SPI 默认引脚。
 #define PIN_TFT_CS   10
 #define PIN_TFT_DC    9
 #define PIN_TFT_RST  14
