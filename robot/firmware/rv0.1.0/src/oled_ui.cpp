@@ -167,8 +167,13 @@ static void drawEyes(int cx, int cy, int eyeW, int eyeH, int lookX) {
   int leftX = cx - gap / 2 - eyeW;
   int rightX = cx + gap / 2;
   int topY = cy - eyeH / 2;
-  u8g2.drawRBox(leftX, topY, eyeW, eyeH, 3);
-  u8g2.drawRBox(rightX, topY, eyeW, eyeH, 3);
+  // 圆角半径不能超过眼高的一半：眨眼时 eyeH 会缩到 2，
+  // 固定 r=3 会让 U8g2 drawRBox 内部 h-2r 无符号下溢（uint16_t 绕回约 65532），
+  // 眼睛那一条画成超大白块、闪一下。半径按眼高收紧，闭眼时就是一条细线。
+  int r = eyeH / 2;
+  if (r > 3) r = 3;
+  u8g2.drawRBox(leftX, topY, eyeW, eyeH, r);
+  u8g2.drawRBox(rightX, topY, eyeW, eyeH, r);
   if (eyeH >= 6) {
     // 瞳孔（黑点，左右看）
     u8g2.setDrawColor(0);
