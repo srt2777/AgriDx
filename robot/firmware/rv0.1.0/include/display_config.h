@@ -77,6 +77,8 @@
 #define PIN_TFT_BL   21   // 背光，PWM 调光
 #define PIN_TOUCH_CS 15
 #define PIN_TOUCH_IRQ 16
+// BOOT 按键（S3 是 GPIO 0，strapping 脚；只在启动后读，RV0.2.0 语音版用它长按触发录音）。
+#define PIN_BOOT_BTN  0
 // 0.96 寸 OLED（副屏，U8g2，SSD1306 I2C）：SDA 是 GPIO 8、SCL 是 GPIO 9。
 // 注意：SCL 与 TFT_DC（GPIO 9）撞脚；S3 上接 OLED 前必须把 SCL 移到空闲 GPIO
 //（如 GPIO 7），同步改这里（见 docs/ASSEMBLY.md §4.3）。OLED 版目前只支持 C3（SCL 13）。
@@ -96,12 +98,28 @@
 // 瓶颈是升压模块不是电芯，换电池前核对模块标称输出；背光 PWM 可降功耗。
 #define BACKLIGHT_BRIGHTNESS 220   // 0~255；模块供电吃紧时降到 160 左右
 
-// ---- I2S 语音引脚（RV0.2.0 语音版预留，本版固件未用；以下仅 S3）----
-// C3 上 I2S 引脚待 RV0.2.0 再定（S3 的 18/19/20 在 C3 上是 USB/UART0，不能照搬）。
+// ---- I2S 语音引脚（RV0.2.0 语音版，S3 专用；C3 两个 env 不启用语音）----
 #ifndef CONFIG_IDF_TARGET_ESP32C3
 // 麦克风 INMP441 与功放 MAX98357A 共用 BCLK/WS，数据线分开；以核心板引脚图为准。
+// ⚠ GPIO 19/20 撞 S3 原生 USB：GPIO 19 = USB D−、GPIO 20 = USB D+。
+//   板子到货后必须先确认 Type-C 走哪条路，再决定用默认脚还是后备脚：
+//   - Type-C 直连原生 USB（D−/D+ 直接进芯片）：19/20 被 USB 占用，I2S 数据线
+//     必须改后备脚，否则录音/播报与 USB 串口/烧录互相干扰；
+//   - 板载桥接芯片（CH340/CP210x 等，Type-C 只走 UART0）：19/20 空闲，用默认脚。
+//   切换方法（不用改代码）：platformio.ini 里 S3 环境加 -DVOICE_I2S_USE_ALT_PINS=1，
+//   或改下面 VOICE_I2S_USE_ALT_PINS 的默认值；改完重新编译烧录即可。
+//   后备脚 GPIO 38/47 是 S3 通用 GPIO（不在 PSRAM/SPI/strapping 占用范围内），
+//   但换脚后仍需实机验证录音与播报（喇叭 4Ω 3W 到货后测，见 docs/VOICE.md）。
+#ifndef VOICE_I2S_USE_ALT_PINS
+#define VOICE_I2S_USE_ALT_PINS 0
+#endif
 #define PIN_I2S_BCLK 17
 #define PIN_I2S_WS   18
-#define PIN_I2S_DIN  19   // 麦克风数据入
-#define PIN_I2S_DOUT 20   // 功放数据出
+#if VOICE_I2S_USE_ALT_PINS
+#define PIN_I2S_DIN  38   // 麦克风数据入（后备）
+#define PIN_I2S_DOUT 47   // 功放数据出（后备）
+#else
+#define PIN_I2S_DIN  19   // 麦克风数据入（默认；撞原生 USB，见上）
+#define PIN_I2S_DOUT 20   // 功放数据出（默认；撞原生 USB，见上）
 #endif
+#endif  // !CONFIG_IDF_TARGET_ESP32C3（I2S 语音引脚只在 S3 上定义）

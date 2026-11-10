@@ -5,6 +5,7 @@ import cors from 'cors';
 import { apiNotFound, createChatRateLimiter, errorHandler, securityHeaders } from './http/middleware';
 import { createCatalogRoutes } from './routes/catalog';
 import { createChatRoutes } from './routes/chat';
+import { createVoiceRoutes } from './routes/voice';
 import { createStatusRoutes } from './routes/status';
 import { createModelingRoutes } from './routes/modeling';
 import { createTelemetryRoutes } from './routes/telemetry';
@@ -20,6 +21,8 @@ export function createApp(runtime: ServerRuntime): express.Express {
   app.use('/api/modeling', createModelingRoutes());
   // Telemetry owns its small command parser; mount before the general JSON parser.
   app.use('/api', createTelemetryRoutes(runtime.telemetry));
+  // Voice owns its raw-audio parser; mount before the general JSON parser too.
+  app.use('/api', createVoiceRoutes(runtime.diagnose));
   app.use(express.json({ limit: '256kb' }));
   app.use('/api/chat', createChatRateLimiter());
   const memory = runtime.getMemoryStore ?? getMemoryStore;

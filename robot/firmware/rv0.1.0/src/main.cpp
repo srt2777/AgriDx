@@ -5,6 +5,8 @@
 //   联网/问答/遥测/NVS/OTA 逻辑两个版本共用，显示层各自独立。
 // 架构：司稼跑在正式站 agridx.xyz；机器人只做交互终端（问答 + 监控）。
 //   - 问答：POST /api/chat（不发 Origin 头，见方案 §3.2）
+//   - 语音（RV0.2.0，S3 专用）：POST /api/voice/ask（录音上传，文字+音频返回），
+//     见 src/voice.* 与 docs/VOICE.md；C3 两个环境不编语音代码。
 //   - 监控：GET /api/telemetry/history（每 15 秒轮询三通道）+ GET /api/telemetry/scenario（每 60 秒）
 //   - OTA：联网自动更新（WiFi 存 NVS，version.json 查新版，HTTPUpdate 下载，见 FLASHING.md §8）
 //   - 遥测限流：正式站每 IP 每分钟 30 次请求；本固件遥测约 13 次/分钟，留足余量给手机/网页。
@@ -39,6 +41,26 @@
 #include "display_config.h"
 #include "secrets.h"
 #include "version.h"
+#if SIJIA_VOICE_ENABLED
+#include "voice.h"  // RV0.2.0 语音（S3 专用；C3 环境 SIJIA_VOICE_ENABLED=0，不编）
+#endif
+
+// 第二组 WiFi（新增，最优先）：旧版 secrets.h 里没有这两个宏时给空值，
+// 这样旧 secrets.h 也能编译（第二组视作未配置，只连第一组）；
+// 新版 secrets.h.example 里有占位符行，填入真实账号后生效。
+#ifndef WIFI_SSID_2
+#define WIFI_SSID_2 ""
+#endif
+#ifndef WIFI_PASS_2
+#define WIFI_PASS_2 ""
+#endif
+// 第三组 WiFi（新增，其次）：与第二组同理，旧 secrets.h 里没有时给空值。
+#ifndef WIFI_SSID_3
+#define WIFI_SSID_3 ""
+#endif
+#ifndef WIFI_PASS_3
+#define WIFI_PASS_3 ""
+#endif
 
 // 第二组 WiFi（新增，最优先）：旧版 secrets.h 里没有这两个宏时给空值，
 // 这样旧 secrets.h 也能编译（第二组视作未配置，只连第一组）；
@@ -613,6 +635,10 @@ static lv_obj_t *g_dots[3] = {nullptr, nullptr, nullptr};
 static lv_obj_t *g_tileview = nullptr;
 static lv_obj_t *g_msgList = nullptr;     // 对话消息容器
 static lv_obj_t *g_thinking = nullptr;    // “正在诊断…”行
+#if SIJIA_VOICE_ENABLED
+static lv_obj_t *g_voiceBtnLabel = nullptr;  // 麦克风按钮文字（按住说话/松开发送）
+static lv_obj_t *g_voiceStatus = nullptr;    // 语音状态行（录音/思考/播报中）
+#endif
 static lv_obj_t *g_sourcesBox = nullptr;  // 最新一条回答的依据区
 static lv_obj_t *g_sourcesLabel = nullptr;
 static lv_obj_t *g_sourcesBtn = nullptr;
@@ -699,6 +725,9 @@ static void setThinking(bool on) {
 }
 
 static void askQuestion(const char *q) {
+#if SIJIA_VOICE_ENABLED
+  if (voiceIsBusy()) { showToast("语音进行中，请稍等"); return; }
+#endif
   if (!startAsk(q)) {
     showToast(g_chatBusy ? "正在诊断，请稍等" : "未联网，请检查 WiFi");
     return;
@@ -715,8 +744,37 @@ static void onPreset(lv_event_t *e) {
 }
 static void onInputPlaceholder(lv_event_t *e) {
   (void)e;
+#if SIJIA_VOICE_ENABLED
+  // S3 语音版：文字输入还没做，引导用户用麦克风按钮说话。
+  showToast("文字输入还没做，先按住下面的麦克风按钮说话");
+#else
+  // C3 环境没有麦克风按钮，保持原来的提示文字（一个字也不改，
+  // 保证 C3 固件与改动前一致）。
   showToast("输入法在 RV0.2.0（语音版）提供，当前用预设问题提问");
+#endif
 }
+#if SIJIA_VOICE_ENABLED
+// 麦克风按钮：按下开始录音，松开发送（按钮文字由 updateVoiceUi 按状态刷新）。
+static void onMicPressed(lv_event_t *e) {
+  (void)e;
+  if (g_chatBusy) { showToast("正在诊断，请稍等"); return; }
+  if (!voiceStartRecording()) {
+    showToast(g_online ? "语音正忙或不可用" : "未联网，请检查 WiFi");
+  }
+}
+static void onMicReleased(lv_event_t *e) {
+  (void)e;
+  voiceStopRecordingAndSend();  // 不在录音中时返回 false，什么都不做
+}
+// 播报中点对话屏打断（点预设按钮/滑动切页不走这里，不会误打断）。
+static void onChatTap(lv_event_t *e) {
+  (void)e;
+  if (voiceGetState() == VOICE_PLAYING) {
+    voiceStopPlayback();
+    showToast("已停止播报");
+  }
+}
+#endif
 static void onSourcesToggle(lv_event_t *e) {
   (void)e;
   g_sourcesOpen = !g_sourcesOpen;
@@ -898,6 +956,10 @@ static void buildChatTile(lv_obj_t *tile) {
   lv_obj_set_style_pad_gap(g_msgList, 6, 0);
   lv_obj_set_layout(g_msgList, LV_LAYOUT_FLEX);
   lv_obj_set_flex_flow(g_msgList, LV_FLEX_FLOW_COLUMN);
+#if SIJIA_VOICE_ENABLED
+  // 播报中点对话区打断（LV_EVENT_CLICKED 只在轻点时触发，滑动不触发）。
+  lv_obj_add_event_cb(g_msgList, onChatTap, LV_EVENT_CLICKED, nullptr);
+#endif
   // 欢迎行
   lv_obj_t *w = lv_obj_create(g_msgList);
   lv_obj_set_width(w, lv_pct(100));
@@ -921,6 +983,12 @@ static void buildChatTile(lv_obj_t *tile) {
   lv_obj_set_style_arc_color(sp, C_GREEN, LV_PART_INDICATOR);
   mkLabel(g_thinking, "正在诊断…", &font_zh_16, C_SUBTEXT);
   lv_obj_set_hidden(g_thinking, true);
+#if SIJIA_VOICE_ENABLED
+  // 语音状态行（默认隐藏；录音/思考/播报中才显示，见 updateVoiceUi）。
+  g_voiceStatus = mkLabel(tile, "", &font_zh_12, C_SUBTEXT);
+  lv_obj_set_width(g_voiceStatus, lv_pct(100));
+  lv_obj_set_hidden(g_voiceStatus, true);
+#endif
   // 依据区（默认隐藏，回答带依据时才出现）
   g_sourcesBox = lv_obj_create(tile);
   lv_obj_set_width(g_sourcesBox, lv_pct(100));
@@ -969,6 +1037,23 @@ static void buildChatTile(lv_obj_t *tile) {
   lv_obj_set_style_text_color(il, C_SUBTEXT, 0);
   lv_obj_align(il, LV_ALIGN_LEFT_MID, 8, 0);
   lv_obj_add_event_cb(input, onInputPlaceholder, LV_EVENT_CLICKED, nullptr);
+#if SIJIA_VOICE_ENABLED
+  // 麦克风按钮（RV0.2.0 语音）：按住录音，松开发送；最长 15 秒自动停并发送。
+  lv_obj_t *mic = lv_btn_create(bottom);
+  lv_obj_set_width(mic, 76);
+  lv_obj_set_height(mic, 34);
+  lv_obj_set_style_bg_color(mic, C_GREEN, 0);
+  lv_obj_set_style_radius(mic, 4, 0);
+  lv_obj_set_style_shadow_width(mic, 0, 0);
+  g_voiceBtnLabel = lv_label_create(mic);
+  lv_label_set_text(g_voiceBtnLabel, "按住说话");
+  lv_obj_set_style_text_font(g_voiceBtnLabel, &font_zh_16, 0);
+  lv_obj_set_style_text_color(g_voiceBtnLabel, C_WHITE, 0);
+  lv_obj_center(g_voiceBtnLabel);
+  lv_obj_add_event_cb(mic, onMicPressed, LV_EVENT_PRESSED, nullptr);
+  lv_obj_add_event_cb(mic, onMicReleased, LV_EVENT_RELEASED, nullptr);
+  lv_obj_add_event_cb(mic, onMicReleased, LV_EVENT_PRESS_LOST, nullptr);
+#endif
   lv_obj_t *nc = lv_btn_create(bottom);
   lv_obj_set_width(nc, 64);
   lv_obj_set_height(nc, 34);
@@ -1116,6 +1201,98 @@ static void buildUi() {
   lv_obj_set_width(tl, lv_pct(100));
   lv_obj_set_hidden(g_toast, true);
 }
+
+#if SIJIA_VOICE_ENABLED
+// ---------- 语音 UI（仅 S3；状态变化时才刷 LVGL，避免每循环重设文字）----------
+static void updateVoiceUi() {
+  static VoiceState lastState = VOICE_IDLE;
+  static uint32_t lastSec = 0;
+  VoiceState st = voiceGetState();
+  uint32_t sec = voiceGetElapsedMs() / 1000;
+  if (st == lastState && (st != VOICE_RECORDING || sec == lastSec)) return;
+  lastState = st;
+  lastSec = sec;
+  if (g_voiceBtnLabel) {
+    lv_label_set_text(g_voiceBtnLabel, st == VOICE_RECORDING ? "松开发送" : "按住说话");
+  }
+  if (!g_voiceStatus) return;
+  switch (st) {
+    case VOICE_RECORDING: {
+      char buf[48];
+      snprintf(buf, sizeof(buf), "● 录音中 %lu 秒，松开发送", (unsigned long)sec);
+      lv_label_set_text(g_voiceStatus, buf);
+      lv_obj_set_hidden(g_voiceStatus, false);
+      break;
+    }
+    case VOICE_THINKING:
+      lv_label_set_text(g_voiceStatus, "语音思考中…");
+      lv_obj_set_hidden(g_voiceStatus, false);
+      break;
+    case VOICE_PLAYING:
+      lv_label_set_text(g_voiceStatus, "播报中，点屏幕或按 BOOT 打断");
+      lv_obj_set_hidden(g_voiceStatus, false);
+      break;
+    default:
+      lv_obj_set_hidden(g_voiceStatus, true);
+      break;
+  }
+}
+
+// 消费一次语音问答结果：文字答案进对话（与文字问答同一份历史，供多轮追问）。
+static void applyVoiceResult() {
+  VoiceResult r;
+  if (!voiceTakeResult(r)) return;
+  if (!r.ok) {
+    // 失败只 toast，不加气泡：不把“录音太短/发送失败”伪装成司稼的回答。
+    showToast(r.error.length() > 0 ? r.error.c_str() : "语音失败，请重试");
+    return;
+  }
+  if (r.transcript.length() > 0) {
+    g_lastQuestion = r.transcript;
+    addUserBubble(r.transcript.c_str());
+    if (g_historyCount < MAX_HISTORY_MSGS) {
+      g_history[g_historyCount].role = "user";
+      g_history[g_historyCount].content = r.transcript;
+      g_historyCount++;
+    }
+  }
+  g_lastAnswer = r.answer;
+  addAssistantCard(r.answer.c_str(), "司稼 · 语音");
+  if (g_historyCount < MAX_HISTORY_MSGS) {
+    g_history[g_historyCount].role = "assistant";
+    g_history[g_historyCount].content = r.answer;
+    g_historyCount++;
+  }
+  // TTS 失败时服务端只给文字：照实提示，不编假音频、不谎称已播报。
+  if (r.audioMissing) showToast("语音未生成，只显示文字");
+}
+
+// BOOT 键轮询（S3 是 GPIO 0；只在 setup 完成后读，不影响启动时下载模式）：
+//   - 播报中按一下 BOOT：打断播报；
+//   - 按住 ≥800ms：开始录音，松开发送（与麦克风按钮同一语义；短按无动作，防误触）。
+//   - 按住打断播报后继续按住满 800ms，会接着开始录音（按住说话的自然延续）。
+static void pollVoiceBootBtn() {
+  static uint32_t downMs = 0;
+  static bool bootVoiceStarted = false;
+  bool down = digitalRead(PIN_BOOT_BTN) == LOW;
+  if (down && downMs == 0) {
+    downMs = millis();  // 按下边沿
+    if (voiceGetState() == VOICE_PLAYING) voiceStopPlayback();
+  } else if (!down && downMs != 0) {
+    if (bootVoiceStarted) voiceStopRecordingAndSend();
+    downMs = 0;
+    bootVoiceStarted = false;
+  }
+  if (down && !bootVoiceStarted && downMs != 0 &&
+      millis() - downMs >= 800 && !g_chatBusy) {
+    if (voiceStartRecording()) {
+      bootVoiceStarted = true;
+      lv_tileview_set_tile_by_index(g_tileview, 1, 0, LV_ANIM_ON);
+      updateDots(1);
+    }
+  }
+}
+#endif  // SIJIA_VOICE_ENABLED
 
 // ---------- 主循环里消费网络结果 ----------
 static void applyChatResult() {
@@ -1336,6 +1513,12 @@ void setup() {
   lv_indev_set_read_cb(indev, touch_cb);
   lv_indev_set_display(indev, disp);
   buildUi();
+#if SIJIA_VOICE_ENABLED
+  // BOOT 键（S3 是 GPIO 0）：长按触发语音录音（轮询见 loop 的 pollVoiceBootBtn）；
+  // 板上已有上拉，INPUT_PULLUP 只是兜底；不影响启动时的下载模式（setup 之后才读）。
+  pinMode(PIN_BOOT_BTN, INPUT_PULLUP);
+  voiceInit();
+#endif
 #endif  // USE_OLED_DISPLAY
   // WiFi（界面先出来，状态栏显示连接中）
   // 凭证存 NVS（命名空间 sijia，第一组键 ssid/pass，第二组键 ssid2/pass2，第三组键 ssid3/pass3）：
@@ -1432,6 +1615,11 @@ void loop() {
   }
   applyChatResult();
   applyTeleResult();
+#if SIJIA_VOICE_ENABLED
+  applyVoiceResult();
+  updateVoiceUi();
+  pollVoiceBootBtn();
+#endif
 #if ENABLE_OTA
   applyOtaStatus();
 #endif
