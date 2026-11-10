@@ -40,6 +40,23 @@
 #include "secrets.h"
 #include "version.h"
 
+// 第二组 WiFi（新增，最优先）：旧版 secrets.h 里没有这两个宏时给空值，
+// 这样旧 secrets.h 也能编译（第二组视作未配置，只连第一组）；
+// 新版 secrets.h.example 里有占位符行，填入真实账号后生效。
+#ifndef WIFI_SSID_2
+#define WIFI_SSID_2 ""
+#endif
+#ifndef WIFI_PASS_2
+#define WIFI_PASS_2 ""
+#endif
+// 第三组 WiFi（新增，其次）：与第二组同理，旧 secrets.h 里没有时给空值。
+#ifndef WIFI_SSID_3
+#define WIFI_SSID_3 ""
+#endif
+#ifndef WIFI_PASS_3
+#define WIFI_PASS_3 ""
+#endif
+
 // ---------- 颜色（旧版 UI1.14 浅色规范，见方案 §3.5；仅 LVGL TFT 版用）----------
 #if !USE_OLED_DISPLAY
 #define C_BG       lv_color_hex(0xFBFDFC)
@@ -114,7 +131,11 @@ struct TeleChannel {
   int precision = 0;
   bool hasAttention = false, hasAlarm = false;
   float attentionAbove = NAN, attentionBelow = NAN, alarmAbove = NAN, alarmBelow = NAN;
-  const char *unit = "";
+  // 单位按值存在通道自己的缓冲里（°C/kPa/RPM 都短，8 字节够用）：
+  // 千万不要存指向 JsonDocument 的指针——doc 是 netFetchHistory 的局部变量，
+  // 函数返回就释放，指针成野指针，三个通道的 unit 会全指同一块已释放内存，
+  // 监测页三行单位全显示成同一个、还随堆内存复用在 RPM/°C 之间乱跳。
+  char unit[8] = "";
   uint32_t updatedAt = 0;  // millis
 };
 static TeleChannel g_channels[3] = {
@@ -197,17 +218,84 @@ static bool takeChatResult(ChatResult &out) {
   return true;
 }
 
+// ---------- 三 WiFi（优先级：第二组 > 第三组 > 第一组）----------
+// 三组账号：第一组是原有的（NVS 键 ssid/pass，最后备选），
+// 第二组是新增的（NVS 键 ssid2/pass2，最优先），第三组是新增的（NVS 键 ssid3/pass3，其次）。
+// g_wifiActive 记录当前在用哪组：0 未连，1 第一组，2 第二组，3 第三组。
+static String g_wifiSsid, g_wifiPass;    // 第一组（原有，最后备选）
+static String g_wifiSsid2, g_wifiPass2;  // 第二组（新增，最优先）
+static String g_wifiSsid3, g_wifiPass3;  // 第三组（新增，其次）
+static int g_wifiActive = 0;
+// 掉线计时：本轮掉线开始时刻（0 表示在线）与上次切组时刻。
+static uint32_t s_wifiDownSince = 0;
+static uint32_t s_wifiLastSwitch = 0;
+
+// 按优先级（第二组 > 第三组 > 第一组）取当前组之后、下一个已配置的组；没有返回 0。
+// 当前组是 0（从未连上）时从最高优先级开始找。
+static int nextWifiGroup(int cur) {
+  const int order[3] = {2, 3, 1};
+  int start = -1;
+  for (int i = 0; i < 3; i++) {
+    if (order[i] == cur) { start = i; break; }
+  }
+  for (int k = 1; k <= 3; k++) {
+    int g = order[(start + k) % 3];
+    if (g == 1 && g_wifiSsid.length() > 0) return 1;
+    if (g == 2 && g_wifiSsid2.length() > 0) return 2;
+    if (g == 3 && g_wifiSsid3.length() > 0) return 3;
+  }
+  return 0;
+}
+
+// 切到指定组（异步 WiFi.begin，不阻塞）；g 无效时什么都不做。
+static void switchWifiGroup(int g) {
+  if (g == 1) {
+    WiFi.begin(g_wifiSsid.c_str(), g_wifiPass.c_str());
+  } else if (g == 2) {
+    WiFi.begin(g_wifiSsid2.c_str(), g_wifiPass2.c_str());
+  } else if (g == 3) {
+    WiFi.begin(g_wifiSsid3.c_str(), g_wifiPass3.c_str());
+  } else {
+    return;
+  }
+  g_wifiActive = g;
+  s_wifiLastSwitch = millis();
+  Serial.printf("[司稼] WiFi 改试第 %d 组\n", g);
+}
+
 // 维护 WiFi 在线状态（内部每秒检查一次）；状态变了返回 true。
 // 注意：g_online 在 setup() 里由 /api/health 检查结果设定；这里只看 WiFi 链路。
+// 掉线重连：刚掉线先重连当前网络（异步，不阻塞）；若一直掉线，
+// 每 15 秒按优先级轮换到下一组，直到连上（切组间隔 15 秒，不来回跳）。
 static bool maintainWifi() {
   static uint32_t lastWifiCheck = 0;
-  if (millis() - lastWifiCheck <= 1000) return false;
-  lastWifiCheck = millis();
+  uint32_t now = millis();
+  if (now - lastWifiCheck < 1000) return false;
+  lastWifiCheck = now;
   bool up = WiFi.status() == WL_CONNECTED;
-  if (up == g_online) return false;
-  g_online = up;
-  if (!up) WiFi.reconnect();
-  return true;
+  if (up != g_online) {
+    g_online = up;
+    if (!up) {
+      s_wifiDownSince = now;
+      s_wifiLastSwitch = 0;
+      WiFi.reconnect();
+    } else {
+      s_wifiDownSince = 0;
+      s_wifiLastSwitch = 0;
+    }
+    return true;
+  }
+  if (!up && s_wifiDownSince != 0 && now - s_wifiDownSince >= 15000 &&
+      (s_wifiLastSwitch == 0 || now - s_wifiLastSwitch >= 15000)) {
+    int nxt = nextWifiGroup(g_wifiActive);
+    if (nxt != 0 && nxt != g_wifiActive) {
+      switchWifiGroup(nxt);
+    } else {
+      WiFi.reconnect();
+      s_wifiLastSwitch = now;
+    }
+  }
+  return false;
 }
 
 #if USE_OLED_DISPLAY
@@ -225,7 +313,9 @@ static OledPageData buildOledSnapshot() {
     s.teleLabel[i] = SHORT_LABELS[i];
     s.teleValid[i] = !isnan(g_channels[i].value);
     s.teleValue[i] = g_channels[i].value;
-    strncpy(s.teleUnit[i], g_channels[i].unit ? g_channels[i].unit : "", sizeof(s.teleUnit[i]) - 1);
+    // unit 现在是通道自己的 char[8] 缓冲（永不为空指针），按值拷进快照。
+    strncpy(s.teleUnit[i], g_channels[i].unit, sizeof(s.teleUnit[i]) - 1);
+    s.teleUnit[i][sizeof(s.teleUnit[i]) - 1] = '\0';
     s.telePrecision[i] = g_channels[i].precision;
     s.teleState[i] = chanStateCode(g_channels[i]);
   }
@@ -355,7 +445,10 @@ static bool netFetchHistory(TeleChannel &ch, bool isCoolant) {
   if (deserializeJson(doc, payload)) return false;
   JsonObject c = doc["channel"].as<JsonObject>();
   if (c.isNull()) return false;
-  ch.unit = c["unit"] | "";
+  // 单位按值拷进通道自己的缓冲：c["unit"] 指向 doc 的内部缓冲，
+  // doc 是本函数局部变量，返回即释放；直接存指针会成野指针（见 TeleChannel::unit）。
+  strncpy(ch.unit, c["unit"] | "", sizeof(ch.unit) - 1);
+  ch.unit[sizeof(ch.unit) - 1] = '\0';
   ch.minV = c["range"]["min"] | 0.0f;
   ch.maxV = c["range"]["max"] | 100.0f;
   ch.precision = c["precision"] | 0;
@@ -1105,10 +1198,20 @@ static void onTeleTimer(lv_timer_t *t) {
 }
 #endif  // !USE_OLED_DISPLAY
 
+// 占位符判定：secrets.h.example 的默认值（“你的WiFi名称/密码”）或空串都算未填。
+// 未填的第二组不写入 NVS，也不参与连接。
+static bool isPlaceholderWifi(const String &ssid, const String &pass) {
+  if (ssid.length() == 0 || pass.length() == 0) return true;
+  if (ssid == "你的WiFi名称" || pass == "你的WiFi密码") return true;
+  return false;
+}
+
 // WiFi 凭证（NVS；首次开机从 secrets.h 取值并存入，之后只读 NVS）
 // 注意：首次开机前必须先填好真实的 secrets.h——如果先用占位值开机，NVS 会存下占位值，
 // 之后改 secrets.h 重烧也不会生效，只能整片擦除重烧（见 FLASHING.md §8）。
-static String g_wifiSsid, g_wifiPass;
+// 三 WiFi：第一组（ssid/pass，原有）与第二组（ssid2/pass2，新增）、第三组（ssid3/pass3，新增）分开存；
+// 第二、三组只在 NVS 里没有、且 secrets.h 对应组不是占位符时才写入，
+// 占位符绝不写入 NVS，也绝不覆盖已有组。之后改某组同样要擦除重烧。
 static void loadWifiCreds() {
   Preferences prefs;
   prefs.begin("sijia", false);
@@ -1121,9 +1224,76 @@ static void loadWifiCreds() {
     prefs.putString("pass", pass);
     Serial.println("[司稼] NVS 首次写入 WiFi 账号（来自 secrets.h）");
   }
+  String ssid2 = prefs.getString("ssid2", "");
+  String pass2 = prefs.getString("pass2", "");
+  if (ssid2.length() == 0 && !isPlaceholderWifi(String(WIFI_SSID_2), String(WIFI_PASS_2))) {
+    ssid2 = String(WIFI_SSID_2);
+    pass2 = String(WIFI_PASS_2);
+    prefs.putString("ssid2", ssid2);
+    prefs.putString("pass2", pass2);
+    Serial.println("[司稼] NVS 写入第二组 WiFi 账号（来自 secrets.h）");
+  }
+  String ssid3 = prefs.getString("ssid3", "");
+  String pass3 = prefs.getString("pass3", "");
+  if (ssid3.length() == 0 && !isPlaceholderWifi(String(WIFI_SSID_3), String(WIFI_PASS_3))) {
+    ssid3 = String(WIFI_SSID_3);
+    pass3 = String(WIFI_PASS_3);
+    prefs.putString("ssid3", ssid3);
+    prefs.putString("pass3", pass3);
+    Serial.println("[司稼] NVS 写入第三组 WiFi 账号（来自 secrets.h）");
+  }
   prefs.end();
   g_wifiSsid = ssid;
   g_wifiPass = pass;
+  g_wifiSsid2 = ssid2;
+  g_wifiPass2 = pass2;
+  g_wifiSsid3 = ssid3;
+  g_wifiPass3 = pass3;
+}
+
+// 试连一组 WiFi（ssid/pass），最多等 timeoutMs；连上返回 true。
+// 进度条从 progFrom 走到 progTo（OLED 启动页用；TFT 版跑 LVGL 定时器）。
+static bool tryWifi(const String &ssid, const String &pass, uint32_t timeoutMs,
+                    float progFrom, float progTo) {
+  if (ssid.length() == 0) return false;
+  WiFi.begin(ssid.c_str(), pass.c_str());
+  uint32_t t0 = millis();
+  while (WiFi.status() != WL_CONNECTED && millis() - t0 < timeoutMs) {
+#if USE_OLED_DISPLAY
+    oledUiSplashProgress(progFrom + (float)(millis() - t0) / (float)timeoutMs * (progTo - progFrom));
+    delay(100);  // OLED 版没有 LVGL 定时器要跑，等就是了
+#else
+    lv_tick_inc(5);
+    lv_timer_handler();
+    delay(5);
+#endif
+  }
+  return WiFi.status() == WL_CONNECTED;
+}
+
+// 三 WiFi 连接：按优先级试——第二组最先，第三组其次，第一组最后。
+// 每组最多 6 秒；总耗时与原来单网 15 秒相当。
+// 连上后 g_wifiActive 记下在用哪组，供掉线重连参考。
+static bool connectWifi() {
+  if (g_wifiSsid2.length() > 0) {
+    if (tryWifi(g_wifiSsid2, g_wifiPass2, 6000, 0.0f, 0.2f)) {
+      g_wifiActive = 2;
+      return true;
+    }
+    Serial.println("[司稼] 第二组 WiFi 未连上，试第三组");
+  }
+  if (g_wifiSsid3.length() > 0) {
+    if (tryWifi(g_wifiSsid3, g_wifiPass3, 6000, 0.2f, 0.4f)) {
+      g_wifiActive = 3;
+      return true;
+    }
+    Serial.println("[司稼] 第三组 WiFi 未连上，回落第一组");
+  }
+  if (tryWifi(g_wifiSsid, g_wifiPass, 6000, 0.4f, 0.6f)) {
+    g_wifiActive = 1;
+    return true;
+  }
+  return false;
 }
 
 // ---------- setup / loop ----------
@@ -1167,27 +1337,17 @@ void setup() {
   lv_indev_set_display(indev, disp);
   buildUi();
 #endif  // USE_OLED_DISPLAY
-  // WiFi（异步连；界面先出来，状态栏显示连接中）
-  // 凭证存 NVS（命名空间 sijia，键 ssid/pass）：首次开机用 secrets.h 的值并存入 NVS，
-  // 以后联网一律读 NVS；OTA 升级只写 app 分区，绝不碰 NVS，升级后不断网。
+  // WiFi（界面先出来，状态栏显示连接中）
+  // 凭证存 NVS（命名空间 sijia，第一组键 ssid/pass，第二组键 ssid2/pass2，第三组键 ssid3/pass3）：
+  // 首次开机用 secrets.h 的值并存入 NVS，以后联网一律读 NVS；
+  // OTA 升级只写 app 分区，绝不碰 NVS，升级后不断网。
+  // 三 WiFi：按优先级试第二组、第三组、第一组（见 connectWifi）。
   WiFi.mode(WIFI_STA);
   WiFi.setHostname("sijia-robot");
   loadWifiCreds();
-  WiFi.begin(g_wifiSsid.c_str(), g_wifiPass.c_str());
-  uint32_t t0 = millis();
-  while (WiFi.status() != WL_CONNECTED && millis() - t0 < 15000) {
-#if USE_OLED_DISPLAY
-    // 启动页进度条跟着动：WiFi 连接阶段 0→60%（按已等时间推进）。
-    oledUiSplashProgress((float)(millis() - t0) / 15000.0f * 0.6f);
-    delay(100);  // OLED 版没有 LVGL 定时器要跑，等就是了
-#else
-    lv_tick_inc(5);
-    lv_timer_handler();
-    delay(5);
-#endif
-  }
-  if (WiFi.status() == WL_CONNECTED) {
-    Serial.printf("[司稼] WiFi 已连 %s，IP %s\n", WiFi.SSID().c_str(), WiFi.localIP().toString().c_str());
+  bool wifiOk = connectWifi();
+  if (wifiOk) {
+    Serial.printf("[司稼] WiFi 已连 %s（第 %d 组），IP %s\n", WiFi.SSID().c_str(), g_wifiActive, WiFi.localIP().toString().c_str());
 #if USE_OLED_DISPLAY
     oledUiSplashProgress(0.75f);  // WiFi 已连，进度条到 75%
 #endif
