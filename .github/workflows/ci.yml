@@ -32,6 +32,13 @@ jobs:
           node-version-file: .node-version
           cache: npm
       - run: npm ci --no-audit --no-fund --registry=https://registry.npmjs.org
+      # 语音接口靠 ffmpeg 转码成 16kHz 单声道；windows-latest 默认没有 ffmpeg
+      - name: Install ffmpeg (Windows)
+        if: matrix.os == 'windows-latest'
+        run: choco install ffmpeg --no-progress -y
+      - name: Check ffmpeg (Windows)
+        if: matrix.os == 'windows-latest'
+        run: ffmpeg -version
       - run: npm run verify
       - name: Knowledge dedup review (warning only)
         if: matrix.os == 'ubuntu-latest'
