@@ -1,3 +1,4 @@
+import type { Theme } from '../../hooks/useTheme';
 import type { TaxonomyNode } from './knowledge-taxonomy-data';
 
 /** 初始聚合视图（品牌 + 机型）最多显示的节点数；真实目录为 168 个。 */
@@ -42,6 +43,21 @@ export function levelColor(level: TaxonomyNode['level']): string {
     case 'model': return '#d9a441';
     case 'component': return '#e2725b';
     case 'part': return '#7fa88f';
+  }
+}
+
+/**
+ * 按主题的层级颜色：深色沿用 levelColor；浅色改用深色系，
+ * 品牌米白在浅色纸面背景上不可读，改用深胡桃棕，其余三层同步加深，
+ * 四层在两种主题下各自保持可区分。
+ */
+export function levelColorForTheme(level: TaxonomyNode['level'], theme: Theme): string {
+  if (theme === 'dark') return levelColor(level);
+  switch (level) {
+    case 'brand': return '#6b4a1f';
+    case 'model': return '#a8740a';
+    case 'component': return '#b84a32';
+    case 'part': return '#4c7a5d';
   }
 }
 
