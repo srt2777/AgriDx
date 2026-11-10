@@ -1,6 +1,8 @@
 import type { TaxonomyNode } from './knowledge-taxonomy-data';
 
 export const palette = ['#7398ff', '#8dd0ff', '#e578a8', '#e5c692', '#ef786f', '#c9a1dc', '#7bc6b4', '#efb28d', '#b8c56d', '#a8b7ea', '#69bbc2', '#d39772', '#b5a1f2', '#c1d8c4'];
+/** Darker variants of the modern palette for light paper: the pastel set washes out on #f7f2e7. */
+export const paletteLight = ['#2f6feb', '#4a90d9', '#c24a7e', '#b98a3e', '#d34a3f', '#9a6fc0', '#3f9c86', '#d18a5e', '#8a9a3f', '#7a8fd4', '#3d99a3', '#b5764a', '#8a6fd4', '#7ba889'];
 export interface GraphPoint { x: number; y: number; z: number; color: string; phase: number }
 function randomFor(id: string) {
   let seed = 2166136261;

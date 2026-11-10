@@ -4,6 +4,15 @@
   font-family: ui-monospace, "SFMono-Regular", Consolas, "Liberation Mono", monospace;
   font-variant-numeric: tabular-nums;
 }
+/** Light theme: warm paper to match the dynamic graph; overrides the dark --nv-* fallbacks. */
+.knowledge-engine-shell[data-theme="light"] {
+  --nv-card: #f7f2e7;
+  --nv-text: #2e2a22;
+  --nv-border: #d8cfb8;
+  --nv-muted: #6b6252;
+  --nv-primary: #a8740a;
+  --nv-surface: #efe8d6;
+}
 .engine-controls {
   display: flex;
   flex-wrap: wrap;

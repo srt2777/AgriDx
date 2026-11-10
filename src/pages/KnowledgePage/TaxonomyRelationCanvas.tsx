@@ -8,7 +8,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useReducedMotion } from 'framer-motion';
 import type { TaxonomyNode } from './knowledge-taxonomy-data';
 import { createGraphFlowLoop } from './graph-flow-loop';
-import { graphPositions, palette, fluidPosition, diffusionParticle } from './taxonomy-graph-layout';
+import { graphPositions, palette, paletteLight, fluidPosition, diffusionParticle } from './taxonomy-graph-layout';
 import { createGraphCamera, zoomGraph, fitGraph, cameraMoving, stepGraphCamera, graphNeighborhood, relationCoordinates, graphNodeScale, graphLabelScale } from './graph-interaction';
 
 type ScreenPoint = { x: number; y: number; scale: number; depth: number };
@@ -25,7 +25,7 @@ export default function TaxonomyRelationCanvas({ nodes, selectedId, onSelect, la
   const { t } = useUiCopy(lang);
   const classic = useUiVersion() === 'old';
   const theme = useTheme();
-  const colors = classic ? classicGraphPalette : palette;
+  const colors = classic ? classicGraphPalette : theme === 'light' ? paletteLight : palette;
   const neutral = theme === 'dark' ? sageDark : sage;
   const focusMode = !!selectedId && overviewFor !== selectedId;
   const neighborhood = useMemo(() => graphNeighborhood(nodes, selectedId, 10), [nodes, selectedId]);
@@ -90,7 +90,7 @@ export default function TaxonomyRelationCanvas({ nodes, selectedId, onSelect, la
         return { x: width / 2 + rx * scale * perspective + view.panX, y: height / 2 - ry * scale * perspective + view.panY, scale: perspective, depth };
       };
       if (focusMode) {
-        context.fillStyle = classic ? neutral.sage11 : '#b5d9f3'; context.font = '12px system-ui';
+        context.fillStyle = classic ? neutral.sage11 : theme === 'light' ? '#4a3a20' : '#b5d9f3'; context.font = '12px system-ui';
         if (width >= 600) { context.fillText(t('上级路径', 'Parent path'), width * .18 - 24, 24); context.fillText(t('选中节点', 'Selected node'), width * .5 - 24, 24); context.fillText(t('直接下级', 'Direct children'), width * .82 - 24, 24); }
         else context.fillText(t('上级 → 当前节点 → 直接下级', 'Parents → Selected → Children'), 16, 16);
       }
@@ -102,7 +102,7 @@ export default function TaxonomyRelationCanvas({ nodes, selectedId, onSelect, la
         const aura = context.createRadialGradient(width / 2, height / 2, 0, width / 2, height / 2, Math.max(1, scale * 3.3));
         aura.addColorStop(0, classic ? '#3a947b09' : '#5b8dce18'); aura.addColorStop(1, '#00000000');
         context.fillStyle = aura; context.fillRect(0, 0, width, height);
-        context.fillStyle = classic ? neutral.sage11 : '#b5d6f4';
+        context.fillStyle = classic ? neutral.sage11 : theme === 'light' ? '#a8842f' : '#b5d6f4';
         for (let index = 0; index < (width < 600 ? 140 : 380); index++) {
           const particle = diffusionParticle(index, time), point = project(particle);
           context.globalAlpha = particle.alpha * (selectedId ? .1 : 1);
@@ -126,7 +126,7 @@ export default function TaxonomyRelationCanvas({ nodes, selectedId, onSelect, la
         if (!parent) return;
         const highlighted = focusMode || pathIds.has(node.id) || node.parent === selectedId;
         context.globalAlpha = highlighted ? .95 : selectedId ? .018 : .16;
-        context.strokeStyle = highlighted ? (classic ? '#20865e' : '#9edbff') : (classic ? neutral.sage6 : '#8da7c2');
+        context.strokeStyle = highlighted ? (classic ? '#20865e' : theme === 'light' ? '#3d7ab8' : '#9edbff') : (classic ? neutral.sage6 : theme === 'light' ? '#7c8a99' : '#8da7c2');
         context.lineWidth = highlighted ? 2.3 : .45;
         const middle = (parent.x + point.x) / 2;
         context.beginPath(); context.moveTo(parent.x, parent.y);
@@ -153,16 +153,16 @@ export default function TaxonomyRelationCanvas({ nodes, selectedId, onSelect, la
           while (label.length > 2 && context.measureText(label).width > maxWidth - 24 * labelScale) label = label.slice(0, -2) + '…';
           const cardWidth = Math.max(62 * labelScale, Math.min(maxWidth, context.measureText(label).width + 26 * labelScale)), cardHeight = (active ? 42 : 32) * labelScale;
           context.fillStyle = classic ? (active ? '#d6efdd' : theme === 'dark' ? '#1e302b' : '#ffffff') : active ? '#244d67' : '#162738';
-          context.strokeStyle = active ? (classic ? '#16834b' : '#b1e5ff') : color; context.lineWidth = active ? 2.5 : 1.1;
+          context.strokeStyle = active ? (classic ? '#16834b' : theme === 'light' ? '#3d7ab8' : '#b1e5ff') : color; context.lineWidth = active ? 2.5 : 1.1;
           context.beginPath(); context.roundRect(point.x - cardWidth / 2, point.y - cardHeight / 2, cardWidth, cardHeight, 7); context.fill(); context.stroke();
           context.fillStyle = classic ? (theme === 'dark' && !active ? '#e5f2ed' : '#153f2c') : '#f0f8ff'; context.textAlign = 'center'; context.textBaseline = 'middle'; context.fillText(label, point.x, point.y); context.textAlign = 'start'; context.textBaseline = 'alphabetic';
           hits.current.push({ id: node.id, x: point.x, y: point.y, radius, halfWidth: cardWidth / 2, halfHeight: cardHeight / 2 });
         } else {
           context.fillStyle = color; context.shadowBlur = active ? 14 : 0; context.shadowColor = color;
           context.beginPath(); context.arc(point.x, point.y, radius, 0, Math.PI * 2); context.fill(); context.shadowBlur = 0;
-          if (active) { context.strokeStyle = classic ? '#146e42' : '#ffffff'; context.lineWidth = 2; context.stroke(); }
+          if (active) { context.strokeStyle = classic ? '#146e42' : theme === 'light' ? '#a8740a' : '#ffffff'; context.lineWidth = 2; context.stroke(); }
           if (active || selectedId && relevant || !selectedId && node.level === 'brand') {
-            context.font = `${active ? '600 ' : ''}${(active ? 14 : 12) * Math.min(1.8, graphNodeScale(view.zoom))}px system-ui`; context.fillStyle = classic ? neutral.sage12 : '#edf3ff';
+            context.font = `${active ? '600 ' : ''}${(active ? 14 : 12) * Math.min(1.8, graphNodeScale(view.zoom))}px system-ui`; context.fillStyle = classic ? neutral.sage12 : theme === 'light' ? '#2e2a22' : '#edf3ff';
             context.fillText(node.label, point.x + radius + 6, point.y + 4);
           }
           if (!selectedId || relevant) hits.current.push({ id: node.id, x: point.x, y: point.y, radius });
@@ -224,7 +224,7 @@ export default function TaxonomyRelationCanvas({ nodes, selectedId, onSelect, la
     const found = [...hits.current].reverse().filter(point => point.halfWidth ? Math.abs(point.x - x) <= point.halfWidth && Math.abs(point.y - y) <= point.halfHeight! : Math.hypot(point.x - x, point.y - y) <= point.radius + 6).sort((a, b) => Math.hypot(a.x - x, a.y - y) - Math.hypot(b.x - x, b.y - y))[0];
     if (found) onSelect(found.id);
   };
-  const graphic = <div ref={container} role={expanded ? 'dialog' : undefined} aria-modal={expanded || undefined} aria-label={expanded ? t('放大的知识图谱画布', 'Expanded knowledge graph') : undefined} className={`taxonomy-map ${expanded ? 'taxonomy-map-expanded' : ''}`} data-classic={classic ? 'true' : 'false'} style={classic ? { background: neutral.sage2, color: neutral.sage12 } : undefined}>
+  const graphic = <div ref={container} role={expanded ? 'dialog' : undefined} aria-modal={expanded || undefined} aria-label={expanded ? t('放大的知识图谱画布', 'Expanded knowledge graph') : undefined} className={`taxonomy-map ${expanded ? 'taxonomy-map-expanded' : ''}`} data-classic={classic ? 'true' : 'false'} data-theme={theme} style={classic ? { background: neutral.sage2, color: neutral.sage12 } : undefined}>
     <div className="taxonomy-map-tools"><span>{t('品牌 → 机型 → 系统 → 零件', 'Brand → Model → System → Part')}</span>
       <div className="graph-zoom-controls" role="group" aria-label={t('图谱缩放', 'Graph zoom')}><button onClick={() => zoom(1.4)} aria-label={t('放大图谱', 'Zoom in')}>＋ {t('放大', 'Zoom in')}</button><output aria-label={t('当前缩放比例', 'Current zoom')}>{zoomPercent}%</output><button onClick={() => zoom(1 / 1.4)} aria-label={t('缩小图谱', 'Zoom out')}>− {t('缩小', 'Zoom out')}</button></div>
       <button onClick={reset}>{t('适应画布', 'Fit view')}</button><button aria-pressed={expanded} onClick={() => setExpanded(value => !value)}>{expanded ? t('收起画布', 'Collapse canvas') : t('放大画布', 'Expand canvas')}</button>
