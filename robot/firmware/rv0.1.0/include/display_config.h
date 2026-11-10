@@ -61,9 +61,19 @@
 #define PIN_TFT_BL    1   // 背光，PWM 调光
 #define PIN_TOUCH_CS  0
 #define PIN_TOUCH_IRQ 11
-// 0.96 寸 OLED（副屏，U8g2，SSD1306 I2C）：SDA/SCL 任意 GPIO，以实物为准。
+// 0.96 寸 OLED（副屏，U8g2，SSD1306 I2C）：SDA/SCL 按板子分（见下）。
+#ifdef SUPERMINI_BOARD
+// ESP32-C3 SuperMini（22.52×18mm）：SDA=GPIO4、SCL=GPIO5。
+// 选 4/5 的理由：C3 的 strapping 脚是 2/8/9——8 上有板载蓝灯、9 是 BOOT 键，
+// I2C 不能走这几个脚（带上拉会卡启动/进下载模式）；4/5 不是 strapping 脚。
+// SuperMini 只引出 GPIO 0–10、20、21，12/13 没引出来，不能用原来的 12/13。
+#define PIN_OLED_SDA  4
+#define PIN_OLED_SCL  5
+#else
+// DevKitM-1 / 合宙 LuatOS 板（默认）：SDA=GPIO12、SCL=GPIO13（原样不动）。
 #define PIN_OLED_SDA 12
 #define PIN_OLED_SCL 13
+#endif
 // OLED I2C 地址（7 位）：模块跳线标 0x78 是 8 位写地址，折合 7 位就是 0x3C。
 #define OLED_I2C_ADDR 0x3C
 // BOOT 按键（strapping 脚；只在启动后读，OLED 版用它切页/长按提问）。

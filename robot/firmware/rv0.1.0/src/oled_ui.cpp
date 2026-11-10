@@ -1,5 +1,6 @@
 // 司稼小机器人 RV0.1.0 — 0.96 寸 OLED 显示 UI（第二个显示版本）
-// 硬件：SSD1315 128x64（模组 NFP1315-157B），I2C 地址 0x3C；SDA=GPIO12、SCL=GPIO13（见 display_config.h）。
+// 硬件：SSD1315 128x64（模组 NFP1315-157B），I2C 地址 0x3C；SDA/SCL 以 display_config.h 为准
+// （DevKitM-1/合宙板：SDA=GPIO12、SCL=GPIO13；SuperMini：SDA=GPIO4、SCL=GPIO5）。
 // 驱动：U8g2 全缓冲模式（128x64/8 = 1024 字节显存，C3 内部 RAM 够用）。
 //
 // 字库：正文与标题用 U8g2 自带 wqy12（GB2312，12px），启动页大标题用 wqy16。

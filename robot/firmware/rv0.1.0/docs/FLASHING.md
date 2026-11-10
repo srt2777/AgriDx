@@ -327,6 +327,25 @@ esptool.py --chip esp32c3 --port <串口> --baud 921600 \
 
 避开的脚：strapping（2/8/9）、USB D-/D+（18/19）、UART0（20/21）。
 
-### 9.5 S3 到了换回去
+### 9.6 ESP32-C3 SuperMini + 0.96 寸 OLED（同一 agent 的另一个 C3 变体）
+
+> 板子：ESP32-C3 SuperMini（22.52×18mm，ESP32-C3FN4，4MB Flash，无 PSRAM）。跑的还是同一个司稼 agent（POST /api/chat 问答 + 监测页），只是换了板子和屏。
+> 屏定案：只用 0.96 寸 OLED，不接 3.2 寸 TFT——SuperMini 只引出 GPIO 0–10、20、21，现有 C3 TFT 环境的 MOSI/MISO/SCK 硬编码为 11/13/12（见 `include/tft_setup.h`），触摸中断 T_IRQ=11，这几个脚在 SuperMini 上根本没引出来；触摸一套要 9 个脚，可用非 strapping 脚只剩约 9 个，改线要重排全部引脚且无实测验证。RAM/Flash 本身不卡（C3 TFT 固件约 2.0MB、LVGL 部分缓冲 20 行仅 25.6KB 内部 RAM），卡的是引脚。
+
+- 编译：`pio run -e esp32-c3-supermini-oled`；烧录：`pio run -e esp32-c3-supermini-oled -t upload`（Windows 与 Mac 命令相同；Mac 用 VS Code 终端里的 `pio`，见 §1.4）。
+- 接线（0.96 寸 OLED，SSD1315，I2C 地址 0x3C）：
+
+| 信号 | SuperMini 引脚 | 说明 |
+|---|---|---|
+| OLED VCC | 3V3 | 不要接 5V |
+| OLED GND | GND | |
+| OLED SDA | GPIO4 | 避开 strapping 脚 2/8/9 |
+| OLED SCL | GPIO5 | 避开 strapping 脚 2/8/9 |
+| BOOT 按键 | GPIO9（板载） | 短按翻页，长按 ≥800ms 问第一条预设问题 |
+
+- 只烧 `firmware.bin` 到 0x10000（`esptool.py --chip esp32c3 --port <端口> write_flash 0x10000 firmware.bin`），不碰 NVS（0x9000），WiFi 不用重填。合宙 LuatOS 板的 12/13 接线不动，见 §9.4。
+- 注意：SuperMini 没有 USB 转串口芯片，USB-C 直连芯片，串口监视靠 USB-CDC（环境里已开 `ARDUINO_USB_CDC_ON_BOOT=1` + `ARDUINO_USB_MODE=1`，只开前一个编不过）。
+
+### 9.7 S3 到了换回去
 
 换回 S3 环境重新编译烧录就行：`pio run -t upload`（默认就是 S3）。WiFi 账号存在 NVS 里，跟芯片走——换了芯片要重新填 `secrets.h`、整片擦除重烧一次（新芯片的 NVS 是空的，首次开机会重新从 `secrets.h` 取值存入，见 §8）。
