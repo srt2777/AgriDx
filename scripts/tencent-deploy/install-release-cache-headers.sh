@@ -44,10 +44,10 @@ mv -f "$tmp" "$SNIPPET"
 
 backup=$(mktemp)
 cp -a "$file" "$backup"
-awk -v include="    include $SNIPPET;" '
+awk -v directive="    include $SNIPPET;" '
   $1 == "root" && $2 == "/opt/agridx/current/dist;" && !inserted {
     print
-    print include
+    print directive
     inserted = 1
     next
   }

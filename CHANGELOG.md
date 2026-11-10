@@ -47,7 +47,7 @@
 ### 验证结果
 
 - 对照 2026-11-10 的 Actions：到 `23face14` 为止，带 `__agridx_check` 的源站清单已是目标提交，失败句是「普通访问 /deployment.json 与目标发布不一致」。直连 `43.128.40.157` 的源站清单无 `Cache-Control`，`Last-Modified` 为 2026-11-10 01:38:11 GMT；首页为 `no-cache`。此后源站文件未再更换，`a761ee0` 等验收在约 6 分钟重试后报清单与目标提交不一致。
-- 本地对当前 main 执行 `npm ci` 与 `npm run build` 成功，裁剪开发依赖后生产服务约 4 秒通过 `/api/health`。部署与验收测试 32 项在补上缓存头断言后通过。
+- 本地对当前 main 执行 `npm ci` 与 `npm run build` 成功，裁剪开发依赖后生产服务约 4 秒通过 `/api/health`。部署与验收测试通过。CI 首次失败是因为 gawk 把 awk 变量名 `include` 当成内置函数，且 Windows 没有 `/bin/bash`；变量已改名，安装脚本测试只在 Linux 跑。
 
 ### 关联 PR
 

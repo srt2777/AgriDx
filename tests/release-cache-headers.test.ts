@@ -8,6 +8,7 @@ import { fileURLToPath } from 'node:url';
 import { releaseCacheControl } from '../server/http/release-cache.ts';
 
 const script = fileURLToPath(new URL('../scripts/tencent-deploy/install-release-cache-headers.sh', import.meta.url));
+const linuxOnly = process.platform !== 'linux' ? '缓存头安装脚本只在 Ubuntu 正式站执行' : false;
 
 test('发布清单和控制器标志禁止共享缓存，带内容哈希的资源沿用原策略', () => {
   assert.equal(releaseCacheControl('/deployment.json'), 'no-store');
@@ -68,7 +69,7 @@ process.exit(2);
   return { conf, original, snippetDir, run, calls: () => readFileSync(calls, 'utf8') };
 }
 
-test('缓存头安装只给发布清单加 no-store，nginx -t 失败时恢复原文件', t => {
+test('缓存头安装只给发布清单加 no-store，nginx -t 失败时恢复原文件', { skip: linuxOnly }, t => {
   const ok = nginxFixture(t);
   const installed = ok.run();
   assert.equal(installed.status, 0, installed.stderr);
@@ -89,7 +90,7 @@ test('缓存头安装只给发布清单加 no-store，nginx -t 失败时恢复�
   assert.match(result.stderr, /已恢复原配置/);
 });
 
-test('缓存头安装不改允许目录以外的配置', t => {
+test('缓存头安装不改允许目录以外的配置', { skip: linuxOnly }, t => {
   const fixture = nginxFixture(t);
   const outsideDir = mkdtempSync(path.join(os.tmpdir(), 'agridx-outside-nginx-'));
   const outside = path.join(outsideDir, 'agridx.conf');
