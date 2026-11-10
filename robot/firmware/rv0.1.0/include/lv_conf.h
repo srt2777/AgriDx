@@ -5,7 +5,14 @@
 
 #define LV_COLOR_DEPTH 16
 #define LV_COLOR_16_SWAP 0        // 字节序由 TFT_eSPI 的 setSwapBytes(true) 处理
-#define LV_MEM_SIZE (64 * 1024)   // LVGL 内部堆（对象/样式）；绘图缓冲另用 PSRAM
+// LVGL 内部堆（对象/样式）；绘图缓冲另算（见 main.cpp DRAW_BUF_LINES）。
+// C3 TFT 新环境（SIJIA_C3_TFT）只有约 400KB SRAM、无 PSRAM，堆改小到 48KB；
+// S3 保持 64KB 不动。旧 C3 过渡环境不用这个宏，保持 64KB（行为不变）。
+#ifdef SIJIA_C3_TFT
+#define LV_MEM_SIZE (48 * 1024)
+#else
+#define LV_MEM_SIZE (64 * 1024)
+#endif
 #define LV_DISP_DEF_REFR_PERIOD 10
 
 #define LV_USE_TILEVIEW 1
@@ -43,6 +50,7 @@
 #define LV_USE_BARCODE 0
 #define LV_USE_BUTTONMATRIX 0
 
+#define LV_FONT_MONTSERRAT_28 1  // 监测卡片大数字用（内建字体，只含 ASCII 数字/符号）
 #define LV_FONT_DEFAULT &lv_font_montserrat_14
 // 注意：默认字体只能用 LVGL 内建字体；中文字库 font_zh_16 在 main.cpp 里
 // 声明，界面通过屏幕样式统一设为 font_zh_16（见 buildUi），不依赖这里。

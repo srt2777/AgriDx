@@ -7,13 +7,18 @@
 #pragma once
 
 // ---- 配置档 A（默认）：DZYJ 3.2 寸 SPI 触摸屏，ILI9341 320x240 + XPT2046 ----
-// 到货核对：屏背面驱动芯片丝印应为 ILI9341；若是 ST7789/ST7796，改用配置档 B/C。
+// 到货已确认（2026-11-10 商品图）：ILI9341、320x240、SPI、16 位 RGB 65K 彩色、
+// 电阻触摸、3.3-5V、-20~60°C、带 SD 卡槽（本次不用接）、配触控笔。
+// 板子 89x55mm，显示区域 64.8x48.6mm，安装孔距 83x49mm，孔径 φ3mm。
 #ifdef SCREEN_PROFILE_ILI9341_320X240
   #define SCREEN_DRIVER_ILI9341
   #define SCREEN_WIDTH  320
   #define SCREEN_HEIGHT 240
   #define SCREEN_ROTATION 1        // 横屏
-  #define SCREEN_SPI_MHZ  40       // 不稳定时降到 27
+  // SPI 频率：首次点亮用 10MHz（多项目共识：ILI9341 先 10MHz 验证稳定再试
+  // 40MHz；80MHz 不可靠，只适用于 ST7789）。点亮稳定后可改 27 再试 40，
+  // 花屏就降回来（见 docs/FLASHING.md 故障表）。
+  #define SCREEN_SPI_MHZ  10
   #define SCREEN_TOUCH_XPT2046
 #endif
 
@@ -49,18 +54,48 @@
 
 // ---- 引脚（按板子选一节；S3 节是登仕唐 ESP32-S3-N16R8，C3 节是 DevKitM-1 默认）----
 #ifdef CONFIG_IDF_TARGET_ESP32C3
+#ifdef SIJIA_C3_TFT
+// ---- C3 + 3.2 寸触摸屏（env esp32-c3-devkitm-1-tft；2026-11-10 按 C3 约束核对）----
+// 9 根线：MOSI 7 / MISO 5 / SCK 6 / CS 10 / DC 4 / RST 3 / BL 11 / T_CS 1 / T_IRQ 0。
+// 核对结果（ESP32-C3 约束）：
+//   - Flash（DIO）占 GPIO 14/15/16/17，绝对不能用；
+//   - strapping 脚 GPIO 2/8/9 全部避开（GPIO 9 是板载 BOOT）；
+//   - 原生 USB 是 GPIO 18(D-)/19(D+)，烧录和串口都走它，不能占；
+//   - GPIO 0 也是 strapping 脚（拉低进下载模式），本表把它用作 T_IRQ：
+//     XPT2046 的 PENIRQ 是开漏输出、模块上有上拉，平时为高，正常复位不受影响；
+//     但复位瞬间如果正按着屏幕（IRQ 被拉低），会进下载模式而不是正常启动——
+//     表现为上电不跑程序；这时松开屏幕再按 RST，或先拔掉 T_IRQ 线再烧录。
+//     不想留这个风险可改用轮询（XPT2046_Touchscreen 传 255 当 IRQ 脚），不用改线以外的任何东西。
+//   - GPIO 1/11 是普通 GPIO；OLED 的 GPIO 12/13 这块板上不用，留空。
+//   - MOSI 7 / SCK 6 / CS 10 是 C3 硬件 SPI2（FSPI）默认脚；MISO 默认脚 GPIO2 是
+//     strapping 脚，改用 GPIO 5。
+// 供电：屏 VCC 只能接板子 3V3，绝不能接 5V（2026-11-10 已有一块 OLED 接 5V 烧屏）。
+#define PIN_TFT_MOSI  7
+#define PIN_TFT_MISO  5
+#define PIN_TFT_SCK   6
+#define PIN_TFT_CS   10
+#define PIN_TFT_DC    4
+#define PIN_TFT_RST   3
+#define PIN_TFT_BL   11   // 背光，PWM 调光
+#define PIN_TOUCH_CS  1
+#define PIN_TOUCH_IRQ 0
+#else
 // ---- C3 引脚（过渡版；按自己的板子引脚图调整）----
 // SPI 走 GPIO 矩阵任意分配：MOSI/SCK/CS 用硬件 SPI2（FSPI）默认脚，MISO 从 strapping 脚
 // GPIO2 移到 GPIO5。避开：strapping（2/8/9）、USB D-/D+（18/19）、UART0（20/21）。
 // GPIO 0 也是 strapping 脚，本表把它用作 T_CS——烧录进不了下载模式时先拔掉 T_CS 线
 // 再烧（见 docs/FLASHING.md §2.2 与 §5）。
 // MOSI 7 / SCK 6 / CS 10 是 C3 硬件 SPI2 默认脚；MISO 默认脚 GPIO2 是 strapping 脚，改用 5。
+#define PIN_TFT_MOSI  7
+#define PIN_TFT_MISO  5
+#define PIN_TFT_SCK   6
 #define PIN_TFT_CS   10
 #define PIN_TFT_DC    4
 #define PIN_TFT_RST   3
 #define PIN_TFT_BL    1   // 背光，PWM 调光
 #define PIN_TOUCH_CS  0
 #define PIN_TOUCH_IRQ 11
+#endif  // SIJIA_C3_TFT
 // 0.96 寸 OLED（副屏，U8g2，SSD1306 I2C）：SDA/SCL 任意 GPIO，以实物为准。
 #define PIN_OLED_SDA 12
 #define PIN_OLED_SCL 13
@@ -69,8 +104,20 @@
 // BOOT 按键（strapping 脚；只在启动后读，OLED 版用它切页/长按提问）。
 #define PIN_BOOT_BTN  9
 #else
-// ---- S3 引脚（按登仕唐 ESP32-S3-N16R8 核心板引脚图核对；SPI 默认引脚）----
-// MOSI 11 / MISO 13 / SCK 12 / CS 10 是 ESP32-S3 硬件 SPI 默认引脚。
+// ---- S3 引脚（登仕唐 ESP32-S3-N16R8 核心板，ESP32-S3-WROOM-1-N16R8 模组，
+// 双核 240MHz，16MB Flash + 8MB PSRAM，商品图 2026-11-10 已核对）----
+// 引脚已逐根核对禁区，无冲突（2026-11-10）：
+//   - GPIO 34-37 是板载 Flash/PSRAM 专用，禁止当普通 IO；
+//   - strapping 脚 GPIO 0/45/46（GPIO 0 拉低进下载模式，别占）；
+//   - 原生 USB 是 GPIO 19(D-)/20(D+)——I2S 的 19/20 冲突是实锤，
+//     TFT 本版不用 I2S 不受影响；语音版 fallback 不要再往 19/20 上想；
+//   - 板载 WS2812B RGB 灯占 GPIO 48，别当普通 IO 用；
+//   - ADC2 在 WiFi 开启时不可用，优先用 ADC1。
+// 本方案 9 根 TFT 引脚全在 GPIO 9-21 之间，均不在禁区里；MOSI 11 / MISO 13 /
+// SCK 12 / CS 10 是 ESP32-S3 硬件 SPI 默认引脚。
+#define PIN_TFT_MOSI 11
+#define PIN_TFT_MISO 13
+#define PIN_TFT_SCK  12
 #define PIN_TFT_CS   10
 #define PIN_TFT_DC    9
 #define PIN_TFT_RST  14

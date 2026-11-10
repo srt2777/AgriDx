@@ -19,9 +19,12 @@
 
 #define TFT_WIDTH  SCREEN_WIDTH
 #define TFT_HEIGHT SCREEN_HEIGHT
-#define TFT_MOSI 11
-#define TFT_MISO 13
-#define TFT_SCLK 12
+// SPI 引脚：display_config.h 里按芯片分（C3 是 MOSI 7/MISO 5/SCK 6，S3 是
+// MOSI 11/MISO 13/SCK 12）。以前这里写死 11/13/12（S3 的脚），C3 环境编出来
+// 也走这三个脚，与 C3 的接线表对不上；现在跟 display_config.h 走，不再写死。
+#define TFT_MOSI PIN_TFT_MOSI
+#define TFT_MISO PIN_TFT_MISO
+#define TFT_SCLK PIN_TFT_SCK
 #define TFT_CS   PIN_TFT_CS
 #define TFT_DC   PIN_TFT_DC
 #define TFT_RST  PIN_TFT_RST
