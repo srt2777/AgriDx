@@ -46,7 +46,11 @@ export function useChatVoice({ translate: t, onTranscript }: ChatVoiceOptions) {
   const audioUrlRef = useRef<string | null>(null);
   const pendingVoiceReplyRef = useRef(false);
   const callbacksRef = useRef({ onTranscript });
-  callbacksRef.current = { onTranscript };
+  // Keep the latest callback without writing the ref during render
+  // (react-hooks/refs forbids ref writes in the render phase).
+  useEffect(() => {
+    callbacksRef.current = { onTranscript };
+  }, [onTranscript]);
 
   // Voice needs both a recorder and the server routes (stacked on #249);
   // when either is missing the mic stays hidden instead of failing later.
@@ -131,10 +135,14 @@ export function useChatVoice({ translate: t, onTranscript }: ChatVoiceOptions) {
     setIsRecording(false);
     if (auto) toast(t('已到 30 秒上限，录音已停止', '30-second limit reached, recording stopped'));
     if (recorder && recorder.state !== 'inactive') recorder.stop();
-  }, []);
+  }, [t]);
 
   const stopRecordingRef = useRef(stopRecording);
-  stopRecordingRef.current = stopRecording;
+  // Keep the latest callback without writing the ref during render
+  // (react-hooks/refs forbids ref writes in the render phase).
+  useEffect(() => {
+    stopRecordingRef.current = stopRecording;
+  }, [stopRecording]);
 
   const startRecording = useCallback(async () => {
     if (isRecording || isTranscribing) return;
