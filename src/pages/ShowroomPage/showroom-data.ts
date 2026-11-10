@@ -1,15 +1,17 @@
 /**
- * Showroom data: hall layout, four zones, weather presets, quality tiers and
- * the T70 part catalogue. Pure data + pure helpers so tests can cover the
- * behaviour without a WebGL context.
+ * Showroom data: farm field layout, four zones, weather presets, quality
+ * tiers and the T70 part catalogue. Pure data + pure helpers so tests can
+ * cover the behaviour without a WebGL context.
  *
- * Hall coordinates: metres, x = east, z = south, origin at the hall centre
- * (the T70 platform). Hall interior is 44 m (x) x 30 m (z); the drivable
- * main aisle runs along x at z = 0 with a 6 m clear width.
+ * Field coordinates: metres, x = east, z = south, origin at the field
+ * centre (the T70 on the dirt track). The showroom is an outdoor farm
+ * field, not an indoor hall: the drivable dirt track runs along x at
+ * z = 0 with a 6 m clear width, crop rows fill the field north and south
+ * of the track, and the four zones sit on the field as open-air booths.
  */
 
-/** Hall interior half-extents (metres). Walls sit just outside these. */
-export const HALL = { halfX: 22, halfZ: 15, height: 7 } as const;
+/** Field half-extents (metres). The field edge (fence/treeline) sits here. */
+export const HALL = { halfX: 30, halfZ: 22, height: 7 } as const;
 
 /** Static axis-aligned obstacles the walker / vehicle must not pass through. */
 export interface HallObstacle {
@@ -24,10 +26,7 @@ export const HALL_OBSTACLES: HallObstacle[] = [
   { id: 'diag-booth', box: [13.5, -12.5, 19.5, -7.5], label: '诊断工位' },
   { id: 'embodied-booth', box: [-19.5, -12.5, -13.5, -7.5], label: '具身装备展台' },
   { id: 'kiosk', box: [13.5, 7.5, 19.5, 12.5], label: 'AgriDx 交互大屏' },
-  { id: 'planter-nw', box: [-20.5, -13.5, -18.5, -11.5], label: '绿植角' },
-  { id: 'planter-ne', box: [18.5, -13.5, 20.5, -11.5], label: '绿植角' },
-  { id: 'planter-sw', box: [-20.5, 11.5, -18.5, 13.5], label: '绿植角' },
-  { id: 'planter-se', box: [18.5, 11.5, 20.5, 13.5], label: '绿植角' },
+  // Crop rows are soft: the walker / tractor may push through the crops.
 ];
 
 export type ZoneId = 'tractor' | 'diagnosis' | 'embodied' | 'agridex';
@@ -118,7 +117,17 @@ export function zoneById(id: ZoneId): ShowroomZone {
 /* Weather                                                             */
 /* ------------------------------------------------------------------ */
 
-export type WeatherId = 'sunny' | 'cloudy' | 'overcast' | 'fog' | 'rain' | 'storm' | 'snow';
+export type WeatherId =
+  | 'sunny'
+  | 'cloudy'
+  | 'overcast'
+  | 'fog'
+  | 'drizzle'
+  | 'rain'
+  | 'moderate'
+  | 'storm'
+  | 'windy'
+  | 'snow';
 
 export interface WeatherPreset {
   id: WeatherId;
@@ -135,7 +144,7 @@ export interface WeatherPreset {
   skyHorizon: string;
   /** Sun / key-light intensity multiplier (1 = clear noon). */
   sun: number;
-  /** Interior fill-light multiplier (lamps compensate on grey days). */
+  /** Fill-light multiplier (grey days get a little extra fill). */
   lamps: number;
   /** Fog density (scene units). 0 = clear. */
   fog: number;
@@ -143,24 +152,41 @@ export interface WeatherPreset {
   particles: number;
   /** 0 = rain, 1 = snow. */
   particleKind: 'rain' | 'snow' | 'none';
-  /** Window droplet coverage 0..1. */
+  /** Screen droplet coverage 0..1 (rain on the camera / screen). */
   droplets: number;
-  /** Cloud cover 0..1 (drifting billboards outside the windows). */
+  /** Cloud cover 0..1 (drifting billboards in the sky). */
   clouds: number;
+  /** Crop sway amplitude 0..1 (wind bending the crops). */
+  sway: number;
+  /** Ground / crop wetness 0..1 (rain darkens soil and crops). */
+  wet: number;
   /** Daytime ambience (not a real forecast value — panel copy). */
   noteZh: string;
   noteEn: string;
 }
 
 export const WEATHER_PRESETS: WeatherPreset[] = [
-  { id: 'sunny', zh: '晴', en: 'Sunny', icon: '☀️', tempC: 26, humidity: 42, windKmh: 8, windDir: '东南', precipitationMm: 0, skyTop: '#7db8e8', skyHorizon: '#dceefb', sun: 1, lamps: 0.55, fog: 0, particles: 0, particleKind: 'none', droplets: 0, clouds: 0.15, noteZh: '光照充足，适合田间作业', noteEn: 'Bright and clear, good for field work' },
-  { id: 'cloudy', zh: '多云', en: 'Cloudy', icon: '⛅', tempC: 24, humidity: 55, windKmh: 12, windDir: '东', precipitationMm: 0, skyTop: '#8fb4d4', skyHorizon: '#e3e9ee', sun: 0.75, lamps: 0.7, fog: 0.004, particles: 0, particleKind: 'none', droplets: 0, clouds: 0.55, noteZh: '云量较多，光照尚可', noteEn: 'Partly cloudy, light still fair' },
-  { id: 'overcast', zh: '阴', en: 'Overcast', icon: '☁️', tempC: 21, humidity: 68, windKmh: 10, windDir: '东北', precipitationMm: 0, skyTop: '#9aa5ad', skyHorizon: '#d7dde0', sun: 0.45, lamps: 0.9, fog: 0.01, particles: 0, particleKind: 'none', droplets: 0, clouds: 0.85, noteZh: '光照偏弱，留意湿度上升', noteEn: 'Dim light, humidity rising' },
-  { id: 'fog', zh: '雾', en: 'Foggy', icon: '🌫️', tempC: 18, humidity: 92, windKmh: 4, windDir: '北', precipitationMm: 0, skyTop: '#b9c0c2', skyHorizon: '#e6e8e6', sun: 0.25, lamps: 1, fog: 0.045, particles: 0, particleKind: 'none', droplets: 0.25, clouds: 0.4, noteZh: '能见度低，雾气贴地', noteEn: 'Low visibility, ground fog' },
-  { id: 'rain', zh: '小雨', en: 'Light rain', icon: '🌦️', tempC: 19, humidity: 85, windKmh: 14, windDir: '东南', precipitationMm: 2.4, skyTop: '#7e93a6', skyHorizon: '#ccd5d8', sun: 0.35, lamps: 1, fog: 0.016, particles: 900, particleKind: 'rain', droplets: 0.7, clouds: 0.9, noteZh: '小雨，雨滴附着窗玻璃', noteEn: 'Light rain, droplets on the glass' },
-  { id: 'storm', zh: '大雨', en: 'Heavy rain', icon: '🌧️', tempC: 17, humidity: 94, windKmh: 28, windDir: '南', precipitationMm: 12.8, skyTop: '#5d6d7c', skyHorizon: '#aeb9bd', sun: 0.2, lamps: 1.15, fog: 0.022, particles: 2200, particleKind: 'rain', droplets: 1, clouds: 1, noteZh: '大雨，不宜出车作业', noteEn: 'Heavy rain, do not send machines out' },
-  { id: 'snow', zh: '雪', en: 'Snow', icon: '❄️', tempC: -2, humidity: 78, windKmh: 9, windDir: '西北', precipitationMm: 3.1, skyTop: '#aebac4', skyHorizon: '#e8ebec', sun: 0.4, lamps: 1, fog: 0.014, particles: 1400, particleKind: 'snow', droplets: 0, clouds: 0.9, noteZh: '降雪，路面湿滑', noteEn: 'Snowfall, slippery ground' },
+  { id: 'sunny', zh: '晴', en: 'Sunny', icon: '☀️', tempC: 26, humidity: 42, windKmh: 8, windDir: '东南', precipitationMm: 0, skyTop: '#4f9fe0', skyHorizon: '#cfe9fb', sun: 1, lamps: 0.55, fog: 0, particles: 0, particleKind: 'none', droplets: 0, clouds: 0.15, sway: 0.15, wet: 0, noteZh: '艳阳高照，光照充足，适合田间作业', noteEn: 'Bright sun, good for field work' },
+  { id: 'cloudy', zh: '多云', en: 'Cloudy', icon: '⛅', tempC: 24, humidity: 55, windKmh: 12, windDir: '东', precipitationMm: 0, skyTop: '#8fb4d4', skyHorizon: '#e3e9ee', sun: 0.75, lamps: 0.7, fog: 0.004, particles: 0, particleKind: 'none', droplets: 0, clouds: 0.55, sway: 0.25, wet: 0, noteZh: '云量较多，光照尚可', noteEn: 'Partly cloudy, light still fair' },
+  { id: 'overcast', zh: '阴', en: 'Overcast', icon: '☁️', tempC: 21, humidity: 68, windKmh: 10, windDir: '东北', precipitationMm: 0, skyTop: '#9aa5ad', skyHorizon: '#d7dde0', sun: 0.45, lamps: 0.9, fog: 0.01, particles: 0, particleKind: 'none', droplets: 0, clouds: 0.85, sway: 0.25, wet: 0.05, noteZh: '光照偏弱，留意湿度上升', noteEn: 'Dim light, humidity rising' },
+  { id: 'fog', zh: '雾', en: 'Foggy', icon: '🌫️', tempC: 18, humidity: 92, windKmh: 4, windDir: '北', precipitationMm: 0, skyTop: '#b9c0c2', skyHorizon: '#e6e8e6', sun: 0.25, lamps: 1, fog: 0.045, particles: 0, particleKind: 'none', droplets: 0.25, clouds: 0.4, sway: 0.08, wet: 0.1, noteZh: '能见度低，雾气贴地', noteEn: 'Low visibility, ground fog' },
+  { id: 'drizzle', zh: '毛毛雨', en: 'Drizzle', icon: '🌦️', tempC: 20, humidity: 80, windKmh: 9, windDir: '东南', precipitationMm: 0.8, skyTop: '#8ba0b2', skyHorizon: '#d3dbdd', sun: 0.5, lamps: 0.95, fog: 0.012, particles: 350, particleKind: 'rain', droplets: 0.35, clouds: 0.8, sway: 0.2, wet: 0.3, noteZh: '毛毛雨，地面微湿', noteEn: 'Light drizzle, ground damp' },
+  { id: 'rain', zh: '小雨', en: 'Light rain', icon: '🌧️', tempC: 19, humidity: 85, windKmh: 14, windDir: '东南', precipitationMm: 2.4, skyTop: '#7e93a6', skyHorizon: '#ccd5d8', sun: 0.35, lamps: 1, fog: 0.016, particles: 900, particleKind: 'rain', droplets: 0.7, clouds: 0.9, sway: 0.35, wet: 0.6, noteZh: '小雨，屏幕有雨滴', noteEn: 'Light rain, droplets on the screen' },
+  { id: 'moderate', zh: '中雨', en: 'Moderate rain', icon: '🌧️', tempC: 18, humidity: 90, windKmh: 18, windDir: '南', precipitationMm: 6.5, skyTop: '#6d7f90', skyHorizon: '#bcc6c9', sun: 0.28, lamps: 1.05, fog: 0.02, particles: 1500, particleKind: 'rain', droplets: 0.9, clouds: 0.95, sway: 0.5, wet: 0.8, noteZh: '中雨，天色转阴，田间泥泞', noteEn: 'Moderate rain, overcast, muddy field' },
+  { id: 'storm', zh: '大雨', en: 'Heavy rain', icon: '⛈️', tempC: 17, humidity: 94, windKmh: 28, windDir: '南', precipitationMm: 12.8, skyTop: '#5d6d7c', skyHorizon: '#aeb9bd', sun: 0.2, lamps: 1.15, fog: 0.022, particles: 2200, particleKind: 'rain', droplets: 1, clouds: 1, sway: 0.7, wet: 1, noteZh: '大雨，不宜出车作业', noteEn: 'Heavy rain, do not send machines out' },
+  { id: 'windy', zh: '大风', en: 'Windy', icon: '💨', tempC: 23, humidity: 50, windKmh: 45, windDir: '西北', precipitationMm: 0, skyTop: '#7ea8cc', skyHorizon: '#dbe7ee', sun: 0.85, lamps: 0.6, fog: 0.002, particles: 0, particleKind: 'none', droplets: 0, clouds: 0.7, sway: 1, wet: 0, noteZh: '大风，作物大幅摇摆，注意防风', noteEn: 'Strong wind, crops sway hard' },
+  { id: 'snow', zh: '雪', en: 'Snow', icon: '❄️', tempC: -2, humidity: 78, windKmh: 9, windDir: '西北', precipitationMm: 3.1, skyTop: '#aebac4', skyHorizon: '#e8ebec', sun: 0.4, lamps: 1, fog: 0.014, particles: 1400, particleKind: 'snow', droplets: 0, clouds: 0.9, sway: 0.2, wet: 0.4, noteZh: '降雪，路面湿滑', noteEn: 'Snowfall, slippery ground' },
 ];
+
+/** 南京：展厅天气的默认地点（Open-Meteo 免 key 接口，见 showroom-weather.ts）。 */
+export const NANJING = { nameZh: '南京', nameEn: 'Nanjing', latitude: 32.06, longitude: 118.8 } as const;
+
+/**
+ * 轮胎旋转轴：GLB 轮胎/轮毂的几何是 XY 平面的圆盘（厚度沿 Z），车轴
+ * 沿车辆横向 Z。转轮子必须绕 Z 转；旧代码绕 X 转，轮胎会像翻硬币
+ * 一样翻出轮平面、轮毂被甩出中心（见 PR 说明的根因）。
+ */
+export const WHEEL_SPIN_AXIS = 'z' as const;
 
 export function weatherById(id: WeatherId): WeatherPreset {
   return WEATHER_PRESETS.find((w) => w.id === id) ?? WEATHER_PRESETS[0];
@@ -170,7 +196,7 @@ export function weatherById(id: WeatherId): WeatherPreset {
 export type Suitability = 'good' | 'caution' | 'bad';
 export function suitabilityFor(preset: WeatherPreset): Suitability {
   if (preset.precipitationMm >= 10 || preset.windKmh >= 25) return 'bad';
-  if (preset.precipitationMm >= 1 || preset.humidity >= 85 || preset.tempC <= 0) return 'caution';
+  if (preset.precipitationMm >= 0.5 || preset.humidity >= 85 || preset.tempC <= 0) return 'caution';
   return 'good';
 }
 
@@ -192,6 +218,21 @@ export function forecast24h(preset: WeatherPreset): { hour: number; tempC: numbe
     });
   }
   return out;
+}
+
+/**
+ * Forecast bar height (px) inside the fixed-height chart strip.
+ * Bars are scaled relative to the day's min/max temperature and capped
+ * at FORECAST_CHART_MAX_PX, so they can never grow past the chart strip
+ * and cover the weather-icon row above (the bug in the screenshot:
+ * the old formula `(tempC + 5) * 3` reached 105 px inside a 74 px box
+ * and overflowed upward over the icons).
+ */
+export const FORECAST_CHART_HEIGHT_PX = 52;
+export const FORECAST_BAR_MAX_PX = 44;
+export function forecastBarHeightPx(tempC: number, minTempC: number, maxTempC: number): number {
+  const span = Math.max(1, maxTempC - minTempC);
+  return Math.round(8 + ((tempC - minTempC) / span) * (FORECAST_BAR_MAX_PX - 8));
 }
 
 /* ------------------------------------------------------------------ */

@@ -1,5 +1,5 @@
 /**
- * 3D 智能农机装备展示大厅 — standalone route /#/showroom (fullscreen,
+ * 3D 智能农机装备农田展场 — standalone route /#/showroom (fullscreen,
  * outside the app shell, following the /field-overview precedent).
  *
  * P0: hall + 4 zones + first-person walk + click fly-in + T70 + AgriDx kiosk.
@@ -13,8 +13,8 @@ import './showroom.css';
 import { useLang } from '@/hooks/useLang';
 import ShowroomScene from './ShowroomScene';
 import DiagnosisKiosk from './DiagnosisKiosk';
-import { HALL, QUALITY_TIERS, SHOWROOM_ZONES, SUITABILITY_COPY, forecast24h, suitabilityFor, t70PartById, weatherById, zoneById, type QualityId, type WeatherId, type ZoneId } from './showroom-data';
-import { blendWeather, nextWeatherId, WEATHER_TRANSITION_SECONDS } from './showroom-weather';
+import { HALL, NANJING, QUALITY_TIERS, SHOWROOM_ZONES, SUITABILITY_COPY, WEATHER_PRESETS, forecast24h, forecastBarHeightPx, FORECAST_CHART_HEIGHT_PX, suitabilityFor, t70PartById, weatherById, zoneById, type QualityId, type WeatherId, type ZoneId } from './showroom-data';
+import { blendWeather, nanjingForecastUrl, nextWeatherId, parseNanjingLive, WEATHER_TRANSITION_SECONDS, type NanjingLive } from './showroom-weather';
 import type { BlendedWeather } from './showroom-weather';
 import { planGuideRoute } from './showroom-drive';
 import { createSim, type SimState } from './showroom-state';
@@ -31,6 +31,9 @@ export default function ShowroomPage() {
   const [weatherId, setWeatherId] = useState<WeatherId>('sunny');
   const [weather, setWeather] = useState<BlendedWeather>({ ...weatherById('sunny'), blend: 1 });
   const [autoCycle, setAutoCycle] = useState(false);
+  // 南京实时天气（Open-Meteo 免 key）：成功时覆盖面板数值与 24 h
+  // 预报；失败/超时则为 null，面板明确标注“本地预设”，不编造数值。
+  const [live, setLive] = useState<NanjingLive | null>(null);
   const [weatherOpen, setWeatherOpen] = useState(false);
   const [quality, setQuality] = useState<QualityId>('high');
   const [photoRequest, setPhotoRequest] = useState(0);
@@ -76,6 +79,36 @@ export default function ShowroomPage() {
     weatherFromRef.current = weatherById(weatherId);
     setWeatherId(id);
   }, [weatherId]);
+
+  // 南京实时天气：页面加载时取一次 Open-Meteo（免 key，8 s 超时）。
+  useEffect(() => {
+    let alive = true;
+    const controller = new AbortController();
+    const timer = window.setTimeout(() => controller.abort(), 8000);
+    void fetch(nanjingForecastUrl(), { signal: controller.signal })
+      .then((res) => {
+        if (!res.ok) throw new Error(`Open-Meteo HTTP ${res.status}`);
+        return res.json() as Promise<unknown>;
+      })
+      .then((payload) => {
+        if (!alive) return;
+        const parsed = parseNanjingLive(payload);
+        if (!parsed) return;
+        setLive(parsed);
+        weatherFromRef.current = weatherById(weatherId);
+        setWeatherId(parsed.id);
+      })
+      .catch(() => {
+        // Offline / timeout / malformed: stay on the local preset and
+        // label it as such in the panel. Never fabricate live numbers.
+      })
+      .finally(() => window.clearTimeout(timer));
+    return () => {
+      alive = false;
+      controller.abort();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     const from = weatherFromRef.current;
@@ -265,8 +298,15 @@ export default function ShowroomPage() {
     if (knob) knob.style.transform = 'translate(0, 0)';
   }, [sim]);
 
-  const suitability = suitabilityFor(weather);
-  const forecast = forecast24h(weather);
+  // Live Nanjing values override the preset's panel numbers (the 3D
+  // scene still blends toward the mapped preset for sky/light/particles).
+  const displayWeather: BlendedWeather = live
+    ? { ...weather, tempC: live.tempC, humidity: live.humidity, windKmh: live.windKmh, windDir: live.windDir, precipitationMm: live.precipitationMm }
+    : weather;
+  const suitability = suitabilityFor(displayWeather);
+  const forecast = live && live.forecast.length === 8 ? live.forecast : forecast24h(weather);
+  const forecastMin = Math.min(...forecast.map((f) => f.tempC));
+  const forecastMax = Math.max(...forecast.map((f) => f.tempC));
   const zone = focusZone ? zoneById(focusZone) : null;
   const part = partId ? t70PartById(partId) : null;
   const mapX = ((hud.x + HALL.halfX) / (HALL.halfX * 2)) * 100;
@@ -291,8 +331,8 @@ export default function ShowroomPage() {
       {!ready && (
         <div className="showroom-loader" role="status">
           <div className="showroom-loader-inner">
-            <strong>{zh ? '智能农机装备展示大厅' : 'Smart Agri-Machinery Showroom'}</strong>
-            <span>{zh ? '正在加载展厅与鸿鹄 T70 模型…' : 'Loading the hall and the Honghu T70…'}</span>
+            <strong>{zh ? '智能农机装备农田展场' : 'Smart Agri-Machinery Farm Showroom'}</strong>
+            <span>{zh ? '正在加载农田展场与鸿鹄 T70 模型…' : 'Loading the farm field and the Honghu T70…'}</span>
             <div className="showroom-progress"><i style={{ width: `${progress}%` }} /></div>
             <span>{progress}%</span>
           </div>
@@ -302,7 +342,7 @@ export default function ShowroomPage() {
       {/* Top navigation */}
       <header className="showroom-topbar">
         <Link className="showroom-back" to="/">{zh ? '‹ 大厅' : '‹ Hub'}</Link>
-        <strong className="showroom-title">{zh ? '智能农机装备展示大厅' : 'Smart Agri-Machinery Showroom'}</strong>
+        <strong className="showroom-title">{zh ? '智能农机装备农田展场' : 'Smart Agri-Machinery Farm Showroom'}</strong>
         <nav className="showroom-zonenav" aria-label={zh ? '展区' : 'Zones'}>
           {SHOWROOM_ZONES.map((item) => (
             <button key={item.id} type="button" className={focusZone === item.id ? 'active' : ''} onClick={() => flyToZone(item.id)}>
@@ -324,31 +364,34 @@ export default function ShowroomPage() {
         </div>
       </header>
 
-      {/* Weather panel */}
+      {/* Weather panel — Nanjing (Open-Meteo live, local preset fallback) */}
       <section className="showroom-weather" aria-label={zh ? '天气与监测' : 'Weather'}>
         <button type="button" className="showroom-weather-summary" onClick={() => setWeatherOpen((v) => !v)}>
-          <span className="showroom-weather-icon">{weather.icon}</span>
-          <span><strong>{weather.tempC.toFixed(0)}°C</strong> {zh ? weather.zh : weather.en}</span>
+          <span className="showroom-weather-icon">{displayWeather.icon}</span>
+          <span><strong>{displayWeather.tempC.toFixed(0)}°C</strong> {zh ? displayWeather.zh : displayWeather.en}</span>
+          <span className="showroom-weather-city">{zh ? NANJING.nameZh : NANJING.nameEn}{live ? (zh ? ' · 实时' : ' · Live') : (zh ? ' · 本地预设' : ' · Preset')}</span>
           <span className={`showroom-suit suit-${suitability}`}>{zh ? SUITABILITY_COPY[suitability].zh : SUITABILITY_COPY[suitability].en}</span>
         </button>
         {weatherOpen && (
           <div className="showroom-weather-detail">
             <div className="showroom-weather-grid">
-              <span>{zh ? '湿度' : 'Humidity'} {weather.humidity.toFixed(0)}%</span>
-              <span>{zh ? '风速' : 'Wind'} {weather.windKmh.toFixed(0)} km/h {weather.windDir}</span>
-              <span>{zh ? '降水' : 'Precip'} {weather.precipitationMm.toFixed(1)} mm</span>
+              <span>{zh ? '湿度' : 'Humidity'} {displayWeather.humidity.toFixed(0)}%</span>
+              <span>{zh ? '风速' : 'Wind'} {displayWeather.windKmh.toFixed(0)} km/h {displayWeather.windDir}</span>
+              <span>{zh ? '降水' : 'Precip'} {displayWeather.precipitationMm.toFixed(1)} mm</span>
               <span>{zh ? '作业适宜度' : 'Suitability'} {zh ? SUITABILITY_COPY[suitability].zh : SUITABILITY_COPY[suitability].en}</span>
             </div>
-            <p className="showroom-weather-note">{zh ? weather.noteZh : weather.noteEn}</p>
+            <p className="showroom-weather-note">{zh ? displayWeather.noteZh : displayWeather.noteEn}</p>
+            <p className="showroom-weather-source">
+              {live
+                ? (zh ? `南京实时天气（Open-Meteo，观测 ${live.observedAt || '—'}），切换天气会覆盖为手动预设。` : `Live Nanjing weather (Open-Meteo, observed ${live.observedAt || '—'}). Switching weather overrides with a manual preset.`)
+                : (zh ? '未取到南京实时天气，显示与南京季节相符的本地预设（演示数据，非实测）。' : 'Live Nanjing weather unavailable; showing a local preset for Nanjing (demo data, not measured).')}
+            </p>
             <div className="showroom-weather-switch">
-              {(['sunny', 'cloudy', 'overcast', 'fog', 'rain', 'storm', 'snow'] as WeatherId[]).map((id) => {
-                const preset = weatherById(id);
-                return (
-                  <button key={id} type="button" className={weatherId === id ? 'active' : ''} onClick={() => requestWeather(id)} title={zh ? preset.zh : preset.en}>
-                    {preset.icon}
-                  </button>
-                );
-              })}
+              {WEATHER_PRESETS.map((preset) => (
+                <button key={preset.id} type="button" className={weatherId === preset.id ? 'active' : ''} onClick={() => { setLive(null); requestWeather(preset.id); }} title={zh ? preset.zh : preset.en}>
+                  {preset.icon}
+                </button>
+              ))}
             </div>
             <label className="showroom-cycle">
               <input type="checkbox" checked={autoCycle} onChange={(e) => setAutoCycle(e.target.checked)} />
@@ -357,7 +400,9 @@ export default function ShowroomPage() {
             <div className="showroom-forecast">
               {forecast.map((f) => (
                 <div key={f.hour} className="showroom-forecast-bar">
-                  <i style={{ height: `${Math.max(6, (f.tempC + 5) * 3)}px` }} />
+                  <div className="showroom-forecast-chart" style={{ height: `${FORECAST_CHART_HEIGHT_PX}px` }}>
+                    <i style={{ height: `${forecastBarHeightPx(f.tempC, forecastMin, forecastMax)}px` }} />
+                  </div>
                   <span>+{f.hour}h</span>
                   <span>{f.tempC.toFixed(0)}°</span>
                 </div>
@@ -366,6 +411,14 @@ export default function ShowroomPage() {
           </div>
         )}
       </section>
+
+      {/* Rain on the screen: streaks + droplets over the canvas when it rains. */}
+      {weather.particleKind === 'rain' && weather.droplets > 0 && (
+        <div className="showroom-rain-overlay" aria-hidden="true" style={{ opacity: weather.droplets }}>
+          <div className="showroom-rain-streaks" />
+          <div className="showroom-rain-drops" />
+        </div>
+      )}
 
       {/* Minimap */}
       <aside className="showroom-minimap" aria-label={zh ? '小地图' : 'Minimap'}>
@@ -471,7 +524,7 @@ export default function ShowroomPage() {
             <li>{zh ? '靠近拖拉机按 E 上车 / 下车；W/S 前进后退，A/D 转向，空格刹车，V 切换视角' : 'Near the tractor press E to enter/exit; W/S drive, A/D steer, Space brake, V switches view'}</li>
             <li>{zh ? '点击展区或顶部导航飞入近景；自动驾驶沿导视线行驶，可随时手动接管' : 'Click a zone or the top nav to fly in; auto-drive follows the guide line and yields to manual input'}</li>
             <li>{zh ? '触屏：左下摇杆控制移动 / 驾驶' : 'Touch: the bottom-left joystick moves and drives'}</li>
-            <li>{zh ? '右上角切换天气；📷 4K 出一张 3840×2160 展板图' : 'Top right switches weather; 📷 4K exports a 3840×2160 still'}</li>
+            <li>{zh ? '右上角切换天气（默认南京实时天气）；📷 4K 出一张 3840×2160 展板图' : 'Top right switches weather (Nanjing live by default); 📷 4K exports a 3840×2160 still'}</li>
           </ul>
         </div>
       )}
