@@ -1,0 +1,62 @@
+# 3D 智能农机装备展示大厅 — 实现笔记
+
+路由：`/#/showroom`（`src/pages/ShowroomPage/`，全屏独立路由，仿照 `/field-overview` 置于 Layout 之外；顶栏导航另有入口，见下）。
+
+## 完成情况（P0 → P1 → P2）
+
+### P0 — 全部完成
+- 大厅：44×30×7m 工业风展厅，浅灰哑光地砖（高/中画质带 MeshReflectorMaterial 细腻反射）、白色吊顶 + 4 条长条柔光平板灯、两侧落地窗、主通道地面导视线 + 方向箭头 + 两侧发光灯带。
+- 四个展区（均可点击飞入 + 介绍卡片 + 一键返回全景）：智能拖拉机（中央）、故障诊断机器人（检测—定位—诊断三步灯带 + 双机械臂循环演示）、农业具身智能装备（机器人 + 六轴机械臂 + 闭环展板）、AgriDx 智能诊断交互区（大屏交互台）。
+- 第一人称漫游：点击画面锁定鼠标，WASD + 鼠标，带碰撞（展台/墙体 AABB），镜头轻微呼吸感 + 移动惯性。
+- 点击飞入：顶部导航 / 小地图 / 展台点击均触发平滑飞入，弹出介绍卡片。
+- T70：仓库 `public/models/t70-parts/t70_parts_meshopt.glb`（14 个真实部件，不编造发动机/变速箱），MeshoptDecoder 加载，车身/车顶盖清漆层（MeshPhysicalMaterial clearcoat），4 个传感器热点可点击（北斗天线、左/右顶传感器、电池舱），激光雷达扫描环旋转。GLB 自身涂装为白色 + 深色轮胎（与模型工坊一致），农业绿由展厅导视线/展区标识呈现。
+- AgriDx 大屏：复用站内真实诊断接口 `requestChat`（POST `/api/chat`，`machineType=tractor, brand=鸿鹄, model=T70`），预设问题一键演示；无假诊断，接口不可用时显示真实错误文案。
+
+### P1 — 全部完成
+- 驾驶：靠近拖拉机按 E 上车/下车；W/S 前进后退、A/D 转向、空格刹车、V 切换跟随/驾驶舱视角；触屏左下摇杆；仪表盘车速；重惯性（加速 1.6 m/s²）、低速上限 3.2 m/s、宽转弯半径（轮距 2.4m）；车轮转动、前轮随方向盘联动。
+- 自动导航：点击展区卡片「自动驾驶前往」，拖拉机沿主通道导视线行驶到发光停靠区，到达后弹出介绍；任意手动输入（WASD/方向键/空格/摇杆）立即接管，按 E 下车或切换展区取消自动驾驶。
+- 动态天气：晴/多云/阴/雾/小雨/大雨/雪 7 种，手动切换或 30 秒自动循环，4 秒平滑过渡（颜色 + 光照 + 雾 + 粒子插值）；窗外云层流动、雾气、雨雪粒子（窗外）、玻璃雨滴 shader（随降水量变化）；阴雨天灯光补光；雨天驾驶亮车灯（实现为：雨雪天气下车灯——注：本版未做独立车灯模型，补光通过灯光强度体现，见未完成项）。
+- 天气面板：右上角磨砂玻璃，天气图标、气温、湿度、风速风向、降水量、作业适宜度（适宜/谨慎/不宜）；展开显示未来 24 小时趋势（3 小时步长）与天气切换。
+- 小地图：右下角，位置 + 四个展区（点击飞入），实时速度/模式。
+- 顶部导航：顶栏四展区按钮 + 返回大厅；新版左侧导航新增「3D 展示大厅」（`MODERN_DESTINATIONS` + `Boxes` 图标）；WebGPU/WebGL2 能力徽标、Rapier 状态徽标。
+
+### P2 — 部分完成
+- 装饰：完成——角落大型绿植、麦穗/稻穗摆件、主题背景墙「智慧农业 · SMART AGRICULTURE」、地面发光导视灯带、窗边少量光尘。
+- 环境音：完成——WebAudio 滤波噪声（雨声/风声），默认关闭，右上角 🔊/🔇 切换；强度随降水变化。
+- 开场漫游镜头：完成——入场从高空全景滑翔至入口，再转漫游；飞入结束自动对准目标方向（修复过 180° 视角跳变）。
+- 昼夜模式：未做。替代方案：天气系统已覆盖光照变化（晴 1.0 → 大雨 0.2 太阳光 + 灯光补光至 1.15），可视为“白天光照谱”；真昼夜（夜间模式 + 车灯 + 星空）需另起一轮，做新的光照预设与灯光布局。
+
+### 画质与出图
+- 画质三档：高（dpr 2、阴影、N8AO + Bloom + 景深 + 暗角）、中（dpr 1.5、阴影、Bloom）、低（dpr 1、无阴影、无后期），顶栏左侧切换，实测可切换。
+- 4K 出图模式：📷 4K 按钮将渲染器临时切到 3840×2160 离屏渲染一帧，下载 `agridx-showroom-4k-<n>.png`，实测已下载（见验证）。
+
+## 引入库清单（版本 + 授权）
+
+| 库 | 版本 | 授权 | 用途 | 备注 |
+|---|---|---|---|---|
+| `@dimforge/rapier3d-compat` | 0.21.0 | Apache-2.0 | 驾驶物理：静态世界（地面/墙/展台碰撞体）+ 拖拉机刚体 + 每轮向下射线（悬架行程/接地检测） | 唯一新增依赖；懒加载（`import()`），单独分包 `rapier-*.js`（4.3 MB 未压缩 / gzip 1.6 MB），只在进入展厅路由时加载；初始化失败时退回 `showroom-drive.ts` 运动学模型 |
+
+复用（未新增）：`three@0.185.1`、`@react-three/fiber@9.7.0`、`@react-three/drei@10.7.8`、`@react-three/postprocessing@3.2.0`（含 N8AO/Bloom/DepthOfField/Vignette）、`postprocessing@6.39.5`。
+
+## 评估后未采用的库及原因
+
+- **Three.js WebGPU 管线（GTAO/SSGI）**：未采用。`three@0.185.1` 自带 `WebGPURenderer` + TSL，但 R3F 9 没有稳定的 WebGPURenderer 绑定，无法在现有 React 场景内使用；另起一套非 R3F 渲染器超出本 PR 范围。页面改为探测 `navigator.gpu` 并显示能力徽标（WebGPU ✓ / WebGL2），渲染走 WebGL2；AO/辉光/景深用 `@react-three/postprocessing`（N8AO 等）实现。
+- **n8ao / n8ao-webgpu**：未新增依赖。`@react-three/postprocessing@3.2.0` 已内置 `N8AO` 组件（基于 n8ao 效果），直接使用，无需另引。
+- **realism-effects（SSGI/SSR/TRAA）**：未采用。版本兼容（postprocessing ≥6.30，仓库为 6.39.5），但 SSGI/SSR 在集成显卡上成本高且不稳定，TRAA 收益边际；现有 Bloom + N8AO + DOF 已满足展厅观感，暂不引入。
+- **three-gpu-pathtracer**：未采用。最新版 0.0.28（MIT）要求 `three >= 0.187.0`，仓库锁定 `three ^0.185.1`，升级 three 会牵动全站 3D（图谱、模型工坊、首页大厅），风险超出本 PR。4K 出图改为 3840×2160 高分辨率离屏渲染 + 现有后期，实测可出图。
+- **@takram/three-clouds**：未采用。0.7.6（MIT）peer 兼容（three ≥0.170、R3F 9、React 19），但体积云需整套后期管线接入、GPU 成本高，而展厅是室内场景、云只在窗外可见，收益低。改用自研简化方案：渐变天空穹顶 shader + 漂移云片 billboard + 雾 + 雨雪粒子 + 窗玻璃雨滴 shader。
+- **Eanpa Sky Engine**：未采用。npm 上查无此包（404），无法核实版本/授权/维护状态，不引入；天空用自研渐变穹顶 shader。
+
+## 已知问题
+
+- 控制台有 3 条 React 警告：`Attempted to synchronously unmount a root while React was already rendering`，来自 drei `Html`（热点/展区标签）在 React 19 下的已知抖动，非致命，不影响渲染与交互；首页大厅同样使用 `Html`，属同类现象，暂不修。
+- Rapier 分包较大（gzip 1.6 MB），但只在展厅路由懒加载，不影响首屏与其他页面。
+- 雨天“亮车灯”目前只体现为灯光补光，未做独立的车灯光锥/尾灯模型（列入后续优化）。
+- 驾驶手感实测环境为 SwiftShader 软渲染（帧率极低，dt 被钳制在 0.05s，模拟时间比真实时间慢约一个数量级），加速曲线与转向已验证（速度 0 → 2.3 km/h 渐进上升），但真实手感需在真机 GPU 上复核。
+
+## 验证（2026-11-10，本地）
+
+- `npm run typecheck` 通过；ESLint（改动文件）干净；新测试 `tests/showroom-drive.test.ts` + `tests/showroom-weather.test.ts` 13/13 通过；`npm run build:client` 通过（ShowroomPage chunk 54.17 kB / gzip 19.93 kB）。
+- 本地 dev 服务器（5173）+ Playwright headless Chromium（SwiftShader）：加载进度条消失、WebGL2 上下文、Rapier ✓ 徽标、小地图、飞入展区卡片、天气切小雨（窗玻璃雨滴可见）、诊断台预设问题返回真实 `/api/chat` 回答（知识库 fallback 文案）、自动驾驶速度 0 → 2.3 km/h 渐进、📷 4K 下载 `agridx-showroom-4k-1.png`、首页/对话/知识页回归正常。
+- 截图：`~/workspace/agridx-full-read/showroom-shots/`（`01-overview.png`、`02-tractor-flyin.png`、`03-rain.png`、`04-kiosk.png`、`06-tractor-close.png`、`08-autodrive.png`）。
+- 实测中修复的两个真问题：① 初始漫游朝向反了 180°（yaw π → 0，飞入结束按目标方向对准）；② T70 首次不可见——根因是本组件把单材质写成了单元素材质数组，而无 group 的几何体在 three.js 下不渲染，改回单材质后恢复（另：顶灯过曝已调低，吊顶加自发光防止黑顶）。

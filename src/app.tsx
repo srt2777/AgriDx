@@ -17,6 +17,7 @@ import { NewVersionDelight } from '@/components/NewVersionDelight';
 import { ThemedToaster } from '@/components/ThemedToaster';
 import { setUiVersion, useUiVersion } from '@/hooks/useUiVersion';
 const ExhibitionPage = lazy(pageLoaders.exhibition);
+const ShowroomPage = lazy(pageLoaders.showroom);
 const PreviewStatus = typeof __AGRIDX_DEV_PREVIEW__ !== 'undefined' && __AGRIDX_DEV_PREVIEW__
   ? lazy(() => import('./dev-preview/PreviewStatus')) : null;
 const DeveloperPage = typeof __AGRIDX_DEV_PREVIEW__ !== 'undefined' && __AGRIDX_DEV_PREVIEW__
@@ -76,6 +77,7 @@ export default function App() {
         <Route path="hall" element={<LegacyHallRedirect />} />
       </Route>
       <Route path="field-overview" element={<Suspense fallback={<PageLoading />}><FieldOverview /></Suspense>} />
+      <Route path="showroom" element={<Suspense fallback={<PageLoading />}><ShowroomPage /></Suspense>} />
       {DeveloperPage && <Route path="developer" element={<PageContent><DeveloperPage /></PageContent>} />}
       <Route path="*" element={<NotFoundPage />} />
     </Routes>

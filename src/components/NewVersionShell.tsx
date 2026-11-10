@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { preloadPage } from '@/lib/page-loaders';
 import { publicAsset } from '@/lib/public-asset';
-import { BookOpen, Globe, House, MessageSquare, PanelLeftClose, PanelLeftOpen, Wrench, Activity, Tractor } from 'lucide-react';
+import { BookOpen, Boxes, Globe, House, MessageSquare, PanelLeftClose, PanelLeftOpen, Wrench, Activity, Tractor } from 'lucide-react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useLang, setLang } from '@/hooks/useLang';
 import { CommandButton } from '@/components/CommandPalette';
@@ -15,7 +15,7 @@ import { MODERN_DESTINATIONS, modernLocation } from '@/lib/modern-navigation';
 import { GlidingSelection } from '@/components/GlidingSelection';
 import './new-version-shell.css';
 
-const NAV_ICONS = { '/': House, '/knowledge': BookOpen, '/chat': MessageSquare, '/models': Wrench, '/fault-detection': Activity, '/field-overview': Tractor } as const;
+const NAV_ICONS = { '/': House, '/knowledge': BookOpen, '/chat': MessageSquare, '/models': Wrench, '/fault-detection': Activity, '/field-overview': Tractor, '/showroom': Boxes } as const;
 
 /** Shared chrome for the modern workspace. */
 export function NewVersionShell() {

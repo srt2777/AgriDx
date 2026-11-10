@@ -1,0 +1,97 @@
+/* 3D 智能农机装备展示大厅 — fullscreen overlay page, glassmorphism HUD. */
+.showroom-page { position: fixed; inset: 0; overflow: hidden; background: #eef0ee; color: #20302d; font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", sans-serif; }
+.showroom-canvas { position: absolute; inset: 0; }
+.showroom-canvas canvas { display: block; outline: none; }
+
+.showroom-loader { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(238, 240, 238, 0.92); z-index: 60; }
+.showroom-loader-inner { display: flex; flex-direction: column; gap: 10px; align-items: center; min-width: 320px; text-align: center; }
+.showroom-loader-inner strong { font-size: 20px; color: #20553f; }
+.showroom-progress { width: 320px; height: 8px; border-radius: 4px; background: #d5d9d5; overflow: hidden; }
+.showroom-progress i { display: block; height: 100%; background: #2e7d46; transition: width 0.2s ease; }
+
+.showroom-topbar { position: absolute; top: 0; left: 0; right: 0; z-index: 40; display: flex; align-items: center; gap: 14px; padding: 10px 16px; background: linear-gradient(rgba(255,255,255,0.88), rgba(255,255,255,0.72)); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(32, 85, 63, 0.15); }
+.showroom-back { color: #20553f; text-decoration: none; font-weight: 600; white-space: nowrap; }
+.showroom-title { font-size: 17px; color: #20553f; white-space: nowrap; }
+.showroom-zonenav { display: flex; gap: 6px; margin-left: auto; flex-wrap: wrap; }
+.showroom-zonenav button, .showroom-quality button, .showroom-top-actions button { border: 1px solid rgba(32, 85, 63, 0.25); background: rgba(255,255,255,0.75); color: #20302d; border-radius: 999px; padding: 6px 12px; cursor: pointer; font-size: 13px; }
+.showroom-zonenav button.active, .showroom-quality button.active, .showroom-weather-switch button.active { background: #20553f; color: #fff; border-color: #20553f; }
+.showroom-top-actions { display: flex; gap: 8px; align-items: center; }
+.showroom-backend, .showroom-physics { font-size: 12px; color: #5a6b63; background: rgba(255,255,255,0.7); border: 1px solid rgba(32,85,63,0.2); border-radius: 999px; padding: 4px 8px; white-space: nowrap; }
+
+.showroom-weather { position: absolute; top: 64px; right: 16px; z-index: 40; width: 300px; }
+.showroom-weather-summary { width: 100%; display: flex; gap: 10px; align-items: center; border: 1px solid rgba(255,255,255,0.5); background: rgba(255,255,255,0.55); backdrop-filter: blur(12px); border-radius: 14px; padding: 10px 12px; cursor: pointer; font-size: 14px; color: #20302d; box-shadow: 0 4px 18px rgba(0,0,0,0.08); }
+.showroom-weather-icon { font-size: 22px; }
+.showroom-suit { margin-left: auto; border-radius: 999px; padding: 3px 9px; font-size: 12px; color: #fff; }
+.suit-good { background: #2e7d46; } .suit-caution { background: #b7791f; } .suit-bad { background: #b3362b; }
+.showroom-weather-detail { margin-top: 8px; border: 1px solid rgba(255,255,255,0.5); background: rgba(255,255,255,0.72); backdrop-filter: blur(14px); border-radius: 14px; padding: 12px; box-shadow: 0 4px 18px rgba(0,0,0,0.08); }
+.showroom-weather-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 10px; font-size: 13px; }
+.showroom-weather-note { font-size: 12px; color: #5a6b63; margin: 8px 0; }
+.showroom-weather-switch { display: flex; gap: 4px; flex-wrap: wrap; }
+.showroom-weather-switch button { font-size: 17px; border: 1px solid rgba(32,85,63,0.25); background: #fff; border-radius: 10px; padding: 5px 8px; cursor: pointer; }
+.showroom-cycle { display: flex; gap: 6px; align-items: center; font-size: 12px; margin-top: 8px; color: #33413c; }
+.showroom-forecast { display: flex; gap: 4px; align-items: flex-end; margin-top: 10px; height: 74px; }
+.showroom-forecast-bar { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 10px; color: #5a6b63; }
+.showroom-forecast-bar i { display: block; width: 100%; background: #7ad7ff; border-radius: 3px 3px 0 0; }
+
+.showroom-minimap { position: absolute; right: 16px; bottom: 16px; z-index: 40; display: flex; flex-direction: column; gap: 6px; align-items: center; font-size: 12px; color: #33413c; background: rgba(255,255,255,0.6); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.5); border-radius: 12px; padding: 8px; }
+.showroom-map { position: relative; width: 176px; height: 120px; border-radius: 8px; background: linear-gradient(#f4f7f4, #e3e8e3); border: 1px solid rgba(32,85,63,0.25); overflow: hidden; }
+.showroom-map::after { content: ""; position: absolute; left: 0; right: 0; top: 50%; height: 2px; background: rgba(46,125,70,0.5); }
+.showroom-map-zone { position: absolute; width: 12px; height: 12px; margin: -6px 0 0 -6px; border-radius: 50%; border: 2px solid #fff; cursor: pointer; padding: 0; box-shadow: 0 1px 4px rgba(0,0,0,0.25); }
+.showroom-map-player { position: absolute; width: 10px; height: 10px; margin: -5px 0 0 -5px; border-radius: 50%; background: #1d2123; border: 2px solid #7ad7ff; z-index: 2; }
+
+.showroom-drive-hud { position: absolute; left: 16px; bottom: 16px; z-index: 40; display: flex; gap: 12px; align-items: flex-end; }
+.showroom-speedo { display: flex; gap: 8px; align-items: baseline; background: rgba(20, 30, 26, 0.72); color: #fff; border-radius: 12px; padding: 10px 14px; backdrop-filter: blur(8px); }
+.showroom-speedo strong { font-size: 30px; }
+.showroom-speedo button { background: transparent; border: 1px solid rgba(255,255,255,0.4); color: #fff; border-radius: 999px; padding: 4px 10px; cursor: pointer; }
+.showroom-enter, .showroom-exit { background: #2e7d46; color: #fff; border: none; border-radius: 999px; padding: 10px 16px; cursor: pointer; font-size: 14px; box-shadow: 0 4px 14px rgba(0,0,0,0.2); }
+.showroom-exit { background: #33413c; }
+.showroom-joystick { position: relative; width: 96px; height: 96px; border-radius: 50%; background: rgba(255,255,255,0.35); border: 1px solid rgba(255,255,255,0.6); backdrop-filter: blur(6px); touch-action: none; }
+.showroom-joy-knob { position: absolute; left: 50%; top: 50%; width: 44px; height: 44px; margin: -22px 0 0 -22px; border-radius: 50%; background: rgba(32, 85, 63, 0.85); box-shadow: 0 2px 8px rgba(0,0,0,0.25); }
+
+.showroom-quality { position: absolute; left: 16px; top: 64px; z-index: 40; display: flex; gap: 6px; }
+.showroom-quality button { background: rgba(255,255,255,0.7); backdrop-filter: blur(8px); }
+
+.showroom-card { position: absolute; left: 50%; bottom: 24px; transform: translateX(-50%); z-index: 45; width: min(560px, calc(100vw - 32px)); background: rgba(255,255,255,0.88); backdrop-filter: blur(14px); border: 1px solid rgba(32,85,63,0.18); border-radius: 16px; padding: 16px 18px; box-shadow: 0 10px 32px rgba(0,0,0,0.16); }
+.showroom-card h2 { margin: 8px 0 6px; font-size: 19px; color: #20553f; }
+.showroom-card p { margin: 0; font-size: 14px; line-height: 1.65; color: #33413c; }
+.showroom-card-tag { display: inline-block; color: #fff; font-size: 12px; border-radius: 999px; padding: 3px 10px; }
+.showroom-card-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+.showroom-card-actions button { border: 1px solid rgba(32,85,63,0.3); background: #fff; border-radius: 999px; padding: 7px 14px; cursor: pointer; font-size: 13px; }
+.showroom-card-actions button:first-child { background: #20553f; color: #fff; border-color: #20553f; }
+.showroom-part-card { bottom: 24px; }
+.showroom-icon-btn { position: absolute; top: 10px; right: 10px; width: 28px; height: 28px; border-radius: 50%; border: 1px solid rgba(0,0,0,0.15); background: rgba(255,255,255,0.85); cursor: pointer; font-size: 13px; }
+
+.showroom-kiosk { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); z-index: 46; width: min(420px, calc(100vw - 32px)); max-height: calc(100vh - 140px); overflow: auto; background: rgba(255,255,255,0.92); backdrop-filter: blur(16px); border: 1px solid rgba(32,85,63,0.18); border-radius: 16px; padding: 16px; box-shadow: 0 10px 32px rgba(0,0,0,0.18); }
+.showroom-kiosk-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.showroom-kiosk-head strong { font-size: 16px; color: #20553f; }
+.showroom-kiosk-live { display: block; font-size: 11px; color: #2e7d46; margin-top: 2px; }
+.showroom-kiosk-note { font-size: 13px; color: #5a6b63; line-height: 1.6; }
+.showroom-presets { display: flex; flex-direction: column; gap: 6px; margin: 10px 0; }
+.showroom-presets button { text-align: left; border: 1px solid rgba(32,85,63,0.25); background: #f4f7f4; border-radius: 10px; padding: 8px 10px; cursor: pointer; font-size: 13px; }
+.showroom-kiosk-form { display: flex; gap: 8px; }
+.showroom-kiosk-form input { flex: 1; min-width: 0; border: 1px solid rgba(32,85,63,0.3); border-radius: 10px; padding: 9px 10px; font-size: 14px; }
+.showroom-kiosk-form button { background: #20553f; color: #fff; border: none; border-radius: 10px; padding: 9px 14px; cursor: pointer; }
+.showroom-kiosk-form button:disabled, .showroom-presets button:disabled { opacity: 0.55; cursor: default; }
+.showroom-kiosk-status { font-size: 13px; color: #5a6b63; }
+.showroom-kiosk-error { font-size: 13px; color: #b3362b; }
+.showroom-kiosk-answer { margin-top: 10px; border-top: 1px solid rgba(32,85,63,0.15); padding-top: 10px; }
+.showroom-kiosk-answer p { white-space: pre-wrap; font-size: 14px; line-height: 1.7; margin: 8px 0 0; }
+.showroom-demo-tag { font-size: 11px; color: #fff; background: #2e7d46; border-radius: 999px; padding: 2px 8px; }
+
+.showroom-help { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 50; width: min(480px, calc(100vw - 32px)); background: rgba(255,255,255,0.95); border-radius: 16px; padding: 20px 22px; box-shadow: 0 12px 36px rgba(0,0,0,0.2); }
+.showroom-help h2 { margin: 0 0 10px; color: #20553f; }
+.showroom-help ul { margin: 0; padding-left: 18px; font-size: 14px; line-height: 1.9; color: #33413c; }
+
+.showroom-hotspot { position: relative; display: flex; align-items: center; gap: 6px; background: transparent; border: none; cursor: pointer; padding: 0; pointer-events: auto; }
+.showroom-hotspot-dot { display: block; width: 14px; height: 14px; border-radius: 50%; background: #7ad7ff; border: 2px solid #fff; box-shadow: 0 0 0 3px rgba(122, 215, 255, 0.4), 0 1px 6px rgba(0,0,0,0.3); animation: showroom-pulse 2s infinite; }
+.showroom-hotspot-label { background: rgba(20, 30, 26, 0.78); color: #fff; font-size: 11px; border-radius: 999px; padding: 3px 8px; white-space: nowrap; }
+@keyframes showroom-pulse { 0%, 100% { box-shadow: 0 0 0 3px rgba(122,215,255,0.4), 0 1px 6px rgba(0,0,0,0.3); } 50% { box-shadow: 0 0 0 7px rgba(122,215,255,0.12), 0 1px 6px rgba(0,0,0,0.3); } }
+.showroom-zone-tag { background: rgba(255,255,255,0.88); border: 2px solid #2e7d46; color: #20553f; font-size: 13px; font-weight: 600; border-radius: 999px; padding: 5px 12px; white-space: nowrap; box-shadow: 0 2px 10px rgba(0,0,0,0.15); }
+
+@media (max-width: 760px) {
+  .showroom-title { display: none; }
+  .showroom-zonenav { display: none; }
+  .showroom-weather { width: 240px; }
+  .showroom-kiosk { top: auto; bottom: 16px; transform: none; right: 16px; left: 16px; width: auto; }
+  .showroom-minimap { display: none; }
+}
