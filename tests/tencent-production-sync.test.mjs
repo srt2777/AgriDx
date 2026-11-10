@@ -61,6 +61,7 @@ function shellFixture(t) {
   }
   const updater = path.join(directory, 'update-existing.sh');
   writeFileSync(updater, `#!/bin/bash\nexec '${process.execPath}' '${path.join(bin, 'update')}' "$@"\n`);
+  writeFileSync(path.join(directory, 'install-release-cache-headers.sh'), '#!/bin/bash\nexit 0\n');
   const mock = `#!${process.execPath}
 const fs = require('node:fs'), path = require('node:path');
 const name = path.basename(process.argv[1]), args = process.argv.slice(2);
@@ -264,8 +265,25 @@ test('普通首页、发布清单、健康或目录缓存各自落后时均拒�
     };
     await assert.rejects(verifyPublicSite(fixture.options), error =>
       error.code === 'cdn_cache_stale' && /普通访问.*CDN/.test(error.message), stalePath);
-    assert.equal(staleReads, 1, '已证实的CDN旧缓存立即报告，不用60次源站重试掩盖');
+    assert.equal(staleReads, 3, '普通入口在预算内始终旧，不能把源站就绪判成用户可见的同步');
   }
+});
+
+test('普通发布清单短暂落后、随后与源站一致时可以验收', async () => {
+  const fixture = publicFixture();
+  const fetchGood = fixture.options.fetchImpl;
+  let staleReads = 0;
+  fixture.options.attempts = 3;
+  fixture.options.retryMs = 0;
+  fixture.options.fetchImpl = async (url, options) => {
+    if (!url.searchParams.size && url.pathname === '/deployment.json' && staleReads === 0) {
+      staleReads++;
+      return Response.json({ ...fixture.manifest, commit: other });
+    }
+    return fetchGood(url, options);
+  };
+  assert.equal((await verifyPublicSite(fixture.options)).commit, commit);
+  assert.equal(staleReads, 1);
 });
 
 test('普通入口请求无查询参数、无防缓存头，验收保留同源与禁止重定向边界', async () => {

@@ -26,7 +26,7 @@ done
 
 workdir=$(mktemp -d)
 trap 'rm -rf -- "$workdir"' EXIT
-for script in update-existing.sh sync-main.sh; do
+for script in update-existing.sh sync-main.sh install-release-cache-headers.sh; do
   curl --fail --silent --show-error --location --max-time 60 \
     "https://raw.githubusercontent.com/${GITHUB_REPOSITORY:-srt2777/AgriDx}/$COMMIT/scripts/tencent-deploy/$script" \
     --output "$workdir/$script"
@@ -37,7 +37,8 @@ done
 /bin/bash "$workdir/update-existing.sh" --check
 install -d -m 0755 -o root -g root "$TOOL_DIR"
 install -d -m 0700 -o root -g root "$STATE_DIR"
-install -m 0700 -o root -g root "$workdir/update-existing.sh" "$workdir/sync-main.sh" "$TOOL_DIR/"
+install -m 0700 -o root -g root \
+  "$workdir/update-existing.sh" "$workdir/sync-main.sh" "$workdir/install-release-cache-headers.sh" "$TOOL_DIR/"
 cat > "$workdir/agridx-github-sync.service" <<EOF
 $MARKER
 [Unit]

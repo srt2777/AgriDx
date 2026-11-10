@@ -20,7 +20,7 @@
 2. main 的跨平台 `CI` 成功后，[`Tencent production`](../../.github/workflows/tencent-production.yml) 为同一提交更新 `tencent-production-ready` 分支指针。只接受本仓库 main 的 push / 手动 CI；PR、个人分支、失败 CI 和过期提交不产生请求。请求指针仅快进，不强推；手动运行正式工作流必须选择 main，连接发布请求前再次执行完整验证。
 3. 腾讯服务器新安装的 systemd timer 每 20 秒检查公开 Git refs。只有请求 SHA 等于当时最新 main，且尚未部署时，才调用[现有分目录更新脚本](../../scripts/tencent-deploy/update-existing.sh)。不恢复旧 `cloud-pull.sh`、旧 cron 或香港初始化脚本。
 4. 现有脚本继续完成独立目录构建、临时私网健康检查、current 原子切换、本机 Nginx/健康验收及失败回退；部署成功切换后只保留当前、上一版与最新一个更早版，清理更早的版本命名目录（非版本命名目录不动），失败部署的目录保留用于排查。EnvironmentFile、证书、DNS、防火墙和其他服务保留。同一失败提交五分钟内不会反复构建，新 main 可立即尝试。systemd 与 flock 串行执行部署，GitHub 等待任务被取消不会中断服务器部署。
-5. 公开 `deployment.json` 只记录版本、完整提交和首页/主题脚本/入口 JS、CSS 摘要。Actions 等待服务器更新，并从正式 HTTPS 域名核对后端版本、知识条数、提交和资源 SHA-256，识别 CDN 旧文件。先用独立参数确认目标源站资源已就绪，再检查无查询参数、无强制回源头的普通首页、发布清单、健康和知识目录。普通首页必须匹配同一HTML摘要，接口版本/计数及清单必须一致；只要普通入口仍旧就以`cdn_cache_stale`失败，不把防缓存请求成功写成用户访问已同步。main 已前进时，旧验收任务停止等待，交由新任务发布最新请求。
+5. 公开 `deployment.json` 只记录版本、完整提交和首页/主题脚本/入口 JS、CSS 摘要。Actions 等待服务器更新，并从正式 HTTPS 域名核对后端版本、知识条数、提交和资源 SHA-256，识别 CDN 旧文件。先用独立参数确认目标源站资源已就绪，再检查无查询参数、无强制回源头的普通首页、发布清单、健康和知识目录。普通首页必须匹配同一HTML摘要，接口版本/计数及清单必须一致。普通入口可以在同一次验收预算内多次读取，等待短暂的节点传播；预算用尽仍旧就以`cdn_cache_stale`失败，不把只有防缓存请求成功写成用户访问已同步。main 已前进时，旧验收任务停止等待，交由新任务发布最新请求。
 
 若服务器尚未接入，Actions 只发布请求，明确记录待接入，不宣称网站更新完成。接入后的公网最终验收失败会使 Actions 报错；不擅自回滚本机已经健康的新版本。验收范围不包括全部页面交互或真实外部模型问答。
 
@@ -67,6 +67,8 @@ curl -fsS https://agridx.xyz/deployment.json
 
 2026-10-19实际核查发现，带独立参数的正式站已是3.5.8/10877条，但普通`/`仍命中10月11日的CDN旧缓存，浏览器显示3.2.0/212条，裸知识目录接口也返回212条。源站新版本和知识正文并未丢失；普通访问仍未完整同步。详见[本次全量核查](2026-10-19-production-sync-audit.md)。
 
-必须在该域名的腾讯云CDN控制台刷新旧入口/接口缓存，并核对节点及浏览器缓存规则。首页、`/index.html`、`/api/`、`/deployment.json`、`/deployment-automation.json`和`/theme-init.js`不应被长期旧缓存遮挡；带内容哈希的`/assets/`静态资源继续按原策略保留。先检查现有规则及优先级，仅更改本域名动态入口，不清全账号、不改DNS/权限/密钥。原服务器部署控制器没有CDN管理权限，代码更新或重启服务不能代替CDN操作。
+首页、`/index.html`、`/api/`、`/deployment.json`、`/deployment-automation.json`和`/theme-init.js`不应被长期旧缓存遮挡；带内容哈希的`/assets/`静态资源继续按原策略保留。2026-11-10 源站直连确认 `/deployment.json` 没有 `Cache-Control`，而首页已是 `no-cache`、`/theme-init.js` 为 30 天缓存。因此不带查询参数的发布清单会被 CDN 按自身规则保存，带 `__agridx_check` 的请求却能读到源站新提交。控制器在部署后执行 `install-release-cache-headers.sh`：只在包含 `root /opt/agridx/current/dist;` 的 `/etc/nginx` 普通文件中加入托管片段，为上述两个 JSON 加 `Cache-Control: no-store`；`nginx -t` 失败则恢复原文件，不改证书、DNS 或其他站点。已安装的控制器是固定副本，需用下方安装命令按本批提交重新安装一次后，这段逻辑才会在服务器上运行；之后成功部署会把已审阅的控制器脚本拷回工具目录。
+
+已经进了 CDN 的旧对象不会因为源站后来加上 `no-store` 立刻消失。若验收在预算内仍报 `cdn_cache_stale`，需在该域名的腾讯云 CDN 控制台刷新 `https://agridx.xyz/deployment.json` 和 `https://agridx.xyz/deployment-automation.json`，并把这两条以及 `/`、`/index.html`、`/api/`、`/theme-init.js` 的节点缓存改为遵循源站或不缓存。先检查现有规则及优先级，仅更改本域名动态入口，不清全账号、不改 DNS/权限/密钥。控制器没有 CDN 管理权限，刷新请求本身也不等于缓存已清理。
 
 官方操作依据：[缓存刷新](https://cloud.tencent.com/document/product/228/6299)、[节点缓存规则](https://cloud.tencent.com/document/product/228/47672)。规则变更和刷新请求仍需有权限的控制台执行，并在任务完成后用不带版本参数的原始网址及实际浏览器重新验收；提交刷新请求本身也不等于缓存已清理。

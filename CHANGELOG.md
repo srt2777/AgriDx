@@ -25,6 +25,38 @@
 - 验证：完整 `npm run verify`（基底 main c6a79205）971 项，966 通过、3 失败；2 个 knowledge-quality 回归已修复，剩余 1 个为 tencent-deploy 启动抖动。
 - 2026-11-07 合并 4.1.0 基线：同时保留因果关系 snapshotSha256 和社区报告 snapshotSha / entryModels，统一浏览器可用 SHA-256，保留图谱 URL 恢复与快照校验。当前提交的验证结果以 PR CI 为准。
 
+## 4.1.7 — 2026-11-10
+
+- 正式站发布清单不再被 CDN 旧缓存挡住公网验收
+- 更新类型：fix；批次：tencent-public-verify-20261110。
+
+### 详细改动
+
+- 公网验收在预算内重试不带查询参数的普通入口。源站提交、版本和文件摘要仍必须一致；预算用尽后普通入口仍旧，继续以 `cdn_cache_stale` 失败。失败信息带上观察到的提交和版本。
+- 控制器安装后为 `/deployment.json` 与 `/deployment-automation.json` 增加 `Cache-Control: no-store`。只改包含 `root /opt/agridx/current/dist;` 的 `/etc/nginx` 普通文件；`nginx -t` 失败则恢复。带内容哈希的静态资源不改缓存。
+- 已安装的控制器是固定副本。成功部署后把本批已审阅的控制器脚本拷回工具目录。失败部署删除该次 `node_modules` 与私有 npm 缓存，源码目录仍保留。Node 在直接托管静态文件时对发布清单使用同样的 `no-store`。
+
+### 知识库变化
+
+- 未改知识库。
+
+### 兼容性
+
+- 发布清单的 URL 和字段不变。已安装的腾讯控制器要按本批提交重新运行一次安装器，缓存头和脚本自更新才会在服务器上生效。
+
+### 验证结果
+
+- 对照 2026-11-10 的 Actions：到 `23face14` 为止，带 `__agridx_check` 的源站清单已是目标提交，失败句是「普通访问 /deployment.json 与目标发布不一致」。直连 `43.128.40.157` 的源站清单无 `Cache-Control`，`Last-Modified` 为 2026-11-10 01:38:11 GMT；首页为 `no-cache`。此后源站文件未再更换，`a761ee0` 等验收在约 6 分钟重试后报清单与目标提交不一致。
+- 本地对当前 main 执行 `npm ci` 与 `npm run build` 成功，裁剪开发依赖后生产服务约 4 秒通过 `/api/health`。部署与验收测试通过。CI 首次失败是因为 gawk 把 awk 变量名 `include` 当成内置函数，且 Windows 没有 `/bin/bash`；变量已改名，安装脚本测试只在 Linux 跑。
+
+### 关联 PR
+
+- [PR #259](https://github.com/srt2777/AgriDx/pull/259)
+
+### 部署记录
+
+- 尚未合入，正式站仍为 23face14 / 4.1.6。GitHub 保存、开发站与正式站分别验收。
+
 ## 4.1.6 — 2026-11-07
 
 - 统一网站、智能体与项目展示名称为司稼

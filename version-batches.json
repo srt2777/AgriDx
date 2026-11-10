@@ -1064,6 +1064,13 @@
       "base": "4.1.5",
       "version": "4.1.6",
       "date": "2026-11-07"
+    },
+    {
+      "id": "tencent-public-verify-20261110",
+      "kind": "fix",
+      "base": "4.1.6",
+      "version": "4.1.7",
+      "date": "2026-11-10"
     }
   ]
 }
