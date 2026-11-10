@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useReducedMotion } from 'framer-motion';
 import { useUiCopy } from '@/ui/useUiCopy';
+import { useTheme } from '@/hooks/useTheme';
 import type { KnowledgeCatalog } from '@shared/knowledge-catalog';
 import type { TaxonomyNode } from './knowledge-taxonomy-data';
 import { createGraphFlowLoop } from './graph-flow-loop';
@@ -22,6 +23,7 @@ export default function KnowledgeEngine({ nodes, selectedId, onSelect, lang, onR
 }) {
     const { t } = useUiCopy(lang);
     const reduced = !!useReducedMotion();
+    const theme = useTheme();
     const [running, setRunning] = useState(!reduced);
     const [zoomPercent, setZoomPercent] = useState(100);
     const root = useRef<HTMLDivElement>(null), canvas = useRef<HTMLCanvasElement>(null), tooltip = useRef<HTMLElement>(null);
@@ -42,8 +44,8 @@ export default function KnowledgeEngine({ nodes, selectedId, onSelect, lang, onR
     const selectedLevel = mode === 'learning' ? activeTaxonomy?.level === 'brand' ? t('资料分类', 'Collection') : t('学习主题', 'Learning topic')
         : activeTaxonomy ? t(levelLabels[activeTaxonomy.level][0], levelLabels[activeTaxonomy.level][1]) : '';
     const scopeLabel = activeTaxonomy?.scope === 'exact' ? t('具体型号', 'Specific model') : activeTaxonomy?.scope === 'series' ? t('系列范围', 'Series scope') : activeTaxonomy?.scope === 'pending' ? t('待核实', 'Unconfirmed') : t('目录分类', 'Catalog');
-    const latest = useRef({ running, active, reduced });
-    useLayoutEffect(() => { latest.current = { running, active, reduced }; wake.current(); }, [running, active, reduced]);
+    const latest = useRef({ running, active, reduced, theme });
+    useLayoutEffect(() => { latest.current = { running, active, reduced, theme }; wake.current(); }, [running, active, reduced, theme]);
     useEffect(() => {
         const escape = (event: KeyboardEvent) => {
             if (event.key === 'Escape' && document.fullscreenElement === root.current?.parentElement)
@@ -71,7 +73,7 @@ export default function KnowledgeEngine({ nodes, selectedId, onSelect, lang, onR
             if (state.running && state.active < 0 && !state.reduced && !pointers.current.size)
                 clock.current = clock.current + delta;
             stepGraphCamera(camera.current, Math.max(delta, 1 / 60), state.reduced);
-            engine.draw({ time: clock.current, active: state.active, animate: !state.reduced, camera: camera.current, tooltip: tooltip.current });
+            engine.draw({ time: clock.current, active: state.active, animate: !state.reduced, camera: camera.current, tooltip: tooltip.current, theme: state.theme });
             dirty = false;
             if (performance.now() - lastReport > 250) {
                 setZoomPercent(Math.round(camera.current.zoom * 100));
@@ -178,7 +180,7 @@ export default function KnowledgeEngine({ nodes, selectedId, onSelect, lang, onR
         await document.exitFullscreen();
     else
         await root.current?.parentElement?.requestFullscreen?.(); };
-    return <div className="knowledge-engine-shell">
+    return <div className="knowledge-engine-shell" data-theme={theme}>
     <div className="engine-controls" aria-label={t('图谱控制', 'Graph controls')}>
       <button aria-pressed={running && !reduced} disabled={reduced} onClick={() => setRunning(value => !value)}>{reduced ? t('减少动态', 'Reduced motion') : running ? t('暂停', 'Pause') : t('播放', 'Play')}</button>
       <button onClick={() => zoom(1.4)} aria-label={t('放大图谱', 'Zoom in')}>＋</button><output aria-label={t('当前缩放比例', 'Current zoom')}>{zoomPercent}%</output><button onClick={() => zoom(1 / 1.4)} aria-label={t('缩小图谱', 'Zoom out')}>−</button>

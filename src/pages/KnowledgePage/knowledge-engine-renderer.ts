@@ -1,12 +1,46 @@
 import type { EngineNetwork, EngineNode } from './knowledge-engine-model';
 import type { GraphCamera } from './graph-interaction';
 import { graphNodeScale } from './graph-interaction';
+import type { Theme } from '@/hooks/useTheme';
 
 export interface EngineHit { index: number; x: number; y: number; radius: number; width?: number }
 interface Projected { x: number; y: number; z: number; radius: number; visible: boolean }
 export interface EngineScene {
-  time: number; active: number; animate: boolean; camera: GraphCamera; tooltip: HTMLElement | null;
+  time: number; active: number; animate: boolean; camera: GraphCamera; tooltip: HTMLElement | null; theme: Theme;
 }
+/** Per-theme canvas palette: light uses the same warm paper as the dynamic graph. */
+export interface EnginePalette {
+  background: string;
+  edgeIvory: string;
+  edgeCoral: string;
+  edgeActive: string;
+  labelChip: string;
+  labelText: string;
+  labelActive: string;
+  ringActive: string;
+}
+export const ENGINE_PALETTES: Record<Theme, EnginePalette> = {
+  light: {
+    background: '#f7f2e7',
+    edgeIvory: '#66755c33',
+    edgeCoral: '#a85a4a33',
+    edgeActive: '#b85a3f80',
+    labelChip: '#fdfaf3',
+    labelText: '#4a3a20',
+    labelActive: '#a8740a',
+    ringActive: '#a8740a',
+  },
+  dark: {
+    background: '#0e1211',
+    edgeIvory: '#b8beb32e',
+    edgeCoral: '#e0837036',
+    edgeActive: '#f5b09365',
+    labelChip: '#050908ed',
+    labelText: '#eeeae0',
+    labelActive: '#e9c777',
+    ringActive: '#e9c777',
+  },
+};
 function sphere(color: EngineNode['color']) {
   const canvas = document.createElement('canvas'); canvas.width = 96; canvas.height = 96;
   const c = canvas.getContext('2d')!;
@@ -44,9 +78,10 @@ export class KnowledgeEngineRenderer {
     const { width, height } = canvas.getBoundingClientRect();
     if (!width || !height) return;
     this.width = width; this.height = height;
+    const palette = ENGINE_PALETTES[scene.theme];
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     if (canvas.width !== Math.round(width * dpr) || canvas.height !== Math.round(height * dpr)) { canvas.width = Math.round(width * dpr); canvas.height = Math.round(height * dpr); }
-    c.setTransform(dpr, 0, 0, dpr, 0, 0); c.fillStyle = '#0e1211'; c.fillRect(0, 0, width, height);
+    c.setTransform(dpr, 0, 0, dpr, 0, 0); c.fillStyle = palette.background; c.fillRect(0, 0, width, height);
     const unit = width / 1080, { camera: view, time } = scene;
     const lodParts = view.zoom < .72;
     const scale = Math.min(width / 5.85, height / 5.65) * view.zoom;
@@ -68,7 +103,7 @@ export class KnowledgeEngineRenderer {
     });
     c.lineWidth = Math.max(.35, .55 * unit);
     for (let group = 0; group < 2; group++) {
-      c.beginPath(); c.strokeStyle = group ? '#b8beb32e' : '#e0837036';
+      c.beginPath(); c.strokeStyle = group ? palette.edgeIvory : palette.edgeCoral;
       for (const edge of network.edges) {
         if (!points[edge.from].visible || !points[edge.to].visible) continue;
         if ((network.nodes[edge.from].color === 'ivory' ? 1 : 0) !== group) continue;
@@ -79,7 +114,7 @@ export class KnowledgeEngineRenderer {
     }
     const activeNode = network.nodes[scene.active];
     if (activeNode && points[scene.active].visible) {
-      c.beginPath(); c.strokeStyle = '#f5b09365'; c.lineWidth = .9 * unit;
+      c.beginPath(); c.strokeStyle = palette.edgeActive; c.lineWidth = .9 * unit;
       for (const edge of network.edges) {
         if (edge.from !== scene.active && edge.to !== scene.active) continue;
         const a = points[edge.from], b = points[edge.to]; c.moveTo(a.x, a.y); c.lineTo(b.x, b.y);
@@ -100,11 +135,11 @@ export class KnowledgeEngineRenderer {
       const node = network.nodes[i], p = points[i];
       if (!p.visible) continue;
       const active = scene.active === i;
-      this.label(node.label, p.x + p.radius * .6, p.y + p.radius * .45, (active ? 14 : 12) * unit * Math.min(1.7, Math.sqrt(view.zoom)), active ? '#e9c777' : '#eeeae0', i);
+      this.label(node.label, p.x + p.radius * .6, p.y + p.radius * .45, (active ? 14 : 12) * unit * Math.min(1.7, Math.sqrt(view.zoom)), active ? palette.labelActive : palette.labelText, i, palette.labelChip);
     }
     if (activeNode && points[scene.active].visible) {
       const p = points[scene.active];
-      c.beginPath(); c.strokeStyle = '#e9c777'; c.lineWidth = 1.5;
+      c.beginPath(); c.strokeStyle = palette.ringActive; c.lineWidth = 1.5;
       c.arc(p.x, p.y, p.radius + 3, 0, Math.PI * 2); c.stroke();
       if (scene.tooltip) {
         scene.tooltip.style.display = '';
@@ -119,11 +154,11 @@ export class KnowledgeEngineRenderer {
     c.globalAlpha = 1;
   }
 
-  private label(text: string, x: number, y: number, size: number, color: string, index: number) {
+  private label(text: string, x: number, y: number, size: number, color: string, index: number, chip: string) {
     const c = this.context; c.font = `600 ${Math.max(7, size)}px ui-monospace, 'SFMono-Regular', Consolas, monospace`;
     const width = c.measureText(text).width + 12 * this.width / 1080, height = Math.max(12, size * 1.65);
     if (x < 0 || y < 0 || x > this.width || y > this.height) return;
-    c.fillStyle = '#050908ed'; c.fillRect(x - 3, y - height / 2, width, height);
+    c.fillStyle = chip; c.fillRect(x - 3, y - height / 2, width, height);
     c.fillStyle = color; c.fillText(text, x + 2, y + size * .32);
     this.hits.push({ index, x: x - 3, y, radius: 0, width });
   }
