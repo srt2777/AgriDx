@@ -269,16 +269,29 @@ static int nextWifiGroup(int cur) {
   return 0;
 }
 
-// 切到指定组（异步 WiFi.begin，不阻塞）；g 无效时什么都不做。
+// 换组前先断开并等 station 回到空闲：上一组还在连着时驱动拒绝换配置
+// （E wifi:sta is connecting, cannot set config），新组根本没换过去。
+// 最多等 maxMs，以先到为准；station 已空闲时立即返回。
+static void wifiDisconnectSettle(uint32_t maxMs) {
+  WiFi.disconnect();
+  uint32_t t0 = millis();
+  while (millis() - t0 < maxMs) {
+    wl_status_t st = WiFi.status();
+    if (st == WL_DISCONNECTED || st == WL_IDLE_STATUS) break;
+    delay(10);
+  }
+}
+
+// 切到指定组（先断开并等 station 空闲 ≤100ms，再异步 WiFi.begin）；g 无效时什么都不做。
 static void switchWifiGroup(int g) {
+  if (g < 1 || g > 3) return;  // g 无效时什么都不做
+  wifiDisconnectSettle(100);
   if (g == 1) {
     WiFi.begin(g_wifiSsid.c_str(), g_wifiPass.c_str());
   } else if (g == 2) {
     WiFi.begin(g_wifiSsid2.c_str(), g_wifiPass2.c_str());
-  } else if (g == 3) {
-    WiFi.begin(g_wifiSsid3.c_str(), g_wifiPass3.c_str());
   } else {
-    return;
+    WiFi.begin(g_wifiSsid3.c_str(), g_wifiPass3.c_str());
   }
   g_wifiActive = g;
   s_wifiLastSwitch = millis();
@@ -1433,6 +1446,7 @@ static void loadWifiCreds() {
 static bool tryWifi(const String &ssid, const String &pass, uint32_t timeoutMs,
                     float progFrom, float progTo) {
   if (ssid.length() == 0) return false;
+  wifiDisconnectSettle(200);  // 换组前先断开，否则驱动拒绝换配置（见上）
   WiFi.begin(ssid.c_str(), pass.c_str());
   uint32_t t0 = millis();
   while (WiFi.status() != WL_CONNECTED && millis() - t0 < timeoutMs) {
