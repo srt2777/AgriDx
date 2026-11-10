@@ -117,7 +117,15 @@ export async function createRapierVehicle(initial: Pose): Promise<RapierVehicle>
       // Drive the Rapier body by velocity; Rapier resolves wall/booth contact.
       body.setLinvel({ x: vx, y: 0, z: vz }, true);
       body.setAngvel({ x: 0, y: headingRate, z: 0 }, true);
-      world.step();
+      // Rapier advances its world by one fixed 1/60 s step per world.step()
+      // call, regardless of the render frame time. At low frame rates a
+      // single step would move the body only 1/60 s per frame while the
+      // speedometer (integrated with clampedDt) ran at full rate — the
+      // tractor crawled, turned faster than it travelled, and braking felt
+      // disconnected from the speed shown. Sub-step so the body covers the
+      // same simulated time as the kinematic integration above.
+      const steps = Math.max(1, Math.round(clampedDt / (1 / 60)));
+      for (let i = 0; i < steps; i += 1) world.step();
       const t = body.translation();
       const next: Pose = { x: t.x, z: t.z, heading, speed, steer };
       // Keep the visual heading authoritative; Rapier position is authoritative

@@ -19,9 +19,35 @@ export interface Pose {
 }
 
 export interface DriveInput {
-  throttle: number; // -1..1 (W/S or joystick Y)
-  steer: number; // -1..1 (A/D or joystick X)
+  throttle: number; // -1..1 (↑/↓ or W/S, or joystick Y)
+  steer: number; // -1..1 (←/→ or A/D, or joystick X)
   brake: boolean;
+}
+
+/** Arrow keys are the primary drive/walk control; WASD is an alias. */
+export const ARROW_CODES = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'] as const;
+
+/** Walk input from the held key set: forward/strafe in -1..1. */
+export function keysToWalkInput(keys: ReadonlySet<string>, joy: { x: number; y: number }): { forward: number; strafe: number } {
+  const forward = (keys.has('KeyW') || keys.has('ArrowUp') ? 1 : 0) - (keys.has('KeyS') || keys.has('ArrowDown') ? 1 : 0) + -joy.y;
+  const strafe = (keys.has('KeyD') || keys.has('ArrowRight') ? 1 : 0) - (keys.has('KeyA') || keys.has('ArrowLeft') ? 1 : 0) + joy.x;
+  return { forward, strafe };
+}
+
+/** Drive input from the held key set; arrows and WASD are equivalent. */
+export function keysToDriveInput(keys: ReadonlySet<string>, joy: { x: number; y: number }): DriveInput {
+  return {
+    throttle: (keys.has('KeyW') || keys.has('ArrowUp') ? 1 : 0) - (keys.has('KeyS') || keys.has('ArrowDown') ? 1 : 0) + -joy.y,
+    steer: (keys.has('KeyA') || keys.has('ArrowLeft') ? -1 : 0) + (keys.has('KeyD') || keys.has('ArrowRight') ? 1 : 0) + joy.x,
+    brake: keys.has('Space'),
+  };
+}
+
+/** True when any manual drive/walk key (or the joystick) is active. */
+export function hasManualInput(keys: ReadonlySet<string>, joy: { x: number; y: number }): boolean {
+  return keys.has('KeyW') || keys.has('KeyS') || keys.has('KeyA') || keys.has('KeyD')
+    || keys.has('ArrowUp') || keys.has('ArrowDown') || keys.has('ArrowLeft') || keys.has('ArrowRight')
+    || keys.has('Space') || Math.abs(joy.x) > 0.15 || Math.abs(joy.y) > 0.15;
 }
 
 export interface VehicleParams {

@@ -1078,6 +1078,13 @@
       "base": "4.1.7",
       "version": "4.1.8",
       "date": "2026-11-10"
+    },
+    {
+      "id": "showroom-topbar-crops-20261110",
+      "kind": "fix",
+      "base": "4.1.8",
+      "version": "4.1.9",
+      "date": "2026-11-10"
     }
   ]
 }

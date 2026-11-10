@@ -17,7 +17,7 @@ import * as THREE from 'three';
 import { HONGHU_T70_PARTS_URL } from '@/components/tractor-model-info';
 import { HALL, QUALITY_TIERS, SHOWROOM_ZONES, T70_PARTS, T70_PART_SOURCES, type QualityId, type ZoneId } from './showroom-data';
 import type { BlendedWeather } from './showroom-weather';
-import { autopilotInput, clampWalk, resolveCollision, stepVehicle, TRACTOR_PARAMS, TRACTOR_RADIUS, WALK_PARAMS } from './showroom-drive';
+import { autopilotInput, clampWalk, hasManualInput, keysToDriveInput, keysToWalkInput, resolveCollision, stepVehicle, TRACTOR_PARAMS, TRACTOR_RADIUS, WALK_PARAMS } from './showroom-drive';
 import { createRapierVehicle, type RapierVehicle } from './rapier-vehicle';
 import type { SimState } from './showroom-state';
 
@@ -94,22 +94,96 @@ function boardTexture(lines: string[], title: string): THREE.CanvasTexture {
   });
 }
 
-function cropTexture(): THREE.CanvasTexture {
-  return canvasTexture(128, 256, (ctx) => {
-    const g = ctx.createLinearGradient(0, 256, 0, 0);
-    g.addColorStop(0, '#3f6b28');
-    g.addColorStop(0.55, '#5d8a35');
-    g.addColorStop(1, '#c9a94e');
-    ctx.fillStyle = g;
-    ctx.fillRect(0, 0, 128, 256);
-    ctx.strokeStyle = 'rgba(46, 90, 32, 0.55)';
-    ctx.lineWidth = 5;
-    for (let x = 14; x < 128; x += 24) {
+/* Wheat plant silhouettes on a transparent canvas. The cutout
+ * (alphaTest, see CropField) turns each flat quad into a shaped plant
+ * — tapered stem, curved blades with midribs, golden ear with awns —
+ * instead of the old solid green board. Two variants (A: eared wheat,
+ * B: leafier and taller, small ear) are mixed across the rows so the
+ * field does not read as one repeating stamp. Canvas 256×512, plant
+ * centred at x = 128, base y = 508, ear tip near y = 20. */
+function drawLeaf(
+  ctx: CanvasRenderingContext2D,
+  x: number, y: number, len: number, angleDeg: number, width: number,
+  base: string, tip: string,
+) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate((angleDeg * Math.PI) / 180);
+  const g = ctx.createLinearGradient(0, 0, len, 0);
+  g.addColorStop(0, base);
+  g.addColorStop(1, tip);
+  ctx.fillStyle = g;
+  ctx.beginPath();
+  ctx.moveTo(0, 0);
+  ctx.bezierCurveTo(len * 0.3, -width, len * 0.75, -width * 0.55, len, 0);
+  ctx.bezierCurveTo(len * 0.75, width * 0.55, len * 0.3, width, 0, 0);
+  ctx.closePath();
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(238, 242, 196, 0.55)';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(6, 0);
+  ctx.lineTo(len - 8, 0);
+  ctx.stroke();
+  ctx.restore();
+}
+
+function drawEar(ctx: CanvasRenderingContext2D, cx: number, topY: number, grains: number) {
+  ctx.strokeStyle = '#a8842f';
+  ctx.lineWidth = 4;
+  ctx.beginPath();
+  ctx.moveTo(cx, topY + grains * 13 + 14);
+  ctx.lineTo(cx, topY);
+  ctx.stroke();
+  for (let i = 0; i < grains; i++) {
+    const y = topY + 8 + i * 13;
+    for (const side of [-1, 1]) {
+      ctx.save();
+      ctx.translate(cx + side * 9, y);
+      ctx.rotate(side * 0.6);
+      ctx.fillStyle = i % 2 ? '#d9b45b' : '#c9a24a';
       ctx.beginPath();
-      ctx.moveTo(x, 256);
-      ctx.lineTo(x + 8, 20);
+      ctx.ellipse(0, 0, 7, 13, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+      ctx.strokeStyle = 'rgba(216, 178, 92, 0.85)';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(cx + side * 14, y - 6);
+      ctx.lineTo(cx + side * 30, y - 42);
       ctx.stroke();
     }
+  }
+}
+
+function cropTexture(variant: 'A' | 'B'): THREE.CanvasTexture {
+  return canvasTexture(256, 512, (ctx) => {
+    ctx.clearRect(0, 0, 256, 512);
+    // Stem: tapered, slightly darker at the base.
+    const stemTop = variant === 'A' ? 150 : 110;
+    const stemGrad = ctx.createLinearGradient(0, 508, 0, stemTop);
+    stemGrad.addColorStop(0, '#4c6426');
+    stemGrad.addColorStop(1, '#7ba23f');
+    ctx.fillStyle = stemGrad;
+    ctx.beginPath();
+    ctx.moveTo(123, 508);
+    ctx.lineTo(133, 508);
+    ctx.lineTo(130, stemTop);
+    ctx.lineTo(126, stemTop);
+    ctx.closePath();
+    ctx.fill();
+    // Back leaves (darker) first, then front leaves (lighter).
+    const back: [number, number, number, number][] =
+      variant === 'A'
+        ? [[128, 430, 95, -115], [128, 360, 105, 115], [128, 290, 90, -125]]
+        : [[128, 440, 120, -105], [128, 360, 125, 105], [128, 280, 110, -120], [128, 210, 95, 120]];
+    for (const [x, y, len, angle] of back) drawLeaf(ctx, x, y, len, angle, 13, '#3c5c20', '#6d8a38');
+    const front: [number, number, number, number][] =
+      variant === 'A'
+        ? [[128, 470, 80, -35], [128, 410, 115, 35], [128, 340, 105, -48], [128, 265, 95, 48], [128, 200, 75, -60]]
+        : [[128, 480, 110, -28], [128, 420, 130, 30], [128, 350, 120, -42], [128, 285, 110, 42], [128, 220, 95, -55], [128, 165, 80, 55]];
+    for (const [x, y, len, angle] of front) drawLeaf(ctx, x, y, len, angle, variant === 'A' ? 15 : 20, '#4a7028', '#93b84e');
+    drawEar(ctx, 128, variant === 'A' ? 28 : 48, variant === 'A' ? 8 : 5);
   });
 }
 
@@ -493,21 +567,35 @@ function getPrecipitationPositions(): Float32Array {
 
 const CROP_COUNT = 1900;
 
+type CropInstance = { x: number; z: number; rot: number; s: number; tint: [number, number, number] };
+
 /**
- * Procedural crop rows (one InstancedMesh, ~1900 plants, 2 triangles
- * each). Wind sway is a vertex-shader bend driven by the current
- * weather's `sway` — no per-plant CPU work per frame, so the field
- * stays cheap even on integrated graphics. Rows skip the dirt track
- * and the four booth footprints.
+ * Procedural crop rows (two InstancedMeshes, one per texture variant,
+ * ~1900 plants total). Each plant is two crossed alpha-cutout planes
+ * (12 triangles), so it reads as a 3D plant from any angle instead of
+ * a flat board, while the draw-call count stays at 2 and the triangle
+ * count (~23k) is still trivial. Wind sway is a vertex-shader bend
+ * driven by the current weather's `sway` — no per-plant CPU work per
+ * frame, so the field stays cheap even on integrated graphics. Rows
+ * skip the dirt track and the four booth footprints.
  */
 function CropField({ weather }: { weather: BlendedWeather }) {
-  const meshRef = useRef<THREE.InstancedMesh>(null);
-  const materialRef = useRef<THREE.MeshStandardMaterial>(null);
-  const texture = useMemo(() => cropTexture(), []);
+  const meshRefA = useRef<THREE.InstancedMesh>(null);
+  const meshRefB = useRef<THREE.InstancedMesh>(null);
+  const materialRefA = useRef<THREE.MeshStandardMaterial>(null);
+  const materialRefB = useRef<THREE.MeshStandardMaterial>(null);
+  const textures = useMemo(() => [cropTexture('A'), cropTexture('B')] as const, []);
   const wind = useMemo(() => ({ uTime: { value: 0 }, uSway: { value: 0.15 } }), []);
-  const geometry = useMemo(() => new THREE.PlaneGeometry(0.55, 1.15, 1, 2), []);
-  const instances = useMemo(() => {
-    const list: { x: number; z: number; rot: number; s: number; shade: number }[] = [];
+  // Crossed planes: the second geometry is the first rotated 90°, so
+  // every plant gets an X-shaped pair sharing one instance matrix.
+  const geometryA = useMemo(() => new THREE.PlaneGeometry(0.62, 1.3, 1, 3), []);
+  const geometryB = useMemo(() => {
+    const g = new THREE.PlaneGeometry(0.62, 1.3, 1, 3);
+    g.rotateY(Math.PI / 2);
+    return g;
+  }, []);
+  const [instancesA, instancesB] = useMemo(() => {
+    const list: (CropInstance & { variant: 0 | 1 })[] = [];
     const booths: [number, number, number, number][] = [
       [-3.4, -2.2, 3.4, 2.2],
       [13.5, -12.5, 19.5, -7.5],
@@ -526,67 +614,99 @@ function CropField({ weather }: { weather: BlendedWeather }) {
         const z = (side === 0 ? -1 : 1) * (6.8 + row * 1.1);
         for (let x = -28; x <= 28; x += 0.7) {
           if (blocked(x, z)) continue;
-          list.push({ x: x + (rand() - 0.5) * 0.3, z: z + (rand() - 0.5) * 0.3, rot: rand() * Math.PI, s: 0.85 + rand() * 0.4, shade: 0.85 + rand() * 0.3 });
+          // Occasional gaps so the rows have sparse/thin patches.
+          if (rand() < 0.08) continue;
+          list.push({
+            x: x + (rand() - 0.5) * 0.3,
+            z: z + (rand() - 0.5) * 0.9,
+            rot: rand() * Math.PI,
+            s: 0.8 + rand() * 0.55,
+            // Near-white tint with a slight hue shift; it multiplies
+            // the texture, so the painted colours stay dominant.
+            tint: [0.22 + rand() * 0.08, 0.2 + rand() * 0.15, 0.85 + rand() * 0.15],
+            variant: (row % 2) as 0 | 1,
+          });
         }
       }
     }
-    return list.slice(0, CROP_COUNT);
+    const kept = list.slice(0, CROP_COUNT);
+    return [kept.filter((i) => i.variant === 0), kept.filter((i) => i.variant === 1)] as const;
   }, []);
   useEffect(() => {
-    const mesh = meshRef.current;
-    if (!mesh) return;
     const dummy = new THREE.Object3D();
     const color = new THREE.Color();
-    instances.forEach((inst, i) => {
-      dummy.position.set(inst.x, 0.58 * inst.s, inst.z);
-      dummy.rotation.set(0, inst.rot, 0);
-      dummy.scale.setScalar(inst.s);
-      dummy.updateMatrix();
-      mesh.setMatrixAt(i, dummy.matrix);
-      color.setScalar(inst.shade);
-      mesh.setColorAt(i, color);
-    });
-    mesh.instanceMatrix.needsUpdate = true;
-    if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
-    mesh.count = instances.length;
-  }, [instances]);
+    const fill = (mesh: THREE.InstancedMesh | null, list: CropInstance[]) => {
+      if (!mesh) return;
+      list.forEach((inst, i) => {
+        dummy.position.set(inst.x, 0.65 * inst.s, inst.z);
+        dummy.rotation.set(0, inst.rot, 0);
+        dummy.scale.setScalar(inst.s);
+        dummy.updateMatrix();
+        mesh.setMatrixAt(i, dummy.matrix);
+        color.setHSL(inst.tint[0], inst.tint[1], inst.tint[2]);
+        mesh.setColorAt(i, color);
+      });
+      mesh.instanceMatrix.needsUpdate = true;
+      if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
+      mesh.count = list.length;
+    };
+    fill(meshRefA.current, instancesA);
+    fill(meshRefB.current, instancesB);
+  }, [instancesA, instancesB]);
   useFrame(({ clock }) => {
     wind.uTime.value = clock.elapsedTime;
     wind.uSway.value = weather.sway;
-    if (materialRef.current) {
-      const wet = weather.wet;
-      materialRef.current.color.setRGB(1 - wet * 0.35, 1 - wet * 0.3, 1 - wet * 0.3);
+    const wet = weather.wet;
+    for (const ref of [materialRefA, materialRefB]) {
+      if (ref.current) ref.current.color.setRGB(1 - wet * 0.35, 1 - wet * 0.3, 1 - wet * 0.3);
     }
   });
+  // Both variants share the sway shader; alphaTest cuts the quad to
+  // the painted plant silhouette (no transparent sorting issues).
+  const cropMaterial = (ref: { current: THREE.MeshStandardMaterial | null }, texture: THREE.Texture) => (
+    <meshStandardMaterial
+      ref={ref}
+      map={texture}
+      side={THREE.DoubleSide}
+      roughness={0.9}
+      alphaTest={0.35}
+      onBeforeCompile={(shader) => {
+        shader.uniforms.uTime = wind.uTime;
+        shader.uniforms.uSway = wind.uSway;
+        shader.vertexShader = `uniform float uTime; uniform float uSway;\n${shader.vertexShader.replace(
+          '#include <begin_vertex>',
+          `#include <begin_vertex>
+          {
+            float swayH = pow(clamp(position.y / 1.3 + 0.5, 0.0, 1.0), 2.0);
+            float phase = uTime * 1.7 + float(instanceMatrix[3][0]) * 0.45 + float(instanceMatrix[3][2]) * 0.3;
+            transformed.x += sin(phase) * uSway * 0.38 * swayH;
+            transformed.z += cos(uTime * 1.3 + float(instanceMatrix[3][0]) * 0.3) * uSway * 0.12 * swayH;
+          }`,
+        )}`;
+      }}
+    />
+  );
   return (
-    <instancedMesh
-      ref={meshRef}
-      args={[geometry, undefined, instances.length]}
-      frustumCulled={false}
-      castShadow={false}
-      receiveShadow
-    >
-      <meshStandardMaterial
-        ref={materialRef}
-        map={texture}
-        side={THREE.DoubleSide}
-        roughness={0.9}
-        onBeforeCompile={(shader) => {
-          shader.uniforms.uTime = wind.uTime;
-          shader.uniforms.uSway = wind.uSway;
-          shader.vertexShader = `uniform float uTime; uniform float uSway;\n${shader.vertexShader.replace(
-            '#include <begin_vertex>',
-            `#include <begin_vertex>
-            {
-              float swayH = pow(clamp(position.y / 1.15 + 0.5, 0.0, 1.0), 2.0);
-              float phase = uTime * 1.7 + float(instanceMatrix[3][0]) * 0.45 + float(instanceMatrix[3][2]) * 0.3;
-              transformed.x += sin(phase) * uSway * 0.38 * swayH;
-              transformed.z += cos(uTime * 1.3 + float(instanceMatrix[3][0]) * 0.3) * uSway * 0.12 * swayH;
-            }`,
-          )}`;
-        }}
-      />
-    </instancedMesh>
+    <group>
+      <instancedMesh
+        ref={meshRefA}
+        args={[geometryA, undefined, instancesA.length]}
+        frustumCulled={false}
+        castShadow={false}
+        receiveShadow
+      >
+        {cropMaterial(materialRefA, textures[0])}
+      </instancedMesh>
+      <instancedMesh
+        ref={meshRefB}
+        args={[geometryB, undefined, instancesB.length]}
+        frustumCulled={false}
+        castShadow={false}
+        receiveShadow
+      >
+        {cropMaterial(materialRefB, textures[1])}
+      </instancedMesh>
+    </group>
   );
 }
 
@@ -826,6 +946,11 @@ function CameraRig({ sim, weather, onPosition, onAutopilotArrived }: { sim: SimS
   const lastReport = useRef(0);
   const rapierRef = useRef<RapierVehicle | null>(null);
   const rapierTried = useRef(false);
+  // Follow-camera state: a smoothed look target (so Rapier pose jitter
+  // does not shake the view) and the previous mode (to snap the camera
+  // onto the follow pose the moment the user boards).
+  const lookTarget = useRef(new THREE.Vector3(0, 1.2, 0));
+  const prevMode = useRef(sim.mode);
   const sunRef = useRef<THREE.DirectionalLight>(null);
   const hemiRef = useRef<THREE.HemisphereLight>(null);
 
@@ -862,6 +987,16 @@ function CameraRig({ sim, weather, onPosition, onAutopilotArrived }: { sim: SimS
 
   useFrame((state, dt) => {
     const clampedDt = Math.min(Math.max(dt, 0.0001), 0.05);
+    // A stale fly-to must never shadow drive mode: entering drive while
+    // a fly-to was still running used to leave sim.flyTo set, and the
+    // fly-to branch above the drive branch then swallowed every frame —
+    // the tractor ignored all input, the camera stayed at the zone, and
+    // the HUD still said "driving". Drive mode never flies, so drop it.
+    if (sim.mode === 'drive') sim.flyTo = null;
+    // Camera smoothing must use the REAL frame time: with clampedDt a
+    // low frame rate made the follow camera lag seconds behind the
+    // tractor (it visibly lost the tractor), and fly-ins crawled.
+    const camDt = Math.min(Math.max(dt, 0.0001), 0.1);
     sim.elapsed += clampedDt;
     sim.radarAngle += clampedDt * 0.9;
     sim.diagPhase = (sim.elapsed / 4) % 3;
@@ -871,7 +1006,7 @@ function CameraRig({ sim, weather, onPosition, onAutopilotArrived }: { sim: SimS
     // --- fly-to tween ---
     if (sim.flyTo) {
       const goal = sim.flyTo;
-      const k = 1 - Math.exp(-clampedDt * 2.2);
+      const k = 1 - Math.exp(-camDt * 2.2);
       camera.position.lerp(new THREE.Vector3(...goal.pos), k);
       const look = new THREE.Vector3(...goal.look);
       camera.lookAt(look);
@@ -888,8 +1023,7 @@ function CameraRig({ sim, weather, onPosition, onAutopilotArrived }: { sim: SimS
         }
       }
     } else if (sim.mode === 'walk') {
-      const forward = (keys.has('KeyW') || keys.has('ArrowUp') ? 1 : 0) - (keys.has('KeyS') || keys.has('ArrowDown') ? 1 : 0) + -joy.y;
-      const strafe = (keys.has('KeyD') || keys.has('ArrowRight') ? 1 : 0) - (keys.has('KeyA') || keys.has('ArrowLeft') ? 1 : 0) + joy.x;
+      const { forward, strafe } = keysToWalkInput(keys, joy);
       const sin = Math.sin(sim.walk.yaw);
       const cos = Math.cos(sim.walk.yaw);
       void sin;
@@ -915,19 +1049,12 @@ function CameraRig({ sim, weather, onPosition, onAutopilotArrived }: { sim: SimS
       camera.position.set(sim.walk.x, 1.7 + breathe, sim.walk.z);
       camera.rotation.set(sim.walk.pitch, sim.walk.yaw, 0, 'YXZ');
     } else if (sim.mode === 'drive') {
-      let input = {
-        throttle: (keys.has('KeyW') || keys.has('ArrowUp') ? 1 : 0) - (keys.has('KeyS') || keys.has('ArrowDown') ? 1 : 0) + -joy.y,
-        steer: (keys.has('KeyA') || keys.has('ArrowLeft') ? -1 : 0) + (keys.has('KeyD') || keys.has('ArrowRight') ? 1 : 0) + joy.x,
-        brake: keys.has('Space'),
-      };
+      let input = keysToDriveInput(keys, joy);
       input.throttle = Math.max(-1, Math.min(1, input.throttle));
       input.steer = Math.max(-1, Math.min(1, input.steer));
       if (sim.autopilot) {
         // Any manual drive input takes over immediately.
-        const manual = keys.has('KeyW') || keys.has('KeyS') || keys.has('KeyA') || keys.has('KeyD')
-          || keys.has('ArrowUp') || keys.has('ArrowDown') || keys.has('ArrowLeft') || keys.has('ArrowRight')
-          || keys.has('Space') || Math.abs(joy.x) > 0.15 || Math.abs(joy.y) > 0.15;
-        if (manual) {
+        if (hasManualInput(keys, joy)) {
           sim.autopilot = null;
         } else {
           const target = sim.autopilot.route[sim.autopilot.index];
@@ -966,10 +1093,26 @@ function CameraRig({ sim, weather, onPosition, onAutopilotArrived }: { sim: SimS
         const bx = next.x - Math.sin(heading) * 7.5;
         const bz = next.z + Math.cos(heading) * 7.5;
         const desired = new THREE.Vector3(bx, 3.4, bz);
-        camera.position.lerp(desired, 1 - Math.exp(-clampedDt * 3.5));
-        camera.lookAt(next.x, 1.2, next.z);
+        // Snap onto the follow pose the moment the user boards (or the
+        // camera is ever far away): lerping from the walk position used
+        // to leave the tractor out of frame for seconds. Otherwise lerp
+        // with the real frame time so the camera keeps up at any FPS.
+        const enteredDrive = prevMode.current !== 'drive';
+        if (enteredDrive || camera.position.distanceTo(desired) > 12) {
+          camera.position.copy(desired);
+          lookTarget.current.set(next.x, 1.2, next.z);
+        } else {
+          camera.position.lerp(desired, 1 - Math.exp(-camDt * 3.5));
+        }
+        // Smooth the look target too: looking straight at the live pose
+        // while the camera lagged behind made the view whip and shake
+        // whenever the tractor turned or the Rapier pose jittered.
+        lookTarget.current.lerp(new THREE.Vector3(next.x, 1.2, next.z), 1 - Math.exp(-camDt * 8));
+        camera.lookAt(lookTarget.current);
       }
+      prevMode.current = sim.mode;
     }
+    if (sim.mode !== 'drive') prevMode.current = sim.mode;
 
     if (sunRef.current) sunRef.current.intensity = 1.6 * weather.sun;
     // Outdoor fill: grey/rainy days get extra sky fill (was the hall's

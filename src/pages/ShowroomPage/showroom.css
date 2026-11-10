@@ -12,8 +12,22 @@
 .showroom-topbar { position: absolute; top: 0; left: 0; right: 0; z-index: 40; display: flex; align-items: center; gap: 14px; padding: 10px 16px; background: linear-gradient(rgba(255,255,255,0.88), rgba(255,255,255,0.72)); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(32, 85, 63, 0.15); }
 .showroom-back { color: #20553f; text-decoration: none; font-weight: 600; white-space: nowrap; }
 .showroom-title { font-size: 17px; color: #20553f; white-space: nowrap; }
-.showroom-zonenav { display: flex; gap: 6px; margin-left: auto; flex-wrap: wrap; }
-.showroom-zonenav button, .showroom-quality button, .showroom-top-actions button { border: 1px solid rgba(32, 85, 63, 0.25); background: rgba(255,255,255,0.75); color: #20302d; border-radius: 999px; padding: 6px 12px; cursor: pointer; font-size: 13px; }
+.showroom-zonenav { display: flex; gap: 6px; margin-left: auto; flex-wrap: nowrap; }
+/* The topbar must stay exactly one row tall (~52px): the weather panel
+ * and the quality bar are absolutely positioned at top: 64px and would
+ * cover a wrapped second row of zone buttons (seen at 1080px, where the
+ * "AgriDx 智能诊断交互区" pill slid under the weather summary). So
+ * below 1400px the title hides and the zone pills shrink; below 1100px
+ * the WebGL2/Rapier badges hide too. The zone nav never wraps. */
+@media (max-width: 1400px) {
+  .showroom-topbar { gap: 8px; padding: 8px 12px; }
+  .showroom-title { display: none; }
+  .showroom-zonenav button { padding: 5px 9px; font-size: 12px; }
+}
+@media (max-width: 1100px) {
+  .showroom-backend, .showroom-physics { display: none; }
+}
+.showroom-zonenav button, .showroom-quality button, .showroom-top-actions button { border: 1px solid rgba(32, 85, 63, 0.25); background: rgba(255,255,255,0.75); color: #20302d; border-radius: 999px; padding: 6px 12px; cursor: pointer; font-size: 13px; white-space: nowrap; }
 .showroom-zonenav button.active, .showroom-quality button.active, .showroom-weather-switch button.active { background: #20553f; color: #fff; border-color: #20553f; }
 .showroom-top-actions { display: flex; gap: 8px; align-items: center; }
 .showroom-backend, .showroom-physics { font-size: 12px; color: #5a6b63; background: rgba(255,255,255,0.7); border: 1px solid rgba(32,85,63,0.2); border-radius: 999px; padding: 4px 8px; white-space: nowrap; }
@@ -54,6 +68,16 @@
 .showroom-map-player { position: absolute; width: 10px; height: 10px; margin: -5px 0 0 -5px; border-radius: 50%; background: #1d2123; border: 2px solid #7ad7ff; z-index: 2; }
 
 .showroom-drive-hud { position: absolute; left: 16px; bottom: 16px; z-index: 40; display: flex; gap: 12px; align-items: flex-end; }
+/* When a zone/part card is open it sits bottom-centre (z-index 45) and
+ * would cover the bottom-left drive HUD — the "press E to exit" button
+ * slid under the card edge at 1080px. Lift the whole HUD above the
+ * card instead, so the speedo, exit button and joystick stay fully
+ * visible and clickable while the card is open. */
+.showroom-has-card .showroom-drive-hud { bottom: 232px; }
+@media (max-width: 760px) {
+  /* Narrow card text wraps taller, so the HUD lifts further. */
+  .showroom-has-card .showroom-drive-hud { bottom: 300px; }
+}
 .showroom-speedo { display: flex; gap: 8px; align-items: baseline; background: rgba(20, 30, 26, 0.72); color: #fff; border-radius: 12px; padding: 10px 14px; backdrop-filter: blur(8px); }
 .showroom-speedo strong { font-size: 30px; }
 .showroom-speedo button { background: transparent; border: 1px solid rgba(255,255,255,0.4); color: #fff; border-radius: 999px; padding: 4px 10px; cursor: pointer; }

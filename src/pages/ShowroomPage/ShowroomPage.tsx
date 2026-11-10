@@ -171,11 +171,13 @@ export default function ShowroomPage() {
     };
   }, [soundOn, weather.particleKind, weather.precipitationMm]);
 
-  // Keyboard: WASD/arrows drive & walk, E enter/exit, V camera view.
+  // Keyboard: arrow keys drive & walk (WASD is an alias), E enter/exit,
+  // V camera view. Arrows and Space are preventDefaulted so holding them
+  // never scrolls the page or activates a focused button.
   useEffect(() => {
     const down = (event: KeyboardEvent) => {
       if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) return;
-      if (event.code === 'Space') event.preventDefault();
+      if (event.code === 'Space' || event.code.startsWith('Arrow')) event.preventDefault();
       sim.keys.add(event.code);
       if (event.code === 'KeyE' && !event.repeat) {
         if (sim.mode === 'drive') {
@@ -189,6 +191,7 @@ export default function ShowroomPage() {
           const d = Math.hypot(sim.walk.x - sim.tractor.x, sim.walk.z - sim.tractor.z);
           if (d < 4.5) {
             sim.mode = 'drive';
+            sim.flyTo = null;
             sim.focusZone = null;
             setFocusZone(null);
           }
@@ -231,6 +234,7 @@ export default function ShowroomPage() {
   const autoDriveTo = useCallback((id: ZoneId) => {
     const zone = zoneById(id);
     sim.mode = 'drive';
+    sim.flyTo = null; // Never let a half-finished fly-in shadow drive mode.
     sim.focusZone = id;
     sim.autopilot = { route: planGuideRoute(sim.tractor, id), index: 0 };
     setFocusZone(id);
@@ -313,7 +317,7 @@ export default function ShowroomPage() {
   const mapZ = ((hud.z + HALL.halfZ) / (HALL.halfZ * 2)) * 100;
 
   return (
-    <div className="showroom-page">
+    <div className={zone || part ? 'showroom-page showroom-has-card' : 'showroom-page'}>
       <div ref={canvasWrapRef} className="showroom-canvas" onClick={lockPointer}>
         <ShowroomScene
           sim={sim}
@@ -520,8 +524,8 @@ export default function ShowroomPage() {
           <button type="button" className="showroom-icon-btn" onClick={() => setHelpOpen(false)} aria-label={zh ? '关闭' : 'Close'}>✕</button>
           <h2>{zh ? '操作说明' : 'Controls'}</h2>
           <ul>
-            <li>{zh ? '点击画面锁定鼠标，WASD + 鼠标漫游' : 'Click the scene to lock the mouse; WASD + mouse to walk'}</li>
-            <li>{zh ? '靠近拖拉机按 E 上车 / 下车；W/S 前进后退，A/D 转向，空格刹车，V 切换视角' : 'Near the tractor press E to enter/exit; W/S drive, A/D steer, Space brake, V switches view'}</li>
+            <li>{zh ? '点击画面锁定鼠标，方向键（↑↓←→）+ 鼠标漫游（WASD 同样可用）' : 'Click the scene to lock the mouse; arrow keys + mouse to walk (WASD also works)'}</li>
+            <li>{zh ? '靠近拖拉机按 E 上车 / 下车；↑/↓ 前进后退，←/→ 转向，空格刹车，V 切换视角' : 'Near the tractor press E to enter/exit; ↑/↓ drive, ←/→ steer, Space brake, V switches view'}</li>
             <li>{zh ? '点击展区或顶部导航飞入近景；自动驾驶沿导视线行驶，可随时手动接管' : 'Click a zone or the top nav to fly in; auto-drive follows the guide line and yields to manual input'}</li>
             <li>{zh ? '触屏：左下摇杆控制移动 / 驾驶' : 'Touch: the bottom-left joystick moves and drives'}</li>
             <li>{zh ? '右上角切换天气（默认南京实时天气）；📷 4K 出一张 3840×2160 展板图' : 'Top right switches weather (Nanjing live by default); 📷 4K exports a 3840×2160 still'}</li>
