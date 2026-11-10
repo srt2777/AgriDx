@@ -68,6 +68,17 @@
 | BOOT 键 | GPIO 0 | GPIO 9 |
 | 引脚 | 见 `display_config.h` S3 一节 / `ASSEMBLY.md` §4.1 S3 表 | 见 `display_config.h` C3 一节 / `ASSEMBLY.md` §4.1 C3 表 |
 
+### 1.6 双 Type-C 口怎么分（S3 板子，2026-11-10 商品图核实）
+
+登仕唐 S3-N16R8 板子有两个 Type-C 口，**烧录只用 CH340 那个口**，不要搞混：
+
+| 口 | 接什么 | 用途 |
+|---|---|---|
+| USB-ISP 口 | 直连 CH340 USB 转串口芯片 | **程序烧录 + 串口监视 + 供 5V，烧录就用这个口**。Windows 要装 CH340 串口驱动才能认到串口（见 §1.1）；插上后设备管理器里出现 CH340 的 COM 口就是它 |
+| USB-OTG 口 | 直连芯片原生 USB D+/D-（GPIO 19/20） | 做 USB 设备/主机、OTG 下载，**要短接 OTG 焊盘才能用**；短接 IN-OUT 焊盘可对外输出 5V。**默认烧录不要用这个口** |
+
+板子其他已核实参数：ESP32-S3-WROOM-1-N16R8 模组，双核 240MHz，16MB Flash + 8MB PSRAM（工具菜单里 PSRAM 要选 OPI PSRAM 才启用，见 §1.2），WiFi 2.4G + 蓝牙 5.0，板载 RST + BOOT 键，板载 WS2812B RGB 灯接 GPIO48（别把 48 当普通 IO 用）。板子 57.15×25.4mm，含天线 63.611×27.94mm。禁区：GPIO 34–37 是板载 Flash/PSRAM 专用，strapping 脚 GPIO 0/45/46，ADC2 在 WiFi 开启时不可用（优先用 ADC1），原生 USB 是 GPIO 19(D-)/20(D+)——I2S 的 19/20 冲突是实锤，语音版不要再往 19/20 上想。商品页有一处写 GPIO 47/48 是 USB-OTG，跟引脚图对不上，以引脚图 + 芯片手册为准（19/20 才是原生 USB）。
+
 ---
 
 ## 2. 用 PlatformIO 烧录（推荐）

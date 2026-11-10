@@ -43,6 +43,7 @@
 #define LV_USE_BARCODE 0
 #define LV_USE_BUTTONMATRIX 0
 
+#define LV_FONT_MONTSERRAT_28 1  // 监测卡片大数字用（内建字体，只含 ASCII 数字/符号）
 #define LV_FONT_DEFAULT &lv_font_montserrat_14
 // 注意：默认字体只能用 LVGL 内建字体；中文字库 font_zh_16 在 main.cpp 里
 // 声明，界面通过屏幕样式统一设为 font_zh_16（见 buildUi），不依赖这里。
