@@ -63,11 +63,33 @@ function identityOnly(text: string, model?: string): boolean {
 }
 
 function correctionText(text: string): string {
-  // "不是久保田，是东方红" selects only the corrected declaration.
-  // Keep observations before the denial (for example “冷却液泄漏，不是久保田，
-  // 是东方红”). Only retire the denied clause, never the whole turn prefix.
-  const corrected = text.replace(/(?:不是|并非|不属于)[^，,；;。\n]*?(?:[，,；;]\s*(?:而是|是|换成)|而是)\s*/g, '');
-  return corrected.trim() ? corrected : text;
+  const pattern = /(?:不是|并非|不属于)([^，,；;。\n]*?)(?:[，,；;]\s*(?:而是|是|换成)|而是)\s*/g;
+  let corrected = '';
+  let cursor = 0;
+  for (const match of text.matchAll(pattern)) {
+    let prefix = corrected + text.slice(cursor, match.index);
+    const denied = resolveScope(match[1], {});
+    const deniedType = declaredMachineType(match[1]);
+    const deniedModel = modelFromText(match[1], true, false);
+    if (denied.brand || deniedModel || deniedType) {
+      // Preserve observations, but do not reintroduce a superseded identity
+      // from an earlier clause in this same turn. Retain unrelated constraints.
+      const previous = resolveScope(prefix, {});
+      prefix = deniedType ? withoutSelection(prefix) : queryWithoutIdentity(prefix);
+      prefix = [prefix,
+        ...(!deniedType ? previous.emissions : []),
+        ...(!denied.brand && !deniedType && previous.brand ? [previous.brand] : []),
+        ...(!denied.brand && !deniedModel && !deniedType ? previous.models : []),
+      ].filter(Boolean).join(' ');
+    } else {
+      // For symptom corrections keep the established replacement semantics;
+      // the retired symptom must not survive simply because it was repeated.
+      prefix = '';
+    }
+    corrected = prefix;
+    cursor = match.index! + match[0].length;
+  }
+  return (corrected + text.slice(cursor)).trim() || text;
 }
 
 function modelFromText(text: string, hasBrand: boolean, hasModel: boolean): string | undefined {

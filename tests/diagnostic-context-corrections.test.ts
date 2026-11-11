@@ -89,3 +89,35 @@ test('assistant suggestions cannot restore a denied type or selection constraint
   assert.equal(context.scope.machineType, undefined);
   assert.doesNotMatch(context.query, /国三|2WD/);
 });
+
+test('superseded identities repeated before a correction do not contaminate its observations', () => {
+  for (const prefix of ['刚才说久保田不对', '补充久保田LX2620冷却液泄漏']) {
+    const context = resolveDiagnosticContext([
+      user('久保田 LX2620 拖拉机 国四 两驱 驾驶室 起动机不转'),
+      user(`${prefix}，不是久保田，是东方红`),
+    ]);
+    assert.equal(context.scope.brand, '东方红');
+    assert.equal(context.scope.model, undefined);
+    assert.doesNotMatch(context.query, /久保田|LX2620/i);
+    if (prefix.includes('泄漏')) assert.match(context.symptomQuery, /冷却液泄漏/);
+  }
+});
+
+test('same-turn model correction preserves an unrelated brand and emission declaration', () => {
+  const context = resolveDiagnosticContext([
+    user('久保田 LX2620 国四 冷却液泄漏，不是LX2620，是型号M6060'),
+  ]);
+  assert.equal(context.scope.brand, '久保田');
+  assert.match(context.scope.model ?? '', /m6060/i);
+  assert.match(context.query, /国四/);
+  assert.match(context.symptomQuery, /冷却液泄漏/);
+  assert.doesNotMatch(context.query, /LX2620/i);
+});
+
+test('a repeated symptom explicitly replaced in the same turn is not retained', () => {
+  const context = resolveDiagnosticContext([
+    user('水温过高，不是水温过高，是发动机无法起动'),
+  ]);
+  assert.doesNotMatch(context.symptomQuery, /水温过高/);
+  assert.match(context.symptomQuery, /无法起动/);
+});
