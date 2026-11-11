@@ -12,8 +12,22 @@
 .showroom-topbar { position: absolute; top: 0; left: 0; right: 0; z-index: 40; display: flex; align-items: center; gap: 14px; padding: 10px 16px; background: linear-gradient(rgba(255,255,255,0.88), rgba(255,255,255,0.72)); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(32, 85, 63, 0.15); }
 .showroom-back { color: #20553f; text-decoration: none; font-weight: 600; white-space: nowrap; }
 .showroom-title { font-size: 17px; color: #20553f; white-space: nowrap; }
-.showroom-zonenav { display: flex; gap: 6px; margin-left: auto; flex-wrap: wrap; }
-.showroom-zonenav button, .showroom-quality button, .showroom-top-actions button { border: 1px solid rgba(32, 85, 63, 0.25); background: rgba(255,255,255,0.75); color: #20302d; border-radius: 999px; padding: 6px 12px; cursor: pointer; font-size: 13px; }
+.showroom-zonenav { display: flex; gap: 6px; margin-left: auto; flex-wrap: nowrap; }
+/* The topbar must stay exactly one row tall (~52px): the weather panel
+ * and the quality bar are absolutely positioned at top: 64px and would
+ * cover a wrapped second row of zone buttons (seen at 1080px, where the
+ * "AgriDx 智能诊断交互区" pill slid under the weather summary). So
+ * below 1400px the title hides and the zone pills shrink; below 1100px
+ * the WebGL2/Rapier badges hide too. The zone nav never wraps. */
+@media (max-width: 1400px) {
+  .showroom-topbar { gap: 8px; padding: 8px 12px; }
+  .showroom-title { display: none; }
+  .showroom-zonenav button { padding: 5px 9px; font-size: 12px; }
+}
+@media (max-width: 1100px) {
+  .showroom-backend, .showroom-physics { display: none; }
+}
+.showroom-zonenav button, .showroom-quality button, .showroom-top-actions button { border: 1px solid rgba(32, 85, 63, 0.25); background: rgba(255,255,255,0.75); color: #20302d; border-radius: 999px; padding: 6px 12px; cursor: pointer; font-size: 13px; white-space: nowrap; }
 .showroom-zonenav button.active, .showroom-quality button.active, .showroom-weather-switch button.active { background: #20553f; color: #fff; border-color: #20553f; }
 .showroom-top-actions { display: flex; gap: 8px; align-items: center; }
 .showroom-backend, .showroom-physics { font-size: 12px; color: #5a6b63; background: rgba(255,255,255,0.7); border: 1px solid rgba(32,85,63,0.2); border-radius: 999px; padding: 4px 8px; white-space: nowrap; }
@@ -21,25 +35,52 @@
 .showroom-weather { position: absolute; top: 64px; right: 16px; z-index: 40; width: 300px; }
 .showroom-weather-summary { width: 100%; display: flex; gap: 10px; align-items: center; border: 1px solid rgba(255,255,255,0.5); background: rgba(255,255,255,0.55); backdrop-filter: blur(12px); border-radius: 14px; padding: 10px 12px; cursor: pointer; font-size: 14px; color: #20302d; box-shadow: 0 4px 18px rgba(0,0,0,0.08); }
 .showroom-weather-icon { font-size: 22px; }
+.showroom-weather-city { font-size: 12px; color: #20553f; font-weight: 600; white-space: nowrap; }
 .showroom-suit { margin-left: auto; border-radius: 999px; padding: 3px 9px; font-size: 12px; color: #fff; }
 .suit-good { background: #2e7d46; } .suit-caution { background: #b7791f; } .suit-bad { background: #b3362b; }
 .showroom-weather-detail { margin-top: 8px; border: 1px solid rgba(255,255,255,0.5); background: rgba(255,255,255,0.72); backdrop-filter: blur(14px); border-radius: 14px; padding: 12px; box-shadow: 0 4px 18px rgba(0,0,0,0.08); }
 .showroom-weather-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 10px; font-size: 13px; }
 .showroom-weather-note { font-size: 12px; color: #5a6b63; margin: 8px 0; }
+.showroom-weather-source { font-size: 11px; color: #7a8a82; margin: 0 0 8px; line-height: 1.5; }
 .showroom-weather-switch { display: flex; gap: 4px; flex-wrap: wrap; }
+.showroom-weather-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-top: 10px; }
+.showroom-weather-actions > button { border: 1px solid rgba(32,85,63,0.3); background: #fff; border-radius: 999px; padding: 6px 12px; cursor: pointer; font-size: 12px; color: #20553f; }
+.showroom-weather-actions .showroom-cycle { margin-top: 0; }
 .showroom-weather-switch button { font-size: 17px; border: 1px solid rgba(32,85,63,0.25); background: #fff; border-radius: 10px; padding: 5px 8px; cursor: pointer; }
 .showroom-cycle { display: flex; gap: 6px; align-items: center; font-size: 12px; margin-top: 8px; color: #33413c; }
-.showroom-forecast { display: flex; gap: 4px; align-items: flex-end; margin-top: 10px; height: 74px; }
-.showroom-forecast-bar { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 10px; color: #5a6b63; }
-.showroom-forecast-bar i { display: block; width: 100%; background: #7ad7ff; border-radius: 3px 3px 0 0; }
+/* Forecast: the icon row (weather switch, above) and the bar chart are
+ * separate zones. Bars live inside a fixed-height chart strip and are
+ * aligned to its bottom, so they can never reach the icons above. */
+.showroom-forecast { display: flex; gap: 4px; align-items: flex-end; margin-top: 10px; }
+.showroom-forecast-bar { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 10px; color: #5a6b63; min-width: 0; }
+.showroom-forecast-chart { display: flex; align-items: flex-end; justify-content: center; width: 100%; overflow: hidden; }
+.showroom-forecast-bar i { display: block; width: 100%; max-width: 26px; background: #7ad7ff; border-radius: 3px 3px 0 0; }
+
+/* Rain on the screen (DOM overlay above the canvas, below the HUD):
+ * diagonal streaks drift down, static droplets sit on the "glass". */
+.showroom-rain-overlay { position: absolute; inset: 0; z-index: 30; pointer-events: none; overflow: hidden; }
+.showroom-rain-streaks { position: absolute; inset: -60% 0 0 0; background: repeating-linear-gradient(105deg, transparent 0 26px, rgba(190, 215, 235, 0.35) 26px 27px, transparent 27px 64px); animation: showroom-rain-fall 0.7s linear infinite; }
+.showroom-rain-drops { position: absolute; inset: 0; background-image: radial-gradient(circle at 12% 22%, rgba(255,255,255,0.5) 0 3px, transparent 4px), radial-gradient(circle at 34% 58%, rgba(255,255,255,0.45) 0 2px, transparent 3px), radial-gradient(circle at 58% 30%, rgba(255,255,255,0.5) 0 4px, transparent 5px), radial-gradient(circle at 76% 68%, rgba(255,255,255,0.45) 0 2px, transparent 3px), radial-gradient(circle at 88% 16%, rgba(255,255,255,0.5) 0 3px, transparent 4px), radial-gradient(circle at 46% 84%, rgba(255,255,255,0.4) 0 2px, transparent 3px); }
+@keyframes showroom-rain-fall { from { transform: translateY(-8%); } to { transform: translateY(8%); } }
 
 .showroom-minimap { position: absolute; right: 16px; bottom: 16px; z-index: 40; display: flex; flex-direction: column; gap: 6px; align-items: center; font-size: 12px; color: #33413c; background: rgba(255,255,255,0.6); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.5); border-radius: 12px; padding: 8px; }
-.showroom-map { position: relative; width: 176px; height: 120px; border-radius: 8px; background: linear-gradient(#f4f7f4, #e3e8e3); border: 1px solid rgba(32,85,63,0.25); overflow: hidden; }
+.showroom-map { position: relative; width: 176px; height: 120px; border-radius: 8px; background: linear-gradient(#8aa864, #6f9450); border: 1px solid rgba(32,85,63,0.25); overflow: hidden; }
+.showroom-map::before { content: ""; position: absolute; left: 0; right: 0; top: 50%; height: 10px; margin-top: -5px; background: #b09268; }
 .showroom-map::after { content: ""; position: absolute; left: 0; right: 0; top: 50%; height: 2px; background: rgba(46,125,70,0.5); }
 .showroom-map-zone { position: absolute; width: 12px; height: 12px; margin: -6px 0 0 -6px; border-radius: 50%; border: 2px solid #fff; cursor: pointer; padding: 0; box-shadow: 0 1px 4px rgba(0,0,0,0.25); }
 .showroom-map-player { position: absolute; width: 10px; height: 10px; margin: -5px 0 0 -5px; border-radius: 50%; background: #1d2123; border: 2px solid #7ad7ff; z-index: 2; }
 
 .showroom-drive-hud { position: absolute; left: 16px; bottom: 16px; z-index: 40; display: flex; gap: 12px; align-items: flex-end; }
+/* When a zone/part card is open it sits bottom-centre (z-index 45) and
+ * would cover the bottom-left drive HUD — the "press E to exit" button
+ * slid under the card edge at 1080px. Lift the whole HUD above the
+ * card instead, so the speedo, exit button and joystick stay fully
+ * visible and clickable while the card is open. */
+.showroom-has-card .showroom-drive-hud { bottom: 232px; }
+@media (max-width: 760px) {
+  /* Narrow card text wraps taller, so the HUD lifts further. */
+  .showroom-has-card .showroom-drive-hud { bottom: 300px; }
+}
 .showroom-speedo { display: flex; gap: 8px; align-items: baseline; background: rgba(20, 30, 26, 0.72); color: #fff; border-radius: 12px; padding: 10px 14px; backdrop-filter: blur(8px); }
 .showroom-speedo strong { font-size: 30px; }
 .showroom-speedo button { background: transparent; border: 1px solid rgba(255,255,255,0.4); color: #fff; border-radius: 999px; padding: 4px 10px; cursor: pointer; }
@@ -82,9 +123,17 @@
 .showroom-help h2 { margin: 0 0 10px; color: #20553f; }
 .showroom-help ul { margin: 0; padding-left: 18px; font-size: 14px; line-height: 1.9; color: #33413c; }
 
-.showroom-hotspot { position: relative; display: flex; align-items: center; gap: 6px; background: transparent; border: none; cursor: pointer; padding: 0; pointer-events: auto; }
+/* Sensor hotspots: the dot sits exactly on the part (Html centres the
+ * 0×0 anchor on it); the label is absolutely positioned into its own
+ * screen quadrant so the four roof labels can never overlap. */
+.showroom-hotspot-anchor { position: relative; width: 0; height: 0; }
+.showroom-hotspot-dotbtn { position: absolute; left: 0; top: 0; width: 22px; height: 22px; margin: -11px 0 0 -11px; display: flex; align-items: center; justify-content: center; background: transparent; border: none; cursor: pointer; padding: 0; pointer-events: auto; }
 .showroom-hotspot-dot { display: block; width: 14px; height: 14px; border-radius: 50%; background: #7ad7ff; border: 2px solid #fff; box-shadow: 0 0 0 3px rgba(122, 215, 255, 0.4), 0 1px 6px rgba(0,0,0,0.3); animation: showroom-pulse 2s infinite; }
-.showroom-hotspot-label { background: rgba(20, 30, 26, 0.78); color: #fff; font-size: 11px; border-radius: 999px; padding: 3px 8px; white-space: nowrap; }
+.showroom-hotspot-label { position: absolute; background: rgba(20, 30, 26, 0.78); color: #fff; font-size: 11px; border-radius: 999px; padding: 3px 8px; white-space: nowrap; pointer-events: none; }
+.showroom-hotspot-label--beidou { right: 12px; bottom: 14px; }
+.showroom-hotspot-label--roof-l { right: 12px; top: 6px; }
+.showroom-hotspot-label--roof-r { left: 12px; bottom: 14px; }
+.showroom-hotspot-label--battery { left: 12px; top: 6px; }
 @keyframes showroom-pulse { 0%, 100% { box-shadow: 0 0 0 3px rgba(122,215,255,0.4), 0 1px 6px rgba(0,0,0,0.3); } 50% { box-shadow: 0 0 0 7px rgba(122,215,255,0.12), 0 1px 6px rgba(0,0,0,0.3); } }
 .showroom-zone-tag { background: rgba(255,255,255,0.88); border: 2px solid #2e7d46; color: #20553f; font-size: 13px; font-weight: 600; border-radius: 999px; padding: 5px 12px; white-space: nowrap; box-shadow: 0 2px 10px rgba(0,0,0,0.15); }
 
