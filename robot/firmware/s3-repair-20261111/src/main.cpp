@@ -32,6 +32,9 @@
 
 #include <Arduino.h>
 #if defined(CONFIG_IDF_TARGET_ESP32S3)
+#include <esp_ota_ops.h>
+#endif
+#if defined(CONFIG_IDF_TARGET_ESP32S3)
 // Full-frame LVGL rendering traverses the complete object tree. Its deepest
 // draw path exceeds Arduino's default 8KB loop task stack.
 SET_LOOP_TASK_STACK_SIZE(16384);
@@ -132,7 +135,6 @@ static TFT_eSPI tft;
 static XPT2046_Touchscreen ts(PIN_TOUCH_CS, PIN_TOUCH_IRQ);
 static lv_display_t *disp = nullptr;
 static uint16_t *drawBuf1 = nullptr, *drawBuf2 = nullptr;
-static uint16_t *frameBuf = nullptr;
 static bool g_displayDma = false;
 static uint32_t g_flushPeakUs = 0, g_handlerPeakMs = 0, g_flushCount = 0;
 static uint32_t g_flushTotalUs = 0, g_touchPeakUs = 0, g_handlerTotalMs = 0;
@@ -149,40 +151,6 @@ static const uint16_t DRAW_BUF_LINES = 20;   // 每缓冲 20 行，内部 RAM
 
 static void flush_cb(lv_display_t *d, const lv_area_t *area, uint8_t *color_p) {
   const uint32_t started = micros();
-#if defined(CONFIG_IDF_TARGET_ESP32S3)
-  if (frameBuf) {
-    static bool dirty = false;
-    static lv_area_t pending;
-    if (!dirty) { pending = *area; dirty = true; }
-    else {
-      pending.x1 = min(pending.x1, area->x1); pending.x2 = max(pending.x2, area->x2);
-      pending.y1 = min(pending.y1, area->y1); pending.y2 = max(pending.y2, area->y2);
-    }
-    // Compose all dirty regions offscreen first; do not reveal each 20-row
-    // render band. DIRECT mode passes the base of the full framebuffer.
-    if (!lv_display_flush_is_last(d)) { lv_display_flush_ready(d); return; }
-    const int width = pending.x2 - pending.x1 + 1;
-    const auto *pixels = reinterpret_cast<const uint16_t *>(color_p);
-    uint16_t *stage = drawBuf1;
-    tft.startWrite();
-    tft.setAddrWindow(pending.x1, pending.y1, width, pending.y2 - pending.y1 + 1);
-    for (int y = pending.y1; y <= pending.y2; y += DRAW_BUF_LINES) {
-      const int rows = min((int)DRAW_BUF_LINES, (int)pending.y2 - y + 1);
-      for (int row = 0; row < rows; ++row)
-        memcpy(stage + row * width, pixels + (y + row) * SCREEN_WIDTH + pending.x1, width * sizeof(uint16_t));
-      if (g_displayDma) { tft.dmaWait(); tft.pushPixelsDMA(stage, width * rows); }
-      else tft.pushPixels(stage, width * rows);
-      stage = stage == drawBuf1 ? drawBuf2 : drawBuf1;
-    }
-    if (g_displayDma) tft.dmaWait();
-    tft.endWrite();
-    dirty = false;
-    const uint32_t elapsed = micros() - started;
-    g_flushPeakUs = max(g_flushPeakUs, elapsed); g_flushTotalUs += elapsed; ++g_flushCount;
-    lv_display_flush_ready(d);
-    return;
-  }
-#endif
   uint32_t w = area->x2 - area->x1 + 1, h = area->y2 - area->y1 + 1;
   tft.startWrite();
   tft.setAddrWindow(area->x1, area->y1, w, h);
@@ -1208,7 +1176,8 @@ static void applyTelemetryToUi() {
     char nbuf[32];
     snprintf(nbuf, sizeof(nbuf), "%s · %s", i == 1 ? "油压" : ch.label, st);
     setLabelIfChanged(g_meterName[i], nbuf);
-    lv_obj_set_style_text_color(g_meterName[i], c, 0);
+    if (!lv_color_eq(lv_obj_get_style_text_color(g_meterName[i], LV_PART_MAIN), c))
+      lv_obj_set_style_text_color(g_meterName[i], c, 0);
     // 底部细条：宽度按量程比例，颜色跟状态走
     lv_coord_t bw = lv_obj_get_width(g_meterBarBg[i]);
     float frac = 0.0f;
@@ -1216,8 +1185,11 @@ static void applyTelemetryToUi() {
       frac = (ch.value - ch.minV) / (ch.maxV - ch.minV);
     if (frac < 0) frac = 0;
     if (frac > 1) frac = 1;
-    lv_obj_set_width(g_meterFill[i], (lv_coord_t)(frac * bw));
-    lv_obj_set_style_bg_color(g_meterFill[i], c, 0);
+    const lv_coord_t width = (lv_coord_t)(frac * bw);
+    if (lv_obj_get_style_width(g_meterFill[i], LV_PART_MAIN) != width)
+      lv_obj_set_width(g_meterFill[i], width);
+    if (!lv_color_eq(lv_obj_get_style_bg_color(g_meterFill[i], LV_PART_MAIN), c))
+      lv_obj_set_style_bg_color(g_meterFill[i], c, 0);
   }
   // 常驻横条显示最严重状态；异常首次出现或升级时另弹提示。
   int worstCode = 0;  // 0 正常，1 注意，2 报警
@@ -1227,26 +1199,19 @@ static void applyTelemetryToUi() {
     if (code > worstCode) { worstCode = code; worstIdx = i; }
   }
   char sbuf[64];
-  if (worstCode == 2) {
-    lv_obj_set_style_bg_color(g_alertStrip, C_LIGHTRED, 0);
-    snprintf(sbuf, sizeof(sbuf), "报警：%s %.0f%s",
-             g_channels[worstIdx].label, g_channels[worstIdx].value,
-             g_channels[worstIdx].unit);
-    setLabelIfChanged(g_scenarioLabel, sbuf);
-    lv_obj_set_style_text_color(g_scenarioLabel, C_RED, 0);
-  } else if (worstCode == 1) {
-    lv_obj_set_style_bg_color(g_alertStrip, C_LIGHTAMBER, 0);
-    snprintf(sbuf, sizeof(sbuf), "注意：%s %.0f%s",
-             g_channels[worstIdx].label, g_channels[worstIdx].value,
-             g_channels[worstIdx].unit);
-    setLabelIfChanged(g_scenarioLabel, sbuf);
-    lv_obj_set_style_text_color(g_scenarioLabel, C_AMBER, 0);
+  const lv_color_t background = worstCode == 2 ? C_LIGHTRED : worstCode == 1 ? C_LIGHTAMBER : C_GREENBG;
+  const lv_color_t foreground = worstCode == 2 ? C_RED : worstCode == 1 ? C_AMBER : C_DARKGREEN;
+  if (worstCode != 0) {
+    snprintf(sbuf, sizeof(sbuf), "%s：%s %.0f%s", worstCode == 2 ? "报警" : "注意",
+             g_channels[worstIdx].label, g_channels[worstIdx].value, g_channels[worstIdx].unit);
   } else {
-    lv_obj_set_style_bg_color(g_alertStrip, C_GREENBG, 0);
     snprintf(sbuf, sizeof(sbuf), "暂无告警");
-    setLabelIfChanged(g_scenarioLabel, sbuf);
-    lv_obj_set_style_text_color(g_scenarioLabel, C_DARKGREEN, 0);
   }
+  setLabelIfChanged(g_scenarioLabel, sbuf);
+  if (!lv_color_eq(lv_obj_get_style_bg_color(g_alertStrip, LV_PART_MAIN), background))
+    lv_obj_set_style_bg_color(g_alertStrip, background, 0);
+  if (!lv_color_eq(lv_obj_get_style_text_color(g_scenarioLabel, LV_PART_MAIN), foreground))
+    lv_obj_set_style_text_color(g_scenarioLabel, foreground, 0);
   refreshMetricChart();
   g_lastTeleOk = millis();
   setLabelIfChanged(g_updatedLabel, "更新于刚刚");
@@ -1705,7 +1670,7 @@ static void onStandbyTap(lv_event_t *e) {
   wakeStandby();
 }
 
-// 待机动画定时器（70ms）：只动轮辐线、尾气、地面点、光晕这几个小对象，
+// 待机动画定时器（40ms）：只动轮辐线、尾气、地面点、光晕这几个小对象，
 // LVGL 只重绘它们的脏区，不全屏刷新。
 static void onStandbyTick(lv_timer_t *t) {
   (void)t;
@@ -1716,20 +1681,15 @@ static void onStandbyTick(lv_timer_t *t) {
   const float dt = lastTick ? min(uint32_t(100), now - lastTick) / 40.0f : 1.0f;
   lastTick = now;
   g_wheelAngle += 0.18f * dt;
-  static const int32_t WCX[2] = {104, 216};
-  static const int32_t WCY = 152;
   static lv_point_precise_t pts[2][2][2];
+  constexpr int32_t radius = 11;
+  const int32_t x = (int32_t)(radius * cosf(g_wheelAngle));
+  const int32_t y = (int32_t)(radius * sinf(g_wheelAngle));
   for (int w = 0; w < 2; w++) {
-    float c = cosf(g_wheelAngle), s = sinf(g_wheelAngle);
-    const int32_t r = 11;
-    pts[w][0][0].x = WCX[w] - (int32_t)(r * c);
-    pts[w][0][0].y = WCY - (int32_t)(r * s);
-    pts[w][0][1].x = WCX[w] + (int32_t)(r * c);
-    pts[w][0][1].y = WCY + (int32_t)(r * s);
-    pts[w][1][0].x = WCX[w] + (int32_t)(r * s);
-    pts[w][1][0].y = WCY - (int32_t)(r * c);
-    pts[w][1][1].x = WCX[w] - (int32_t)(r * s);
-    pts[w][1][1].y = WCY + (int32_t)(r * c);
+    pts[w][0][0] = {radius - x, radius - y};
+    pts[w][0][1] = {radius + x, radius + y};
+    pts[w][1][0] = {radius + y, radius - x};
+    pts[w][1][1] = {radius - y, radius + x};
     lv_line_set_points(g_spokes[w][0], pts[w][0], 2);
     lv_line_set_points(g_spokes[w][1], pts[w][1], 2);
   }
@@ -1815,6 +1775,10 @@ static void buildStandbyOverlay(lv_obj_t *scr) {
     lv_obj_set_style_border_width(hub, 0, 0);
     for (int k = 0; k < 2; k++) {
       g_spokes[w][k] = lv_line_create(g_standbyOverlay);
+      // Local coordinates keep the dirty rectangle around the wheel. With
+      // screen-relative points LVGL sized each line from the screen origin.
+      lv_obj_set_pos(g_spokes[w][k], WCX[w] - 11, WCY - 11);
+      lv_obj_set_size(g_spokes[w][k], 23, 23);
       lv_obj_set_style_line_color(g_spokes[w][k], C_CARD, 0);
       lv_obj_set_style_line_width(g_spokes[w][k], 2, 0);
       static lv_point_precise_t initSp[2] = {{0, 0}, {0, 0}};
@@ -2409,14 +2373,6 @@ void setup() {
   Serial.printf("[display] LVGL %d.%d.%d, compressed-font=%d, SPI=%dMHz, DMA=%d, PSRAM=%uKB\n",
                 LVGL_VERSION_MAJOR, LVGL_VERSION_MINOR, LVGL_VERSION_PATCH,
                 LV_USE_FONT_COMPRESSED, SCREEN_SPI_MHZ, g_displayDma, (unsigned int)(ESP.getPsramSize() / 1024));
-#if defined(CONFIG_IDF_TARGET_ESP32S3)
-  const size_t frameBytes = SCREEN_WIDTH * SCREEN_HEIGHT * sizeof(uint16_t);
-  frameBuf = static_cast<uint16_t *>(heap_caps_calloc(1, frameBytes, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT));
-  if (frameBuf) {
-    lv_display_set_buffers(disp, frameBuf, nullptr, frameBytes, LV_DISPLAY_RENDER_MODE_DIRECT);
-    Serial.println("[display] full-frame composition; DMA staging; coherent flush");
-  } else
-#endif
   lv_display_set_buffers(disp, drawBuf1, drawBuf2, bufBytes, LV_DISPLAY_RENDER_MODE_PARTIAL);
   lv_indev_t *indev = lv_indev_create();
   lv_indev_set_type(indev, LV_INDEV_TYPE_POINTER);
@@ -2525,6 +2481,11 @@ static void pollSerialControl() {
                     FIRMWARE_VERSION, WiFi.status() == WL_CONNECTED,
                     localConsoleAddress().c_str(), localConsoleOtaEnabled(),
                     (unsigned int)(ESP.getPsramSize() / 1024));
+#if defined(CONFIG_IDF_TARGET_ESP32S3)
+      const esp_partition_t *running = esp_ota_get_running_partition();
+      if (running) Serial.printf("[status] slot=%s offset=0x%lx\n", running->label,
+                                 (unsigned long)running->address);
+#endif
       for (const auto &ch : g_channels) Serial.printf("[sample] %s %.2f %s state=%d\n", ch.id, ch.value, ch.unit, chanStateCode(ch));
 #if !USE_OLED_DISPLAY
     } else if (line.startsWith("METRIC ")) {
@@ -2545,7 +2506,10 @@ static void pollSerialControl() {
       Serial.println(valid && touchCalibrationRestore(matrix) ? "[calibration] restored" : "[calibration] restore rejected");
     } else if (line == "CALIBRATE") {
       touchCalibrationStart();
+    } else if (line == "PAGE STANDBY") {
+      showStandby();
     } else if (line == "PAGE MONITOR") {
+      wakeStandby();
       lv_tileview_set_tile_by_index(g_tileview, 0, 0, LV_ANIM_OFF); updateDots(0);
     } else if (line == "PAGE WIFI") {
       lv_tileview_set_tile_by_index(g_tileview, 2, 0, LV_ANIM_OFF); updateDots(2);

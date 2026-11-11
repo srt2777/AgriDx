@@ -74,3 +74,5 @@ Edge-TTS（`rany2/edge-tts`，经 `node-edge-tts` 调用微软 Edge 在线语音
 
 只新增一个：`node-edge-tts ^1.2.12`（`package.json`）。ffmpeg、Python
 faster-whisper 是系统级依赖，不进 `package.json`。
+
+默认识别进程在首个请求时加载模型，后续请求复用该模型。每个服务进程最多接受一条正在识别和两条等待请求，排队与识别共用 55 秒预算，空闲 5 分钟退出。部署时请提前下载模型，避免首个请求同时等待模型下载。

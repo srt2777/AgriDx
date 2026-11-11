@@ -18,6 +18,15 @@ bool initialized = false;
 bool otaEnabled = false;
 bool otaBusy = false;
 uint32_t lastNetworkCheck = 0;
+uint32_t otaStarted = 0;
+uint32_t otaYieldAt = 0;
+uint32_t otaReportAt = 0;
+wifi_ps_type_t previousSleep = WIFI_PS_MIN_MODEM;
+
+void finishTransfer() {
+  if (otaBusy) WiFi.setSleep(previousSleep);
+  otaBusy = false;
+}
 
 bool validHash(const String &value) {
   if (value.length() != 64) return false;
@@ -47,7 +56,7 @@ bool staConnected() {
 void stopOta() {
   if (otaEnabled) ArduinoOTA.end();
   otaEnabled = false;
-  otaBusy = false;
+  finishTransfer();
   activeIp = IPAddress();
 }
 
@@ -65,9 +74,34 @@ void updateListener() {
   // digest never reaches begin(), so no passwordless OTA listener is created.
   ArduinoOTA.setPasswordHash(otaHash.c_str());
   ArduinoOTA.setRebootOnSuccess(true);
-  ArduinoOTA.onStart([]() { otaBusy = true; });
-  ArduinoOTA.onEnd([]() { otaBusy = false; });
-  ArduinoOTA.onError([](ota_error_t) { otaBusy = false; });
+  ArduinoOTA.setTimeout(3000);
+  ArduinoOTA.onStart([]() {
+    otaBusy = true;
+    otaStarted = millis();
+    otaYieldAt = 0;
+    otaReportAt = 0;
+    previousSleep = WiFi.getSleep();
+    WiFi.setSleep(WIFI_PS_NONE);
+    Serial.println("[ota] update started");
+  });
+  ArduinoOTA.onProgress([](unsigned written, unsigned total) {
+    if (written - otaYieldAt >= 64 * 1024) {
+      otaYieldAt = written;
+      delay(1);  // Let the idle task run even under a continuous TCP stream.
+    }
+    if (written - otaReportAt >= 512 * 1024) {
+      otaReportAt = written;
+      Serial.printf("[ota] progress=%u/%u\n", written, total);
+    }
+  });
+  ArduinoOTA.onEnd([]() {
+    finishTransfer();
+    Serial.printf("[ota] verified elapsed_ms=%lu\n", (unsigned long)(millis() - otaStarted));
+  });
+  ArduinoOTA.onError([](ota_error_t error) {
+    finishTransfer();
+    Serial.printf("[ota] error=%u\n", (unsigned)error);
+  });
   ArduinoOTA.begin();
   activeIp = ip;
   otaEnabled = true;

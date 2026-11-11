@@ -265,9 +265,9 @@ static bool voiceStartReceive() {
 
 // ---------- 上传 ----------
 // 约定：raw audio/wav 体（44 字节 WAV 头 + PCM16），Content-Type: audio/wav，
-// 不带 sessionId。服务端 /api/voice/ask 只接受 raw 音频，multipart 会被 415 拒绝。
+// 不带 sessionId。语音接口接受 raw 音频，multipart 会被 415 拒绝。
 // 返回 true 且 respBody 非空表示拿到服务端 JSON；
-// 4xx 不重试（客户端问题，重试也没用），传输失败/5xx 重试 1 次。
+// 只有尚未建立连接时重试一次，避免重复提交已经发出的录音。
 static bool voiceUploadOnce(const uint8_t *body, size_t bodyLen, String &respBody, bool &retryable) {
   retryable = true;
   WiFiClientSecure client;
@@ -283,9 +283,11 @@ static bool voiceUploadOnce(const uint8_t *body, size_t bodyLen, String &respBod
   int code = http.POST(const_cast<uint8_t *>(body), bodyLen);
   Serial.printf("[voice] %s HTTP=%d upload_and_stt_ms=%lu bytes=%u\n", VOICE_ASK_URL, code, (unsigned long)(millis() - started), (unsigned)bodyLen);
   if (code != 200) {
-    retryable = code < 0 || code >= 500;
+    // The STT server may already have processed this audio. In particular,
+    // a 502 or a read timeout must not silently repeat a slow recognition.
+    retryable = code == HTTPC_ERROR_CONNECTION_REFUSED;
     http.end();
-    return false;  // 4xx 不重试、传输失败/5xx 由上层重试 1 次（voiceUpload）
+    return false;  // voiceUpload checks whether a connection was established.
   }
   respBody = http.getString();
   http.end();

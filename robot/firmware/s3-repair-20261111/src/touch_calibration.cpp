@@ -1,12 +1,6 @@
 #include "touch_calibration.h"
 
 #include <Preferences.h>
-#include <nvs.h>
-#include <esp_err.h>
-#include <esp_heap_caps.h>
-#include <freertos/FreeRTOS.h>
-#include <freertos/task.h>
-#include <freertos/semphr.h>
 #include <cmath>
 #include <cstddef>
 #include <cstring>
@@ -48,70 +42,57 @@ bool valid(const Calibration &value) {
   return std::fabs(det) > 1e-8 && std::fabs(det) < 100.0;
 }
 
-bool saveDirect(const Calibration &value) {
-  nvs_handle_t handle;
-  esp_err_t err = nvs_open("sijia", NVS_READWRITE, &handle);
-  if (err != ESP_OK) {
-    Serial.printf("[calibration] nvs_open=%s\n", esp_err_to_name(err));
-    return false;
+// Store aligned numeric entries instead of an NVS blob. On this board the
+// last word of some NVS write records duplicated the preceding word. Mirroring
+// each word keeps both halves identical and the original checksum detects
+// missing, mixed or corrupt records.
+constexpr char kCalibrationNamespace[] = "sijia";
+constexpr char kBankKey[] = "cal_bank";
+constexpr size_t kWords = sizeof(Calibration) / sizeof(uint32_t);
+static_assert(sizeof(Calibration) == 36, "Unexpected calibration record layout");
+
+uint64_t mirror(uint32_t word) {
+  return (uint64_t(word) << 32) | word;
+}
+
+bool loadBank(Preferences &prefs, uint8_t bank, Calibration &value) {
+  uint32_t words[kWords];
+  for (size_t i = 0; i < kWords; ++i) {
+    char key[12];
+    snprintf(key, sizeof(key), "cal%u_%u", unsigned(bank), unsigned(i));
+    const uint64_t stored = prefs.getULong64(key, UINT64_MAX);
+    const uint32_t word = uint32_t(stored);
+    if (stored != mirror(word) || (stored == UINT64_MAX && !prefs.isKey(key))) return false;
+    words[i] = word;
   }
-  // A single string value avoids the failing legacy multipage blob path.
-  // Hex encoding preserves every coefficient bit and the existing checksum.
-  char encoded[sizeof(Calibration) * 2 + 1] = {};
-  const uint8_t *raw = reinterpret_cast<const uint8_t *>(&value);
-  const char hex[] = "0123456789abcdef";
-  for (size_t i = 0; i < sizeof(value); ++i) {
-    encoded[i*2] = hex[raw[i] >> 4]; encoded[i*2+1] = hex[raw[i] & 15];
-  }
-  // Store short chunks in an inactive bank. The active-bank selector is
-  // committed last, so a failed save retains the previous valid calibration.
-  uint8_t active = 1;
-  nvs_get_u8(handle, "touch-bank", &active);
-  const uint8_t bank = active == 0 ? 1 : 0;
-  for (unsigned part = 0; part < 3 && err == ESP_OK; ++part) {
-    char key[12], chunk[25] = {}, verify[25] = {};
-    snprintf(key, sizeof(key), "touch%u-%u", bank, part);
-    memcpy(chunk, encoded + part * 24, 24);
-    err = nvs_set_str(handle, key, chunk);
-    if (err != ESP_OK) Serial.printf("[calibration] set_str core=%d error=%s\n", xPortGetCoreID(), esp_err_to_name(err));
-    if (err == ESP_OK) err = nvs_commit(handle);
-    size_t length = sizeof(verify);
-    if (err == ESP_OK) err = nvs_get_str(handle, key, verify, &length);
-    if (err == ESP_OK && (length != sizeof(chunk) || strcmp(chunk, verify))) err = ESP_FAIL;
-    if (err != ESP_OK) Serial.printf("[calibration] chunk=%u save=%s\n", part, esp_err_to_name(err));
-  }
-  if (err == ESP_OK) err = nvs_set_u8(handle, "touch-bank", bank);
-  if (err == ESP_OK) err = nvs_commit(handle);
-  uint8_t verifiedBank = 255;
-  if (err == ESP_OK) err = nvs_get_u8(handle, "touch-bank", &verifiedBank);
-  nvs_close(handle);
-  const bool ok = err == ESP_OK && verifiedBank == bank;
-  if (!ok) Serial.printf("[calibration] bank_save=%s\n", esp_err_to_name(err));
-  return ok;
+  memcpy(&value, words, sizeof(value));
+  return valid(value);
 }
 
 bool save(const Calibration &value) {
-  if (xPortGetCoreID() == 0) return saveDirect(value);
-  struct Job { Calibration value; SemaphoreHandle_t done; bool result; };
-  auto *job = static_cast<Job *>(heap_caps_calloc(1, sizeof(Job), MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT));
-  if (!job) return false;
-  job->value = value;
-  job->done = xSemaphoreCreateBinary();
-  if (!job->done) { free(job); return false; }
-  auto worker = [](void *arg) {
-    auto *j = static_cast<Job *>(arg);
-    Calibration local = j->value;
-    j->result = saveDirect(local);
-    xSemaphoreGive(j->done);
-    vTaskDelete(nullptr);
-  };
-  if (xTaskCreatePinnedToCore(worker, "touch-save", 4096, job, 1, nullptr, 0) != pdPASS) {
-    vSemaphoreDelete(job->done); free(job); return false;
+  Preferences prefs;
+  if (!prefs.begin(kCalibrationNamespace, false)) return false;
+  const uint64_t active = prefs.getULong64(kBankKey, UINT64_MAX);
+  const uint8_t bank = active == mirror(0) ? 1 : 0;
+  uint32_t words[kWords];
+  memcpy(words, &value, sizeof(words));
+  bool ok = true;
+  for (size_t i = 0; ok && i < kWords; ++i) {
+    char key[12];
+    snprintf(key, sizeof(key), "cal%u_%u", unsigned(bank), unsigned(i));
+    ok = prefs.putULong64(key, mirror(words[i])) == sizeof(uint64_t);
   }
-  xSemaphoreTake(job->done, portMAX_DELAY);
-  const bool result = job->result;
-  vSemaphoreDelete(job->done); free(job);
-  return result;
+  Calibration verified{};
+  ok = ok && loadBank(prefs, bank, verified) &&
+       memcmp(&value, &verified, sizeof(value)) == 0;
+  if (ok) {
+    ok = prefs.putULong64(kBankKey, mirror(bank)) == sizeof(uint64_t) &&
+         prefs.getULong64(kBankKey, UINT64_MAX) == mirror(bank);
+  }
+  prefs.end();
+  Serial.printf("[calibration] save=%s checksum=%08lx\n",
+                ok ? "verified" : "failed", (unsigned long)value.checksum);
+  return ok;
 }
 
 #if !defined(USE_OLED_DISPLAY) || !USE_OLED_DISPLAY
@@ -218,7 +199,14 @@ void touchCalibrationBegin() {
   current = {};
   Preferences prefs;
   String encoded;
-  if (prefs.begin("sijia", true)) {
+  if (prefs.begin(kCalibrationNamespace, true)) {
+    const uint64_t active = prefs.getULong64(kBankKey, UINT64_MAX);
+    if ((active == mirror(0) || active == mirror(1)) && loadBank(prefs, uint8_t(active), current)) {
+      prefs.end();
+      calibrated = true;
+      Serial.printf("[calibration] result=loaded checksum=%08lx\n", (unsigned long)current.checksum);
+      return;
+    }
     const uint8_t bank = prefs.getUChar("touch-bank", 255);
     if (bank <= 1) {
       for (unsigned part = 0; part < 3; ++part) {

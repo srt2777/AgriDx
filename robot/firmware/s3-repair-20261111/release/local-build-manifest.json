@@ -1,26 +1,29 @@
 {
   "firmware": "sijia-s3-display-repair-0.1.1.bin",
-  "sha256": "ffb6a674af89af2f5f88c5bd7a6a42f952fa8c38112d9aaed7cb8300691bbb81",
-  "bytes": 5067776,
+  "sha256": "c1aa78ddb68a5562a88f949fa2519729758bca548d4fad3d38800954151ac51d",
+  "bytes": 4576128,
   "board": "ESP32-S3 N16R8",
   "display": "ILI9341 320x240",
   "flashOffset": "0x10000",
-  "status": "hardware acceptance in progress",
-  "upload": "USB write and hash verified 2026-11-12",
-  "githubPublished": false,
+  "status": "USB and LAN OTA tested, production STT pending deployment",
+  "upload": "USB write and hash verified; LAN OTA checksum and boot verified 2026-11-12",
+  "githubPublished": true,
   "websiteDeployed": false,
   "verified": [
     "S3 build",
     "full font bitmap decoding",
     "simulated telemetry host sanitizer test",
     "boot with 16KB UI stack",
-    "Wi-Fi reconnect and SSE reception"
+    "Wi-Fi reconnect and SSE reception",
+    "Two distinct touch calibration checksums persisted across reboot",
+    "Local wheel redraw bounds; standby refresh handler peak 50–55 ms in steady windows",
+    "Password-protected LAN OTA, image checksum, alternate app boot and calibration retained",
+    "Same-device SIMD A/B found no repeatable benefit; candidate uses LVGL generic renderer",
+    "Local STT HTTP cold request 911 ms, warm requests 292–312 ms, 23 voice regressions passed"
   ],
   "unresolved": [
-    "touch calibration runtime NVS readback failure; preloaded calibration still loads",
-    "touch and animation visual acceptance",
-    "voice recognition end-to-end latency",
-    "website STT backend optimization not deployed"
+    "Production voice endpoint requires backend deployment and retest",
+    "Physical microphone and touch-to-display latency were not measured in this run"
   ],
   "controls": {
     "BOOT short": "next page",
