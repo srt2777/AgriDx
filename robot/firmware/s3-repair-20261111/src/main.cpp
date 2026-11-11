@@ -138,6 +138,42 @@ static uint16_t *drawBuf1 = nullptr, *drawBuf2 = nullptr;
 static bool g_displayDma = false;
 static uint32_t g_flushPeakUs = 0, g_handlerPeakMs = 0, g_flushCount = 0;
 static uint32_t g_flushTotalUs = 0, g_touchPeakUs = 0, g_handlerTotalMs = 0;
+static uint32_t g_frameCount = 0, g_framePeakUs = 0, g_frameStartUs = 0;
+static bool g_frameHasPixels = false;
+#if defined(CONFIG_IDF_TARGET_ESP32S3)
+static bool g_fastDisplay = true;
+static bool g_dmaPending = false;
+static uint32_t g_dmaSubmitUs = 0;
+
+static void finishDisplayDma(lv_display_t *d) {
+  if (!g_dmaPending) return;
+  const uint32_t waitStarted = micros();
+  tft.dmaWait();
+  tft.endWrite();
+  g_dmaPending = false;
+  const uint32_t elapsed = g_dmaSubmitUs + (micros() - waitStarted);
+  g_flushPeakUs = max(g_flushPeakUs, elapsed);
+  g_flushTotalUs += elapsed;
+  lv_display_flush_ready(d);
+}
+#endif
+
+static void displayRefreshEvent(lv_event_t *event) {
+  if (lv_event_get_code(event) == LV_EVENT_REFR_START) {
+    g_frameStartUs = micros();
+    g_frameHasPixels = false;
+    return;
+  }
+#if defined(CONFIG_IDF_TARGET_ESP32S3)
+  // The touch controller shares the SPI bus. Finish the last transaction
+  // before returning from the LVGL refresh to its input timers.
+  finishDisplayDma(disp);
+#endif
+  if (g_frameHasPixels) {
+    g_frameCount++;
+    g_framePeakUs = max(g_framePeakUs, micros() - g_frameStartUs);
+  }
+}
 // 显存：S3 有 PSRAM，双缓冲 40 行放 PSRAM；C3 无 PSRAM，双缓冲放内部 RAM。
 // C3 TFT 新环境（SIJIA_C3_TFT）只用 10 行：双缓冲共 320x10x2x2 = 12.8KB，
 // 给 WiFi/TCP/LVGL 堆多留内部 RAM；PARTIAL 渲染一次只刷一小块，10 行够用。
@@ -151,6 +187,8 @@ static const uint16_t DRAW_BUF_LINES = 20;   // 每缓冲 20 行，内部 RAM
 
 static void flush_cb(lv_display_t *d, const lv_area_t *area, uint8_t *color_p) {
   const uint32_t started = micros();
+  g_frameHasPixels = true;
+  ++g_flushCount;
   uint32_t w = area->x2 - area->x1 + 1, h = area->y2 - area->y1 + 1;
   tft.startWrite();
   tft.setAddrWindow(area->x1, area->y1, w, h);
@@ -161,6 +199,13 @@ static void flush_cb(lv_display_t *d, const lv_area_t *area, uint8_t *color_p) {
 #else
   if (g_displayDma) {
     tft.pushPixelsDMA((uint16_t *)color_p, w * h);
+#if defined(CONFIG_IDF_TARGET_ESP32S3)
+    if (g_fastDisplay) {
+      g_dmaSubmitUs = micros() - started;
+      g_dmaPending = true;
+      return;
+    }
+#endif
     tft.dmaWait();
   } else {
     tft.pushPixels((uint16_t *)color_p, w * h);
@@ -170,7 +215,6 @@ static void flush_cb(lv_display_t *d, const lv_area_t *area, uint8_t *color_p) {
   const uint32_t elapsed = micros() - started;
   g_flushPeakUs = max(g_flushPeakUs, elapsed);
   g_flushTotalUs += elapsed;
-  ++g_flushCount;
   lv_display_flush_ready(d);
 }
 
@@ -1645,10 +1689,65 @@ static void finishBootSplash() {
   if (g_bootSplash) { lv_obj_delete(g_bootSplash); g_bootSplash = g_bootSegment = nullptr; }
 }
 
+#if defined(CONFIG_IDF_TARGET_ESP32S3)
+static lv_obj_t *g_standbyCache = nullptr;
+static lv_draw_buf_t g_standbyDrawBuf{};
+
+static bool standbyObjectAnimates(lv_obj_t *child) {
+  for (auto *puff : g_puffs) if (child == puff) return true;
+  for (auto *dot : g_groundDots) if (child == dot) return true;
+  for (auto &wheel : g_spokes)
+    for (auto *spoke : wheel) if (child == spoke) return true;
+  return false;
+}
+
+static void setStandbyCache(bool enabled) {
+  const uint32_t children = lv_obj_get_child_count(g_standbyOverlay);
+  if (enabled && !g_standbyCache) {
+    const size_t bytes = SCREEN_WIDTH * SCREEN_HEIGHT * sizeof(uint16_t);
+    auto *pixels = heap_caps_malloc(bytes, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
+    if (!pixels) return;
+    for (uint32_t i = 0; i < children; ++i) {
+      auto *child = lv_obj_get_child(g_standbyOverlay, i);
+      if (standbyObjectAnimates(child)) lv_obj_set_hidden(child, true);
+    }
+    const bool ready =
+      lv_draw_buf_init(&g_standbyDrawBuf, SCREEN_WIDTH, SCREEN_HEIGHT,
+                       LV_COLOR_FORMAT_RGB565, LV_STRIDE_AUTO, pixels, bytes) == LV_RESULT_OK &&
+      lv_snapshot_take_to_draw_buf(g_standbyOverlay, LV_COLOR_FORMAT_RGB565,
+                                   &g_standbyDrawBuf) == LV_RESULT_OK;
+    for (uint32_t i = 0; i < children; ++i) {
+      auto *child = lv_obj_get_child(g_standbyOverlay, i);
+      if (standbyObjectAnimates(child)) lv_obj_set_hidden(child, false);
+    }
+    if (!ready) {
+      heap_caps_free(pixels);
+      return;
+    }
+    g_standbyCache = lv_image_create(g_standbyOverlay);
+    lv_image_set_src(g_standbyCache, &g_standbyDrawBuf);
+    lv_obj_remove_flag(g_standbyCache, LV_OBJ_FLAG_CLICKABLE);
+    lv_obj_set_pos(g_standbyCache, 0, 0);
+  }
+  if (!g_standbyCache) return;
+  const uint32_t total = lv_obj_get_child_count(g_standbyOverlay);
+  for (uint32_t i = 0; i < total; ++i) {
+    auto *child = lv_obj_get_child(g_standbyOverlay, i);
+    if (child != g_standbyCache && !standbyObjectAnimates(child))
+      lv_obj_set_hidden(child, enabled);
+  }
+  lv_obj_set_hidden(g_standbyCache, !enabled);
+  if (enabled) lv_obj_move_background(g_standbyCache);
+}
+#endif
+
 static void showStandby() {
   if (g_standbyOn || !g_standbyOverlay) return;
   g_standbyOn = true;
   lv_obj_set_hidden(g_standbyOverlay, false);
+#if defined(CONFIG_IDF_TARGET_ESP32S3)
+  setStandbyCache(g_fastDisplay);
+#endif
   fadeIn(g_standbyOverlay);
   analogWrite(PIN_TFT_BL, 110);  // 待机调暗背光
   Serial.println("[司稼] 60秒无操作，开始漫游");
@@ -1672,6 +1771,8 @@ static void onStandbyTap(lv_event_t *e) {
 
 // 待机动画定时器（40ms）：只动轮辐线、尾气、地面点、光晕这几个小对象，
 // LVGL 只重绘它们的脏区，不全屏刷新。
+static lv_timer_t *g_standbyTimer = nullptr;
+
 static void onStandbyTick(lv_timer_t *t) {
   (void)t;
   if (!g_standbyOn || !g_standbyOverlay) return;
@@ -1699,9 +1800,27 @@ static void onStandbyTick(lv_timer_t *t) {
     if (g_puffPhase[i] > 1.0f) g_puffPhase[i] -= 1.0f;
     float p = g_puffPhase[i];
     int32_t sz = 6 + (int32_t)(p * 8);
-    lv_obj_set_size(g_puffs[i], sz, sz);
-    lv_obj_set_pos(g_puffs[i], 236 - sz / 2, (lv_coord_t)(76 - p * 36 - sz / 2));
-    lv_obj_set_style_opa(g_puffs[i], (lv_opa_t)((1.0f - p) * 160), 0);
+    const lv_coord_t xPos = 236 - sz / 2;
+    const lv_coord_t yPos = (lv_coord_t)(76 - p * 36 - sz / 2);
+    const lv_opa_t opacity = (lv_opa_t)((1.0f - p) * 160);
+#if defined(CONFIG_IDF_TARGET_ESP32S3)
+    if (g_fastDisplay) {
+      if (lv_obj_get_style_width(g_puffs[i], LV_PART_MAIN) != sz)
+        lv_obj_set_size(g_puffs[i], sz, sz);
+      if (lv_obj_get_style_x(g_puffs[i], LV_PART_MAIN) != xPos ||
+          lv_obj_get_style_y(g_puffs[i], LV_PART_MAIN) != yPos)
+        lv_obj_set_pos(g_puffs[i], xPos, yPos);
+      // The puffs have no children. Blend their backgrounds without a
+      // temporary opacity layer for the entire widget.
+      if (lv_obj_get_style_bg_opa(g_puffs[i], LV_PART_MAIN) != opacity)
+        lv_obj_set_style_bg_opa(g_puffs[i], opacity, 0);
+    } else
+#endif
+    {
+      lv_obj_set_size(g_puffs[i], sz, sz);
+      lv_obj_set_pos(g_puffs[i], xPos, yPos);
+      lv_obj_set_style_opa(g_puffs[i], opacity, 0);
+    }
   }
   // 地面点左移（拖拉机原地开的感觉），出界绕回
   for (int i = 0; i < 3; i++) {
@@ -1724,6 +1843,7 @@ static void buildStandbyOverlay(lv_obj_t *scr) {
   lv_obj_set_style_bg_color(g_standbyOverlay, C_BG, 0);
   lv_obj_set_style_radius(g_standbyOverlay, 0, 0);
   lv_obj_set_style_border_width(g_standbyOverlay, 0, 0);
+  lv_obj_set_style_shadow_width(g_standbyOverlay, 0, 0);
   lv_obj_set_style_pad_all(g_standbyOverlay, 0, 0);
   lv_obj_add_event_cb(g_standbyOverlay, onStandbyTap, LV_EVENT_CLICKED, nullptr);
   // 呼吸光晕（拖拉机背后）
@@ -1793,7 +1913,11 @@ static void buildStandbyOverlay(lv_obj_t *scr) {
     lv_obj_set_style_bg_color(g_puffs[i], C_SUBTEXT, 0);
     lv_obj_set_style_radius(g_puffs[i], LV_RADIUS_CIRCLE, 0);
     lv_obj_set_style_border_width(g_puffs[i], 0, 0);
+#if defined(CONFIG_IDF_TARGET_ESP32S3)
+    lv_obj_set_style_bg_opa(g_puffs[i], 0, 0);
+#else
     lv_obj_set_style_opa(g_puffs[i], 0, 0);
+#endif
   }
   // 文案（待/唤/醒已补进三档字库，见 tools/gen_fonts.py）
   g_standbyTitle = mkLabel(g_standbyOverlay, "司稼漫游", &font_zh_22, C_TEXT);
@@ -1970,7 +2094,11 @@ static void buildUi() {
   // 待机屏（盖在最上层）+ 待机动画定时器
   // Monitoring stays visible; no hidden standby objects or animation timers.
   buildStandbyOverlay(scr);
-  lv_timer_create(onStandbyTick, 40, nullptr);
+#if defined(CONFIG_IDF_TARGET_ESP32S3)
+  g_standbyTimer = lv_timer_create(onStandbyTick, 32, nullptr);
+#else
+  g_standbyTimer = lv_timer_create(onStandbyTick, 40, nullptr);
+#endif
 }
 
 #if SIJIA_VOICE_ENABLED
@@ -2362,6 +2490,11 @@ void setup() {
   lv_tick_set_cb([]() -> uint32_t { return millis(); });
   disp = lv_display_create(SCREEN_WIDTH, SCREEN_HEIGHT);
   lv_display_set_flush_cb(disp, flush_cb);
+#if defined(CONFIG_IDF_TARGET_ESP32S3)
+  lv_display_set_flush_wait_cb(disp, finishDisplayDma);
+#endif
+  lv_display_add_event_cb(disp, displayRefreshEvent, LV_EVENT_REFR_START, nullptr);
+  lv_display_add_event_cb(disp, displayRefreshEvent, LV_EVENT_REFR_READY, nullptr);
   size_t bufBytes = SCREEN_WIDTH * DRAW_BUF_LINES * 2;
   // ESP32 DMA must use internal DMA-capable buffers. Avoid PSRAM bounce copies.
   drawBuf1 = (uint16_t *)heap_caps_malloc(bufBytes, MALLOC_CAP_INTERNAL | MALLOC_CAP_DMA);
@@ -2506,6 +2639,19 @@ static void pollSerialControl() {
       Serial.println(valid && touchCalibrationRestore(matrix) ? "[calibration] restored" : "[calibration] restore rejected");
     } else if (line == "CALIBRATE") {
       touchCalibrationStart();
+#if defined(CONFIG_IDF_TARGET_ESP32S3)
+    } else if (line == "DISPLAY BASE" || line == "DISPLAY FAST") {
+      g_fastDisplay = line.endsWith("FAST");
+      lv_timer_set_period(g_standbyTimer, g_fastDisplay ? 32 : 40);
+      for (auto *puff : g_puffs) {
+        lv_obj_set_style_opa(puff, LV_OPA_COVER, 0);
+        lv_obj_set_style_bg_opa(puff, g_fastDisplay ? LV_OPA_TRANSP : LV_OPA_COVER, 0);
+      }
+      if (g_standbyOn) setStandbyCache(g_fastDisplay);
+      Serial.printf("[display] profile=%s cached=%d\n",
+                    g_fastDisplay ? "fast" : "baseline",
+                    g_standbyCache && !lv_obj_has_flag(g_standbyCache, LV_OBJ_FLAG_HIDDEN));
+#endif
     } else if (line == "PAGE STANDBY") {
       showStandby();
     } else if (line == "PAGE MONITOR") {
@@ -2569,10 +2715,19 @@ void loop() {
   lv_timer_handler();
   g_handlerPeakMs = max(g_handlerPeakMs, millis() - handlerStart);
   g_handlerTotalMs += millis() - handlerStart;
+#if defined(CONFIG_IDF_TARGET_ESP32S3)
+  delay(g_fastDisplay ? 1 : 5);
+#else
   delay(5);
+#endif
   static uint32_t lastPerfReport = 0;
   if (millis() - lastPerfReport >= 5000) {
-    lastPerfReport = millis();
+    const uint32_t reportNow = millis();
+    Serial.printf("[fps] frames=%lu window_ms=%lu peak_us=%lu\n",
+                  (unsigned long)g_frameCount, (unsigned long)(reportNow - lastPerfReport),
+                  (unsigned long)g_framePeakUs);
+    g_frameCount = g_framePeakUs = 0;
+    lastPerfReport = reportNow;
     Serial.printf("[display] 5s flushes=%lu flush_peak_us=%lu handler_peak_ms=%lu heap=%uKB\n",
                   (unsigned long)g_flushCount, (unsigned long)g_flushPeakUs,
                   (unsigned long)g_handlerPeakMs, (unsigned int)(ESP.getFreeHeap() / 1024));

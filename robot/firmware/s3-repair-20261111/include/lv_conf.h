@@ -67,6 +67,7 @@
 #if defined(ESP_PLATFORM)
 #include "sdkconfig.h"
 #if defined(CONFIG_IDF_TARGET_ESP32S3)
+#define LV_USE_SNAPSHOT 1
 #define LV_MEM_POOL_INCLUDE "esp_heap_caps.h"
 #define LV_MEM_POOL_ALLOC(size) heap_caps_malloc((size), MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT)
 #endif
