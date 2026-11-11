@@ -1,12 +1,12 @@
 {
   "firmware": "sijia-s3-display-repair-0.1.1.bin",
-  "sha256": "3dfa2be2b3ab485a9c2a602df2f43e620df9d429b23239a03d7df132bd9b30b3",
-  "bytes": 4583392,
+  "sha256": "646430f810ca96d9a9dd414b81fba7ac9d6e8c1f00b8bd4e2f7f2fa416f8980f",
+  "bytes": 4622544,
   "board": "ESP32-S3 N16R8",
   "display": "ILI9341 320x240",
   "flashOffset": "0x10000",
-  "status": "USB and LAN OTA tested; production STT pending deployment",
-  "upload": "USB write, Wi-Fi OTA checksum and app1 boot verified 2026-11-12",
+  "status": "UI update USB tested; production STT pending deployment",
+  "upload": "UI build USB write and hash verified; preceding renderer build also passed LAN OTA",
   "githubPublished": true,
   "websiteDeployed": false,
   "verified": [
@@ -22,7 +22,11 @@
     "Local STT HTTP cold request 911 ms, warm requests 292–312 ms, 23 voice regressions passed",
     "Same-board standby A/B: 22.2–22.8 FPS baseline and 26.2–29.1 FPS fast",
     "Monitor, chat and Wi-Fi page transitions, calibration and SSE after USB update",
-    "This exact 4,583,392-byte image: Wi-Fi OTA 45.75 s, app1 boot, calibration and SSE verified"
+    "This exact 4,583,392-byte image: Wi-Fi OTA 45.75 s, app1 boot, calibration and SSE verified",
+    "320x240 display pixel captures: monitor, chat, Wi-Fi scanning and simulated alarm",
+    "Generated Chinese font decoding for current UI strings",
+    "UI image booted from app1; Wi-Fi, SSE, three metric selections and persisted calibration passed",
+    "UI standby cold-boot steady windows: 25.4 and 25.7 FPS"
   ],
   "unresolved": [
     "Production voice endpoint requires backend deployment and retest",

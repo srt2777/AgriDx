@@ -33,7 +33,7 @@ uint32_t lastTick = 0, submittedAt = 0;
 lv_color_t bg() { return lv_color_hex(0xF3F6FB); }
 lv_color_t card() { return lv_color_hex(0xFFFFFF); }
 lv_color_t ink() { return lv_color_hex(0x172B45); }
-lv_color_t muted() { return lv_color_hex(0x64748B); }
+lv_color_t muted() { return lv_color_hex(0x536780); }
 lv_color_t line() { return lv_color_hex(0xDCE5EF); }
 lv_color_t blue() { return lv_color_hex(0x2863D6); }
 
@@ -220,13 +220,15 @@ void showNetworks(int count) {
     }
   }
   WiFi.scanDelete();
+  const String connectedSsid = WiFi.status() == WL_CONNECTED ? WiFi.SSID() : String();
   lv_obj_clean(list);
   for (uint8_t i = 0; i < networkCount; ++i) {
     lv_obj_t *row = lv_button_create(list);
     lv_obj_set_width(row, lv_pct(100));
     lv_obj_set_height(row, LV_SIZE_CONTENT);
     lv_obj_set_style_min_height(row, 40, 0);
-    lv_obj_set_style_bg_color(row, card(), 0);
+    const bool connected = networks[i].ssid == connectedSsid;
+    lv_obj_set_style_bg_color(row, connected ? lv_color_hex(0xEDF3FF) : card(), 0);
     lv_obj_set_style_bg_color(row, lv_color_hex(0xEDF3FF), LV_STATE_PRESSED);
     lv_obj_set_style_border_width(row, 1, 0);
     lv_obj_set_style_border_color(row, line(), 0);
@@ -242,7 +244,7 @@ void showNetworks(int count) {
     lv_obj_set_flex_grow(name, 1);
     lv_label_set_long_mode(name, LV_LABEL_LONG_WRAP);
     char meta[32];
-    snprintf(meta, sizeof(meta), "%ld dBm\n%s", (long)networks[i].rssi, networks[i].open ? "OPEN" : "LOCK");
+    snprintf(meta, sizeof(meta), "%ld dBm\n%s", (long)networks[i].rssi, connected ? "已连接" : networks[i].open ? "开放" : "加密");
     lv_obj_t *signal = makeLabel(row, meta, &font_zh_12);
     lv_obj_set_width(signal, 60);
     lv_obj_set_style_text_align(signal, LV_TEXT_ALIGN_RIGHT, 0);
@@ -309,7 +311,7 @@ lv_obj_t *wifiPanelCreate(lv_obj_t *parent, WifiPanelSubmit submit) {
   lv_obj_set_layout(heading, LV_LAYOUT_FLEX);
   lv_obj_set_flex_flow(heading, LV_FLEX_FLOW_ROW);
   lv_obj_set_flex_align(heading, LV_FLEX_ALIGN_SPACE_BETWEEN, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
-  makeLabel(heading, "Wi-Fi");
+  makeLabel(heading, "Wi-Fi 网络");
   refresh = makeButton(heading, "刷新", 66, 28, false, onRefresh);
 
   list = lv_obj_create(panel);
