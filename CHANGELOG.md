@@ -38,6 +38,7 @@
 - 两个机型目录工具绑定宿主品牌/型号；缺失字段不由模型自行补齐。显式业务失败按失败事件返回，不能进入成功缓存。
 - 知识条目先保留实际来源、定位、配置、排放和风险等元数据，再按预算裁剪正文，保持 JSON 可解析。网页归档和术语参考不误标为手册。
 - 整理 Microsoft、Datawhale、Hugging Face 与 LangGraphJS 一手学习资料及本项目落点，详见 `docs/research/2026-11-11-agent-learning-reliability.md`。
+- 经用户明确授权，在现有开发站工作流的测试之前安装 ffmpeg，解决主线发布环境缺少转码依赖导致的 5 项语音测试失败；沿用现有发布目标和权限。
 
 ### 知识库变化
 
@@ -55,7 +56,7 @@
 
 ### 关联 PR
 
-- 本批分支 `codex/agent-learning-20261111`；PR 创建后以其交付记录追踪 CI、合并与开发站验收。
+- [PR #266](https://github.com/srt2777/AgriDx/pull/266)，分支 `codex/agent-learning-20261111`；CI、合并与开发站验收见 PR 交付记录。
 
 ### 部署记录
 
