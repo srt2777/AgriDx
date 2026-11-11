@@ -64,7 +64,9 @@ function identityOnly(text: string, model?: string): boolean {
 
 function correctionText(text: string): string {
   // "不是久保田，是东方红" selects only the corrected declaration.
-  const corrected = text.replace(/^.*?不是[^，,；;。\n]*?(?:[，,；;]\s*(?:而是|是|换成)|而是)\s*/, '');
+  // Keep observations before the denial (for example “冷却液泄漏，不是久保田，
+  // 是东方红”). Only retire the denied clause, never the whole turn prefix.
+  const corrected = text.replace(/(?:不是|并非|不属于)[^，,；;。\n]*?(?:[，,；;]\s*(?:而是|是|换成)|而是)\s*/g, '');
   return corrected.trim() ? corrected : text;
 }
 
@@ -152,7 +154,14 @@ export function resolveDiagnosticContext(
       delete scope.model;
       ambiguousIdentity = '';
     } else if (declaration.denied.has('model')) delete scope.model;
-    if (declaration.denied.has('machineType')) delete scope.machineType;
+    if (declaration.denied.has('machineType')) {
+      delete scope.machineType;
+      // Once the primary machine type is rejected, its selection constraints
+      // cannot silently qualify the replacement machine on a later turn.
+      emissions = [];
+      configurations = [];
+      drives = [];
+    }
     const detected = resolveScope(text, {});
     const brand = detected.brand ?? text.match(/(?:品牌|牌子)\s*(?:是|为|[:：])\s*([^\s，,。；;]{1,30})/)?.[1];
     const model = modelFromText(text, Boolean(brand || scope.brand), Boolean(scope.model));
@@ -242,3 +251,4 @@ export function resolveDiagnosticContext(
     clarificationNeeded: pendingIdentity.size > 0,
   };
 }
+
