@@ -1,12 +1,12 @@
-# v3 架构与维护
+# AgriDx 架构与维护
 
-> 知识快照版次链路核对于 3.11.1 / 2026-10-22。改动模块边界（新增 `server/`、`src/features/`、`src/pages/` 顶层目录或新的数据链路）须同步更新本文档。
+> 本文说明当前 `main` 的模块职责和数据流。按任务找文件见[仓库地图](README.md)，启动和提交见[贡献指南](../CONTRIBUTING.md)。新增模块或改变数据流时同步更新本文和仓库地图。
 
-项目保留 React/Vite/Express 和现有本地知识检索、双模型回退。3.0.1 将界面、请求边界、诊断用例、外部模型与运行初始化拆开，便于协作者独立修改和验证。
+当前 V4 主线延续 React、Vite 和 Express。浏览器经 API 进入服务端；诊断服务组织会话、来源检索、规则决策和外部模型或本地答复。
 
 ## 模块职责
 
-Agent的设计口径和参与路线见[共同指南](agent-development.md)。LLM落在`server/llm/`，Memory落在`server/memory/`及前端会话模块，Planner由诊断协调与路由承担，Tool Use由服务层编排检索和记忆等内部能力。OpenAI 兼容供应商提供可选工具协议；Node 诊断的实验性影子循环默认关闭，开启后在答复发出后于后台运行（优先可调用工具的供应商），只在服务端日志记录脱敏事件、不改变也不延迟答复。Gemini 和开发站网关尚不支持工具调用透传；不存在默认上线的自主循环。
+Agent 的设计口径见[共同指南](agent-development.md)。LLM 供应商在 `server/llm/`，诊断记忆在 `server/memory/`，规划内核在 `agent/planner/`。有设备会话的 Node 聊天请求可经 `server/diagnosis/plannerIntegration.ts` 恢复检查点并处理用户观察。工具注册与执行位于 `agent/`；主答复走普通生成或本地证据路径，`AGENT_LOOP=shadow` 才会在答复后运行可选的只读影子循环。默认不运行工具循环，`AGENT_LOOP=main` 也不会接管主答复。
 
 | 位置 | 职责 |
 | --- | --- |
@@ -20,10 +20,12 @@ Agent的设计口径和参与路线见[共同指南](agent-development.md)。LLM
 | `server/routes/` | HTTP 路由、请求参数与响应状态，不承担模型回退算法 |
 | `server/diagnosis/` | 对话输入校验，协调上下文、知识检索、提示词与模型/本地答复 |
 | `server/knowledge/` | 原有索引、适用范围过滤、多轮上下文、目录和证据回复 |
+| `agent/planner/`、`server/diagnosis/plannerIntegration.ts` | 规则规划、观察反馈与设备会话接入，见[Planner](planner.md) |
+| `agent/` | 工具定义、注册、执行与可选影子循环，见[工具执行](../agent/README.md) |
 | `server/llm/` | 供应商协议、配置、超时和双模型顺序回退 |
 | `server/memory/` | 诊断记忆的上下文、存储与路由（见[诊断记忆](diagnostic-memory.md)） |
 | `src/features/updates/` | 客户端版本检查与自动更新提示（见[自动更新](deployment/automatic-client-update.md)） |
-| `src/pages/HallPage/`、`ExhibitionPage/`、`HomePage/`、`ModelPage/` | 数字展厅、园区首页与模型工坊；三维场景经 `DeferredScene` 延迟加载，WebGL 不可用时回退 `SceneFallback` |
+| `src/pages/ShowroomPage/`、`ExhibitionPage/`、`HomePage/`、`ModelPage/` | 农田展场、园区、经典首页与模型工坊；路由及按需加载入口见 [src/app.tsx](../src/app.tsx) |
 | `server/config/`、`server/runtime.ts` | 读取环境、初始化知识索引与运行依赖 |
 | `server/http/` | 安全头、限流、JSON 错误、前端托管及监听/退出 |
 | `scripts/` | 跨平台检查、构建、测试和已提交工作分支同步 |
