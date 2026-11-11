@@ -52,6 +52,10 @@ export function blendWeather(from: WeatherPreset, to: WeatherPreset, t: number):
     clouds: lerp(from.clouds, to.clouds, c),
     sway: lerp(from.sway, to.sway, c),
     wet: lerp(from.wet, to.wet, c),
+    snow: lerp(from.snow, to.snow, c),
+    // Wind direction lerps along the shortest arc so the shader wind
+    // never spins the long way round during a transition.
+    windDeg: (((from.windDeg + ((((to.windDeg - from.windDeg + 540) % 360) - 180) * c)) % 360) + 360) % 360,
   };
 }
 
@@ -111,6 +115,8 @@ export interface NanjingLive {
   humidity: number;
   windKmh: number;
   windDir: string;
+  /** Wind direction in degrees (0 = from the north, clockwise). */
+  windDeg: number;
   precipitationMm: number;
   /** Live 24 h forecast: 8 steps, 3 h apart, from the current hour. */
   forecast: { hour: number; tempC: number; precipMm: number }[];
@@ -169,6 +175,7 @@ export function parseNanjingLive(payload: unknown, now = new Date()): NanjingLiv
     humidity: Math.round(humidity),
     windKmh: Math.round(windKmh * 10) / 10,
     windDir: windDirZh(windDeg),
+    windDeg: Math.round(windDeg),
     precipitationMm: Math.round(precipitationMm * 10) / 10,
     forecast,
     observedAt: typeof current.time === 'string' ? current.time : '',

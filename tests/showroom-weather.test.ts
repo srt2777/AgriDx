@@ -51,6 +51,32 @@ test('windy sways the crops hardest, storm wets the field most, sunny neither', 
   assert.equal(weatherById('sunny').wet, 0);
 });
 
+test('snow preset accumulates snow, sunny has none, blend ramps it', () => {
+  assert.equal(weatherById('snow').snow, 1);
+  assert.equal(weatherById('sunny').snow, 0);
+  assert.equal(weatherById('rain').snow, 0);
+  const mid = blendWeather(weatherById('sunny'), weatherById('snow'), 0.5);
+  assert.ok(mid.snow > 0.4 && mid.snow < 0.6, `snow ${mid.snow}`);
+  assert.equal(blendWeather(weatherById('snow'), weatherById('sunny'), 1).snow, 0);
+});
+
+test('wind direction lerps along the shortest arc, never the long way round', () => {
+  const a = blendWeather(weatherById('windy'), weatherById('fog'), 0.5);
+  // 315° → 0° halfway is 337.5°, not 157.5°.
+  assert.ok(Math.abs(a.windDeg - 337.5) < 0.01, `windDeg ${a.windDeg}`);
+  assert.equal(weatherById('snow').windDeg, 315);
+  assert.equal(weatherById('sunny').windDeg, 135);
+});
+
+test('parseNanjingLive keeps the real wind direction in degrees', () => {
+  const live = parseNanjingLive({
+    current: { time: '2026-11-10T08:00', temperature_2m: 18, relative_humidity_2m: 60, precipitation: 0, weather_code: 0, wind_speed_10m: 8, wind_direction_10m: 200 },
+  });
+  assert.ok(live);
+  assert.equal(live.windDeg, 200);
+  assert.equal(live.windDir, '南西南');
+});
+
 test('blendWeather interpolates sun, fog, sway and wet, and swaps particle kind at midpoint', () => {
   const blended = blendWeather(weatherById('sunny'), weatherById('rain'), 0.5);
   assert.ok(blended.sun > 0.35 && blended.sun < 1, `sun ${blended.sun}`);

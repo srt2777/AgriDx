@@ -13,6 +13,105 @@
 /** Field half-extents (metres). The field edge (fence/treeline) sits here. */
 export const HALL = { halfX: 30, halfZ: 22, height: 7 } as const;
 
+/**
+ * The glass showroom building in the middle of the field: the T70 sits
+ * inside it, the other three zones are open-air booths outside. The
+ * east wall has a 6.4 m wide gate (z ∈ [-3.2, 3.2]) on the dirt track,
+ * so the tractor can drive straight out into the field and back in.
+ * Heading π/2 (the tractor's spawn heading) faces +x, i.e. the gate.
+ */
+export const HALL_BUILDING = {
+  halfX: 14,
+  halfZ: 10,
+  height: 6,
+  gate: { x: 14, halfWidth: 3.2 },
+  /** Glass wall thickness (m) — the visual walls match these footprints. */
+  wall: 0.3,
+} as const;
+
+/** True when (x, z) is inside the glass hall (the gate gap counts as inside). */
+export function isInsideHall(x: number, z: number): boolean {
+  return Math.abs(x) < HALL_BUILDING.halfX && Math.abs(z) < HALL_BUILDING.halfZ;
+}
+
+/** Speed limit (m/s): slow inside the hall, faster (but still sedate) in the field. */
+export function speedLimitAt(x: number, z: number): number {
+  return isInsideHall(x, z) ? 3.2 : 6.5;
+}
+
+/**
+ * Surface grip 0..1 from the blended weather: wet ground is slightly
+ * slippery, snow considerably more so. Dry = 1.
+ */
+export function gripForWeather(wet: number, snow: number): number {
+  return Math.max(0.5, 1 - 0.15 * Math.max(0, Math.min(1, wet)) - 0.35 * Math.max(0, Math.min(1, snow)));
+}
+
+/* ------------------------------------------------------------------ */
+/* Terrain + crop plots                                                */
+/* ------------------------------------------------------------------ */
+
+/** Gentle field undulation (metres). Flat inside the hall and on the dirt track. */
+export function terrainHeight(x: number, z: number): number {
+  const raw = 0.45 * Math.sin(x * 0.07 + 1.3) * Math.cos(z * 0.05) + 0.25 * Math.sin(x * 0.15) * Math.sin(z * 0.11 + 0.7);
+  // Fade to 0 near the hall (|x|<15, |z|<11) and on the track (|z|<4).
+  const smooth = (t: number) => {
+    const c = Math.min(1, Math.max(0, t));
+    return c * c * (3 - 2 * c);
+  };
+  const hallFade = Math.min(smooth((Math.abs(x) - 15) / 3), smooth((Math.abs(z) - 11) / 3));
+  const trackFade = smooth((Math.abs(z) - 4) / 3);
+  return raw * Math.max(hallFade, trackFade);
+}
+
+export type CropKind = 'rice' | 'wheat' | 'corn';
+
+export interface CropPlot {
+  id: string;
+  crop: CropKind;
+  zh: string;
+  /** Growth stage 0..1 (0 = seedling, 1 = mature). Drives plant height. */
+  stage: number;
+  /** [minX, minZ, maxX, maxZ] in metres. */
+  bounds: [number, number, number, number];
+  /** Row spacing (m) along x and between rows (m) along z. */
+  spacing: [number, number];
+}
+
+/**
+ * Six plots around the hall (the dirt track z ∈ [-3, 3] and the three
+ * outdoor booths stay clear). Rice / wheat / corn at different growth
+ * stages, so the field reads as several crops, not one repeating stamp.
+ */
+export const CROP_PLOTS: CropPlot[] = [
+  { id: 'rice-nw', crop: 'rice', zh: '水稻 · 分蘖期', stage: 0.45, bounds: [-28, -20, -16, -8], spacing: [0.45, 0.75] },
+  { id: 'wheat-ne', crop: 'wheat', zh: '小麦 · 灌浆期', stage: 0.8, bounds: [16, -20, 28, -8], spacing: [0.55, 0.9] },
+  { id: 'corn-sw', crop: 'corn', zh: '玉米 · 拔节期', stage: 0.65, bounds: [-28, 8, -16, 20], spacing: [0.75, 1.0] },
+  { id: 'rice-se', crop: 'rice', zh: '水稻 · 抽穗期', stage: 0.6, bounds: [16, 8, 28, 20], spacing: [0.45, 0.75] },
+  { id: 'wheat-n', crop: 'wheat', zh: '小麦 · 苗期', stage: 0.35, bounds: [-12, -21, 12, -13], spacing: [0.55, 0.9] },
+  { id: 'corn-s', crop: 'corn', zh: '玉米 · 成熟期', stage: 0.9, bounds: [-12, 13, 12, 21], spacing: [0.75, 1.0] },
+];
+
+/** Which plot (if any) covers (x, z). */
+export function cropPlotAt(x: number, z: number): CropPlot | undefined {
+  return CROP_PLOTS.find((plot) => {
+    const [minX, minZ, maxX, maxZ] = plot.bounds;
+    return x >= minX && x <= maxX && z >= minZ && z <= maxZ;
+  });
+}
+
+/** Plant height (m) for a crop at a growth stage. */
+export function cropHeight(crop: CropKind, stage: number): number {
+  const base = crop === 'corn' ? 2.1 : crop === 'rice' ? 0.9 : 1.25;
+  return base * (0.35 + 0.65 * Math.max(0, Math.min(1, stage)));
+}
+
+/** Approximate plant count per plot at full density (used for budgets). */
+export function cropPlotCount(plot: CropPlot): number {
+  const [minX, minZ, maxX, maxZ] = plot.bounds;
+  return Math.floor(((maxX - minX) / plot.spacing[0]) * ((maxZ - minZ) / plot.spacing[1]));
+}
+
 /** Static axis-aligned obstacles the walker / vehicle must not pass through. */
 export interface HallObstacle {
   id: string;
@@ -22,10 +121,15 @@ export interface HallObstacle {
 }
 
 export const HALL_OBSTACLES: HallObstacle[] = [
-  { id: 't70-platform', box: [-3.4, -2.2, 3.4, 2.2], label: 'T70 中央展台' },
   { id: 'diag-booth', box: [13.5, -12.5, 19.5, -7.5], label: '诊断工位' },
   { id: 'embodied-booth', box: [-19.5, -12.5, -13.5, -7.5], label: '具身装备展台' },
   { id: 'kiosk', box: [13.5, 7.5, 19.5, 12.5], label: 'AgriDx 交互大屏' },
+  // Glass hall walls (the east wall is split by the 6.4 m gate at z ∈ [-3.2, 3.2]).
+  { id: 'hall-wall-n', box: [-14.3, -10.3, 14.3, -9.7], label: '展厅北墙' },
+  { id: 'hall-wall-s', box: [-14.3, 9.7, 14.3, 10.3], label: '展厅南墙' },
+  { id: 'hall-wall-w', box: [-14.3, -10.3, -13.7, 10.3], label: '展厅西墙' },
+  { id: 'hall-wall-e-n', box: [13.7, -10.3, 14.3, -3.2], label: '展厅东墙北段' },
+  { id: 'hall-wall-e-s', box: [13.7, 3.2, 14.3, 10.3], label: '展厅东墙南段' },
   // Crop rows are soft: the walker / tractor may push through the crops.
 ];
 
@@ -160,22 +264,26 @@ export interface WeatherPreset {
   sway: number;
   /** Ground / crop wetness 0..1 (rain darkens soil and crops). */
   wet: number;
+  /** Snow cover 0..1 (snow whitens ground/crops/roof and bends crops down). */
+  snow: number;
+  /** Wind direction in degrees (0 = from the north, clockwise). */
+  windDeg: number;
   /** Daytime ambience (not a real forecast value — panel copy). */
   noteZh: string;
   noteEn: string;
 }
 
 export const WEATHER_PRESETS: WeatherPreset[] = [
-  { id: 'sunny', zh: '晴', en: 'Sunny', icon: '☀️', tempC: 26, humidity: 42, windKmh: 8, windDir: '东南', precipitationMm: 0, skyTop: '#4f9fe0', skyHorizon: '#cfe9fb', sun: 1, lamps: 0.55, fog: 0, particles: 0, particleKind: 'none', droplets: 0, clouds: 0.15, sway: 0.15, wet: 0, noteZh: '艳阳高照，光照充足，适合田间作业', noteEn: 'Bright sun, good for field work' },
-  { id: 'cloudy', zh: '多云', en: 'Cloudy', icon: '⛅', tempC: 24, humidity: 55, windKmh: 12, windDir: '东', precipitationMm: 0, skyTop: '#8fb4d4', skyHorizon: '#e3e9ee', sun: 0.75, lamps: 0.7, fog: 0.004, particles: 0, particleKind: 'none', droplets: 0, clouds: 0.55, sway: 0.25, wet: 0, noteZh: '云量较多，光照尚可', noteEn: 'Partly cloudy, light still fair' },
-  { id: 'overcast', zh: '阴', en: 'Overcast', icon: '☁️', tempC: 21, humidity: 68, windKmh: 10, windDir: '东北', precipitationMm: 0, skyTop: '#9aa5ad', skyHorizon: '#d7dde0', sun: 0.45, lamps: 0.9, fog: 0.01, particles: 0, particleKind: 'none', droplets: 0, clouds: 0.85, sway: 0.25, wet: 0.05, noteZh: '光照偏弱，留意湿度上升', noteEn: 'Dim light, humidity rising' },
-  { id: 'fog', zh: '雾', en: 'Foggy', icon: '🌫️', tempC: 18, humidity: 92, windKmh: 4, windDir: '北', precipitationMm: 0, skyTop: '#b9c0c2', skyHorizon: '#e6e8e6', sun: 0.25, lamps: 1, fog: 0.045, particles: 0, particleKind: 'none', droplets: 0.25, clouds: 0.4, sway: 0.08, wet: 0.1, noteZh: '能见度低，雾气贴地', noteEn: 'Low visibility, ground fog' },
-  { id: 'drizzle', zh: '毛毛雨', en: 'Drizzle', icon: '🌦️', tempC: 20, humidity: 80, windKmh: 9, windDir: '东南', precipitationMm: 0.8, skyTop: '#8ba0b2', skyHorizon: '#d3dbdd', sun: 0.5, lamps: 0.95, fog: 0.012, particles: 350, particleKind: 'rain', droplets: 0.35, clouds: 0.8, sway: 0.2, wet: 0.3, noteZh: '毛毛雨，地面微湿', noteEn: 'Light drizzle, ground damp' },
-  { id: 'rain', zh: '小雨', en: 'Light rain', icon: '🌧️', tempC: 19, humidity: 85, windKmh: 14, windDir: '东南', precipitationMm: 2.4, skyTop: '#7e93a6', skyHorizon: '#ccd5d8', sun: 0.35, lamps: 1, fog: 0.016, particles: 900, particleKind: 'rain', droplets: 0.7, clouds: 0.9, sway: 0.35, wet: 0.6, noteZh: '小雨，屏幕有雨滴', noteEn: 'Light rain, droplets on the screen' },
-  { id: 'moderate', zh: '中雨', en: 'Moderate rain', icon: '🌧️', tempC: 18, humidity: 90, windKmh: 18, windDir: '南', precipitationMm: 6.5, skyTop: '#6d7f90', skyHorizon: '#bcc6c9', sun: 0.28, lamps: 1.05, fog: 0.02, particles: 1500, particleKind: 'rain', droplets: 0.9, clouds: 0.95, sway: 0.5, wet: 0.8, noteZh: '中雨，天色转阴，田间泥泞', noteEn: 'Moderate rain, overcast, muddy field' },
-  { id: 'storm', zh: '大雨', en: 'Heavy rain', icon: '⛈️', tempC: 17, humidity: 94, windKmh: 28, windDir: '南', precipitationMm: 12.8, skyTop: '#5d6d7c', skyHorizon: '#aeb9bd', sun: 0.2, lamps: 1.15, fog: 0.022, particles: 2200, particleKind: 'rain', droplets: 1, clouds: 1, sway: 0.7, wet: 1, noteZh: '大雨，不宜出车作业', noteEn: 'Heavy rain, do not send machines out' },
-  { id: 'windy', zh: '大风', en: 'Windy', icon: '💨', tempC: 23, humidity: 50, windKmh: 45, windDir: '西北', precipitationMm: 0, skyTop: '#7ea8cc', skyHorizon: '#dbe7ee', sun: 0.85, lamps: 0.6, fog: 0.002, particles: 0, particleKind: 'none', droplets: 0, clouds: 0.7, sway: 1, wet: 0, noteZh: '大风，作物大幅摇摆，注意防风', noteEn: 'Strong wind, crops sway hard' },
-  { id: 'snow', zh: '雪', en: 'Snow', icon: '❄️', tempC: -2, humidity: 78, windKmh: 9, windDir: '西北', precipitationMm: 3.1, skyTop: '#aebac4', skyHorizon: '#e8ebec', sun: 0.4, lamps: 1, fog: 0.014, particles: 1400, particleKind: 'snow', droplets: 0, clouds: 0.9, sway: 0.2, wet: 0.4, noteZh: '降雪，路面湿滑', noteEn: 'Snowfall, slippery ground' },
+  { id: 'sunny', zh: '晴', en: 'Sunny', icon: '☀️', tempC: 26, humidity: 42, windKmh: 8, windDir: '东南', precipitationMm: 0, skyTop: '#4f9fe0', skyHorizon: '#cfe9fb', sun: 1, lamps: 0.55, fog: 0, particles: 0, particleKind: 'none', droplets: 0, clouds: 0.15, sway: 0.15, wet: 0, snow: 0, windDeg: 135, noteZh: '艳阳高照，光照充足，适合田间作业', noteEn: 'Bright sun, good for field work' },
+  { id: 'cloudy', zh: '多云', en: 'Cloudy', icon: '⛅', tempC: 24, humidity: 55, windKmh: 12, windDir: '东', precipitationMm: 0, skyTop: '#8fb4d4', skyHorizon: '#e3e9ee', sun: 0.75, lamps: 0.7, fog: 0.004, particles: 0, particleKind: 'none', droplets: 0, clouds: 0.55, sway: 0.25, wet: 0, snow: 0, windDeg: 90, noteZh: '云量较多，光照尚可', noteEn: 'Partly cloudy, light still fair' },
+  { id: 'overcast', zh: '阴', en: 'Overcast', icon: '☁️', tempC: 21, humidity: 68, windKmh: 10, windDir: '东北', precipitationMm: 0, skyTop: '#9aa5ad', skyHorizon: '#d7dde0', sun: 0.45, lamps: 0.9, fog: 0.01, particles: 0, particleKind: 'none', droplets: 0, clouds: 0.85, sway: 0.25, wet: 0.05, snow: 0, windDeg: 45, noteZh: '光照偏弱，留意湿度上升', noteEn: 'Dim light, humidity rising' },
+  { id: 'fog', zh: '雾', en: 'Foggy', icon: '🌫️', tempC: 18, humidity: 92, windKmh: 4, windDir: '北', precipitationMm: 0, skyTop: '#aab0b2', skyHorizon: '#dde0dd', sun: 0.2, lamps: 1, fog: 0.08, particles: 0, particleKind: 'none', droplets: 0.25, clouds: 0.5, sway: 0.08, wet: 0.1, snow: 0, windDeg: 0, noteZh: '能见度低，雾气贴地', noteEn: 'Low visibility, ground fog' },
+  { id: 'drizzle', zh: '毛毛雨', en: 'Drizzle', icon: '🌦️', tempC: 20, humidity: 80, windKmh: 9, windDir: '东南', precipitationMm: 0.8, skyTop: '#8ba0b2', skyHorizon: '#d3dbdd', sun: 0.5, lamps: 0.95, fog: 0.012, particles: 350, particleKind: 'rain', droplets: 0.35, clouds: 0.8, sway: 0.2, wet: 0.3, snow: 0, windDeg: 135, noteZh: '毛毛雨，地面微湿', noteEn: 'Light drizzle, ground damp' },
+  { id: 'rain', zh: '小雨', en: 'Light rain', icon: '🌧️', tempC: 19, humidity: 85, windKmh: 14, windDir: '东南', precipitationMm: 2.4, skyTop: '#7e93a6', skyHorizon: '#ccd5d8', sun: 0.35, lamps: 1, fog: 0.016, particles: 900, particleKind: 'rain', droplets: 0.7, clouds: 0.9, sway: 0.35, wet: 0.6, snow: 0, windDeg: 135, noteZh: '小雨，屏幕有雨滴', noteEn: 'Light rain, droplets on the screen' },
+  { id: 'moderate', zh: '中雨', en: 'Moderate rain', icon: '🌧️', tempC: 18, humidity: 90, windKmh: 18, windDir: '南', precipitationMm: 6.5, skyTop: '#6d7f90', skyHorizon: '#bcc6c9', sun: 0.28, lamps: 1.05, fog: 0.02, particles: 1500, particleKind: 'rain', droplets: 0.9, clouds: 0.95, sway: 0.5, wet: 0.8, snow: 0, windDeg: 180, noteZh: '中雨，天色转阴，田间泥泞', noteEn: 'Moderate rain, overcast, muddy field' },
+  { id: 'storm', zh: '大雨', en: 'Heavy rain', icon: '⛈️', tempC: 17, humidity: 94, windKmh: 28, windDir: '南', precipitationMm: 12.8, skyTop: '#5d6d7c', skyHorizon: '#aeb9bd', sun: 0.2, lamps: 1.15, fog: 0.022, particles: 2200, particleKind: 'rain', droplets: 1, clouds: 1, sway: 0.7, wet: 1, snow: 0, windDeg: 180, noteZh: '大雨，不宜出车作业', noteEn: 'Heavy rain, do not send machines out' },
+  { id: 'windy', zh: '大风', en: 'Windy', icon: '💨', tempC: 23, humidity: 50, windKmh: 45, windDir: '西北', precipitationMm: 0, skyTop: '#7ea8cc', skyHorizon: '#dbe7ee', sun: 0.85, lamps: 0.6, fog: 0.002, particles: 0, particleKind: 'none', droplets: 0, clouds: 0.7, sway: 1, wet: 0, snow: 0, windDeg: 315, noteZh: '大风，作物大幅摇摆，注意防风', noteEn: 'Strong wind, crops sway hard' },
+  { id: 'snow', zh: '雪', en: 'Snow', icon: '❄️', tempC: -2, humidity: 78, windKmh: 9, windDir: '西北', precipitationMm: 3.1, skyTop: '#939ea6', skyHorizon: '#d3d8db', sun: 0.25, lamps: 1, fog: 0.02, particles: 1700, particleKind: 'snow', droplets: 0, clouds: 1, sway: 0.2, wet: 0.4, snow: 1, windDeg: 315, noteZh: '降雪，路面湿滑', noteEn: 'Snowfall, slippery ground' },
 ];
 
 /** 南京：展厅天气的默认地点（Open-Meteo 免 key 接口，见 showroom-weather.ts）。 */
@@ -248,11 +356,13 @@ export interface QualityTier {
   shadows: boolean;
   post: 'full' | 'bloom' | 'none';
   particles: number;
+  /** Crop density multiplier (low tier thins the field to hold 30 fps). */
+  crops: number;
 }
 export const QUALITY_TIERS: Record<QualityId, QualityTier> = {
-  high: { id: 'high', zh: '高', en: 'High', pixelRatio: 2, shadows: true, post: 'full', particles: 1 },
-  medium: { id: 'medium', zh: '中', en: 'Medium', pixelRatio: 1.5, shadows: true, post: 'bloom', particles: 0.6 },
-  low: { id: 'low', zh: '低', en: 'Low', pixelRatio: 1, shadows: false, post: 'none', particles: 0.3 },
+  high: { id: 'high', zh: '高', en: 'High', pixelRatio: 2, shadows: true, post: 'full', particles: 1, crops: 1 },
+  medium: { id: 'medium', zh: '中', en: 'Medium', pixelRatio: 1.5, shadows: true, post: 'bloom', particles: 0.6, crops: 0.6 },
+  low: { id: 'low', zh: '低', en: 'Low', pixelRatio: 1, shadows: false, post: 'none', particles: 0.3, crops: 0.35 },
 };
 
 /* ------------------------------------------------------------------ */

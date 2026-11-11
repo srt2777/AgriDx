@@ -12,12 +12,13 @@ import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { Html, useGLTF, useProgress } from '@react-three/drei';
 import { Bloom, DepthOfField, EffectComposer, N8AO, Vignette } from '@react-three/postprocessing';
 import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js';
+import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { SkeletonUtils } from 'three-stdlib';
 import * as THREE from 'three';
 import { HONGHU_T70_PARTS_URL } from '@/components/tractor-model-info';
-import { HALL, QUALITY_TIERS, SHOWROOM_ZONES, T70_PARTS, T70_PART_SOURCES, type QualityId, type ZoneId } from './showroom-data';
+import { CROP_PLOTS, HALL_BUILDING, QUALITY_TIERS, SHOWROOM_ZONES, T70_PARTS, T70_PART_SOURCES, cropHeight, gripForWeather, isInsideHall, terrainHeight, type CropKind, type QualityId, type ZoneId } from './showroom-data';
 import type { BlendedWeather } from './showroom-weather';
-import { autopilotInput, clampWalk, hasManualInput, keysToDriveInput, keysToWalkInput, resolveCollision, stepVehicle, TRACTOR_PARAMS, TRACTOR_RADIUS, WALK_PARAMS } from './showroom-drive';
+import { autopilotInput, clampWalk, FIELD_PARAMS, hasManualInput, keysToDriveInput, keysToWalkInput, resolveCollision, stepVehicle, TRACTOR_PARAMS, TRACTOR_RADIUS, WALK_PARAMS } from './showroom-drive';
 import { createRapierVehicle, type RapierVehicle } from './rapier-vehicle';
 import type { SimState } from './showroom-state';
 
@@ -156,7 +157,89 @@ function drawEar(ctx: CanvasRenderingContext2D, cx: number, topY: number, grains
   }
 }
 
-function cropTexture(variant: 'A' | 'B'): THREE.CanvasTexture {
+/** Rice: broad bright-green blades, a drooping panicle, no awns. */
+function drawPanicle(ctx: CanvasRenderingContext2D, cx: number, topY: number) {
+  ctx.strokeStyle = '#8a9a3a';
+  ctx.lineWidth = 4;
+  ctx.beginPath();
+  ctx.moveTo(cx, topY + 90);
+  ctx.quadraticCurveTo(cx + 14, topY + 40, cx + 26, topY + 8);
+  ctx.stroke();
+  for (let i = 0; i < 7; i++) {
+    const t = i / 6;
+    const x = cx + 6 + t * 22;
+    const y = topY + 80 - t * 68;
+    ctx.fillStyle = i % 2 ? '#b8c25a' : '#a2b04a';
+    ctx.beginPath();
+    ctx.ellipse(x, y, 6, 11, 0.5, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
+
+/** Corn: tall stalk, wide leaves, a cob with husk mid-stem. */
+function drawCob(ctx: CanvasRenderingContext2D, cx: number, y: number) {
+  ctx.fillStyle = '#7fae4e';
+  ctx.beginPath();
+  ctx.ellipse(cx + 16, y, 13, 34, 0.35, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#e8c95a';
+  ctx.beginPath();
+  ctx.ellipse(cx + 16, y - 6, 8, 24, 0.35, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.strokeStyle = '#5d8a35';
+  ctx.lineWidth = 2;
+  for (let i = -2; i <= 2; i++) {
+    ctx.beginPath();
+    ctx.moveTo(cx + 16 + i * 3, y - 28);
+    ctx.lineTo(cx + 16 + i * 3, y + 16);
+    ctx.stroke();
+  }
+}
+
+function cropTextureFor(crop: CropKind, variant: 'A' | 'B'): THREE.CanvasTexture {
+  if (crop === 'rice') {
+    return canvasTexture(256, 512, (ctx) => {
+      ctx.clearRect(0, 0, 256, 512);
+      const stemGrad = ctx.createLinearGradient(0, 508, 0, 200);
+      stemGrad.addColorStop(0, '#3d5c1e');
+      stemGrad.addColorStop(1, '#6da03a');
+      ctx.fillStyle = stemGrad;
+      ctx.beginPath();
+      ctx.moveTo(124, 508);
+      ctx.lineTo(132, 508);
+      ctx.lineTo(130, 200);
+      ctx.lineTo(126, 200);
+      ctx.closePath();
+      ctx.fill();
+      const leaves: [number, number, number, number][] =
+        variant === 'A'
+          ? [[128, 460, 95, -55], [128, 400, 110, 55], [128, 330, 100, -60], [128, 260, 90, 60]]
+          : [[128, 470, 120, -40], [128, 410, 125, 42], [128, 340, 115, -48], [128, 270, 105, 48], [128, 210, 85, -55]];
+      for (const [x, y, len, angle] of leaves) drawLeaf(ctx, x, y, len, angle, 22, '#3f7a24', '#7cc24a');
+      drawPanicle(ctx, 128, variant === 'A' ? 60 : 90);
+    });
+  }
+  if (crop === 'corn') {
+    return canvasTexture(256, 512, (ctx) => {
+      ctx.clearRect(0, 0, 256, 512);
+      const stemGrad = ctx.createLinearGradient(0, 508, 0, 60);
+      stemGrad.addColorStop(0, '#4a6b22');
+      stemGrad.addColorStop(1, '#7fae4e');
+      ctx.fillStyle = stemGrad;
+      ctx.beginPath();
+      ctx.moveTo(122, 508);
+      ctx.lineTo(134, 508);
+      ctx.lineTo(131, 60);
+      ctx.lineTo(125, 60);
+      ctx.closePath();
+      ctx.fill();
+      const leaves: [number, number, number, number][] = [
+        [128, 470, 130, -30], [128, 410, 145, 32], [128, 340, 140, -35], [128, 270, 130, 35], [128, 200, 120, -40], [128, 140, 100, 42],
+      ];
+      for (const [x, y, len, angle] of leaves) drawLeaf(ctx, x, y, len, angle, 26, '#3c6e20', '#69a83e');
+      drawCob(ctx, 128, variant === 'A' ? 300 : 330);
+    });
+  }
   return canvasTexture(256, 512, (ctx) => {
     ctx.clearRect(0, 0, 256, 512);
     // Stem: tapered, slightly darker at the base.
@@ -256,7 +339,7 @@ function findPartNodes(root: THREE.Object3D): Map<string, THREE.Object3D[]> {
   return map;
 }
 
-function T70({ sim, onPartSelect }: { sim: SimState; onPartSelect: (id: string) => void }) {
+function T70({ sim, snow, onPartSelect }: { sim: SimState; snow: { value: number }; onPartSelect: (id: string) => void }) {
   use(ensureStudioMeshopt());
   const { scene } = useGLTF(HONGHU_T70_PARTS_URL, false, false, attachStudioMeshopt);
   const group = useRef<THREE.Group>(null);
@@ -404,6 +487,21 @@ function T70({ sim, onPartSelect }: { sim: SimState; onPartSelect: (id: string) 
   }, [model]);
 
   useFrame(() => {
+    // Follow the terrain: the body rides on the field undulation
+    // (flat inside the hall) with a gentle pitch/roll from the slope.
+    const g = group.current;
+    if (g) {
+      const { x, z, heading } = sim.tractor;
+      const y = terrainHeight(x, z);
+      const e = 0.6;
+      const dydx = (terrainHeight(x + e, z) - terrainHeight(x - e, z)) / (2 * e);
+      const dydz = (terrainHeight(x, z + e) - terrainHeight(x, z - e)) / (2 * e);
+      const pitch = Math.max(-0.12, Math.min(0.12, Math.atan(dydx * Math.sin(heading) - dydz * Math.cos(heading))));
+      const roll = Math.max(-0.12, Math.min(0.12, Math.atan(dydx * Math.cos(heading) + dydz * Math.sin(heading))));
+      g.position.set(x, y, z);
+      g.rotation.order = 'YXZ';
+      g.rotation.set(pitch, heading, roll);
+    }
     const spin = sim.wheelSpin;
     // Spin around the axle (local Z): rotating around X flipped the
     // wheel out of its plane like a coin.
@@ -426,6 +524,11 @@ function T70({ sim, onPartSelect }: { sim: SimState; onPartSelect: (id: string) 
       rotation={[0, sim.tractor.heading, 0]}
     >
       <primitive object={model} />
+      {/* Snow settling on the cab roof (opacity follows accumulation). */}
+      <mesh position={[0, 2.32, -0.1]}>
+        <boxGeometry args={[1.7, 0.14, 2.3]} />
+        <meshStandardMaterial color="#ffffff" roughness={1} transparent opacity={snow.value * 0.95} depthWrite={false} />
+      </mesh>
       {/* Lidar sweep ring above the roof sensors. */}
       <group ref={radar} position={[0, 2.05, 0]}>
         <mesh rotation={[-Math.PI / 2, 0, 0]}>
@@ -518,9 +621,12 @@ function Clouds({ weather }: { weather: BlendedWeather }) {
     [],
   );
   useFrame((_, dt) => {
+    // Drift speed follows the wind: calm days barely move the clouds,
+    // gale days push them visibly across the sky.
+    const windFactor = 0.3 + weather.windKmh * 0.06;
     refs.current.forEach((mesh, i) => {
       if (!mesh) return;
-      mesh.position.x += seeds[i].speed * dt;
+      mesh.position.x += seeds[i].speed * windFactor * dt;
       if (mesh.position.x > 80) mesh.position.x = -80;
     });
   });
@@ -565,107 +671,130 @@ function getPrecipitationPositions(): Float32Array {
 /* Farm field: crops swaying in the wind + treeline                */
 /* ---------------------------------------------------------------- */
 
-const CROP_COUNT = 1900;
-
-type CropInstance = { x: number; z: number; rot: number; s: number; tint: [number, number, number] };
-
 /**
- * Procedural crop rows (two InstancedMeshes, one per texture variant,
- * ~1900 plants total). Each plant is two crossed alpha-cutout planes
- * (12 triangles), so it reads as a 3D plant from any angle instead of
- * a flat board, while the draw-call count stays at 2 and the triangle
- * count (~23k) is still trivial. Wind sway is a vertex-shader bend
- * driven by the current weather's `sway` — no per-plant CPU work per
- * frame, so the field stays cheap even on integrated graphics. Rows
- * skip the dirt track and the four booth footprints.
+ * Farm plots: one InstancedMesh per plot (6 plots, 3 crops at different
+ * growth stages), each plant an X-shaped pair of alpha-cutout planes
+ * merged into a single geometry, so the whole field costs 6 draw calls.
+ * Wind is a vertex-shader bend along the weather wind direction
+ * (uWindDir) with amplitude uSway — no per-plant CPU work per frame.
+ * LOD: every 0.5 s each plot's instance count is thinned by camera
+ * distance (full < 25 m, half < 45 m, quarter beyond); the low quality
+ * tier also caps density at 35%. Snow (uSnow) whitens the plants and
+ * bends them down. Instances are shuffled so thinning stays uniform.
  */
-function CropField({ weather }: { weather: BlendedWeather }) {
-  const meshRefA = useRef<THREE.InstancedMesh>(null);
-  const meshRefB = useRef<THREE.InstancedMesh>(null);
-  const materialRefA = useRef<THREE.MeshStandardMaterial>(null);
-  const materialRefB = useRef<THREE.MeshStandardMaterial>(null);
-  const textures = useMemo(() => [cropTexture('A'), cropTexture('B')] as const, []);
-  const wind = useMemo(() => ({ uTime: { value: 0 }, uSway: { value: 0.15 } }), []);
-  // Crossed planes: the second geometry is the first rotated 90°, so
-  // every plant gets an X-shaped pair sharing one instance matrix.
-  const geometryA = useMemo(() => new THREE.PlaneGeometry(0.62, 1.3, 1, 3), []);
-  const geometryB = useMemo(() => {
-    const g = new THREE.PlaneGeometry(0.62, 1.3, 1, 3);
-    g.rotateY(Math.PI / 2);
-    return g;
+function CropField({ weather, quality, snow }: { weather: BlendedWeather; quality: QualityId; snow: { value: number } }) {
+  const tier = QUALITY_TIERS[quality];
+  const textures = useMemo(
+    () => ({
+      wheat: [cropTextureFor('wheat', 'A'), cropTextureFor('wheat', 'B')],
+      rice: [cropTextureFor('rice', 'A'), cropTextureFor('rice', 'B')],
+      corn: [cropTextureFor('corn', 'A'), cropTextureFor('corn', 'B')],
+    }),
+    [],
+  );
+  const wind = useMemo(
+    () => ({ uTime: { value: 0 }, uSway: { value: 0.15 }, uWindDir: { value: new THREE.Vector2(0.7, 0.7) }, uSnow: { value: 0 } }),
+    [],
+  );
+  // One crossed-plane geometry shared by all plots (X-shape, 1.3 m tall
+  // at scale 1; per-instance scale sets the real crop height).
+  const geometry = useMemo(() => {
+    const a = new THREE.PlaneGeometry(0.62, 1.3, 1, 3);
+    const b = new THREE.PlaneGeometry(0.62, 1.3, 1, 3);
+    b.rotateY(Math.PI / 2);
+    const merged = mergeGeometries([a, b]);
+    a.dispose();
+    b.dispose();
+    if (!merged) throw new Error('crop geometry merge failed');
+    return merged;
   }, []);
-  const [instancesA, instancesB] = useMemo(() => {
-    const list: (CropInstance & { variant: 0 | 1 })[] = [];
-    const booths: [number, number, number, number][] = [
-      [-3.4, -2.2, 3.4, 2.2],
-      [13.5, -12.5, 19.5, -7.5],
-      [-19.5, -12.5, -13.5, -7.5],
-      [13.5, 7.5, 19.5, 12.5],
-    ];
-    const blocked = (x: number, z: number) =>
-      booths.some(([minX, minZ, maxX, maxZ]) => x > minX - 1 && x < maxX + 1 && z > minZ - 1 && z < maxZ + 1);
-    let seed = 12345;
+  const plots = useMemo(() => {
+    let seed = 4242;
     const rand = () => {
       seed = (seed * 16807) % 2147483647;
       return seed / 2147483647;
     };
-    for (let side = 0; side < 2; side++) {
-      for (let row = 0; row < 12; row++) {
-        const z = (side === 0 ? -1 : 1) * (6.8 + row * 1.1);
-        for (let x = -28; x <= 28; x += 0.7) {
-          if (blocked(x, z)) continue;
-          // Occasional gaps so the rows have sparse/thin patches.
-          if (rand() < 0.08) continue;
+    return CROP_PLOTS.map((plot) => {
+      const [minX, minZ, maxX, maxZ] = plot.bounds;
+      const height = cropHeight(plot.crop, plot.stage);
+      const list: { x: number; z: number; rot: number; s: number; h: number }[] = [];
+      for (let z = minZ; z <= maxZ; z += plot.spacing[1]) {
+        for (let x = minX; x <= maxX; x += plot.spacing[0]) {
+          if (rand() < 0.06) continue; // sparse patches
           list.push({
             x: x + (rand() - 0.5) * 0.3,
-            z: z + (rand() - 0.5) * 0.9,
+            z: z + (rand() - 0.5) * 0.5,
             rot: rand() * Math.PI,
-            s: 0.8 + rand() * 0.55,
-            // Near-white tint with a slight hue shift; it multiplies
-            // the texture, so the painted colours stay dominant.
-            tint: [0.22 + rand() * 0.08, 0.2 + rand() * 0.15, 0.85 + rand() * 0.15],
-            variant: (row % 2) as 0 | 1,
+            s: 0.85 + rand() * 0.4,
+            h: height * (0.85 + rand() * 0.3),
           });
         }
       }
-    }
-    const kept = list.slice(0, CROP_COUNT);
-    return [kept.filter((i) => i.variant === 0), kept.filter((i) => i.variant === 1)] as const;
-  }, []);
+      // Shuffle so distance-based count thinning stays uniform.
+      for (let i = list.length - 1; i > 0; i--) {
+        const j = Math.floor(rand() * (i + 1));
+        [list[i], list[j]] = [list[j], list[i]];
+      }
+      return {
+        plot,
+        list,
+        full: Math.max(1, Math.floor(list.length * tier.crops)),
+        center: new THREE.Vector3((minX + maxX) / 2, 0, (minZ + maxZ) / 2),
+      };
+    });
+  }, [tier.crops]);
+  const meshRefs = useRef<(THREE.InstancedMesh | null)[]>([]);
+  const matRefs = useRef<(THREE.MeshStandardMaterial | null)[]>([]);
+  const lodTimer = useRef(0);
   useEffect(() => {
     const dummy = new THREE.Object3D();
-    const color = new THREE.Color();
-    const fill = (mesh: THREE.InstancedMesh | null, list: CropInstance[]) => {
+    plots.forEach((entry, pi) => {
+      const mesh = meshRefs.current[pi];
       if (!mesh) return;
-      list.forEach((inst, i) => {
-        dummy.position.set(inst.x, 0.65 * inst.s, inst.z);
+      entry.list.forEach((inst, i) => {
+        dummy.position.set(inst.x, (inst.h / 2) * 0.92, inst.z);
         dummy.rotation.set(0, inst.rot, 0);
-        dummy.scale.setScalar(inst.s);
+        dummy.scale.set(inst.s, inst.h / 1.3, inst.s);
         dummy.updateMatrix();
         mesh.setMatrixAt(i, dummy.matrix);
-        color.setHSL(inst.tint[0], inst.tint[1], inst.tint[2]);
-        mesh.setColorAt(i, color);
       });
       mesh.instanceMatrix.needsUpdate = true;
-      if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
-      mesh.count = list.length;
-    };
-    fill(meshRefA.current, instancesA);
-    fill(meshRefB.current, instancesB);
-  }, [instancesA, instancesB]);
-  useFrame(({ clock }) => {
+      mesh.count = entry.full;
+    });
+  }, [plots]);
+  useFrame(({ clock, camera }) => {
     wind.uTime.value = clock.elapsedTime;
     wind.uSway.value = weather.sway;
+    wind.uSnow.value = snow.value;
+    const rad = ((weather.windDeg - 90) * Math.PI) / 180;
+    wind.uWindDir.value.set(Math.cos(rad), Math.sin(rad));
     const wet = weather.wet;
-    for (const ref of [materialRefA, materialRefB]) {
-      if (ref.current) ref.current.color.setRGB(1 - wet * 0.35, 1 - wet * 0.3, 1 - wet * 0.3);
+    const sn = snow.value;
+    for (const ref of matRefs.current) {
+      if (!ref) continue;
+      // Wet darkens, snow whitens (both gradual — snow.value ramps).
+      const r = (1 - wet * 0.35) * (1 - sn * 0.6) + sn * 0.6;
+      const g = (1 - wet * 0.3) * (1 - sn * 0.6) + sn * 0.6;
+      const b = (1 - wet * 0.3) * (1 - sn * 0.55) + sn * 0.6;
+      ref.color.setRGB(r, g, b);
+    }
+    // LOD / distance culling, throttled to twice a second.
+    lodTimer.current += 1;
+    if (lodTimer.current % 30 === 0) {
+      plots.forEach((entry, pi) => {
+        const mesh = meshRefs.current[pi];
+        if (!mesh) return;
+        const d = camera.position.distanceTo(entry.center);
+        const frac = d < 25 ? 1 : d < 45 ? 0.5 : 0.25;
+        mesh.count = Math.max(1, Math.floor(entry.full * frac));
+      });
     }
   });
-  // Both variants share the sway shader; alphaTest cuts the quad to
-  // the painted plant silhouette (no transparent sorting issues).
-  const cropMaterial = (ref: { current: THREE.MeshStandardMaterial | null }, texture: THREE.Texture) => (
+  const cropMaterial = (pi: number, texture: THREE.Texture) => (
     <meshStandardMaterial
-      ref={ref}
+      ref={(el) => {
+        matRefs.current[pi] = el;
+      }}
       map={texture}
       side={THREE.DoubleSide}
       roughness={0.9}
@@ -673,14 +802,22 @@ function CropField({ weather }: { weather: BlendedWeather }) {
       onBeforeCompile={(shader) => {
         shader.uniforms.uTime = wind.uTime;
         shader.uniforms.uSway = wind.uSway;
-        shader.vertexShader = `uniform float uTime; uniform float uSway;\n${shader.vertexShader.replace(
+        shader.uniforms.uWindDir = wind.uWindDir;
+        shader.uniforms.uSnow = wind.uSnow;
+        shader.vertexShader = `uniform float uTime; uniform float uSway; uniform vec2 uWindDir; uniform float uSnow;
+${shader.vertexShader.replace(
           '#include <begin_vertex>',
           `#include <begin_vertex>
           {
             float swayH = pow(clamp(position.y / 1.3 + 0.5, 0.0, 1.0), 2.0);
             float phase = uTime * 1.7 + float(instanceMatrix[3][0]) * 0.45 + float(instanceMatrix[3][2]) * 0.3;
-            transformed.x += sin(phase) * uSway * 0.38 * swayH;
-            transformed.z += cos(uTime * 1.3 + float(instanceMatrix[3][0]) * 0.3) * uSway * 0.12 * swayH;
+            vec2 bend = uWindDir * (sin(phase) * uSway * 0.38 * swayH);
+            transformed.x += bend.x;
+            transformed.z += bend.y;
+            // Snow load: the top bends down and sags toward the wind.
+            transformed.y *= 1.0 - uSnow * 0.22 * swayH;
+            transformed.x += uWindDir.x * uSnow * 0.12 * swayH;
+            transformed.z += uWindDir.y * uSnow * 0.12 * swayH;
           }`,
         )}`;
       }}
@@ -688,29 +825,26 @@ function CropField({ weather }: { weather: BlendedWeather }) {
   );
   return (
     <group>
-      <instancedMesh
-        ref={meshRefA}
-        args={[geometryA, undefined, instancesA.length]}
-        frustumCulled={false}
-        castShadow={false}
-        receiveShadow
-      >
-        {cropMaterial(materialRefA, textures[0])}
-      </instancedMesh>
-      <instancedMesh
-        ref={meshRefB}
-        args={[geometryB, undefined, instancesB.length]}
-        frustumCulled={false}
-        castShadow={false}
-        receiveShadow
-      >
-        {cropMaterial(materialRefB, textures[1])}
-      </instancedMesh>
+      {plots.map((entry, pi) => (
+        <instancedMesh
+          key={entry.plot.id}
+          ref={(el) => {
+            meshRefs.current[pi] = el;
+          }}
+          args={[geometry, undefined, entry.list.length]}
+          frustumCulled={false}
+          castShadow={false}
+          receiveShadow
+        >
+          {cropMaterial(pi, textures[entry.plot.crop][pi % 2])}
+        </instancedMesh>
+      ))}
     </group>
   );
 }
 
-function Treeline() {
+function Treeline({ weather }: { weather: BlendedWeather }) {
+  const canopies = useRef<(THREE.Mesh | null)[]>([]);
   const trees = useMemo(() => {
     let seed = 777;
     const rand = () => {
@@ -720,9 +854,20 @@ function Treeline() {
     return Array.from({ length: 56 }, (_, i) => {
       const a = (i / 56) * Math.PI * 2 + rand() * 0.1;
       const r = 46 + rand() * 12;
-      return { x: Math.cos(a) * r, z: Math.sin(a) * r * 0.8, s: 0.8 + rand() * 0.9 };
+      return { x: Math.cos(a) * r, z: Math.sin(a) * r * 0.8, s: 0.8 + rand() * 0.9, phase: rand() * Math.PI * 2 };
     });
   }, []);
+  // Canopy sway: the whole crown leans with the wind (amplitude follows
+  // the weather sway; trunks stay put).
+  useFrame(({ clock }) => {
+    const t = clock.elapsedTime;
+    canopies.current.forEach((mesh, i) => {
+      if (!mesh) return;
+      const phase = trees[i]?.phase ?? 0;
+      mesh.rotation.z = Math.sin(t * 1.1 + phase) * weather.sway * 0.05;
+      mesh.rotation.x = Math.cos(t * 0.9 + phase) * weather.sway * 0.03;
+    });
+  });
   return (
     <group>
       {trees.map((t, i) => (
@@ -731,10 +876,53 @@ function Treeline() {
             <cylinderGeometry args={[0.22, 0.3, 2, 8]} />
             <meshStandardMaterial color="#6b4a2f" roughness={0.9} />
           </mesh>
-          <mesh position={[0, 3.4, 0]} castShadow>
+          <mesh
+            position={[0, 3.4, 0]}
+            castShadow
+            ref={(el) => {
+              canopies.current[i] = el;
+            }}
+          >
             <coneGeometry args={[1.9, 4.6, 10]} />
             <meshStandardMaterial color="#2e6b34" roughness={0.9} />
           </mesh>
+        </group>
+      ))}
+    </group>
+  );
+}
+
+/** Gate flags: green pennants on poles by the hall gate, waving with the wind. */
+function GateFlags({ weather }: { weather: BlendedWeather }) {
+  const flags = useRef<(THREE.Group | null)[]>([]);
+  useFrame(({ clock }) => {
+    const t = clock.elapsedTime;
+    flags.current.forEach((g, i) => {
+      if (!g) return;
+      const phase = i * 1.7;
+      g.rotation.y = Math.sin(t * (2 + weather.sway * 3) + phase) * (0.25 + weather.sway * 0.5);
+      g.rotation.z = Math.sin(t * 1.6 + phase) * weather.sway * 0.12;
+    });
+  });
+  return (
+    <group>
+      {[-4.2, 4.2].map((z, i) => (
+        <group key={z} position={[15.6, 0, z]}>
+          <mesh position={[0, 2.6, 0]} castShadow>
+            <cylinderGeometry args={[0.05, 0.07, 5.2, 8]} />
+            <meshStandardMaterial color="#5a6063" metalness={0.6} roughness={0.4} />
+          </mesh>
+          <group
+            position={[0, 4.6, 0]}
+            ref={(el) => {
+              flags.current[i] = el;
+            }}
+          >
+            <mesh position={[0.65, 0, 0]}>
+              <planeGeometry args={[1.3, 0.7]} />
+              <meshStandardMaterial color="#2e7d46" side={THREE.DoubleSide} roughness={0.8} />
+            </mesh>
+          </group>
         </group>
       ))}
     </group>
@@ -755,10 +943,16 @@ function Precipitation({ weather, quality }: { weather: BlendedWeather; quality:
     const attr = points.current.geometry.getAttribute('position') as THREE.BufferAttribute;
     const isSnow = weather.particleKind === 'snow';
     const fall = (isSnow ? 1.6 : 13) * dt;
+    // Rain slants with the wind; snow drifts more slowly sideways.
+    const drift = (isSnow ? weather.windKmh * 0.02 : weather.windKmh * 0.08) * dt;
     for (let i = 0; i < count; i++) {
       let y = attr.getY(i) - fall;
       if (y < 0) y = 24 + Math.random() * 2;
       attr.setY(i, y);
+      let x = attr.getX(i) + drift;
+      if (x > 45) x = -45;
+      if (x < -45) x = 45;
+      attr.setX(i, x);
       if (isSnow) attr.setX(i, attr.getX(i) + Math.sin(y * 0.6 + i) * dt * 0.6);
     }
     attr.needsUpdate = true;
@@ -767,12 +961,230 @@ function Precipitation({ weather, quality }: { weather: BlendedWeather; quality:
   if (weather.particleKind === 'none' || count === 0) return null;
   return (
     <points ref={points} geometry={geometry} frustumCulled={false}>
-      <pointsMaterial size={weather.particleKind === 'snow' ? 0.22 : 0.09} color={weather.particleKind === 'snow' ? '#ffffff' : '#bcd8ea'} transparent opacity={0.85} sizeAttenuation depthWrite={false} />
+      {/* depthWrite: precipitation must write depth. The high tier's
+          depth of field blurs each pixel by the depth-buffer value
+          behind it — with depthWrite off, flakes inherit the sky /
+          far-ground depth and are blurred to nothing, so a snow scene
+          showed no falling snow at all (rain only looked rainy
+          because of the separate DOM droplet overlay). With depth
+          written, near flakes stay sharp and far ones soften
+          naturally. Overlap artefacts are negligible at this size. */}
+      <pointsMaterial size={weather.particleKind === 'snow' ? 0.5 : 0.09} color={weather.particleKind === 'snow' ? '#ffffff' : '#bcd8ea'} transparent opacity={0.85} sizeAttenuation depthWrite />
     </points>
   );
 }
 
 
+
+/* ---------------------------------------------------------------- */
+/* Glass hall in the middle of the field + weather ground effects    */
+/* ---------------------------------------------------------------- */
+
+/**
+ * The showroom building: a glass hall (28 × 20 m, 6 m tall) around the
+ * T70, steel frame, flat roof with skylight strips, and a 6.4 m gate
+ * in the east wall on the dirt track — the tractor drives out through
+ * it and back in. Two glass door panels stand parked open against the
+ * east wall. Roof snow is a white plane whose opacity follows the
+ * accumulated snow (gradual, never a snap).
+ */
+function HallBuilding({ weather, snow }: { weather: BlendedWeather; snow: { value: number } }) {
+  const hw = HALL_BUILDING.halfX;
+  const hz = HALL_BUILDING.halfZ;
+  const gate = HALL_BUILDING.gate.halfWidth;
+  const glass = (
+    <meshPhysicalMaterial color="#cfe4ee" transparent opacity={0.16} roughness={0.06} metalness={0} side={THREE.DoubleSide} />
+  );
+  const frame = <meshStandardMaterial color="#3a4043" metalness={0.7} roughness={0.35} />;
+  const posts: [number, number][] = [];
+  for (let x = -hw; x <= hw; x += 4.67) {
+    posts.push([x, -hz]);
+    posts.push([x, hz]);
+  }
+  for (let z = -hz + 3.33; z <= hz - 3.33; z += 3.33) {
+    posts.push([-hw, z]);
+  }
+  return (
+    <group>
+      {/* Polished concrete floor. */}
+      <mesh position={[0, 0.01, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+        <planeGeometry args={[hw * 2, hz * 2]} />
+        <meshStandardMaterial color="#b9bcb8" roughness={0.35} metalness={0.05} />
+      </mesh>
+      {/* Glass walls: north / south / west full, east split by the gate. */}
+      <mesh position={[0, 3, -hz]}>{<planeGeometry args={[hw * 2, 6]} />}{glass}</mesh>
+      <mesh position={[0, 3, hz]}>{<planeGeometry args={[hw * 2, 6]} />}{glass}</mesh>
+      <mesh position={[-hw, 3, 0]} rotation={[0, Math.PI / 2, 0]}>{<planeGeometry args={[hz * 2, 6]} />}{glass}</mesh>
+      <mesh position={[hw, 3, -(gate + (hz - gate) / 2)]} rotation={[0, Math.PI / 2, 0]}>{<planeGeometry args={[hz - gate, 6]} />}{glass}</mesh>
+      <mesh position={[hw, 3, gate + (hz - gate) / 2]} rotation={[0, Math.PI / 2, 0]}>{<planeGeometry args={[hz - gate, 6]} />}{glass}</mesh>
+      {/* Lintel above the gate (opening 4.2 m tall). */}
+      <mesh position={[hw, 5.1, 0]}>
+        <boxGeometry args={[0.3, 1.8, gate * 2]} />
+        {frame}
+      </mesh>
+      {/* Steel posts + top beams. */}
+      {posts.map(([x, z], i) => (
+        <mesh key={i} position={[x, 3, z]}>
+          <boxGeometry args={[0.24, 6, 0.24]} />
+          {frame}
+        </mesh>
+      ))}
+      {[-hz, hz].map((z) => (
+        <mesh key={`beam-${z}`} position={[0, 6, z]}>
+          <boxGeometry args={[hw * 2 + 0.6, 0.3, 0.3]} />
+          {frame}
+        </mesh>
+      ))}
+      {[-hw, hw].map((x) => (
+        <mesh key={`beam-${x}`} position={[x, 6, 0]}>
+          <boxGeometry args={[0.3, 0.3, hz * 2 + 0.6]} />
+          {frame}
+        </mesh>
+      ))}
+      {/* Roof slab + skylight strips. */}
+      <mesh position={[0, 6.15, 0]} castShadow>
+        <boxGeometry args={[hw * 2 + 0.6, 0.3, hz * 2 + 0.6]} />
+        <meshStandardMaterial color="#7d8386" roughness={0.7} metalness={0.3} />
+      </mesh>
+      {[-5, 0, 5].map((x) => (
+        <mesh key={`sky-${x}`} position={[x, 6.32, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+          <planeGeometry args={[2.2, hz * 2 - 2]} />
+          <meshBasicMaterial color="#dceefb" transparent opacity={0.7} />
+        </mesh>
+      ))}
+      {/* Snow settling on the roof (opacity ramps with accumulation). */}
+      <mesh position={[0, 6.33, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <planeGeometry args={[hw * 2 + 0.6, hz * 2 + 0.6]} />
+        <meshStandardMaterial color="#ffffff" roughness={1} transparent opacity={snow.value * 0.95} depthWrite={false} />
+      </mesh>
+      {/* Gate frame + parked-open sliding door panels. */}
+      {[-gate, gate].map((z) => (
+        <mesh key={`gatepost-${z}`} position={[hw, 2.1, z]}>
+          <boxGeometry args={[0.4, 4.2, 0.4]} />
+          {frame}
+        </mesh>
+      ))}
+      {[-1, 1].map((side) => (
+        <mesh key={`door-${side}`} position={[hw + 0.35, 2.1, side * (gate + 1.8)]}>
+          <boxGeometry args={[0.08, 4.2, 3.4]} />
+          <meshPhysicalMaterial color="#cfe4ee" transparent opacity={0.3} roughness={0.06} metalness={0} side={THREE.DoubleSide} />
+        </mesh>
+      ))}
+      {/* Sunbeams through the skylights on sunny days (opacity ∝ sun). */}
+      {weather.sun > 0.6 && (
+        <group>
+          {[-5, 0, 5].map((x) => (
+            <mesh key={`beam-${x}`} position={[x + 1.2, 3, 0]} rotation={[0, 0, 0.35]}>
+              <planeGeometry args={[2.2, 6.4]} />
+              <meshBasicMaterial color="#fff3c4" transparent opacity={(weather.sun - 0.6) * 0.35} side={THREE.DoubleSide} depthWrite={false} />
+            </mesh>
+          ))}
+        </group>
+      )}
+    </group>
+  );
+}
+
+/** Rain puddles on the track + expanding ripple rings while it rains. */
+function Puddles({ weather }: { weather: BlendedWeather }) {
+  const spots: [number, number, number][] = [
+    [8, 0.5, 1.6], [-6, -0.8, 2.0], [18, 1.2, 1.4], [-14, 0.6, 1.8], [24, -1, 1.2],
+  ];
+  const rings = useRef<(THREE.Mesh | null)[]>([]);
+  useFrame(({ clock }) => {
+    const t = clock.elapsedTime;
+    rings.current.forEach((mesh, i) => {
+      if (!mesh) return;
+      const phase = ((t * 0.5 + i * 0.33) % 1 + 1) % 1;
+      const s = 0.4 + phase * 1.6;
+      mesh.scale.set(s, s, 1);
+      const mat = mesh.material as THREE.MeshBasicMaterial;
+      mat.opacity = (weather.particleKind === 'rain' ? 0.5 : 0) * (1 - phase) * weather.droplets;
+    });
+  });
+  const opacity = weather.wet * 0.75;
+  if (opacity <= 0.02 && weather.particleKind !== 'rain') return null;
+  return (
+    <group>
+      {spots.map(([x, z, r], i) => (
+        <mesh key={`puddle-${i}`} position={[x, 0.025, z]} rotation={[-Math.PI / 2, 0, 0]}>
+          <circleGeometry args={[r, 24]} />
+          <meshStandardMaterial color="#8fb4c8" metalness={0.85} roughness={0.08} transparent opacity={opacity} />
+        </mesh>
+      ))}
+      {spots.slice(0, 3).map(([x, z], i) => (
+        <mesh
+          key={`ripple-${i}`}
+          position={[x, 0.03, z]}
+          rotation={[-Math.PI / 2, 0, 0]}
+          ref={(el) => {
+            rings.current[i] = el;
+          }}
+        >
+          <ringGeometry args={[0.45, 0.55, 24]} />
+          <meshBasicMaterial color="#cfe4ee" transparent opacity={0} side={THREE.DoubleSide} depthWrite={false} />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
+/**
+ * Dust kicked up behind the tractor on dry dirt, muddy spray when wet.
+ * A small Points pool recycled behind the rear wheels; only active
+ * while driving. Colour and size stay modest on purpose.
+ */
+function DustPuffs({ sim, weather }: { sim: SimState; weather: BlendedWeather }) {
+  const COUNT = 48;
+  const points = useRef<THREE.Points>(null);
+  const data = useRef(
+    Array.from({ length: COUNT }, () => ({ life: 0, x: 0, y: 0, z: 0, vx: 0, vy: 0, vz: 0 })),
+  );
+  const positions = useMemo(() => new Float32Array(COUNT * 3), []);
+  const geometry = useMemo(() => {
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    return geo;
+  }, [positions]);
+  useFrame((_, dt) => {
+    const driving = sim.mode === 'drive' && Math.abs(sim.tractor.speed) > 1.2;
+    const heading = sim.tractor.heading;
+    const bx = sim.tractor.x - Math.sin(heading) * 1.6;
+    const bz = sim.tractor.z + Math.cos(heading) * 1.6;
+    data.current.forEach((p, i) => {
+      if (p.life <= 0) {
+        if (driving && Math.random() < 0.5) {
+          p.life = 0.9;
+          p.x = bx + (Math.random() - 0.5) * 1.2;
+          p.y = 0.25;
+          p.z = bz + (Math.random() - 0.5) * 1.2;
+          p.vx = (Math.random() - 0.5) * 0.6 - Math.sin(heading) * sim.tractor.speed * 0.2;
+          p.vy = 0.5 + Math.random() * 0.5;
+          p.vz = (Math.random() - 0.5) * 0.6 + Math.cos(heading) * sim.tractor.speed * 0.2;
+        } else {
+          positions[i * 3 + 1] = -10;
+          return;
+        }
+      }
+      p.life -= dt;
+      p.x += p.vx * dt;
+      p.y += p.vy * dt;
+      p.z += p.vz * dt;
+      positions[i * 3] = p.x;
+      positions[i * 3 + 1] = Math.max(0.05, p.y);
+      positions[i * 3 + 2] = p.z;
+    });
+    const attr = geometry.getAttribute('position') as THREE.BufferAttribute;
+    attr.needsUpdate = true;
+    if (points.current) points.current.visible = driving || data.current.some((p) => p.life > 0);
+  });
+  const wet = weather.wet > 0.4;
+  return (
+    <points ref={points} geometry={geometry} frustumCulled={false}>
+      <pointsMaterial size={0.55} color={wet ? '#6d7a72' : '#c9b18a'} transparent opacity={0.4} depthWrite={false} />
+    </points>
+  );
+}
 
 /* ---------------------------------------------------------------- */
 /* Hall + zones                                                      */
@@ -951,6 +1363,7 @@ function CameraRig({ sim, weather, onPosition, onAutopilotArrived }: { sim: SimS
   // onto the follow pose the moment the user boards).
   const lookTarget = useRef(new THREE.Vector3(0, 1.2, 0));
   const prevMode = useRef(sim.mode);
+  const prevSpeed = useRef(0);
   const sunRef = useRef<THREE.DirectionalLight>(null);
   const hemiRef = useRef<THREE.HemisphereLight>(null);
 
@@ -1076,23 +1489,35 @@ function CameraRig({ sim, weather, onPosition, onAutopilotArrived }: { sim: SimS
       }
       const vehicle = rapierRef.current;
       let next = sim.tractor;
+      // Hall vs field speed limits + wet/snow grip (see showroom-drive).
+      const params = isInsideHall(sim.tractor.x, sim.tractor.z) ? TRACTOR_PARAMS : FIELD_PARAMS;
+      const grip = gripForWeather(weather.wet, weather.snow);
       if (vehicle) {
-        const stepped = vehicle.step(input, clampedDt);
+        const stepped = vehicle.step(input, clampedDt, { grip });
         next = stepped.pose;
         sim.tractor = next;
       } else {
-        next = resolveCollision(stepVehicle(sim.tractor, input, clampedDt), sim.tractor, TRACTOR_RADIUS);
+        next = resolveCollision(stepVehicle(sim.tractor, input, clampedDt, params, { grip }), sim.tractor, TRACTOR_RADIUS);
         sim.tractor = next;
       }
       sim.wheelSpin += (next.speed / 0.45) * clampedDt;
       const heading = next.heading;
+      const speedAbs = Math.abs(next.speed);
+      const accel = (next.speed - prevSpeed.current) / Math.max(camDt, 0.001);
+      prevSpeed.current = next.speed;
+      const pitchLook = Math.max(-0.3, Math.min(0.3, -accel * 0.02));
       if (sim.driveView === 'cabin') {
-        camera.position.set(next.x + Math.sin(heading) * 0.35, 1.95, next.z - Math.cos(heading) * 0.35);
-        camera.lookAt(next.x + Math.sin(heading) * 12, 1.6, next.z - Math.cos(heading) * 12);
+        camera.position.set(next.x + Math.sin(heading) * 0.35, 1.95 + terrainHeight(next.x, next.z), next.z - Math.cos(heading) * 0.35);
+        camera.lookAt(next.x + Math.sin(heading) * 12, 1.6 + pitchLook, next.z - Math.cos(heading) * 12);
       } else {
-        const bx = next.x - Math.sin(heading) * 7.5;
-        const bz = next.z + Math.cos(heading) * 7.5;
-        const desired = new THREE.Vector3(bx, 3.4, bz);
+        // Speed pulls the chase camera back and widens the FOV a touch;
+        // turns swing it slightly outward; accel/brake pitch the view.
+        const dist = 7.5 + Math.min(3.5, speedAbs * 0.45);
+        const height = 3.4 + Math.min(0.6, speedAbs * 0.06);
+        const lateral = -next.steer * Math.min(0.9, speedAbs * 0.12);
+        const bx = next.x - Math.sin(heading) * dist + Math.cos(heading) * lateral;
+        const bz = next.z + Math.cos(heading) * dist + Math.sin(heading) * lateral;
+        const desired = new THREE.Vector3(bx, height, bz);
         // Snap onto the follow pose the moment the user boards (or the
         // camera is ever far away): lerping from the walk position used
         // to leave the tractor out of frame for seconds. Otherwise lerp
@@ -1107,12 +1532,26 @@ function CameraRig({ sim, weather, onPosition, onAutopilotArrived }: { sim: SimS
         // Smooth the look target too: looking straight at the live pose
         // while the camera lagged behind made the view whip and shake
         // whenever the tractor turned or the Rapier pose jittered.
-        lookTarget.current.lerp(new THREE.Vector3(next.x, 1.2, next.z), 1 - Math.exp(-camDt * 8));
+        lookTarget.current.lerp(new THREE.Vector3(next.x, 1.2 + pitchLook, next.z), 1 - Math.exp(-camDt * 8));
         camera.lookAt(lookTarget.current);
+        const persp = camera as THREE.PerspectiveCamera;
+        const targetFov = 55 + Math.min(8, speedAbs * 0.9);
+        if (Math.abs(persp.fov - targetFov) > 0.1) {
+          persp.fov += (targetFov - persp.fov) * Math.min(1, camDt * 3);
+          persp.updateProjectionMatrix();
+        }
       }
       prevMode.current = sim.mode;
     }
     if (sim.mode !== 'drive') prevMode.current = sim.mode;
+    // Ease the FOV back to 55° when leaving drive mode.
+    if (sim.mode !== 'drive') {
+      const persp = camera as THREE.PerspectiveCamera;
+      if (Math.abs(persp.fov - 55) > 0.1) {
+        persp.fov += (55 - persp.fov) * Math.min(1, camDt * 3);
+        persp.updateProjectionMatrix();
+      }
+    }
 
     if (sunRef.current) sunRef.current.intensity = 1.6 * weather.sun;
     // Outdoor fill: grey/rainy days get extra sky fill (was the hall's
@@ -1164,11 +1603,50 @@ function SceneContents({ sim, weather, quality, photoRequest, onPosition, onProg
   const farmGroundTex = useMemo(() => groundTexture(), []);
   const photoRef = useRef(0);
   const tier = QUALITY_TIERS[quality];
+  // Snow accumulation: builds slowly while it snows (~50 s to full
+  // cover), melts slowly after — a gradual ramp, never a snap. A
+  // stable memo object (not a ref) so children can receive it as a prop.
+  // Verification hook: ?snow=1 starts with full cover (see NOTES).
+  const snow = useMemo(() => {
+    const query = window.location.hash.split('?')[1] ?? '';
+    return { value: new URLSearchParams(query).get('snow') === '1' ? 1 : 0 };
+  }, []);
+  const groundMat = useRef<THREE.MeshStandardMaterial>(null);
+  // One shared snow-cover material for the four field strips (the hall
+  // interior stays snow-free: the strips stop at the hall walls).
+  const snowCoverMaterial = useMemo(
+    () => new THREE.MeshStandardMaterial({ color: '#ffffff', roughness: 1, transparent: true, opacity: 0, depthWrite: false }),
+    [],
+  );
+  useFrame((_, dt) => {
+    const dtc = Math.min(Math.max(dt, 0), 0.1);
+    if (weather.snow > 0.5) snow.value = Math.min(1, snow.value + dtc * 0.02);
+    else snow.value = Math.max(0, snow.value - dtc * 0.008);
+    const sn = snow.value;
+    if (groundMat.current) {
+      // Rain makes the soil darker and glossier (wet reflection);
+      // snow whitens it. Both follow the gradual snow/wet values.
+      groundMat.current.roughness = 1 - weather.wet * 0.55;
+      const r = 1 - weather.wet * 0.3;
+      groundMat.current.color.setRGB(r + (1 - r) * sn * 0.7, r + (1 - r) * sn * 0.7, r + (1 - r) * sn * 0.65);
+    }
+    snowCoverMaterial.opacity = sn * 0.85;
+  });
 
   useEffect(() => {
     scene.background = new THREE.Color(weather.skyHorizon);
     const fogDensity = weather.fog;
-    scene.fog = new THREE.Fog(weather.skyHorizon, 30, Math.max(48, 170 - fogDensity * 2600));
+    // Near plane also closes in with density, so a higher fog value
+    // really reads as denser fog: at fog 0.08 the hall (~26 m from the
+    // overview camera) is lightly hazed and the treeline (46 m+) is
+    // fully gone, while the hall interior (camera < 10 m) stays clear.
+    // Small densities barely move near/far, so sunny/rain/storm keep
+    // their old distances. (The old far floor of 48 m clamped any
+    // density above ~0.047 to the same distance, so raising the preset
+    // alone changed almost nothing.)
+    const fogNear = Math.max(10, 30 - fogDensity * 100);
+    const fogFar = Math.max(40, 170 - fogDensity * 2600);
+    scene.fog = new THREE.Fog(weather.skyHorizon, fogNear, fogFar);
   }, [scene, weather]);
 
   useEffect(() => {
@@ -1214,13 +1692,29 @@ function SceneContents({ sim, weather, quality, photoRequest, onPosition, onProg
       <SkyDome weather={weather} />
       <Clouds weather={weather} />
       <Precipitation weather={weather} quality={quality} />
-      <CropField weather={weather} />
-      <Treeline />
+      <HallBuilding weather={weather} snow={snow} />
+      <GateFlags weather={weather} />
+      <CropField weather={weather} quality={quality} snow={snow} />
+      <Treeline weather={weather} />
+      <Puddles weather={weather} />
+      <DustPuffs sim={sim} weather={weather} />
       {/* Farm ground: textured soil/grass with furrows + dirt track. */}
       <mesh position={[0, 0, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
         <planeGeometry args={[140, 100]} />
-        <meshStandardMaterial map={farmGroundTex} roughness={1} metalness={0} />
+        <meshStandardMaterial ref={groundMat} map={farmGroundTex} roughness={1} metalness={0} />
       </mesh>
+      {/* Snow cover over the field (opacity ramps with accumulation).
+          Four strips around the hall — the hall interior stays clear. */}
+      {[
+        { pos: [0, 0.02, -30] as [number, number, number], size: [140, 40] as [number, number] },
+        { pos: [0, 0.02, 30] as [number, number, number], size: [140, 40] as [number, number] },
+        { pos: [-42, 0.02, 0] as [number, number, number], size: [56, 20] as [number, number] },
+        { pos: [42, 0.02, 0] as [number, number, number], size: [56, 20] as [number, number] },
+      ].map(({ pos, size }, i) => (
+        <mesh key={`snow-${i}`} position={pos} rotation={[-Math.PI / 2, 0, 0]} material={snowCoverMaterial}>
+          <planeGeometry args={size} />
+        </mesh>
+      ))}
       <GuideLine />
       {/* Guide light strip along the track edges */}
       {[-3.2, 3.2].map((z) => (
@@ -1236,7 +1730,7 @@ function SceneContents({ sim, weather, quality, photoRequest, onPosition, onProg
       </mesh>
       {/* T70 centre stage */}
       <Suspense fallback={null}>
-        <T70 sim={sim} onPartSelect={onPartSelect} />
+        <T70 sim={sim} snow={snow} onPartSelect={onPartSelect} />
       </Suspense>
       {SHOWROOM_ZONES.filter((z) => z.id !== 'tractor').map((zone) => (
         <ZoneBooth key={zone.id} zone={zone} sim={sim} onZoneSelect={onZoneSelect} />
@@ -1246,7 +1740,11 @@ function SceneContents({ sim, weather, quality, photoRequest, onPosition, onProg
         <EffectComposer multisampling={4}>
           <N8AO aoRadius={1.4} distanceFalloff={1} intensity={1.1} />
           <Bloom intensity={0.35} luminanceThreshold={0.85} luminanceSmoothing={0.2} mipmapBlur />
-          <DepthOfField worldFocusDistance={9} worldFocusRange={7} bokehScale={1.4} />
+          {/* Snow softens the depth of field (bokeh 1.4 → 0.2 as snow
+              builds): at full strength the flakes 20–40 m out were
+              blurred to nothing, so a snow scene showed no falling
+              snow at all. Other weathers keep bokeh 1.4 (snow = 0). */}
+          <DepthOfField worldFocusDistance={9} worldFocusRange={7} bokehScale={1.4 - weather.snow * 1.2} />
           <Vignette offset={0.22} darkness={0.55} />
         </EffectComposer>
       )}
