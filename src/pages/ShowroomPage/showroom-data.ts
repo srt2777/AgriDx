@@ -61,8 +61,8 @@ export const CROP_PLOTS: CropPlot[] = [
   { id: 'wheat-ne', crop: 'wheat', zh: '小麦 · 灌浆期', stage: 0.8, bounds: [16, -20, 28, -8], spacing: [0.55, 0.9] },
   { id: 'corn-sw', crop: 'corn', zh: '玉米 · 拔节期', stage: 0.65, bounds: [-28, 8, -16, 20], spacing: [0.75, 1.0] },
   { id: 'rice-se', crop: 'rice', zh: '水稻 · 抽穗期', stage: 0.6, bounds: [16, 8, 28, 20], spacing: [0.45, 0.75] },
-  { id: 'wheat-n', crop: 'wheat', zh: '小麦 · 苗期', stage: 0.35, bounds: [-12, -21, 12, -13], spacing: [0.55, 0.9] },
-  { id: 'corn-s', crop: 'corn', zh: '玉米 · 成熟期', stage: 0.9, bounds: [-12, 13, 12, 21], spacing: [0.75, 1.0] },
+  { id: 'wheat-n', crop: 'wheat', zh: '小麦 · 苗期', stage: 0.35, bounds: [-12, -17, 12, -8], spacing: [0.55, 0.9] },
+  { id: 'corn-s', crop: 'corn', zh: '玉米 · 成熟期', stage: 0.9, bounds: [-12, 8, 12, 17], spacing: [0.75, 1.0] },
 ];
 
 /** Which plot (if any) covers (x, z). */
@@ -85,7 +85,7 @@ export function cropPlotCount(plot: CropPlot): number {
   return Math.floor(((maxX - minX) / plot.spacing[0]) * ((maxZ - minZ) / plot.spacing[1]));
 }
 
-/** Static axis-aligned obstacles the walker / vehicle must not pass through. */
+/** Static axis-aligned obstacles the vehicle must not pass through. */
 export interface FieldObstacle {
   id: string;
   /** [minX, minZ, maxX, maxZ] footprint in metres. */
@@ -97,7 +97,7 @@ export const FIELD_OBSTACLES: FieldObstacle[] = [
   { id: 'diag-booth', box: [13.5, -12.5, 19.5, -7.5], label: '诊断工位' },
   { id: 'embodied-booth', box: [-19.5, -12.5, -13.5, -7.5], label: '具身装备展台' },
   { id: 'kiosk', box: [13.5, 7.5, 19.5, 12.5], label: 'AgriDx 交互大屏' },
-  // Crop rows are soft: the walker / tractor may push through the crops.
+  // Crop rows are soft: the tractor may push through the crops.
 ];
 
 export type ZoneId = 'tractor' | 'diagnosis' | 'embodied' | 'agridex';
@@ -106,14 +106,8 @@ export interface ShowroomZone {
   id: ZoneId;
   zh: string;
   en: string;
-  /** Camera stand-off point for the fly-in (metres). */
-  camera: [number, number, number];
-  /** Point the camera looks at on arrival. */
-  lookAt: [number, number, number];
   /** Where the tractor parks for auto-navigation (metres, x/z). */
   dock: [number, number];
-  /** Where the walker stands after a fly-in. */
-  stand: [number, number];
   color: string;
   taglineZh: string;
   taglineEn: string;
@@ -126,10 +120,7 @@ export const SHOWROOM_ZONES: ShowroomZone[] = [
     id: 'tractor',
     zh: '智能拖拉机展区',
     en: 'Smart Tractor',
-    camera: [7.5, 2.6, 7.5],
-    lookAt: [0, 1.1, 0],
     dock: [7.2, 0],
-    stand: [6.5, 5.5],
     color: '#2e7d46',
     taglineZh: '鸿鹄 T70 · 中央主展区',
     taglineEn: 'Honghu T70 · Main exhibit',
@@ -140,10 +131,7 @@ export const SHOWROOM_ZONES: ShowroomZone[] = [
     id: 'diagnosis',
     zh: '故障诊断机器人展区',
     en: 'Diagnosis Robot',
-    camera: [16.5, 2.4, -5.2],
-    lookAt: [16.5, 1.0, -10],
     dock: [16.5, -5.2],
-    stand: [14.2, -5.2],
     color: '#245d7d',
     taglineZh: '检测 — 定位 — 诊断',
     taglineEn: 'Detect — Locate — Diagnose',
@@ -154,10 +142,7 @@ export const SHOWROOM_ZONES: ShowroomZone[] = [
     id: 'embodied',
     zh: '农业具身智能装备展区',
     en: 'Embodied Agri-Robot',
-    camera: [-16.5, 2.4, -5.2],
-    lookAt: [-16.5, 1.0, -10],
     dock: [-16.5, -5.2],
-    stand: [-14.2, -5.2],
     color: '#886423',
     taglineZh: '具身智能 · 机械臂',
     taglineEn: 'Embodied intelligence · Robot arm',
@@ -168,10 +153,7 @@ export const SHOWROOM_ZONES: ShowroomZone[] = [
     id: 'agridex',
     zh: 'AgriDx 智能诊断交互区',
     en: 'AgriDx Interactive',
-    camera: [16.5, 2.4, 5.2],
-    lookAt: [16.5, 1.4, 10],
     dock: [16.5, 5.2],
-    stand: [14.2, 5.2],
     color: '#1f7a6d',
     taglineZh: '大屏交互台 · 真实诊断接口',
     taglineEn: 'Interactive wall · Live diagnosis API',
