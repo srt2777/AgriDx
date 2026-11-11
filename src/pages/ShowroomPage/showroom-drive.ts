@@ -1,5 +1,5 @@
 /**
- * Pure driving / walking maths for the showroom. No three.js, no Rapier —
+ * Pure driving maths for the showroom. No three.js, no Rapier —
  * the same step functions are unit-tested here and reused by the scene.
  * Rapier (see rapier-vehicle.ts) owns collision at runtime; these helpers
  * provide the kinematic model, the field-bounds clamp used as a fallback,
@@ -26,16 +26,6 @@ export interface DriveInput {
   boost: boolean;
 }
 
-/** Arrow keys are the primary drive/walk control; WASD is an alias. */
-export const ARROW_CODES = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'] as const;
-
-/** Walk input from the held key set: forward/strafe in -1..1. */
-export function keysToWalkInput(keys: ReadonlySet<string>, joy: { x: number; y: number }): { forward: number; strafe: number } {
-  const forward = (keys.has('KeyW') || keys.has('ArrowUp') ? 1 : 0) - (keys.has('KeyS') || keys.has('ArrowDown') ? 1 : 0) + -joy.y;
-  const strafe = (keys.has('KeyD') || keys.has('ArrowRight') ? 1 : 0) - (keys.has('KeyA') || keys.has('ArrowLeft') ? 1 : 0) + joy.x;
-  return { forward, strafe };
-}
-
 /** Drive input from the held key set; arrows and WASD are equivalent. */
 export function keysToDriveInput(keys: ReadonlySet<string>, joy: { x: number; y: number }): DriveInput {
   return {
@@ -46,7 +36,7 @@ export function keysToDriveInput(keys: ReadonlySet<string>, joy: { x: number; y:
   };
 }
 
-/** True when any manual drive/walk key (or the joystick) is active. */
+/** True when any manual drive key (or the joystick) is active. */
 export function hasManualInput(keys: ReadonlySet<string>, joy: { x: number; y: number }): boolean {
   return keys.has('KeyW') || keys.has('KeyS') || keys.has('KeyA') || keys.has('KeyD')
     || keys.has('ArrowUp') || keys.has('ArrowDown') || keys.has('ArrowLeft') || keys.has('ArrowRight')
@@ -65,7 +55,6 @@ export interface VehicleParams {
   wheelBase: number;
 }
 
-export const WALK_PARAMS = { speed: 2.2, accel: 14, radius: 0.45 } as const;
 export const TRACTOR_RADIUS = 1.9;
 
 /**
@@ -159,30 +148,6 @@ export function resolveCollision(next: Pose, prev: Pose, radius: number = TRACTO
   if (!collides(next.x, prev.z, radius)) return { ...next, z: prev.z, speed: next.speed * 0.4 };
   if (!collides(prev.x, next.z, radius)) return { ...next, x: prev.x, speed: next.speed * 0.4 };
   return { ...prev, speed: 0, steer: next.steer };
-}
-
-/** Clamp a walker position to the field with the same obstacle set. */
-export function clampWalk(x: number, z: number, radius: number = WALK_PARAMS.radius): { x: number; z: number } {
-  let nx = Math.min(Math.max(x, -FIELD.halfX + radius), FIELD.halfX - radius);
-  let nz = Math.min(Math.max(z, -FIELD.halfZ + radius), FIELD.halfZ - radius);
-  for (const { box } of FIELD_OBSTACLES) {
-    const [minX, minZ, maxX, maxZ] = box;
-    const cx = Math.min(Math.max(nx, minX), maxX);
-    const cz = Math.min(Math.max(nz, minZ), maxZ);
-    const dx = nx - cx;
-    const dz = nz - cz;
-    const d2 = dx * dx + dz * dz;
-    if (d2 < radius * radius) {
-      if (d2 > 1e-9) {
-        const d = Math.sqrt(d2);
-        nx = cx + (dx / d) * radius;
-        nz = cz + (dz / d) * radius;
-      } else {
-        nz = minZ - radius;
-      }
-    }
-  }
-  return { x: nx, z: nz };
 }
 
 /**

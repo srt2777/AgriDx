@@ -10,6 +10,8 @@
 
 ## Unreleased
 
+- 农田展场打开即由键盘或摇杆驾驶 T70，镜头跟随车身。晴天日轮和阴影、随风移动的云、分生长期三维作物及田垄车辙同步更新。
+
 - 司稼问答提速（2026-11-10，分支 codex/agent-latency-fix-20261110）：删掉回答链路中 awaited 的主工具循环（AGENT_LOOP=main），回答只走单次 llm.chat()。实测根因：主循环要两轮 LLM 生成（约 8–9 秒）但预算只有 8 秒，6 次线上实测 5 次撞 deadline，白白烧掉约 8 秒再重算一遍，服务端总耗时约 16 秒；删后预期约 8 秒（单次生成本身）。影子循环（AGENT_LOOP=shadow）保留，回答契约与答案来源不变，`diagnosisTrace.mainLoop` 字段保留但恒报未运行。
 - 同上：`POST /api/chat` 在 `Accept: text/event-stream` 时改为 SSE 流式返回（`delta` 增量 → `done` 完整信封，与 JSON 路径的信封完全相同；失败时为 `error` 事件），网页端逐字渲染、done 后用最终回答替换临时预览；不带该头的客户端（含机器人固件）仍走原 JSON。首字预期从约 16 秒降到约 1–2 秒（上游首 token 时间），总耗时仍约 8 秒。
 
