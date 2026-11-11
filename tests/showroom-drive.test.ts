@@ -1,16 +1,16 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { autopilotInput, BOOST_MULTIPLIER, clampWalk, FIELD_PARAMS, hasManualInput, keysToDriveInput, keysToWalkInput, planGuideRoute, resolveCollision, stepVehicle, steerAuthority, TRACTOR_PARAMS, turnRadius, type Pose } from '../src/pages/ShowroomPage/showroom-drive';
-import { CROP_PLOTS, cropHeight, cropPlotAt, cropPlotCount, gripForWeather, isInsideHall, QUALITY_TIERS, speedLimitAt, terrainHeight } from '../src/pages/ShowroomPage/showroom-data';
+import { autopilotInput, BOOST_MULTIPLIER, clampWalk, FIELD_PARAMS, hasManualInput, keysToDriveInput, keysToWalkInput, planGuideRoute, resolveCollision, stepVehicle, steerAuthority, turnRadius, type Pose } from '../src/pages/ShowroomPage/showroom-drive';
+import { CROP_PLOTS, cropHeight, cropPlotAt, cropPlotCount, FIELD_OBSTACLES, gripForWeather, QUALITY_TIERS, terrainHeight } from '../src/pages/ShowroomPage/showroom-data';
 
 const start: Pose = { x: 0, z: 0, heading: 0, speed: 0, steer: 0 };
 
 test('stepVehicle accelerates gradually (heavy feel) and caps at max speed', () => {
   let pose = start;
   for (let i = 0; i < 10; i++) pose = stepVehicle(pose, { throttle: 1, steer: 0, brake: false, boost: false }, 0.1);
-  assert.ok(pose.speed > 0 && pose.speed < 3.2, `speed ${pose.speed}`);
+  assert.ok(pose.speed > 0 && pose.speed < 6.5, `speed ${pose.speed}`);
   for (let i = 0; i < 60; i++) pose = stepVehicle(pose, { throttle: 1, steer: 0, brake: false, boost: false }, 0.1);
-  assert.equal(pose.speed, 3.2);
+  assert.equal(pose.speed, 6.5);
 });
 
 test('brake stops the tractor and reverse is slower than forward', () => {
@@ -19,7 +19,7 @@ test('brake stops the tractor and reverse is slower than forward', () => {
   assert.equal(pose.speed, 0);
   let rev = start;
   for (let i = 0; i < 60; i++) rev = stepVehicle(rev, { throttle: -1, steer: 0, brake: false, boost: false }, 0.1);
-  assert.equal(rev.speed, -1.2);
+  assert.equal(rev.speed, -2);
 });
 
 test('turn radius is wide at full steer (field-safe turning)', () => {
@@ -71,10 +71,10 @@ test('arrow keys are equivalent to WASD for driving (primary control)', () => {
   assert.deepEqual(keysToWalkInput(new Set(['ArrowRight']), joy), { forward: 0, strafe: 1 });
 });
 
-test('brake stops from top speed in under a second and holds at zero', () => {
+test('brake stops from driving speed in under a second and holds at zero', () => {
   let pose = { ...start, speed: 3.2 };
-  // dt is clamped to 0.05 inside stepVehicle: 11 steps = 0.55 s of sim time.
-  for (let i = 0; i < 11; i++) pose = stepVehicle(pose, { throttle: 0, steer: 0, brake: true, boost: false }, 0.1);
+  // dt is clamped to 0.05 inside stepVehicle: 13 steps = 0.65 s of sim time.
+  for (let i = 0; i < 13; i++) pose = stepVehicle(pose, { throttle: 0, steer: 0, brake: true, boost: false }, 0.1);
   assert.equal(pose.speed, 0);
   // Holding brake with throttle still held does not creep forward.
   pose = stepVehicle(pose, { throttle: 1, steer: 0, brake: true }, 0.1);
@@ -101,15 +101,12 @@ test('autopilotInput steers toward the waypoint and reports arrival', () => {
   assert.equal(autopilotInput({ ...start, x: 0, z: -9.9 }, [0, -10]).arrived, true);
 });
 
-test('Shift boost lifts field top speed but never the hall cap', () => {
+test('Shift boost lifts the field top speed', () => {
   assert.equal(keysToDriveInput(new Set(['ArrowUp', 'ShiftLeft']), { x: 0, y: 0 }).boost, true);
   assert.equal(keysToDriveInput(new Set(['ArrowUp']), { x: 0, y: 0 }).boost, false);
   let field = start;
   for (let i = 0; i < 200; i++) field = stepVehicle(field, { throttle: 1, steer: 0, brake: false, boost: true }, 0.1, FIELD_PARAMS);
   assert.ok(Math.abs(field.speed - FIELD_PARAMS.maxSpeed * BOOST_MULTIPLIER) < 0.01, `field boost ${field.speed}`);
-  let hall = start;
-  for (let i = 0; i < 200; i++) hall = stepVehicle(hall, { throttle: 1, steer: 0, brake: false, boost: true }, 0.1, TRACTOR_PARAMS);
-  assert.equal(hall.speed, TRACTOR_PARAMS.maxSpeed);
   let plain = start;
   for (let i = 0; i < 200; i++) plain = stepVehicle(plain, { throttle: 1, steer: 0, brake: false, boost: false }, 0.1, FIELD_PARAMS);
   assert.equal(plain.speed, FIELD_PARAMS.maxSpeed);
@@ -140,23 +137,27 @@ test('steering authority falls with speed, so the turn radius grows', () => {
   assert.ok(fast.heading > slow.heading && fast.heading < slow.heading * 5, `slow ${slow.heading} fast ${fast.heading}`);
 });
 
-test('hall speed limit is 3.2 m/s, field is 6.5 m/s, gate gap is open', () => {
-  assert.equal(isInsideHall(0, 0), true);
-  assert.equal(isInsideHall(13, 0), true);
-  assert.equal(isInsideHall(20, 0), false);
-  assert.equal(isInsideHall(0, 15), false);
-  assert.equal(speedLimitAt(0, 0), 3.2);
-  assert.equal(speedLimitAt(20, 0), 6.5);
-  // The gate (x = 14, z = 0) is not blocked: the tractor can pass through.
+test('no hall walls: the old hall footprint is open field', () => {
+  // No wall obstacles remain: only the three booths.
+  assert.deepEqual(
+    FIELD_OBSTACLES.map((o) => o.id).sort(),
+    ['diag-booth', 'embodied-booth', 'kiosk'],
+  );
+  // The old east gate line (x = 14, z = 0) is open.
   const prev: Pose = { ...start, x: 12, z: 0 };
   const through: Pose = { ...start, x: 14, z: 0, speed: 2 };
-  const resolved = resolveCollision(through, prev);
-  assert.equal(resolved.x, 14);
-  // But the wall 2 m north of the gate stops the tractor.
-  const wallPrev: Pose = { ...start, x: 12, z: -6 };
-  const wallNext: Pose = { ...start, x: 14, z: -6, speed: 2 };
-  const stopped = resolveCollision(wallNext, wallPrev);
-  assert.ok(stopped.x < 14 || stopped.speed === 0, `wall x ${stopped.x}`);
+  assert.equal(resolveCollision(through, prev).x, 14);
+  // So is the old north wall line (z = -10) and the old west wall line (x = -14).
+  const northPrev: Pose = { ...start, x: 0, z: -12 };
+  const northNext: Pose = { ...start, x: 0, z: -10, speed: 2 };
+  assert.equal(resolveCollision(northNext, northPrev).z, -10);
+  const westPrev: Pose = { ...start, x: -16, z: 0 };
+  const westNext: Pose = { ...start, x: -14, z: 0, speed: 2 };
+  assert.equal(resolveCollision(westNext, westPrev).x, -14);
+  // One driving profile everywhere: the default step caps at the field speed.
+  let pose = start;
+  for (let i = 0; i < 70; i++) pose = stepVehicle(pose, { throttle: 1, steer: 0, brake: false, boost: false }, 0.1);
+  assert.equal(pose.speed, FIELD_PARAMS.maxSpeed);
 });
 
 test('crop plots cover rice/wheat/corn at different stages, off the track', () => {
@@ -177,7 +178,7 @@ test('crop plots cover rice/wheat/corn at different stages, off the track', () =
   assert.ok(cropHeight('wheat', 0.8) > cropHeight('wheat', 0.35));
 });
 
-test('terrain is flat in the hall and on the track, gently rolling in the field', () => {
+test('terrain is flat on the track, gently rolling in the field', () => {
   assert.equal(terrainHeight(0, 0), 0);
   assert.equal(terrainHeight(10, 0), 0);
   assert.ok(Math.abs(terrainHeight(25, -15)) <= 0.7, `field ${terrainHeight(25, -15)}`);

@@ -17,8 +17,8 @@
  * to initialise (e.g. no WASM support); the scene reports which backend is
  * active.
  */
-import { HALL, HALL_BUILDING, HALL_OBSTACLES, isInsideHall } from './showroom-data';
-import { FIELD_PARAMS, TRACTOR_PARAMS, steerAuthority, type DriveInput, type Pose, type StepOptions } from './showroom-drive';
+import { FIELD, FIELD_OBSTACLES } from './showroom-data';
+import { FIELD_PARAMS, steerAuthority, type DriveInput, type Pose, type StepOptions } from './showroom-drive';
 
 export interface WheelRay {
   /** Suspension compression 0..1 (1 = fully compressed). */
@@ -43,39 +43,20 @@ export async function createRapierVehicle(initial: Pose): Promise<RapierVehicle>
   const RAPIER = await import('@dimforge/rapier3d-compat');
   await RAPIER.init();
   const world = new RAPIER.World({ x: 0, y: -9.81, z: 0 });
-  const floor = RAPIER.ColliderDesc.cuboid(HALL.halfX + 2, 0.5, HALL.halfZ + 2).setTranslation(0, -0.5, 0);
+  const floor = RAPIER.ColliderDesc.cuboid(FIELD.halfX + 2, 0.5, FIELD.halfZ + 2).setTranslation(0, -0.5, 0);
   world.createCollider(floor);
   const wallThickness = 0.5;
-  const wallY = HALL.height / 2;
+  const wallY = FIELD.height / 2;
   const walls: [number, number, number, number, number, number][] = [
-    [HALL.halfX + wallThickness / 2, wallY, 0, wallThickness / 2, wallY, HALL.halfZ + 1],
-    [-(HALL.halfX + wallThickness / 2), wallY, 0, wallThickness / 2, wallY, HALL.halfZ + 1],
-    [0, wallY, HALL.halfZ + wallThickness / 2, HALL.halfX + 1, wallY, wallThickness / 2],
-    [0, wallY, -(HALL.halfZ + wallThickness / 2), HALL.halfX + 1, wallY, wallThickness / 2],
+    [FIELD.halfX + wallThickness / 2, wallY, 0, wallThickness / 2, wallY, FIELD.halfZ + 1],
+    [-(FIELD.halfX + wallThickness / 2), wallY, 0, wallThickness / 2, wallY, FIELD.halfZ + 1],
+    [0, wallY, FIELD.halfZ + wallThickness / 2, FIELD.halfX + 1, wallY, wallThickness / 2],
+    [0, wallY, -(FIELD.halfZ + wallThickness / 2), FIELD.halfX + 1, wallY, wallThickness / 2],
   ];
   for (const [x, y, z, hx, hy, hz] of walls) {
     world.createCollider(RAPIER.ColliderDesc.cuboid(hx, hy, hz).setTranslation(x, y, z));
   }
-  // Glass hall walls (height HALL_BUILDING.height, thin colliders). The
-  // east wall is two segments with the gate gap between them, so the
-  // tractor can drive out onto the field track and back in.
-  const hw = HALL_BUILDING.halfX;
-  const hz = HALL_BUILDING.halfZ;
-  const hh = HALL_BUILDING.height / 2;
-  const gate = HALL_BUILDING.gate.halfWidth;
-  const hallWalls: [number, number, number, number, number, number][] = [
-    [0, hh, -hz, hw + 0.15, hh, 0.15], // north
-    [0, hh, hz, hw + 0.15, hh, 0.15], // south
-    [-hw, hh, 0, 0.15, hh, hz + 0.15], // west
-    [hw, hh, -(gate + (hz - gate) / 2), 0.15, hh, (hz - gate) / 2], // east, north of gate
-    [hw, hh, gate + (hz - gate) / 2, 0.15, hh, (hz - gate) / 2], // east, south of gate
-    // Lintel above the gate (gate opening is 4.2 m tall).
-    [hw, 4.2 + (HALL_BUILDING.height - 4.2) / 2, 0, 0.15, (HALL_BUILDING.height - 4.2) / 2, gate],
-  ];
-  for (const [x, y, z, hx, hy, hz2] of hallWalls) {
-    world.createCollider(RAPIER.ColliderDesc.cuboid(hx, hy, hz2).setTranslation(x, y, z));
-  }
-  for (const obstacle of HALL_OBSTACLES) {
+  for (const obstacle of FIELD_OBSTACLES) {
     const [minX, minZ, maxX, maxZ] = obstacle.box;
     const cx = (minX + maxX) / 2;
     const cz = (minZ + maxZ) / 2;
@@ -114,11 +95,11 @@ export async function createRapierVehicle(initial: Pose): Promise<RapierVehicle>
       const groundedWheels = wheels.filter((w) => w.grounded).length;
       // No drive force when fewer than two wheels touch the ground.
       const grip = groundedWheels >= 2 ? 1 : 0;
-      // Hall vs field: the hall caps speed at 3.2 m/s; the field allows
-      // 6.5 m/s and Shift boost. Wet/snow scale accel and braking.
-      const params = isInsideHall(pose.x, pose.z) ? TRACTOR_PARAMS : FIELD_PARAMS;
+      // One driving profile for the whole open field (6.5 m/s, Shift
+      // boost ×1.35). Wet/snow scale accel and braking.
+      const params = FIELD_PARAMS;
       const surfaceGrip = Math.min(1, Math.max(0.5, opts.grip ?? 1));
-      const boost = input.boost && params.maxSpeed > TRACTOR_PARAMS.maxSpeed;
+      const boost = input.boost;
       const topSpeed = boost ? params.maxSpeed * 1.35 : params.maxSpeed;
       const targetSpeed = input.throttle >= 0 ? input.throttle * topSpeed : input.throttle * params.maxReverse;
       let speed = pose.speed;

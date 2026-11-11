@@ -2,7 +2,7 @@
  * 3D 智能农机装备农田展场 — standalone route /#/showroom (fullscreen,
  * outside the app shell, following the /field-overview precedent).
  *
- * P0: hall + 4 zones + first-person walk + click fly-in + T70 + AgriDx kiosk.
+ * P0: farm field + 4 zones + first-person walk + click fly-in + T70 + AgriDx kiosk.
  * P1: drive + auto-navigation, dynamic weather + panel, minimap + top nav.
  * P2: decor, ambient sound (WebAudio noise, off by default), opening fly-in.
  * Day/night mode is NOT done (see SHOWROOM-NOTES.md for the alternative).
@@ -13,7 +13,7 @@ import './showroom.css';
 import { useLang } from '@/hooks/useLang';
 import ShowroomScene from './ShowroomScene';
 import DiagnosisKiosk from './DiagnosisKiosk';
-import { HALL, NANJING, QUALITY_TIERS, SHOWROOM_ZONES, SUITABILITY_COPY, WEATHER_PRESETS, forecast24h, forecastBarHeightPx, FORECAST_CHART_HEIGHT_PX, suitabilityFor, t70PartById, weatherById, zoneById, type QualityId, type WeatherId, type ZoneId } from './showroom-data';
+import { FIELD, NANJING, QUALITY_TIERS, SHOWROOM_ZONES, SUITABILITY_COPY, WEATHER_PRESETS, forecast24h, forecastBarHeightPx, FORECAST_CHART_HEIGHT_PX, suitabilityFor, t70PartById, weatherById, zoneById, type QualityId, type WeatherId, type ZoneId } from './showroom-data';
 import { blendWeather, nanjingForecastUrl, nextWeatherId, parseNanjingLive, WEATHER_TRANSITION_SECONDS, type NanjingLive } from './showroom-weather';
 import type { BlendedWeather } from './showroom-weather';
 import { planGuideRoute } from './showroom-drive';
@@ -138,22 +138,18 @@ export default function ShowroomPage() {
       sim.mode = 'drive';
       sim.flyTo = null;
     }
-    // at=field 把拖拉机直接放到东边田里（验证用），默认在展厅内。
+    // at=field 把拖拉机直接放到东边田里（验证用），默认在田中央土路上。
     if (params.get('at') === 'field') {
       sim.tractor = { x: 20, z: 0, heading: Math.PI / 2, speed: 0, steer: 0 };
     }
     const view = params.get('view');
-    if (view === 'farm' || view === 'hall' || view === 'gate') {
+    if (view === 'farm') {
       // Same as backToOverview, inlined: the effect runs once on mount
       // and must not capture that callback (lint: memoization).
       sim.mode = 'fly';
       sim.autopilot = null;
       sim.focusZone = null;
-      if (view === 'farm') sim.flyTo = { pos: OVERVIEW.pos, look: OVERVIEW.look, t: 0 };
-      // hall: from inside the hall looking east through the gate.
-      if (view === 'hall') sim.flyTo = { pos: [-8, 2.2, 0], look: [16, 1.5, 0], t: 0 };
-      // gate: from the field looking back at the gate + hall.
-      if (view === 'gate') sim.flyTo = { pos: [24, 3.5, 8], look: [10, 2, 0], t: 0 };
+      sim.flyTo = { pos: OVERVIEW.pos, look: OVERVIEW.look, t: 0 };
       setFocusZone(null);
       setPartId(null);
       setKioskOpen(false);
@@ -401,8 +397,8 @@ export default function ShowroomPage() {
   const forecastMax = Math.max(...forecast.map((f) => f.tempC));
   const zone = focusZone ? zoneById(focusZone) : null;
   const part = partId ? t70PartById(partId) : null;
-  const mapX = ((hud.x + HALL.halfX) / (HALL.halfX * 2)) * 100;
-  const mapZ = ((hud.z + HALL.halfZ) / (HALL.halfZ * 2)) * 100;
+  const mapX = ((hud.x + FIELD.halfX) / (FIELD.halfX * 2)) * 100;
+  const mapZ = ((hud.z + FIELD.halfZ) / (FIELD.halfZ * 2)) * 100;
 
   return (
     <div className={zone || part ? 'showroom-page showroom-has-card' : 'showroom-page'}>
@@ -443,7 +439,7 @@ export default function ShowroomPage() {
           ))}
         </nav>
         <div className="showroom-top-actions">
-          <span className="showroom-backend" title={zh ? 'R3F 9 尚无稳定的 WebGPURenderer 绑定，本厅用 WebGL2 渲染；WebGPU 仅作能力探测（见实现笔记）。' : 'R3F 9 has no stable WebGPURenderer binding; this hall renders on WebGL2. WebGPU is probed only.'}>
+          <span className="showroom-backend" title={zh ? 'R3F 9 尚无稳定的 WebGPURenderer 绑定，本场景用 WebGL2 渲染；WebGPU 仅作能力探测（见实现笔记）。' : 'R3F 9 has no stable WebGPURenderer binding; this scene renders on WebGL2. WebGPU is probed only.'}>
             {webgpu === 'available' ? 'WebGPU ✓' : webgpu === 'unavailable' ? 'WebGL2' : '…'}
           </span>
           <span className="showroom-physics" title={zh ? '驾驶物理：Rapier 射线车辆控制器（每轮射线 + 刚体碰撞）；初始化失败时退回运动学模型。' : 'Drive physics: Rapier raycast vehicle; kinematic fallback if init fails.'}>
@@ -525,8 +521,8 @@ export default function ShowroomPage() {
       <aside className="showroom-minimap" aria-label={zh ? '小地图' : 'Minimap'}>
         <div className="showroom-map">
           {SHOWROOM_ZONES.map((item) => {
-            const zx = ((item.dock[0] + HALL.halfX) / (HALL.halfX * 2)) * 100;
-            const zy = ((item.dock[1] + HALL.halfZ) / (HALL.halfZ * 2)) * 100;
+            const zx = ((item.dock[0] + FIELD.halfX) / (FIELD.halfX * 2)) * 100;
+            const zy = ((item.dock[1] + FIELD.halfZ) / (FIELD.halfZ * 2)) * 100;
             return (
               <button
                 key={item.id}
@@ -623,7 +619,7 @@ export default function ShowroomPage() {
           <ul>
             <li>{zh ? '点击画面锁定鼠标，方向键（↑↓←→）+ 鼠标漫游（WASD 同样可用）' : 'Click the scene to lock the mouse; arrow keys + mouse to walk (WASD also works)'}</li>
             <li>{zh ? '靠近拖拉机按 E 上车 / 下车；↑/↓ 前进后退，←/→ 转向，空格刹车，Shift 加速（田间），V 切换跟随/驾驶舱视角' : 'Near the tractor press E to enter/exit; ↑/↓ drive, ←/→ steer, Space brake, Shift boosts (field only), V switches chase/cabin view'}</li>
-            <li>{zh ? '展厅东墙有大门：沿土路开出展厅进入农田，也可开回；展厅内限速，田间可更快，雨雪天路面较滑' : 'The hall east wall has a gate: drive out along the dirt track into the field and back; slower inside the hall, faster outside, slippery when wet or snowy'}</li>
+            <li>{zh ? '露天农田展场：沿土路驾驶，Shift 加速（最高约 8.8 m/s），雨雪天路面较滑' : 'Open-air farm field: drive along the dirt track, Shift to boost (top ≈ 8.8 m/s), slippery when wet or snowy'}</li>
             <li>{zh ? '点击展区或顶部导航飞入近景；自动驾驶沿导视线行驶，可随时手动接管' : 'Click a zone or the top nav to fly in; auto-drive follows the guide line and yields to manual input'}</li>
             <li>{zh ? '触屏：左下摇杆控制移动 / 驾驶' : 'Touch: the bottom-left joystick moves and drives'}</li>
             <li>{zh ? '右上角切换天气（实时模式取南京 Open-Meteo，断网自动回演示模式并标明；雨天可开关屏幕雨滴）；📷 4K 出一张 3840×2160 展板图' : 'Top right switches weather (live Nanjing via Open-Meteo; offline it falls back to demo mode and says so; screen droplets toggle in rain); 📷 4K exports a 3840×2160 still'}</li>
