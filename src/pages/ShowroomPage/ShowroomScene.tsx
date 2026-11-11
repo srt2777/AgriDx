@@ -1,5 +1,5 @@
 /**
- * Showroom 3D scene: the hall, the T70, the four zones, weather and the
+ * Showroom 3D scene: the field, the T70, the four zones, weather and the
  * camera/drive rig. WebGL2 via React Three Fiber; quality tiers switch
  * pixel ratio / shadows / post-processing. A WebGPU renderer is not used:
  * R3F 9 has no stable WebGPURenderer binding, so the scene renders on the
@@ -16,9 +16,9 @@ import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js
 import { SkeletonUtils } from 'three-stdlib';
 import * as THREE from 'three';
 import { HONGHU_T70_PARTS_URL } from '@/components/tractor-model-info';
-import { CROP_PLOTS, HALL_BUILDING, QUALITY_TIERS, SHOWROOM_ZONES, T70_PARTS, T70_PART_SOURCES, cropHeight, gripForWeather, isInsideHall, terrainHeight, type CropKind, type QualityId, type ZoneId } from './showroom-data';
+import { CROP_PLOTS, QUALITY_TIERS, SHOWROOM_ZONES, T70_PARTS, T70_PART_SOURCES, cropHeight, gripForWeather, terrainHeight, type CropKind, type QualityId, type ZoneId } from './showroom-data';
 import type { BlendedWeather } from './showroom-weather';
-import { autopilotInput, clampWalk, FIELD_PARAMS, hasManualInput, keysToDriveInput, keysToWalkInput, resolveCollision, stepVehicle, TRACTOR_PARAMS, TRACTOR_RADIUS, WALK_PARAMS } from './showroom-drive';
+import { autopilotInput, clampWalk, FIELD_PARAMS, hasManualInput, keysToDriveInput, keysToWalkInput, resolveCollision, stepVehicle, TRACTOR_RADIUS, WALK_PARAMS } from './showroom-drive';
 import { createRapierVehicle, type RapierVehicle } from './rapier-vehicle';
 import type { SimState } from './showroom-state';
 
@@ -488,7 +488,7 @@ function T70({ sim, snow, onPartSelect }: { sim: SimState; snow: { value: number
 
   useFrame(() => {
     // Follow the terrain: the body rides on the field undulation
-    // (flat inside the hall) with a gentle pitch/roll from the slope.
+    // (flat on the dirt track) with a gentle pitch/roll from the slope.
     const g = group.current;
     if (g) {
       const { x, z, heading } = sim.tractor;
@@ -892,43 +892,6 @@ function Treeline({ weather }: { weather: BlendedWeather }) {
   );
 }
 
-/** Gate flags: green pennants on poles by the hall gate, waving with the wind. */
-function GateFlags({ weather }: { weather: BlendedWeather }) {
-  const flags = useRef<(THREE.Group | null)[]>([]);
-  useFrame(({ clock }) => {
-    const t = clock.elapsedTime;
-    flags.current.forEach((g, i) => {
-      if (!g) return;
-      const phase = i * 1.7;
-      g.rotation.y = Math.sin(t * (2 + weather.sway * 3) + phase) * (0.25 + weather.sway * 0.5);
-      g.rotation.z = Math.sin(t * 1.6 + phase) * weather.sway * 0.12;
-    });
-  });
-  return (
-    <group>
-      {[-4.2, 4.2].map((z, i) => (
-        <group key={z} position={[15.6, 0, z]}>
-          <mesh position={[0, 2.6, 0]} castShadow>
-            <cylinderGeometry args={[0.05, 0.07, 5.2, 8]} />
-            <meshStandardMaterial color="#5a6063" metalness={0.6} roughness={0.4} />
-          </mesh>
-          <group
-            position={[0, 4.6, 0]}
-            ref={(el) => {
-              flags.current[i] = el;
-            }}
-          >
-            <mesh position={[0.65, 0, 0]}>
-              <planeGeometry args={[1.3, 0.7]} />
-              <meshStandardMaterial color="#2e7d46" side={THREE.DoubleSide} roughness={0.8} />
-            </mesh>
-          </group>
-        </group>
-      ))}
-    </group>
-  );
-}
-
 function Precipitation({ weather, quality }: { weather: BlendedWeather; quality: QualityId }) {
   const points = useRef<THREE.Points>(null);
   const positions = useMemo(() => getPrecipitationPositions(), []);
@@ -971,117 +934,6 @@ function Precipitation({ weather, quality }: { weather: BlendedWeather; quality:
           naturally. Overlap artefacts are negligible at this size. */}
       <pointsMaterial size={weather.particleKind === 'snow' ? 0.5 : 0.09} color={weather.particleKind === 'snow' ? '#ffffff' : '#bcd8ea'} transparent opacity={0.85} sizeAttenuation depthWrite />
     </points>
-  );
-}
-
-
-
-/* ---------------------------------------------------------------- */
-/* Glass hall in the middle of the field + weather ground effects    */
-/* ---------------------------------------------------------------- */
-
-/**
- * The showroom building: a glass hall (28 × 20 m, 6 m tall) around the
- * T70, steel frame, flat roof with skylight strips, and a 6.4 m gate
- * in the east wall on the dirt track — the tractor drives out through
- * it and back in. Two glass door panels stand parked open against the
- * east wall. Roof snow is a white plane whose opacity follows the
- * accumulated snow (gradual, never a snap).
- */
-function HallBuilding({ weather, snow }: { weather: BlendedWeather; snow: { value: number } }) {
-  const hw = HALL_BUILDING.halfX;
-  const hz = HALL_BUILDING.halfZ;
-  const gate = HALL_BUILDING.gate.halfWidth;
-  const glass = (
-    <meshPhysicalMaterial color="#cfe4ee" transparent opacity={0.16} roughness={0.06} metalness={0} side={THREE.DoubleSide} />
-  );
-  const frame = <meshStandardMaterial color="#3a4043" metalness={0.7} roughness={0.35} />;
-  const posts: [number, number][] = [];
-  for (let x = -hw; x <= hw; x += 4.67) {
-    posts.push([x, -hz]);
-    posts.push([x, hz]);
-  }
-  for (let z = -hz + 3.33; z <= hz - 3.33; z += 3.33) {
-    posts.push([-hw, z]);
-  }
-  return (
-    <group>
-      {/* Polished concrete floor. */}
-      <mesh position={[0, 0.01, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
-        <planeGeometry args={[hw * 2, hz * 2]} />
-        <meshStandardMaterial color="#b9bcb8" roughness={0.35} metalness={0.05} />
-      </mesh>
-      {/* Glass walls: north / south / west full, east split by the gate. */}
-      <mesh position={[0, 3, -hz]}>{<planeGeometry args={[hw * 2, 6]} />}{glass}</mesh>
-      <mesh position={[0, 3, hz]}>{<planeGeometry args={[hw * 2, 6]} />}{glass}</mesh>
-      <mesh position={[-hw, 3, 0]} rotation={[0, Math.PI / 2, 0]}>{<planeGeometry args={[hz * 2, 6]} />}{glass}</mesh>
-      <mesh position={[hw, 3, -(gate + (hz - gate) / 2)]} rotation={[0, Math.PI / 2, 0]}>{<planeGeometry args={[hz - gate, 6]} />}{glass}</mesh>
-      <mesh position={[hw, 3, gate + (hz - gate) / 2]} rotation={[0, Math.PI / 2, 0]}>{<planeGeometry args={[hz - gate, 6]} />}{glass}</mesh>
-      {/* Lintel above the gate (opening 4.2 m tall). */}
-      <mesh position={[hw, 5.1, 0]}>
-        <boxGeometry args={[0.3, 1.8, gate * 2]} />
-        {frame}
-      </mesh>
-      {/* Steel posts + top beams. */}
-      {posts.map(([x, z], i) => (
-        <mesh key={i} position={[x, 3, z]}>
-          <boxGeometry args={[0.24, 6, 0.24]} />
-          {frame}
-        </mesh>
-      ))}
-      {[-hz, hz].map((z) => (
-        <mesh key={`beam-${z}`} position={[0, 6, z]}>
-          <boxGeometry args={[hw * 2 + 0.6, 0.3, 0.3]} />
-          {frame}
-        </mesh>
-      ))}
-      {[-hw, hw].map((x) => (
-        <mesh key={`beam-${x}`} position={[x, 6, 0]}>
-          <boxGeometry args={[0.3, 0.3, hz * 2 + 0.6]} />
-          {frame}
-        </mesh>
-      ))}
-      {/* Roof slab + skylight strips. */}
-      <mesh position={[0, 6.15, 0]} castShadow>
-        <boxGeometry args={[hw * 2 + 0.6, 0.3, hz * 2 + 0.6]} />
-        <meshStandardMaterial color="#7d8386" roughness={0.7} metalness={0.3} />
-      </mesh>
-      {[-5, 0, 5].map((x) => (
-        <mesh key={`sky-${x}`} position={[x, 6.32, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-          <planeGeometry args={[2.2, hz * 2 - 2]} />
-          <meshBasicMaterial color="#dceefb" transparent opacity={0.7} />
-        </mesh>
-      ))}
-      {/* Snow settling on the roof (opacity ramps with accumulation). */}
-      <mesh position={[0, 6.33, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-        <planeGeometry args={[hw * 2 + 0.6, hz * 2 + 0.6]} />
-        <meshStandardMaterial color="#ffffff" roughness={1} transparent opacity={snow.value * 0.95} depthWrite={false} />
-      </mesh>
-      {/* Gate frame + parked-open sliding door panels. */}
-      {[-gate, gate].map((z) => (
-        <mesh key={`gatepost-${z}`} position={[hw, 2.1, z]}>
-          <boxGeometry args={[0.4, 4.2, 0.4]} />
-          {frame}
-        </mesh>
-      ))}
-      {[-1, 1].map((side) => (
-        <mesh key={`door-${side}`} position={[hw + 0.35, 2.1, side * (gate + 1.8)]}>
-          <boxGeometry args={[0.08, 4.2, 3.4]} />
-          <meshPhysicalMaterial color="#cfe4ee" transparent opacity={0.3} roughness={0.06} metalness={0} side={THREE.DoubleSide} />
-        </mesh>
-      ))}
-      {/* Sunbeams through the skylights on sunny days (opacity ∝ sun). */}
-      {weather.sun > 0.6 && (
-        <group>
-          {[-5, 0, 5].map((x) => (
-            <mesh key={`beam-${x}`} position={[x + 1.2, 3, 0]} rotation={[0, 0, 0.35]}>
-              <planeGeometry args={[2.2, 6.4]} />
-              <meshBasicMaterial color="#fff3c4" transparent opacity={(weather.sun - 0.6) * 0.35} side={THREE.DoubleSide} depthWrite={false} />
-            </mesh>
-          ))}
-        </group>
-      )}
-    </group>
   );
 }
 
@@ -1187,7 +1039,7 @@ function DustPuffs({ sim, weather }: { sim: SimState; weather: BlendedWeather })
 }
 
 /* ---------------------------------------------------------------- */
-/* Hall + zones                                                      */
+/* Track guide + zones                                               */
 /* ---------------------------------------------------------------- */
 
 function GuideLine() {
@@ -1489,8 +1341,8 @@ function CameraRig({ sim, weather, onPosition, onAutopilotArrived }: { sim: SimS
       }
       const vehicle = rapierRef.current;
       let next = sim.tractor;
-      // Hall vs field speed limits + wet/snow grip (see showroom-drive).
-      const params = isInsideHall(sim.tractor.x, sim.tractor.z) ? TRACTOR_PARAMS : FIELD_PARAMS;
+      // Field speed limit + wet/snow grip (see showroom-drive).
+      const params = FIELD_PARAMS;
       const grip = gripForWeather(weather.wet, weather.snow);
       if (vehicle) {
         const stepped = vehicle.step(input, clampedDt, { grip });
@@ -1554,8 +1406,8 @@ function CameraRig({ sim, weather, onPosition, onAutopilotArrived }: { sim: SimS
     }
 
     if (sunRef.current) sunRef.current.intensity = 1.6 * weather.sun;
-    // Outdoor fill: grey/rainy days get extra sky fill (was the hall's
-    // ceiling lamps; there is no ceiling in the farm field).
+    // Outdoor fill: grey/rainy days get extra sky fill (there is no
+    // ceiling in the open field — the fill is sky light).
     if (hemiRef.current) hemiRef.current.intensity = 0.45 + weather.lamps * 0.35;
     const now = state.clock.elapsedTime;
     if (now - lastReport.current > 0.15) {
@@ -1612,8 +1464,7 @@ function SceneContents({ sim, weather, quality, photoRequest, onPosition, onProg
     return { value: new URLSearchParams(query).get('snow') === '1' ? 1 : 0 };
   }, []);
   const groundMat = useRef<THREE.MeshStandardMaterial>(null);
-  // One shared snow-cover material for the four field strips (the hall
-  // interior stays snow-free: the strips stop at the hall walls).
+  // One shared snow-cover material for the field snow sheet.
   const snowCoverMaterial = useMemo(
     () => new THREE.MeshStandardMaterial({ color: '#ffffff', roughness: 1, transparent: true, opacity: 0, depthWrite: false }),
     [],
@@ -1637,9 +1488,9 @@ function SceneContents({ sim, weather, quality, photoRequest, onPosition, onProg
     scene.background = new THREE.Color(weather.skyHorizon);
     const fogDensity = weather.fog;
     // Near plane also closes in with density, so a higher fog value
-    // really reads as denser fog: at fog 0.08 the hall (~26 m from the
-    // overview camera) is lightly hazed and the treeline (46 m+) is
-    // fully gone, while the hall interior (camera < 10 m) stays clear.
+    // really reads as denser fog: at fog 0.08 the tractor (~26 m from
+    // the overview camera) is lightly hazed and the treeline (46 m+)
+    // is fully gone, while the near field (camera < 10 m) stays clear.
     // Small densities barely move near/far, so sunny/rain/storm keep
     // their old distances. (The old far floor of 48 m clamped any
     // density above ~0.047 to the same distance, so raising the preset
@@ -1692,8 +1543,6 @@ function SceneContents({ sim, weather, quality, photoRequest, onPosition, onProg
       <SkyDome weather={weather} />
       <Clouds weather={weather} />
       <Precipitation weather={weather} quality={quality} />
-      <HallBuilding weather={weather} snow={snow} />
-      <GateFlags weather={weather} />
       <CropField weather={weather} quality={quality} snow={snow} />
       <Treeline weather={weather} />
       <Puddles weather={weather} />
@@ -1703,18 +1552,11 @@ function SceneContents({ sim, weather, quality, photoRequest, onPosition, onProg
         <planeGeometry args={[140, 100]} />
         <meshStandardMaterial ref={groundMat} map={farmGroundTex} roughness={1} metalness={0} />
       </mesh>
-      {/* Snow cover over the field (opacity ramps with accumulation).
-          Four strips around the hall — the hall interior stays clear. */}
-      {[
-        { pos: [0, 0.02, -30] as [number, number, number], size: [140, 40] as [number, number] },
-        { pos: [0, 0.02, 30] as [number, number, number], size: [140, 40] as [number, number] },
-        { pos: [-42, 0.02, 0] as [number, number, number], size: [56, 20] as [number, number] },
-        { pos: [42, 0.02, 0] as [number, number, number], size: [56, 20] as [number, number] },
-      ].map(({ pos, size }, i) => (
-        <mesh key={`snow-${i}`} position={pos} rotation={[-Math.PI / 2, 0, 0]} material={snowCoverMaterial}>
-          <planeGeometry args={size} />
-        </mesh>
-      ))}
+      {/* Snow cover over the whole field (opacity ramps with
+          accumulation) — one uniform sheet. */}
+      <mesh position={[0, 0.02, 0]} rotation={[-Math.PI / 2, 0, 0]} material={snowCoverMaterial}>
+        <planeGeometry args={[140, 100]} />
+      </mesh>
       <GuideLine />
       {/* Guide light strip along the track edges */}
       {[-3.2, 3.2].map((z) => (
