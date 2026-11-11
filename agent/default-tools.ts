@@ -6,6 +6,7 @@ import { identifyPlannerTopic, identifyPlannerTopics, plannerFaultChains, planne
 import { ToolRegistry } from './tool-registry';
 import type { InputSchema } from './tool-types';
 import { calculator } from './calculator';
+import { ToolExecutionError } from './tool-types';
 const string = (description: string): InputSchema => ({ type: 'string', description, maxLength: 200 });
 const context: InputSchema = {
   type: 'object', description: '可选机型上下文，例如 {"brand":"久保田","model":"LX2620"}，默认空对象', additionalProperties: false,
@@ -61,10 +62,9 @@ export function build_default_registry(): ToolRegistry {
       // Ambiguous symptoms name their candidate systems only (labels, no
       // evidence IDs, no fault conclusion); the caller must pick one first.
       const candidates = typeof symptom === 'string' ? identifyPlannerTopics(symptom) : [];
-      return { error: 'TOPIC_NOT_IDENTIFIED',
-        note: candidates.length >= 2
+      throw new ToolExecutionError('TOPIC_NOT_IDENTIFIED', candidates.length >= 2
           ? `多系统歧义，无法确定唯一逻辑链，可能涉及：${candidates.map(plannerTopicLabel).join('、')}。请先确认其中一个系统，再请求该系统的逻辑链。`
-          : '请给出单个已知的故障主题或单系统症状文本，多系统歧义无法确定唯一逻辑链。' };
+          : '请给出单个已知的故障主题或单系统症状文本，多系统歧义无法确定唯一逻辑链。');
     }
     const chain = plannerFaultChains[resolved];
     return { topic: resolved, topEvent: chain.topEvent, causes: chain.causes.map(cause => ({ ...cause, verification: 'unverified' })),

@@ -7,6 +7,7 @@ import { parseDsmlToolCalls, stripDsmlMarkup } from '../../agent/dsml';
 import {
   ProviderError,
   type ChatMessage,
+  type ChatOptions,
   type ChatResult,
   type ChatStreamOptions,
   type Provider,
@@ -90,7 +91,8 @@ export function createOpenAICompatibleProvider(opts: OpenAICompatibleOptions): P
       if(!content&&!toolCalls.length)throw new ProviderError(name,'invalid_response','missing assistant content');
       return {content,toolCalls,stopReason:dsmlConverted?'tool_calls':finish as ToolChatResult['stopReason']};
     }}),
-    async chat(messages: ChatMessage[]): Promise<ChatResult> {
+    async chat(messages: ChatMessage[], options: ChatOptions = {}): Promise<ChatResult> {
+      if (options.signal?.aborted) throw new ProviderError(name, 'cancelled', 'request cancelled');
       const apiKey = getKey();
       if (!apiKey) {
         throw new ProviderError(name, 'configuration', `missing ${apiKeyEnv}`);
@@ -115,6 +117,7 @@ export function createOpenAICompatibleProvider(opts: OpenAICompatibleOptions): P
           apiUrl,
           {
             method: 'POST',
+            signal: options.signal,
             headers: {
               'Content-Type': 'application/json',
               Authorization: `Bearer ${apiKey}`,
@@ -150,12 +153,16 @@ export function createOpenAICompatibleProvider(opts: OpenAICompatibleOptions): P
           },
         );
       } catch (err) {
+        if (options.signal?.aborted) throw new ProviderError(name, 'cancelled', 'request cancelled');
         if (err instanceof ProviderError) throw err;
         // 网络层错误（含超时）
-        const kind = err instanceof Error && err.message === 'timeout' ? 'timeout' : 'network';
+        const kind = err instanceof Error && err.message === 'timeout' ? 'timeout'
+          : err instanceof Error && err.message === 'cancelled' ? 'cancelled' : 'network';
         // 原始异常可能包含 URL、代理凭据或请求信息，不能向日志/调用方传播。
-        throw new ProviderError(name, kind, kind === 'timeout' ? 'request timed out' : 'request failed');
+        throw new ProviderError(name, kind, kind === 'timeout' ? 'request timed out' : kind === 'cancelled' ? 'request cancelled' : 'request failed');
       }
+
+      if (options.signal?.aborted) throw new ProviderError(name, 'cancelled', 'request cancelled');
 
       const record = data && typeof data === 'object' ? data as Record<string, unknown> : {};
       const choice = Array.isArray(record.choices) ? record.choices[0] : undefined;
@@ -180,6 +187,7 @@ export function createOpenAICompatibleProvider(opts: OpenAICompatibleOptions): P
       };
     },
     async chatStream(messages: ChatMessage[], onDelta: (text: string) => void, options: ChatStreamOptions = {}): Promise<ChatResult> {
+      if (options.signal?.aborted) throw new ProviderError(name, 'cancelled', 'request cancelled');
       const apiKey = getKey();
       if (!apiKey) {
         throw new ProviderError(name, 'configuration', `missing ${apiKeyEnv}`);
@@ -209,6 +217,7 @@ export function createOpenAICompatibleProvider(opts: OpenAICompatibleOptions): P
         }
       };
       const handleLine = (line: string) => {
+        if (options.signal?.aborted) throw new ProviderError(name, 'cancelled', 'request cancelled');
         if (!line.startsWith('data:')) return;
         const data = line.slice(5).trim();
         if (!data) return;
@@ -272,11 +281,13 @@ export function createOpenAICompatibleProvider(opts: OpenAICompatibleOptions): P
           },
         );
       } catch (err) {
+        if (options.signal?.aborted) throw new ProviderError(name, 'cancelled', 'request cancelled');
         if (err instanceof ProviderError) throw err;
         const kind = err instanceof Error && err.message === 'timeout' ? 'timeout'
           : err instanceof Error && err.message === 'cancelled' ? 'cancelled' : 'network';
         throw new ProviderError(name, kind, kind === 'timeout' ? 'request timed out' : kind === 'cancelled' ? 'request cancelled' : 'request failed');
       }
+      if (options.signal?.aborted) throw new ProviderError(name, 'cancelled', 'request cancelled');
       if (!content.trim()) {
         throw new ProviderError(name, 'invalid_response', 'missing assistant content');
       }

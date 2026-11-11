@@ -30,7 +30,8 @@ export interface ToolCall { id:string; name:string; input:Record<string,unknown>
 export interface ToolChatResult { content:string; toolCalls:ToolCall[]; stopReason:'tool_calls'|'stop'|'length' }
 export interface ToolChatOptions { tools:ToolDefinition[]; toolChoice?:'auto'|'none'; signal?:AbortSignal }
 
-export interface ChatStreamOptions { signal?:AbortSignal }
+export interface ChatOptions { signal?:AbortSignal }
+export type ChatStreamOptions = ChatOptions;
 
 export interface ChatResult {
   /** 模型回复正文 */
@@ -67,7 +68,7 @@ export interface Provider {
   /** 仅表示已配置非空 API Key，不代表密钥有效或上游已连通。 */
   isConfigured(): boolean;
   /** 发起一次 chat 调用；失败抛 ProviderError */
-  chat(messages: ChatMessage[]): Promise<ChatResult>;
+  chat(messages: ChatMessage[], options?: ChatOptions): Promise<ChatResult>;
   /**
    * Optional capability; callers must fall back to chat() if absent.
    * Streams content deltas to onDelta as they arrive and resolves with
