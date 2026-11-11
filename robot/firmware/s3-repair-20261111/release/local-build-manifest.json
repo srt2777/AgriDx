@@ -1,0 +1,31 @@
+{
+  "firmware": "sijia-s3-display-repair-0.1.1.bin",
+  "sha256": "ffb6a674af89af2f5f88c5bd7a6a42f952fa8c38112d9aaed7cb8300691bbb81",
+  "bytes": 5067776,
+  "board": "ESP32-S3 N16R8",
+  "display": "ILI9341 320x240",
+  "flashOffset": "0x10000",
+  "status": "hardware acceptance in progress",
+  "upload": "USB write and hash verified 2026-11-12",
+  "githubPublished": false,
+  "websiteDeployed": false,
+  "verified": [
+    "S3 build",
+    "full font bitmap decoding",
+    "simulated telemetry host sanitizer test",
+    "boot with 16KB UI stack",
+    "Wi-Fi reconnect and SSE reception"
+  ],
+  "unresolved": [
+    "touch calibration runtime NVS readback failure; preloaded calibration still loads",
+    "touch and animation visual acceptance",
+    "voice recognition end-to-end latency",
+    "website STT backend optimization not deployed"
+  ],
+  "controls": {
+    "BOOT short": "next page",
+    "BOOT hold 1s": "touch calibration",
+    "horizontalSwipe": false,
+    "voice": "onscreen hold-to-talk"
+  }
+}
