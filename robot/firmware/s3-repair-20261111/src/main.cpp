@@ -1180,6 +1180,24 @@ static void setLabelIfChanged(lv_obj_t *label, const char *text) {
   if (strcmp(lv_label_get_text(label), text) != 0) lv_label_set_text(label, text);
 }
 
+static void setMetricReading(lv_obj_t *label, const char *text) {
+  if (strcmp(lv_label_get_text(label), text) == 0) return;
+  const int width = lv_obj_get_content_width(label);
+  const lv_font_t *fonts[] = {&lv_font_montserrat_28, &font_zh_22, &font_zh_16};
+  const lv_font_t *font = fonts[2];
+  for (const auto *candidate : fonts) {
+    lv_point_t size;
+    lv_text_get_size(&size, text, candidate, 0, 0, LV_COORD_MAX, LV_TEXT_FLAG_NONE);
+    if (size.x <= width) {
+      font = candidate;
+      break;
+    }
+  }
+  if (lv_obj_get_style_text_font(label, LV_PART_MAIN) != font)
+    lv_obj_set_style_text_font(label, font, LV_PART_MAIN);
+  lv_label_set_text(label, text);
+}
+
 static void refreshMetricChart() {
   // Same 60-second horizontal window; tenths preserve smooth sub-degree changes.
   const bool redrawChart = g_chartUpdated == 0 || millis() - g_chartUpdated >= 2000;
@@ -1238,12 +1256,12 @@ static void applyTelemetryToUi() {
     if (isnan(ch.value)) snprintf(buf, sizeof(buf), "--");
     else if (ch.precision == 0) snprintf(buf, sizeof(buf), "%.0f", ch.value);
     else snprintf(buf, sizeof(buf), "%.*f", ch.precision, ch.value);
-    setLabelIfChanged(g_meterVal[i], buf);
+    setMetricReading(g_meterVal[i], buf);
     setLabelIfChanged(g_meterUnit[i], ch.unit);
     lv_color_t c;
     const char *st = chanStateText(ch, &c);
     char nbuf[32];
-    snprintf(nbuf, sizeof(nbuf), "%s · %s", i == 1 ? "油压" : ch.label, st);
+    snprintf(nbuf, sizeof(nbuf), "%s %s", i == 1 ? "油压" : ch.label, st);
     setLabelIfChanged(g_meterName[i], nbuf);
     if (!lv_color_eq(lv_obj_get_style_text_color(g_meterName[i], LV_PART_MAIN), c))
       lv_obj_set_style_text_color(g_meterName[i], c, 0);
@@ -1596,19 +1614,20 @@ static void buildMonitorTile(lv_obj_t *tile) {
     lv_obj_set_style_bg_opa(heading, LV_OPA_TRANSP, 0);
     lv_obj_set_style_border_width(heading, 0, 0);
     lv_obj_set_style_pad_all(heading, 0, 0);
+    lv_obj_set_style_pad_column(heading, 2, 0);
     lv_obj_set_flex_flow(heading, LV_FLEX_FLOW_ROW);
     lv_obj_set_flex_align(heading, LV_FLEX_ALIGN_SPACE_BETWEEN, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
     g_meterName[i] = mkLabel(heading, i == 1 ? "油压" : g_channels[i].label, &font_zh_12, C_SUBTEXT);
     lv_obj_set_width(g_meterName[i], 0);
     lv_obj_set_flex_grow(g_meterName[i], 1);
-    lv_label_set_long_mode(g_meterName[i], LV_LABEL_LONG_DOT);
+    lv_label_set_long_mode(g_meterName[i], LV_LABEL_LONG_CLIP);
     g_meterUnit[i] = mkLabel(heading, "", &font_zh_12, C_SUBTEXT);
 
     g_meterVal[i] = mkLabel(card, "--", &lv_font_montserrat_28, C_TEXT);
     lv_obj_set_width(g_meterVal[i], lv_pct(100));
-    lv_obj_set_height(g_meterVal[i], LV_SIZE_CONTENT);
+    lv_obj_set_height(g_meterVal[i], 30);
     lv_obj_set_style_text_align(g_meterVal[i], LV_TEXT_ALIGN_CENTER, 0);
-    lv_label_set_long_mode(g_meterVal[i], LV_LABEL_LONG_DOT);
+    lv_label_set_long_mode(g_meterVal[i], LV_LABEL_LONG_CLIP);
     // 底部细条：灰底 + 按量程比例填充，颜色跟状态走
     g_meterBarBg[i] = lv_obj_create(card);
     lv_obj_set_width(g_meterBarBg[i], lv_pct(100));

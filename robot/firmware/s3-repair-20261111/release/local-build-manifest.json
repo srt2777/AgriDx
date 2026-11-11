@@ -1,7 +1,7 @@
 {
   "firmware": "sijia-s3-display-repair-0.1.1.bin",
-  "sha256": "646430f810ca96d9a9dd414b81fba7ac9d6e8c1f00b8bd4e2f7f2fa416f8980f",
-  "bytes": 4622544,
+  "sha256": "72420ee82d86ce0ace2309df5bc9e6a0ad61439241ef4a3c17003c7d2fff93d4",
+  "bytes": 4622496,
   "board": "ESP32-S3 N16R8",
   "display": "ILI9341 320x240",
   "flashOffset": "0x10000",
@@ -26,7 +26,8 @@
     "320x240 display pixel captures: monitor, chat, Wi-Fi scanning and simulated alarm",
     "Generated Chinese font decoding for current UI strings",
     "UI image booted from app1; Wi-Fi, SSE, three metric selections and persisted calibration passed",
-    "UI standby cold-boot steady windows: 25.4 and 25.7 FPS"
+    "UI standby cold-boot steady windows: 25.4 and 25.7 FPS",
+    "Oil pressure card keeps label, state and kPa on one line; checked against actual font metrics"
   ],
   "unresolved": [
     "Production voice endpoint requires backend deployment and retest",
