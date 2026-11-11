@@ -4,9 +4,9 @@
  * Rapier itself ships no vehicle controller, so this module builds one on
  * top of @dimforge/rapier3d-compat (Apache-2.0, lazy-loaded so the rest of
  * the app never pays for the WASM bundle):
- *  - a static world: floor + wall colliders + one cuboid collider per hall
- *    obstacle (booths / platform / planters), so the tractor genuinely
- *    collides instead of clipping through;
+ *  - a static world: floor + field-edge bound colliders + one cuboid
+ *    collider per field obstacle (booths / platform), so the tractor
+ *    genuinely collides instead of clipping through;
  *  - the tractor as a dynamic cuboid rigid body, driven by capped
  *    acceleration / steering (low speed, heavy feel, wide turn radius);
  *  - a raycast per wheel, cast straight down from each wheel hub, which
@@ -17,8 +17,8 @@
  * to initialise (e.g. no WASM support); the scene reports which backend is
  * active.
  */
-import { HALL, HALL_OBSTACLES } from './showroom-data';
-import { TRACTOR_PARAMS, type DriveInput, type Pose } from './showroom-drive';
+import { HALL, HALL_BUILDING, HALL_OBSTACLES, isInsideHall } from './showroom-data';
+import { FIELD_PARAMS, TRACTOR_PARAMS, steerAuthority, type DriveInput, type Pose, type StepOptions } from './showroom-drive';
 
 export interface WheelRay {
   /** Suspension compression 0..1 (1 = fully compressed). */
@@ -27,7 +27,7 @@ export interface WheelRay {
 }
 
 export interface RapierVehicle {
-  step(input: DriveInput, dt: number): { pose: Pose; wheels: WheelRay[] };
+  step(input: DriveInput, dt: number, opts?: StepOptions): { pose: Pose; wheels: WheelRay[] };
   setPose(pose: Pose): void;
   dispose(): void;
 }
@@ -55,6 +55,25 @@ export async function createRapierVehicle(initial: Pose): Promise<RapierVehicle>
   ];
   for (const [x, y, z, hx, hy, hz] of walls) {
     world.createCollider(RAPIER.ColliderDesc.cuboid(hx, hy, hz).setTranslation(x, y, z));
+  }
+  // Glass hall walls (height HALL_BUILDING.height, thin colliders). The
+  // east wall is two segments with the gate gap between them, so the
+  // tractor can drive out onto the field track and back in.
+  const hw = HALL_BUILDING.halfX;
+  const hz = HALL_BUILDING.halfZ;
+  const hh = HALL_BUILDING.height / 2;
+  const gate = HALL_BUILDING.gate.halfWidth;
+  const hallWalls: [number, number, number, number, number, number][] = [
+    [0, hh, -hz, hw + 0.15, hh, 0.15], // north
+    [0, hh, hz, hw + 0.15, hh, 0.15], // south
+    [-hw, hh, 0, 0.15, hh, hz + 0.15], // west
+    [hw, hh, -(gate + (hz - gate) / 2), 0.15, hh, (hz - gate) / 2], // east, north of gate
+    [hw, hh, gate + (hz - gate) / 2, 0.15, hh, (hz - gate) / 2], // east, south of gate
+    // Lintel above the gate (gate opening is 4.2 m tall).
+    [hw, 4.2 + (HALL_BUILDING.height - 4.2) / 2, 0, 0.15, (HALL_BUILDING.height - 4.2) / 2, gate],
+  ];
+  for (const [x, y, z, hx, hy, hz2] of hallWalls) {
+    world.createCollider(RAPIER.ColliderDesc.cuboid(hx, hy, hz2).setTranslation(x, y, z));
   }
   for (const obstacle of HALL_OBSTACLES) {
     const [minX, minZ, maxX, maxZ] = obstacle.box;
@@ -89,35 +108,49 @@ export async function createRapierVehicle(initial: Pose): Promise<RapierVehicle>
   }
 
   return {
-    step(input: DriveInput, dt: number) {
+    step(input: DriveInput, dt: number, opts: StepOptions = {}) {
       const clampedDt = Math.min(Math.max(dt, 0), 0.05);
       const wheels = castWheels();
       const groundedWheels = wheels.filter((w) => w.grounded).length;
       // No drive force when fewer than two wheels touch the ground.
       const grip = groundedWheels >= 2 ? 1 : 0;
-      const targetSpeed = input.throttle >= 0 ? input.throttle * TRACTOR_PARAMS.maxSpeed : input.throttle * TRACTOR_PARAMS.maxReverse;
+      // Hall vs field: the hall caps speed at 3.2 m/s; the field allows
+      // 6.5 m/s and Shift boost. Wet/snow scale accel and braking.
+      const params = isInsideHall(pose.x, pose.z) ? TRACTOR_PARAMS : FIELD_PARAMS;
+      const surfaceGrip = Math.min(1, Math.max(0.5, opts.grip ?? 1));
+      const boost = input.boost && params.maxSpeed > TRACTOR_PARAMS.maxSpeed;
+      const topSpeed = boost ? params.maxSpeed * 1.35 : params.maxSpeed;
+      const targetSpeed = input.throttle >= 0 ? input.throttle * topSpeed : input.throttle * params.maxReverse;
       let speed = pose.speed;
       if (input.brake) {
-        const decel = TRACTOR_PARAMS.brakeDecel * clampedDt;
+        const decel = params.brakeDecel * surfaceGrip * clampedDt;
         speed = Math.abs(speed) <= decel ? 0 : speed - Math.sign(speed) * decel;
       } else if (grip > 0) {
-        if (targetSpeed > speed) speed = Math.min(targetSpeed, speed + TRACTOR_PARAMS.accel * clampedDt);
-        else if (targetSpeed < speed) speed = Math.max(targetSpeed, speed - TRACTOR_PARAMS.accel * 1.4 * clampedDt);
+        if (targetSpeed > speed) speed = Math.min(targetSpeed, speed + params.accel * surfaceGrip * clampedDt);
+        else if (targetSpeed < speed) speed = Math.max(targetSpeed, speed - params.accel * 1.4 * surfaceGrip * clampedDt);
       }
       if (input.throttle === 0 && !input.brake) {
-        const drag = TRACTOR_PARAMS.drag * clampedDt;
+        const drag = params.drag * surfaceGrip * clampedDt;
         speed = Math.abs(speed) <= drag ? 0 : speed - Math.sign(speed) * drag;
       }
-      const steerTarget = input.steer * TRACTOR_PARAMS.maxSteer;
+      const steerTarget = input.steer * params.maxSteer * steerAuthority(speed, topSpeed);
       const steer = pose.steer + (steerTarget - pose.steer) * Math.min(1, clampedDt * 6);
-      const headingRate = (speed / TRACTOR_PARAMS.wheelBase) * Math.tan(steer);
+      const headingRate = (speed / params.wheelBase) * Math.tan(steer);
       const heading = pose.heading + headingRate * clampedDt;
       const vx = Math.sin(heading) * speed;
       const vz = -Math.cos(heading) * speed;
       // Drive the Rapier body by velocity; Rapier resolves wall/booth contact.
       body.setLinvel({ x: vx, y: 0, z: vz }, true);
       body.setAngvel({ x: 0, y: headingRate, z: 0 }, true);
-      world.step();
+      // Rapier advances its world by one fixed 1/60 s step per world.step()
+      // call, regardless of the render frame time. At low frame rates a
+      // single step would move the body only 1/60 s per frame while the
+      // speedometer (integrated with clampedDt) ran at full rate — the
+      // tractor crawled, turned faster than it travelled, and braking felt
+      // disconnected from the speed shown. Sub-step so the body covers the
+      // same simulated time as the kinematic integration above.
+      const steps = Math.max(1, Math.round(clampedDt / (1 / 60)));
+      for (let i = 0; i < steps; i += 1) world.step();
       const t = body.translation();
       const next: Pose = { x: t.x, z: t.z, heading, speed, steer };
       // Keep the visual heading authoritative; Rapier position is authoritative
