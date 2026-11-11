@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { runAgent } from '../agent/runner';
 import { build_default_registry } from '../agent/default-tools';
-import { ToolRegistry } from '../agent/tools';
+import { ToolRegistry, ToolExecutor } from '../agent/tools';
 import type { Provider, ToolChatResult } from '../server/llm/types';
 import type { PlannerContext } from '../agent/planner/ports';
 import { createDiagnosticPlan, identifyPlannerTopic, identifyPlannerTopics, plannerAmbiguityQuestion, plannerTopicLabel } from '../server/diagnosis/plannerPlans';
@@ -117,11 +117,12 @@ test('unknown non-ambiguous wording keeps the old behaviour: no invented questio
 test('fault_chain names ambiguous candidate systems without evidence IDs', async () => {
   loadKnowledgeBase();
   const registry = build_default_registry();
-  const result = JSON.parse(await registry.call('fault_chain', { symptom: '拖拉机水温过高而且挂挡困难' })) as { error?: string; note?: string };
-  assert.equal(result.error, 'TOPIC_NOT_IDENTIFIED');
-  assert.ok(result.note?.includes(plannerTopicLabel('overheat')));
-  assert.ok(result.note?.includes(plannerTopicLabel('transmission')));
-  assert.doesNotMatch(result.note ?? '', /KB-[A-Z0-9-]+/);
+  const result = await new ToolExecutor(registry).execute('fault_chain', { symptom: '拖拉机水温过高而且挂挡困难' });
+  assert.equal(result.ok, false);
+  assert.equal(result.error_type, 'TOPIC_NOT_IDENTIFIED');
+  assert.ok(result.content.includes(plannerTopicLabel('overheat')));
+  assert.ok(result.content.includes(plannerTopicLabel('transmission')));
+  assert.doesNotMatch(result.content, /KB-[A-Z0-9-]+/);
 });
 
 // Item 3 — cross-step reuse inside one run: same bound call, later step.

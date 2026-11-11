@@ -77,6 +77,17 @@ export async function runAgent(options:AgentRunOptions):Promise<AgentRunResult> 
           if(typeof options.context?.brand==='string')input.brand=options.context.brand;
           if(typeof options.context?.model==='string')input.model=options.context.model;
         }
+        // Model-specific indices must obey the same host-owned identity as
+        // search/browse. With a partial host identity, remove the model's
+        // invented counterpart too: the tool schema then reports the missing
+        // field instead of silently looking up another machine. With no host
+        // identity, the standalone catalogue lookup remains available.
+        if((call.name==='model_fault_index'||call.name==='maintenance_schedule')&&
+          (typeof options.context?.brand==='string'||typeof options.context?.model==='string')){
+          delete input.brand;delete input.model;
+          if(typeof options.context?.brand==='string')input.brand=options.context.brand;
+          if(typeof options.context?.model==='string')input.model=options.context.model;
+        }
         return {type:'tool_use',id:call.id,name:call.name,input};
       });
       messages.push({role:'assistant',content:stripDsmlMarkup(reply.content),tool_calls:boundCalls.map(call=>({id:call.id,type:'function',function:{name:call.name,arguments:JSON.stringify(call.input)}}))});

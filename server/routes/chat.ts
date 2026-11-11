@@ -71,7 +71,7 @@ export function createChatRoutes(diagnose: DiagnosticService, store = getMemoryS
       }
       const payload = await diagnose(input, memory, controller.signal,
         writer ? (text) => { writer!.send('delta', { text }); } : undefined);
-      if (res.destroyed) { console.warn('[chat] response skipped: client disconnected'); return; }
+      if (controller.signal.aborted || res.destroyed) { console.warn('[chat] response skipped: client disconnected'); return; }
       if (remembered) {
         const assistant: Omit<MemoryMessage, 'id' | 'role' | 'createdAt'> = { content: payload.choices[0].message.content };
         for (const field of ['model', 'provider', 'localSummary', 'coordinationMessage', 'answerMode', 'fallbackReason', 'knowledgeChunks', 'diagnosticReply', 'knowledgeSources', 'coordination', 'diagnosisTrace', 'roleFlow'] as const) {
@@ -90,6 +90,8 @@ export function createChatRoutes(diagnose: DiagnosticService, store = getMemoryS
         let saved = false;
         let lastAppendError: unknown;
         for (let attempt = 0; attempt < 2; attempt++) {
+          // The client may disconnect during the asynchronous retry delay.
+          if (controller.signal.aborted || res.destroyed) return;
           try {
             payload.memory = store().appendTurn(owner, remembered.id, remembered.revision, user.content, assistant, remembered.messages.length ? [] : input.history.slice(0, -1), payload[PLANNER_COMMIT]);
             saved = true; break;

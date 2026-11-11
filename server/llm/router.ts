@@ -12,6 +12,7 @@ import {
   type ProviderErrorKind,
   type ProviderName,
   type ChatMessage,
+  type ChatOptions,
   type ChatResult,
   type Provider,
 } from './types';
@@ -48,6 +49,14 @@ function asProviderError(provider: ProviderName, error: unknown): ProviderError 
   return error instanceof ProviderError
     ? error
     : new ProviderError(provider, 'unknown', 'unexpected provider error');
+}
+
+/** Cancellation ends this request; it is never a reason to try another provider. */
+function throwIfCancelled(provider: ProviderName, signal: AbortSignal | undefined, attempts = 0): void {
+  if (!signal?.aborted) return;
+  const error = new ProviderError(provider, 'cancelled', 'request cancelled');
+  error.attempts = attempts;
+  throw error;
 }
 
 export class LlmRouter {
@@ -114,40 +123,51 @@ export class LlmRouter {
     return { primary: first, secondary: second };
   }
 
-  async chatStream(messages: ChatMessage[], onDelta: (text: string) => void, options?: { signal?: AbortSignal }): Promise<RouteOutcome> {
+  async chatStream(messages: ChatMessage[], onDelta: (text: string) => void, options: ChatOptions = {}): Promise<RouteOutcome> {
     const preference = getPreference();
     if (preference === null) {
       throw new ProviderError('deepseek', 'configuration', 'invalid LLM_PROVIDER');
     }
     const { primary, secondary } = this.pickPrimary(preference);
+    throwIfCancelled(primary.name, options.signal);
     if (!primary.isConfigured()) {
       throw new ProviderError(primary.name, 'configuration', 'no LLM API key configured');
     }
     let emitted = false;
-    const guard = (text: string) => { emitted = true; onDelta(text); };
-    const run = async (provider: Provider): Promise<ChatResult> => {
-      if (provider.chatStream) return provider.chatStream(messages, guard, options);
-      const result = await provider.chat(messages);
-      guard(result.content);
+    const run = async (provider: Provider, attempts: number): Promise<ChatResult> => {
+      throwIfCancelled(provider.name, options.signal, attempts - 1);
+      const guard = (text: string) => {
+        throwIfCancelled(provider.name, options.signal, attempts);
+        emitted = true;
+        onDelta(text);
+      };
+      const result = provider.chatStream
+        ? await provider.chatStream(messages, guard, options)
+        : await provider.chat(messages, options);
+      // A provider may resolve despite an abort; do not emit or accept its late answer.
+      throwIfCancelled(provider.name, options.signal, attempts);
+      if (!provider.chatStream) guard(result.content);
       return result;
     };
     let primaryError: ProviderError;
     try {
-      const result = await run(primary);
+      const result = await run(primary, 1);
       return { result, primary: primary.name, fellBack: false, attempts: 1 };
     } catch (error) {
+      throwIfCancelled(primary.name, options.signal, 1);
       primaryError = asProviderError(primary.name, error);
       console.warn(`[llm] primary ${primary.name} failed (${primaryError.kind})`);
     }
     // A stream that already emitted text cannot be replaced by the other
     // provider: the client already saw the first provider's words, so a
     // second provider's answer would splice onto a partial reply.
-    if (emitted) { primaryError.attempts = 1; throw primaryError; }
+    if (emitted || primaryError.kind === 'cancelled') { primaryError.attempts = 1; throw primaryError; }
     if (!secondary.isConfigured()) { primaryError.attempts = 1; throw primaryError; }
     try {
-      const result = await run(secondary);
+      const result = await run(secondary, 2);
       return { result, primary: primary.name, fellBack: true, fallbackReason: primaryError.kind, attempts: 2 };
     } catch (error) {
+      throwIfCancelled(secondary.name, options.signal, 2);
       const secondaryError = asProviderError(secondary.name, error);
       secondaryError.attempts = 2;
       console.warn(`[llm] secondary ${secondary.name} failed (${secondaryError.kind})`);
@@ -155,30 +175,36 @@ export class LlmRouter {
     }
   }
 
-  async chat(messages: ChatMessage[]): Promise<RouteOutcome> {
+  async chat(messages: ChatMessage[], options: ChatOptions = {}): Promise<RouteOutcome> {
     const preference = getPreference();
     if (preference === null) {
       throw new ProviderError('deepseek', 'configuration', 'invalid LLM_PROVIDER');
     }
     const { primary, secondary } = this.pickPrimary(preference);
+    throwIfCancelled(primary.name, options.signal);
     if (!primary.isConfigured()) {
       throw new ProviderError(primary.name, 'configuration', 'no LLM API key configured');
     }
 
     let primaryError: ProviderError;
     try {
-      const result = await primary.chat(messages);
+      const result = await primary.chat(messages, options);
+      throwIfCancelled(primary.name, options.signal, 1);
       return { result, primary: primary.name, fellBack: false, attempts: 1 };
     } catch (error) {
+      throwIfCancelled(primary.name, options.signal, 1);
       primaryError = asProviderError(primary.name, error);
       console.warn(`[llm] primary ${primary.name} failed (${primaryError.kind})`);
     }
 
-    if (!secondary.isConfigured()) { primaryError.attempts = 1; throw primaryError; }
+    if (primaryError.kind === 'cancelled' || !secondary.isConfigured()) { primaryError.attempts = 1; throw primaryError; }
     try {
-      const result = await secondary.chat(messages);
+      throwIfCancelled(secondary.name, options.signal, 1);
+      const result = await secondary.chat(messages, options);
+      throwIfCancelled(secondary.name, options.signal, 2);
       return { result, primary: primary.name, fellBack: true, fallbackReason: primaryError.kind, attempts: 2 };
     } catch (error) {
+      throwIfCancelled(secondary.name, options.signal, 2);
       const secondaryError = asProviderError(secondary.name, error);
       secondaryError.attempts = 2;
       console.warn(`[llm] secondary ${secondary.name} failed (${secondaryError.kind})`);

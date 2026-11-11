@@ -324,7 +324,7 @@ export function createDiagnosticService(llm: DiagnosticProvider, dependencies: D
           ? [{ text: '不要试车、拆检或接触高温、运动和带压部件，请合格人员处理。', kind: 'professional', evidenceIds: [], priority: 1 }] : []; diagnosticReply.questions = [];
       }
       if (telemetrySummary) diagnosticReply.sourceNote += '\n仿真演示数据，不是真实设备读数，不得据此给出确定性故障结论。';
-      const unavailable = failed ? failureKind === 'timeout' ? '已尝试外部 AI，但请求超时；本次先提供本地安全观察建议。' : '已尝试外部 AI，但服务暂不可用；本次先提供本地安全观察建议。'
+      const unavailable = failed ? failureKind === 'cancelled' ? '本次请求已取消，未采用外部 AI 答复。' : failureKind === 'timeout' ? '已尝试外部 AI，但请求超时；本次先提供本地安全观察建议。' : '已尝试外部 AI，但服务暂不可用；本次先提供本地安全观察建议。'
         : rejected ? '外部 AI 已返回，但内容未通过来源或安全检查；本次保留本地安全建议。'
         : route.reason === 'llm_not_configured' ? '当前服务端未配置外部 AI 密钥，本次没有调用外部模型。'
         : route.reason === 'server_local_only' ? '当前环境只启用本地知识检索，本次没有调用外部模型。'
@@ -363,16 +363,21 @@ export function createDiagnosticService(llm: DiagnosticProvider, dependencies: D
     // as the old cancelled-loop path.
     if (signal?.aborted) {
       displayed = admissible;
-      return localResponse(true, [], 'timeout');
+      return localResponse(true, [], 'cancelled');
     }
     const externalStart = now();
     try {
       trace.aiAttempts = 1;
       const outcome = onDelta && llm.chatStream
-        ? await llm.chatStream([systemMessage, ...(memory ? recentMessages(history) : history)], onDelta, { signal })
-        : await llm.chat([systemMessage, ...(memory ? recentMessages(history) : history)]);
+        ? await llm.chatStream([systemMessage, ...(memory ? recentMessages(history) : history)], text => { if (!signal?.aborted) onDelta(text); }, { signal })
+        : await llm.chat([systemMessage, ...(memory ? recentMessages(history) : history)], { signal });
       trace.timings.externalAiMs = now() - externalStart;
       trace.aiAttempts = outcome.attempts ?? 1;
+      // A cooperative provider should reject on abort; also discard late results from adapters that do not.
+      if (signal?.aborted) {
+        displayed = admissible;
+        return localResponse(true, [], 'cancelled');
+      }
       trace.aiSuccesses = 1;
       trace.aiProvider = outcome.result.provider;
       const filtered = filterDiagnosticAnswer(outcome.result.content, promptChunks, { trustedEvidenceIds, model: scope.model });

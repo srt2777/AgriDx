@@ -2,6 +2,7 @@ import { MAX_TOOL_OUTPUT, DEFAULT_TOOL_TIMEOUT, MAX_PARALLEL_TOOLS, MAX_REPEAT_C
 import { schemaErrors } from './tool-registry';
 import type { ToolRegistry } from './tool-registry';
 import type { ErrorType, ToolResult } from './tool-types';
+import { ToolExecutionError } from './tool-types';
 import { canonical, redact, serialize } from './tool-utils';
 export class ToolExecutor {
   readonly trace: { tool: string; args: unknown; ok: boolean; error_type: ErrorType | null; result: string; duration_ms: number }[] = [];
@@ -47,6 +48,7 @@ export class ToolExecutor {
     } catch (e) {
       if (e instanceof ToolTimeout) return fail('TIMEOUT','工具执行超时，后台操作可能仍在运行。请缩小范围，勿盲目重试有副作用操作。');
       if (e instanceof ToolCancelled) return fail('CANCELLED','调用已取消；不支持协作取消的工具可能仍在运行。');
+      if (e instanceof ToolExecutionError) return fail(e.code, e.message);
       return fail('TOOL_ERROR',`${e instanceof Error ? e.name + ': ' + e.message : String(e)}。请检查参数或换用其他工具。`);
     } finally { if (timer) clearTimeout(timer); detachAbort?.(); }
   }

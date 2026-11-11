@@ -2,9 +2,11 @@
 
 本指南将用户2026-10-25确认的 **LLM（大脑）+ Memory（长期/短期记忆）+ Planner（规划）+ Tool Use（工具调用）= AI Agent** 作为项目共同设计口径。AgriDx按此口径是面向农机诊断的Agent；规划可由规则、模型或两者配合完成，工具可为本地函数，不以是否接入ADK、MCP、多Agent或向量库作为命名门槛。
 
-本次交付是参与指导。以下“已有”按 `main@31c843f`（3.19.0）代码核对；“后续”是设计和验收要求，不代表已经上线，也不要求每个PR同时建设全部能力。后续实现变化时同步更新相应状态和证据。
+本指南最初按 `main@31c843f`（3.19.0）建立，后续能力随对应实现更新。2026-11-11 学习与可靠性改进从 `main@cae1d91c` 核对，具体改动和验证状态见下方本批记录。“后续”是设计和验收要求，不代表已经上线，也不要求每个 PR 同时建设全部能力。
 
 给新参与者的背景介绍、Jev 研究与 20 个工具链接见 [Agent 与 Jev 学习资料](research/2026-10-31-agent-jev-tool-survey.md)。该资料为研究整理，不代表这些工具已接入项目。 2026-11-04新增[分项证据核对](research/2026-11-04-jev-evidence-review.md)，借鉴Jev分项判断思路，实际以本地元数据规则展示；未接入Jev模型或改变诊断执行。
+
+2026-11-11 的 [GitHub Agent 学习与可靠性改进](research/2026-11-11-agent-learning-reliability.md) 对照 Microsoft、Datawhale、Hugging Face 与 LangGraphJS 的资料，记录本批实际迁移、未来方向及验收边界。当前改进集中在普通/流式请求取消、工具宿主范围绑定、条目来源保留和显式业务错误；不引入新框架，不将工程回归结果称为线上或实车诊断准确率。
 
 ## 从哪里开始
 
@@ -21,12 +23,14 @@
 
 | 要素 | 已有实现 | 当前边界与后续方向 |
 | --- | --- | --- |
-| LLM | `server/llm/` 的供应商与回退；`server/diagnosis/service.ts` 组织上下文和答复 | 模型补充保留推断标识，不能自行升级来源、适用范围或维修权限 |
+| LLM | `server/llm/` 的供应商与回退；`server/diagnosis/service.ts` 组织上下文和答复 | 普通/流式请求的取消传递到 HTTP；取消后不再回退或采用迟到结果。模型补充保留推断标识，不能自行升级来源、适用范围或维修权限 |
 | Memory | `src/features/chat/` 当前会话；`server/memory/` 的设备、诊断记录、检查进度和历史报告 | Express用SQLite，独立开发预览用浏览器存储；尚不是自动提取事实并语义召回的Memory Bank |
 | Planner | `server/knowledge/coordination.ts` 接入 `server/diagnosis/router.ts`，按问题、证据和风险选择答复路径 | 当前为规则协调；影子实验仅在协调器允许时使用有限工具集合，不是通用自主规划器 |
 | Tool Use | 服务层调用 `server/knowledge/retriever.ts` 检索，路由读取/保存记忆；`server/diagnosis/answerGuard.ts` 检查AI输出 | 新增只读工具注册表与执行层见 `agent/tools.ts` 和 [使用说明](../agent/README.md)，支持 schema、参数校验、异常归一、输出上限和 AbortSignal 协作取消（不能抢占同步函数）；默认仍由现有聊天路径答复；Node 端可显式启用有界影子循环记录事件，结果不改变答复；没有 MCP 接入 |
 
 `answerGuard.ts` 是已有的独立代码规则门，不是独立评估Agent，也不能证明任意自然语言结论都有语义支持。三维关系、来源分组及界面中的角色名称也不自动等于多个可独立执行的Agent。
+
+本批工具边界：机型故障索引和维护目录按宿主已知品牌/型号绑定，部分身份不由模型补齐；条目正文可以缩短，来源、范围和核验状态必须完整保留，超大元数据明确失败。可信适配器通过 `ToolExecutionError` 标记业务失败，失败不进入跨步骤成功缓存；普通数据的 `error` 字段不自动表示执行失败。取消也会阻止记忆保存等待后的下一次重试，但不回滚已完成事务。`AGENT_LOOP=off/shadow` 与影子结果不替换主答复的约定继续生效；验证状态见本批研究记录。
 
 ## 规划、行动和观察
 
