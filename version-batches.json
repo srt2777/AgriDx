@@ -1071,6 +1071,13 @@
       "base": "4.1.6",
       "version": "4.1.7",
       "date": "2026-11-10"
+    },
+    {
+      "id": "knowledge-literature-500k-20261112",
+      "kind": "knowledge",
+      "base": "4.1.7",
+      "version": "4.1.8",
+      "date": "2026-11-12"
     }
   ]
 }

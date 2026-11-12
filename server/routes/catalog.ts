@@ -1,3 +1,4 @@
+import { getLiterature } from '../knowledge/literature';
 import { Router } from 'express';
 import { CATALOG_FILTER_KEYS, canonicalCatalogBrand, validCatalogCondition, type CatalogFilters } from '../../shared/knowledge-catalog';
 import type { ServerRuntime } from '../runtime';
@@ -7,6 +8,14 @@ import { getCommunityReports, pageCommunityReports } from '../knowledge/communit
 
 export function createCatalogRoutes(getCatalog: ServerRuntime['getCatalog']): Router {
   const router = Router();
+  router.get('/knowledge/literature', async (req, res) => {
+    res.set('Cache-Control', 'no-store');
+    try { res.json(await getLiterature(new URL(req.originalUrl, 'http://localhost').searchParams)); }
+    catch (error) {
+      if (error instanceof RangeError) { res.status(400).json({error: error.message}); return; }
+      console.error('[literature]', error); res.status(503).json({error: '文献目录暂时不可用，请稍后重试。'});
+    }
+  });
   router.get('/knowledge/causal-edges', (req, res) => {
     res.set('Cache-Control', 'no-store');
     try { res.json(getCausalEdges()); }
