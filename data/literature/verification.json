@@ -3,7 +3,7 @@
   "sourceMatchedRecords": 486764,
   "downloadedPages": 536,
   "receivedRecordsBeforeFiltering": 509592,
-  "manifestSha256": "7601efe9de19001208052b1ac9d480dab23db5228e1b48b90041284c066fd12f",
+  "manifestSha256": "61b3aa4d154a497455f51862b35d6c25c0c8f4b9b621e0e97b97f6e2e795a25d",
   "scope": "Exact metadata extraction and hash checks only; no full-text, research conclusion, expert or real-machine verification.",
   "diagnosticEvidence": false,
   "fullTextVerified": false

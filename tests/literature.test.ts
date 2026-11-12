@@ -5,7 +5,7 @@ import path from 'node:path';
 import { createHash } from 'node:crypto';
 import { gunzipSync } from 'node:zlib';
 import { getLiterature } from '../server/knowledge/literature';
-import { validateLiteratureManifest, validateLiteratureRecord, literatureTokens, literatureBucket, searchLiterature, type LiteratureManifest } from '../shared/literature';
+import { literaturePayloadEncoding, validateLiteratureManifest, validateLiteratureRecord, literatureTokens, literatureBucket, searchLiterature, type LiteratureManifest } from '../shared/literature';
 import { loadKnowledgeSnapshot } from '../server/knowledge/snapshot';
 import { retrieve, stats } from '../server/knowledge/retriever';
 
@@ -92,4 +92,15 @@ test('published literature paths use the existing gateway asset allowlist',async
     assert.equal(response.headers.get('Content-Encoding'),null);
     assert.deepEqual(Buffer.from(await response.arrayBuffer()),fs.readFileSync(path.join(root,name)));
   }
+});
+
+
+test('browser transport accepts verified transparent gzip decoding and rejects altered payloads',()=>{
+  const file=manifest.shards[0];
+  const wire=fs.readFileSync(path.join(root,file.file)); const decoded=gunzipSync(wire);
+  const hash=(bytes:Buffer)=>createHash('sha256').update(bytes).digest('hex');
+  assert.equal(literaturePayloadEncoding(file,wire.length,hash(wire)),'gzip');
+  assert.equal(literaturePayloadEncoding(file,decoded.length,hash(decoded)),'identity');
+  const altered=Buffer.concat([decoded,Buffer.from('tampered')]);
+  assert.throws(()=>literaturePayloadEncoding(file,altered.length,hash(altered)));
 });

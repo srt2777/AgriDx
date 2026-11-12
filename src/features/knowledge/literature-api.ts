@@ -1,4 +1,4 @@
-import { searchLiterature, validateLiteratureManifest, type LiteratureFile, type LiteratureManifest } from '@shared/literature';
+import { literaturePayloadEncoding, searchLiterature, validateLiteratureManifest, type LiteratureFile, type LiteratureManifest } from '@shared/literature';
 let manifestPromise: Promise<LiteratureManifest> | undefined;
 const cache = new Map<string, string>();
 let cachedBytes = 0;
@@ -19,8 +19,9 @@ export async function requestLiterature(params: URLSearchParams, signal: AbortSi
     if (!response.ok) throw new Error('Literature data unavailable');
     const bytes = await response.arrayBuffer();
     const digest = [...new Uint8Array(await crypto.subtle.digest('SHA-256',bytes))].map(n=>n.toString(16).padStart(2,'0')).join('');
-    if (bytes.byteLength !== file.bytes || digest !== file.sha256) throw new Error('Literature checksum mismatch');
-    const text = await new Response(new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'))).text();
+    const encoding = literaturePayloadEncoding(file, bytes.byteLength, digest);
+    const text = encoding === 'identity' ? new TextDecoder('utf-8', {fatal:true}).decode(bytes)
+      : await new Response(new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'))).text();
     while (cache.size && cachedBytes + text.length*2 > 24*1024*1024) {
       const key = cache.keys().next().value!; cachedBytes -= cache.get(key)!.length*2; cache.delete(key);
     }

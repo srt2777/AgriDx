@@ -5,7 +5,7 @@ export interface LiteratureRecord {
   topic: string; sourceUrl: string; url: string; retrievedAt: string; responseSha256: string;
   diagnosticEvidence: false; fullTextVerified: false; updates: unknown[];
 }
-export interface LiteratureFile { file: string; sha256: string; bytes: number; records?: number }
+export interface LiteratureFile { file: string; sha256: string; contentSha256: string; bytes: number; records?: number }
 export interface LiteratureManifest {
   schemaVersion: 1; records: number; generatedAt: string; diagnosticEvidence: false; fullTextVerified: false;
   shards: LiteratureFile[]; search: { shardSize: number; buckets: LiteratureFile[]; topics: Record<string, number> };
@@ -42,7 +42,7 @@ export function validateLiteratureManifest(value: unknown): asserts value is Lit
       Object.values(v.search.topics).reduce((a,b) => a+b,0) !== v.records ||
       v.shards.reduce((n, s) => n + (s.records ?? 0), 0) !== v.records) throw new Error('Invalid literature manifest');
   for (const f of [...v.shards, ...v.search.buckets]) {
-    if (!/^(?:records-\d{3,4}\.jsonl|terms-\d{3}\.json)\.gz$/.test(f.file) || !/^[a-f0-9]{64}$/.test(f.sha256) || !Number.isSafeInteger(f.bytes)) throw new Error('Invalid literature shard');
+    if (!/^(?:records-\d{3,4}\.jsonl|terms-\d{3}\.json)\.gz$/.test(f.file) || !/^[a-f0-9]{64}$/.test(f.sha256) || !/^[a-f0-9]{64}$/.test(f.contentSha256) || !Number.isSafeInteger(f.bytes)) throw new Error('Invalid literature shard');
   }
   if (v.shards.some((f, i) => f.file !== `records-${String(i+1).padStart(3,'0')}.jsonl.gz` || f.records !== Math.min(1000, v.records-i*1000)) ||
       v.search.buckets.some((f,i) => f.file !== `terms-${String(i).padStart(3,'0')}.json.gz`)) throw new Error('Invalid literature shard order');
@@ -84,4 +84,11 @@ export async function searchLiterature(manifest: LiteratureManifest, load: (file
   }));
   return {records: manifest.records, total, page, pages, pageSize: 20,
     entries: selected.map(id => records.get(Math.floor(id/1000))![id%1000]), topics: Object.keys(manifest.search.topics), generatedAt: manifest.generatedAt};
+}
+
+/** Fetch may already decode Content-Encoding:gzip; validate either exact representation. */
+export function literaturePayloadEncoding(file: LiteratureFile, bytes: number, sha256: string): 'gzip' | 'identity' {
+  if (bytes === file.bytes && sha256 === file.sha256) return 'gzip';
+  if (sha256 === file.contentSha256) return 'identity';
+  throw new Error('Literature checksum mismatch');
 }

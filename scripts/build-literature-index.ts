@@ -9,12 +9,12 @@ const sourceShards = manifest.shards;
 const buckets: Record<string, number[]>[] = Array.from({length:128}, () => Object.create(null));
 const topics: Record<string, number> = Object.create(null);
 const output = path.join(root, '.indexed'); fs.mkdirSync(output, {recursive:true});
-const shards: {file:string; records:number; sha256:string; bytes:number}[] = [];
+const shards: {file:string; records:number; sha256:string; contentSha256:string; bytes:number}[] = [];
 let pending: string[] = [], count = 0;
 const seen = new Set<string>();
 function write(file: string, text: string) {
   const bytes = gzipSync(text, {level:9}); fs.writeFileSync(path.join(output,file), bytes);
-  return {file, sha256:createHash('sha256').update(bytes).digest('hex'), bytes:bytes.length};
+  return {file, sha256:createHash('sha256').update(bytes).digest('hex'), contentSha256:createHash('sha256').update(text).digest('hex'), bytes:bytes.length};
 }
 function flush() {
   if (pending.length) shards.push({...write(`records-${String(shards.length+1).padStart(3,'0')}.jsonl.gz`,pending.join('\n')+'\n'),records:pending.length});
