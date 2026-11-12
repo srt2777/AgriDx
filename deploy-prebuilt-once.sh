@@ -360,9 +360,24 @@ install -d -m 0700 -o "$APP_USER" -g "$APP_USER" "$NPM_CACHE"
 # (JavaScript heap out of memory) and leaves a ~1.3G failed release behind.
 # One-time recovery: exact verified main production artifacts; no server build.
 [[ "$COMMIT" == "58e30a56330188de4c1bb7fb1b678c62d114154c" ]] || fail 'Unexpected source commit.'
-as_app env NODE_OPTIONS=--max-old-space-size=512 npm_config_cache="$NPM_CACHE" NPM_CONFIG_CACHE="$NPM_CACHE" bash -c \
-  'cd "$1" && "$2" "$3" ci --cache "$4" --omit=dev --no-audit --no-fund' \
-  _ "$RELEASE" "$NODE_BIN" "$NPM_BIN" "$NPM_CACHE"
+# Dependency versions are identical to the healthy release. Reuse its same-host
+# native modules only after strict package and lockfile equality, ignoring app version.
+[[ -d "$ORIGINAL_RELEASE/node_modules" ]] || fail 'Existing dependencies unavailable.'
+"$NODE_BIN" -e '
+  const fs = require("node:fs"), path = require("node:path");
+  const [previous, next] = process.argv.slice(1);
+  for (const file of ["package.json", "package-lock.json"]) {
+    const normalize = root => {
+      const value = JSON.parse(fs.readFileSync(path.join(root, file), "utf8"));
+      delete value.version;
+      if (file === "package-lock.json" && value.packages?.[""]) delete value.packages[""].version;
+      return JSON.stringify(value);
+    };
+    if (normalize(previous) !== normalize(next)) throw new Error("Dependencies differ: " + file);
+  }
+  console.log("Dependency manifests match the healthy same-host release.");
+' "$ORIGINAL_RELEASE" "$RELEASE"
+cp -a "$ORIGINAL_RELEASE/node_modules" "$RELEASE/node_modules"
 curl --fail --location --retry 2 --max-time 180 "https://raw.githubusercontent.com/srt2777/AgriDx/9ebf8dc038235dd73c419e73f7316e2071b9d5d4/production.tar.gz.part00" -o "$WORK_DIR/production.tar.gz.part00"
 printf '%s  %s\n' '0c146ff4860cea5db0e79421d1d6ab379e90b9e6b18b2ef4b978335540a402e1' "$WORK_DIR/production.tar.gz.part00" | sha256sum -c -
 curl --fail --location --retry 2 --max-time 180 "https://raw.githubusercontent.com/srt2777/AgriDx/9ebf8dc038235dd73c419e73f7316e2071b9d5d4/production.tar.gz.part01" -o "$WORK_DIR/production.tar.gz.part01"
