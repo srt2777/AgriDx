@@ -1,0 +1,47 @@
+{
+  "version": "4.1.12",
+  "sourceCommit": "58e30a56330188de4c1bb7fb1b678c62d114154c",
+  "pr": "https://github.com/srt2777/AgriDx/pull/273",
+  "prCi": "https://github.com/srt2777/AgriDx/actions/runs/43229733597",
+  "mainCi": "https://github.com/srt2777/AgriDx/actions/runs/43231602649",
+  "previewWorkflow": "https://github.com/srt2777/AgriDx/actions/runs/43231602801",
+  "verifiedAt": "2026-11-12T14:12:03.818145+00:00",
+  "production": {
+    "url": "https://agridx.xyz",
+    "deployedAt": "2026-11-12T14:09:24Z",
+    "entryFilesVerified": 6,
+    "browserCommitVerified": true,
+    "knowledgeIndexCount": 500007,
+    "officialProductModels": 3304,
+    "repairCatalogModelsOrSeries": 155,
+    "simulatedPoints": 1160,
+    "simulatedDevices": 80,
+    "signalTypes": 29,
+    "uiVersions": {
+      "new": "NV1.11",
+      "old": "OV1.16"
+    },
+    "modelSearch": "1LF-360 matches two manufacturers; original sheet rows 2 and 42",
+    "fleetInteraction": "Electric simulated unit 40 battery state selected successfully; new UI retained",
+    "scopeNotes": [
+      "486764 literature records are metadata, not verified repair knowledge",
+      "3304 product records are separate from repair coverage and diagnostic evidence",
+      "1160 monitoring points are browser simulations; no real vehicles connected"
+    ]
+  },
+  "preview": {
+    "url": "https://agridx-dev-preview.z3464715478.chatgpt.site",
+    "version": "4.1.12",
+    "browserCommitVerified": true,
+    "fleetPointsVerified": 1160
+  },
+  "deployment": {
+    "runnerCommit": "2068fda3ae1ea81d707d8fdeec2e2a2769ddc59d",
+    "runnerSha256": "ef61e42d566db5c6eeca7ac09057896e7b49da52c619b129163427bb88617db3",
+    "artifactDataCommit": "9ebf8dc038235dd73c419e73f7316e2071b9d5d4",
+    "method": "Pinned prebuilt archive; dependencies copied from healthy same-host release only after package and lockfile equality except app version",
+    "initialAttempt": "npm network error before switching; existing service kept running",
+    "successfulAttempt": "Health checks passed and service switched; previous release retained",
+    "persistentAutoSyncChanged": false
+  }
+}
