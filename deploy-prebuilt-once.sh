@@ -359,18 +359,18 @@ install -d -m 0700 -o "$APP_USER" -g "$APP_USER" "$NPM_CACHE"
 # The production box has 2GB RAM; an uncapped vite build exhausts the heap
 # (JavaScript heap out of memory) and leaves a ~1.3G failed release behind.
 # One-time recovery: exact verified main production artifacts; no server build.
-[[ "$COMMIT" == "fb926e325ec7ccb6dbb17ede461f8c0e71e95504" ]] || fail 'Unexpected source commit.'
+[[ "$COMMIT" == "58e30a56330188de4c1bb7fb1b678c62d114154c" ]] || fail 'Unexpected source commit.'
 as_app env NODE_OPTIONS=--max-old-space-size=512 npm_config_cache="$NPM_CACHE" NPM_CONFIG_CACHE="$NPM_CACHE" bash -c \
   'cd "$1" && "$2" "$3" ci --cache "$4" --omit=dev --no-audit --no-fund' \
   _ "$RELEASE" "$NODE_BIN" "$NPM_BIN" "$NPM_CACHE"
-curl --fail --location --retry 2 --max-time 180 "https://raw.githubusercontent.com/srt2777/AgriDx/e2ac080db02951e0996bb7223768a81a9f150dee/production.tar.gz.part00" -o "$WORK_DIR/production.tar.gz.part00"
-printf '%s  %s\n' 'b0d374dd85e0badfe8af6bd94bf113bec410ab9314a3228fe768feb29857ed8a' "$WORK_DIR/production.tar.gz.part00" | sha256sum -c -
-curl --fail --location --retry 2 --max-time 180 "https://raw.githubusercontent.com/srt2777/AgriDx/e2ac080db02951e0996bb7223768a81a9f150dee/production.tar.gz.part01" -o "$WORK_DIR/production.tar.gz.part01"
-printf '%s  %s\n' '869ffab925af29d9aef2d5758e0d97dd819cd525428d50c6e8de5ad40f790870' "$WORK_DIR/production.tar.gz.part01" | sha256sum -c -
-curl --fail --location --retry 2 --max-time 180 "https://raw.githubusercontent.com/srt2777/AgriDx/e2ac080db02951e0996bb7223768a81a9f150dee/production.tar.gz.part02" -o "$WORK_DIR/production.tar.gz.part02"
-printf '%s  %s\n' '62380f143ff7ffd92dace833be08f3ac4ba8f25c22c1cb198459b3d9aed11880' "$WORK_DIR/production.tar.gz.part02" | sha256sum -c -
+curl --fail --location --retry 2 --max-time 180 "https://raw.githubusercontent.com/srt2777/AgriDx/9ebf8dc038235dd73c419e73f7316e2071b9d5d4/production.tar.gz.part00" -o "$WORK_DIR/production.tar.gz.part00"
+printf '%s  %s\n' '0c146ff4860cea5db0e79421d1d6ab379e90b9e6b18b2ef4b978335540a402e1' "$WORK_DIR/production.tar.gz.part00" | sha256sum -c -
+curl --fail --location --retry 2 --max-time 180 "https://raw.githubusercontent.com/srt2777/AgriDx/9ebf8dc038235dd73c419e73f7316e2071b9d5d4/production.tar.gz.part01" -o "$WORK_DIR/production.tar.gz.part01"
+printf '%s  %s\n' '5bbae1039f9b921920e3dac8463268eefc2b8a5bc1fa88e1a2b0d64bb574b456' "$WORK_DIR/production.tar.gz.part01" | sha256sum -c -
+curl --fail --location --retry 2 --max-time 180 "https://raw.githubusercontent.com/srt2777/AgriDx/9ebf8dc038235dd73c419e73f7316e2071b9d5d4/production.tar.gz.part02" -o "$WORK_DIR/production.tar.gz.part02"
+printf '%s  %s\n' '31ede1dfad2835c25e482b11cc12b3a60a425bd6b998a30d16ff562e7b213653' "$WORK_DIR/production.tar.gz.part02" | sha256sum -c -
 cat "$WORK_DIR/production.tar.gz.part00" "$WORK_DIR/production.tar.gz.part01" "$WORK_DIR/production.tar.gz.part02" > "$WORK_DIR/production.tar.gz"
-printf '%s  %s\n' '4828cd61c010ef066fb1df5ed19a8f9a6ee51a2100464ebc0fce5b284c145294' "$WORK_DIR/production.tar.gz" | sha256sum -c -
+printf '%s  %s\n' '5b2c6c3f7b516ed1581cc914ceb8079e35fb861c09668f19d38d47cd28d40846' "$WORK_DIR/production.tar.gz" | sha256sum -c -
 tar -xzf "$WORK_DIR/production.tar.gz" -C "$RELEASE"
 chown -R "$APP_USER:$APP_USER" "$RELEASE/dist" "$RELEASE/dist-server"
 [[ -s "$RELEASE/dist/index.html" && -s "$RELEASE/server.ts" &&
