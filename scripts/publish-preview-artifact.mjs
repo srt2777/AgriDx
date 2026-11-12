@@ -30,6 +30,13 @@ const previous = refs.find((ref) => ref.ref === `refs/heads/${branch}`);
 const parent = previous?.object.sha;
 const base = parent ? api(`git/commits/${parent}`).tree.sha : undefined;
 const existing = base ? new Map(api(`git/trees/${base}?recursive=1`).tree.map((entry) => [entry.path, entry.sha])) : new Map();
+// Public data shards are already Git blobs in the verified source commit.
+// Reuse those objects instead of uploading hundreds of identical binary files.
+const sourceTree = spawnSync('git', ['ls-tree', '-r', '--format=%(objectname)', 'HEAD'], {
+  cwd: rootDir, encoding: 'utf8', maxBuffer: 16 * 1024 * 1024, shell: false,
+});
+if (sourceTree.status !== 0) throw new Error('Cannot inspect verified source blobs');
+const sourceBlobs = new Set(sourceTree.stdout.trim().split(/\r?\n/).filter(sha => /^[a-f0-9]{40}$/.test(sha)));
 const output = path.join(rootDir, 'dist-preview');
 const tree = [];
 const walk = (directory = '') => {
@@ -40,7 +47,7 @@ const walk = (directory = '') => {
       if (/\.env|^\.git\//.test(relative)) throw new Error(`Unexpected preview file: ${relative}`);
       const content = readFileSync(path.join(output, relative));
       const hash = createHash('sha1').update(`blob ${content.length}\0`).update(content).digest('hex');
-      const sha = existing.get(relative) === hash ? hash : api('git/blobs', { content: content.toString('base64'), encoding: 'base64' }).sha;
+      const sha = (existing.get(relative) === hash || sourceBlobs.has(hash)) ? hash : api('git/blobs', { content: content.toString('base64'), encoding: 'base64' }).sha;
       tree.push({ path: relative, mode: '100644', type: 'blob', sha });
     }
   }
