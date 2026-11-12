@@ -7,6 +7,7 @@ import AutoUpdateStatus from '@/features/updates/AutoUpdateStatus';
 const HomePage = lazy(pageLoaders.classic);
 const FieldOverview = lazy(pageLoaders.field);
 const ChatPage = lazy(pageLoaders.chat);
+const CognitiveTwinPage = lazy(pageLoaders.cognitiveTwin);
 const KnowledgePage = lazy(pageLoaders.knowledge);
 const ModelPage = lazy(pageLoaders.models);
 const VersionHistoryPage = lazy(pageLoaders.history);
@@ -69,6 +70,7 @@ export default function App() {
       <Route element={<Layout />}>
         <Route index element={<PageContent><VersionedHomePage /></PageContent>} />
         {['assets', 'data', 'commands', 'analytics', 'records'].map(section => <Route key={section} path={`workspace/${section}`} element={<PageContent><ClassicWorkbenchRoute /></PageContent>} />)}
+        <Route path="cognitive-twin" element={<PageContent><CognitiveTwinPage /></PageContent>} />
         <Route path="chat" element={<PageContent><ChatPage /></PageContent>} />
         <Route path="knowledge" element={<PageContent><KnowledgePage /></PageContent>} />
         <Route path="models" element={<PageContent><ModelPage /></PageContent>} />

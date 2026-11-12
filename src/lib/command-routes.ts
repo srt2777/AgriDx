@@ -9,6 +9,7 @@ export interface CommandRoute {
 }
 
 export const COMMAND_ROUTES: readonly CommandRoute[] = [
+  { id: 'cognitive-twin', path: '/cognitive-twin', zh: '发动机过热 · 认知孪生', en: 'Overheating cognitive twin', hintZh: '证据与反馈原型', hintEn: 'Evidence prototype', words: '认知 数字 孪生 过热 温度 twin overheating' },
   { id: 'hub', path: '/', zh: '大厅', en: 'Hub', hintZh: '园区', hintEn: 'Campus', words: 'home campus hall equipment twin 园区 首页 装备 展厅 孪生' },
   { id: 'knowledge', path: '/knowledge', zh: '农机知识', en: 'Knowledge', hintZh: '知识目录', hintEn: 'Catalog', words: 'catalog 目录 资料' },
   { id: 'chat', path: '/chat', zh: '司稼 · 智能诊断', en: 'Sijia · Diagnosis', hintZh: '诊断', hintEn: 'Diagnosis', words: 'chat 诊断' },
@@ -38,6 +39,7 @@ export function statusPlace(pathname: string, lang: 'zh' | 'en'): string {
     '/workspace/commands': ['指令与响应', 'COMMANDS'],
     '/workspace/analytics': ['数据可视化', 'ANALYTICS'],
     '/workspace/records': ['操作记录', 'ACTIVITY'],
+    '/cognitive-twin': ['发动机过热 · 认知孪生', 'COGNITIVE TWIN'],
     '/chat': ['司稼 · 智能诊断', 'SIJIA · DIAGNOSIS'],
     '/fault-detection': ['故障检测演示', 'FAULT DETECTION'],
     '/showroom': ['3D 展示大厅', 'SHOWROOM'],
