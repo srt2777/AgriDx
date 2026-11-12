@@ -15,6 +15,7 @@ export interface ModernCrumb { path: string; zh: string; en: string }
 export function modernLocation(pathname: string): { sectionPath: string; breadcrumbs: ModernCrumb[] } {
   const path = pathname.split(/[?#]/, 1)[0];
   const home = MODERN_DESTINATIONS[0];
+  if (path === '/cognitive-twin') return { sectionPath: '/chat', breadcrumbs: [home, MODERN_DESTINATIONS[2], { path, zh: '发动机过热 · 认知孪生', en: 'Overheating cognitive twin' }] };
   const current = MODERN_DESTINATIONS.find(item => item.path === path || path === '/hall' && item.path === '/');
   if (current) return { sectionPath: current.path, breadcrumbs: current.path === '/' ? [home] : [home, current] };
   return { sectionPath: '/', breadcrumbs: [home, { path, zh: path === '/version-history' ? '版本历史记录' : '页面', en: path === '/version-history' ? 'Version history' : 'Page' }] };

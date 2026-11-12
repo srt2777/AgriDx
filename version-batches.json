@@ -1087,10 +1087,17 @@
       "date": "2026-11-12"
     },
     {
-      "id": "workbench-knowledge-total-20261112",
-      "kind": "fix",
+      "id": "cognitive-twin-overheat-20261112",
+      "kind": "feature",
       "base": "4.1.9",
       "version": "4.1.10",
+      "date": "2026-11-12"
+    },
+    {
+      "id": "workbench-knowledge-total-20261112",
+      "kind": "fix",
+      "base": "4.1.10",
+      "version": "4.1.11",
       "date": "2026-11-12"
     }
   ]
