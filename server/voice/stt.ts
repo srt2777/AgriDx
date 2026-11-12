@@ -134,6 +134,12 @@ class WarmSttProvider extends CommandSttProvider {
   private tail: Promise<void> = Promise.resolve();
   private queued = 0;
 
+  constructor(name: string, model: string, script: string, env: NodeJS.ProcessEnv) {
+    super(name, model, script, env);
+    // Load SenseVoice when the service starts, before the first recording arrives.
+    if (name === 'sensevoice') this.startWorker();
+  }
+
   protected override async runSidecar(wavPath: string): Promise<string> {
     if (this.queued >= 3) {
       throw new VoiceError(503, 'stt_busy', '语音识别繁忙，请稍后重试');
@@ -195,8 +201,10 @@ class WarmSttProvider extends CommandSttProvider {
       }
       this.pending = undefined;
       clearTimeout(request.timer);
-      this.idleTimer = setTimeout(() => this.stopWorker(worker), 5 * 60_000);
-      this.idleTimer.unref();
+      if (this.name !== 'sensevoice') {
+        this.idleTimer = setTimeout(() => this.stopWorker(worker), 5 * 60_000);
+        this.idleTimer.unref();
+      }
       request.resolve(line);
     });
     return worker;
