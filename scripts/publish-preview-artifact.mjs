@@ -55,11 +55,14 @@ const walk = (directory = '') => {
 walk();
 requireLatestSource();
 // Preserve previous hashed assets so a tab opened before an update can still load its lazy chunks.
-const builtTree = api('git/trees', { ...(base ? { base_tree: base } : {}), tree });
+// The base tree already contains unchanged files; send only changed paths.
+// This also avoids oversized tree requests while retaining older hashed assets.
+const changedTree = tree.filter(entry => existing.get(entry.path) !== entry.sha);
+const builtTree = api('git/trees', { ...(base ? { base_tree: base } : {}), tree: changedTree });
 const commit = api('git/commits', {
   message: `Development preview ${release.version} from ${release.commit}`,
   tree: builtTree.sha, parents: parent ? [parent] : [],
 });
 if (parent) api(`git/refs/heads/${branch}`, { sha: commit.sha, force: false }, 'PATCH');
 else api('git/refs', { ref: `refs/heads/${branch}`, sha: commit.sha });
-console.log(`[dev-preview] Published ${tree.length} files; source ${release.commit}; artifact ${commit.sha}`);
+console.log(`[dev-preview] Published ${changedTree.length} changed files (${tree.length} current files); source ${release.commit}; artifact ${commit.sha}`);
