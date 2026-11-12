@@ -1073,11 +1073,46 @@
       "date": "2026-11-10"
     },
     {
-      "id": "diagnosis-context-corrections-20261111",
-      "kind": "fix",
+      "id": "knowledge-literature-500k-20261112",
+      "kind": "knowledge",
       "base": "4.1.7",
       "version": "4.1.8",
-      "date": "2026-11-11"
+      "date": "2026-11-12"
+    },
+    {
+      "id": "literature-agent-citations-20261112",
+      "kind": "knowledge",
+      "base": "4.1.8",
+      "version": "4.1.9",
+      "date": "2026-11-12"
+    },
+    {
+      "id": "cognitive-twin-overheat-20261112",
+      "kind": "feature",
+      "base": "4.1.9",
+      "version": "4.1.10",
+      "date": "2026-11-12"
+    },
+    {
+      "id": "preview-ffmpeg-20261112",
+      "kind": "fix",
+      "base": "4.1.10",
+      "version": "4.1.11",
+      "date": "2026-11-12"
+    },
+    {
+      "id": "workbench-knowledge-total-20261112",
+      "kind": "fix",
+      "base": "4.1.11",
+      "version": "4.1.12",
+      "date": "2026-11-12"
+    },
+    {
+      "id": "diagnosis-context-corrections-20261111",
+      "kind": "fix",
+      "base": "4.1.12",
+      "version": "4.1.13",
+      "date": "2026-11-13"
     }
   ]
 }

@@ -1,3 +1,4 @@
+import { getLiterature } from './knowledge/literature';
 import { getMemoryStore } from './memory/store';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -30,7 +31,7 @@ export function createServerRuntime(): ServerRuntime {
   return {
     rootDirectory, version, getMemoryStore,
     telemetry: telemetryFromEnvironment(rootDirectory),
-    diagnose: createDiagnosticService(llm),
+    diagnose: createDiagnosticService(llm, { literatureSearch: getLiterature }),
     getKnowledgeStats: stats,
     getLlmStatus: () => llm.getStatus(),
     getCatalog: getKnowledgeCatalog,

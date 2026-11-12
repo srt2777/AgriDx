@@ -2,10 +2,7 @@
  * 3D 智能农机装备农田展场 — standalone route /#/showroom (fullscreen,
  * outside the app shell, following the /field-overview precedent).
  *
- * P0: hall + 4 zones + first-person walk + click fly-in + T70 + AgriDx kiosk.
- * P1: drive + auto-navigation, dynamic weather + panel, minimap + top nav.
- * P2: decor, ambient sound (WebAudio noise, off by default), opening fly-in.
- * Day/night mode is NOT done (see SHOWROOM-NOTES.md for the alternative).
+ * Tractor chase camera, field driving, weather and four interactive exhibits.
  */
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
@@ -13,18 +10,16 @@ import './showroom.css';
 import { useLang } from '@/hooks/useLang';
 import ShowroomScene from './ShowroomScene';
 import DiagnosisKiosk from './DiagnosisKiosk';
-import { HALL, NANJING, QUALITY_TIERS, SHOWROOM_ZONES, SUITABILITY_COPY, WEATHER_PRESETS, forecast24h, forecastBarHeightPx, FORECAST_CHART_HEIGHT_PX, suitabilityFor, t70PartById, weatherById, zoneById, type QualityId, type WeatherId, type ZoneId } from './showroom-data';
+import { FIELD, NANJING, QUALITY_TIERS, SHOWROOM_ZONES, SUITABILITY_COPY, WEATHER_PRESETS, forecast24h, forecastBarHeightPx, FORECAST_CHART_HEIGHT_PX, suitabilityFor, t70PartById, weatherById, zoneById, type QualityId, type WeatherId, type ZoneId } from './showroom-data';
 import { blendWeather, nanjingForecastUrl, nextWeatherId, parseNanjingLive, WEATHER_TRANSITION_SECONDS, type NanjingLive } from './showroom-weather';
 import type { BlendedWeather } from './showroom-weather';
 import { planGuideRoute } from './showroom-drive';
-import { createSim, type SimState } from './showroom-state';
-
-const OVERVIEW = { pos: [16, 5.5, 20] as [number, number, number], look: [0, 1.2, 0] as [number, number, number] };
+import { createSim } from './showroom-state';
 
 export default function ShowroomPage() {
   const lang = useLang();
   const zh = lang === 'zh';
-  const [sim] = useState(() => createSim());
+  const [sim] = useState(() => createSim(new URLSearchParams(window.location.hash.split('?')[1]).get('at') === 'field'));
 
   const [progress, setProgress] = useState(0);
   const [ready, setReady] = useState(false);
@@ -44,22 +39,14 @@ export default function ShowroomPage() {
   const [focusZone, setFocusZone] = useState<ZoneId | null>(null);
   const [partId, setPartId] = useState<string | null>(null);
   const [kioskOpen, setKioskOpen] = useState(false);
-  const [hud, setHud] = useState({ x: 0, z: 11, speedKmh: 0, mode: 'walk' });
+  const [hud, setHud] = useState({ x: sim.tractor.x, z: sim.tractor.z, speedKmh: 0 });
   const [webgpu, setWebgpu] = useState<'checking' | 'available' | 'unavailable'>('checking');
   const [rapierReady, setRapierReady] = useState(false);
   const [soundOn, setSoundOn] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
-  const [nearTractor, setNearTractor] = useState(false);
-  const canvasWrapRef = useRef<HTMLDivElement>(null);
+  const liveRequest = useRef<AbortController | null>(null);
   const weatherFromRef = useRef(weatherById('sunny'));
   const audioRef = useRef<{ ctx: AudioContext; gain: GainNode; source: AudioBufferSourceNode } | null>(null);
-
-  // Opening fly-in (P2): start high, glide to the entrance, then walk mode.
-  useEffect(() => {
-    sim.mode = 'fly';
-    sim.flyTo = { pos: [0, 1.7, 11], look: [0, 1.2, 0], t: 0 };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   // WebGPU capability probe (badge only — R3F 9 renders on WebGL2; see notes).
   useEffect(() => {
@@ -81,18 +68,21 @@ export default function ShowroomPage() {
   // Weather transitions: blend 3–5 s toward the target preset.
   const requestWeather = useCallback((id: WeatherId) => {
     weatherFromRef.current = weatherById(weatherId);
+    liveRequest.current?.abort();
     setWeatherId(id);
   }, [weatherId]);
 
-  // 南京实时天气：页面加载时取一次 Open-Meteo（免 key，8 s 超时）。
-  // 抽成回调，面板里的“重新获取实时天气”也能复用。weatherId 经 ref
+  // 南京实时天气按需从 Open-Meteo 获取，8 秒超时。
+  // 抽成回调，面板里的“使用南京实时天气”也能复用。weatherId 经 ref
   // 读取，回调本身保持稳定，不会因天气切换而重复请求。
   const weatherIdRef = useRef(weatherId);
   useEffect(() => {
     weatherIdRef.current = weatherId;
   });
   const fetchLive = useCallback(() => {
+    liveRequest.current?.abort();
     const controller = new AbortController();
+    liveRequest.current = controller;
     const timer = window.setTimeout(() => controller.abort(), 8000);
     void fetch(nanjingForecastUrl(), { signal: controller.signal })
       .then((res) => {
@@ -101,7 +91,7 @@ export default function ShowroomPage() {
       })
       .then((payload) => {
         const parsed = parseNanjingLive(payload);
-        if (!parsed) return;
+        if (!parsed || controller.signal.aborted) return;
         setLive(parsed);
         setWeatherMode('live');
         weatherFromRef.current = weatherById(weatherIdRef.current);
@@ -111,18 +101,15 @@ export default function ShowroomPage() {
         // Offline / timeout / malformed: stay on the local preset and
         // label it as demo in the panel. Never fabricate live numbers.
       })
-      .finally(() => window.clearTimeout(timer));
-    return () => {
-      controller.abort();
-      window.clearTimeout(timer);
-    };
+      .finally(() => {
+        window.clearTimeout(timer);
+        if (liveRequest.current === controller) liveRequest.current = null;
+      });
   }, []);
 
-  useEffect(() => fetchLive(), [fetchLive]);
+  useEffect(() => () => liveRequest.current?.abort(), []);
 
-  // 验证/分享用 URL 参数（hash 内，如 /#/showroom?weather=rain&drive=1）：
-  // weather=<预设 id> 直接切天气（演示模式），drive=1 直接进驾驶，
-  // view=farm 回到农田全景。不影响正常打开。
+  // Shareable weather preset, e.g. /#/showroom?weather=rain.
   useEffect(() => {
     const query = window.location.hash.split('?')[1];
     if (!query) return;
@@ -134,31 +121,6 @@ export default function ShowroomPage() {
       weatherFromRef.current = weatherById(weatherIdRef.current);
       setWeatherId(w as WeatherId);
     }
-    if (params.get('drive') === '1') {
-      sim.mode = 'drive';
-      sim.flyTo = null;
-    }
-    // at=field 把拖拉机直接放到东边田里（验证用），默认在展厅内。
-    if (params.get('at') === 'field') {
-      sim.tractor = { x: 20, z: 0, heading: Math.PI / 2, speed: 0, steer: 0 };
-    }
-    const view = params.get('view');
-    if (view === 'farm' || view === 'hall' || view === 'gate') {
-      // Same as backToOverview, inlined: the effect runs once on mount
-      // and must not capture that callback (lint: memoization).
-      sim.mode = 'fly';
-      sim.autopilot = null;
-      sim.focusZone = null;
-      if (view === 'farm') sim.flyTo = { pos: OVERVIEW.pos, look: OVERVIEW.look, t: 0 };
-      // hall: from inside the hall looking east through the gate.
-      if (view === 'hall') sim.flyTo = { pos: [-8, 2.2, 0], look: [16, 1.5, 0], t: 0 };
-      // gate: from the field looking back at the gate + hall.
-      if (view === 'gate') sim.flyTo = { pos: [24, 3.5, 8], look: [10, 2, 0], t: 0 };
-      setFocusZone(null);
-      setPartId(null);
-      setKioskOpen(false);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -243,10 +205,9 @@ export default function ShowroomPage() {
     osc.start();
     engineRef.current = { ctx, osc, gain };
     const timer = window.setInterval(() => {
-      const driving = sim.mode === 'drive';
       const speed = Math.abs(sim.tractor.speed);
       const boosting = sim.keys.has('ShiftLeft') || sim.keys.has('ShiftRight');
-      gain.gain.setTargetAtTime(driving ? 0.012 + Math.min(0.02, speed * 0.0025) : 0, ctx.currentTime, 0.15);
+      gain.gain.setTargetAtTime(0.012 + Math.min(0.02, speed * 0.0025), ctx.currentTime, 0.15);
       osc.frequency.setTargetAtTime(55 + speed * 13 + (boosting ? 18 : 0), ctx.currentTime, 0.15);
     }, 150);
     return () => {
@@ -257,88 +218,48 @@ export default function ShowroomPage() {
     };
   }, [soundOn, sim]);
 
-  // Keyboard: arrow keys drive & walk (WASD is an alias), E enter/exit,
-  // V camera view. Arrows and Space are preventDefaulted so holding them
-  // never scrolls the page or activates a focused button.
   useEffect(() => {
+    const driveKeys = new Set(['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight',
+      'KeyW', 'KeyA', 'KeyS', 'KeyD', 'Space', 'ShiftLeft', 'ShiftRight']);
     const down = (event: KeyboardEvent) => {
-      if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) return;
+      if (!driveKeys.has(event.code) || event.altKey || event.ctrlKey || event.metaKey) return;
+      const target = event.target;
+      if (target instanceof HTMLElement && (target.isContentEditable ||
+        target.closest('input, textarea, select, [role="dialog"]'))) return;
       if (event.code === 'Space' || event.code.startsWith('Arrow')) event.preventDefault();
       sim.keys.add(event.code);
-      if (event.code === 'KeyE' && !event.repeat) {
-        if (sim.mode === 'drive') {
-          sim.mode = 'walk';
-          sim.autopilot = null;
-          const a = sim.tractor.heading;
-          sim.walk.x = sim.tractor.x + Math.cos(a) * 3;
-          sim.walk.z = sim.tractor.z + Math.sin(a) * 3;
-          sim.walk.yaw = a;
-        } else if (sim.mode === 'walk') {
-          const d = Math.hypot(sim.walk.x - sim.tractor.x, sim.walk.z - sim.tractor.z);
-          if (d < 4.5) {
-            sim.mode = 'drive';
-            sim.flyTo = null;
-            sim.focusZone = null;
-            setFocusZone(null);
-          }
-        }
-      }
-      if (event.code === 'KeyV' && !event.repeat && sim.mode === 'drive') {
-        sim.driveView = sim.driveView === 'follow' ? 'cabin' : 'follow';
-      }
     };
     const up = (event: KeyboardEvent) => sim.keys.delete(event.code);
+    const clearKeys = () => sim.keys.clear();
     window.addEventListener('keydown', down);
     window.addEventListener('keyup', up);
+    window.addEventListener('blur', clearKeys);
+    document.addEventListener('visibilitychange', clearKeys);
     return () => {
       window.removeEventListener('keydown', down);
       window.removeEventListener('keyup', up);
+      window.removeEventListener('blur', clearKeys);
+      document.removeEventListener('visibilitychange', clearKeys);
     };
   }, [sim]);
 
-  // Proximity hint: show "按 E 上车" when close to the tractor.
   useEffect(() => {
-    const timer = window.setInterval(() => {
-      const d = Math.hypot(sim.walk.x - sim.tractor.x, sim.walk.z - sim.tractor.z);
-      setNearTractor(sim.mode === 'walk' && d < 4.5);
-      setRapierReady(sim.rapierReady);
-    }, 300);
+    const timer = window.setInterval(() => setRapierReady(sim.rapierReady), 300);
     return () => window.clearInterval(timer);
   }, [sim]);
 
-  const flyToZone = useCallback((id: ZoneId) => {
-    const zone = zoneById(id);
-    sim.mode = 'fly';
-    sim.autopilot = null;
-    sim.focusZone = id;
-    sim.flyTo = { pos: zone.camera, look: zone.lookAt, t: 0 };
+  const onZoneSelect = useCallback((id: ZoneId) => {
     setFocusZone(id);
     setPartId(null);
     if (id === 'agridex') setKioskOpen(true);
-  }, [sim]);
+  }, []);
 
   const autoDriveTo = useCallback((id: ZoneId) => {
-    const zone = zoneById(id);
-    sim.mode = 'drive';
-    sim.flyTo = null; // Never let a half-finished fly-in shadow drive mode.
-    sim.focusZone = id;
-    sim.autopilot = { route: planGuideRoute(sim.tractor, id), index: 0 };
-    setFocusZone(id);
-    setPartId(null);
+    sim.autopilot = { zone: id, route: planGuideRoute(sim.tractor, id), index: 0 };
   }, [sim]);
 
-  const backToOverview = useCallback(() => {
-    sim.mode = 'fly';
-    sim.autopilot = null;
-    sim.focusZone = null;
-    sim.flyTo = { pos: OVERVIEW.pos, look: OVERVIEW.look, t: 0 };
-    setFocusZone(null);
-    setPartId(null);
-    setKioskOpen(false);
-  }, [sim]);
-
-  const onPosition = useCallback((x: number, z: number, speedKmh: number, mode: string) => {
-    setHud({ x, z, speedKmh, mode });
+  const onPosition = useCallback((x: number, z: number, speedKmh: number) => {
+    setHud({ x, z, speedKmh });
   }, []);
 
   const onProgress = useCallback((value: number) => {
@@ -346,25 +267,10 @@ export default function ShowroomPage() {
     if (value >= 100) setReady(true);
   }, []);
 
-  const onZoneSelect = useCallback((id: ZoneId) => {
-    flyToZone(id);
-  }, [flyToZone]);
-
-  const onAutopilotArrived = useCallback((id: ZoneId) => {
-    setFocusZone(id);
-  }, []);
-
   const onPartSelect = useCallback((id: string) => {
     setPartId(id);
     setFocusZone(null);
   }, []);
-
-  const lockPointer = useCallback(() => {
-    const canvas = canvasWrapRef.current?.querySelector('canvas');
-    if (canvas && sim.mode === 'walk' && document.pointerLockElement !== canvas) {
-      canvas.requestPointerLock();
-    }
-  }, [sim]);
 
   // Touch joystick.
   const joyRef = useRef<HTMLDivElement>(null);
@@ -401,12 +307,12 @@ export default function ShowroomPage() {
   const forecastMax = Math.max(...forecast.map((f) => f.tempC));
   const zone = focusZone ? zoneById(focusZone) : null;
   const part = partId ? t70PartById(partId) : null;
-  const mapX = ((hud.x + HALL.halfX) / (HALL.halfX * 2)) * 100;
-  const mapZ = ((hud.z + HALL.halfZ) / (HALL.halfZ * 2)) * 100;
+  const mapX = ((hud.x + FIELD.halfX) / (FIELD.halfX * 2)) * 100;
+  const mapZ = ((hud.z + FIELD.halfZ) / (FIELD.halfZ * 2)) * 100;
 
   return (
     <div className={zone || part ? 'showroom-page showroom-has-card' : 'showroom-page'}>
-      <div ref={canvasWrapRef} className="showroom-canvas" onClick={lockPointer}>
+      <div className="showroom-canvas">
         <ShowroomScene
           sim={sim}
           weather={sceneWeather}
@@ -416,7 +322,7 @@ export default function ShowroomPage() {
           onProgress={onProgress}
           onPartSelect={onPartSelect}
           onZoneSelect={onZoneSelect}
-          onAutopilotArrived={onAutopilotArrived}
+          onAutopilotArrived={setFocusZone}
         />
       </div>
 
@@ -437,13 +343,13 @@ export default function ShowroomPage() {
         <strong className="showroom-title">{zh ? '智能农机装备农田展场' : 'Smart Agri-Machinery Farm Showroom'}</strong>
         <nav className="showroom-zonenav" aria-label={zh ? '展区' : 'Zones'}>
           {SHOWROOM_ZONES.map((item) => (
-            <button key={item.id} type="button" className={focusZone === item.id ? 'active' : ''} onClick={() => flyToZone(item.id)}>
+            <button key={item.id} type="button" className={focusZone === item.id ? 'active' : ''} onClick={() => onZoneSelect(item.id)}>
               {zh ? item.zh : item.en}
             </button>
           ))}
         </nav>
         <div className="showroom-top-actions">
-          <span className="showroom-backend" title={zh ? 'R3F 9 尚无稳定的 WebGPURenderer 绑定，本厅用 WebGL2 渲染；WebGPU 仅作能力探测（见实现笔记）。' : 'R3F 9 has no stable WebGPURenderer binding; this hall renders on WebGL2. WebGPU is probed only.'}>
+          <span className="showroom-backend" title={zh ? 'R3F 9 尚无稳定的 WebGPURenderer 绑定，本场景用 WebGL2 渲染；WebGPU 仅作能力探测（见实现笔记）。' : 'R3F 9 has no stable WebGPURenderer binding; this scene renders on WebGL2. WebGPU is probed only.'}>
             {webgpu === 'available' ? 'WebGPU ✓' : webgpu === 'unavailable' ? 'WebGL2' : '…'}
           </span>
           <span className="showroom-physics" title={zh ? '驾驶物理：Rapier 射线车辆控制器（每轮射线 + 刚体碰撞）；初始化失败时退回运动学模型。' : 'Drive physics: Rapier raycast vehicle; kinematic fallback if init fails.'}>
@@ -476,7 +382,7 @@ export default function ShowroomPage() {
             <p className="showroom-weather-source">
               {live
                 ? (zh ? `南京实时天气（Open-Meteo，观测 ${live.observedAt || '—'}），切换天气会覆盖为手动预设（演示模式）。` : `Live Nanjing weather (Open-Meteo, observed ${live.observedAt || '—'}). Switching weather overrides with a manual preset (demo mode).`)
-                : (zh ? '演示模式：未取到南京实时天气，显示与南京季节相符的本地预设（非实测）。' : 'Demo mode: live Nanjing weather unavailable; showing a local preset for Nanjing (not measured).')}
+                : (zh ? '演示模式：当前使用本地天气预设。' : 'Demo mode: using a local weather preset.')}
             </p>
             <div className="showroom-weather-switch">
               {WEATHER_PRESETS.map((preset) => (
@@ -486,7 +392,7 @@ export default function ShowroomPage() {
               ))}
             </div>
             <div className="showroom-weather-actions">
-              <button type="button" onClick={() => fetchLive()}>{zh ? '重新获取实时天气' : 'Refresh live weather'}</button>
+              <button type="button" onClick={() => fetchLive()}>{zh ? '使用南京实时天气' : 'Use live Nanjing weather'}</button>
               {weather.particleKind === 'rain' && (
                 <label className="showroom-cycle">
                   <input type="checkbox" checked={rainDrops} onChange={(e) => setRainDrops(e.target.checked)} />
@@ -525,8 +431,8 @@ export default function ShowroomPage() {
       <aside className="showroom-minimap" aria-label={zh ? '小地图' : 'Minimap'}>
         <div className="showroom-map">
           {SHOWROOM_ZONES.map((item) => {
-            const zx = ((item.dock[0] + HALL.halfX) / (HALL.halfX * 2)) * 100;
-            const zy = ((item.dock[1] + HALL.halfZ) / (HALL.halfZ * 2)) * 100;
+            const zx = ((item.dock[0] + FIELD.halfX) / (FIELD.halfX * 2)) * 100;
+            const zy = ((item.dock[1] + FIELD.halfZ) / (FIELD.halfZ * 2)) * 100;
             return (
               <button
                 key={item.id}
@@ -534,42 +440,27 @@ export default function ShowroomPage() {
                 className="showroom-map-zone"
                 style={{ left: `${zx}%`, top: `${zy}%`, background: item.color }}
                 title={zh ? item.zh : item.en}
-                onClick={() => flyToZone(item.id)}
+                onClick={() => onZoneSelect(item.id)}
               />
             );
           })}
           <span className="showroom-map-player" style={{ left: `${mapX}%`, top: `${mapZ}%` }} />
         </div>
-        <span>{hud.mode === 'drive' ? (zh ? '驾驶中' : 'Driving') : zh ? '漫游中' : 'Walking'} · {hud.speedKmh.toFixed(1)} km/h</span>
+        <span>{zh ? '驾驶中' : 'Driving'} · {hud.speedKmh.toFixed(1)} km/h</span>
       </aside>
 
-      {/* Drive / walk HUD */}
       <div className="showroom-drive-hud">
-        {hud.mode === 'drive' && (
-          <div className="showroom-speedo">
-            <strong>{hud.speedKmh.toFixed(0)}</strong><span>km/h</span>
-            <button type="button" onClick={() => { sim.driveView = sim.driveView === 'follow' ? 'cabin' : 'follow'; }}>
-              {sim.driveView === 'follow' ? (zh ? '跟随视角' : 'Chase view') : (zh ? '驾驶舱视角' : 'Cabin view')}
-            </button>
-          </div>
-        )}
-        {nearTractor && (
-          <button type="button" className="showroom-enter" onClick={() => { sim.mode = 'drive'; }}>
-            {zh ? '按 E 上车驾驶' : 'Press E to drive'}
-          </button>
-        )}
-        {hud.mode === 'drive' && (
-          <button type="button" className="showroom-exit" onClick={() => { sim.mode = 'walk'; sim.autopilot = null; }}>
-            {zh ? '按 E 下车' : 'Press E to exit'}
-          </button>
-        )}
+        <div className="showroom-speedo">
+          <strong>{hud.speedKmh.toFixed(0)}</strong><span>km/h</span>
+        </div>
         <div
           ref={joyRef}
           className="showroom-joystick"
-          onPointerDown={(e) => { joyActive.current = true; (e.target as HTMLElement).setPointerCapture?.(e.pointerId); updateJoystick(e.clientX, e.clientY); }}
+          onPointerDown={(e) => { joyActive.current = true; e.currentTarget.setPointerCapture(e.pointerId); updateJoystick(e.clientX, e.clientY); }}
           onPointerMove={(e) => { if (joyActive.current) updateJoystick(e.clientX, e.clientY); }}
           onPointerUp={endJoystick}
           onPointerCancel={endJoystick}
+          onLostPointerCapture={endJoystick}
         >
           <span className="showroom-joy-knob" />
         </div>
@@ -585,7 +476,6 @@ export default function ShowroomPage() {
         <button type="button" onClick={() => setPhotoRequest((n) => n + 1)} title={zh ? '高质量出图：3840×2160 PNG（离屏高分辨率渲染）' : 'Photo mode: 3840×2160 PNG'}>
           📷 4K
         </button>
-        <button type="button" onClick={backToOverview}>{zh ? '返回全景' : 'Overview'}</button>
       </div>
 
       {/* Zone card */}
@@ -596,10 +486,8 @@ export default function ShowroomPage() {
           <h2>{zh ? zone.zh : zone.en}</h2>
           <p>{zh ? zone.bodyZh : zone.bodyEn}</p>
           <div className="showroom-card-actions">
-            <button type="button" onClick={() => flyToZone(zone.id)}>{zh ? '飞入近景' : 'Fly in'}</button>
             {zone.id !== 'tractor' && <button type="button" onClick={() => autoDriveTo(zone.id)}>{zh ? '自动驾驶前往' : 'Auto-drive there'}</button>}
             {zone.id === 'agridex' && <button type="button" onClick={() => setKioskOpen(true)}>{zh ? '打开诊断台' : 'Open diagnosis desk'}</button>}
-            <button type="button" onClick={backToOverview}>{zh ? '返回全景' : 'Overview'}</button>
           </div>
         </article>
       )}
@@ -621,13 +509,11 @@ export default function ShowroomPage() {
           <button type="button" className="showroom-icon-btn" onClick={() => setHelpOpen(false)} aria-label={zh ? '关闭' : 'Close'}>✕</button>
           <h2>{zh ? '操作说明' : 'Controls'}</h2>
           <ul>
-            <li>{zh ? '点击画面锁定鼠标，方向键（↑↓←→）+ 鼠标漫游（WASD 同样可用）' : 'Click the scene to lock the mouse; arrow keys + mouse to walk (WASD also works)'}</li>
-            <li>{zh ? '靠近拖拉机按 E 上车 / 下车；↑/↓ 前进后退，←/→ 转向，空格刹车，Shift 加速（田间），V 切换跟随/驾驶舱视角' : 'Near the tractor press E to enter/exit; ↑/↓ drive, ←/→ steer, Space brake, Shift boosts (field only), V switches chase/cabin view'}</li>
-            <li>{zh ? '展厅东墙有大门：沿土路开出展厅进入农田，也可开回；展厅内限速，田间可更快，雨雪天路面较滑' : 'The hall east wall has a gate: drive out along the dirt track into the field and back; slower inside the hall, faster outside, slippery when wet or snowy'}</li>
-            <li>{zh ? '点击展区或顶部导航飞入近景；自动驾驶沿导视线行驶，可随时手动接管' : 'Click a zone or the top nav to fly in; auto-drive follows the guide line and yields to manual input'}</li>
-            <li>{zh ? '触屏：左下摇杆控制移动 / 驾驶' : 'Touch: the bottom-left joystick moves and drives'}</li>
+            <li>{zh ? '↑/↓ 或 W/S 前进后退，←/→ 或 A/D 转向，空格刹车；触屏使用左下摇杆' : '↑/↓ or W/S to drive, ←/→ or A/D to steer, Space to brake. Use the joystick on touchscreens.'}</li>
+            <li>{zh ? '点击展区查看介绍，可选择自动驾驶前往，方向键或摇杆可接管' : 'Select a zone for details. Start auto-drive from its card and take over with the keys or joystick.'}</li>
+            <li>{zh ? '露天农田展场：沿土路驾驶，Shift 加速（最高约 8.8 m/s），雨雪天路面较滑' : 'Open-air farm field: drive along the dirt track, Shift to boost (top ≈ 8.8 m/s), slippery when wet or snowy'}</li>
             <li>{zh ? '右上角切换天气（实时模式取南京 Open-Meteo，断网自动回演示模式并标明；雨天可开关屏幕雨滴）；📷 4K 出一张 3840×2160 展板图' : 'Top right switches weather (live Nanjing via Open-Meteo; offline it falls back to demo mode and says so; screen droplets toggle in rain); 📷 4K exports a 3840×2160 still'}</li>
-            <li>{zh ? '农田分块种水稻/小麦/玉米（不同生长阶段），低画质自动减少作物密度保流畅；链接加 ?weather=rain&drive=1 可直接进指定天气驾驶' : 'The field grows rice, wheat and corn in plots at different stages; low quality thins the crops to hold frame rate; add ?weather=rain&drive=1 to a link to start driving in that weather'}</li>
+            <li>{zh ? '农田分块种水稻/小麦/玉米（不同生长阶段），低画质自动减少作物密度保流畅；链接加 ?weather=rain 可直接进指定天气驾驶' : 'The field grows rice, wheat and corn in plots at different stages; low quality thins the crops to hold frame rate; add ?weather=rain to a link to start driving in that weather'}</li>
           </ul>
         </div>
       )}

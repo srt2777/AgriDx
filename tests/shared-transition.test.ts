@@ -19,7 +19,7 @@ test('展区跳转使用共享过渡名，减少动态时退回直接导航', ()
 });
 
 test('快速前往可按中英文筛选，状态条和 404 文案跟着语言走', () => {
-  assert.deepEqual(filterCommands('').map((item) => item.id), ['hub', 'knowledge', 'chat', 'models', 'fault', 'field', 'showroom', 'history']);
+  assert.deepEqual(filterCommands('').map((item) => item.id), ['hub', 'knowledge', 'chat', 'models', 'fault', 'assets', 'data', 'commands', 'records', 'showroom', 'history', 'cognitive-twin']);
   assert.equal(filterCommands('更新')[0]?.path, '/version-history');
   assert.deepEqual(filterCommands('故障').map((item) => item.id), ['fault']);
   assert.deepEqual(filterCommands('检测').map((item) => item.id), ['fault']);
@@ -48,7 +48,7 @@ test('园区展区路径、过渡名和快速前往落在真实页面上', () =>
     assert.equal(sharedTransitionName('pavilion', zone.id), `pavilion-${zone.id}`);
     if (!destination.classicResearch) assert.notEqual(statusPlace(destination.path, 'zh'), '未找到');
   }
-  assert.equal(filterCommands('台账')[0]?.path, '/field-overview');
+  assert.equal(filterCommands('台账')[0]?.path, '/workspace/assets');
   for (const route of COMMAND_ROUTES) {
     assert.notEqual(statusPlace(route.path, 'zh'), '未找到');
     assert.notEqual(statusPlace(route.path, 'en'), 'NOT FOUND');

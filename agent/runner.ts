@@ -37,7 +37,7 @@ export async function runAgent(options:AgentRunOptions):Promise<AgentRunResult> 
   // never cached, so a later retry still executes and the executor's
   // repeat rules still apply to retries.
   const crossStepCache = new Map<string, string>();
-  const sourceFor=(name:string):AgentToolEvent['source']=>['search_knowledge','browse_knowledge','get_knowledge_entry','explore_relations','fault_chain','model_fault_index','maintenance_schedule'].includes(name)?'混合资料':name==='calculator'||name==='get_current_time'||name==='knowledge_stats'?'通识（无手册页码）':name==='resolve_machine_scope'||name==='ask_user_for_info'?'助手推断':name==='get_session_state'||name==='list_prior_reports'?'用户报告，待核实':'未分类';
+  const sourceFor=(name:string):AgentToolEvent['source']=>['search_research_knowledge','search_literature','search_knowledge','browse_knowledge','get_knowledge_entry','explore_relations','fault_chain','model_fault_index','maintenance_schedule'].includes(name)?'混合资料':name==='calculator'||name==='get_current_time'||name==='knowledge_stats'?'通识（无手册页码）':name==='resolve_machine_scope'||name==='ask_user_for_info'?'助手推断':name==='get_session_state'||name==='list_prior_reports'?'用户报告，待核实':'未分类';
   const record=(step:number,offset:number)=>{for(const event of executor.trace.slice(offset))toolEvents.push({step,tool:event.tool,args:'[已脱敏]',ok:event.ok,error_type:event.error_type,duration_ms:event.duration_ms,source:sourceFor(event.tool)});};
   try {
     const allowed=new Set(options.allowedTools.filter(name=>registry.get(name)?.risk==='read'));

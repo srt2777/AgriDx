@@ -2,11 +2,13 @@
 
 面向农业机械的故障诊断与资料检索平台，结合有来源的知识资料、对话式排查和三维结构示意。当前持续开发主线为 **V4**，具体版本以 `package.json` 为准。
 
-[开发站](https://agridx-dev-preview.z3464715478.chatgpt.site/) · [快速开始](#快速开始) · [项目结构](#项目结构) · [贡献指南](CONTRIBUTING.md) · [更新日志](CHANGELOG.md)
+[开发站](https://agridx-dev-preview.z3464715478.chatgpt.site/) · [快速开始](#快速开始) · [仓库地图](docs/README.md) · [架构说明](docs/architecture.md) · [贡献指南](CONTRIBUTING.md) · [更新日志](CHANGELOG.md)
 
 开发版清单、建立者、建立时间、初始版本与自动同步方式见[开发站登记](docs/deployment/development-sites.md)。[V4 独立开发站](https://agridx-v4-development.orangeglade33.chatgpt.site)默认仅所有者可访问；原公开开发站继续保留。
 
 版本历史功能：新旧界面页脚的“更新记录”进入 `/#/version-history`；详细内容由 `CHANGELOG.md` 在构建时自动生成，当前构建版本读取 `package.json`，提交沿用构建标识。缺失历史证据显示“未记录”，不把日志日期当作上线日期。维护流程见[版本历史记录说明](docs/version-history.md)。功能随本批3.11.0交付；实际发布状态以对应PR和部署验收为准。
+
+> 农业资料索引扩充：原有 13,236 条归档/学习资料，加上 486,764 条可追溯的农业文献元数据，共 500,000 条索引记录。文献归档可由 Agent 按 DOI 引用，未核验全文，不作为维修诊断依据。另有 7 条已对照正文的研究知识，单列统计，总索引 500,007；研究知识不等于具体机型维修规程。见[来源与核验说明](data/literature/README.md)。上线状态以部署提交验收为准。
 
 ## 功能入口与使用范围
 
@@ -15,6 +17,7 @@
 | 大厅 | `/#/` | 三维园区与装备陈列；8个结构示意、12条设备记录均为示例，不是在线实车机队 |
 | 农机知识 | `/#/knowledge` | 按品牌、型号、组件和零部件查阅资料，保留来源、页码、核验状态与适用范围 |
 | 智能诊断 | `/#/chat` | 根据现象追问、检索和组织排查建议；外部模型是否可用取决于运行环境配置与实际调用 |
+| 农田展场 | `/#/showroom` | 全露天三维展区与 T70 驾驶演示；见[场景笔记](src/pages/ShowroomPage/SHOWROOM-NOTES.md) |
 | 模型工坊 | `/#/models` | 柴油拖拉机、鸿鹄T70和本地GLB交互；模型表示结构示意，不等于精确实车或数字孪生 |
 | 故障检测演示 | `/#/fault-detection` | 模拟参数、趋势及检查记录联动，明确标注未连接实车 |
 | 版本历史 | `/#/version-history` | 从CHANGELOG生成版本记录；日志日期与构建提交不等于正式站已部署 |
@@ -47,7 +50,7 @@
 
 知识资料累计[13236条](docs/knowledge-library.md)：6361条来源归档与[6875条学习资料](docs/tractor-knowledge/overview.md)已放进网页同一个知识目录，可共同搜索正文、按类型筛选和分页浏览。各批原编号、唯一Markdown正文、来源和核验状态保留；原理通识与归档参与检索；新增875条FAO术语可按编号或明确术语请求查阅，不作为诊断证据。通识资料用于原理解释与待验证分析，仍保留学习用途及核验状态；具体机型维修操作与参数遵守原有手册证据规则。
 
-当前项目版本：**4.1.8**。开发版与正式版共用全局深浅主题，首次跟随系统；导航中的主题按钮可手动切换，跨页面、新旧版、刷新与同源标签页保持一致。开发网关支持首屏主题初始化脚本，避免最新主干页面及控制台因脚本被拦截而空白。v3初始版本同步自AgriDx-v2的2.4.5已提交基线，继续采用现有React/Vite/Express架构。每次更新的版本、改动和验证结果见[版本日志](CHANGELOG.md)。网站页脚展示构建版本，`/api/health`返回运行服务版本；线上是否更新以部署及实际验收为准。
+当前项目版本：**4.1.13**。开发版与正式版共用全局深浅主题，首次跟随系统；导航中的主题按钮可手动切换，跨页面、新旧版、刷新与同源标签页保持一致。开发网关支持首屏主题初始化脚本，避免最新主干页面及控制台因脚本被拦截而空白。v3初始版本同步自AgriDx-v2的2.4.5已提交基线，继续采用现有React/Vite/Express架构。每次更新的版本、改动和验证结果见[版本日志](CHANGELOG.md)。网站页脚展示构建版本，`/api/health`返回运行服务版本；线上是否更新以部署及实际验收为准。
 
 界面设计、参考与验收截图统一见 **[UI 专区](ui/README.md)**；旧版公共界面实现位于 [`src/ui/`](src/ui/)。
 
@@ -294,31 +297,17 @@ server/knowledge/
 
 ## 项目结构
 
-```text
-AgriDx/
-├── src/                 # React 页面、组件与样式
-│   ├── pages/           # 页面布局与路由视图
-│   ├── features/chat/   # 会话、历史存储、请求与健康状态
-│   ├── hooks/           # 语言、响应式与知识目录 hooks
-│   └── lib/             # 共用 API 客户端与界面工具
-├── server/              # HTTP 装配、路由、诊断用例、知识与 LLM
-├── shared/              # 前后端协议类型、知识目录与能力声明
-├── 知识库/              # 归档原文、索引、来源与整理工具
-├── public/              # 模型与静态资源，保留原署名
-├── scripts/             # 跨平台检查、构建、测试与工作分支同步
-├── tests/               # 诊断、知识边界、API、会话与维护脚本回归
-├── robot/               # 司稼小机器人：ESP32 + 触摸屏交互终端，智能体仍跑在正式站 agridx.xyz；版本规则见 robot/VERSIONS.md
-├── docs/architecture.md # 模块职责、请求链路与维护规则
-├── .github/workflows/ci.yml # Ubuntu / Windows 完整检查，不部署
-├── .node-version        # 本地推荐与 CI 的 Node 24
-├── server.ts            # 统一开发/生产入口；生产仍使用 tsx
-└── CONTRIBUTING.md      # 四人协作、版本与 PR 流程
-```
+| 目录 | 内容 |
+| --- | --- |
+| [src/](src/) | React 页面、组件与界面功能；路由在 [src/app.tsx](src/app.tsx) |
+| [server/](server/) 与 [shared/](shared/) | Express API、诊断、知识检索、模型、记忆与前后端协议 |
+| [agent/](agent/) | Planner 内核、工具注册与执行 |
+| [知识库/](知识库/) 与 [docs/tractor-knowledge/](docs/tractor-knowledge/) | 归档原件、来源与索引，以及通识资料 |
+| [robot/](robot/) 与 [integrations/](integrations/) | 机器人固件与独立集成 |
+| [docs/](docs/README.md)、[ui/](ui/README.md) 与 [public/](public/) | 文档地图、UI 验收资料与网页静态资源 |
+| [tests/](tests/)、[scripts/](scripts/) 与 [.github/workflows/](.github/workflows/) | 回归测试、构建工具、CI 与发布 |
 
-模块职责与开发入口见[架构说明](docs/architecture.md)。单个检查仍可独立执行；合入前推荐使用 `npm run verify`，统一验证版本元数据、前后端与 Vite 配置类型、回归测试、Lint 和完整构建。Windows PowerShell 使用 `npm.cmd`。
-
-`npm run sync` 只推送当前工作分支中已经提交的内容；先自行提交本轮相关文件，保持工作区干净。它拒绝 `main`、`master`、远端默认分支与 detached HEAD，不附带标签、不自动提交或部署。
-
+按任务查找文件请看[仓库地图](docs/README.md)，数据流和职责见[架构说明](docs/architecture.md)，开始开发见[贡献指南](CONTRIBUTING.md)。
 
 ## Git 分支
 
@@ -414,4 +403,3 @@ AgriDx/
 ## 历史记录
 
 [2026-09-26 对话体验优化](docs/history/readme-background.md#历史记录-5)。
-

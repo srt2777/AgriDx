@@ -1,0 +1,589 @@
+[
+  {
+    "title": "Agricultural Engineering",
+    "issn": "1392-1134",
+    "issns": [
+      "1392-1134",
+      "2345-0371"
+    ],
+    "topic": "农机与农业工程",
+    "registryUrl": "https://api.crossref.org/journals/1392-1134",
+    "registryReportedDois": 56,
+    "registrySnapshotSha256": "64c257f070f6333d555c13bed26f867de926d49b9043bf7d48604d20ddf8f685"
+  },
+  {
+    "title": "Canadian Biosystems Engineering",
+    "issn": "1492-9058",
+    "issns": [
+      "1492-9058",
+      "1492-9066"
+    ],
+    "topic": "农机与农业工程",
+    "registryUrl": "https://api.crossref.org/journals/1492-9058",
+    "registryReportedDois": 133,
+    "registrySnapshotSha256": "615c20aebb248195c376f55726981407e4011b2b53a381daa2a52742dfaba2b4"
+  },
+  {
+    "title": "Agricultural Engineering",
+    "issn": "2449-5999",
+    "issns": [
+      "2449-5999"
+    ],
+    "topic": "农机与农业工程",
+    "registryUrl": "https://api.crossref.org/journals/2449-5999",
+    "registryReportedDois": 353,
+    "registrySnapshotSha256": "64c257f070f6333d555c13bed26f867de926d49b9043bf7d48604d20ddf8f685"
+  },
+  {
+    "title": "Agricultural engineering",
+    "issn": "2687-1149",
+    "issns": [
+      "2687-1149"
+    ],
+    "topic": "农机与农业工程",
+    "registryUrl": "https://api.crossref.org/journals/2687-1149",
+    "registryReportedDois": 450,
+    "registrySnapshotSha256": "64c257f070f6333d555c13bed26f867de926d49b9043bf7d48604d20ddf8f685"
+  },
+  {
+    "title": "Journal of Agricultural Engineering",
+    "issn": "1974-7071",
+    "issns": [
+      "1974-7071",
+      "2239-6268"
+    ],
+    "topic": "农机与农业工程",
+    "registryUrl": "https://api.crossref.org/journals/1974-7071",
+    "registryReportedDois": 1098,
+    "registrySnapshotSha256": "64c257f070f6333d555c13bed26f867de926d49b9043bf7d48604d20ddf8f685"
+  },
+  {
+    "title": "Journal of Biosystems Engineering",
+    "issn": "1738-1266",
+    "issns": [
+      "1738-1266",
+      "2234-1862"
+    ],
+    "topic": "农机与农业工程",
+    "registryUrl": "https://api.crossref.org/journals/1738-1266",
+    "registryReportedDois": 1153,
+    "registrySnapshotSha256": "615c20aebb248195c376f55726981407e4011b2b53a381daa2a52742dfaba2b4"
+  },
+  {
+    "title": "INMATEH Agricultural Engineering",
+    "issn": "2068-4215",
+    "issns": [
+      "2068-4215",
+      "2068-2239"
+    ],
+    "topic": "农机与农业工程",
+    "registryUrl": "https://api.crossref.org/journals/2068-4215",
+    "registryReportedDois": 1519,
+    "registrySnapshotSha256": "64c257f070f6333d555c13bed26f867de926d49b9043bf7d48604d20ddf8f685"
+  },
+  {
+    "title": "Journal of Agricultural Engineering Research",
+    "issn": "0021-8634",
+    "issns": [
+      "0021-8634",
+      "1095-9246"
+    ],
+    "topic": "农机与农业工程",
+    "registryUrl": "https://api.crossref.org/journals/0021-8634",
+    "registryReportedDois": 2724,
+    "registrySnapshotSha256": "0cd9eba9e389359b4ef207d9542fccba9d60891f6dbbaebd12dd236c38f874b4"
+  },
+  {
+    "title": "Transactions of the ASABE",
+    "issn": "2151-0032",
+    "issns": [
+      "2151-0032",
+      "2151-0040"
+    ],
+    "topic": "农机与农业工程",
+    "registryUrl": "https://api.crossref.org/journals/2151-0032",
+    "registryReportedDois": 3135,
+    "registrySnapshotSha256": "d0ef0c5ab41559a5e052739f6cee478460ab6cd48624134a5c553c2d2912ee91"
+  },
+  {
+    "title": "Biosystems Engineering",
+    "issn": "1537-5110",
+    "issns": [
+      "1537-5110",
+      "1537-5129"
+    ],
+    "topic": "农机与农业工程",
+    "registryUrl": "https://api.crossref.org/journals/1537-5110",
+    "registryReportedDois": 4749,
+    "registrySnapshotSha256": "615c20aebb248195c376f55726981407e4011b2b53a381daa2a52742dfaba2b4"
+  },
+  {
+    "title": "Computers and Electronics in Agriculture",
+    "issn": "0168-1699",
+    "issns": [
+      "0168-1699"
+    ],
+    "topic": "农机与农业工程",
+    "registryUrl": "https://api.crossref.org/journals/0168-1699",
+    "registryReportedDois": 11361,
+    "registrySnapshotSha256": "c5a09c940091a58f577cdf3ce7548a6a80f28784fc6cf072cc64edd72aa12c21"
+  },
+  {
+    "title": "African Crop Science Journal",
+    "issn": "1021-9730",
+    "issns": [
+      "1021-9730",
+      "2072-6589"
+    ],
+    "topic": "作物与农艺",
+    "registryUrl": "https://api.crossref.org/journals/1021-9730",
+    "registryReportedDois": 1053,
+    "registrySnapshotSha256": "484e0498964180e190eff031c1953da66e88cf7eb7953657295b31a4057b7a27"
+  },
+  {
+    "title": "Crop & Pasture Science",
+    "issn": "1836-0947",
+    "issns": [
+      "1836-0947",
+      "1836-5795"
+    ],
+    "topic": "作物与农艺",
+    "registryUrl": "https://api.crossref.org/journals/1836-0947",
+    "registryReportedDois": 1874,
+    "registrySnapshotSha256": "484e0498964180e190eff031c1953da66e88cf7eb7953657295b31a4057b7a27"
+  },
+  {
+    "title": "Field Crops Research",
+    "issn": "0378-4290",
+    "issns": [
+      "0378-4290"
+    ],
+    "topic": "作物与农艺",
+    "registryUrl": "https://api.crossref.org/journals/0378-4290",
+    "registryReportedDois": 8507,
+    "registrySnapshotSha256": "d94209c4dd197609cf0cc841ff9bd6cce514cf650651ca70d7b87b38c9be2ee0"
+  },
+  {
+    "title": "Agriculture Ecosystems & Environment",
+    "issn": "0167-8809",
+    "issns": [
+      "0167-8809"
+    ],
+    "topic": "作物与农艺",
+    "registryUrl": "https://api.crossref.org/journals/0167-8809",
+    "registryReportedDois": 11234,
+    "registrySnapshotSha256": "7cc84de4c16fdd466963c8270bb31be138019e4c44ef4d7fb0425034eef3c1f7"
+  },
+  {
+    "title": "Agronomy",
+    "issn": "2073-4395",
+    "issns": [
+      "2073-4395"
+    ],
+    "topic": "作物与农艺",
+    "registryUrl": "https://api.crossref.org/journals/2073-4395",
+    "registryReportedDois": 20369,
+    "registrySnapshotSha256": "9cab26b393478aadf71fd7554bc7a6129dc8e1cfe04647e3563d770c68b59bc2"
+  },
+  {
+    "title": "Crop Science",
+    "issn": "0011-183X",
+    "issns": [
+      "0011-183X",
+      "1435-0653"
+    ],
+    "topic": "作物与农艺",
+    "registryUrl": "https://api.crossref.org/journals/0011-183X",
+    "registryReportedDois": 24106,
+    "registrySnapshotSha256": "484e0498964180e190eff031c1953da66e88cf7eb7953657295b31a4057b7a27"
+  },
+  {
+    "title": "Agronomy Journal",
+    "issn": "0002-1962",
+    "issns": [
+      "0002-1962",
+      "1435-0645"
+    ],
+    "topic": "作物与农艺",
+    "registryUrl": "https://api.crossref.org/journals/0002-1962",
+    "registryReportedDois": 25425,
+    "registrySnapshotSha256": "9cab26b393478aadf71fd7554bc7a6129dc8e1cfe04647e3563d770c68b59bc2"
+  },
+  {
+    "title": "Irrigation and Drainage Systems",
+    "issn": "0168-6291",
+    "issns": [
+      "0168-6291",
+      "1573-0654"
+    ],
+    "topic": "土壤与灌溉",
+    "registryUrl": "https://api.crossref.org/journals/0168-6291",
+    "registryReportedDois": 574,
+    "registrySnapshotSha256": "a0589f16c6001de5db1ae29743a263754186995c78ad53ad0cd3c3f23f2ef85c"
+  },
+  {
+    "title": "Irrigation Science",
+    "issn": "0342-7188",
+    "issns": [
+      "0342-7188",
+      "1432-1319"
+    ],
+    "topic": "土壤与灌溉",
+    "registryUrl": "https://api.crossref.org/journals/0342-7188",
+    "registryReportedDois": 1798,
+    "registrySnapshotSha256": "a0589f16c6001de5db1ae29743a263754186995c78ad53ad0cd3c3f23f2ef85c"
+  },
+  {
+    "title": "Plant Soil and Environment",
+    "issn": "1214-1178",
+    "issns": [
+      "1214-1178",
+      "1805-9368"
+    ],
+    "topic": "土壤与灌溉",
+    "registryUrl": "https://api.crossref.org/journals/1214-1178",
+    "registryReportedDois": 2044,
+    "registrySnapshotSha256": "d5052712ab2e79d2669030778d28d93c1fa236ff11bc857da40cd5c9929e0420"
+  },
+  {
+    "title": "Irrigation and Drainage",
+    "issn": "1531-0353",
+    "issns": [
+      "1531-0353",
+      "1531-0361"
+    ],
+    "topic": "土壤与灌溉",
+    "registryUrl": "https://api.crossref.org/journals/1531-0353",
+    "registryReportedDois": 2559,
+    "registrySnapshotSha256": "a0589f16c6001de5db1ae29743a263754186995c78ad53ad0cd3c3f23f2ef85c"
+  },
+  {
+    "title": "Eurasian Soil Science",
+    "issn": "1064-2293",
+    "issns": [
+      "1064-2293",
+      "1556-195X"
+    ],
+    "topic": "土壤与灌溉",
+    "registryUrl": "https://api.crossref.org/journals/1064-2293",
+    "registryReportedDois": 3620,
+    "registrySnapshotSha256": "be5b452049f8a99ab87a91226e11303f0838105dcc4b5999091cab5b58547554"
+  },
+  {
+    "title": "Soil Science & Plant Nutrition",
+    "issn": "0038-0768",
+    "issns": [
+      "0038-0768",
+      "1747-0765"
+    ],
+    "topic": "土壤与灌溉",
+    "registryUrl": "https://api.crossref.org/journals/0038-0768",
+    "registryReportedDois": 5223,
+    "registrySnapshotSha256": "d5052712ab2e79d2669030778d28d93c1fa236ff11bc857da40cd5c9929e0420"
+  },
+  {
+    "title": "Soil and Tillage Research",
+    "issn": "0167-1987",
+    "issns": [
+      "0167-1987"
+    ],
+    "topic": "土壤与灌溉",
+    "registryUrl": "https://api.crossref.org/journals/0167-1987",
+    "registryReportedDois": 7636,
+    "registrySnapshotSha256": "5a30c1576a852228f0eefd2a698333ea92d6b3bf0f529e72ce232725541288f1"
+  },
+  {
+    "title": "Agricultural Water Management",
+    "issn": "0378-3774",
+    "issns": [
+      "0378-3774"
+    ],
+    "topic": "土壤与灌溉",
+    "registryUrl": "https://api.crossref.org/journals/0378-3774",
+    "registryReportedDois": 10571,
+    "registrySnapshotSha256": "443b1929d09d5c2f09ea546098d6960396a2e5b085be25c5cab83d0f65491678"
+  },
+  {
+    "title": "Soil Science",
+    "issn": "0038-075X",
+    "issns": [
+      "0038-075X"
+    ],
+    "topic": "土壤与灌溉",
+    "registryUrl": "https://api.crossref.org/journals/0038-075X",
+    "registryReportedDois": 14114,
+    "registrySnapshotSha256": "be5b452049f8a99ab87a91226e11303f0838105dcc4b5999091cab5b58547554"
+  },
+  {
+    "title": "Plant and Soil",
+    "issn": "0032-079X",
+    "issns": [
+      "0032-079X",
+      "1573-5036"
+    ],
+    "topic": "土壤与灌溉",
+    "registryUrl": "https://api.crossref.org/journals/0032-079X",
+    "registryReportedDois": 21247,
+    "registrySnapshotSha256": "d5052712ab2e79d2669030778d28d93c1fa236ff11bc857da40cd5c9929e0420"
+  },
+  {
+    "title": "Soil Science Society of America Journal",
+    "issn": "0361-5995",
+    "issns": [
+      "0361-5995",
+      "1435-0661"
+    ],
+    "topic": "土壤与灌溉",
+    "registryUrl": "https://api.crossref.org/journals/0361-5995",
+    "registryReportedDois": 21297,
+    "registrySnapshotSha256": "abb3c31e50c0b355f039492fe12adaf3ff05aa84d9431b15ba55f626c5f2b130"
+  },
+  {
+    "title": "Physiological Plant Pathology",
+    "issn": "0048-4059",
+    "issns": [
+      "0048-4059"
+    ],
+    "topic": "植物保护与园艺",
+    "registryUrl": "https://api.crossref.org/journals/0048-4059",
+    "registryReportedDois": 1198,
+    "registrySnapshotSha256": "bb52a3e799f61e2e83816458f9f30554307a0c017c05d7b4c930a221ed75c357"
+  },
+  {
+    "title": "Horticulture Research",
+    "issn": "2662-6810",
+    "issns": [
+      "2662-6810",
+      "2052-7276"
+    ],
+    "topic": "植物保护与园艺",
+    "registryUrl": "https://api.crossref.org/journals/2662-6810",
+    "registryReportedDois": 2646,
+    "registrySnapshotSha256": "bacff0bf8246ca338aec91138f46f732e3926be4cb620a6a7eda4c2318482615"
+  },
+  {
+    "title": "Molecular Plant Pathology",
+    "issn": "1464-6722",
+    "issns": [
+      "1464-6722",
+      "1364-3703"
+    ],
+    "topic": "植物保护与园艺",
+    "registryUrl": "https://api.crossref.org/journals/1464-6722",
+    "registryReportedDois": 2939,
+    "registrySnapshotSha256": "bb52a3e799f61e2e83816458f9f30554307a0c017c05d7b4c930a221ed75c357"
+  },
+  {
+    "title": "Australasian Plant Pathology",
+    "issn": "0815-3191",
+    "issns": [
+      "0815-3191",
+      "1448-6032",
+      "0156-0972"
+    ],
+    "topic": "植物保护与园艺",
+    "registryUrl": "https://api.crossref.org/journals/0815-3191",
+    "registryReportedDois": 3347,
+    "registrySnapshotSha256": "bb52a3e799f61e2e83816458f9f30554307a0c017c05d7b4c930a221ed75c357"
+  },
+  {
+    "title": "Plant Pathology",
+    "issn": "0032-0862",
+    "issns": [
+      "0032-0862",
+      "1365-3059"
+    ],
+    "topic": "植物保护与园艺",
+    "registryUrl": "https://api.crossref.org/journals/0032-0862",
+    "registryReportedDois": 8545,
+    "registrySnapshotSha256": "bb52a3e799f61e2e83816458f9f30554307a0c017c05d7b4c930a221ed75c357"
+  },
+  {
+    "title": "Scientia Horticulturae",
+    "issn": "0304-4238",
+    "issns": [
+      "0304-4238"
+    ],
+    "topic": "植物保护与园艺",
+    "registryUrl": "https://api.crossref.org/journals/0304-4238",
+    "registryReportedDois": 16927,
+    "registrySnapshotSha256": "aafe8e3c8b1dedd33691f9824923649f61a376690543e874a41cb814f04557b4"
+  },
+  {
+    "title": "Food Chemistry X",
+    "issn": "2590-1575",
+    "issns": [
+      "2590-1575"
+    ],
+    "topic": "农业食品研究",
+    "registryUrl": "https://api.crossref.org/journals/2590-1575",
+    "registryReportedDois": 4489,
+    "registrySnapshotSha256": "7fadb881d666822da9cf5fcd761feaa27d83c1a8fcbc122a5b545583d4479a1c"
+  },
+  {
+    "title": "Food Chemistry",
+    "issn": "0308-8146",
+    "issns": [
+      "0308-8146",
+      "1873-7072"
+    ],
+    "topic": "农业食品研究",
+    "registryUrl": "https://api.crossref.org/journals/0308-8146",
+    "registryReportedDois": 52011,
+    "registrySnapshotSha256": "7fadb881d666822da9cf5fcd761feaa27d83c1a8fcbc122a5b545583d4479a1c"
+  },
+  {
+    "title": "Journal of Agricultural and Food Chemistry",
+    "issn": "0021-8561",
+    "issns": [
+      "0021-8561",
+      "1520-5118"
+    ],
+    "topic": "农业食品研究",
+    "registryUrl": "https://api.crossref.org/journals/0021-8561",
+    "registryReportedDois": 62342,
+    "registrySnapshotSha256": "995cffbb2b55402b6c6932f56f2e60dc599768b0c255f658eec63912b51b5616"
+  },
+  {
+    "title": "Aquaculture Nutrition",
+    "issn": "1353-5773",
+    "issns": [
+      "1353-5773",
+      "1365-2095"
+    ],
+    "topic": "畜牧与养殖",
+    "registryUrl": "https://api.crossref.org/journals/1353-5773",
+    "registryReportedDois": 3107,
+    "registrySnapshotSha256": "de3869b4e78be828d56b57d7bc577675310fa90ad28902c525224bd06f3186f4"
+  },
+  {
+    "title": "Animal Science Journal",
+    "issn": "1344-3941",
+    "issns": [
+      "1344-3941",
+      "1740-0929"
+    ],
+    "topic": "畜牧与养殖",
+    "registryUrl": "https://api.crossref.org/journals/1344-3941",
+    "registryReportedDois": 3470,
+    "registrySnapshotSha256": "739056dc9787a34c0959f8ff7054069b58a240cb8d02e042044ea7e1bd5ad8c3"
+  },
+  {
+    "title": "Aquaculture Reports",
+    "issn": "2352-5134",
+    "issns": [
+      "2352-5134"
+    ],
+    "topic": "畜牧与养殖",
+    "registryUrl": "https://api.crossref.org/journals/2352-5134",
+    "registryReportedDois": 3848,
+    "registrySnapshotSha256": "de3869b4e78be828d56b57d7bc577675310fa90ad28902c525224bd06f3186f4"
+  },
+  {
+    "title": "Aquaculture International",
+    "issn": "0967-6120",
+    "issns": [
+      "0967-6120",
+      "1573-143X"
+    ],
+    "topic": "畜牧与养殖",
+    "registryUrl": "https://api.crossref.org/journals/0967-6120",
+    "registryReportedDois": 4275,
+    "registrySnapshotSha256": "de3869b4e78be828d56b57d7bc577675310fa90ad28902c525224bd06f3186f4"
+  },
+  {
+    "title": "Animal Science",
+    "issn": "1357-7298",
+    "issns": [
+      "1357-7298",
+      "1748-748X"
+    ],
+    "topic": "畜牧与养殖",
+    "registryUrl": "https://api.crossref.org/journals/1357-7298",
+    "registryReportedDois": 5028,
+    "registrySnapshotSha256": "6090a5a5f4e4c3765a3fe3d0bc7a378f0e3327db493c0f45c41af6547e476bbc"
+  },
+  {
+    "title": "British Poultry Science",
+    "issn": "0007-1668",
+    "issns": [
+      "0007-1668",
+      "1466-1799"
+    ],
+    "topic": "畜牧与养殖",
+    "registryUrl": "https://api.crossref.org/journals/0007-1668",
+    "registryReportedDois": 6150,
+    "registrySnapshotSha256": "42f63b7fbb36e7c64eb905b75a669b257d1a78318869711344a8e4c4f600adf1"
+  },
+  {
+    "title": "Aquaculture Research",
+    "issn": "1355-557X",
+    "issns": [
+      "1355-557X",
+      "1365-2109"
+    ],
+    "topic": "畜牧与养殖",
+    "registryUrl": "https://api.crossref.org/journals/1355-557X",
+    "registryReportedDois": 9576,
+    "registrySnapshotSha256": "de3869b4e78be828d56b57d7bc577675310fa90ad28902c525224bd06f3186f4"
+  },
+  {
+    "title": "Aquaculture",
+    "issn": "0044-8486",
+    "issns": [
+      "0044-8486"
+    ],
+    "topic": "畜牧与养殖",
+    "registryUrl": "https://api.crossref.org/journals/0044-8486",
+    "registryReportedDois": 27370,
+    "registrySnapshotSha256": "de3869b4e78be828d56b57d7bc577675310fa90ad28902c525224bd06f3186f4"
+  },
+  {
+    "title": "Poultry Science",
+    "issn": "0032-5791",
+    "issns": [
+      "0032-5791",
+      "1525-3171"
+    ],
+    "topic": "畜牧与养殖",
+    "registryUrl": "https://api.crossref.org/journals/0032-5791",
+    "registryReportedDois": 35020,
+    "registrySnapshotSha256": "42f63b7fbb36e7c64eb905b75a669b257d1a78318869711344a8e4c4f600adf1"
+  },
+  {
+    "title": "Journal of Dairy Science",
+    "issn": "0022-0302",
+    "issns": [
+      "0022-0302",
+      "1525-3198"
+    ],
+    "topic": "畜牧与养殖",
+    "registryUrl": "https://api.crossref.org/journals/0022-0302",
+    "registryReportedDois": 40940,
+    "registrySnapshotSha256": "d3e9c31f5e61b435ffa1fc3d89702ae01eec182b622038a04a0783b01f31771e"
+  },
+  {
+    "title": "Journal of Animal Science",
+    "issn": "0021-8812",
+    "issns": [
+      "0021-8812",
+      "1525-3163"
+    ],
+    "topic": "畜牧与养殖",
+    "registryUrl": "https://api.crossref.org/journals/0021-8812",
+    "registryReportedDois": 47339,
+    "registrySnapshotSha256": "739056dc9787a34c0959f8ff7054069b58a240cb8d02e042044ea7e1bd5ad8c3"
+  },
+  {
+    "title": "Forest Ecology and Management",
+    "issn": "0378-1127",
+    "issns": [
+      "0378-1127",
+      "1872-7042"
+    ],
+    "topic": "林业",
+    "registryUrl": "https://api.crossref.org/journals/0378-1127",
+    "registryReportedDois": 20644,
+    "registrySnapshotSha256": "44ffd809a2fdc61c64cd5be70a196066e8983b747f9518b1532bfa204b552673"
+  }
+]

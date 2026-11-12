@@ -28,6 +28,11 @@ jobs:
           node-version-file: .node-version
           cache: npm
       - run: npm ci --no-audit --no-fund --registry=https://registry.npmjs.org
+      # verify includes voice transcoding tests; match the Ubuntu CI dependency.
+      - name: Install ffmpeg
+        run: sudo apt-get install -y --no-install-recommends ffmpeg
+      - name: Check ffmpeg
+        run: ffmpeg -version
       - run: npm run verify
       - run: npm run build:dev-preview
       - name: Publish the development artifact branch

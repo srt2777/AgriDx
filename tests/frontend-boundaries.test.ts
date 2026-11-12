@@ -182,9 +182,9 @@ test('旧版独立侧栏，新版大厅与功能路由共用同一外框', () =>
     assert.match(appSource, new RegExp(`path="${route.slice(1)}"`), `missing route ${route}`);
     assert.ok(oldShellSource.includes(route) || workbenchRoutes.some(item => item.path === route), `classic shell does not link ${route}`);
   }
-  assert.match(layoutSource, /if \(uiVersion === 'new'\) return <NewVersionShell \/>/);
+  assert.match(layoutSource, /<WorkbenchProvider>\{uiVersion === 'new' \? <NewVersionShell \/> : <WorkspaceShell \/>\}<\/WorkbenchProvider>/);
   assert.doesNotMatch(layoutSource, /return <Outlet \/>/);
-  assert.match(layoutSource, /return <WorkspaceShell \/>/);
+
   assert.match(oldShellSource, /data-ui-version="old"/);
   assert.doesNotMatch(oldShellSource, /data-ui-version="new"|new-version-shell/);
   assert.match(oldShellSource, /<Outlet \/>/);

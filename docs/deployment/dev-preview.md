@@ -68,3 +68,7 @@ Worker 使用平台支持的 `redirect: manual`，拒绝上游重定向，不转
 2026-10-12（上海），用户明确选择“有链接即可访问，无需登录”及“用现有 GitHub 账号管理”。Sites 权限更新返回 `public`、revision 2；未增设网页管理账号或修改 GitHub 协作者权限。无登录凭据的桌面及手机标识请求读取版本和健康接口成功，切换主干之前仍为开发构建3.2.0。
 
 本轮本地完整 verify 143项通过、2项Windows专用检查在Linux跳过，版本、类型、Lint和完整构建通过；CI、PR主干合入、main构建和最终匿名版本验证以[PR #22](https://github.com/srt2777/AgriDx-v3/pull/22)交付记录及现网版本记录为准。腾讯服务、DNS、证书及模型密钥未改动。
+
+## 4.1.11 自动发布依赖修复
+
+Development preview 在 `npm run verify` 前安装并执行 `ffmpeg -version`，避免语音转码测试在无 ffmpeg 的 Ubuntu runner 上返回 503。使用与 CI 相同的 `apt-get install -y --no-install-recommends ffmpeg`，不额外全量更新 apt 索引。产物脚本仅向已有 base_tree 提交变化路径，避免重复发送全部目录；首次发布仍提交全部文件，旧哈希资源继续保留，最新 main 校验和非强制 ref 更新保持有效。实际自动运行和公网验收结果以本批 PR 为准。

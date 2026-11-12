@@ -1,7 +1,6 @@
 import { ClassicDisclosure } from '@/ui/ClassicDisclosure';
 import { useUiCopy } from '@/ui/useUiCopy';
 import { Link, useSearchParams } from 'react-router-dom';
-import { useReducedMotion } from 'framer-motion';
 import { ArrowLeft, ArrowRight, BookOpen, Check, ChevronRight, Layers, Loader2, Search, TriangleAlert } from 'lucide-react';
 import KnowledgeGraph from './KnowledgeGraph';
 import EvidenceEntry from './EvidenceEntry';
@@ -13,32 +12,35 @@ import { useKnowledgeCatalog } from '@/hooks/useKnowledgeCatalog';
 import type { CatalogEntry } from '@shared/knowledge-catalog';
 import { CATALOG_FILTER_KEYS } from '@shared/knowledge-catalog';
 import { LiquidGlass } from '@/components/ui/liquid-glass';
-import { StatTicker } from '@/components/StatTicker';
-import { ScrollCount } from '@/components/ScrollCount';
 import { lazy, Suspense } from 'react';
+import { useKnowledgeSummary } from '@/hooks/useKnowledgeSummary';
 import { ErrorBoundary } from 'react-error-boundary';
 import { catalogDistributions } from '@/features/knowledge/catalog-distributions';
 import '@/control-glass.css';
 import './catalog-distributions.css';
 import './knowledge-organize.css';
 
+const LiteratureBrowser = lazy(() => import('./LiteratureBrowser'));
 const CatalogDistributions = lazy(() => import('./CatalogDistributions'));
 const INFORMATION_TYPES = new Set(['资料索引', '资料核验', '机型资料', '资料缺口', '系统适用边界']);
 
 export default function KnowledgePage() {
   const lang = useLang();
   const version = useUiVersion();
-  const reducedMotion = !!useReducedMotion();
   const { t, format, separator } = useUiCopy(lang);
   const [params, setParams] = useSearchParams();
+  const literatureView = params.get('view') === 'literature';
   const graphView = params.get('view') === 'graph';
-  const machineView = !graphView && (params.get('view') === 'machine' || ['brand', 'model', 'component', 'part', 'symptom', 'configuration', 'driveConfiguration', 'emissionStage'].some(key => params.has(key)));
+  const machineView = !literatureView && !graphView && (params.get('view') === 'machine' || ['brand', 'model', 'component', 'part', 'symptom', 'configuration', 'driveConfiguration', 'emissionStage'].some(key => params.has(key)));
   const filters = ['brand', 'model', 'component', 'part'] as const;
   const query = new URLSearchParams();
   CATALOG_FILTER_KEYS.forEach(key => { const value = params.get(key); if (value) query.set(key, value); });
   if (!machineView && !graphView) query.set('collection', params.get('collection') || 'all');
   else ['collection', 'kind', 'topic', 'entryType', 'q', 'page'].forEach(key => query.delete(key));
+  if (literatureView) { for (const key of [...query.keys()]) query.delete(key); }
   const { catalog, loading, failed, retry } = useKnowledgeCatalog(query.toString());
+  const summary = useKnowledgeSummary(catalog?.totals.entries);
+  const { literatureCount, researchCount } = summary;
   const brand = catalog?.brands.find(item => item.id === params.get('brand'));
   const model = brand?.models.find(item => item.id === params.get('model'));
   const component = model?.components.find(item => item.id === params.get('component'));
@@ -66,36 +68,42 @@ export default function KnowledgePage() {
     <div className="page-container">
       {!graphView && <><Link to="/" className="knowledge-back"><ArrowLeft size={15} />{t('返回首页', 'Back to home')}</Link>
       <header className="knowledge-page-heading">
-        <div><div className="section-eyebrow">{t('司稼 · 知识目录', 'SIJIA · CATALOG')}</div><h1 data-shared-target={version === 'new' ? 'knowledge' : undefined}>{t('知识检索与诊断支持', 'Knowledge & diagnostic support')}</h1><p>{t('按品牌、机型和部件查找。条数是已索引记录；每条保留来源、核验和适用范围。', 'Search by brand, model, and part. Counts are indexed records. Each entry keeps its source, check, and scope.')}</p>{version === 'new' && <span className="wheat-line" aria-hidden="true" />}</div>
+        <div><div className="section-eyebrow">{t('司稼 · 知识库', 'SIJIA · KNOWLEDGE BASE')}</div><h1 data-shared-target={version === 'new' ? 'knowledge' : undefined}>{t('知识库', 'Knowledge base')}</h1><p>{t('按品牌、机型和部件查找。条数是已索引记录；每条保留来源、核验和适用范围。', 'Search by brand, model, and part. Counts are indexed records. Each entry keeps its source, check, and scope.')}</p>{version === 'new' && <span className="wheat-line" aria-hidden="true" />}</div>
         <div className="knowledge-heading-icon" aria-hidden="true"><Layers size={38} strokeWidth={1.15} /><span>01 — 04</span></div>
       </header></>}
 
       {!graphView && <><div className="catalog-stats" aria-live="polite">
         {[
-          [catalog?.totals.entries, t('知识条目合计', 'Total knowledge entries')],
+          [summary.total, t('索引记录合计（含文献）', 'Indexed records including literature')],
+          [researchCount, t('正文研究知识（非维修规程）', 'Research notes, not repair procedures')],
+          [literatureCount, t('农业文献（未核验全文）', 'Literature metadata, full text unverified')],
+          [catalog?.totals.entries, t('归档与学习条目', 'Archive and learning entries')],
           [catalog?.totals.archivedEntries, t('来源归档', 'Source archive entries')],
           [catalog?.totals.learningEntries, t('通识学习', 'General learning entries')],
           [catalog?.totals.models, t('型号 / 系列目录', 'Model / series directories')],
-        ].map(([value, label]) => <div key={String(label)}><strong>{typeof value === 'number' ? (version === 'new' ? <StatTicker value={value} reduced={reducedMotion} /> : <ScrollCount value={value} />) : '—'}</strong><span>{label}</span></div>)}
+        ].map(([value, label]) => <div key={String(label)}><strong>{typeof value === 'number' ? value.toLocaleString() : '—'}</strong><span>{label}</span></div>)}
       </div>
 
-      <ErrorBoundary fallback={<p role="alert">{t('分布图加载失败，请刷新后重试。目录仍可继续浏览。', 'Distribution charts failed to load. Refresh to retry; the catalog remains available.')}</p>}>
+      {summary.failed && <p role="status">{t('文献统计读取失败，暂不显示合计。', 'Literature count unavailable; total is not shown.')} <button type="button" onClick={summary.retry}>{t('重试统计', 'Retry counts')}</button></p>}
+      {!literatureView && <ErrorBoundary fallback={<p role="alert">{t('分布图加载失败，请刷新后重试。目录仍可继续浏览。', 'Distribution charts failed to load. Refresh to retry; the catalog remains available.')}</p>}>
         <Suspense fallback={<p role="status">{t('正在加载标注分布…', 'Loading annotation distributions…')}</p>}>
           <CatalogDistributions {...distributions} loading={loading} failed={failed} retry={retry} lang={lang} params={params} />
         </Suspense>
-      </ErrorBoundary></>}
+      </ErrorBoundary>}</>}
 
       <nav className="library-collections" aria-label={t('知识浏览方式', 'Knowledge browsing mode')}>
         {[
-          ['all', t('全部知识', 'All knowledge')], ['archive', t('来源归档', 'Source archives')],
-          ['learning', t('通识学习', 'General learning')], ['graph', t('知识图谱', 'Knowledge graph')], ['machine', t('按机型与部件浏览', 'Browse models and parts')],
-        ].map(([id, label]) => <button key={id} aria-pressed={graphView ? id === 'graph' : machineView ? id === 'machine' : id === (params.get('collection') || 'all')}
-          onClick={() => setParams(id === 'machine' || id === 'graph' ? { view: id } : { collection: id })}>{label}</button>)}
+          ['all', t('归档与学习', 'Archive and learning')], ['archive', t('来源归档', 'Source archives')],
+          ['learning', t('通识学习', 'General learning')], ['literature', t('农业文献', 'Agricultural literature')], ['graph', t('知识图谱', 'Knowledge graph')], ['machine', t('按机型与部件浏览', 'Browse models and parts')],
+        ].map(([id, label]) => <button key={id} aria-pressed={literatureView ? id === 'literature' : graphView ? id === 'graph' : machineView ? id === 'machine' : id === (params.get('collection') || 'all')}
+          onClick={() => setParams(id === 'machine' || id === 'graph' || id === 'literature' ? { view: id } : { collection: id })}>{label}</button>)}
       </nav>
+
+      {literatureView && <ErrorBoundary fallback={<p role="alert">文献检索暂时不可用，请刷新重试。</p>}><Suspense fallback={<p role="status">正在加载文献检索…</p>}><LiteratureBrowser /></Suspense></ErrorBoundary>}
 
       {graphView && !loading && !failed && catalog && <KnowledgeGraph catalog={catalog} lang={lang} />}
 
-      {!loading && !failed && !graphView && !machineView && catalog?.library && <KnowledgeLibraryBrowser library={catalog.library} organization={catalog.organization}
+      {!loading && !failed && !graphView && !literatureView && !machineView && catalog?.library && <KnowledgeLibraryBrowser library={catalog.library} organization={catalog.organization}
         filters={{ kind: params.get('kind') ?? (params.get('collection') === 'archive' ? 'archive' : undefined), topic: params.get('topic') ?? undefined, entryType: params.get('entryType') ?? undefined }} lang={lang} onChange={values => {
         const next = new URLSearchParams(params);
         next.delete('page');
@@ -140,7 +148,7 @@ export default function KnowledgePage() {
       {version === 'new' && machineView && brand && <div className="catalog-model-grid" aria-label={t('型号或系列', 'Models or series')}>{brand.models.map(item => <button type="button" key={item.id} aria-pressed={model?.id === item.id} onClick={() => updateFilter('model', item.id)}><strong>{item.name}</strong><small>{item.scope === 'series' ? t('系列', 'Series') : item.scope === 'pending' ? t('待核实', 'Unconfirmed') : t('具体型号', 'Specific model')}</small></button>)}</div>}
 
       {loading && <div className="catalog-state" role="status"><Loader2 className="animate-spin" size={24} /><p>{t('读取适用资料与覆盖范围…', 'Loading documents and coverage…')}</p><div className="catalog-skeleton" aria-hidden="true"><span /><span /><span /></div></div>}
-      {failed && <div className="catalog-state" role="alert"><TriangleAlert size={26} /><h2>{t('暂时无法读取知识目录', 'Knowledge catalog is unavailable')}</h2><p>{t('目录未加载，不展示推测的数量或故障策略。请重试。', 'No catalog is loaded, so no estimated counts or strategies are shown. Please retry.')}</p><button onClick={retry} className="catalog-action">{t('重新加载', 'Retry')}</button></div>}
+      {!literatureView && failed && <div className="catalog-state" role="alert"><TriangleAlert size={26} /><h2>{t('暂时无法读取知识目录', 'Knowledge catalog is unavailable')}</h2><p>{t('目录未加载，不展示推测的数量或故障策略。请重试。', 'No catalog is loaded, so no estimated counts or strategies are shown. Please retry.')}</p><button onClick={retry} className="catalog-action">{t('重新加载', 'Retry')}</button></div>}
 
       {machineView && !loading && !failed && !model && <section className="catalog-onboarding"><div><BookOpen size={30} strokeWidth={1.3} /><h2>{t('先选品牌，再确认完整机型。', 'Choose a brand, then confirm the machine.')}</h2><p>{t('从故障表现向下查部件，也可以从零部件资料向上理解影响。系列资料、型号未确认资料与具体型号分别显示，来源没有明确的关系会保留缺口。', 'Trace symptoms down to components, or explore part evidence to understand higher-level effects. Series, unconfirmed and specific-model documents stay distinct; unsupported relationships remain gaps.')}</p></div><div className="catalog-brand-pills">{catalog?.brands.map(item => <button onClick={() => updateFilter('brand', item.id)} key={item.id} aria-pressed={brand?.id === item.id}>{item.name}<ChevronRight size={15} /></button>)}</div></section>}
 
@@ -156,7 +164,7 @@ export default function KnowledgePage() {
         </section>
       </>}
 
-      {!graphView && <aside className="catalog-boundaries"><ClassicDisclosure><div className="section-eyebrow">{t('覆盖可以核对', 'COVERAGE CAN BE CHECKED')}</div><h2>{t('先标清缺口，再谈覆盖。', 'Name the gaps before claiming coverage.')}</h2><p>{t('条数是已索引的归档和通识。通识不是维修证据，也不等于已核验的机型覆盖。', 'Counts are indexed archives and learning notes. Learning notes are not repair evidence, and they are not verified model coverage.')}</p>{catalog?.limitations.length ? <ul>{catalog.limitations.map(limit => <li key={limit}>{limit}</li>)}</ul> : null}</ClassicDisclosure></aside>}
+      {!graphView && <aside className="catalog-boundaries"><ClassicDisclosure><div className="section-eyebrow">{t('覆盖可以核对', 'COVERAGE CAN BE CHECKED')}</div><h2>{t('先标清缺口，再谈覆盖。', 'Name the gaps before claiming coverage.')}</h2><p>{t('总量分别包含来源归档、通识与文献记录。文献元数据不等于已读全文，也不等于已核验的维修知识或机型覆盖。', 'Counts distinguish archives, learning notes and literature records. Bibliographic metadata is not verified full text, repair evidence or model coverage.')}</p>{catalog?.limitations.length ? <ul>{catalog.limitations.map(limit => <li key={limit}>{limit}</li>)}</ul> : null}</ClassicDisclosure></aside>}
     </div>
   </div>;
 }

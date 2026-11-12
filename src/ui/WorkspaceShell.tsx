@@ -12,13 +12,12 @@ import CommandPalette from '@/components/CommandPalette';
 import { useUiCopy } from './useUiCopy';
 import { MotionConfig } from 'framer-motion';
 import { workbenchRoutes } from '@/features/workbench/navigation';
-import { WorkbenchProvider } from '@/features/workbench/WorkbenchContext';
 import { SiteStatusBar } from '@/components/SiteStatusBar';
 
 const destinations = workbenchRoutes;
 
 /** Sidebar frame for the classic interface only. Modern chrome stays unchanged. */
-export function WorkspaceShell() { return <WorkbenchProvider><WorkspaceFrame /></WorkbenchProvider>; }
+export function WorkspaceShell() { return <WorkspaceFrame />; }
 
 function WorkspaceFrame() {
   const lang = useLang();

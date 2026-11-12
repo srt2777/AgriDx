@@ -4,40 +4,14 @@
  * cover the behaviour without a WebGL context.
  *
  * Field coordinates: metres, x = east, z = south, origin at the field
- * centre (the T70 on the dirt track). The showroom is an outdoor farm
- * field, not an indoor hall: the drivable dirt track runs along x at
+ * centre (the T70 on the dirt track). The showroom is an open-air farm
+ * field — no buildings at all: the drivable dirt track runs along x at
  * z = 0 with a 6 m clear width, crop rows fill the field north and south
  * of the track, and the four zones sit on the field as open-air booths.
  */
 
 /** Field half-extents (metres). The field edge (fence/treeline) sits here. */
-export const HALL = { halfX: 30, halfZ: 22, height: 7 } as const;
-
-/**
- * The glass showroom building in the middle of the field: the T70 sits
- * inside it, the other three zones are open-air booths outside. The
- * east wall has a 6.4 m wide gate (z ∈ [-3.2, 3.2]) on the dirt track,
- * so the tractor can drive straight out into the field and back in.
- * Heading π/2 (the tractor's spawn heading) faces +x, i.e. the gate.
- */
-export const HALL_BUILDING = {
-  halfX: 14,
-  halfZ: 10,
-  height: 6,
-  gate: { x: 14, halfWidth: 3.2 },
-  /** Glass wall thickness (m) — the visual walls match these footprints. */
-  wall: 0.3,
-} as const;
-
-/** True when (x, z) is inside the glass hall (the gate gap counts as inside). */
-export function isInsideHall(x: number, z: number): boolean {
-  return Math.abs(x) < HALL_BUILDING.halfX && Math.abs(z) < HALL_BUILDING.halfZ;
-}
-
-/** Speed limit (m/s): slow inside the hall, faster (but still sedate) in the field. */
-export function speedLimitAt(x: number, z: number): number {
-  return isInsideHall(x, z) ? 3.2 : 6.5;
-}
+export const FIELD = { halfX: 30, halfZ: 22, height: 7 } as const;
 
 /**
  * Surface grip 0..1 from the blended weather: wet ground is slightly
@@ -51,17 +25,16 @@ export function gripForWeather(wet: number, snow: number): number {
 /* Terrain + crop plots                                                */
 /* ------------------------------------------------------------------ */
 
-/** Gentle field undulation (metres). Flat inside the hall and on the dirt track. */
+/** Gentle field undulation (metres). Flat on the dirt track. */
 export function terrainHeight(x: number, z: number): number {
   const raw = 0.45 * Math.sin(x * 0.07 + 1.3) * Math.cos(z * 0.05) + 0.25 * Math.sin(x * 0.15) * Math.sin(z * 0.11 + 0.7);
-  // Fade to 0 near the hall (|x|<15, |z|<11) and on the track (|z|<4).
+  // Fade to 0 on the track (|z|<4).
   const smooth = (t: number) => {
     const c = Math.min(1, Math.max(0, t));
     return c * c * (3 - 2 * c);
   };
-  const hallFade = Math.min(smooth((Math.abs(x) - 15) / 3), smooth((Math.abs(z) - 11) / 3));
   const trackFade = smooth((Math.abs(z) - 4) / 3);
-  return raw * Math.max(hallFade, trackFade);
+  return raw * trackFade;
 }
 
 export type CropKind = 'rice' | 'wheat' | 'corn';
@@ -79,7 +52,7 @@ export interface CropPlot {
 }
 
 /**
- * Six plots around the hall (the dirt track z ∈ [-3, 3] and the three
+ * Six plots in the field (the dirt track z ∈ [-3, 3] and the three
  * outdoor booths stay clear). Rice / wheat / corn at different growth
  * stages, so the field reads as several crops, not one repeating stamp.
  */
@@ -88,8 +61,8 @@ export const CROP_PLOTS: CropPlot[] = [
   { id: 'wheat-ne', crop: 'wheat', zh: '小麦 · 灌浆期', stage: 0.8, bounds: [16, -20, 28, -8], spacing: [0.55, 0.9] },
   { id: 'corn-sw', crop: 'corn', zh: '玉米 · 拔节期', stage: 0.65, bounds: [-28, 8, -16, 20], spacing: [0.75, 1.0] },
   { id: 'rice-se', crop: 'rice', zh: '水稻 · 抽穗期', stage: 0.6, bounds: [16, 8, 28, 20], spacing: [0.45, 0.75] },
-  { id: 'wheat-n', crop: 'wheat', zh: '小麦 · 苗期', stage: 0.35, bounds: [-12, -21, 12, -13], spacing: [0.55, 0.9] },
-  { id: 'corn-s', crop: 'corn', zh: '玉米 · 成熟期', stage: 0.9, bounds: [-12, 13, 12, 21], spacing: [0.75, 1.0] },
+  { id: 'wheat-n', crop: 'wheat', zh: '小麦 · 苗期', stage: 0.35, bounds: [-12, -17, 12, -8], spacing: [0.55, 0.9] },
+  { id: 'corn-s', crop: 'corn', zh: '玉米 · 成熟期', stage: 0.9, bounds: [-12, 8, 12, 17], spacing: [0.75, 1.0] },
 ];
 
 /** Which plot (if any) covers (x, z). */
@@ -112,25 +85,19 @@ export function cropPlotCount(plot: CropPlot): number {
   return Math.floor(((maxX - minX) / plot.spacing[0]) * ((maxZ - minZ) / plot.spacing[1]));
 }
 
-/** Static axis-aligned obstacles the walker / vehicle must not pass through. */
-export interface HallObstacle {
+/** Static axis-aligned obstacles the vehicle must not pass through. */
+export interface FieldObstacle {
   id: string;
   /** [minX, minZ, maxX, maxZ] footprint in metres. */
   box: [number, number, number, number];
   label: string;
 }
 
-export const HALL_OBSTACLES: HallObstacle[] = [
+export const FIELD_OBSTACLES: FieldObstacle[] = [
   { id: 'diag-booth', box: [13.5, -12.5, 19.5, -7.5], label: '诊断工位' },
   { id: 'embodied-booth', box: [-19.5, -12.5, -13.5, -7.5], label: '具身装备展台' },
   { id: 'kiosk', box: [13.5, 7.5, 19.5, 12.5], label: 'AgriDx 交互大屏' },
-  // Glass hall walls (the east wall is split by the 6.4 m gate at z ∈ [-3.2, 3.2]).
-  { id: 'hall-wall-n', box: [-14.3, -10.3, 14.3, -9.7], label: '展厅北墙' },
-  { id: 'hall-wall-s', box: [-14.3, 9.7, 14.3, 10.3], label: '展厅南墙' },
-  { id: 'hall-wall-w', box: [-14.3, -10.3, -13.7, 10.3], label: '展厅西墙' },
-  { id: 'hall-wall-e-n', box: [13.7, -10.3, 14.3, -3.2], label: '展厅东墙北段' },
-  { id: 'hall-wall-e-s', box: [13.7, 3.2, 14.3, 10.3], label: '展厅东墙南段' },
-  // Crop rows are soft: the walker / tractor may push through the crops.
+  // Crop rows are soft: the tractor may push through the crops.
 ];
 
 export type ZoneId = 'tractor' | 'diagnosis' | 'embodied' | 'agridex';
@@ -139,14 +106,8 @@ export interface ShowroomZone {
   id: ZoneId;
   zh: string;
   en: string;
-  /** Camera stand-off point for the fly-in (metres). */
-  camera: [number, number, number];
-  /** Point the camera looks at on arrival. */
-  lookAt: [number, number, number];
   /** Where the tractor parks for auto-navigation (metres, x/z). */
   dock: [number, number];
-  /** Where the walker stands after a fly-in. */
-  stand: [number, number];
   color: string;
   taglineZh: string;
   taglineEn: string;
@@ -159,10 +120,7 @@ export const SHOWROOM_ZONES: ShowroomZone[] = [
     id: 'tractor',
     zh: '智能拖拉机展区',
     en: 'Smart Tractor',
-    camera: [7.5, 2.6, 7.5],
-    lookAt: [0, 1.1, 0],
     dock: [7.2, 0],
-    stand: [6.5, 5.5],
     color: '#2e7d46',
     taglineZh: '鸿鹄 T70 · 中央主展区',
     taglineEn: 'Honghu T70 · Main exhibit',
@@ -173,10 +131,7 @@ export const SHOWROOM_ZONES: ShowroomZone[] = [
     id: 'diagnosis',
     zh: '故障诊断机器人展区',
     en: 'Diagnosis Robot',
-    camera: [16.5, 2.4, -5.2],
-    lookAt: [16.5, 1.0, -10],
     dock: [16.5, -5.2],
-    stand: [14.2, -5.2],
     color: '#245d7d',
     taglineZh: '检测 — 定位 — 诊断',
     taglineEn: 'Detect — Locate — Diagnose',
@@ -187,10 +142,7 @@ export const SHOWROOM_ZONES: ShowroomZone[] = [
     id: 'embodied',
     zh: '农业具身智能装备展区',
     en: 'Embodied Agri-Robot',
-    camera: [-16.5, 2.4, -5.2],
-    lookAt: [-16.5, 1.0, -10],
     dock: [-16.5, -5.2],
-    stand: [-14.2, -5.2],
     color: '#886423',
     taglineZh: '具身智能 · 机械臂',
     taglineEn: 'Embodied intelligence · Robot arm',
@@ -201,10 +153,7 @@ export const SHOWROOM_ZONES: ShowroomZone[] = [
     id: 'agridex',
     zh: 'AgriDx 智能诊断交互区',
     en: 'AgriDx Interactive',
-    camera: [16.5, 2.4, 5.2],
-    lookAt: [16.5, 1.4, 10],
     dock: [16.5, 5.2],
-    stand: [14.2, 5.2],
     color: '#1f7a6d',
     taglineZh: '大屏交互台 · 真实诊断接口',
     taglineEn: 'Interactive wall · Live diagnosis API',
@@ -264,7 +213,7 @@ export interface WeatherPreset {
   sway: number;
   /** Ground / crop wetness 0..1 (rain darkens soil and crops). */
   wet: number;
-  /** Snow cover 0..1 (snow whitens ground/crops/roof and bends crops down). */
+  /** Snow cover 0..1 (snow whitens ground/crops and the cab roof, and bends crops down). */
   snow: number;
   /** Wind direction in degrees (0 = from the north, clockwise). */
   windDeg: number;

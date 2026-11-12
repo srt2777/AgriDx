@@ -8,8 +8,8 @@ export const WORLD_ZONES = [
   {
     id: 'knowledge',
     number: '01',
-    zh: '农机知识',
-    en: 'Knowledge',
+    zh: '知识库',
+    en: 'Knowledge base',
     color: '#6db9e0',
     x: -7.5,
     z: -5.6,
