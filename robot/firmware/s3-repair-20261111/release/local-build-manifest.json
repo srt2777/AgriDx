@@ -1,14 +1,14 @@
 {
   "firmware": "sijia-s3-display-repair-0.1.1.bin",
-  "sha256": "72420ee82d86ce0ace2309df5bc9e6a0ad61439241ef4a3c17003c7d2fff93d4",
-  "bytes": 4622496,
+  "sha256": "fff3d569de6d80701cd7fa3281086268e93399eef12277464ce9bc9cbc1c12ab",
+  "bytes": 4629728,
   "board": "ESP32-S3 N16R8",
   "display": "ILI9341 320x240",
-  "flashOffset": "0x10000",
-  "status": "UI update USB tested; production STT pending deployment",
-  "upload": "UI build USB write and hash verified; preceding renderer build also passed LAN OTA",
+  "flashOffset": "0x650000",
+  "status": "Streaming chat and expanded reading layout USB verified",
+  "upload": "This image verified by USB write and checksum; OTA previously tested on earlier image",
   "githubPublished": true,
-  "websiteDeployed": false,
+  "websiteDeployed": true,
   "verified": [
     "S3 build",
     "full font bitmap decoding",
@@ -27,11 +27,12 @@
     "Generated Chinese font decoding for current UI strings",
     "UI image booted from app1; Wi-Fi, SSE, three metric selections and persisted calibration passed",
     "UI standby cold-boot steady windows: 25.4 and 25.7 FPS",
-    "Oil pressure card keeps label, state and kPa on one line; checked against actual font metrics"
+    "Oil pressure card keeps label, state and kPa on one line; checked against actual font metrics",
+    "Board SSE completion, 141px chat viewport, 940px answer content, 224px source panel and preserved calibration"
   ],
   "unresolved": [
-    "Production voice endpoint requires backend deployment and retest",
-    "Physical microphone and touch-to-display latency were not measured in this run"
+    "Physical touch scrolling and microphone end-to-end timing require user verification",
+    "Current board trial first answer preview 8.6 seconds and complete response 19.5 seconds; network/provider latency still varies"
   ],
   "controls": {
     "BOOT short": "next page",

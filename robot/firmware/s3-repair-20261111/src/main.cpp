@@ -297,7 +297,7 @@ static bool g_online = false;
 
 // ---------- 网络任务与主循环之间传结果（互斥 + 标志位；网络任务绝不直接碰 LVGL）----------
 struct ChatResult {
-  bool ready = false, ok = false;
+  bool ready = false, ok = false, partial = false;
   String answer, mode, provider;
   String sources[3];
   int sourceCount = 0, sourceTotal = 0;
@@ -582,14 +582,80 @@ static String httpGet(const String &url, int timeoutMs) {
 }
 
 // ---------- 网络任务（FreeRTOS，core 0；绝不直接碰 LVGL）----------
+// HTTPClient removes HTTP chunk framing before passing SSE bytes here.
+class ChatStreamSink : public Stream {
+ public:
+  explicit ChatStreamSink(WiFiClientSecure &client) : client_(client) {}
+  String finalPayload;
+  bool valid = true, completed = false;
+  int available() override { return 0; }
+  int read() override { return -1; }
+  int peek() override { return -1; }
+  void flush() override {}
+  size_t write(uint8_t byte) override { return write(&byte, 1); }
+  size_t write(const uint8_t *bytes, size_t length) override {
+    for (size_t i = 0; i < length; ++i) {
+      const char c = bytes[i];
+      if (c == '\r') continue;
+      if (c != '\n') {
+        if (line.length() >= 196608) { valid = false; return 0; }
+        line += c;
+        continue;
+      }
+      if (line.startsWith("event:")) { event = line.substring(6); event.trim(); }
+      else if (line.startsWith("data:")) {
+        if (event == "done") {
+          finalPayload = line.substring(5);
+          line = String();
+          answer = String();
+          completed = true;
+          client_.stop();
+          return length;
+        }
+        JsonDocument message;
+        auto error = deserializeJson(message, line.substring(5));
+        if (error) { Serial.printf("[chat] SSE parse=%s event=%s bytes=%u\n", error.c_str(), event.c_str(), (unsigned)line.length()); valid = false; return 0; }
+        if (event == "delta") {
+          answer += message["text"] | "";
+          if (answer.length() > 16384) { valid = false; return 0; }
+          if (millis() - publishedAt >= 350) {
+            ChatResult result;
+            result.ready = result.ok = result.partial = true;
+            result.answer = stripMarkdown(answer);
+            xSemaphoreTake(g_resultMutex, portMAX_DELAY);
+            g_chatResult = result;
+            xSemaphoreGive(g_resultMutex);
+            publishedAt = millis();
+          }
+        } else if (event == "done") {
+          finalPayload = line.substring(5);
+          completed = true;
+        } else if (event == "error") { valid = false; return 0; }
+      }
+      line = "";
+    }
+    // A sustained token stream can keep core 0 runnable for many seconds.
+    // Let the idle task and Wi-Fi run between HTTP blocks.
+    vTaskDelay(1);
+    return length;
+  }
+ private:
+  WiFiClientSecure &client_;
+  String line, event, answer;
+  uint32_t publishedAt = 0;
+};
+
 static bool netPostChatOnce(const String &question, ChatResult &out) {
   WiFiClientSecure client;
   client.setHandshakeTimeout(10);
   client.setInsecure();
   HTTPClient http;
   http.setConnectTimeout(10000);
+  // Avoid Arduino HTTPClient busy-waiting for sparse HTTP chunk headers.
+  http.useHTTP10(true);
   http.begin(client, String(SIJIA_BASE_URL) + "/api/chat");
   http.addHeader("Content-Type", "application/json");
+  http.addHeader("Accept", "text/event-stream");
   http.setTimeout(60000);
   // 注意：不要加 Origin 头；HTTPClient 默认不发，正好通过正式站同源检查。
   JsonDocument req;
@@ -620,10 +686,15 @@ static bool netPostChatOnce(const String &question, ChatResult &out) {
   int code = http.POST(body);
   Serial.printf("[chat] HTTP=%d response_ms=%lu history=%d\n", code, (unsigned long)(millis() - chatStarted), g_historyCount);
   if (code != 200) { http.end(); return false; }
-  String payload = http.getString();
+  ChatStreamSink sink(client);
+  const int received = http.writeToStream(&sink);
   http.end();
+  Serial.printf("[chat] stream_bytes=%d valid=%d done=%d\n", received, sink.valid, sink.completed);
+  if (!sink.valid || !sink.completed) return false;
+  String payload = std::move(sink.finalPayload);
+  Serial.printf("[chat] completed_ms=%lu\n", (unsigned long)(millis() - chatStarted));
   JsonDocument doc;
-  if (deserializeJson(doc, payload)) return false;
+  if (deserializeJson(doc, payload.begin())) return false;
   const char *content = doc["choices"][0]["message"]["content"];
   if (!content) return false;
   out.answer = stripMarkdown(String(content));
@@ -644,10 +715,8 @@ static bool netPostChatOnce(const String &question, ChatResult &out) {
   return true;
 }
 
-// 问答：60 秒超时，失败重试 1 次（方案 §3.2 的接口契约）。
+// One request per turn. A failed stream is surfaced for an explicit retry.
 static bool netPostChat(const String &question, ChatResult &out) {
-  if (netPostChatOnce(question, out)) return true;
-  delay(1000);
   return netPostChatOnce(question, out);
 }
 
@@ -937,9 +1006,9 @@ static lv_obj_t *g_navUnderline = nullptr;
 static lv_obj_t *g_presetOverlay = nullptr;
 static int g_activePage = -1;
 static constexpr const char *kPageTitles[] = {"监测", "对话", "联网"};
-static constexpr int kHeaderHeight = 32;
-static constexpr int kNavigationHeight = 38;
-static constexpr int kTalkHeight = 34;
+static constexpr int kHeaderHeight = 26;
+static constexpr int kNavigationHeight = 30;
+static constexpr int kTalkHeight = 28;
 
 static void setTopStatus(const char *text, lv_color_t color) {
   if (strcmp(lv_label_get_text(g_topStatus), text)) lv_label_set_text(g_topStatus, text);
@@ -1100,7 +1169,7 @@ static void onSourcesToggle(lv_event_t *e) {
   else lv_obj_set_hidden(g_sourcesBox, true);
   fitChatContent();
   lv_label_set_text(lv_obj_get_child(g_sourcesBtn, 0),
-                    g_sourcesOpen ? "查看依据与核对项（收起）" : "查看依据与核对项（展开）");
+                    g_sourcesOpen ? "收起" : "依据");
 }
 static void onNewChat(lv_event_t *e) {
   (void)e;
@@ -1421,7 +1490,7 @@ static void buildChatTile(lv_obj_t *tile) {
   lv_obj_set_width(g_msgList, lv_pct(100));
   lv_obj_set_height(g_msgList, LV_SIZE_CONTENT);
   lv_obj_set_flex_grow(g_msgList, 0);
-  lv_obj_set_style_max_height(g_msgList, 126, 0);
+  lv_obj_set_height(g_msgList, 140);
   lv_obj_set_scroll_dir(g_msgList, LV_DIR_VER);
   lv_obj_set_style_bg_opa(g_msgList, LV_OPA_TRANSP, 0);
   lv_obj_set_style_border_width(g_msgList, 0, 0);
@@ -1470,13 +1539,25 @@ static void buildChatTile(lv_obj_t *tile) {
   lv_obj_set_hidden(g_voiceStatus, true);
 #endif
   // 依据区（默认隐藏，回答带依据时才出现）
-  g_sourcesBox = lv_obj_create(tile);
-  lv_obj_set_width(g_sourcesBox, lv_pct(100));
-  lv_obj_set_height(g_sourcesBox, 54);
-  lv_obj_set_scroll_dir(g_sourcesBox, LV_DIR_VER);
+  g_sourcesBox = lv_obj_create(lv_layer_top());
+  lv_obj_set_size(g_sourcesBox, 310, 224);
+  lv_obj_center(g_sourcesBox);
+  lv_obj_set_scrollable(g_sourcesBox, false);
   styleCard(g_sourcesBox);
   lv_obj_set_style_pad_all(g_sourcesBox, 6, 0);
-  g_sourcesLabel = mkLabel(g_sourcesBox, "", &font_zh_16, C_SUBTEXT);
+  lv_obj_t *sourceClose = lv_btn_create(g_sourcesBox);
+  lv_obj_set_size(sourceClose, 60, 28);
+  lv_obj_align(sourceClose, LV_ALIGN_TOP_RIGHT, 0, 0);
+  lv_obj_t *closeText = mkLabel(sourceClose, "关闭", &font_zh_12, C_WHITE);
+  lv_obj_center(closeText);
+  lv_obj_add_event_cb(sourceClose, onSourcesToggle, LV_EVENT_CLICKED, nullptr);
+  lv_obj_t *sourceBody = lv_obj_create(g_sourcesBox);
+  lv_obj_set_pos(sourceBody, 0, 34);
+  lv_obj_set_size(sourceBody, 294, 174);
+  lv_obj_set_style_pad_all(sourceBody, 2, 0);
+  lv_obj_set_style_border_width(sourceBody, 0, 0);
+  lv_obj_set_scroll_dir(sourceBody, LV_DIR_VER);
+  g_sourcesLabel = mkLabel(sourceBody, "", &font_zh_16, C_TEXT);
   lv_label_set_long_mode(g_sourcesLabel, LV_LABEL_LONG_WRAP);
   lv_obj_set_width(g_sourcesLabel, lv_pct(100));
   lv_obj_set_hidden(g_sourcesBox, true);
@@ -1490,7 +1571,7 @@ static void buildChatTile(lv_obj_t *tile) {
   lv_obj_set_style_shadow_width(g_sourcesBtn, 0, 0);
   stylePressable(g_sourcesBtn, C_TINT);
   lv_obj_t *sl = lv_label_create(g_sourcesBtn);
-  lv_label_set_text(sl, "查看依据与核对项（展开）");
+  lv_label_set_text(sl, "依据");
   lv_obj_set_style_text_font(sl, &font_zh_12, 0);
   lv_obj_set_style_text_color(sl, C_PRIMARY, 0);
   lv_obj_center(sl);
@@ -1512,8 +1593,10 @@ static void buildChatTile(lv_obj_t *tile) {
   lv_obj_set_flex_align(bottom, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
 #if SIJIA_VOICE_ENABLED
   // 麦克风按钮（RV0.2.0 语音）：按住录音，松开发送；最长 15 秒自动停并发送。
+  lv_obj_set_parent(g_sourcesBtn, bottom);
+  lv_obj_set_size(g_sourcesBtn, 52, kTalkHeight);
   lv_obj_t *mic = lv_btn_create(bottom);
-  lv_obj_set_width(mic, 150);
+  lv_obj_set_width(mic, 102);
   lv_obj_set_height(mic, kTalkHeight);
   lv_obj_set_style_pad_all(mic, 2, 0);
   lv_obj_set_style_bg_color(mic, C_PRIMARY, 0);
@@ -1523,7 +1606,7 @@ static void buildChatTile(lv_obj_t *tile) {
   lv_obj_set_style_shadow_width(mic, 0, 0);
   g_voiceBtnLabel = lv_label_create(mic);
   lv_label_set_text(g_voiceBtnLabel, "按住说话");
-  lv_obj_set_style_text_font(g_voiceBtnLabel, &font_zh_16, 0);
+  lv_obj_set_style_text_font(g_voiceBtnLabel, &font_zh_12, 0);
   lv_obj_set_style_text_color(g_voiceBtnLabel, C_WHITE, 0);
   lv_obj_center(g_voiceBtnLabel);
   lv_obj_add_event_cb(mic, onMicPressed, LV_EVENT_PRESSED, nullptr);
@@ -1558,7 +1641,7 @@ static void fitChatContent() {
     ++visibleSiblings;
   }
   available -= visibleSiblings * 3;
-  lv_obj_set_style_max_height(g_msgList, max(32, available), 0);
+  lv_obj_set_height(g_msgList, max(32, available));
   lv_obj_update_layout(tile);
 }
 
@@ -2290,8 +2373,25 @@ static void pollVoiceBootBtn() {
 
 // ---------- 主循环里消费网络结果 ----------
 static void applyChatResult() {
+  static lv_obj_t *previewRow = nullptr;
   ChatResult r;
   if (!takeChatResult(r)) return;
+  if (r.partial) {
+    setThinking(false);
+    if (!previewRow) {
+      Serial.printf("[chat] first_preview uptime_ms=%lu\n", (unsigned long)millis());
+      addAssistantCard(r.answer.c_str(), "正在诊断");
+      previewRow = lv_obj_get_child(g_msgList, -1);
+    } else {
+      lv_label_set_text(lv_obj_get_child(previewRow, 1), r.answer.c_str());
+      fitChatContent();
+    }
+    return;
+  }
+  if (previewRow) {
+    lv_obj_delete(previewRow);
+    previewRow = nullptr;
+  }
   setThinking(false);
   g_chatBusy = false;
   if (!r.ok) {
@@ -2316,7 +2416,7 @@ static void applyChatResult() {
     for (int i = 0; i < r.sourceCount; i++) s += String(i + 1) + ". " + r.sources[i] + "\n";
     lv_label_set_text(g_sourcesLabel, s.c_str());
     lv_obj_set_hidden(g_sourcesBtn, false);
-    lv_label_set_text(lv_obj_get_child(g_sourcesBtn, 0), "查看依据与核对项（展开）");
+    lv_label_set_text(lv_obj_get_child(g_sourcesBtn, 0), "依据");
   } else {
     lv_obj_set_hidden(g_sourcesBtn, true);
   }
@@ -2716,6 +2816,17 @@ static void pollSerialControl() {
       lv_tileview_set_tile_by_index(g_tileview, 2, 0, LV_ANIM_OFF); updateDots(2);
     } else if (line == "PAGE CHAT") {
       lv_tileview_set_tile_by_index(g_tileview, 1, 0, LV_ANIM_OFF); updateDots(1);
+    } else if (line == "CHAT SOURCES") {
+      onSourcesToggle(nullptr);
+    } else if (line == "CHAT LAYOUT") {
+      lv_obj_update_layout(g_msgList);
+      Serial.printf("[layout] viewport=%d source_panel=%d source_text=%d busy=%d\n",
+                    lv_obj_get_height(g_msgList), lv_obj_get_height(g_sourcesBox),
+                    lv_obj_get_height(g_sourcesLabel), g_chatBusy);
+      for (uint32_t i = 0; i < lv_obj_get_child_count(g_msgList); ++i) {
+        lv_obj_t *row = lv_obj_get_child(g_msgList, i);
+        Serial.printf("[layout] row=%u height=%d\n", (unsigned)i, lv_obj_get_height(row));
+      }
     } else if (line.startsWith("ASK ")) {
       askQuestion(line.substring(4).c_str());
 #endif
