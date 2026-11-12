@@ -1106,6 +1106,13 @@
       "base": "4.1.11",
       "version": "4.1.12",
       "date": "2026-11-12"
+    },
+    {
+      "id": "diagnosis-context-corrections-20261111",
+      "kind": "fix",
+      "base": "4.1.12",
+      "version": "4.1.13",
+      "date": "2026-11-13"
     }
   ]
 }
