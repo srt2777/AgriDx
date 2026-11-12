@@ -1,3 +1,3 @@
-Production recovery artifact for main fb926e325ec7ccb6dbb17ede461f8c0e71e95504 (4.1.9).
+Production artifact for main 58e30a56330188de4c1bb7fb1b678c62d114154c (4.1.12).
 
-Built locally using npm run build; source main CI passed. Archive and every file digest are in artifact.json. No credentials or node_modules included. One-time runner derives from that exact source deployment script, replacing the memory-intensive build with production-only dependency install and pinned, SHA-256-verified artifacts. Existing staging health checks, atomic switch, rollback and environment handling remain. Does not enable timers or install persistent controller changes.
+Built locally using npm run build. The exact source main commit must pass CI before production deployment. Archive and every file digest are in artifact.json. No credentials or node_modules included. One-time runner installs production dependencies and pinned, SHA-256-verified artifacts. Existing staging health checks, atomic switch, rollback and environment handling remain. Does not enable timers or install persistent controller changes.
