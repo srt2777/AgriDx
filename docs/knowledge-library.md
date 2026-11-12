@@ -106,3 +106,9 @@ node --import tsx scripts/knowledge-inventory.ts --csv > knowledge-inventory.csv
 ## 工作台与知识库统一统计（2026-11-12）
 
 页面统一称“知识库”。工作台卡片与知识库页通过 `useKnowledgeSummary` 读取同一份文献清单并加上目录条目和正文研究知识；当前合计 500,007，文献元数据 486,764、归档与学习 13,236、正文研究 7 分列。文献清单未取得时总数显示未知，提供重试，不把原目录数冒充全库合计。数据本身与诊断证据资格未变。
+
+### 公开产品型号档案（2026-11-12）
+
+`config/model-registry.json` 记录江苏省农业农村厅 2025-10-28 第三批产品目录来源与摘要。`public/assets/model-registry/` 保留官方原始 XLS 与规范化记录：3,307 行，按 NFKC 企业名称与机具型号去重后 3,304 项；每项保留原表行号。`scripts/import-model-registry.py`（Python + xlrd）可重建，测试检查摘要、去重键、完整行号范围和数量。
+
+产品型号档案与维修资料覆盖分列，不加入 500,007 知识索引合计。该公告只证明当时公开目录列有该产品，不能推断当前证书状态、维修适用范围或整机验证；`diagnosticEvidence=false`，不注入诊断检索器。

@@ -107,3 +107,18 @@
 .new-version-shell .wb-page{--wb-bg:var(--background);--wb-card:var(--card);--wb-text:var(--foreground);--wb-muted:var(--muted-foreground);--wb-line:var(--border);--wb-blue:var(--primary);--wb-tint:var(--accent);--wb-green:#13866c}
 .wb-data-management>summary{cursor:pointer;font-weight:600;padding:6px 0}.wb-data-management[open]>summary{margin-bottom:20px}
 .wb-data-management>.wb-panel{border:0;box-shadow:none;padding-inline:0}
+
+/* Shared workflow, intentionally distinct visual languages. */
+.fluid-workspace[data-ui-version='old'] :is(.wb-panel,.wb-metric,.fo-card,.fo-dialog,.wb-context-card,.wb-workflow>a){box-shadow:none!important;background-image:none!important;border-radius:4px!important}
+.fluid-workspace[data-ui-version='old'] .wb-page :is(button,.wb-button,input,select,textarea){box-shadow:none!important;background-image:none!important;border-radius:4px!important}
+.fluid-workspace[data-ui-version='old'] .wb-workflow>a:hover{transform:none}
+.fluid-workspace[data-ui-version='old'] .fluid-row.is-active::before{display:none}
+.new-version-shell .wb-page{--wb-glint:color-mix(in srgb,white 44%,transparent);--wb-depth:color-mix(in srgb,#06253c 16%,transparent);background-image:radial-gradient(ellipse at 92% 0%,color-mix(in srgb,var(--wb-blue) 10%,transparent),transparent 58%)}
+.new-version-shell .wb-page :is(.wb-panel,.wb-metric,.fo-card){background:linear-gradient(145deg,color-mix(in srgb,var(--wb-card) 92%,white),var(--wb-card) 65%);border-radius:16px!important;border-color:color-mix(in srgb,var(--wb-blue) 20%,var(--wb-line))!important;box-shadow:inset 0 1px 0 var(--wb-glint),0 8px 22px var(--wb-depth),0 1px 2px var(--wb-depth)!important}
+.new-version-shell .wb-page :is(button,.wb-button){background-image:linear-gradient(180deg,color-mix(in srgb,white 9%,transparent),transparent);box-shadow:inset 0 1px 0 var(--wb-glint),0 2px 3px var(--wb-depth);border-radius:8px!important;transition:box-shadow 200ms ease-out,background-color 200ms ease-out}
+.new-version-shell .wb-page :is(button,.wb-button):active,.new-version-shell .wb-page button[aria-pressed='true']{box-shadow:inset 0 2px 5px var(--wb-depth),0 1px 0 var(--wb-glint)}
+.new-version-shell .wb-page :is(input:not([type='range']),select,textarea){box-shadow:inset 0 2px 5px var(--wb-depth),0 1px 0 var(--wb-glint);background:color-mix(in srgb,var(--wb-bg) 55%,var(--wb-card))!important}
+.new-version-shell .wb-page :is(.wb-overlay,.wb-gauge,.fo-plot){border-radius:10px;background:linear-gradient(180deg,color-mix(in srgb,var(--wb-blue) 5%,var(--wb-card)),var(--wb-card));box-shadow:inset 0 1px 6px var(--wb-depth);padding:10px}
+.new-version-shell .wb-page .wb-eyebrow{color:var(--wb-blue)}
+.new-version-shell .wb-page .wb-data-management>.wb-panel{box-shadow:none!important;background:transparent}
+@media(prefers-reduced-motion:reduce){.new-version-shell .wb-page :is(button,.wb-button){transition:none}}

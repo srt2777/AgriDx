@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "sourceTitle": "江苏省2025年第三批农机补贴形式审核通过产品汇总表",
+  "publisher": "江苏省农业农村厅",
+  "publishedAt": "2025-10-28",
+  "retrievedAt": "2026-11-12",
+  "sourceUrl": "https://nynct.jiangsu.gov.cn/art/2025/10/28/art_11977_11669509.html",
+  "downloadUrl": "https://nynct.jiangsu.gov.cn/module/download/downfile.jsp?classid=0&filename=393c03904ffa4c93a3dd5f47bc151e7d.xls",
+  "sourceSha256": "780fa98fd4a93770649de913ce972a445672813781fd9f56c6c33c9df8f9851f",
+  "sheet": "数据",
+  "rawRows": 3307,
+  "models": 3304,
+  "manufacturers": 617,
+  "categories": 51,
+  "recordsSha256": "5095e285d6905513a4ee328fb33b85c356da4ef37269d255caac827abd2a23bd",
+  "diagnosticEvidence": false,
+  "deduplication": "NFKC-normalized manufacturer + model; original spreadsheet row numbers retained"
+}
