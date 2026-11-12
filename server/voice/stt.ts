@@ -35,11 +35,11 @@ export function createSttProvider(env: NodeJS.ProcessEnv = process.env): SttProv
   const provider = (env.VOICE_STT_PROVIDER ?? 'faster-whisper').trim().toLowerCase();
   if (provider === 'stub') return new StubSttProvider(env.VOICE_STT_STUB_TEXT ?? '');
   if (provider === 'faster-whisper') {
-    return new WarmWhisperProvider('faster-whisper', env.VOICE_STT_MODEL?.trim() || 'tiny',
+    return new WarmSttProvider('faster-whisper', env.VOICE_STT_MODEL?.trim() || 'tiny',
       path.join(SCRIPTS_DIR, 'stt_faster_whisper.py'), env);
   }
   if (provider === 'sensevoice') {
-    return new CommandSttProvider('sensevoice', 'iic/SenseVoiceSmall',
+    return new WarmSttProvider('sensevoice', env.VOICE_STT_MODEL?.trim() || 'iic/SenseVoiceSmall',
       path.join(SCRIPTS_DIR, 'stt_sensevoice.py'), env);
   }
   throw new Error(`[voice] unknown VOICE_STT_PROVIDER: ${provider} (faster-whisper | sensevoice | stub)`);
@@ -123,7 +123,7 @@ class CommandSttProvider implements SttProvider {
 }
 
 /** Reuse the loaded model across requests. Only one request is sent to Python at a time. */
-class WarmWhisperProvider extends CommandSttProvider {
+class WarmSttProvider extends CommandSttProvider {
   private worker?: ChildProcessWithoutNullStreams;
   private pending?: {
     resolve: (line: string) => void;
@@ -178,7 +178,7 @@ class WarmWhisperProvider extends CommandSttProvider {
       const unavailable = error?.code === 'ENOENT' || /ModuleNotFoundError|No module named/.test(stderr);
       if (stderr) console.error('[voice] STT worker exited:', stderr.slice(-500));
       this.stopWorker(worker, unavailable
-        ? new VoiceError(503, 'stt_unavailable', '语音识别不可用，请检查服务器的 Python 和 faster-whisper')
+        ? new VoiceError(503, 'stt_unavailable', '语音识别不可用，请检查服务器的 Python 和识别模型依赖')
         : new VoiceError(502, 'stt_failed', '语音识别失败，请换一段录音重试'));
     };
     worker.on('error', fail);
