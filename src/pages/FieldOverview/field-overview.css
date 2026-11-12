@@ -91,4 +91,9 @@
 
 .fo-integrated :is(.fo-value strong,.fo-panel-head h2,.fo-chart-total strong,.fo-fleet th,.fo-machine-id strong) {color:var(--wb-text)}
 .fo-integrated .fo-filters :is(input,select) {background:var(--wb-card);color:var(--wb-text)}
+.fo-integrated :is(.fo-fleet th,.fo-segment,.fo-filters label,.fo-dialog) {background:var(--wb-card);color:var(--wb-text);border-color:var(--wb-line)}
+.fo-integrated :is(.fo-subtle,.fo-legend,.fo-legend span,.fo-yticks,.fo-xticks,.fo-ring span,.fo-machine-id small,.fo-status-body button,.fo-dialog dt) {color:var(--wb-muted)}
+.fo-integrated :is(.fo-status-body button b,.fo-dialog h2) {color:var(--wb-text)}
+.fo-integrated :is(.fo-fleet td,.fo-fleet th,.fo-status-body li+li,.fo-dialog dl>div) {border-color:var(--wb-line)}
+.fo-integrated .fo-status-body button:hover {background:var(--wb-card)}
 @media(max-width:680px){.fo-panel-head{flex-wrap:wrap}.fo-panel-head h2{font-size:16px}.fo-status-body{min-height:124px;gap:20px}.fo-ring{width:110px}.fo-status-body ul{max-width:none}.fo-fleet>.fo-panel-head{align-items:flex-start;flex-direction:column;padding:14px}.fo-filters{width:100%;flex-wrap:wrap}.fo-filters label{flex:1}.fo-filters input{width:100%}.fo-fleet table{min-width:590px}}
