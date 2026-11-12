@@ -1,0 +1,1 @@
+import{j as o}from"./r3f-DjLV461-.js";import{M as t,r as a}from"./index-D310y331.js";import"./three-pMn_nKf8.js";function e({children:r}){return o.jsx(t,{remarkPlugins:[a],children:r})}export{e as default};
