@@ -1,4 +1,3 @@
-import { researchKnowledge } from '@shared/research-knowledge';
 import { ClassicDisclosure } from '@/ui/ClassicDisclosure';
 import { useUiCopy } from '@/ui/useUiCopy';
 import { Link, useSearchParams } from 'react-router-dom';
@@ -13,8 +12,8 @@ import { useKnowledgeCatalog } from '@/hooks/useKnowledgeCatalog';
 import type { CatalogEntry } from '@shared/knowledge-catalog';
 import { CATALOG_FILTER_KEYS } from '@shared/knowledge-catalog';
 import { LiquidGlass } from '@/components/ui/liquid-glass';
-import { lazy, Suspense, useEffect, useState } from 'react';
-import { loadLiteratureManifest } from '@/features/knowledge/literature-api';
+import { lazy, Suspense } from 'react';
+import { useKnowledgeSummary } from '@/hooks/useKnowledgeSummary';
 import { ErrorBoundary } from 'react-error-boundary';
 import { catalogDistributions } from '@/features/knowledge/catalog-distributions';
 import '@/control-glass.css';
@@ -31,8 +30,6 @@ export default function KnowledgePage() {
   const { t, format, separator } = useUiCopy(lang);
   const [params, setParams] = useSearchParams();
   const literatureView = params.get('view') === 'literature';
-  const [literatureCount, setLiteratureCount] = useState<number | null>(null);
-  useEffect(() => { let active = true; void loadLiteratureManifest().then(value => { if (active) setLiteratureCount(value.records); }).catch(() => {}); return () => { active = false; }; }, []);
   const graphView = params.get('view') === 'graph';
   const machineView = !literatureView && !graphView && (params.get('view') === 'machine' || ['brand', 'model', 'component', 'part', 'symptom', 'configuration', 'driveConfiguration', 'emissionStage'].some(key => params.has(key)));
   const filters = ['brand', 'model', 'component', 'part'] as const;
@@ -42,6 +39,8 @@ export default function KnowledgePage() {
   else ['collection', 'kind', 'topic', 'entryType', 'q', 'page'].forEach(key => query.delete(key));
   if (literatureView) { for (const key of [...query.keys()]) query.delete(key); }
   const { catalog, loading, failed, retry } = useKnowledgeCatalog(query.toString());
+  const summary = useKnowledgeSummary(catalog?.totals.entries);
+  const { literatureCount, researchCount } = summary;
   const brand = catalog?.brands.find(item => item.id === params.get('brand'));
   const model = brand?.models.find(item => item.id === params.get('model'));
   const component = model?.components.find(item => item.id === params.get('component'));
@@ -69,14 +68,14 @@ export default function KnowledgePage() {
     <div className="page-container">
       {!graphView && <><Link to="/" className="knowledge-back"><ArrowLeft size={15} />{t('返回首页', 'Back to home')}</Link>
       <header className="knowledge-page-heading">
-        <div><div className="section-eyebrow">{t('司稼 · 知识目录', 'SIJIA · CATALOG')}</div><h1 data-shared-target={version === 'new' ? 'knowledge' : undefined}>{t('知识检索与诊断支持', 'Knowledge & diagnostic support')}</h1><p>{t('按品牌、机型和部件查找。条数是已索引记录；每条保留来源、核验和适用范围。', 'Search by brand, model, and part. Counts are indexed records. Each entry keeps its source, check, and scope.')}</p>{version === 'new' && <span className="wheat-line" aria-hidden="true" />}</div>
+        <div><div className="section-eyebrow">{t('司稼 · 知识库', 'SIJIA · KNOWLEDGE BASE')}</div><h1 data-shared-target={version === 'new' ? 'knowledge' : undefined}>{t('知识库', 'Knowledge base')}</h1><p>{t('按品牌、机型和部件查找。条数是已索引记录；每条保留来源、核验和适用范围。', 'Search by brand, model, and part. Counts are indexed records. Each entry keeps its source, check, and scope.')}</p>{version === 'new' && <span className="wheat-line" aria-hidden="true" />}</div>
         <div className="knowledge-heading-icon" aria-hidden="true"><Layers size={38} strokeWidth={1.15} /><span>01 — 04</span></div>
       </header></>}
 
       {!graphView && <><div className="catalog-stats" aria-live="polite">
         {[
-          [catalog && literatureCount !== null ? catalog.totals.entries + literatureCount + researchKnowledge.entries.length : undefined, t('索引记录合计（含文献）', 'Indexed records including literature')],
-          [researchKnowledge.entries.length, t('正文研究知识（非维修规程）', 'Research notes, not repair procedures')],
+          [summary.total, t('索引记录合计（含文献）', 'Indexed records including literature')],
+          [researchCount, t('正文研究知识（非维修规程）', 'Research notes, not repair procedures')],
           [literatureCount, t('农业文献（未核验全文）', 'Literature metadata, full text unverified')],
           [catalog?.totals.entries, t('归档与学习条目', 'Archive and learning entries')],
           [catalog?.totals.archivedEntries, t('来源归档', 'Source archive entries')],
@@ -85,6 +84,7 @@ export default function KnowledgePage() {
         ].map(([value, label]) => <div key={String(label)}><strong>{typeof value === 'number' ? value.toLocaleString() : '—'}</strong><span>{label}</span></div>)}
       </div>
 
+      {summary.failed && <p role="status">{t('文献统计读取失败，暂不显示合计。', 'Literature count unavailable; total is not shown.')} <button type="button" onClick={summary.retry}>{t('重试统计', 'Retry counts')}</button></p>}
       {!literatureView && <ErrorBoundary fallback={<p role="alert">{t('分布图加载失败，请刷新后重试。目录仍可继续浏览。', 'Distribution charts failed to load. Refresh to retry; the catalog remains available.')}</p>}>
         <Suspense fallback={<p role="status">{t('正在加载标注分布…', 'Loading annotation distributions…')}</p>}>
           <CatalogDistributions {...distributions} loading={loading} failed={failed} retry={retry} lang={lang} params={params} />

@@ -13,7 +13,7 @@ export default function ScenariosSection() {
       <div className="page-container">
         <div className="section-heading mb-12">
           <h2>{t('面向真实的农业作业。', 'Made for agricultural work.')}</h2>
-          <p className="mt-4">{t('以已整理的拖拉机资料为起点，逐步扩充品类。下列是诊断问题示例，实际覆盖范围请查看农机知识。', 'Start with the archived tractor documents and expand by machine type. The following are example questions; see the knowledge browser for actual coverage.')}</p>
+          <p className="mt-4">{t('以已整理的拖拉机资料为起点，逐步扩充品类。下列是诊断问题示例，实际覆盖范围请查看知识库。', 'Start with the archived tractor documents and expand by machine type. The following are example questions; see the knowledge browser for actual coverage.')}</p>
         </div>
         <div className="scenario-layout">
           <figure className="scenario-image">

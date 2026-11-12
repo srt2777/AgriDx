@@ -17,7 +17,7 @@ const content = {
       en: 'A stalled engine or an unusual sound needs a clear next step. Sijia connects machine-specific documents to traceable troubleshooting, helping you understand symptoms, check evidence and plan action.',
     },
     ctaPrimary: { zh: '开始诊断', en: 'Start Diagnosis' },
-    ctaSecondary: { zh: '浏览农机知识', en: 'Explore machine knowledge' },
+    ctaSecondary: { zh: '浏览知识库', en: 'Explore the knowledge base' },
   },
   PAIN_POINTS: [
     {
