@@ -1,6 +1,6 @@
 /** Classic-interface copy rules. Evidence prose and the modern interface stay intact. */
 const concise: Record<string, string> = {
-  '知识检索与诊断支持': '农机知识',
+  '知识检索与诊断支持': '知识库',
   '知识目录': '资料目录',
   '全部知识': '全部资料',
   '来源归档': '归档资料',
@@ -30,7 +30,7 @@ const concise: Record<string, string> = {
   '导入生成结果并检查各个视角。模型为结构示意，不代表实车 CAD，不能代替机型维修手册。': '导入结果后检查各个视角。结构示意，不代表实车 CAD；请核对机型维修手册。',
   '您的智能农机诊断助手': '农机故障诊断',
   'Fault diagnosis assistant': 'Machinery diagnosis',
-  'Knowledge & diagnostic support': 'Machinery knowledge',
+  'Knowledge & diagnostic support': 'Knowledge base',
   'Knowledge catalog': 'Documents',
   'Machine details & memory': 'Machine details',
   'Source / locator': 'Source and page',

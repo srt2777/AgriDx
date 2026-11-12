@@ -5,7 +5,6 @@ import PageLoading from '@/components/PageLoading';
 import { pageLoaders } from '@/lib/page-loaders';
 import AutoUpdateStatus from '@/features/updates/AutoUpdateStatus';
 const HomePage = lazy(pageLoaders.classic);
-const FieldOverview = lazy(pageLoaders.field);
 const ChatPage = lazy(pageLoaders.chat);
 const KnowledgePage = lazy(pageLoaders.knowledge);
 const ModelPage = lazy(pageLoaders.models);
@@ -45,10 +44,9 @@ function NewVersionChrome() {
   return <NewVersionDelight />;
 }
 
-function ClassicWorkbenchRoute() {
-  const version = useUiVersion();
-  useLayoutEffect(() => { if (version !== 'old') setUiVersion('old'); }, [version]);
-  return version === 'old' ? <HomePage /> : <PageLoading />;
+function LegacyDataRedirect() {
+  const { search } = useLocation();
+  return <Navigate to={`/workspace/data${search}`} replace />;
 }
 
 function VersionedHomePage() {
@@ -68,15 +66,16 @@ export default function App() {
     <Routes>
       <Route element={<Layout />}>
         <Route index element={<PageContent><VersionedHomePage /></PageContent>} />
-        {['assets', 'data', 'commands', 'analytics', 'records'].map(section => <Route key={section} path={`workspace/${section}`} element={<PageContent><ClassicWorkbenchRoute /></PageContent>} />)}
+        {['assets', 'data', 'commands', 'records'].map(section => <Route key={section} path={`workspace/${section}`} element={<PageContent><HomePage /></PageContent>} />)}
         <Route path="chat" element={<PageContent><ChatPage /></PageContent>} />
         <Route path="knowledge" element={<PageContent><KnowledgePage /></PageContent>} />
         <Route path="models" element={<PageContent><ModelPage /></PageContent>} />
         <Route path="fault-detection" element={<PageContent><FaultDetectionPage /></PageContent>} />
         <Route path="version-history" element={<PageContent><VersionHistoryPage /></PageContent>} />
+        <Route path="workspace/analytics" element={<LegacyDataRedirect />} />
+        <Route path="field-overview" element={<Navigate to="/workspace/assets" replace />} />
         <Route path="hall" element={<LegacyHallRedirect />} />
       </Route>
-      <Route path="field-overview" element={<Suspense fallback={<PageLoading />}><FieldOverview /></Suspense>} />
       <Route path="showroom" element={<Suspense fallback={<PageLoading />}><ShowroomPage /></Suspense>} />
       {DeveloperPage && <Route path="developer" element={<PageContent><DeveloperPage /></PageContent>} />}
       <Route path="*" element={<NotFoundPage />} />

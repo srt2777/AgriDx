@@ -1,3 +1,4 @@
+import { WorkbenchProvider } from '@/features/workbench/WorkbenchContext';
 import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useLang } from '@/hooks/useLang';
@@ -19,6 +20,5 @@ export function Layout() {
   }, [lang]);
 
   // Keep modern navigation mounted while moving between the hall and features.
-  if (uiVersion === 'new') return <NewVersionShell />;
-  return <WorkspaceShell />;
+  return <WorkbenchProvider>{uiVersion === 'new' ? <NewVersionShell /> : <WorkspaceShell />}</WorkbenchProvider>;
 }
