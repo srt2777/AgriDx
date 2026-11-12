@@ -150,3 +150,7 @@ npm.cmd run sync
 ### 知识库版次与快照原子发布（3.11.1）
 
 目录的kbVersion在快照初始化时读取一次并随数据代际冻结，HTTP路由不再独立读文件或永久缓存；开发预览携带同一可选公开版本记录。重载失败保留旧数据与旧版本，元数据不可用仍返回null。详见[问题、边界与回归](architecture-snapshot-version.md)。
+
+## 发动机过热认知孪生原型
+
+`/#/cognitive-twin` 复用站点布局，从诊断页进入。`shared/cognitive-twin.ts` 为有界纯函数状态分析，`src/features/cognitive-twin/store.ts` 用独立 IndexedDB 事务保存带 revision 的设备案例事件；页面提供观测、检查、候选依据、人工确认声明和回放。原型不会修改现有诊断服务或公共知识快照。来源、范围和验收见 [原型说明](cognitive-twin-overheat.md)。

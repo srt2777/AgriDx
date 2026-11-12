@@ -322,6 +322,7 @@ export default function ChatPage() {
 
   return (
     <div ref={workspaceRef} className={`flex h-[calc(100dvh-5.625rem)] flex-col chat-glass${version === 'new' ? ' is-premium' : ''}`}>
+      <Link to="/cognitive-twin" className="px-4 py-2 text-sm text-primary underline shrink-0">{t('发动机过热：打开认知孪生工作台 →', 'Engine overheating: open cognitive twin →')}</Link>
       {version === 'old' ? <LiquidGlass
         variant="regular"
         className="chat-bar-glass"
