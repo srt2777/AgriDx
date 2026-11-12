@@ -1,5 +1,6 @@
-import { spawn } from 'node:child_process';
+import { spawn, type ChildProcessWithoutNullStreams } from 'node:child_process';
 import fs from 'node:fs';
+import { createInterface } from 'node:readline';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -34,11 +35,11 @@ export function createSttProvider(env: NodeJS.ProcessEnv = process.env): SttProv
   const provider = (env.VOICE_STT_PROVIDER ?? 'faster-whisper').trim().toLowerCase();
   if (provider === 'stub') return new StubSttProvider(env.VOICE_STT_STUB_TEXT ?? '');
   if (provider === 'faster-whisper') {
-    return new CommandSttProvider('faster-whisper', env.VOICE_STT_MODEL?.trim() || 'tiny',
+    return new WarmSttProvider('faster-whisper', env.VOICE_STT_MODEL?.trim() || 'tiny',
       path.join(SCRIPTS_DIR, 'stt_faster_whisper.py'), env);
   }
   if (provider === 'sensevoice') {
-    return new CommandSttProvider('sensevoice', 'iic/SenseVoiceSmall',
+    return new WarmSttProvider('sensevoice', env.VOICE_STT_MODEL?.trim() || 'iic/SenseVoiceSmall',
       path.join(SCRIPTS_DIR, 'stt_sensevoice.py'), env);
   }
   throw new Error(`[voice] unknown VOICE_STT_PROVIDER: ${provider} (faster-whisper | sensevoice | stub)`);
@@ -57,13 +58,13 @@ class CommandSttProvider implements SttProvider {
   constructor(
     public readonly name: string,
     public readonly model: string,
-    private readonly script: string,
-    private readonly env: NodeJS.ProcessEnv,
+    protected readonly script: string,
+    protected readonly env: NodeJS.ProcessEnv,
   ) {}
 
   async transcribe(wav16k: Buffer): Promise<SttResult> {
     const tmpFile = path.join(os.tmpdir(), `agridx-voice-${process.pid}-${Date.now()}-${Math.random().toString(36).slice(2)}.wav`);
-    await fs.promises.writeFile(tmpFile, wav16k);
+    await fs.promises.writeFile(tmpFile, wav16k, { flag: 'wx', mode: 0o600 });
     try {
       const stdout = await this.runSidecar(tmpFile);
       let parsed: unknown;
@@ -71,6 +72,9 @@ class CommandSttProvider implements SttProvider {
         parsed = JSON.parse(stdout);
       } catch {
         throw new VoiceError(502, 'stt_failed', '语音识别返回了无法解析的结果');
+      }
+      if ((parsed as { failed?: unknown })?.failed === true) {
+        throw new VoiceError(502, 'stt_failed', '语音识别失败，请换一段录音重试');
       }
       const text = typeof (parsed as { text?: unknown })?.text === 'string'
         ? ((parsed as { text: string }).text ?? '').trim()
@@ -84,7 +88,7 @@ class CommandSttProvider implements SttProvider {
     }
   }
 
-  private runSidecar(tmpFile: string): Promise<string> {
+  protected runSidecar(tmpFile: string): Promise<string> {
     const python = this.env.VOICE_STT_PYTHON?.trim() || 'python3';
     return new Promise((resolve, reject) => {
       const child = spawn(python, [this.script, tmpFile, this.model], { timeout: STT_TIMEOUT_MS });
@@ -115,5 +119,108 @@ class CommandSttProvider implements SttProvider {
         reject(new VoiceError(502, 'stt_failed', '语音识别失败，请换一段录音重试'));
       });
     });
+  }
+}
+
+/** Reuse the loaded model across requests. Only one request is sent to Python at a time. */
+class WarmSttProvider extends CommandSttProvider {
+  private worker?: ChildProcessWithoutNullStreams;
+  private pending?: {
+    resolve: (line: string) => void;
+    reject: (error: Error) => void;
+    timer: NodeJS.Timeout;
+  };
+  private idleTimer?: NodeJS.Timeout;
+  private tail: Promise<void> = Promise.resolve();
+  private queued = 0;
+
+  constructor(name: string, model: string, script: string, env: NodeJS.ProcessEnv) {
+    super(name, model, script, env);
+    // Load SenseVoice when the service starts, before the first recording arrives.
+    if (name === 'sensevoice') this.startWorker();
+  }
+
+  protected override async runSidecar(wavPath: string): Promise<string> {
+    if (this.queued >= 3) {
+      throw new VoiceError(503, 'stt_busy', '语音识别繁忙，请稍后重试');
+    }
+
+    const expires = Date.now() + 55_000;
+    this.queued++;
+    const job = this.tail.then(() => this.send(wavPath, expires - Date.now()));
+    this.tail = job.then(() => {}, () => {});
+    try {
+      return await job;
+    } finally {
+      this.queued--;
+    }
+  }
+
+  private send(wavPath: string, timeout: number): Promise<string> {
+    if (timeout <= 0) {
+      return Promise.reject(new VoiceError(504, 'stt_timeout', '语音识别超时，请重试'));
+    }
+    clearTimeout(this.idleTimer);
+    const worker = this.worker ?? this.startWorker();
+    return new Promise((resolve, reject) => {
+      const timer = setTimeout(() => {
+        this.stopWorker(worker, new VoiceError(504, 'stt_timeout', '语音识别超时，请重试'));
+      }, timeout);
+      this.pending = { resolve, reject, timer };
+      worker.stdin.write(JSON.stringify({ wavPath }) + '\n');
+    });
+  }
+
+  private startWorker(): ChildProcessWithoutNullStreams {
+    const python = this.env.VOICE_STT_PYTHON?.trim() || 'python3';
+    const worker = spawn(python, [this.script, '--worker', this.model], { env: this.env });
+    this.worker = worker;
+
+    let stderr = '';
+    worker.stderr.setEncoding('utf8');
+    worker.stderr.on('data', (chunk: string) => { stderr = (stderr + chunk).slice(-1000); });
+    const fail = (error?: NodeJS.ErrnoException) => {
+      if (this.worker !== worker) return;
+      const unavailable = error?.code === 'ENOENT' || /ModuleNotFoundError|No module named/.test(stderr);
+      if (stderr) console.error('[voice] STT worker exited:', stderr.slice(-500));
+      this.stopWorker(worker, unavailable
+        ? new VoiceError(503, 'stt_unavailable', '语音识别不可用，请检查服务器的 Python 和识别模型依赖')
+        : new VoiceError(502, 'stt_failed', '语音识别失败，请换一段录音重试'));
+    };
+    worker.on('error', fail);
+    worker.stdin.on('error', fail);
+    worker.on('close', () => fail());
+
+    const output = createInterface({ input: worker.stdout, crlfDelay: Infinity });
+    output.on('line', (line) => {
+      if (this.worker !== worker) return;
+      const request = this.pending;
+      if (!request) {
+        this.stopWorker(worker);
+        return;
+      }
+      this.pending = undefined;
+      clearTimeout(request.timer);
+      if (this.name !== 'sensevoice') {
+        this.idleTimer = setTimeout(() => this.stopWorker(worker), 5 * 60_000);
+        this.idleTimer.unref();
+      }
+      request.resolve(line);
+    });
+    return worker;
+  }
+
+  private stopWorker(worker: ChildProcessWithoutNullStreams, error?: Error): void {
+    if (this.worker !== worker) return;
+    this.worker = undefined;
+    clearTimeout(this.idleTimer);
+    const request = this.pending;
+    this.pending = undefined;
+    if (request) {
+      clearTimeout(request.timer);
+      request.reject(error ?? new VoiceError(502, 'stt_failed', '语音识别进程已停止'));
+    }
+    worker.stdin.destroy();
+    worker.kill('SIGKILL');
   }
 }

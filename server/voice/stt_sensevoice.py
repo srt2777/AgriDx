@@ -1,39 +1,46 @@
-"""Local CPU STT sidecar: FunAudioLLM SenseVoice-Small (UNVERIFIED adapter).
+"""SenseVoice sidecar with a reusable model and a clean JSON protocol.
 
-Usage: python3 stt_sensevoice.py <wav16k-path> [ignored-model-arg]
-Reads a 16 kHz mono WAV (<=30 s per upstream contract), prints one JSON line:
-{"text": "...", "language": "zh"}.
-
-Upstream facts (SenseVoice README / FunASR docs, checked 2026-11-10):
-- SenseVoiceSmall is 234M params, non-autoregressive; upstream reports ~17x
-  realtime on CPU, so no GPU is required in principle.
-- Needs `pip install funasr` (+ torch) and a model download from ModelScope
-  (iic/SenseVoiceSmall, ~470 MB fp16); no API key.
-- This adapter is implemented but NOT installed or run on this host (torch +
-  model would be several GB). The deploy host must install funasr, download
-  the model once, and verify with a real WAV before setting
-  VOICE_STT_PROVIDER=sensevoice. Do not claim SenseVoice is deployed until
-  that verification exists.
+Usage: stt_sensevoice.py <wav-path|--worker> [model-id-or-local-directory]
+Worker mode accepts one {"wavPath": "..."} JSON object per input line.
+Model timing and recognition accuracy require validation on the deployment host.
 """
 
 import json
+import os
 import re
 import sys
 
 _TOKEN_RE = re.compile(r"<\|[^|]*\|>")
 
 
-def main() -> int:
-    wav_path = sys.argv[1]
-    from funasr import AutoModel
-
-    model = AutoModel(model="iic/SenseVoiceSmall", device="cpu")
+def transcribe(model, wav_path):
     results = model.generate(input=wav_path)
-    text = ""
-    if results:
-        raw = str(results[0].get("text", "") or "")
-        text = _TOKEN_RE.sub("", raw).strip()
-    print(json.dumps({"text": text, "language": "zh"}, ensure_ascii=False))
+    raw = str(results[0].get("text", "") or "") if results else ""
+    return {"text": _TOKEN_RE.sub("", raw).strip(), "language": "zh"}
+
+
+def main():
+    target = sys.argv[1]
+    model_name = sys.argv[2] if len(sys.argv) > 2 else "iic/SenseVoiceSmall"
+    # Redirect native and Python library logs before importing FunASR. Only the
+    # dedicated descriptor can write protocol results to the parent process.
+    with os.fdopen(os.dup(sys.stdout.fileno()), "w", encoding="utf-8", buffering=1) as protocol:
+        os.dup2(sys.stderr.fileno(), sys.stdout.fileno())
+        from funasr import AutoModel
+
+        model = AutoModel(model=model_name, device="cpu", disable_update=True,
+                          disable_pbar=True)
+        if target != "--worker":
+            print(json.dumps(transcribe(model, target), ensure_ascii=False), file=protocol)
+            return 0
+        for line in sys.stdin:
+            try:
+                request = json.loads(line)
+                result = transcribe(model, request["wavPath"])
+            except Exception as error:
+                print(f"STT request failed ({type(error).__name__})", file=sys.stderr)
+                result = {"failed": True}
+            print(json.dumps(result, ensure_ascii=False), file=protocol)
     return 0
 
 

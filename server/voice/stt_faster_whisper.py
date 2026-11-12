@@ -36,17 +36,37 @@ def read_wav16k_mono(path: str):
     return samples
 
 
-def main() -> int:
-    wav_path = sys.argv[1]
-    model_name = sys.argv[2] if len(sys.argv) > 2 else "tiny"
-    language = os.environ.get("VOICE_STT_LANGUAGE", "zh") or "zh"
-    from faster_whisper import WhisperModel
-
-    model = WhisperModel(model_name, device="cpu", compute_type="int8")
+def transcribe(model, wav_path: str, language: str) -> dict:
     audio = read_wav16k_mono(wav_path)
     segments, info = model.transcribe(audio, language=language, beam_size=5)
     text = "".join(segment.text for segment in segments).strip()
-    print(json.dumps({"text": text, "language": info.language or language}, ensure_ascii=False))
+    return {"text": text, "language": info.language or language}
+
+
+def main() -> int:
+    target = sys.argv[1]
+    model_name = sys.argv[2] if len(sys.argv) > 2 else "tiny"
+    language = os.environ.get("VOICE_STT_LANGUAGE", "zh") or "zh"
+    # Keep Python and native dependency output off the JSON protocol pipe.
+    with os.fdopen(os.dup(sys.stdout.fileno()), "w", encoding="utf-8", buffering=1) as protocol:
+        os.dup2(sys.stderr.fileno(), sys.stdout.fileno())
+        from faster_whisper import WhisperModel
+
+        model = WhisperModel(model_name, device="cpu", compute_type="int8")
+
+        if target != "--worker":
+            result = transcribe(model, target, language)
+            print(json.dumps(result, ensure_ascii=False), file=protocol)
+            return 0
+
+        for line in sys.stdin:
+            try:
+                request = json.loads(line)
+                result = transcribe(model, request["wavPath"], language)
+            except Exception as error:
+                print(f"STT request failed ({type(error).__name__})", file=sys.stderr)
+                result = {"failed": True}
+            print(json.dumps(result, ensure_ascii=False), file=protocol)
     return 0
 
 

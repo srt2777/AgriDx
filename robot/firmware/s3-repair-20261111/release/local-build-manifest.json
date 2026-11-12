@@ -1,0 +1,43 @@
+{
+  "firmware": "sijia-s3-display-repair-0.1.1.bin",
+  "sha256": "fff3d569de6d80701cd7fa3281086268e93399eef12277464ce9bc9cbc1c12ab",
+  "bytes": 4629728,
+  "board": "ESP32-S3 N16R8",
+  "display": "ILI9341 320x240",
+  "flashOffset": "0x650000",
+  "status": "Streaming chat and expanded reading layout USB verified",
+  "upload": "This image verified by USB write and checksum; OTA previously tested on earlier image",
+  "githubPublished": true,
+  "websiteDeployed": true,
+  "verified": [
+    "S3 build",
+    "full font bitmap decoding",
+    "simulated telemetry host sanitizer test",
+    "boot with 16KB UI stack",
+    "Wi-Fi reconnect and SSE reception",
+    "Two distinct touch calibration checksums persisted across reboot",
+    "Local wheel redraw bounds; standby refresh handler peak 50–55 ms in steady windows",
+    "Password-protected LAN OTA, image checksum, alternate app boot and calibration retained",
+    "Same-device SIMD A/B found no repeatable benefit; candidate uses LVGL generic renderer",
+    "Local STT HTTP cold request 911 ms, warm requests 292–312 ms, 23 voice regressions passed",
+    "Same-board standby A/B: 22.2–22.8 FPS baseline and 26.2–29.1 FPS fast",
+    "Monitor, chat and Wi-Fi page transitions, calibration and SSE after USB update",
+    "This exact 4,583,392-byte image: Wi-Fi OTA 45.75 s, app1 boot, calibration and SSE verified",
+    "320x240 display pixel captures: monitor, chat, Wi-Fi scanning and simulated alarm",
+    "Generated Chinese font decoding for current UI strings",
+    "UI image booted from app1; Wi-Fi, SSE, three metric selections and persisted calibration passed",
+    "UI standby cold-boot steady windows: 25.4 and 25.7 FPS",
+    "Oil pressure card keeps label, state and kPa on one line; checked against actual font metrics",
+    "Board SSE completion, 141px chat viewport, 940px answer content, 224px source panel and preserved calibration"
+  ],
+  "unresolved": [
+    "Physical touch scrolling and microphone end-to-end timing require user verification",
+    "Current board trial first answer preview 8.6 seconds and complete response 19.5 seconds; network/provider latency still varies"
+  ],
+  "controls": {
+    "BOOT short": "next page",
+    "BOOT hold 1s": "touch calibration",
+    "horizontalSwipe": false,
+    "voice": "onscreen hold-to-talk"
+  }
+}

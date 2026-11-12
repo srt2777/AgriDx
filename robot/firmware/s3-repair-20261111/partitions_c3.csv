@@ -1,0 +1,7 @@
+# ESP32-C3 过渡版分区表（4MB Flash，单 app 分区，无 OTA）
+# app0 约 2.9MB：firmware.bin 约 1.9MB，放得下；剩余给 spiffs。
+# Name,   Type, SubType, Offset,  Size, Flags
+nvs,      data, nvs,     0x9000,  0x5000,
+otadata,  data, ota,     0xe000,  0x2000,
+app0,     app,  factory, 0x10000, 0x2E0000,
+spiffs,   data, spiffs,  0x2F0000,0x110000,
