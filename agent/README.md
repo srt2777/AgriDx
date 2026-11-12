@@ -66,3 +66,7 @@ Node 请求在答复前断开会向影子循环传递 AbortSignal（答复发出
 - **示例加载**：`exemplars.ts` 只读加载数据集、按主题挑奖励分最高的 1–3 条拼成提示段，**没有接进线上诊断**，想用必须显式调用。
 
 边界：AgriDx 用的是 DeepSeek API 模型（deepseek-flash），仓库里没有训练管线，做不了对 DeepSeek 权重的 SFT/RL 梯度训练；本模块的“强化学习”是离线奖励 + 分组打分 + 好轨迹示例选择，不是权重更新。不要声称已微调/已训练模型。
+
+### 文献归档与研究知识
+
+宿主 `buildContextRegistry(memory, literatureSearch)` 可注入 Node 分片或浏览器静态分片读取器，暴露只读 `search_literature`；`search_research_knowledge` 和 `get_knowledge_entry` 可获取 RK 正文研究条目。引用保留 DOI/章节/工况/核验状态，元数据不能冒充科学结论，研究结论不能冒充具体机型维修规程。聊天显式文献/研究检索直接由本地引用路径回答，后台 shadow 仍不参与可见答案。数据及计数边界见 `data/research-knowledge/README.md`。

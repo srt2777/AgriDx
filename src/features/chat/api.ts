@@ -69,7 +69,7 @@ export async function requestChatStream(
   signal: AbortSignal,
   unavailableMessage: string,
   onDelta: (text: string) => void,
-  fetchImplementation?: FetchImplementation,
+  fetchImplementation: FetchImplementation = fetch,
 ): Promise<ChatReply> {
   try {
     signal.throwIfAborted();

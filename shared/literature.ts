@@ -1,4 +1,4 @@
-/** Bibliographic discovery only. Never imported by the diagnostic retriever. */
+/** Bibliographic archive. Agent citations are metadata-only; not diagnostic evidence. */
 export interface LiteratureRecord {
   id: string; doi: string; title: string; journal: string; publisher: string;
   published: number[]; authors: string[]; issns: string[]; sourceIssn: string;

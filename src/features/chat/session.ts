@@ -98,7 +98,7 @@ export function parseChatMetadata(value: unknown): Pick<ChatMessage, 'diagnostic
         if (oneOf(source.usage, ['answer-evidence', 'prompt-context', 'reference-only'])) item.usage = source.usage;
         if (texts(source.models, 100, 100)) item.models = [...source.models];
         if (texts(source.faultCodes, 20, 32)) item.faultCodes = [...source.faultCodes];
-        if (oneOf(source.evidenceKind, ['archive', 'general-knowledge', 'prompt'])) item.evidenceKind = source.evidenceKind;
+        if (oneOf(source.evidenceKind, ['archive', 'general-knowledge', 'prompt', 'literature'])) item.evidenceKind = source.evidenceKind;
         if (oneOf(source.applicability, ['matched', 'pending'])) item.applicability = source.applicability;
         if (oneOf(source.referenceVerification, ['verified', 'pending', 'unverified', 'unspecified', 'failed'])) item.referenceVerification = source.referenceVerification;
         if (typeof source.sourceIndexed === 'boolean') item.sourceIndexed = source.sourceIndexed;

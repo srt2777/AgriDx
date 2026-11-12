@@ -1,0 +1,193 @@
+{
+  "schemaVersion": 1,
+  "sources": [
+    {
+      "id": "RS-CVT-2020",
+      "doi": "10.3390/app10020681",
+      "title": "Study on the Shifting Quality of the CVT Tractor under Hydraulic System Failure",
+      "authors": [
+        "Guangming Wang",
+        "Yue Song",
+        "Jiabo Wang",
+        "Wanqiang Chen",
+        "Yunlian Cao",
+        "Jinxing Wang"
+      ],
+      "journal": "Applied Sciences",
+      "year": 2020,
+      "url": "https://www.mdpi.com/2076-3417/10/2/681",
+      "readScope": "Publisher HTML full-text sections 4.1, 4.3, 5; not an archived PDF",
+      "checkedAt": "2026-11-12",
+      "license": "CC BY 4.0",
+      "fullTextRead": true,
+      "expertReviewed": false
+    },
+    {
+      "id": "RS-TRACTOR-2024",
+      "doi": "10.3390/machines12070492",
+      "title": "Fault Diagnosis Method for Tractor Transmission System Based on Improved Convolutional Neural Network–Bidirectional Long Short-Term Memory",
+      "authors": [
+        "Liyou Xu",
+        "Guoxiang Zhao",
+        "Sixia Zhao",
+        "Yiwei Wu",
+        "Xiaoliang Chen"
+      ],
+      "journal": "Machines",
+      "year": 2024,
+      "url": "https://www.mdpi.com/2075-1702/12/7/492",
+      "readScope": "Publisher HTML full-text sections 4.1.2, 5, 6; not an archived PDF",
+      "checkedAt": "2026-11-12",
+      "fullTextRead": true,
+      "expertReviewed": false
+    }
+  ],
+  "entries": [
+    {
+      "entryId": "RK-CVT-001",
+      "sourceId": "RS-CVT-2020",
+      "entryType": "研究知识",
+      "title": "液压换段故障研究的工况边界",
+      "claim": "论文以离合器 C2 为故障研究对象；仿真为 R1 至 R2 换段，发动机转速 1500 r/min、负载 20000 N、质量 10.5 t。",
+      "locator": "4.1 / 4.3",
+      "evidenceExcerpt": "the working load 20,000 N",
+      "excerptSha256": "414e8551778e8bab6b2f5eb9f57d6a1af808964262c7d74c7509031c553b912d",
+      "keywords": [
+        "液压",
+        "换段",
+        "离合器",
+        "CVT",
+        "工况"
+      ],
+      "evidenceBasis": "正文研究结果摘录与中文归纳；非独立实验复现",
+      "scopeBoundary": "仅适用于论文所述试验或仿真条件；未核验当前设备适用性，不是维修操作规程或司稼实测结果。",
+      "diagnosticEvidence": false,
+      "expertReviewed": false
+    },
+    {
+      "entryId": "RK-CVT-002",
+      "sourceId": "RS-CVT-2020",
+      "entryType": "研究知识",
+      "title": "堵塞与泄漏的换段影响",
+      "claim": "该模型中，油路堵塞增大换段冲击及离合器能量损失；活塞卡滞或泄漏可能中断动力。",
+      "locator": "5, conclusions (3), (5)",
+      "evidenceExcerpt": "Oil way blockage",
+      "excerptSha256": "873d660411bd0fa310c97ca67eee46dccfdf51d815b8a4b434e903dfd5e541e3",
+      "keywords": [
+        "液压",
+        "堵塞",
+        "泄漏",
+        "换段",
+        "动力中断"
+      ],
+      "evidenceBasis": "正文研究结果摘录与中文归纳；非独立实验复现",
+      "scopeBoundary": "仅适用于论文所述试验或仿真条件；未核验当前设备适用性，不是维修操作规程或司稼实测结果。",
+      "diagnosticEvidence": false,
+      "expertReviewed": false
+    },
+    {
+      "entryId": "RK-CVT-003",
+      "sourceId": "RS-CVT-2020",
+      "entryType": "研究知识",
+      "title": "组合故障不能简单等同单一故障",
+      "claim": "该研究中，密封环损坏叠加油路堵塞使离合器压力不足，并造成动力中断。",
+      "locator": "5, conclusion (4)",
+      "evidenceExcerpt": "seal ring damage and oil way blockage",
+      "excerptSha256": "02de88b4a7b9ec4ada3c6dc7438213950dc39f4b04834d13d04271f0f1ef20bb",
+      "keywords": [
+        "密封",
+        "堵塞",
+        "液压",
+        "组合故障"
+      ],
+      "evidenceBasis": "正文研究结果摘录与中文归纳；非独立实验复现",
+      "scopeBoundary": "仅适用于论文所述试验或仿真条件；未核验当前设备适用性，不是维修操作规程或司稼实测结果。",
+      "diagnosticEvidence": false,
+      "expertReviewed": false
+    },
+    {
+      "entryId": "RK-CVT-004",
+      "sourceId": "RS-CVT-2020",
+      "entryType": "研究知识",
+      "title": "压力曲线研究的因果边界",
+      "claim": "作者明确指出，此仿真不能揭示液压故障与压力曲线形状之间的因果关系。",
+      "locator": "5, final paragraph",
+      "evidenceExcerpt": "could not reveal the causal relationship",
+      "excerptSha256": "56000965b4bc13a81ebafb261aaec2db13ad4cc2f084cf45a084dc2b7f4a40d5",
+      "keywords": [
+        "压力",
+        "曲线",
+        "因果",
+        "液压",
+        "诊断"
+      ],
+      "evidenceBasis": "正文研究结果摘录与中文归纳；非独立实验复现",
+      "scopeBoundary": "仅适用于论文所述试验或仿真条件；未核验当前设备适用性，不是维修操作规程或司稼实测结果。",
+      "diagnosticEvidence": false,
+      "expertReviewed": false
+    },
+    {
+      "entryId": "RK-GEAR-001",
+      "sourceId": "RS-TRACTOR-2024",
+      "entryType": "研究知识",
+      "title": "齿轮箱诊断数据的采集范围",
+      "claim": "论文齿轮箱数据来自实验台，采样率为 48 kHz，只考虑恒速故障；分析采用采样点 2 的行星齿轮振动。",
+      "locator": "4.1.2",
+      "evidenceExcerpt": "only considers faults under constant speed conditions",
+      "excerptSha256": "4802114e118c55e91b6a85bf719c0039860214089f34a770cd2f01cbcbfd1b9a",
+      "keywords": [
+        "齿轮箱",
+        "振动",
+        "传动",
+        "恒速",
+        "采样"
+      ],
+      "evidenceBasis": "正文研究结果摘录与中文归纳；非独立实验复现",
+      "scopeBoundary": "仅适用于论文所述试验或仿真条件；未核验当前设备适用性，不是维修操作规程或司稼实测结果。",
+      "diagnosticEvidence": false,
+      "expertReviewed": false
+    },
+    {
+      "entryId": "RK-GEAR-002",
+      "sourceId": "RS-TRACTOR-2024",
+      "entryType": "研究知识",
+      "title": "诊断准确率必须保留数据集边界",
+      "claim": "正文结论分别报告 CWRU 轴承数据集准确率 98.89%、实验室齿轮箱数据准确率 96.70%，不能合并成通用拖拉机准确率。",
+      "locator": "6, final paragraph",
+      "evidenceExcerpt": "eventually reached 96.70%",
+      "excerptSha256": "d5230f08ec9f1d24432efd77900bc7f4a2f6dc1847eb48a5d76e73984037e020",
+      "keywords": [
+        "准确率",
+        "诊断",
+        "轴承",
+        "齿轮箱",
+        "传动"
+      ],
+      "evidenceBasis": "正文研究结果摘录与中文归纳；非独立实验复现",
+      "scopeBoundary": "仅适用于论文所述试验或仿真条件；未核验当前设备适用性，不是维修操作规程或司稼实测结果。",
+      "diagnosticEvidence": false,
+      "expertReviewed": false
+    },
+    {
+      "entryId": "RK-GEAR-003",
+      "sourceId": "RS-TRACTOR-2024",
+      "entryType": "研究知识",
+      "title": "训练数据限制故障诊断模型表现",
+      "claim": "作者指出，模型依赖充足且高质量的训练数据；训练偏差会降低诊断表现。",
+      "locator": "5, limitations paragraph",
+      "evidenceExcerpt": "if the training is biased",
+      "excerptSha256": "243190c5c97fdb9982c3099ec12415f93e1f3a157e56d91c95a16c4b58e36923",
+      "keywords": [
+        "训练",
+        "数据",
+        "偏差",
+        "故障诊断",
+        "模型"
+      ],
+      "evidenceBasis": "正文研究结果摘录与中文归纳；非独立实验复现",
+      "scopeBoundary": "仅适用于论文所述试验或仿真条件；未核验当前设备适用性，不是维修操作规程或司稼实测结果。",
+      "diagnosticEvidence": false,
+      "expertReviewed": false
+    }
+  ]
+}

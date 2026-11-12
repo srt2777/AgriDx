@@ -1,3 +1,5 @@
+import { researchKnowledgeReply } from '../../shared/research-knowledge';
+import { literatureChatReply, type LiteratureSearch } from '../../shared/literature-archive';
 import type { ChatResponse, DiagnosisTrace } from '../../shared/chat';
 import type { DiagnosisCandidateAssessment } from '../../shared/diagnosis';
 import type { LongTermEntry, SessionDetail, PriorDeviceReport } from '../../shared/memory';
@@ -55,6 +57,7 @@ export interface DiagnosticDecisionLog {
   candidates: DiagnosisCandidateAssessment[];
 }
 export interface DiagnosticDependencies {
+  literatureSearch?: LiteratureSearch;
   retrieve?: typeof retrieve;
   now?: () => number;
   config?: Partial<DiagnosticRuntimeConfig>;
@@ -97,7 +100,7 @@ export interface ShadowLoopReport {
  */
 const TOOL_LOOP_TOOLS = ['resolve_machine_scope', 'search_knowledge', 'browse_knowledge', 'knowledge_stats', 'calculator', 'get_current_time',
   'get_knowledge_entry', 'get_session_state', 'list_prior_reports', 'explore_relations', 'ask_user_for_info',
-  'fault_chain', 'model_fault_index', 'maintenance_schedule'] as const;
+  'fault_chain', 'model_fault_index', 'maintenance_schedule', 'search_literature', 'search_research_knowledge'] as const;
 const SHADOW_TOOLS = TOOL_LOOP_TOOLS;
 const SHADOW_TIMEOUT_MS = 8_000;
 const SHADOW_MAX_IN_FLIGHT = 4;
@@ -132,7 +135,7 @@ export function createDiagnosticService(llm: DiagnosticProvider, dependencies: D
     shadowInFlight++;
     const started = now();
     void (async (): Promise<ShadowLoopReport> => {
-      const result = await runAgent({ provider, registry: buildContextRegistry(input.memory), messages: input.messages, query: input.query, context: input.context,
+      const result = await runAgent({ provider, registry: buildContextRegistry(input.memory, dependencies.literatureSearch), messages: input.messages, query: input.query, context: input.context,
         allowedTools: SHADOW_TOOLS, allowExternal: input.allowExternal, timeoutMs: dependencies.shadowTimeoutMs ?? SHADOW_TIMEOUT_MS, signal: input.signal, guard: input.guard });
       return { status: result.status, reason: 'reason' in result ? result.reason : null, provider: provider.name, durationMs: now() - started, toolEvents: result.toolEvents };
     })().catch((error: unknown): ShadowLoopReport => {
@@ -143,6 +146,12 @@ export function createDiagnosticService(llm: DiagnosticProvider, dependencies: D
     }).finally(() => { shadowInFlight--; });
   };
   return async ({ history, machineType, brand, model, engineModel, faultCodes, diagnosisMode, telemetrySummary }, memory, signal, onDelta) => {
+    const research = researchKnowledgeReply(history.at(-1)!.content);
+    if (research) { signal?.throwIfAborted(); return research; }
+    if (dependencies.literatureSearch) {
+      const reference = await literatureChatReply(history.at(-1)!.content, dependencies.literatureSearch, signal);
+      if (reference) return reference;
+    }
     const started = now();
     const config = { ...diagnosticRuntimeConfig(), ...dependencies.config };
     let context = resolveDiagnosticContext(history, { machineType, brand, model },

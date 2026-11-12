@@ -19,7 +19,8 @@ async function load(file: LiteratureFile) {
   if (cache.has(file.sha256)) cachedBytes -= cache.get(file.sha256)!.length*2;
   cache.set(file.sha256,text); cachedBytes += text.length*2; return text;
 }
-export async function getLiterature(params: URLSearchParams) {
+export async function getLiterature(params: URLSearchParams, signal?: AbortSignal) {
+  signal?.throwIfAborted();
   const manifest: unknown = JSON.parse(await fs.readFile(path.join(root,'manifest.json'),'utf8'));
-  validateLiteratureManifest(manifest); return searchLiterature(manifest,load,params);
+  validateLiteratureManifest(manifest); return searchLiterature(manifest, async file => { signal?.throwIfAborted(); const text = await load(file); signal?.throwIfAborted(); return text; },params);
 }

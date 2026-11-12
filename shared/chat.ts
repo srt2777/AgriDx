@@ -43,7 +43,7 @@ export interface ChatKnowledgeSource {
   /** 2026-10-22: TK used as general-knowledge evidence for an open (no brand/model) question. */
   generalEvidence?: true;
   /** archive = book entry with title/page; general-knowledge = 通识, no manual page; prompt = collection hint. */
-  evidenceKind?: 'archive' | 'general-knowledge' | 'prompt';
+  evidenceKind?: 'archive' | 'general-knowledge' | 'prompt' | 'literature';
   /** Human label: 通识 entries read “通识（无手册页码）”. */
   evidenceLabel?: string;
   sourceId?: string;

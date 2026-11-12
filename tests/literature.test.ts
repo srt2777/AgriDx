@@ -1,3 +1,4 @@
+import { literatureArchiveEntry } from '../shared/literature-archive';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -23,6 +24,8 @@ test('every literature record has verified shard bytes, a unique DOI and an inde
     const records=gunzipSync(bytes).toString('utf8').trim().split('\n').map(line=>JSON.parse(line));
     assert.equal(records.length,shard.records);
     for(const record of records) {
+      const archive=literatureArchiveEntry(record);
+      assert.equal(archive.entryId,record.id);assert.deepEqual(archive.knowledgeClaims,[]);
       validateLiteratureRecord(record);
       assert.ok(!dois.has(record.doi)); assert.ok(!ids.has(record.id));
       assert.equal(record.id, 'CR-'+createHash('sha256').update(record.doi).digest('hex').slice(0,24));
