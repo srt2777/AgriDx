@@ -1,4 +1,5 @@
 /// <reference types="node" />
+import { requestLiterature } from '../features/knowledge/literature-api';
 import { createDiagnosticService } from '../../server/diagnosis/service';
 import { previewAiProvider, readPreviewAiStatus } from './ai-gateway';
 import { recordQuestion } from './telemetry';
@@ -18,7 +19,7 @@ let ready = false;
 /** Reuse canonical retrieval, coordination and output checks with a same-origin AI proxy. */
 async function diagnose(request: DiagnosticRequest, memory?: { session: SessionDetail; priorReports: PriorDeviceReport[] }, signal?: AbortSignal): Promise<ChatResponse> {
   const status = await readPreviewAiStatus(signal);
-  const service = createDiagnosticService(previewAiProvider(status, signal), { config: { logDecisions: false } });
+  const service = createDiagnosticService(previewAiProvider(status, signal), { config: { logDecisions: false }, literatureSearch: (params, signal) => requestLiterature(params, signal ?? new AbortController().signal) });
   const payload = await service(status.enabled ? request : { ...request, diagnosisMode: 'knowledge_only' }, memory, signal);
   signal?.throwIfAborted();
   if (!status.enabled && payload.diagnosticReply) {

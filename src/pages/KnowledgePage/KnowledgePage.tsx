@@ -1,3 +1,4 @@
+import { researchKnowledge } from '@shared/research-knowledge';
 import { ClassicDisclosure } from '@/ui/ClassicDisclosure';
 import { useUiCopy } from '@/ui/useUiCopy';
 import { Link, useSearchParams } from 'react-router-dom';
@@ -74,7 +75,8 @@ export default function KnowledgePage() {
 
       {!graphView && <><div className="catalog-stats" aria-live="polite">
         {[
-          [catalog && literatureCount !== null ? catalog.totals.entries + literatureCount : undefined, t('索引记录合计（含文献）', 'Indexed records including literature')],
+          [catalog && literatureCount !== null ? catalog.totals.entries + literatureCount + researchKnowledge.entries.length : undefined, t('索引记录合计（含文献）', 'Indexed records including literature')],
+          [researchKnowledge.entries.length, t('正文研究知识（非维修规程）', 'Research notes, not repair procedures')],
           [literatureCount, t('农业文献（未核验全文）', 'Literature metadata, full text unverified')],
           [catalog?.totals.entries, t('归档与学习条目', 'Archive and learning entries')],
           [catalog?.totals.archivedEntries, t('来源归档', 'Source archive entries')],

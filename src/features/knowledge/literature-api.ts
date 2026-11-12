@@ -1,4 +1,4 @@
-import { literaturePayloadEncoding, searchLiterature, validateLiteratureManifest, type LiteratureFile, type LiteratureManifest } from '@shared/literature';
+import { literaturePayloadEncoding, searchLiterature, validateLiteratureManifest, type LiteratureFile, type LiteratureManifest } from '../../../shared/literature';
 let manifestPromise: Promise<LiteratureManifest> | undefined;
 const cache = new Map<string, string>();
 let cachedBytes = 0;

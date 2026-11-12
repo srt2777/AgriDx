@@ -98,3 +98,7 @@ node --import tsx scripts/knowledge-inventory.ts --csv > knowledge-inventory.csv
   维修前须按原表核对机型、配置、版本并遵守原手册安全要求。
 - 边与快照的校验、50 条人工复核见 `docs/knowledge-causal-edges-review.md`；
   服务端加载时按快照逐条校验，不匹配的边剔除并记入 `degraded`，不抛错。
+
+## 文献归档与 Agent 引用（2026-11-12）
+
+486,764 条文献元数据已提供统一归档条目映射和 Agent 只读引用入口；这是书目归档，不是 486,764 条维修知识。另整理 7 条故障诊断方向正文研究知识，来自 2 篇论文，按章节保留来源及条件，单列统计。知识页提供引用入口；聊天可发送“查文献：tractor”或“查研究知识：液压”。详见 `data/research-knowledge/README.md`。原诊断机型匹配、手册与通识证据规则继续生效。
