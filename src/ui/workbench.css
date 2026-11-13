@@ -10,7 +10,7 @@
 .fluid-workspace[data-ui-version='old'] :where(button:hover,.catalog-action:hover){background-color:var(--wb-tint)!important}
 .fluid-workspace[data-ui-version='old'] :where([aria-pressed='true'],[aria-selected='true'],.selected){background:var(--wb-tint)!important;color:var(--wb-blue)!important}
 .fluid-workspace[data-ui-version='old'] :where(.catalog-action,[class*='bg-primary']:not([class*='/'])){background:#2863d6!important;color:#fff!important}
-.fluid-workspace[data-ui-version='old'] :where([class*='text-primary'],a:not([class])){color:var(--wb-blue)!important}
+.fluid-workspace[data-ui-version='old'] :where(.text-primary, [class*='text-primary/'],a:not([class])){color:var(--wb-blue)!important}
 .fluid-workspace[data-ui-version='old'] :where([class*='text-muted'],small,kbd){color:var(--wb-muted)!important}
 .fluid-workspace[data-ui-version='old'].is-collapsed{grid-template-columns:minmax(0,1fr)}
 .fluid-workspace[data-ui-version='old'] .fluid-sidebar{padding:24px 16px 16px;background:var(--wb-card);border-right:1px solid var(--wb-line)!important}
