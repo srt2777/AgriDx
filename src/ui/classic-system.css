@@ -74,7 +74,8 @@
 .fluid-workspace[data-ui-version='old'] :where(.fluid-row.is-active, [aria-pressed='true'], [aria-selected='true'], .selected) { background: var(--radix-grass-5) !important; color: var(--radix-grass-12) !important; }
 .fluid-workspace[data-ui-version='old'] :where(.hero-cta-primary, .catalog-action, [class*='bg-primary']:not([class*='/'])) { background: var(--radix-grass-9) !important; color: var(--radix-white-a-12) !important; }
 .fluid-workspace[data-ui-version='old'] :where(.hero-cta-primary:hover, .catalog-action:hover, [class*='bg-primary']:not([class*='/']):hover) { background: var(--radix-grass-10) !important; }
-.fluid-workspace[data-ui-version='old'] :where([class*='text-primary'], a:not([class]), .hero-title > span:nth-child(2)) { color: var(--radix-grass-11) !important; }
+/* Match primary text utilities without overriding primary-foreground on filled surfaces. */
+.fluid-workspace[data-ui-version='old'] :where(.text-primary, [class*='text-primary/'], a:not([class]), .hero-title > span:nth-child(2)) { color: var(--radix-grass-11) !important; }
 .fluid-workspace[data-ui-version='old'] :where([class*='text-muted'], .section-eyebrow, .fluid-group summary, small, kbd) { color: var(--radix-sage-11) !important; }
 .fluid-workspace[data-ui-version='old'] :where([class*='text-destructive'], [role='alert']) { color: var(--radix-red-11) !important; }
 .fluid-workspace[data-ui-version='old'] :where(.catalog-gaps, .coverage-gap) { background: var(--radix-amber-3) !important; color: var(--radix-amber-12) !important; }
