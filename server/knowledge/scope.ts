@@ -241,8 +241,9 @@ export function resolveScope(query: string, context: RetrievalContext): Resolved
   const typeConflict = Boolean(type && (tractorContext ? nonTractor.test(queryTypeIdentity)
     : nonTractor.test(type) && /拖拉机|\btractor\b/i.test(queryTypeIdentity)));
   const identityConflict = brandConflict || modelConflict || typeConflict;
-  // Powered hand tools do not identify the tractor's propulsion system.
+  // Powered accessories and service tools do not identify the tractor's propulsion system.
   const queryPowerIdentity = queryIdentity.replace(/电动(?:工具|扳手|螺丝刀)|\belectric\s+(?:tools?|wrenches?|screwdrivers?)\b/gi, ' ')
+    .replace(/电动(?=(?:供油|输油|燃油|提升|液压|冷却|水|机油|润滑)?泵|风扇|预热装置|雨刷|座椅|车窗)|\belectric\s+(?=(?:(?:fuel|lift|feed|hydraulic|coolant|oil|water)\s+){0,2}pumps?\b|fans?\b|wipers?\b)/gi, '')
     // Manual steering becoming unavailable does not identify an autonomous tractor.
     .replace(/无人力转向/g, '人力转向')
     // A named transmission control is not an electric tractor identity.

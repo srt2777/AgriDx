@@ -306,6 +306,14 @@ test('electric hand tools preserve diesel-manual scope while electric tractors s
   assert.equal(archived(retrieve('DEF排放塞电动工具', 912, { ...context, machineType: '新能源农机' })).length, 0);
 });
 
+test('electrically driven accessories keep the explicitly identified tractor manual in scope', () => {
+  for (const query of ['电动输油泵供油不足', '电动供油泵接线检查', 'electric fuel lift pump fuel supply']) {
+    assert.equal(resolveScope(query, workmaster).electric, false, query);
+  }
+  assert.equal(resolveScope('电动拖拉机的电动输油泵检查', workmaster).electric, true);
+  assert.equal(resolveScope('electric tractor electric water pump', workmaster).electric, true);
+});
+
 test('finds representative steering, storage and autonomous-operation entries', () => {
   const wobble = retrieve('前轮摆动', 6, { ...tractor, brand: '雷沃', model: '欧豹TG系列' });
   assert.equal(wobble[0]?.entryId, 'LV-TG-002');
