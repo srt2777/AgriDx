@@ -6,6 +6,8 @@ import { identifyPlannerTopic, identifyPlannerTopics, plannerFaultChains, planne
 import { ToolRegistry } from './tool-registry';
 import type { InputSchema } from './tool-types';
 import { calculator } from './calculator';
+import { MAX_TOOL_OUTPUT } from './config';
+import { serialize } from './tool-utils';
 const string = (description: string): InputSchema => ({ type: 'string', description, maxLength: 200 });
 const context: InputSchema = {
   type: 'object', description: '可选机型上下文，例如 {"brand":"久保田","model":"LX2620"}，默认空对象', additionalProperties: false,
@@ -20,13 +22,24 @@ const object = (properties: Record<string, InputSchema>, required: string[] = []
 export function build_default_registry(): ToolRegistry {
   const reg = new ToolRegistry();
   reg.register('calculator', '计算基础四则运算和取余；需要精确算术时使用，不用于查询厂家参数或执行代码。返回有限数字 JSON。', object({ expression: { type: 'string', description: '算式，例如 (12 + 3) * 2，仅支持 + - * / % 和括号', minLength: 1, maxLength: 2000 } }, ['expression']), ({ expression }) => calculator(expression));
-  reg.register('search_knowledge', '需要查找农机症状与手册依据时使用，保留来源、适用范围及核验状态。不要用于确诊坏件、生成无依据参数或实车操作。返回含来源、范围和正文的 JSON。', object({
+  reg.register('search_knowledge', '需要查找农机症状与手册依据时使用，保留来源、适用范围及核验状态。不要用于确诊坏件、生成无依据参数或实车操作。按相关性返回含来源、范围和正文的 JSON；有省略条数时可缩小查询或按编号查阅。', object({
     query: { type: 'string', minLength: 1, maxLength: 2000, description: '症状与问题，尽量包含完整机型' },
     limit: { type: 'integer', minimum: 1, maximum: 5, description: '最多返回条数，默认1' }, context,
   }, ['query']), ({ query, limit = 1, context = {} }) => {
     const { chunks, ...result } = retrieveWithDiagnostics(query, limit, context);
-    // Put applicability and source metadata before the potentially long body.
-    return { ...result, chunks: chunks.map(({ text, ...metadata }) => ({ ...metadata, text })) };
+    const response = { ...result, chunks: [] as typeof chunks, omittedEntries: chunks.length };
+    // Keep whole, ranked citations. Generic executor truncation would break JSON mid-record.
+    for (const { text, ...metadata } of chunks) {
+      const candidate = { ...metadata, text };
+      response.chunks.push(candidate);
+      response.omittedEntries--;
+      if (Array.from(serialize(response)).length > MAX_TOOL_OUTPUT) {
+        response.chunks.pop();
+        response.omittedEntries++;
+        break;
+      }
+    }
+    return response;
   });
   reg.register('browse_knowledge', '需要按品牌、型号、组件或关键词浏览资料目录时使用。目录是资料线索，不要当作已确诊故障或适用性证明。返回精简目录 JSON。', object({
     brand: string('品牌'), model: string('完整型号'), component: string('组件'), part: string('零部件'), q: string('目录关键词'),
