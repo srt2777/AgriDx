@@ -70505,6 +70505,616 @@
           "part_ids": []
         }
       ]
+    },
+    {
+      "entry_id": "KB-BENYE-CN-G4-202211-001",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-BENYE-CN-G4-202211-002",
+      "components": [
+        {
+          "component_id": "cooling",
+          "part_ids": [
+            "radiator"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-BENYE-CN-G4-202211-003",
+      "components": [
+        {
+          "component_id": "fuel",
+          "part_ids": [
+            "fuel-filter"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-BENYE-CN-G4-202211-004",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hydraulic-filter"
+          ]
+        },
+        {
+          "component_id": "brakes",
+          "part_ids": []
+        },
+        {
+          "component_id": "transmission",
+          "part_ids": [
+            "clutch-pedal"
+          ]
+        },
+        {
+          "component_id": "chassis",
+          "part_ids": [
+            "wheel-bearing"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-BENYE-CN-G4-202211-005",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        },
+        {
+          "component_id": "hydraulics",
+          "part_ids": []
+        },
+        {
+          "component_id": "chassis",
+          "part_ids": [
+            "front-axle"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-BENYE-CN-G4-202211-006",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "battery"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-BENYE-CN-G4-202211-007",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "battery"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-BENYE-CN-G4-202211-008",
+      "components": [
+        {
+          "component_id": "steering",
+          "part_ids": [
+            "steering-cylinder"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-BENYE-CN-G4-202211-009",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": [
+            "air-filter"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-BENYE-CN-G4-202211-010",
+      "components": [
+        {
+          "component_id": "cooling",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-BENYE-CN-G4-202211-011",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hydraulic-filter"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-BENYE-CN-G4-202211-012",
+      "components": [
+        {
+          "component_id": "lubrication",
+          "part_ids": [
+            "oil-dipstick"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-BENYE-CN-G4-202211-013",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-BENYE-CN-G4-202211-014",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-BENYE-CN-G4-202211-015",
+      "components": [
+        {
+          "component_id": "fuel",
+          "part_ids": [
+            "fuel-filter"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-BENYE-CN-G4-202211-019",
+      "components": [
+        {
+          "component_id": "brakes",
+          "part_ids": [
+            "brake-pedal",
+            "brake-friction"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-BENYE-CN-G4-202211-021",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-BENYE-CN-G4-202211-022",
+      "components": [
+        {
+          "component_id": "chassis",
+          "part_ids": [
+            "front-axle"
+          ]
+        },
+        {
+          "component_id": "steering",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-BENYE-CN-G4-202211-023",
+      "components": [
+        {
+          "component_id": "chassis",
+          "part_ids": [
+            "front-axle"
+          ]
+        },
+        {
+          "component_id": "steering",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-BENYE-CN-G4-202211-024",
+      "components": [
+        {
+          "component_id": "chassis",
+          "part_ids": [
+            "front-axle"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-BENYE-CN-G4-202211-025",
+      "components": [
+        {
+          "component_id": "steering",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-BENYE-CN-G4-202211-026",
+      "components": [
+        {
+          "component_id": "steering",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-BENYE-CN-G4-202211-029",
+      "components": [
+        {
+          "component_id": "fuel",
+          "part_ids": [
+            "fuel-filter"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-BENYE-CN-G4-202211-030",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-BENYE-CN-G4-202211-031",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": [
+            "exhaust-aftertreatment"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-BENYE-CN-G4-202211-032",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": [
+            "air-filter"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-BENYE-CN-G4-202211-033",
+      "components": [
+        {
+          "component_id": "lubrication",
+          "part_ids": [
+            "oil-dipstick"
+          ]
+        },
+        {
+          "component_id": "engine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-BENYE-CN-G4-202211-034",
+      "components": [
+        {
+          "component_id": "fuel",
+          "part_ids": []
+        },
+        {
+          "component_id": "engine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-BENYE-CN-G4-202211-035",
+      "components": [
+        {
+          "component_id": "cooling",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-BENYE-CN-G4-202211-036",
+      "components": [
+        {
+          "component_id": "cooling",
+          "part_ids": [
+            "thermostat",
+            "coolant-pump"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-BENYE-CN-G4-202211-037",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-BENYE-CN-G4-202211-038",
+      "components": [
+        {
+          "component_id": "lubrication",
+          "part_ids": [
+            "oil-pump"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-BENYE-CN-G4-202211-039",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "wiring"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-BENYE-CN-G4-202211-040",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-BENYE-CN-G4-202211-041",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "starter",
+            "battery",
+            "wiring"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-BENYE-CN-G4-202211-042",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "starter",
+            "battery",
+            "brush"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-BENYE-CN-G4-202211-043",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "starter"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-BENYE-CN-G4-202211-044",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": [
+            "clutch-friction",
+            "clutch-pedal",
+            "clutch-spring"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-BENYE-CN-G4-202211-045",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": [
+            "clutch-pedal",
+            "clutch-release"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-BENYE-CN-G4-202211-046",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": [
+            "clutch-friction"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-BENYE-CN-G4-202211-047",
+      "components": [
+        {
+          "component_id": "chassis",
+          "part_ids": []
+        },
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-BENYE-CN-G4-202211-048",
+      "components": [
+        {
+          "component_id": "brakes",
+          "part_ids": [
+            "brake-friction"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-BENYE-CN-G4-202211-049",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hydraulic-cylinder"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-BENYE-CN-G4-202211-050",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-BENYE-CN-G4-202211-051",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hydraulic-valve"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-BENYE-CN-G4-202211-052",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hydraulic-valve"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-BENYE-CN-G4-202211-053",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-BENYE-CN-G4-202211-054",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hydraulic-seal"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-BENYE-CN-G4-202211-055",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hydraulic-valve"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-BENYE-CN-G4-202211-057",
+      "components": [
+        {
+          "component_id": "steering",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-BENYE-CN-G4-202211-058",
+      "components": [
+        {
+          "component_id": "steering",
+          "part_ids": [
+            "steering-cylinder"
+          ]
+        },
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hydraulic-hose"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-BENYE-CN-G4-202211-059",
+      "components": [
+        {
+          "component_id": "steering",
+          "part_ids": [
+            "steering-valve"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-BENYE-CN-G4-202211-060",
+      "components": [
+        {
+          "component_id": "steering",
+          "part_ids": [
+            "steering-cylinder"
+          ]
+        }
+      ]
     }
   ]
 }

@@ -20,6 +20,7 @@ const BRAND_ALIASES: Record<string, string[]> = {
   东方红: ['东方红', 'yto'],
   常发: ['常发', 'changfa'],
   沃得: ['沃得', '悍沃'],
+  奔野: ['奔野', 'benye'],
   黄海金马: ['黄海金马', '金马', 'jinma'],
   时风: ['时风', 'shifeng'],
   潍泰: ['潍泰', 'weitai'],
@@ -110,9 +111,11 @@ let indexedModels: string[] = [];
 let modelPatterns: { model: string; pattern: RegExp }[] = [];
 let modelFamilies: string[] = ['workmaster', 'lx', 't', 'pl', 'tg'];
 let numericModelPattern: RegExp | undefined;
+let shortNumericModelPattern: RegExp | undefined;
 
 const numericEdition = 'g\\d+[a-z0-9]*(?:[.-][a-z0-9]+)*';
-const numericModelSuffix = `(?:[ \\t]*[(（][ \\t]*${numericEdition}[ \\t]*[)）][a-z0-9]*|[ \\t]+${numericEdition}|[ \\t]*-[ \\t]*[a-z][a-z0-9]*|[a-z][a-z0-9]*)`;
+const parenthesizedEdition = `[ \t]*[(（][ \t]*${numericEdition}[ \t]*[)）][a-z0-9]*`;
+const numericModelSuffix = `(?:${parenthesizedEdition}|[ \t]+${numericEdition}|[ \t]*-[ \t]*[a-z][a-z0-9]*(?:${parenthesizedEdition})?|[a-z][a-z0-9]*(?:${parenthesizedEdition})?)`;
 const numericMeasurementUnits = [
   'r[ \\t]*[/／][ \\t]*min', 'rpm', 'mpa', 'kpa', 'pa', 'bar', 'kwh', 'kw', 'km/h', 'km',
   'mm', 'cm', 'kg', 'nm', 'n[ \\t]*[·⋅•][ \\t]*m', 'l/min', 'hz', '°[cf]?', '℃', '℉', '[%％‰]',
@@ -142,13 +145,22 @@ export function configureIndexedModels(chunks: KnowledgeChunk[]): void {
   numericModelPattern = numericBases.length
     ? new RegExp(`${MODEL_TOKEN_START}(?:${numericBases.join('|')})(?!${numericMeasurementUnit})(?:${numericModelSuffix}(?:[.-][a-z0-9]+)*)?${MODEL_TOKEN_END}`, 'giu')
     : undefined;
-  modelPatterns = modelPatterns.filter(({ model }) => !/^\d{4}$/.test(model));
+  // Three-digit names need an explicit suffix, brand, or type label to avoid bare measurement values.
+  const shortBases = [...new Set(indexedModels.flatMap((model) => /^(\d{3})(?:g\d+)?$/.exec(model)?.[1] ?? []))];
+  const shortBase = `(?:${shortBases.join('|')})(?!${numericMeasurementUnit})`;
+  const shortIdentity = '(?:奔野|(?<![a-z])benye|(?:型号|机型)[ \t]*[:：=]?[ \t]*(?:为|是)?)[ \t:：-]*';
+  const shortSuffix = `(?:${numericModelSuffix}|[ \t]*-[ \t]*\\d+(?:${parenthesizedEdition})?)`;
+  const shortWithSuffix = `${shortBase}${shortSuffix}(?:[.-][a-z0-9]+)*`;
+  shortNumericModelPattern = shortBases.length
+    ? new RegExp(`(?:${MODEL_TOKEN_START}${shortWithSuffix}|(?<=${shortIdentity})(?:${shortWithSuffix}|${shortBase}))${MODEL_TOKEN_END}`, 'giu')
+    : undefined;
+  modelPatterns = modelPatterns.filter(({ model }) => !/^(?:\d{3}(?:g\d+)?|\d{4})$/.test(model));
   const modelNames = new Set(indexedModels);
   indexedPowertrainCodes = new Set(chunks.flatMap(chunk => chunk.faultCodes ?? [])
     .map(code => code.toLowerCase()).filter(code => /^p[a-f0-9]{4}$/.test(code) && !modelNames.has(code)));
   modelFamilies = [...new Set([
     'workmaster', 'lx', 't', 'pl', 'tg',
-    ...indexedModels.flatMap((model) => {
+    ...indexedModels.filter(model => !/^\d{3}g\d+$/.test(model)).flatMap((model) => {
       const prefix = model.match(/^(?:\d+[a-z]+|[a-z]+)(?=\d)/)?.[0];
       return prefix ? [prefix] : /^[a-z]{1,5}$/.test(model) ? [model] : [];
     }),
@@ -170,11 +182,11 @@ function withoutHydraulicTestPortLabels(text: string): string {
 
 function withoutNumericMeasurementsOrSerials(text: string): string {
   // Only unambiguous labels qualify single-letter units and numbers used as parts or serial references.
-  const serialNumber = /((?:零件号|零件编号|部件号|部件编号|整机号|整机编号|出厂号|出厂编号|车架号|发动机号|序列号|线束编号)[ \t]*[:：=#]?[ \t]*(?:为|是)?[ \t]*)(\d{4}(?:[a-z0-9]+|[.-][a-z0-9]+)*)(?![a-z0-9]|[.-][a-z0-9])/gi;
-  const ordinal = /(第[ \t]*)(\d{4})(?=[ \t]*号(?:线|针脚|插针|端子))/g;
-  const engineSpeed = /((?:每分钟|发动机转速|主轴转速|PTO转速)[ \t]*[:：=]?[ \t]*(?:为|是)?[ \t]*)(\d{4})(?=[ \t]*转(?!向|动|速|矩|子|轴|换|角))/gi;
-  const hours = /((?:工时|运行时间|使用时间|运行|运转|工作|开机|累计)[ \t]*[:：=]?[ \t]*(?:为|是)?[ \t]*)(\d{4}[ \t]*h)(?![a-z0-9])/gi;
-  const liters = /((?:油箱容量|容积|容量|加注|补充|消耗|油量)[ \t]*[:：=]?[ \t]*(?:为|是)?[ \t]*)(\d{4}[ \t]*[l升])(?![a-z0-9]|降|程|举|高|压|档|挡)/gi;
+  const serialNumber = /((?:零件号|零件编号|部件号|部件编号|整机号|整机编号|出厂号|出厂编号|车架号|发动机号|序列号|线束编号)[ \t]*[:：=#]?[ \t]*(?:为|是)?[ \t]*)(\d{3,4}(?:[a-z0-9]+|[.-][a-z0-9]+)*)(?![a-z0-9]|[.-][a-z0-9])/gi;
+  const ordinal = /(第[ \t]*)(\d{3,4})(?=[ \t]*号(?:线|针脚|插针|端子))/g;
+  const engineSpeed = /((?:每分钟|发动机转速|主轴转速|PTO转速)[ \t]*[:：=]?[ \t]*(?:为|是)?[ \t]*)(\d{3,4})(?=[ \t]*转(?!向|动|速|矩|子|轴|换|角))/gi;
+  const hours = /((?:工时|运行时间|使用时间|运行|运转|工作|开机|累计)[ \t]*[:：=]?[ \t]*(?:为|是)?[ \t]*)(\d{3,4}[ \t]*h)(?![a-z0-9])/gi;
+  const liters = /((?:油箱容量|容积|容量|加注|补充|消耗|油量)[ \t]*[:：=]?[ \t]*(?:为|是)?[ \t]*)(\d{3,4}[ \t]*[l升])(?![a-z0-9]|降|程|举|高|压|档|挡)/gi;
   const blankValue = (_match: string, label: string, value: string) => label + ' '.repeat(value.length);
   return text.replace(serialNumber, blankValue).replace(ordinal, blankValue)
     .replace(engineSpeed, blankValue).replace(hours, blankValue).replace(liters, blankValue);
@@ -194,8 +206,10 @@ function modelMentions(text: string): ModelMention[] {
       mentions.push({ start: match.index!, end: match.index! + match[0].length, model });
     }
   }
-  if (numericModelPattern) {
-    for (const match of withoutNumericMeasurementsOrSerials(scanText).matchAll(numericModelPattern)) {
+  const numericText = withoutNumericMeasurementsOrSerials(scanText);
+  for (const pattern of [numericModelPattern, shortNumericModelPattern]) {
+    if (!pattern) continue;
+    for (const match of numericText.matchAll(pattern)) {
       mentions.push({ start: match.index!, end: match.index! + match[0].length, model: normalizeModel(match[0]) });
     }
   }

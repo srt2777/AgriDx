@@ -15,7 +15,7 @@ import {
   type KnowledgeChunk,
 } from '../server/knowledge/retriever';
 import { loadKnowledgeSnapshot, reloadKnowledgeSnapshot } from '../server/knowledge/snapshot';
-import { queryWithoutIdentity, resolveScope } from '../server/knowledge/scope';
+import { archiveApplicability, configureIndexedModels, queryWithoutIdentity, resolveScope } from '../server/knowledge/scope';
 import { buildContextRegistry } from '../agent/context-tools';
 import { ToolExecutor } from '../agent/tools';
 
@@ -306,6 +306,44 @@ test('numeric tractor models retain unknown suffixes in text and structured scop
   assert.deepEqual(resolveScope('东方红 1002 履带转向困难，故障码 6065.17', {}).models, ['1002']);
   assert.deepEqual(requestedFaultCodes('故障码 ECU 1002.17，转速 1002 r/min', []),
     [{ number: '1002.17', controller: 'ECU', explicit: true }]);
+});
+
+test('Benye numeric model suffixes and brands stay distinct while measurements stay unscoped', () => {
+  const models = ['504(G4)', '704(G4)', '804(G4)', '904(G4)'];
+  const chunk: KnowledgeChunk = { source: 'fixture.md', heading: '转向困难', text: '合成接口测试',
+    brand: '奔野', models, requiresExactModel: true, emissionStage: '国四' };
+  const canonicalChunks = loadKnowledgeSnapshot().chunks;
+  configureIndexedModels([...canonicalChunks, chunk]);
+  try {
+    for (const model of models) {
+      const exact = resolveScope(`奔野${model}转向困难`, {});
+      assert.equal(exact.brand, '奔野');
+      assert.equal(archiveApplicability(chunk, exact), 'matched');
+      const base = model.slice(0, 3);
+      for (const suffix of ['(G4A)', '（G4A）', ' G4B', '-A(G4)', '-3(G4)', ' 国四']) {
+        const question = `奔野${base}${suffix} 转向困难`;
+        const unknown = resolveScope(question, {});
+        assert.equal(unknown.brand, '奔野', question);
+        assert.ok(unknown.models.some(identity => identity.startsWith(base)), question);
+        assert.equal(archiveApplicability(chunk, unknown), undefined, question);
+        assert.equal(resolveScope(question, { brand: '奔野', model }).identityConflict, true, question);
+      }
+      const crossBrand = resolveScope(`东风${model}转向困难`, { brand: '奔野', model });
+      assert.equal(crossBrand.identityConflict, true);
+      assert.equal(archiveApplicability(chunk, crossBrand), undefined);
+    }
+    assert.equal(archiveApplicability(chunk, resolveScope('Benye704(G4) 转向困难', {})), 'matched');
+    for (const question of ['型号为704(G4)，已工作704小时', '奔野704(G4) 第704号线开路']) {
+      assert.deepEqual(resolveScope(question, {}).models, ['704g4']);
+      assert.match(queryWithoutIdentity(question), /704(?:小时|号线)/);
+    }
+    for (const question of ['发动机转速504 r/min', '转向压力904kPa', '总工时704h', '零件号804G4A',
+      '油面高度504毫米', '第704号针脚开路']) {
+      assert.deepEqual(resolveScope(question, {}).models, [], question);
+    }
+  } finally {
+    configureIndexedModels(canonicalChunks);
+  }
 });
 
 test('numeric measurements and service identifiers retain their meaning outside tractor model scope', () => {
