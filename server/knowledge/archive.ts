@@ -3,6 +3,7 @@ import path from 'node:path';
 import type { KnowledgeChunk } from './types';
 import { configureIndexedModels } from './scope';
 import { isArchiveId } from './evidence';
+import { documentedFaultCodes } from './fault-codes';
 
 const ARCHIVE_ROOT = path.resolve(process.cwd(), '知识库/整理后的知识库');
 const ENTRY_TYPES = ['维护/故障知识', '操作/维护知识', '安全操作', '系统安装/调试',
@@ -85,7 +86,7 @@ export function loadRoleSidecar(indexRoot: string): Map<string, RoleFields> {
 /** Page numbers exactly as written in the locator; absent when the locator gives none. */
 export function parsePages(locator: string): { pdf?: string; printed?: string } | undefined {
   const pdf = locator.match(/PDF\s*(?:物理)?\s*第?\s*(\d[\d、，,～~\-–\s]*?)\s*页/)?.[1]?.trim();
-  const printed = locator.match(/印刷(?:页码)?\s*第?\s*(\d[\d、，,～~\-–]*)/)?.[1]?.trim();
+  const printed = locator.match(/印刷(?:页码|页脚)?\s*第?\s*((?:[A-Z]+-\d+(?:[、，,～~–-][A-Z]+-\d+)*|\d[\d、，,～~\-–]*))/i)?.[1]?.trim();
   return pdf || printed ? { ...(pdf ? { pdf } : {}), ...(printed ? { printed } : {}) } : undefined;
 }
 
@@ -214,6 +215,7 @@ export function loadArchive(archiveRoot = ARCHIVE_ROOT, options: { configureMode
     }
     const section = sections.get(entry.entry_id);
     if (!section?.text) throw new Error(`索引对应的知识章节缺失：${entry.entry_id}`);
+    const faultCodes = documentedFaultCodes(section.text);
     // Inherited market/configuration limits in the manual's introduction apply to every entry.
     const inheritedScope = sections.get('来源与适用范围')?.text.split('\n')
       .filter((line) => /^- (仅适用|型号：|适用：|资料性质：|整理日期：)/.test(line)).join('\n');
@@ -241,6 +243,7 @@ export function loadArchive(archiveRoot = ARCHIVE_ROOT, options: { configureMode
       status: entry.status,
       entryType: entry.entry_type,
       sourceTitle: source.title,
+      ...(faultCodes.length ? { faultCodes } : {}),
       pages: parsePages(entry.locator),
       ...(entry.roles ? { roles: [...entry.roles], roleBasis: entry.role_basis } : {}),
       ...(entry.risk_level ? { riskLevel: entry.risk_level, riskBasis: entry.risk_basis } : {}),

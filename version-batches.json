@@ -1141,6 +1141,13 @@
       "base": "4.1.16",
       "version": "4.1.17",
       "date": "2026-11-14"
+    },
+    {
+      "id": "knowledge-controller-fault-codes-20261114",
+      "kind": "fix",
+      "base": "4.1.17",
+      "version": "4.1.18",
+      "date": "2026-11-14"
     }
   ]
 }

@@ -31,6 +31,7 @@ test('页码按定位原文提取，不推测', () => {
   assert.deepEqual(parsePages('PDF 第 101、104 页；印刷第 99、102 页。'), { pdf: '101、104', printed: '99、102' });
   assert.deepEqual(parsePages('PDF 第 95～96 页'), { pdf: '95～96' });
   assert.deepEqual(parsePages('故障表；PDF物理第130页；印刷128'), { pdf: '130', printed: '128' });
+  assert.deepEqual(parsePages('PDF物理第90、94页；印刷页脚 E-2、E-6'), { pdf: '90、94', printed: 'E-2、E-6' });
   assert.equal(parsePages('网页报道'), undefined);
 });
 
