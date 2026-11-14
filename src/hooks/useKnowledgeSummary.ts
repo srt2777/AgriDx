@@ -18,7 +18,7 @@ export function useKnowledgeSummary(entries?: number) {
   const researchCount = researchKnowledge.entries.length;
   return {
     literatureCount, researchCount, failed,
-    total: entries !== undefined && literatureCount !== null ? entries + literatureCount + researchCount : undefined,
+    total: entries !== undefined ? entries + researchCount : undefined,
     retry: () => setRevision(value => value + 1),
   };
 }

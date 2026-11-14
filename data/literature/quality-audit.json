@@ -1,0 +1,14 @@
+{
+  "policy": "machinery-discovery-v1",
+  "scanned": 486764,
+  "retained": 1995,
+  "excluded": 484769,
+  "reasons": {
+    "no-explicit-machinery-topic": 480537,
+    "notice-or-editorial": 4120,
+    "publication-update-needs-review": 105,
+    "insufficient-title-context": 7
+  },
+  "fullTextReviewed": false,
+  "notes": "Full local metadata scan; retained records are discovery candidates, not verified knowledge. Exclusions are reversible through Git history."
+}

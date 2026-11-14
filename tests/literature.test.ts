@@ -1,3 +1,4 @@
+import { literatureExclusionReason } from '../shared/literature-quality';
 import { literatureArchiveEntry } from '../shared/literature-archive';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -26,7 +27,7 @@ test('every literature record has verified shard bytes, a unique DOI and an inde
     for(const record of records) {
       const archive=literatureArchiveEntry(record);
       assert.equal(archive.entryId,record.id);assert.deepEqual(archive.knowledgeClaims,[]);
-      validateLiteratureRecord(record);
+      validateLiteratureRecord(record); assert.equal(literatureExclusionReason(record), null);
       assert.ok(!dois.has(record.doi)); assert.ok(!ids.has(record.id));
       assert.equal(record.id, 'CR-'+createHash('sha256').update(record.doi).digest('hex').slice(0,24));
       assert.ok(sourceHashes.has(record.responseSha256));

@@ -29,7 +29,7 @@ export default function LiteratureBrowser() {
   return <section className="literature-browser" aria-labelledby="literature-title">
     <header><h2 id="literature-title">农业文献归档与研究知识</h2>
       <p>Crossref 文献元数据 · 按 DOI 和标题去重 · 原始标题、作者与期刊信息</p>
-      <p className="literature-boundary">用于查找文献。未核验全文、研究结论或实车适用性，不作为维修诊断依据。期刊范围包含农机、作物、土壤、园艺、食品与养殖；不代表每篇都是农机研究。</p>
+      <p className="literature-boundary">用于查找文献。未核验全文、研究结论或实车适用性，不作为维修诊断依据。已按标题筛除通知、编者信息及缺少明确农机主题的记录；保留项仅为农机文献线索，未逐篇核验正文，不计入知识总数。</p>
     </header>
     <details className="literature-research"><summary>故障诊断与维修方向：{researchKnowledge.entries.length} 条正文研究知识（单列统计）</summary>
       <p>来自 {researchKnowledge.sources.length} 篇论文正文；原文位置已对照，未独立复现，不是维修操作规程。元数据归档不等于正文知识。</p>
