@@ -68392,6 +68392,279 @@
           "part_ids": []
         }
       ]
+    },
+    {
+      "entry_id": "KB-JD-6J-OMAL221437-B7-CN-001",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-6J-OMAL221437-B7-CN-002",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hydraulic-cylinder"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-6J-OMAL221437-B7-CN-003",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hydraulic-cooler"
+          ]
+        },
+        {
+          "component_id": "cooling",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-6J-OMAL221437-B7-CN-004",
+      "components": [
+        {
+          "component_id": "cooling",
+          "part_ids": [
+            "radiator",
+            "fan-belt",
+            "thermostat"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-6J-OMAL221437-B7-CN-005",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": []
+        },
+        {
+          "component_id": "lubrication",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-6J-OMAL221437-B7-CN-006",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": []
+        },
+        {
+          "component_id": "fuel",
+          "part_ids": []
+        },
+        {
+          "component_id": "cooling",
+          "part_ids": [
+            "thermostat"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-6J-OMAL221437-B7-CN-007",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": []
+        },
+        {
+          "component_id": "electrical",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-6J-OMAL221437-B7-CN-008",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "wiring"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-6J-OMAL221437-B7-CN-009",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "starter",
+            "battery",
+            "wiring"
+          ]
+        },
+        {
+          "component_id": "lubrication",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-6J-OMAL221437-B7-CN-010",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hydraulic-filter"
+          ]
+        },
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-6J-OMAL221437-B7-CN-011",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-6J-OMAL221437-B7-CN-012",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hitch-control"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-6J-OMAL221437-B7-CN-013",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hydraulic-hose"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-6J-OMAL221437-B7-CN-014",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hydraulic-cylinder"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-6J-OMAL221437-B7-CN-015",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": []
+        },
+        {
+          "component_id": "fuel",
+          "part_ids": [
+            "fuel-filter"
+          ]
+        },
+        {
+          "component_id": "lubrication",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-6J-OMAL221437-B7-CN-016",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": []
+        },
+        {
+          "component_id": "lubrication",
+          "part_ids": []
+        },
+        {
+          "component_id": "fuel",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-6J-OMAL221437-B7-CN-017",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": []
+        },
+        {
+          "component_id": "lubrication",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-6J-OMAL221437-B7-CN-018",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": [
+            "air-filter"
+          ]
+        },
+        {
+          "component_id": "fuel",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-6J-OMAL221437-B7-CN-019",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": [
+            "air-filter"
+          ]
+        },
+        {
+          "component_id": "fuel",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-6J-OMAL221437-B7-CN-020",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "starter",
+            "battery"
+          ]
+        },
+        {
+          "component_id": "engine",
+          "part_ids": []
+        }
+      ]
     }
   ]
 }

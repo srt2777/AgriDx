@@ -4120,5 +4120,50 @@
     ],
     "hash_scope": "sha256/bytes为本地来源记录，original_media_*为取得的原厂媒体",
     "emission_stage_unknown": true
+  },
+  {
+    "source_id": "SRC-JD-6J-OMAL221437-B7-CN",
+    "brand": "约翰迪尔",
+    "model": "JD1654 / JD1854 / JD2054 / JD2104",
+    "models": [
+      "JD1654",
+      "JD1854",
+      "JD2054",
+      "JD2104"
+    ],
+    "model_ids": [
+      "JD1654",
+      "JD1854",
+      "JD2054",
+      "JD2104"
+    ],
+    "title": "约翰迪尔 JD1654、JD1854、JD2054 和 JD2104 拖拉机操作手册，OMAL221437 B7",
+    "title_status": "已核对",
+    "title_evidence": "中国官网将该附件列于6J各车型下，PDF物理第1页列四个机型、厂名、书号和B7版次。",
+    "document_type": "拖拉机整机操作说明书",
+    "role": "整机使用保养与故障排查",
+    "path": "知识库/原始农机说明书/约翰迪尔/6J-OMAL221437-B7-CN/来源记录.md",
+    "url": "https://secure.viewer.zmags.com/services/DownloadPDF?publicationID=0a5d8328&selectedPages=all",
+    "download_url": "https://secure.viewer.zmags.com/services/DownloadPDF?publicationID=0a5d8328&selectedPages=all",
+    "version": "OMAL221437 B7，中文中国机型；内页印记022217。",
+    "language": "中文（中国机型）",
+    "scope_boundary": "仅约翰迪尔天津原厂中国版 OMAL221437 B7 所列 6J 的 JD1654、JD1854、JD2054、JD2104。核对完整型号和实车总成，牢记 6M 使用不同铭牌与资料。",
+    "status": "证据页文本及图像已核验。仅限所列选页；未开展厂家复核及实车试验。",
+    "source_level": "约翰迪尔中国官网指向的授权公开操作手册 PDF",
+    "collected_at": "2026-11-14",
+    "storage_type": "link_and_source_record",
+    "sha256": "2f95abfb37cd7de40d08f8189372d562370f97e2690fc50ea263f8f9f5353dc7",
+    "bytes": 1014,
+    "manual_sha256": "136abb518a3b20131b81a0a8f2f330c65f99786c1104240a2c3b2dac4656ba52",
+    "manual_bytes": 9239289,
+    "manual_pdf_pages": 206,
+    "hash_scope": "sha256/bytes为来源记录，manual_*为原PDF",
+    "knowledge_path": "知识库/整理后的知识库/农用拖拉机知识库/机型知识卡/约翰迪尔-6J-OMAL221437-B7-CN.md",
+    "verified_pdf_pages": {
+      "1": "核对官方目录对应的四个原厂名牌型号、书号及 B7 版。",
+      "155": "目视核对印刷页脚 135-1 的原文行或图。",
+      "156": "目视核对印刷页脚 135-2 的原文行或图。",
+      "157": "目视核对印刷页脚 135-3 的原文行或图。"
+    }
   }
 ]
