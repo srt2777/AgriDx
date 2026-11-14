@@ -67687,6 +67687,21 @@
           "part_ids": []
         }
       ]
+    },
+    {
+      "entry_id": "KB-YTO-1002-CASE202103050-001",
+      "components": [
+        {
+          "component_id": "steering",
+          "part_ids": []
+        },
+        {
+          "component_id": "transmission",
+          "part_ids": [
+            "clutch-friction"
+          ]
+        }
+      ]
     }
   ]
 }

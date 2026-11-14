@@ -38,6 +38,20 @@ test('6875条学习资料逐条可按编号检索，区分6000条原理通识与
   assert.deepEqual(retrieve('KB-YTO-LF-MANUAL-007', 6, { brand: '久保田', model: 'LX2620' }), []);
 });
 
+test('案例来源显示为资料且数字型号不影响同编号的通识条目', async () => {
+  const learning = retrieve('查阅 TK-1002');
+  assert.equal(learning[0]?.entryId, 'TK-1002');
+  assert.equal(learning[0]?.generalEvidence, true);
+  const diagnose = createDiagnosticService({ hasAnyConfigured: () => false, chat: async () => { throw new Error('unused'); } },
+    { config: { logDecisions: false } });
+  const answer = await diagnose({ history: [{ role: 'user', content: '东方红1002履带行走向左偏，拉右转向杆停住' }], diagnosisMode: 'knowledge_only' });
+  const entry = answer.knowledgeSources.find(source => source.entryId === 'KB-YTO-1002-CASE202103050-001');
+  assert.ok(entry);
+  assert.match(entry.evidenceLabel!, /^资料：/);
+  assert.equal(entry.applicability, 'matched');
+  assert.equal(entry.pages?.pdf, '2');
+});
+
 test('已知型号优先匹配手册，覆盖不足的通识仅参考，未知型号不套用手册', () => {
   const found = retrieve('东方红 LF804S 启动机不转');
   assert.equal(found[0].entryId, 'KB-YTO-LF-MANUAL-007');
