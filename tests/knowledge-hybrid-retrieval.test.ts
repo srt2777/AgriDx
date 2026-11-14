@@ -117,7 +117,7 @@ test('混合检索对照：同一批问题，加向量前后 top-6 命中与错�
   assert.ok(gains >= 1, `gains=${gains}`);
   assert.ok(keywordPlusVector >= 1, `keyword+vector=${keywordPlusVector}`);
   const stats = vectorRecallStats();
-  assert.equal(stats.documents, 13483);
+  assert.equal(stats.documents, 13536);
   assert.ok(stats.features > 100000, `features=${stats.features}`);
   // 构建耗时随机器负载波动很大（空闲约 4–12s，负载 40 时约 44s）；上限只防
   // 构建失控，不作性能承诺。
@@ -172,8 +172,8 @@ test('混合检索：提升器同义表述补回同组件参考条目，关键�
   const off = retrieve('拖拉机提升器升不起来', 6, {}, { vectorRecall: false });
   const on = retrieve('拖拉机提升器升不起来', 6, {});
   assert.equal(off.length, 1);
-  assert.equal(off[0].entryId, undefined);
-  assert.equal(on[0].entryId, undefined);
+  assert.equal(off[0].retrieval?.recall, 'keyword');
+  assert.equal(on[0].entryId, off[0].entryId);
   assert.equal(on[0].relevance?.score, off[0].relevance?.score);
   const gained = on.find(chunk => chunk.entryId === 'KB-WZ-TSME-0470');
   assert.ok(gained, '向量应补回提升器同组件条目');

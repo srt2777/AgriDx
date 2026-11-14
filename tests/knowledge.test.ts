@@ -476,8 +476,13 @@ test('non-tractor equipment cannot receive tractor sample operations or paramete
       assert.doesNotMatch(reply, /【检索到的知识】|40–80|16–20|MPa/);
     }
   }
-  assert.ok(retrieve('液压提升无力', 100).some((chunk) => chunk.heading === '四、液压系统故障'));
-  assert.ok(retrieve('液压提升无力', 100, tractor).some((chunk) => chunk.heading === '四、液压系统故障'));
+  // New verified model-specific references may outrank the original sample;
+  // with no model, tractor results must still be marked as pending applicability.
+  for (const context of [{}, tractor]) {
+    const tractorResults = archived(retrieve('液压提升无力', 100, context));
+    assert.ok(tractorResults.length > 0);
+    assert.ok(tractorResults.every((chunk) => chunk.applicability === 'pending'));
+  }
 });
 
 test('unidentified tractor questions collect information instead of returning unsourced repairs', () => {

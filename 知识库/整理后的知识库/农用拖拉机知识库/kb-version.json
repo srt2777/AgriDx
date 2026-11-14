@@ -1,25 +1,25 @@
 {
   "schema": 1,
-  "kb_version": "2026.11.12",
+  "kb_version": "2026.11.13",
   "released": "2026-11-14",
-  "project_version": "4.1.34",
+  "project_version": "4.1.35",
   "counts": {
-    "archive": 6599,
+    "archive": 6652,
     "learning": 6875,
-    "sources": 82,
-    "markdown_files": 186
+    "sources": 83,
+    "markdown_files": 187
   },
   "content_hash": {
-    "entries": "40062d632d696cbdf4d5b98c64354337b1e86b1ecb5c265a1d742cf64b9c2ee2",
-    "sources": "847f6da2cc7149fcb0af30800be75a4a7811a7882443d96a60f45f0ad72fa44b",
-    "hierarchy": "d802f6ae3676439c857006dcabac5e4a7c6eb28698350aba78efe58c74636356",
+    "entries": "facdb7485b25a010d54a7dc35fb38266b8b3080c135645be2013d1759ae26f7a",
+    "sources": "8c8a6a87150d587c0ee6224b2176e755015fd31458f14566468e91d637a0c31d",
+    "hierarchy": "f1c8d0ae7fb4da80bd3898617ca3174abcd33cb617f8420e446cf033efbfef2e",
     "entry_roles": "e405604f0c010d6baec51a20a2fe842c846bc95c9bc83a792df4911edbd2fc5f",
     "role_review_queue": "2458130fbdd63748affa63b85fdfb6ff8746aa74b0b18fa98badbc02c2d8aff6",
     "learning_index": "1eac29d4f33681de65628b95b992b248f35c62578fb2f9e45ac5b1fdda8b414f",
     "learning_expansion": "f498bd5dce2b3f96730ab5d508936d5852d0173416e2636878e35aabcda3fbfc",
     "learning_terminology": "e722d56d222848de51fe758932a03e7bff4c24093d7c6b3d8de2509c5608d46e",
     "terminology_source": "4e46f51952a624aaf64564699e56e31ba8bca070e7ed826d0513192c89dac0bd",
-    "markdown": "7152618593ef156c4ab3667fd4e3a03e1c1c5ccdaa275c2ade6cacc2c5807194",
+    "markdown": "fdf5d25648cb492ba17fc9adce5c90b6a3691e77b7136afeccc38492c0c50abb",
     "learning_markdown": "1984a5f0c25b88b85bd5ceef6c9633c942d7776d51e08afaa6579fe293889c4b"
   }
 }
