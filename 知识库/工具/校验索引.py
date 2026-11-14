@@ -55,7 +55,7 @@ CAUSAL_EVIDENCE_KINDS = {'故障表', '知识卡选摘'}
 CAUSAL_EDGE_ID = re.compile(r'CE-\d{6}')
 # 与 server/knowledge/archive.ts parsePages 及抽取脚本同一规则解析定位页码。
 CAUSAL_PDF_RE = re.compile(r"PDF\s*(?:物理)?\s*第?\s*(\d[\d、，,～~\-\–\s]*?)\s*页")
-CAUSAL_PRINTED_RE = re.compile(r"印刷(?:页码)?\s*第?\s*(\d[\d、，,～~\-\–]*)")
+CAUSAL_PRINTED_RE = re.compile(r"印刷(?:页码|页脚)?\s*第?\s*([A-Z]+-\d+(?:[、，,～~–-][A-Z]+-\d+)*|\d[\d、，,～~\-–]*)", re.I)
 
 
 def _norm(text):

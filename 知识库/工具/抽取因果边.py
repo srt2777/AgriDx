@@ -53,7 +53,7 @@ THRESHOLD_RE = re.compile(
     r"(\d+(?:\.\d+)?)\s*(分钟|小时|秒|℃|°C|MPa|kPa|bar|r/min|mm|cm|m|V|A|%|L|N·m)"
 )
 PDF_RE = re.compile(r"PDF\s*(?:物理)?\s*第?\s*(\d[\d、，,～~\-\–\s]*?)\s*页")
-PRINTED_RE = re.compile(r"印刷(?:页码)?\s*第?\s*(\d[\d、，,～~\-\–]*)")
+PRINTED_RE = re.compile(r"印刷(?:页码|页脚)?\s*第?\s*([A-Z]+-\d+(?:[、，,～~–-][A-Z]+-\d+)*|\d[\d、，,～~\-–]*)", re.I)
 
 
 def parse_pages(locator):

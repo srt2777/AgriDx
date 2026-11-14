@@ -97,6 +97,7 @@ test('a shared fault number requires its controller prefix before retrieving exa
   }
   assert.deepEqual(retrieve('如何排查？', 5, { ...lf, faultCodes: ['PTI 177.17'] }).map(chunk => chunk.entryId), [autoPowr.entryId]);
   assert.deepEqual(retrieve('故障码 ECU 177.17', 5, lf), []);
+  assert.deepEqual(retrieve('故障码 177.18', 5, lf), []);
   assert.deepEqual(retrieve('PTP 177.17', 5, { ...lf, model: 'LF99999' }), []);
   assert.ok(retrieve('水温过高 177.17 摄氏度', 5, lf).length);
 });

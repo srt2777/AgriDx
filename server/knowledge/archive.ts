@@ -86,7 +86,7 @@ export function loadRoleSidecar(indexRoot: string): Map<string, RoleFields> {
 /** Page numbers exactly as written in the locator; absent when the locator gives none. */
 export function parsePages(locator: string): { pdf?: string; printed?: string } | undefined {
   const pdf = locator.match(/PDF\s*(?:物理)?\s*第?\s*(\d[\d、，,～~\-–\s]*?)\s*页/)?.[1]?.trim();
-  const printed = locator.match(/印刷(?:页码)?\s*第?\s*(\d[\d、，,～~\-–]*)/)?.[1]?.trim();
+  const printed = locator.match(/印刷(?:页码|页脚)?\s*第?\s*((?:[A-Z]+-\d+(?:[、，,～~–-][A-Z]+-\d+)*|\d[\d、，,～~\-–]*))/i)?.[1]?.trim();
   return pdf || printed ? { ...(pdf ? { pdf } : {}), ...(printed ? { printed } : {}) } : undefined;
 }
 

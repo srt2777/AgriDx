@@ -213,9 +213,11 @@ function findFaultCodeEvidence(query: string, context: RetrievalContext, scope: 
   let recognized = false;
   for (const request of requests) {
     const known = chunksByFaultNumber.get(request.number);
-    if (!known || (!request.explicit && !known.some(item => item.controller === request.controller))) continue;
+    if (!request.explicit && !known?.some(item => item.controller === request.controller)) continue;
+    // An explicit numeric code without an indexed match must not fall back to
+    // a similarly numbered card via lexical or vector overlap.
     recognized = true;
-    const eligible = known.flatMap(({ controller, chunk }) => {
+    const eligible = (known ?? []).flatMap(({ controller, chunk }) => {
       if (request.controller && controller !== request.controller) return [];
       const applicability = archiveApplicability(chunk, scope);
       return applicability ? [{ controller, chunk, applicability }] : [];
