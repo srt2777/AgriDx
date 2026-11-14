@@ -15,6 +15,7 @@ import { loadKnowledgeSnapshot, peekKnowledgeSnapshot, type KnowledgeSnapshot } 
 import { archiveApplicability, queryWithoutIdentity, resolveScope, type ResolvedScope, type RetrievalContext } from './scope';
 import { mentionsEntryId, referenceVerification, requiredDiagnosticCoverage } from './evidence';
 import { buildVectorIndex, rankVectorCandidates, VECTOR_ONLY_ARCHIVE_LIMIT, VECTOR_ONLY_LEARNING_LIMIT, type VectorIndex } from './vectorRecall';
+import { requestedFaultCodes } from './fault-codes';
 
 interface IndexedChunk {
   chunk: KnowledgeChunk;
@@ -35,6 +36,7 @@ let index: IndexedChunk[] = [];
 let generation = 0;
 let preparedSnapshot: KnowledgeSnapshot | undefined;
 let manualScopes: KnowledgeChunk[] = [];
+let chunksByFaultNumber = new Map<string, { controller: string; chunk: KnowledgeChunk }[]>();
 let retrievalRequests = 0;
 let cacheHits = 0;
 let scoringPasses = 0;
@@ -147,6 +149,16 @@ function prepareSnapshot(snapshot: KnowledgeSnapshot): void {
   const manualIds = new Set(snapshot.manualSourceIds);
   manualScopes = [...new Map(nextIndex.filter(item => item.chunk.sourceId && manualIds.has(item.chunk.sourceId))
     .map(item => [item.applicabilityKey, item.chunk])).values()];
+  chunksByFaultNumber = new Map();
+  for (const chunk of chunks) {
+    if (referenceVerification(chunk.status) === 'failed') continue;
+    for (const code of chunk.faultCodes ?? []) {
+      const [controller, number] = code.split(' ');
+      const matching = chunksByFaultNumber.get(number) ?? [];
+      matching.push({ controller, chunk });
+      chunksByFaultNumber.set(number, matching);
+    }
+  }
   generation++;
   retrievalCache.clear();
   manualAvailabilityCache.clear();
@@ -184,7 +196,40 @@ export function retrieveWithDiagnostics(query: string, k = MAX_CHUNKS_IN_PROMPT,
   const found = retrieve(query, k, context, options);
   const manualAvailable = hasApplicableManual(query, context);
   const outcome = manualAvailable === false ? 'no_manual' as const : found.length ? 'insufficient_evidence' as const : 'no_results' as const;
-  return { chunks: found, manualAvailable, outcome };
+  const ambiguity = getFaultCodeAmbiguity(query, context);
+  return { chunks: found, manualAvailable, outcome, ...(ambiguity.length ? { faultCodeAmbiguity: ambiguity } : {}) };
+}
+
+export function getFaultCodeAmbiguity(query: string, context: RetrievalContext) {
+  if (!chunksByFaultNumber.size) return [];
+  return findFaultCodeEvidence(query, context, resolveScope(query, context))?.ambiguity ?? [];
+}
+
+function findFaultCodeEvidence(query: string, context: RetrievalContext, scope: ResolvedScope) {
+  if (!chunksByFaultNumber.size) return undefined;
+  const requests = requestedFaultCodes(queryWithoutIdentity(query), context.faultCodes ?? []);
+  const ambiguity: { number: string; controllers: string[] }[] = [];
+  const resolved = new Map<KnowledgeChunk, KnowledgeChunk['applicability']>();
+  let recognized = false;
+  for (const request of requests) {
+    const known = chunksByFaultNumber.get(request.number);
+    if (!known || (!request.explicit && !known.some(item => item.controller === request.controller))) continue;
+    recognized = true;
+    const eligible = known.flatMap(({ controller, chunk }) => {
+      if (request.controller && controller !== request.controller) return [];
+      const applicability = archiveApplicability(chunk, scope);
+      return applicability ? [{ controller, chunk, applicability }] : [];
+    });
+    const controllers = [...new Set(eligible.map(item => item.controller))].sort();
+    if (controllers.length > 1) {
+      ambiguity.push({ number: request.number, controllers });
+      continue;
+    }
+    for (const { chunk, applicability } of eligible) {
+      resolved.set(chunk, request.controller ? applicability : 'pending');
+    }
+  }
+  return recognized ? { resolved, ambiguity } : undefined;
 }
 
 /** Compatibility entry: retrieval, catalog and health share one validated generation. */
@@ -419,6 +464,19 @@ export function retrieve(query: string, k = MAX_CHUNKS_IN_PROMPT, context: Retri
   const idPattern = /(?<![a-z0-9_-])(?:TK-\d{4}|(?:KB|KB2000|TF1000|NH|ZL|LV|DF|HH)-[A-Z0-9-]+)(?![a-z0-9_-])/gi;
   const lookup = /查阅|查找|查看|查询|摘录|解释|解读|学习/.test(lookupText) || !lookupText.replace(idPattern, '').replace(/[\s\p{P}]/gu, '');
   const requestedIds = new Set(lookup ? lookupText.match(idPattern)?.map(id => id.toUpperCase()) ?? [] : []);
+  const faultCodeEvidence = requestedIds.size ? undefined : findFaultCodeEvidence(query, context, scope);
+  if (faultCodeEvidence) {
+    const exactMatches: KnowledgeChunk[] = [];
+    for (const [chunk, applicability] of faultCodeEvidence.resolved) {
+      exactMatches.push(cloneChunk({ ...chunk, applicability,
+        retrieval: { tier: (chunk.models?.length ?? 0) > 1 ? 'series' : 'exact',
+          basis: [applicability === 'matched' ? '故障码与控制器全称精确匹配，车型已筛选' : '资料记录了该故障码，控制器或整机配置需核对'],
+          referenceOnly: applicability !== 'matched', recall: 'keyword' },
+        relevance: { score: 100, method: 'keyword-weighted-overlap', calibrated: false } }));
+      if (exactMatches.length === limit) break;
+    }
+    return exactMatches;
+  }
   if (qTokens.size === 0 && requestedIds.size === 0) return [];
 
   scoringPasses++;

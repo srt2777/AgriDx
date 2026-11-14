@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { before, test } from 'node:test';
 import { DiagnosisRouter } from '../server/diagnosis/router';
+import { createDiagnosticService } from '../server/diagnosis/service';
 import { referenceVerification } from '../server/knowledge/evidence';
 import {
   clearRetrievalCache,
@@ -13,6 +14,8 @@ import {
   type KnowledgeChunk,
 } from '../server/knowledge/retriever';
 import { loadKnowledgeSnapshot, reloadKnowledgeSnapshot } from '../server/knowledge/snapshot';
+import { buildContextRegistry } from '../agent/context-tools';
+import { ToolExecutor } from '../agent/tools';
 
 const lf = { machineType: '拖拉机', brand: '东方红', model: 'LF1504' };
 const lfSource = 'SRC-YTO-LF1504-SMLF150449010';
@@ -59,6 +62,43 @@ test('diagnostics distinguish a known manual with no topic result from an unavai
   assert.equal(absent.manualAvailable, false);
   assert.equal(absent.outcome, 'no_manual');
   assert.deepEqual(archive(absent.chunks), []);
+});
+
+test('a shared fault number requires its controller prefix before retrieving exact manual evidence', async t => {
+  const cards = loadKnowledgeSnapshot().chunks.filter(chunk =>
+    chunk.sourceId === lfSource && chunk.entryType === '维护/故障知识' && chunk.entryId && chunk.heading.includes('｜'));
+  const [powerShift, autoPowr] = cards;
+  assert.ok(powerShift && autoPowr);
+  const original = fs.readFileSync;
+  const mock = t.mock.method(fs, 'readFileSync', (...args: Parameters<typeof fs.readFileSync>) => {
+    const data = original(...args);
+    const relevant = [[powerShift, 'PTP 177.17'], [autoPowr, 'PTI 177.17']] as const;
+    return relevant.filter(([card]) => String(args[0]) === path.resolve(card.source))
+      .reduce<string | Buffer>((text, [card, code]) =>
+        String(text).replace(`## ${card.heading}\n`, `## ${card.heading}\n\n- 故障码：${code}\n`), data);
+  });
+  t.after(() => { mock.mock.restore(); reloadKnowledgeSnapshot(); });
+  reloadKnowledgeSnapshot();
+
+  const executor = new ToolExecutor(buildContextRegistry());
+  const ambiguous = await executor.execute('search_knowledge', { query: '故障码 177.17 是什么', context: lf, limit: 1 });
+  const ambiguousBody = JSON.parse(ambiguous.content);
+  assert.deepEqual(ambiguousBody.chunks, []);
+  assert.deepEqual(ambiguousBody.faultCodeAmbiguity, [{ number: '177.17', controllers: ['PTI', 'PTP'] }]);
+  assert.deepEqual(retrieve('177.17', 6, lf), []);
+  const diagnose = createDiagnosticService({ hasAnyConfigured: () => true, chat: async () => { throw new Error('ambiguous code invoked provider'); } },
+    { config: { logDecisions: false } });
+  const reply = await diagnose({ ...lf, history: [{ role: 'user', content: '故障码 177.17 是什么' }], diagnosisMode: 'ai_assisted' });
+  assert.equal(reply.diagnosisTrace?.aiAttempts, 0);
+  assert.deepEqual(reply.diagnosticReply?.questions, [{ text: '请核对仪表上 177.17 前面的控制器前缀。', options: ['PTI', 'PTP'] }]);
+
+  for (const [query, card] of [['PTP 177.17', powerShift], ['故障码 pti 177.17 是什么意思', autoPowr]] as const) {
+    assert.deepEqual(retrieve(query, 5, lf).map(chunk => chunk.entryId), [card.entryId]);
+  }
+  assert.deepEqual(retrieve('如何排查？', 5, { ...lf, faultCodes: ['PTI 177.17'] }).map(chunk => chunk.entryId), [autoPowr.entryId]);
+  assert.deepEqual(retrieve('故障码 ECU 177.17', 5, lf), []);
+  assert.deepEqual(retrieve('PTP 177.17', 5, { ...lf, model: 'LF99999' }), []);
+  assert.ok(retrieve('水温过高 177.17 摄氏度', 5, lf).length);
 });
 
 test('component and general candidates never become direct repair evidence through a high score', () => {

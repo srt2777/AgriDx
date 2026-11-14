@@ -22,7 +22,7 @@ const object = (properties: Record<string, InputSchema>, required: string[] = []
 export function build_default_registry(): ToolRegistry {
   const reg = new ToolRegistry();
   reg.register('calculator', '计算基础四则运算和取余；需要精确算术时使用，不用于查询厂家参数或执行代码。返回有限数字 JSON。', object({ expression: { type: 'string', description: '算式，例如 (12 + 3) * 2，仅支持 + - * / % 和括号', minLength: 1, maxLength: 2000 } }, ['expression']), ({ expression }) => calculator(expression));
-  reg.register('search_knowledge', '需要查找农机症状与手册依据时使用，保留来源、适用范围及核验状态。不要用于确诊坏件、生成无依据参数或实车操作。按相关性返回含来源、范围和正文的 JSON；有省略条数时可缩小查询或按编号查阅。', object({
+  reg.register('search_knowledge', '需要查找农机症状与手册依据时使用，保留来源、适用范围及核验状态。不要用于确诊坏件、生成无依据参数或实车操作。若返回 faultCodeAmbiguity，先向用户核对仪表显示的控制器前缀。按相关性返回含来源、范围和正文的 JSON；有省略条数时可缩小查询或按编号查阅。', object({
     query: { type: 'string', minLength: 1, maxLength: 2000, description: '症状与问题，尽量包含完整机型' },
     limit: { type: 'integer', minimum: 1, maximum: 5, description: '最多返回条数，默认1' }, context,
   }, ['query']), ({ query, limit = 1, context = {} }) => {

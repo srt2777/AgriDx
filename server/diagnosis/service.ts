@@ -12,7 +12,7 @@ import { planDiagnosticTurn, plannerConversationHints } from './plannerIntegrati
 import { identifyPlannerTopic, isPlannerTopic, plannerStepAliases } from './plannerPlans';
 import type { PlannerCheckpoint, PlannerCheckpointCommit } from '../memory/store';
 import { hasIndexedReference, referenceVerification } from '../knowledge/evidence';
-import { retrieve, selectPromptChunks, formatForPrompt, hasApplicableManual } from '../knowledge/retriever';
+import { retrieve, selectPromptChunks, formatForPrompt, hasApplicableManual, getFaultCodeAmbiguity } from '../knowledge/retriever';
 import { buildRoleFlow } from '../knowledge/roles';
 import { memoryPrompt, recentMessages } from '../memory/context';
 import type { LlmRouter } from '../llm/router';
@@ -181,6 +181,8 @@ export function createDiagnosticService(llm: DiagnosticProvider, dependencies: D
     const retrievalStart = now();
     // A denied identity is an explicit exception: do not query or cite the old machine.
     const retrieved = clarificationNeeded ? [] : search(query, config.topK, scope);
+    const faultCodeAmbiguity = dependencies.retrieve || clarificationNeeded
+      ? [] : getFaultCodeAmbiguity(query, scope);
     const retrievalMs = now() - retrievalStart;
     const decisionStart = now();
     const routerInput = { query, currentQuery, scope, retrieved, clarificationNeeded,
@@ -239,7 +241,7 @@ export function createDiagnosticService(llm: DiagnosticProvider, dependencies: D
         payload[PLANNER_COMMIT] = aiAlreadyAsked && planner.withoutProposal
           ? { ...planner.commit, checkpoint: planner.withoutProposal } : planner.commit;
         // The existing Router owns high-risk and identity clarification replies.
-        if (planner.questions && payload.diagnosticReply && coordination.route !== 'safe' && coordination.route !== 'clarify') {
+        if (planner.questions && payload.diagnosticReply && !faultCodeAmbiguity.length && coordination.route !== 'safe' && coordination.route !== 'clarify') {
           payload.diagnosticReply.questions = aiAlreadyAsked ? [] : planner.questions;
           payload.choices[0].message.content = renderDiagnosticReply(payload.diagnosticReply);
           if (payload.provider === 'knowledge-base') payload.localSummary = payload.choices[0].message.content;
@@ -332,6 +334,11 @@ export function createDiagnosticService(llm: DiagnosticProvider, dependencies: D
         diagnosticReply.causes = []; diagnosticReply.suggestions = stopReason === 'planner_escalated'
           ? [{ text: '不要试车、拆检或接触高温、运动和带压部件，请合格人员处理。', kind: 'professional', evidenceIds: [], priority: 1 }] : []; diagnosticReply.questions = [];
       }
+      if (faultCodeAmbiguity.length && !stopReason) {
+        diagnosticReply.questions = faultCodeAmbiguity.map(({ number, controllers }) => ({
+          text: `请核对仪表上 ${number} 前面的控制器前缀。`, options: controllers,
+        }));
+      }
       if (telemetrySummary) diagnosticReply.sourceNote += '\n仿真演示数据，不是真实设备读数，不得据此给出确定性故障结论。';
       const unavailable = failed ? failureKind === 'timeout' ? '已尝试外部 AI，但请求超时；本次先提供本地安全观察建议。' : '已尝试外部 AI，但服务暂不可用；本次先提供本地安全观察建议。'
         : rejected ? '外部 AI 已返回，但内容未通过来源或安全检查；本次保留本地安全建议。'
@@ -349,6 +356,10 @@ export function createDiagnosticService(llm: DiagnosticProvider, dependencies: D
       });
     };
     if (coordination.route !== 'ai') return localResponse();
+    if (faultCodeAmbiguity.length) {
+      coordination = { ...coordination, route: 'local', reason: 'insufficient_evidence', aiRequired: false };
+      return localResponse();
+    }
     const promptChunks = selectPromptChunks(admissible, config.contextMaxChars);
     displayed = promptChunks;
     const { message: systemMessage, answerMode } = buildSystemPrompt({ query, currentQuery, clarificationNeeded,
