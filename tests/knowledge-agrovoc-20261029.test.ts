@@ -27,14 +27,42 @@ test('875条FAO术语逐条对应官方来源子集，累计目录包含原13000
     assert.equal(chunk.sourceId, undefined);
     assert.match(chunk.scopeBoundary!, /不表示部件组成、故障因果/);
   }
-  assert.deepEqual(stats(), { archivedEntries: 6540, learningEntries: 6875, totalEntries: 13415, chunks: 13424 });
-  assert.equal(getKnowledgeCatalog({ collection: 'all' }).library!.total, 13415);
+  assert.deepEqual(stats(), { archivedEntries: 6558, learningEntries: 6875, totalEntries: 13433, chunks: 13442 });
+  assert.equal(getKnowledgeCatalog({ collection: 'all' }).library!.total, 13433);
   const baseline = JSON.parse(fs.readFileSync('docs/tractor-knowledge/expansion-875/validation.json', 'utf8'));
+  const priorTitles: Record<string, [string, string]> = {
+    '002': ['动力输出不停转', '1404/1504/1604/1804动力输'],
+    '003': ['动力输出离合器打滑', '1404/1504/1604/1804动力输（2）'],
+    '004': ['动力输出不转', '1404/1504/1604/1804动力输（3）'],
+    '008': ['动力输出压力过高或过低', '1404/1504/1604/1804动力输（4）'],
+    '009': ['差速锁压力过高或过低', '1404/1504/1604/1804差速锁'],
+    '038': ['动力输出压力不显示', '1404/1504/1604/1804动力输（5）'],
+  };
   for (const [file, expected] of Object.entries(baseline.baseline_files)) {
     let content = fs.readFileSync(file, 'utf8').replace(/\r\n/g, '\n');
     // The 2026-10-29 snapshot is an immutable prefix, not a ban on future additions.
     if (file.endsWith('/农用拖拉机知识库/entries.jsonl')) {
       content = content.split('\n').slice(0, 6125).join('\n') + '\n';
+      // Six legacy titles were deliberately completed in 2026-11-14; reconstruct only
+      // those exact old titles when comparing against the immutable 2026-10-29 snapshot.
+      const corrected = new Set<string>();
+      content = content.split('\n').map(line => {
+        if (!line) return line;
+        const row = JSON.parse(line) as { entry_id: string; title: string };
+        const suffix = row.entry_id.match(/^KB-YTO-EBUY-WFAQ-(002|003|004|008|009|038)$/)?.[1];
+        if (!suffix) return line;
+        const [current, original] = priorTitles[suffix];
+        assert.equal(row.title, current);
+        corrected.add(suffix);
+        return line.replace(`"title": "${current}"`, `"title": "${original}"`);
+      }).join('\n');
+      assert.equal(corrected.size, 6);
+    } else if (file.endsWith('/机型知识卡/东方红_e购_WFAQ.md')) {
+      for (const [suffix, [current, original]] of Object.entries(priorTitles)) {
+        const marker = `## KB-YTO-EBUY-WFAQ-${suffix}｜${current}`;
+        assert.ok(content.includes(marker));
+        content = content.replace(marker, `## KB-YTO-EBUY-WFAQ-${suffix}｜${original}`);
+      }
     } else if (file.endsWith('/农用拖拉机知识库/sources.json')) {
       const nextSource = content.indexOf(',\n  {\n    "source_id": "SRC-NH-T1254B-T1404B-91783224"');
       assert.ok(nextSource > 0);
