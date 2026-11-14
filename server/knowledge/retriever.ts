@@ -37,6 +37,7 @@ let generation = 0;
 let preparedSnapshot: KnowledgeSnapshot | undefined;
 let manualScopes: KnowledgeChunk[] = [];
 let chunksByFaultNumber = new Map<string, { controller?: string; chunk: KnowledgeChunk }[]>();
+let threeFieldCodeScopes: KnowledgeChunk[] = [];
 let displayCodeScopes: KnowledgeChunk[] = [];
 let retrievalRequests = 0;
 let cacheHits = 0;
@@ -152,6 +153,7 @@ function prepareSnapshot(snapshot: KnowledgeSnapshot): void {
     .map(item => [item.applicabilityKey, item.chunk])).values()];
   chunksByFaultNumber = new Map();
   const displayScopes = new Map<string, KnowledgeChunk>();
+  const threeFieldScopes = new Map<string, KnowledgeChunk>();
   for (const { chunk, applicabilityKey } of nextIndex) {
     if (referenceVerification(chunk.status) === 'failed') continue;
     for (const code of chunk.faultCodes ?? []) {
@@ -162,9 +164,11 @@ function prepareSnapshot(snapshot: KnowledgeSnapshot): void {
       matching.push({ controller, chunk });
       chunksByFaultNumber.set(key, matching);
       if (key.startsWith('ERROR-')) displayScopes.set(applicabilityKey, chunk);
+      if (key.includes('/')) threeFieldScopes.set(applicabilityKey, chunk);
     }
   }
   displayCodeScopes = [...displayScopes.values()];
+  threeFieldCodeScopes = [...threeFieldScopes.values()];
   generation++;
   retrievalCache.clear();
   manualAvailabilityCache.clear();
@@ -221,12 +225,24 @@ function findFaultCodeEvidence(query: string, context: RetrievalContext, scope: 
   for (const request of requests) {
     const isDotted = request.number.includes('.');
     const isDisplayCode = request.number.startsWith('ERROR-');
+    const isThreeFieldCode = request.number.includes('/');
     const known = chunksByFaultNumber.get(isDotted ? faultCodeKey(request.number) : request.number);
     const eligible = (known ?? []).flatMap(({ controller, chunk }) => {
       if (request.controller && controller !== request.controller) return [];
       const applicability = archiveApplicability(chunk, scope);
       return applicability ? [{ controller, chunk, applicability }] : [];
     });
+    if (isThreeFieldCode) {
+      // Keep all three printed fields, including zero padding. Different editions
+      // can assign different meanings to the same tuple even on related models.
+      if (!known && !(request.explicit && threeFieldCodeScopes.some(chunk => archiveApplicability(chunk, scope) === 'matched'))) continue;
+      recognized = true;
+      if (request.incomplete) continue;
+      const applicable = eligible.filter(item => item.applicability === 'matched');
+      if (!scope.brand || scope.models.length !== 1 || applicable.length !== 1) continue;
+      resolved.set(applicable[0].chunk, 'matched');
+      continue;
+    }
     if (isDisplayCode) {
       // Preserve text search for legacy manuals without an indexed display-code table.
       if (!eligible.length) {
@@ -487,7 +503,7 @@ export function retrieve(query: string, k = MAX_CHUNKS_IN_PROMPT, context: Retri
     for (const [chunk, applicability] of faultCodeEvidence.resolved) {
       exactMatches.push(cloneChunk({ ...chunk, applicability,
         retrieval: { tier: (chunk.models?.length ?? 0) > 1 ? 'series' : 'exact',
-          basis: [applicability === 'matched' ? '故障码与控制器全称精确匹配，车型已筛选' : '资料记录了该故障码，控制器或整机配置需核对'],
+          basis: [applicability === 'matched' ? '完整故障码精确匹配，车型已筛选' : '资料记录了该故障码，控制器或整机配置需核对'],
           referenceOnly: applicability !== 'matched', recall: 'keyword' },
         relevance: { score: 100, method: 'keyword-weighted-overlap', calibrated: false } }));
       if (exactMatches.length === limit) break;
