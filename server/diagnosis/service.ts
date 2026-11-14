@@ -12,7 +12,7 @@ import { planDiagnosticTurn, plannerConversationHints } from './plannerIntegrati
 import { identifyPlannerTopic, isPlannerTopic, plannerStepAliases } from './plannerPlans';
 import type { PlannerCheckpoint, PlannerCheckpointCommit } from '../memory/store';
 import { hasIndexedReference, referenceVerification } from '../knowledge/evidence';
-import { retrieve, selectPromptChunks, formatForPrompt, hasApplicableManual, getFaultCodeAmbiguity } from '../knowledge/retriever';
+import { retrieve, selectPromptChunks, formatForPrompt, hasApplicableManual, getFaultCodeAmbiguity, type KnowledgeChunk } from '../knowledge/retriever';
 import { buildRoleFlow } from '../knowledge/roles';
 import { memoryPrompt, recentMessages } from '../memory/context';
 import type { LlmRouter } from '../llm/router';
@@ -111,6 +111,22 @@ function logShadowResult(report: ShadowLoopReport) {
 }
 
 /** One retrieval feeds the local decision and the generation prompt. No model classifies requests. */
+function evidenceLabel(chunk: KnowledgeChunk): string {
+  if (chunk.learningKind === 'terminology') return 'FAO AGROVOC术语参考（无手册页码）';
+  if (chunk.entryType === '通识学习') return '通识（无手册页码）';
+  if (!chunk.entryId) return '信息收集提示（非手册）';
+
+  const title = chunk.sourceTitle ?? chunk.sourceId ?? '来源待核实';
+  const documentType = chunk.sourceDocumentType ?? '';
+  const type = /案例|报告|培训教程/.test(documentType) ? '资料' : '手册';
+  const pdf = chunk.pages?.pdf ? `，PDF第${chunk.pages.pdf}页` : '';
+  const printed = chunk.pages?.printed ? `，印刷第${chunk.pages.printed}页` : '';
+  if (/视频/.test(documentType) && !pdf && !printed) {
+    return `视频资料：${title}${chunk.locator ? `，${chunk.locator}` : ''}`;
+  }
+  return `${type}：${title}${pdf}${printed}`;
+}
+
 export function createDiagnosticService(llm: DiagnosticProvider, dependencies: DiagnosticDependencies = {}): DiagnosticService {
   const search = dependencies.retrieve ?? retrieve;
   const now = dependencies.now ?? (() => performance.now());
@@ -220,7 +236,7 @@ export function createDiagnosticService(llm: DiagnosticProvider, dependencies: D
       entryType: chunk.entryType, diagnosticEvidence: chunk.diagnosticEvidence,
       ...(chunk.generalEvidence ? { generalEvidence: true as const } : {}),
       evidenceKind: chunk.entryType === '通识学习' ? 'general-knowledge' as const : chunk.entryId ? 'archive' as const : 'prompt' as const,
-      evidenceLabel: chunk.learningKind === 'terminology' ? 'FAO AGROVOC术语参考（无手册页码）' : chunk.entryType === '通识学习' ? '通识（无手册页码）' : chunk.entryId ? `${/案例|报告/.test(chunk.sourceDocumentType ?? '') ? '资料' : '手册'}：${chunk.sourceTitle ?? chunk.sourceId ?? '来源待核实'}${chunk.pages?.pdf ? `，PDF第${chunk.pages.pdf}页` : ''}${chunk.pages?.printed ? `，印刷第${chunk.pages.printed}页` : ''}` : '信息收集提示（非手册）',
+      evidenceLabel: evidenceLabel(chunk),
       locator: chunk.locator, version: chunk.version, applicability: chunk.applicability, status: chunk.status,
       ...(chunk.retrieval ? { retrieval: { ...chunk.retrieval, basis: [...chunk.retrieval.basis] } } : {}),
       referenceVerification: referenceVerification(chunk.status), sourceIndexed: hasIndexedReference(chunk),

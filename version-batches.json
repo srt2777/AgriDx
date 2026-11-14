@@ -1267,6 +1267,13 @@
       "base": "4.1.34",
       "version": "4.1.35",
       "date": "2026-11-14"
+    },
+    {
+      "id": "kb-20261114-yto-hitch-source-labels",
+      "kind": "knowledge",
+      "base": "4.1.35",
+      "version": "4.1.36",
+      "date": "2026-11-14"
     }
   ]
 }
