@@ -51,7 +51,7 @@ function escapeRegex(text: string): string {
 
 /** References identify documents, not the equipment being diagnosed. Keep scan offsets intact. */
 function withoutReferences(text: string): string {
-  let clean = text.replace(/\[[^\]\r\n]*\]\((?:https?:\/\/|\/)[^)\r\n]*\)|https?:\/\/[^\s<>，；。！？、：,;!:]+?\.(?:pdf|md)(?=\.[\u4e00-\u9fff])|https?:\/\/[^\s<>，；。！？、：,;!:]+|\b(?:SRC|KB|NH|ZL|LV|DF|HH)-[A-Z0-9-]+\b|(?:\/|知识库\/|server\/)[^\s<>，；。！？、：,;:!]+?\.(?:pdf|md)\b|(?<![a-z0-9])[a-z0-9][a-z0-9_.-]*?\.(?:pdf|md)\b/gi,
+  let clean = text.replace(/\[[^\]\r\n]*\]\((?:https?:\/\/|\/)[^)\r\n]*\)|https?:\/\/[^\s<>，；。！？、：,;!:]+?\.(?:pdf|md)(?=\.[\u4e00-\u9fff])|https?:\/\/[^\s<>，；。！？、：,;!:]+|\b(?:SRC|KB|NH|ZL|LV|DF|HH)-[A-Z0-9-]+\b|\bTK-\d+\b|(?:\/|知识库\/|server\/)[^\s<>，；。！？、：,;:!]+?\.(?:pdf|md)\b|(?<![a-z0-9])[a-z0-9][a-z0-9_.-]*?\.(?:pdf|md)\b/gi,
     (reference) => ' '.repeat(reference.length));
   // New collection ID prefixes are index references, not machine identities.
   // Only registered complete IDs are removed; similar unknown models remain visible.

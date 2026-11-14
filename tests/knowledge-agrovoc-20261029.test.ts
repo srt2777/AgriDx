@@ -27,8 +27,8 @@ test('875条FAO术语逐条对应官方来源子集，累计目录包含原13000
     assert.equal(chunk.sourceId, undefined);
     assert.match(chunk.scopeBoundary!, /不表示部件组成、故障因果/);
   }
-  assert.deepEqual(stats(), { archivedEntries: 6361, learningEntries: 6875, totalEntries: 13236, chunks: 13245 });
-  assert.equal(getKnowledgeCatalog({ collection: 'all' }).library!.total, 13236);
+  assert.deepEqual(stats(), { archivedEntries: 6362, learningEntries: 6875, totalEntries: 13237, chunks: 13246 });
+  assert.equal(getKnowledgeCatalog({ collection: 'all' }).library!.total, 13237);
   const baseline = JSON.parse(fs.readFileSync('docs/tractor-knowledge/expansion-875/validation.json', 'utf8'));
   for (const [file, expected] of Object.entries(baseline.baseline_files)) {
     let content = fs.readFileSync(file, 'utf8').replace(/\r\n/g, '\n');

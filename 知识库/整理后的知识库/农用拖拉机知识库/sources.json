@@ -3909,5 +3909,43 @@
       "290": "液压、三点悬挂、制动、驾驶室故障表",
       "291": "空调和电气系统故障表"
     }
+  },
+  {
+    "source_id": "SRC-YTO-1002-CASE202103050",
+    "brand": "东方红",
+    "model": "1002",
+    "models": [
+      "1002"
+    ],
+    "model_ids": [
+      "1002"
+    ],
+    "title": "拖拉机故障排除实例分析",
+    "title_status": "已核对",
+    "title_evidence": "物理第1页题名与第2节明确东方红－1002，物理第2页记录维修和复测。",
+    "document_type": "拖拉机维修案例",
+    "role": "维修案例",
+    "path": "知识库/原始农机说明书/东方红/YTO-1002-CASE202103050/来源记录.md",
+    "url": "https://www.aeeisp.com/njsyywx/cn/article/pdf/preview/10.14031/j.cnki.njwx.2021.03.050.pdf",
+    "download_url": "https://www.aeeisp.com/njsyywx/cn/article/pdf/preview/10.14031/j.cnki.njwx.2021.03.050.pdf",
+    "version": "2021 年第 3 期，DOI 10.14031/j.cnki.njwx.2021.03.050",
+    "language": "中文，吉林梅河口维修实践",
+    "scope_boundary": "只用于原文这台东方红－1002 履带拖拉机的转向离合器案例，型号和配置以对应实车为准。原文不提供该车序列号或生产批次。",
+    "emission_stage_unknown": true,
+    "status": "证据页文本及图像已核验。仅限所列选页；未开展厂家复核及实车试验。",
+    "source_level": "期刊发表的维修案例",
+    "collected_at": "2026-11-14",
+    "storage_type": "link_and_source_record",
+    "sha256": "ec19f7eaa82c248f97a055ce4424f30e1c5de2e363e1245cc831757494f19be0",
+    "bytes": 1119,
+    "manual_sha256": "12adb544f830afed047cb2c93a403d0e00652fe1acfd0b99b1d0f14d483812c5",
+    "manual_bytes": 127271,
+    "manual_pdf_pages": 2,
+    "hash_scope": "sha256/bytes为来源记录，manual_*为取得的原PDF",
+    "knowledge_path": "知识库/整理后的知识库/农用拖拉机知识库/机型知识卡/YTO-1002-CASE202103050_2026-11-14.md",
+    "verified_pdf_pages": {
+      "1": "印刷112页，文章标题、作者、DOI，沃得 1404 案例及东方红 1002 转向结构。",
+      "2": "印刷113页，东方红 1002 转向故障拆检、调整与试车。"
+    }
   }
 ]

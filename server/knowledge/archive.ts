@@ -243,6 +243,7 @@ export function loadArchive(archiveRoot = ARCHIVE_ROOT, options: { configureMode
       status: entry.status,
       entryType: entry.entry_type,
       sourceTitle: source.title,
+      sourceDocumentType: source.document_type,
       ...(faultCodes.length ? { faultCodes } : {}),
       pages: parsePages(entry.locator),
       ...(entry.roles ? { roles: [...entry.roles], roleBasis: entry.role_basis } : {}),

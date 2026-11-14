@@ -33,6 +33,7 @@ export interface KnowledgeChunk {
   entryType?: string;
   /** Book/web title from sources.json; recorded as on the cover, never translated. */
   sourceTitle?: string;
+  sourceDocumentType?: string;
   /** Page numbers parsed verbatim from the locator. */
   pages?: { pdf?: string; printed?: string };
   /** Reviewed roles from entry-roles.jsonl; absent = not yet tagged (never "none"). */
