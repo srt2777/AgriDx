@@ -117,7 +117,7 @@ test('混合检索对照：同一批问题，加向量前后 top-6 命中与错�
   assert.ok(gains >= 1, `gains=${gains}`);
   assert.ok(keywordPlusVector >= 1, `keyword+vector=${keywordPlusVector}`);
   const stats = vectorRecallStats();
-  assert.equal(stats.documents, 13364);
+  assert.equal(stats.documents, 13382);
   assert.ok(stats.features > 100000, `features=${stats.features}`);
   // 构建耗时随机器负载波动很大（空闲约 4–12s，负载 40 时约 44s）；上限只防
   // 构建失控，不作性能承诺。
