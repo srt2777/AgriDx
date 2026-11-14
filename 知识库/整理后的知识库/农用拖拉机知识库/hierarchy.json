@@ -69218,6 +69218,204 @@
           "part_ids": []
         }
       ]
+    },
+    {
+      "entry_id": "KB-YTO-LN2104-OM2018-046",
+      "components": [
+        {
+          "component_id": "cooling",
+          "part_ids": [
+            "thermostat"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-YTO-LN2104-OM2018-047",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": []
+        },
+        {
+          "component_id": "engine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-YTO-LN2104-OM2018-048",
+      "components": [
+        {
+          "component_id": "chassis",
+          "part_ids": [
+            "tyre",
+            "wheel-rim",
+            "front-axle"
+          ]
+        },
+        {
+          "component_id": "steering",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-YTO-LN2104-OM2018-049",
+      "components": [
+        {
+          "component_id": "chassis",
+          "part_ids": [
+            "tyre",
+            "wheel-rim",
+            "front-axle"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-YTO-LN2104-OM2018-050",
+      "components": [
+        {
+          "component_id": "cab",
+          "part_ids": []
+        },
+        {
+          "component_id": "cooling",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-YTO-LN2104-OM2018-051",
+      "components": [
+        {
+          "component_id": "cab",
+          "part_ids": [
+            "condenser"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-YTO-LN2104-OM2018-052",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-YTO-LN2104-OM2018-053",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-YTO-LN2104-OM2018-054",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hydraulic-valve"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-YTO-LN2104-OM2018-055",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hydraulic-valve"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-YTO-LN2104-OM2018-056",
+      "components": [
+        {
+          "component_id": "pto",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-YTO-LN2104-OM2018-057",
+      "components": [
+        {
+          "component_id": "pto",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-YTO-LN2104-OM2018-058",
+      "components": [
+        {
+          "component_id": "brakes",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-YTO-LN2104-OM2018-059",
+      "components": [
+        {
+          "component_id": "lubrication",
+          "part_ids": []
+        },
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-YTO-LN2104-OM2018-060",
+      "components": [
+        {
+          "component_id": "steering",
+          "part_ids": []
+        },
+        {
+          "component_id": "hydraulics",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-YTO-LN2104-OM2018-061",
+      "components": [
+        {
+          "component_id": "fuel",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-YTO-LN2104-OM2018-062",
+      "components": [
+        {
+          "component_id": "steering",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-YTO-LN2104-OM2018-063",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": []
+        }
+      ]
     }
   ]
 }
