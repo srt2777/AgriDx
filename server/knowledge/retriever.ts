@@ -326,7 +326,8 @@ function applyVectorRecall(args: {
       retrieval: learning || !c.entryId
         ? { tier: 'general', basis: ['通用知识；无具体机型手册适用证明', vectorNote], referenceOnly: true, recall: 'vector' }
         : { tier: c.models && c.models.length > 1 ? 'series' : 'exact',
-          basis: [c.models && c.models.length > 1 ? '来源明确列出的车型范围覆盖当前选择；未通过前缀推断' : '归档品牌与明确型号适用性筛选',
+          basis: [applicability === 'pending' ? '机型专用资料可作为通用排查参考，尚未证明适用于当前设备' :
+            c.models && c.models.length > 1 ? '来源明确列出的车型范围覆盖当前选择；未通过前缀推断' : '归档品牌与明确型号适用性筛选',
             ...(applicability === 'pending' ? ['具体机型或配置仍待核对'] : []), vectorNote],
           referenceOnly: true, recall: 'vector' },
       // 无关键词重叠：词法分就是 0；相似度只写在 basis 里，不冒充词法分。
@@ -569,7 +570,8 @@ export function retrieve(query: string, k = MAX_CHUNKS_IN_PROMPT, context: Retri
         retrieval: learning || !c.entryId
           ? { tier: 'general', basis: ['通用知识；无具体机型手册适用证明'], referenceOnly: true, recall: 'keyword' }
           : { tier: c.models && c.models.length > 1 ? 'series' : 'exact',
-            basis: [c.models && c.models.length > 1 ? '来源明确列出的车型范围覆盖当前选择；未通过前缀推断' : '归档品牌与明确型号适用性筛选',
+            basis: [applicability === 'pending' ? '机型专用资料可作为通用排查参考，尚未证明适用于当前设备' :
+              c.models && c.models.length > 1 ? '来源明确列出的车型范围覆盖当前选择；未通过前缀推断' : '归档品牌与明确型号适用性筛选',
               ...(applicability === 'pending' ? ['具体机型或配置仍待核对'] : [])], referenceOnly: applicability !== 'matched', recall: 'keyword' },
         relevance: { score, method: 'keyword-weighted-overlap', calibrated: false } };
       scored.push(entry);
