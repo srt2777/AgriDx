@@ -4660,5 +4660,299 @@
       "23": "目视核对原件正文或图表，该页无印刷页码。",
       "58": "目视核对原件正文或图表，该页无印刷页码。"
     }
+  },
+  {
+    "source_id": "SRC-LV-CN-M1204-B-NJJC20180806-AK",
+    "brand": "雷沃",
+    "model": "M1204-B",
+    "models": [
+      "M1204-B"
+    ],
+    "model_ids": [
+      "M1204-B"
+    ],
+    "title": "雷沃 M1204-B 轮式拖拉机可靠性试验报告 NJJC20180806-AK",
+    "title_status": "已核对",
+    "title_evidence": "原PDF第1页封面、第6页样机信息和第8页故障表",
+    "source_level": "第三方委托检验原报告",
+    "document_type": "拖拉机可靠性试验故障案例",
+    "role": "维修案例",
+    "path": "知识库/原始农机说明书/雷沃/LV-CN-M1204-B-NJJC20180806-AK/来源记录.md",
+    "knowledge_path": "知识库/整理后的知识库/农用拖拉机知识库/机型知识卡/LV-CN-M1204-B-NJJC20180806-AK_2026-11-14.md",
+    "url": "https://td.sxwhkj.com/UpStore/ReliableSrc/2021/74f4af49-733a-415b-bcaa-71bc4735a90d.pdf",
+    "download_url": "https://td.sxwhkj.com/UpStore/ReliableSrc/2021/74f4af49-733a-415b-bcaa-71bc4735a90d.pdf",
+    "source_pages": [
+      "https://td.sxwhkj.com/mebmgr/MachineInfoPush/BTPubDetails?Id=785962"
+    ],
+    "version": "NJJC20180806-AK，2018年试验",
+    "language": "中文，中国市场",
+    "scope_boundary": "2018 年中国市场 M1204-B 试验样机，原报告样机发动机为 4C6-120C31。维修对照须先核实整机铭牌、发动机和涉故障部件，国四及其他后缀须查各自版次。",
+    "status": "已目视核对引用页原文。仅适于对应试验样机故障对照。",
+    "collected_at": "2026-11-14",
+    "storage_type": "link_and_source_record",
+    "manual_pdf_pages": 10,
+    "manual_bytes": 3204435,
+    "manual_sha256": "ebf7eaff95cd0bfb38b47d90faf4a172f41627c985b9023e35373f720b704bfc",
+    "sha256": "57baab7ba08d53a46595b208e462e1ec23fde67d8faaecef612a3b834fc1c8db",
+    "bytes": 1217,
+    "hash_scope": "sha256/bytes为本地来源记录，manual_*为取得的公开原PDF",
+    "engine_scope": "4C6-120C31",
+    "verified_pdf_pages": {
+      "1": "原封面核对报告编号、样机机型和检验机构",
+      "6": "印刷第4页，原试验样机配置",
+      "8": "印刷第6页附表5，试验故障与排除记录"
+    }
+  },
+  {
+    "source_id": "SRC-LV-CN-M804-B-W201401123-II",
+    "brand": "雷沃",
+    "model": "M804-B",
+    "models": [
+      "M804-B"
+    ],
+    "model_ids": [
+      "M804-B"
+    ],
+    "title": "雷沃 M804-B 轮式拖拉机可靠性试验报告 W201401123-II",
+    "title_status": "已核对",
+    "title_evidence": "原PDF第1页封面、第6页样机信息和第9页故障表",
+    "source_level": "第三方委托检验原报告",
+    "document_type": "拖拉机可靠性试验故障案例",
+    "role": "维修案例",
+    "path": "知识库/原始农机说明书/雷沃/LV-CN-M804-B-W201401123-II/来源记录.md",
+    "knowledge_path": "知识库/整理后的知识库/农用拖拉机知识库/机型知识卡/LV-CN-M804-B-W201401123-II_2026-11-14.md",
+    "url": "https://td.sxwhkj.com/UpStore/ReliableSrc/2022/fed770fc-32a6-4af9-9b2e-638dbca9634c.pdf",
+    "download_url": "https://td.sxwhkj.com/UpStore/ReliableSrc/2022/fed770fc-32a6-4af9-9b2e-638dbca9634c.pdf",
+    "source_pages": [
+      "https://td.sxwhkj.com/mebmgr/MachineInfoPush/BTPubDetails?Id=1530180"
+    ],
+    "version": "W201401123-II，2014年试验",
+    "language": "中文，中国市场",
+    "scope_boundary": "2014 年中国市场 M804-B 试验样机，原报告样机发动机为 4C6-80U32。维修对照须先核实整机铭牌、发动机和涉故障部件，国四及其他后缀须查各自版次。",
+    "status": "已目视核对引用页原文。仅适于对应试验样机故障对照。",
+    "collected_at": "2026-11-14",
+    "storage_type": "link_and_source_record",
+    "manual_pdf_pages": 28,
+    "manual_bytes": 2462490,
+    "manual_sha256": "a8e5c456da2439e081dabf26c0484ff4f509f9b5fd23019fd427a26ebd9d7b10",
+    "sha256": "b4d5c488f63c3904b8652e5b42787b7ed0cdd848097bd6e5b1ad0c67e56885f5",
+    "bytes": 1369,
+    "hash_scope": "sha256/bytes为本地来源记录，manual_*为取得的公开原PDF",
+    "engine_scope": "4C6-80U32",
+    "verified_pdf_pages": {
+      "1": "原封面核对报告编号、样机机型和检验机构",
+      "6": "印刷第5页，原试验样机配置",
+      "9": "印刷第8页附表5，试验故障与排除记录"
+    }
+  },
+  {
+    "source_id": "SRC-LV-CN-M704-3A-NJJC2021040903",
+    "brand": "雷沃",
+    "model": "M704-3A",
+    "models": [
+      "M704-3A"
+    ],
+    "model_ids": [
+      "M704-3A"
+    ],
+    "title": "雷沃 M704-3A 轮式拖拉机可靠性试验报告 NJJC2021040903",
+    "title_status": "已核对",
+    "title_evidence": "原PDF第1页封面、第6页样机信息和第8页故障表",
+    "source_level": "第三方委托检验原报告",
+    "document_type": "拖拉机可靠性试验故障案例",
+    "role": "维修案例",
+    "path": "知识库/原始农机说明书/雷沃/LV-CN-M704-3A-NJJC2021040903/来源记录.md",
+    "knowledge_path": "知识库/整理后的知识库/农用拖拉机知识库/机型知识卡/LV-CN-M704-3A-NJJC2021040903_2026-11-14.md",
+    "url": "https://td.sxwhkj.com/UpStore/ReliableSrc/2022/3664d7de-d28c-40b9-b07c-b2a78449085c.pdf",
+    "download_url": "https://td.sxwhkj.com/UpStore/ReliableSrc/2022/3664d7de-d28c-40b9-b07c-b2a78449085c.pdf",
+    "source_pages": [
+      "https://td.sxwhkj.com/mebmgr/MachineInfoPush/BTPubDetails?Id=1438013"
+    ],
+    "version": "NJJC2021040903，2021年试验",
+    "language": "中文，中国市场",
+    "scope_boundary": "2021 年中国市场 M704-3A 试验样机，原报告样机发动机为 4B5-70U32。维修对照须先核实整机铭牌、发动机和涉故障部件，国四及其他后缀须查各自版次。",
+    "status": "已目视核对引用页原文。仅适于对应试验样机故障对照。",
+    "collected_at": "2026-11-14",
+    "storage_type": "link_and_source_record",
+    "manual_pdf_pages": 9,
+    "manual_bytes": 613702,
+    "manual_sha256": "57aba927c4e628640d01a7a3768da09233d598e14934940898f504e24c8d97e9",
+    "sha256": "f012ead15d7887a27c0805c1fd33c703772fb3829dc5083f3d8c8c766f6b9941",
+    "bytes": 1047,
+    "hash_scope": "sha256/bytes为本地来源记录，manual_*为取得的公开原PDF",
+    "engine_scope": "4B5-70U32",
+    "verified_pdf_pages": {
+      "1": "原封面核对报告编号、样机机型和检验机构",
+      "6": "印刷第4页，原试验样机配置",
+      "8": "印刷第6页附表5，试验故障与排除记录"
+    }
+  },
+  {
+    "source_id": "SRC-LV-CN-M804-2V-NJJC2021010903",
+    "brand": "雷沃",
+    "model": "M804-2V",
+    "models": [
+      "M804-2V"
+    ],
+    "model_ids": [
+      "M804-2V"
+    ],
+    "title": "雷沃 M804-2V 轮式拖拉机可靠性试验报告 NJJC2021010903",
+    "title_status": "已核对",
+    "title_evidence": "原PDF第1页封面、第6页样机信息和第8页故障表",
+    "source_level": "第三方委托检验原报告",
+    "document_type": "拖拉机可靠性试验故障案例",
+    "role": "维修案例",
+    "path": "知识库/原始农机说明书/雷沃/LV-CN-M804-2V-NJJC2021010903/来源记录.md",
+    "knowledge_path": "知识库/整理后的知识库/农用拖拉机知识库/机型知识卡/LV-CN-M804-2V-NJJC2021010903_2026-11-14.md",
+    "url": "https://td.sxwhkj.com/UpStore/ReliableSrc/2024/3fc13a99-b41e-402b-8fe5-17042c0875b8.pdf",
+    "download_url": "https://td.sxwhkj.com/UpStore/ReliableSrc/2024/3fc13a99-b41e-402b-8fe5-17042c0875b8.pdf",
+    "source_pages": [
+      "https://td.sxwhkj.com/mebmgr/MachineInfoPush/BTPubDetails?Id=2100324"
+    ],
+    "version": "NJJC2021010903，2021年试验",
+    "language": "中文，中国市场",
+    "scope_boundary": "2021 年中国市场 M804-2V 试验样机，原报告样机发动机为 4C6-80U32。维修对照须先核实整机铭牌、发动机和涉故障部件，国四及其他后缀须查各自版次。",
+    "status": "已目视核对引用页原文。仅适于对应试验样机故障对照。",
+    "collected_at": "2026-11-14",
+    "storage_type": "link_and_source_record",
+    "manual_pdf_pages": 9,
+    "manual_bytes": 4521285,
+    "manual_sha256": "a6fa995f0deb2cdfcb96fc2328f840b40f6d372b14d409295005cabb356dcfc1",
+    "sha256": "1f07d716025a42632dcf910e3e4ea86efedeac61f2e3987c931d7990f8c5ece1",
+    "bytes": 1178,
+    "hash_scope": "sha256/bytes为本地来源记录，manual_*为取得的公开原PDF",
+    "engine_scope": "4C6-80U32",
+    "verified_pdf_pages": {
+      "1": "原封面核对报告编号、样机机型和检验机构",
+      "6": "印刷第4页，原试验样机配置",
+      "8": "印刷第6页附表5，试验故障与排除记录"
+    }
+  },
+  {
+    "source_id": "SRC-LV-CN-M504-E-W201401122-II",
+    "brand": "雷沃",
+    "model": "M504-E",
+    "models": [
+      "M504-E"
+    ],
+    "model_ids": [
+      "M504-E"
+    ],
+    "title": "雷沃 M504-E 轮式拖拉机可靠性试验报告 W201401122-II",
+    "title_status": "已核对",
+    "title_evidence": "原PDF第1页封面、第6页样机信息和第9页故障表",
+    "source_level": "第三方委托检验原报告",
+    "document_type": "拖拉机可靠性试验故障案例",
+    "role": "维修案例",
+    "path": "知识库/原始农机说明书/雷沃/LV-CN-M504-E-W201401122-II/来源记录.md",
+    "knowledge_path": "知识库/整理后的知识库/农用拖拉机知识库/机型知识卡/LV-CN-M504-E-W201401122-II_2026-11-14.md",
+    "url": "https://td.sxwhkj.com/UpStore/ReliableSrc/2021/50dc5ea9-185b-4d3f-9f74-34e94d0419f2.pdf",
+    "download_url": "https://td.sxwhkj.com/UpStore/ReliableSrc/2021/50dc5ea9-185b-4d3f-9f74-34e94d0419f2.pdf",
+    "source_pages": [
+      "https://td.sxwhkj.com/mebmgr/MachineInfoPush/BTPubDetails?Id=895886"
+    ],
+    "version": "W201401122-II，2014年试验",
+    "language": "中文，中国市场",
+    "scope_boundary": "2014 年中国市场 M504-E 试验样机，原报告样机发动机为 4B5-50M22。维修对照须先核实整机铭牌、发动机和涉故障部件，国四及其他后缀须查各自版次。",
+    "status": "已目视核对引用页原文。仅适于对应试验样机故障对照。",
+    "collected_at": "2026-11-14",
+    "storage_type": "link_and_source_record",
+    "manual_pdf_pages": 29,
+    "manual_bytes": 2457881,
+    "manual_sha256": "6e5b0d67329c38426f69e4e40edf5d5b57cc299f6428d62b548d64aad0a7309e",
+    "sha256": "69de3b0c66ef34f7f05ef48e6d78e6b5d218c446b8e48d11a2cd4db8d7b3b3ad",
+    "bytes": 1233,
+    "hash_scope": "sha256/bytes为本地来源记录，manual_*为取得的公开原PDF",
+    "engine_scope": "4B5-50M22",
+    "verified_pdf_pages": {
+      "1": "原封面核对报告编号、样机机型和检验机构",
+      "6": "印刷第5页，原试验样机配置",
+      "9": "印刷第8页附表5，试验故障与排除记录"
+    }
+  },
+  {
+    "source_id": "SRC-LV-CN-M754-B-W2010-293-II",
+    "brand": "雷沃",
+    "model": "M754-B",
+    "models": [
+      "M754-B"
+    ],
+    "model_ids": [
+      "M754-B"
+    ],
+    "title": "雷沃 M754-B 轮式拖拉机可靠性试验报告 W2010-293-II",
+    "title_status": "已核对",
+    "title_evidence": "原PDF第1页封面、第3页样机信息和第7页故障表",
+    "source_level": "第三方委托检验原报告",
+    "document_type": "拖拉机可靠性试验故障案例",
+    "role": "维修案例",
+    "path": "知识库/原始农机说明书/雷沃/LV-CN-M754-B-W2010-293-II/来源记录.md",
+    "knowledge_path": "知识库/整理后的知识库/农用拖拉机知识库/机型知识卡/LV-CN-M754-B-W2010-293-II_2026-11-14.md",
+    "url": "https://td.sxwhkj.com/UpStore/ReliableSrc/2022/af5d9842-0339-4ec7-b80a-a17aedceaa8b.pdf",
+    "download_url": "https://td.sxwhkj.com/UpStore/ReliableSrc/2022/af5d9842-0339-4ec7-b80a-a17aedceaa8b.pdf",
+    "source_pages": [
+      "https://td.sxwhkj.com/mebmgr/MachineInfoPush/BTPubDetails?Id=1261171"
+    ],
+    "version": "W2010-293-II，2011年试验",
+    "language": "中文，中国市场",
+    "scope_boundary": "2011 年中国市场 M754-B 试验样机，原报告样机发动机为 QC4108T75-D05-014。维修对照须先核实整机铭牌、发动机和涉故障部件，国四及其他后缀须查各自版次。",
+    "status": "已目视核对引用页原文。仅适于对应试验样机故障对照。",
+    "collected_at": "2026-11-14",
+    "storage_type": "link_and_source_record",
+    "manual_pdf_pages": 11,
+    "manual_bytes": 2950982,
+    "manual_sha256": "ff479d95ce0f9e310fdc5f055b2eb50f00f49ae8e0a14e7e709aa6df7a4aa07d",
+    "sha256": "8e4d7470d68381971e442e8aa04141fa889c701c5ab2decd41feb356334673ec",
+    "bytes": 1245,
+    "hash_scope": "sha256/bytes为本地来源记录，manual_*为取得的公开原PDF",
+    "engine_scope": "QC4108T75-D05-014",
+    "verified_pdf_pages": {
+      "1": "原封面核对报告编号、样机机型和检验机构",
+      "3": "印刷第2页，原试验样机配置",
+      "7": "印刷第6页附表5，试验故障与排除记录"
+    }
+  },
+  {
+    "source_id": "SRC-LV-CN-M2204-R-YC2017-143",
+    "brand": "雷沃",
+    "model": "M2204-R",
+    "models": [
+      "M2204-R"
+    ],
+    "model_ids": [
+      "M2204-R"
+    ],
+    "title": "雷沃 M2204-R 轮式拖拉机可靠性试验报告 （2017）委检字整机类第143号",
+    "title_status": "已核对",
+    "title_evidence": "原PDF第1页封面、第5页样机信息和第12页故障表",
+    "source_level": "第三方委托检验原报告",
+    "document_type": "拖拉机可靠性试验故障案例",
+    "role": "维修案例",
+    "path": "知识库/原始农机说明书/雷沃/LV-CN-M2204-R-YC2017-143/来源记录.md",
+    "knowledge_path": "知识库/整理后的知识库/农用拖拉机知识库/机型知识卡/LV-CN-M2204-R-YC2017-143_2026-11-14.md",
+    "url": "https://td.sxwhkj.com/UpStore/ReliableSrc/2025/aab13642-8270-4f4a-b838-3afb4c2d1884.pdf",
+    "download_url": "https://td.sxwhkj.com/UpStore/ReliableSrc/2025/aab13642-8270-4f4a-b838-3afb4c2d1884.pdf",
+    "source_pages": [
+      "https://td.sxwhkj.com/mebmgr/MachineInfoPush/BTPubDetails?Id=2441175"
+    ],
+    "version": "（2017）委检字整机类第143号，2018年试验",
+    "language": "中文，中国市场",
+    "scope_boundary": "2018 年中国市场 M2204-R 试验样机，原报告样机发动机为 SC7H220G3。维修对照须先核实整机铭牌、发动机和涉故障部件，国四及其他后缀须查各自版次。",
+    "status": "已目视核对引用页原文。仅适于对应试验样机故障对照。",
+    "collected_at": "2026-11-14",
+    "storage_type": "link_and_source_record",
+    "manual_pdf_pages": 14,
+    "manual_bytes": 3734153,
+    "manual_sha256": "86911036c3966b7b0c32f81712be183d6ca1a86e6640c3fbe8246eefff8063f6",
+    "sha256": "afc3c5f7406863f0004bd179a3f9ae0b3e51d740fcfcdf81460046a7270c4109",
+    "bytes": 1198,
+    "hash_scope": "sha256/bytes为本地来源记录，manual_*为取得的公开原PDF",
+    "engine_scope": "SC7H220G3",
+    "verified_pdf_pages": {
+      "1": "原封面核对报告编号、样机机型和检验机构",
+      "5": "印刷第2页，原试验样机配置",
+      "12": "印刷第9页附表6，试验故障与排除记录"
+    }
   }
 ]
