@@ -1127,6 +1127,13 @@
       "base": "4.1.14",
       "version": "4.1.15",
       "date": "2026-11-13"
+    },
+    {
+      "id": "knowledge-snapshot-capacity-20261114",
+      "kind": "fix",
+      "base": "4.1.15",
+      "version": "4.1.16",
+      "date": "2026-11-14"
     }
   ]
 }
