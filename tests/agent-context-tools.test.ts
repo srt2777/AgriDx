@@ -16,7 +16,13 @@ test('session and reports are bound to the host context and reject model-supplie
  assert.doesNotMatch((await second.execute('list_prior_reports')).content,/历史报告一/);
 });
 test('knowledge entry preserves its provenance and does not assert applicability',async()=>{
- const e=new ToolExecutor(buildContextRegistry());assert.match((await e.execute('get_knowledge_entry',{entryId:'does-not-exist'})).content,/NOT_FOUND/);
+ const e=new ToolExecutor(buildContextRegistry());
+ assert.match((await e.execute('get_knowledge_entry',{entryId:'does-not-exist'})).content,/NOT_FOUND/);
+ const result = JSON.parse((await e.execute('get_knowledge_entry', { entryId: 'KB-JD-TM901519-001' })).content);
+ assert.equal(result.sourceType, '资料索引');
+ assert.equal(result.entryType, '资料索引');
+ assert.equal(result.sourceId, 'SRC-JD-TM901519-FT4-2019');
+ assert.equal(result.applicability, '待核实');
 });
 
 test('knowledge search fits complete citations into the tool output budget', async () => {
