@@ -352,7 +352,8 @@ export function createDiagnosticService(llm: DiagnosticProvider, dependencies: D
         model: failed || rejected ? 'kb-rag-fallback (本地备用引擎)' : 'kb-rag-engine (本地知识引擎)', provider: 'knowledge-base',
         fellBack: Boolean(fallbackReason) || rejected, ...(fallbackReason ? { fallbackReason } : {}), ...metadata(), answerMode: 'local-evidence',
         localSummary: content,
-        coordination: route, coordinationMessage: ROUTE_MESSAGES[route.reason],
+        coordination: route, coordinationMessage: faultCodeAmbiguity.length && !stopReason && route.route !== 'safe'
+          ? '该数字报码对应多个控制器，请核对仪表显示的完整报码。' : ROUTE_MESSAGES[route.reason],
       });
     };
     if (coordination.route !== 'ai') return localResponse();
