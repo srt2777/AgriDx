@@ -15,7 +15,7 @@ export function buildContextRegistry(memory?:{session:SessionDetail;priorReports
     if (typeof entryId === 'string' && entryId.startsWith('RK-')) return searchResearchKnowledge(entryId).find(entry=>entry.entryId===entryId) ?? {error:'NOT_FOUND'};
     const chunk=loadKnowledgeSnapshot().chunks.find(item=>item.entryId===entryId);
     if(!chunk)return {error:'NOT_FOUND'};
-    return {entryId:chunk.entryId,content:chunk.text,source:chunk.sourceTitle??chunk.source,sourceId:chunk.sourceId,pages:chunk.pages,models:chunk.models,brand:chunk.brand,scopeBoundary:chunk.scopeBoundary,status:chunk.status,applicability:'待核实',sourceType:chunk.entryType==='通识学习'?'通识（无手册页码）':'手册资料（适用性待核实）'};
+    return {entryId:chunk.entryId,content:chunk.text,source:chunk.sourceTitle??chunk.source,sourceId:chunk.sourceId,pages:chunk.pages,models:chunk.models,brand:chunk.brand,scopeBoundary:chunk.scopeBoundary,status:chunk.status,applicability:'待核实',entryType:chunk.entryType,sourceType:chunk.entryType==='通识学习'?'通识（无手册页码）':chunk.entryType??'归档资料'};
   });
   registry.register('get_session_state','读取当前会话中用户报告的症状与进度；用户报告尚未核实。',{type:'object',properties:{},additionalProperties:false},()=>memory?{sourceType:'用户报告，待核实',progress:memory.session.progress,summary:memory.session.summary}: {error:'SESSION_UNAVAILABLE'});
   registry.register('list_prior_reports','读取当前设备的历史用户报告，均待核实。',{type:'object',properties:{},additionalProperties:false},()=>memory?{sourceType:'用户报告，待核实',reports:memory.priorReports.map(({question,progress,updatedAt})=>({question,progress,updatedAt}))}:{error:'SESSION_UNAVAILABLE'});
