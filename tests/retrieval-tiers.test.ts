@@ -5,6 +5,7 @@ import { before, test } from 'node:test';
 import { DiagnosisRouter } from '../server/diagnosis/router';
 import { createDiagnosticService } from '../server/diagnosis/service';
 import { referenceVerification } from '../server/knowledge/evidence';
+import { requestedFaultCodes } from '../server/knowledge/fault-codes';
 import {
   clearRetrievalCache,
   loadKnowledgeBase,
@@ -271,6 +272,67 @@ test('a documented Cyrillic model alias matches through the Agent and diagnosis 
   assert.deepEqual(resolveScope(manualReference, {}).models, []);
   assert.equal(resolveScope(`3022.1${symptom}`, explicit).identityConflict, true);
   assert.equal(resolveScope(`John Deere 3022ДЦ.1 ${symptom}`, explicit).identityConflict, true);
+});
+
+test('numeric tractor models retain unknown suffixes in text and structured scope', async () => {
+  const executor = new ToolExecutor(buildContextRegistry());
+  const numericContext = { brand: '东方红', model: '1002', machineType: '拖拉机' };
+  const title = '履带转向困难';
+  const sourceId = 'SRC-YTO-1002-CASE202103050';
+  const baseline = retrieve(`东方红 1002 ${title}`, 10);
+  assert(baseline.some(chunk => chunk.sourceId === sourceId && chunk.applicability === 'matched'));
+  assert.deepEqual(resolveScope(`东方红1002${title}`, {}).models, ['1002']);
+
+  for (const [model, canonical] of [
+    ['1002(G4)', '1002g4'], ['1002（G4）', '1002g4'], ['1002 G4', '1002g4'],
+    ['1002（G4A）', '1002g4a'], ['1002 G4A', '1002g4a'], ['1002（G4）A', '1002g4a'],
+    ['1002-M', '1002m'], ['1002X', '1002x'], ['1002A', '1002a'],
+  ]) {
+    const query = `东方红 ${model} ${title}`;
+    assert.deepEqual(resolveScope(query, {}).models, [canonical], query);
+    assert.deepEqual(resolveScope(title, { ...numericContext, model }).models, [canonical], model);
+    assert.equal(resolveScope(query, numericContext).identityConflict, true, query);
+    assert.ok(!retrieve(query, 10).some(chunk => chunk.sourceId === sourceId), query);
+    assert.ok(!retrieve(title, 10, { ...numericContext, model }).some(chunk => chunk.sourceId === sourceId), model);
+    const answer = await executor.execute('search_knowledge', { query, limit: 3 });
+    assert.equal(answer.ok, true);
+    assert.ok(JSON.parse(answer.content).chunks.every((chunk: KnowledgeChunk) => chunk.sourceId !== sourceId), query);
+  }
+
+  assert.deepEqual(resolveScope(`东方红1002国四${title}`, {}).emissions, ['国四']);
+  assert.ok(!retrieve(`东方红1002国四${title}`, 10).some(chunk => chunk.sourceId === sourceId));
+  assert.deepEqual(resolveScope('履带转向困难，转速 1002 r/min，报码：1002.17', {}).models, []);
+  assert.deepEqual(resolveScope('履带转向困难，报码 1002', {}).models, []);
+  assert.deepEqual(resolveScope('东方红 1002 履带转向困难，故障码 6065.17', {}).models, ['1002']);
+  assert.deepEqual(requestedFaultCodes('故障码 ECU 1002.17，转速 1002 r/min', []),
+    [{ number: '1002.17', controller: 'ECU', explicit: true }]);
+});
+
+test('numeric measurements and service identifiers retain their meaning outside tractor model scope', () => {
+  for (const query of [
+    '发动机转速1002转/分钟，工作1002小时后转向困难',
+    '发动机转速1002转每分钟',
+    '泵在每分钟1002转时如何检查',
+    '主轴1002 转 · 分⁻¹时有异响',
+    '维护工时1002运行小时',
+    '额定1002千瓦时如何读数',
+    '间距1002毫米，重1002公斤',
+    '参考扭矩1002牛·米，轴向力1002公斤力',
+    '检查电流1002毫安、电压1002伏特和压力1002千帕',
+    '累计工作1002h、油箱容量1002升',
+    '第1002号线和第1002号针脚开路',
+    '零件号1002，拖拉机整机号1002G4A',
+  ]) {
+    assert.deepEqual(resolveScope(query, {}).models, [], query);
+    assert.equal(queryWithoutIdentity(query), query);
+  }
+  for (const query of ['东方红1002后桥漏油', '东方红1002升降故障', '东方红1002转向困难', '机型为1002']) {
+    assert.deepEqual(resolveScope(query, {}).models, ['1002'], query);
+  }
+  const mixed = '型号为1002，已工作1002小时且第1002号线开路';
+  assert.deepEqual(resolveScope(mixed, {}).models, ['1002']);
+  assert.deepEqual(queryWithoutIdentity(mixed).match(/1002/g), ['1002', '1002']);
+  assert.equal(resolveScope('工作1002小时后转向困难', { brand: '东方红', model: '1002' }).identityConflict, false);
 });
 
 test('component and general candidates never become direct repair evidence through a high score', () => {

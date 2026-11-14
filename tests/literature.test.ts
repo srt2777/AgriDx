@@ -56,7 +56,7 @@ test('pagination, exact DOI and AND keyword searches resolve actual records; inv
 
 test('new literature cannot silently enter diagnostic evidence or change existing knowledge counts',()=>{
   loadKnowledgeSnapshot();
-  assert.deepEqual(stats(),{archivedEntries:6540,learningEntries:6875,totalEntries:13415,chunks:13424});
+  assert.deepEqual(stats(),{archivedEntries:6558,learningEntries:6875,totalEntries:13433,chunks:13442});
   for(const query of ['拖拉机发动机启动困难','液压提升无力']) assert.ok(retrieve(query,30).every(chunk=>!chunk.entryId?.startsWith('CR-')));
 });
 

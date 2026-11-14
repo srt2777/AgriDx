@@ -109,6 +109,19 @@ function declaredModels(chunk: KnowledgeChunk): string[] {
 let indexedModels: string[] = [];
 let modelPatterns: { model: string; pattern: RegExp }[] = [];
 let modelFamilies: string[] = ['workmaster', 'lx', 't', 'pl', 'tg'];
+let numericModelPattern: RegExp | undefined;
+
+const numericEdition = 'g\\d+[a-z0-9]*(?:[.-][a-z0-9]+)*';
+const numericModelSuffix = `(?:[ \\t]*[(（][ \\t]*${numericEdition}[ \\t]*[)）][a-z0-9]*|[ \\t]+${numericEdition}|[ \\t]*-[ \\t]*[a-z][a-z0-9]*|[a-z][a-z0-9]*)`;
+const numericMeasurementUnits = [
+  'r[ \\t]*[/／][ \\t]*min', 'rpm', 'mpa', 'kpa', 'pa', 'bar', 'kwh', 'kw', 'km/h', 'km',
+  'mm', 'cm', 'kg', 'nm', 'n[ \\t]*[·⋅•][ \\t]*m', 'l/min', 'hz', '°[cf]?', '℃', '℉', '[%％‰]',
+  '转[ \\t]*(?:[/／每][ \\t]*分(?:钟)?|[·⋅•][ \\t]*分(?:钟)?[⁻−-]?[¹1])',
+  '(?:运行)?小时', '分钟', '毫秒', '千瓦(?:时)?', '公里', '千米', '毫米', '厘米', '微米',
+  '千克', '公斤(?:力)?', '千帕', '兆帕', '升[ \\t]*[/／每][ \\t]*分(?:钟)?',
+  '牛[ \\t]*(?:顿|[·⋅•])?[ \\t]*米', '毫安', '伏特',
+].join('|');
+const numericMeasurementUnit = `(?:[ \\t]*(?:${numericMeasurementUnits})|[ \\t]+[shval])(?![a-z0-9])`;
 
 /** Rebuilt on reload so source model lists drive recognition as the archive grows. */
 export function configureIndexedModels(chunks: KnowledgeChunk[]): void {
@@ -124,6 +137,12 @@ export function configureIndexedModels(chunks: KnowledgeChunk[]): void {
     const token = [...model].map(escapeRegex).join('[\\s\\-_/()（）]*');
     return { model, pattern: new RegExp(`${MODEL_TOKEN_START}${token}${MODEL_TOKEN_END}`, 'giu') };
   });
+  const numericBases = [...new Set(indexedModels.flatMap((model) => /^(\d{4})(?:g\d+)?$/.exec(model)?.[1] ?? []))];
+  // Product names such as 1604(G4) must retain the suffix even when that edition is absent from the archive.
+  numericModelPattern = numericBases.length
+    ? new RegExp(`${MODEL_TOKEN_START}(?:${numericBases.join('|')})(?!${numericMeasurementUnit})(?:${numericModelSuffix}(?:[.-][a-z0-9]+)*)?${MODEL_TOKEN_END}`, 'giu')
+    : undefined;
+  modelPatterns = modelPatterns.filter(({ model }) => !/^\d{4}$/.test(model));
   const modelNames = new Set(indexedModels);
   indexedPowertrainCodes = new Set(chunks.flatMap(chunk => chunk.faultCodes ?? [])
     .map(code => code.toLowerCase()).filter(code => /^p[a-f0-9]{4}$/.test(code) && !modelNames.has(code)));
@@ -149,18 +168,35 @@ function withoutHydraulicTestPortLabels(text: string): string {
       (_match, prefix: string, label: string) => prefix + ' '.repeat(label.length));
 }
 
+function withoutNumericMeasurementsOrSerials(text: string): string {
+  // Only unambiguous labels qualify single-letter units and numbers used as parts or serial references.
+  const serialNumber = /((?:零件号|零件编号|部件号|部件编号|整机号|整机编号|出厂号|出厂编号|车架号|发动机号|序列号|线束编号)[ \t]*[:：=#]?[ \t]*(?:为|是)?[ \t]*)(\d{4}(?:[a-z0-9]+|[.-][a-z0-9]+)*)(?![a-z0-9]|[.-][a-z0-9])/gi;
+  const ordinal = /(第[ \t]*)(\d{4})(?=[ \t]*号(?:线|针脚|插针|端子))/g;
+  const engineSpeed = /((?:每分钟|发动机转速|主轴转速|PTO转速)[ \t]*[:：=]?[ \t]*(?:为|是)?[ \t]*)(\d{4})(?=[ \t]*转(?!向|动|速|矩|子|轴|换|角))/gi;
+  const hours = /((?:工时|运行时间|使用时间|运行|运转|工作|开机|累计)[ \t]*[:：=]?[ \t]*(?:为|是)?[ \t]*)(\d{4}[ \t]*h)(?![a-z0-9])/gi;
+  const liters = /((?:油箱容量|容积|容量|加注|补充|消耗|油量)[ \t]*[:：=]?[ \t]*(?:为|是)?[ \t]*)(\d{4}[ \t]*[l升])(?![a-z0-9]|降|程|举|高|压|档|挡)/gi;
+  const blankValue = (_match: string, label: string, value: string) => label + ' '.repeat(value.length);
+  return text.replace(serialNumber, blankValue).replace(ordinal, blankValue)
+    .replace(engineSpeed, blankValue).replace(hours, blankValue).replace(liters, blankValue);
+}
+
 function modelMentions(text: string): ModelMention[] {
   // Preserve the existing LX2620-LX2620SU grouped alias without merging two identities.
   const scanText = withoutHydraulicTestPortLabels(withoutReferences(text)).replace(/-(?=lx\s*\d)/gi, '/')
     .replace(displayFaultCodePattern, code => ' '.repeat(code.length))
     .replace(threeFieldFaultCodePattern, code => ' '.repeat(code.length))
-    .replace(/((?:故障码|错误码|报警码|报码|\b(?:fault|error)\s+code\b)\s*[:：=]?\s*)([a-z]+\d[a-z0-9]*(?:[.-][a-z0-9]+)*)/gi,
+    .replace(/((?:故障码|错误码|报警码|报码|\b(?:dtc|(?:fault|error)\s+code)\b)\s*[:：=]?\s*)([a-z]+\d[a-z0-9]*(?:[.-][a-z0-9]+)*|\d{1,7}(?:\.\d{1,2})?)(?![a-z0-9_.-])/gi,
       (_match, label: string, code: string) => label + ' '.repeat(code.length))
     .replace(/\bp[a-f0-9]{4}\b/gi, code => indexedPowertrainCodes.has(code.toLowerCase()) ? ' '.repeat(code.length) : code);
   const mentions: ModelMention[] = [];
   for (const {model, pattern} of modelPatterns) {
     for (const match of scanText.matchAll(pattern)) {
       mentions.push({ start: match.index!, end: match.index! + match[0].length, model });
+    }
+  }
+  if (numericModelPattern) {
+    for (const match of withoutNumericMeasurementsOrSerials(scanText).matchAll(numericModelPattern)) {
+      mentions.push({ start: match.index!, end: match.index! + match[0].length, model: normalizeModel(match[0]) });
     }
   }
   // Nearby unknown 3022 variants remain complete identities, including mixed scripts.
