@@ -4490,5 +4490,51 @@
       "5": "印刷第3页，原试验样机配置",
       "8": "印刷第6页附表5，试验故障与排除记录"
     }
+  },
+  {
+    "source_id": "SRC-JD-3B604-OMSU37974-I8-CN",
+    "brand": "约翰迪尔",
+    "model": "3B-604",
+    "models": [
+      "3B-604"
+    ],
+    "model_ids": [
+      "3B-604"
+    ],
+    "title": "约翰迪尔宁波 3B-604 等 40 至 60 马力拖拉机操作手册，OMSU37974 I8",
+    "title_status": "已核对",
+    "title_evidence": "PDF 物理第 1 页明确 3B-604、I8、2018年9月和约翰迪尔宁波。厂家 604 设备目录中的 3B-604 China 分组关联 OMSU37974。",
+    "document_type": "拖拉机整机操作说明书",
+    "role": "整机使用保养与故障排查",
+    "path": "知识库/原始农机说明书/约翰迪尔/3B604-OMSU37974-I8-CN/来源记录.md",
+    "url": "https://techinfo-omview.apps-prod-vpn.us.e06.c01.johndeerecloud.com/omview/omsu37974",
+    "download_url": "https://techinfo-omview.apps-prod-vpn.us.e06.c01.johndeerecloud.com/omview/omsu37974",
+    "version": "OMSU37974 I8，2018年9月，英语，原厂中国 3B-604 设备分组关联。",
+    "language": "英语（中文条目为对英文原文的整理）",
+    "scope_boundary": "仅原厂中国 3B-604 设备分组关联的 OMSU37974 I8 手册选页，实车涉及总成需相符。",
+    "status": "证据页文本及图像已核验。仅限所列选页；未开展厂家复核及实车试验。",
+    "source_level": "约翰迪尔官方技术出版物目录的原厂免费下载操作手册 PDF",
+    "collected_at": "2026-11-14",
+    "storage_type": "link_and_source_record",
+    "sha256": "6978eab1ab8894d33904c6d9dcc1a8b7569f068766c5f9d8c3c744188a8e951e",
+    "bytes": 1684,
+    "manual_sha256": "def291b9eafe4ce024cb29138d0b4b21a0b1a4607f5c6f267592ac2a43a56bae",
+    "manual_bytes": 8291497,
+    "manual_pdf_pages": 180,
+    "hash_scope": "sha256/bytes为来源记录，manual_*为原PDF",
+    "knowledge_path": "知识库/整理后的知识库/农用拖拉机知识库/机型知识卡/约翰迪尔-3B604-OMSU37974-I8-CN.md",
+    "verified_pdf_pages": {
+      "1": "核对 3B-604、约翰迪尔宁波、I8 及日期。",
+      "107": "目视核对印刷页脚 90-2 的原文行或图。",
+      "140": "目视核对印刷页脚 115-1 的原文行或图。",
+      "141": "目视核对印刷页脚 115-2 的原文行或图。",
+      "143": "目视核对印刷页脚 115-4 的原文行或图。",
+      "144": "目视核对印刷页脚 115-5 的原文行或图。",
+      "145": "目视核对印刷页脚 115-6 的原文行或图。",
+      "146": "目视核对印刷页脚 115-7 的原文行或图。",
+      "147": "目视核对印刷页脚 115-8 的原文行或图。",
+      "158": "印刷 125-2，机型与转向、制动、传动规格",
+      "159": "印刷 125-3，液压系统、动力输出和悬挂规格"
+    }
   }
 ]
