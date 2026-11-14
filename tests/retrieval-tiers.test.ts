@@ -14,6 +14,7 @@ import {
   type KnowledgeChunk,
 } from '../server/knowledge/retriever';
 import { loadKnowledgeSnapshot, reloadKnowledgeSnapshot } from '../server/knowledge/snapshot';
+import { queryWithoutIdentity, resolveScope } from '../server/knowledge/scope';
 import { buildContextRegistry } from '../agent/context-tools';
 import { ToolExecutor } from '../agent/tools';
 
@@ -133,6 +134,21 @@ test('instrument display codes use their precise model table and retain legacy t
   assert.ok(!archive(retrieve('ERROR-8', 5, { ...lf, model: 'LF99999' })).some(chunk => chunk.entryId === card.entryId));
   const legacy = retrieve('ERROR-ENG', 12, { brand: '久保田', model: 'M5-091' });
   assert.ok(legacy.some(chunk => chunk.entryId === 'KB-KB-M5-20261016-108'));
+});
+
+test('hydraulic test-port labels remain in the query without conflicting with tractor identity', () => {
+  const context = { machineType: '拖拉机', brand: 'Belarus', model: '3522.5' };
+  for (const query of [
+    '前后悬挂同时举升乏力且无异响时测 M3 压力',
+    '前后悬挂同时举升乏力且无异响时测压口 M3 怎么测',
+    'hydraulic lift is weak at pressure test port M3',
+  ]) {
+    assert.equal(resolveScope(query, context).identityConflict, false, query);
+    assert.ok(queryWithoutIdentity(query).includes('M3'), query);
+  }
+  for (const query of ['机型 M3 的前后悬挂压力怎么测', '机型 6E-1204(G4) 的测压口 M3 怎么测']) {
+    assert.equal(resolveScope(query, context).identityConflict, true, query);
+  }
 });
 
 test('component and general candidates never become direct repair evidence through a high score', () => {

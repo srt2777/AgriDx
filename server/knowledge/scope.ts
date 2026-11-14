@@ -117,9 +117,16 @@ interface ModelMention {
   model: string;
 }
 
+function withoutHydraulicTestPortLabels(text: string): string {
+  const portLabel = /((?:测压[口点]|压力?测试?[口点]|(?:液压|压力)检测[口点]|\bpressure\s+(?:test\s+)?(?:port|point|tap)\b)\s*[:：#]?\s*)([A-Z]{1,2}\d{1,2})(?![a-z0-9_.-])/gi;
+  return text.replace(portLabel, (_match, prefix: string, label: string) => prefix + ' '.repeat(label.length))
+    .replace(/(测(?:量|试)?\s*)([A-Z]\d{1,2})(?=\s*(?:口\s*)?压力)/gi,
+      (_match, prefix: string, label: string) => prefix + ' '.repeat(label.length));
+}
+
 function modelMentions(text: string): ModelMention[] {
   // Preserve the existing LX2620-LX2620SU grouped alias without merging two identities.
-  const scanText = withoutReferences(text).replace(/-(?=lx\s*\d)/gi, '/')
+  const scanText = withoutHydraulicTestPortLabels(withoutReferences(text)).replace(/-(?=lx\s*\d)/gi, '/')
     .replace(displayFaultCodePattern, code => ' '.repeat(code.length))
     .replace(/((?:故障码|错误码|报警码|报码|\b(?:fault|error)\s+code\b)\s*[:：=]?\s*)([a-z]+\d[a-z0-9]*(?:[.-][a-z0-9]+)*)/gi,
       (_match, label: string, code: string) => label + ' '.repeat(code.length))
