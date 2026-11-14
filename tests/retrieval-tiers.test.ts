@@ -193,6 +193,86 @@ test('hydraulic test-port labels remain in the query without conflicting with tr
   }
 });
 
+test('a documented Cyrillic model alias matches through the Agent and diagnosis service', async t => {
+  const indexRoot = path.resolve('知识库/整理后的知识库/农用拖拉机知识库');
+  const host = loadKnowledgeSnapshot().chunks.find(chunk => chunk.sourceId === lfSource && chunk.entryId)!;
+  const sourceFor = (id: string, model: string, version: string) => ({
+    source_id: `SRC-TEST-${id}`, brand: 'Belarus', model, models: [model],
+    title: '合成资料夹具', document_type: '拖拉机整机操作说明书', version, path: host.originalPath!,
+    url: 'https://example.invalid/tractor-fixture.pdf', scope_boundary: '仅用于离线合成测试',
+  });
+  const target = sourceFor('3022DC1', '3022DC.1', '3022ДЦ.1-0000010 РЭ（2015 年）');
+  const adjacent = sourceFor('30221', '3022.1', '合成版');
+  const title = '辅助蓄电池充电灯不熄';
+  const entryFor = (source: typeof target) => ({
+    entry_id: source.source_id.replace('SRC-', 'KB-'), source_id: source.source_id,
+    brand: source.brand, model: source.model, models: source.models,
+    title, knowledge_path: host.source, locator: '合成资料PDF第1页',
+    status: '原文已核验；未实车验证', entry_type: '维护/故障知识',
+  });
+  const targetEntry = entryFor(target);
+  const adjacentEntry = entryFor(adjacent);
+  const entries = [targetEntry, adjacentEntry];
+  const read = fs.readFileSync;
+  const mock = t.mock.method(fs, 'readFileSync', (...args: Parameters<typeof fs.readFileSync>) => {
+    const data = read(...args);
+    const file = String(args[0]);
+    if (file === path.join(indexRoot, 'sources.json')) return JSON.stringify([...JSON.parse(String(data)), target, adjacent]);
+    if (file === path.join(indexRoot, 'entries.jsonl')) return [String(data).trimEnd(), ...entries.map(entry => JSON.stringify(entry))].join('\n');
+    if (file === path.join(indexRoot, 'hierarchy.json')) {
+      const index = JSON.parse(String(data));
+      index.entries.push(...entries.map(entry => ({
+        entry_id: entry.entry_id, components: [{ component_id: 'electrical', part_ids: [] }],
+      })));
+      return JSON.stringify(index);
+    }
+    if (file === path.resolve(host.source)) {
+      return [String(data).trimEnd(), ...entries.map(entry => [
+        `## ${entry.entry_id}｜${entry.title}`, '', '- 故障现象：合成试验台辅助蓄电池充电灯不熄。',
+        '- 可能原因：试验台信号状态异常。', '- 诊断步骤：检查合成试验台的记录。', '- 维修建议：联系试验台维护人员。',
+      ].join('\n'))].join('\n\n');
+    }
+    return data;
+  });
+  t.after(() => { mock.mock.restore(); reloadKnowledgeSnapshot(); });
+  reloadKnowledgeSnapshot();
+
+  const executor = new ToolExecutor(buildContextRegistry());
+  const diagnose = createDiagnosticService({
+    hasAnyConfigured: () => false, chat: async () => { throw new Error('知识库模式不调用模型'); },
+  }, { config: { logDecisions: false } });
+  const symptom = `${title}怎么查`;
+  for (const identity of ['3022DC.1', '3022ДЦ.1', '3022дц.1', 'БЕЛАРУС-3022ДЦ.1', 'Belarus 3022ДЦ.1']) {
+    const query = `${identity}${symptom}`;
+    const result = await executor.execute('search_knowledge', { query, limit: 3 });
+    assert.equal(result.ok, true, query);
+    assert.deepEqual(JSON.parse(result.content).chunks.map((chunk: KnowledgeChunk) => [chunk.entryId, chunk.applicability]),
+      [[targetEntry.entry_id, 'matched']], query);
+    assert.equal(queryWithoutIdentity(query).replace(/^[\s-]+/, ''), symptom, query);
+    const reply = await diagnose({ history: [{ role: 'user', content: query }], diagnosisMode: 'knowledge_only' });
+    assert.deepEqual(reply.knowledgeSources.map(source => source.entryId), [targetEntry.entry_id], query);
+  }
+  const followup = await diagnose({ history: [{ role: 'user', content: symptom }, { role: 'user', content: '3022дц.1' }],
+    diagnosisMode: 'knowledge_only' });
+  assert.equal(followup.knowledgeSources[0]?.entryId, targetEntry.entry_id);
+  const explicit = { brand: 'Belarus', model: '3022DC.1', machineType: '拖拉机' };
+  assert.deepEqual(retrieve(`3022ДЦ.1${symptom}`, 3, explicit).map(chunk => chunk.entryId), [targetEntry.entry_id]);
+  assert.deepEqual(retrieve(`3022.1${symptom}`, 3).map(chunk => chunk.entryId), [adjacentEntry.entry_id]);
+  for (const model of ['3022ДЦ.10', '3022ДЦ.1.2', '3022DЦ.1', '3022ДВ.1', '3022DC.10', '3022.10']) {
+    const query = `${model}${symptom}`;
+    const result = retrieveWithDiagnostics(query, 3);
+    assert.equal(result.manualAvailable, false, query);
+    assert.equal(result.outcome, 'no_manual', query);
+    assert.ok(result.chunks.every(chunk => chunk.entryType === '通识学习' &&
+      chunk.diagnosticEvidence === false && !chunk.generalEvidence), query);
+    assert.deepEqual(retrieve(query, 3, explicit), [], query);
+  }
+  const manualReference = `查阅 3022ДЦ.1-0000010 РЭ，${symptom}`;
+  assert.deepEqual(resolveScope(manualReference, {}).models, []);
+  assert.equal(resolveScope(`3022.1${symptom}`, explicit).identityConflict, true);
+  assert.equal(resolveScope(`John Deere 3022ДЦ.1 ${symptom}`, explicit).identityConflict, true);
+});
+
 test('component and general candidates never become direct repair evidence through a high score', () => {
   const reviewed: KnowledgeChunk = {
     source: 'fixture.md', heading: 'TEST-TIER-001｜起动困难', text: '合成接口测试，不是维修资料。',

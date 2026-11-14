@@ -72,6 +72,8 @@ node --import tsx scripts/knowledge-inventory.ts --csv > knowledge-inventory.csv
 - **标注**：通识证据一律标为“通识（无手册页码）”，不附书名或页码，不得写成某本手册的说法；归档条目保留书名与页码。API `knowledgeSources` 新增 `evidenceKind`（`archive`/`general-knowledge`/`prompt`）、`evidenceLabel`（通识为“通识（无手册页码）”，归档为“手册：书名，PDF第N页…”）和 `generalEvidence`；`roleFlow.generalKnowledgeIds` 单列通识编号，不混入按书页引用的角色步骤。本地回复以【通识依据（通识·无手册页码，待验证）】展示。
 - 数据中的 `diagnostic_evidence=false` 不改（条目文件字节锁定）；证据角色只在 `server/knowledge/retriever.ts` 运行时按检索范围决定。安全风险、身份冲突、电动／无人设备和非拖拉机边界保持原规则。
 
+Belarus `3022ДЦ.1` 的中文问句可直接用铭牌原拼写检索。检索把这个原厂型号与英文目录的 `3022DC.1` 视作同一机型，匹配时依然检查手册和条目范围。`3022.1` 及其他近似后缀各自保留。别名依据是俄文手册封面及第 19 页所列的 BF06M1013FC，和英文产品目录印刷第 150 页对应的发动机配置。[俄文说明书](https://www.mtz-td.ru/pdf/BELARUS%203022%D0%94%D0%A6.1%20%282015%20%D0%B3.%29.zip) [MTZ 英文目录存档](https://static.agroinform.hu/data/forum/documents/agroinform_20180508221726_belarus_termekcsalad_katalogus_eng.pdf)
+
 ## 混合检索（知识库第 3 步，2026-11-06）
 
 主路不变：目录 + 关键词 + 型号硬过滤。新加一路向量语义检索，只做召回候选，不决定答案；最后统一重排，归档和通识分开打分、保底各取一条（沿用 2026-10-22 的规则）。
