@@ -70090,6 +70090,421 @@
           ]
         }
       ]
+    },
+    {
+      "entry_id": "KB-LV-CN-M1204-B-NJJC20180806-AK-S1R1",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hydraulic-hose"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-LV-CN-M1204-B-NJJC20180806-AK-S1R2",
+      "components": [
+        {
+          "component_id": "cooling",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-LV-CN-M1204-B-NJJC20180806-AK-S1R4",
+      "components": [
+        {
+          "component_id": "brakes",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-LV-CN-M1204-B-NJJC20180806-AK-S2R1",
+      "components": [
+        {
+          "component_id": "steering",
+          "part_ids": [
+            "steering-cylinder"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-LV-CN-M1204-B-NJJC20180806-AK-S2R3",
+      "components": [
+        {
+          "component_id": "fuel",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-LV-CN-M804-B-W201401123-II-S1R2",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "battery"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-LV-CN-M804-B-W201401123-II-S1R3",
+      "components": [
+        {
+          "component_id": "fuel",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-LV-CN-M804-B-W201401123-II-S1R5",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-LV-CN-M804-B-W201401123-II-S1R6",
+      "components": [
+        {
+          "component_id": "steering",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-LV-CN-M804-B-W201401123-II-S2R7",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-LV-CN-M804-B-W201401123-II-S2R8",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-LV-CN-M804-B-W201401123-II-S2R10",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": [
+            "clutch-pedal",
+            "clutch-spring"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-LV-CN-M804-B-W201401123-II-S2R11",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-LV-CN-M704-3A-NJJC2021040903-S1R1",
+      "components": [
+        {
+          "component_id": "steering",
+          "part_ids": [
+            "steering-cylinder"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-LV-CN-M704-3A-NJJC2021040903-S1R2",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "battery"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-LV-CN-M704-3A-NJJC2021040903-S1R3",
+      "components": [
+        {
+          "component_id": "cooling",
+          "part_ids": [
+            "temperature-sensor"
+          ]
+        },
+        {
+          "component_id": "electrical",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-LV-CN-M704-3A-NJJC2021040903-S2R2",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hydraulic-hose"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-LV-CN-M804-2V-NJJC2021010903-S1R2",
+      "components": [
+        {
+          "component_id": "cooling",
+          "part_ids": [
+            "coolant-pump"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-LV-CN-M804-2V-NJJC2021010903-S2R1",
+      "components": [
+        {
+          "component_id": "fuel",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-LV-CN-M804-2V-NJJC2021010903-S2R4",
+      "components": [
+        {
+          "component_id": "brakes",
+          "part_ids": [
+            "brake-pedal"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-LV-CN-M504-E-W201401122-II-S1R1",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-LV-CN-M504-E-W201401122-II-S1R2",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": [
+            "clutch-spring"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-LV-CN-M504-E-W201401122-II-S1R4",
+      "components": [
+        {
+          "component_id": "fuel",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-LV-CN-M504-E-W201401122-II-S1R5",
+      "components": [
+        {
+          "component_id": "steering",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-LV-CN-M504-E-W201401122-II-S2R7",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "wiring"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-LV-CN-M504-E-W201401122-II-S2R8",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-LV-CN-M504-E-W201401122-II-S2R11",
+      "components": [
+        {
+          "component_id": "steering",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-LV-CN-M504-E-W201401122-II-S2R12",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-LV-CN-M754-B-W2010-293-II-S1R1",
+      "components": [
+        {
+          "component_id": "fuel",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-LV-CN-M754-B-W2010-293-II-S1R2",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-LV-CN-M754-B-W2010-293-II-S1R3",
+      "components": [
+        {
+          "component_id": "brakes",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-LV-CN-M754-B-W2010-293-II-S2R7",
+      "components": [
+        {
+          "component_id": "fuel",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-LV-CN-M754-B-W2010-293-II-S2R8",
+      "components": [
+        {
+          "component_id": "fuel",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-LV-CN-M754-B-W2010-293-II-S2R9",
+      "components": [
+        {
+          "component_id": "cooling",
+          "part_ids": [
+            "fan-belt"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-LV-CN-M754-B-W2010-293-II-S2R10",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hydraulic-seal"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-LV-CN-M2204-R-YC2017-143-S1R3",
+      "components": [
+        {
+          "component_id": "cooling",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-LV-CN-M2204-R-YC2017-143-S1R5",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": [
+            "clutch-spring"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-LV-CN-M2204-R-YC2017-143-S2R1",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": [
+            "clutch-pedal",
+            "clutch-spring"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-LV-CN-M2204-R-YC2017-143-S2R3",
+      "components": [
+        {
+          "component_id": "cooling",
+          "part_ids": [
+            "fan-belt"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-LV-CN-M2204-R-YC2017-143-S2R4",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "wiring"
+          ]
+        },
+        {
+          "component_id": "lubrication",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-LV-CN-M2204-R-YC2017-143-S2R5",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": []
+        }
+      ]
     }
   ]
 }
