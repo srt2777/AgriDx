@@ -4001,5 +4001,124 @@
       "317": "目视核对印刷页脚 155-15 的原文行或图。",
       "318": "目视核对印刷页脚 155-16 的原文行或图。"
     }
+  },
+  {
+    "source_id": "SRC-KB-MC-M704K-3B611FF48386",
+    "brand": "久保田",
+    "model": "M704K / M704KQ",
+    "models": [
+      "M704K",
+      "M704KQ"
+    ],
+    "model_ids": [
+      "M704K",
+      "M704KQ"
+    ],
+    "title": "M704K／M704KQ 原厂 MC 维修检查表",
+    "title_status": "已核对",
+    "title_evidence": "原厂标题和图签机型目视确认",
+    "source_level": "久保田中国官网原厂材料",
+    "document_type": "维修检查表选编",
+    "role": "原厂保养、维修检查和故障识别",
+    "path": "知识库/原始农机说明书/久保田/MC-M704K-3B611FF48386/来源记录.md",
+    "knowledge_path": "知识库/整理后的知识库/农用拖拉机知识库/机型知识卡/MC-M704K-3B611FF48386_2026-11-14.md",
+    "url": "https://www.kubota.com.cn/kams/img/card/M704K.jpg",
+    "version": "原厂中文维修检查表图像，未标注完整手册版本或出版日期",
+    "scope_boundary": "限图签明确列明的中国市场车型与原车配置。应核对实机铭牌和本机手册。原图未登记排放阶段。",
+    "status": "证据图像及文字说明已核验。仅限所列内容和型号，未开展厂家复核及实车试验。",
+    "collected_at": "2026-11-14",
+    "sha256": "b75f7e699492dd646e3f860274356cd78e93c4cc051f5416c1a7e3c04b6fbfc9",
+    "bytes": 850,
+    "original_media_sha256": "3b611ff483866ce68ae29d1e91c5ee613e3492908bbb18881bdd9d1ea3668a39",
+    "original_media_bytes": 499761,
+    "original_media_type": "image/jpeg",
+    "source_pages": [
+      "https://www.kubota.com.cn/kams/service/card/c3_1.html",
+      "https://www.kubota.com.cn/kams/service/card/c3_2.html"
+    ],
+    "hash_scope": "sha256/bytes为本地来源记录，original_media_*为取得的原厂媒体",
+    "emission_stage_unknown": true
+  },
+  {
+    "source_id": "SRC-KB-MC-M854K-77F37D3D3D0C",
+    "brand": "久保田",
+    "model": "M854K / M854KQ / M950KR / M954K / M954KQ",
+    "models": [
+      "M854K",
+      "M854KQ",
+      "M950KR",
+      "M954K",
+      "M954KQ"
+    ],
+    "model_ids": [
+      "M854K",
+      "M854KQ",
+      "M950KR",
+      "M954K",
+      "M954KQ"
+    ],
+    "title": "M854K／M854KQ／M950KR／M954K／M954KQ 原厂 MC 维修检查表",
+    "title_status": "已核对",
+    "title_evidence": "原厂标题和图签机型目视确认",
+    "source_level": "久保田中国官网原厂材料",
+    "document_type": "维修检查表选编",
+    "role": "原厂保养、维修检查和故障识别",
+    "path": "知识库/原始农机说明书/久保田/MC-M854K-77F37D3D3D0C/来源记录.md",
+    "knowledge_path": "知识库/整理后的知识库/农用拖拉机知识库/机型知识卡/MC-M854K-77F37D3D3D0C_2026-11-14.md",
+    "url": "https://www.kubota.com.cn/kams/img/card/M854K.jpg",
+    "version": "原厂中文维修检查表图像，未标注完整手册版本或出版日期",
+    "scope_boundary": "限图签明确列明的中国市场车型与原车配置。应核对实机铭牌和本机手册。原图未登记排放阶段。",
+    "status": "证据图像及文字说明已核验。仅限所列内容和型号，未开展厂家复核及实车试验。",
+    "collected_at": "2026-11-14",
+    "sha256": "dc3f6e2a0f4d81b36d2e23b79bc0dfab6ac696f440634665da8e262656fed0aa",
+    "bytes": 1121,
+    "original_media_sha256": "77f37d3d3d0c32868a95b9c12f3fcb03f69bf3a826d12037513f75a2072d4cbd",
+    "original_media_bytes": 657503,
+    "original_media_type": "image/jpeg",
+    "source_pages": [
+      "https://www.kubota.com.cn/kams/service/card/c3_3.html",
+      "https://www.kubota.com.cn/kams/service/card/c3_4.html",
+      "https://www.kubota.com.cn/kams/service/card/c3_5.html",
+      "https://www.kubota.com.cn/kams/service/card/c3_6.html",
+      "https://www.kubota.com.cn/kams/service/card/c3_7.html"
+    ],
+    "hash_scope": "sha256/bytes为本地来源记录，original_media_*为取得的原厂媒体",
+    "emission_stage_unknown": true
+  },
+  {
+    "source_id": "SRC-KB-MC-M704-M954-143E571B0468",
+    "brand": "久保田",
+    "model": "M704 / M954",
+    "models": [
+      "M704",
+      "M954"
+    ],
+    "model_ids": [
+      "M704",
+      "M954"
+    ],
+    "title": "M704／M954 原厂 MC 维修检查表",
+    "title_status": "已核对",
+    "title_evidence": "原厂标题和图签机型目视确认",
+    "source_level": "久保田中国官网原厂材料",
+    "document_type": "维修检查表选编",
+    "role": "原厂保养、维修检查和故障识别",
+    "path": "知识库/原始农机说明书/久保田/MC-M704-M954-143E571B0468/来源记录.md",
+    "knowledge_path": "知识库/整理后的知识库/农用拖拉机知识库/机型知识卡/MC-M704-M954-143E571B0468_2026-11-14.md",
+    "url": "https://www.kubota.com.cn/kams/img/004_3_7.jpg",
+    "version": "原厂中文维修检查表图像，未标注完整手册版本或出版日期",
+    "scope_boundary": "限图签明确列明的中国市场车型与原车配置。应核对实机铭牌和本机手册。原图未登记排放阶段。",
+    "status": "证据图像及文字说明已核验。仅限所列内容和型号，未开展厂家复核及实车试验。",
+    "collected_at": "2026-11-14",
+    "sha256": "dafe1c74ee97b714bb42a518f4a55a63a55ffc5235f0bea903a39a61fa20407c",
+    "bytes": 771,
+    "original_media_sha256": "143e571b0468e932178ebb688ef0511bbc0929c39dec19cb688cde4701eb9c0f",
+    "original_media_bytes": 622697,
+    "original_media_type": "image/jpeg",
+    "source_pages": [
+      "https://www.kubota.com.cn/kams/service/card/c_7.html"
+    ],
+    "hash_scope": "sha256/bytes为本地来源记录，original_media_*为取得的原厂媒体",
+    "emission_stage_unknown": true
   }
 ]

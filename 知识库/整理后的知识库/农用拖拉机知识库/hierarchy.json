@@ -67967,6 +67967,431 @@
           "part_ids": []
         }
       ]
+    },
+    {
+      "entry_id": "KB-KB-MC-M704K-3B611FF48386-001",
+      "components": [
+        {
+          "component_id": "chassis",
+          "part_ids": [
+            "tyre"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-KB-MC-M704K-3B611FF48386-002",
+      "components": [
+        {
+          "component_id": "chassis",
+          "part_ids": [
+            "tyre"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-KB-MC-M704K-3B611FF48386-003",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": []
+        },
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        },
+        {
+          "component_id": "pto",
+          "part_ids": [
+            "pto-clutch"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-KB-MC-M704K-3B611FF48386-004",
+      "components": [
+        {
+          "component_id": "chassis",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-KB-MC-M704K-3B611FF48386-005",
+      "components": [
+        {
+          "component_id": "cooling",
+          "part_ids": [
+            "fan-belt"
+          ]
+        },
+        {
+          "component_id": "engine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-KB-MC-M704K-3B611FF48386-006",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": [
+            "clutch-pedal"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-KB-MC-M704K-3B611FF48386-007",
+      "components": [
+        {
+          "component_id": "brakes",
+          "part_ids": [
+            "brake-pedal"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-KB-MC-M704K-3B611FF48386-008",
+      "components": [
+        {
+          "component_id": "chassis",
+          "part_ids": []
+        },
+        {
+          "component_id": "steering",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-KB-MC-M704K-3B611FF48386-009",
+      "components": [
+        {
+          "component_id": "chassis",
+          "part_ids": [
+            "front-axle"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-KB-MC-M704K-3B611FF48386-010",
+      "components": [
+        {
+          "component_id": "lubrication",
+          "part_ids": [
+            "oil-filter"
+          ]
+        },
+        {
+          "component_id": "engine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-KB-MC-M704K-3B611FF48386-011",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        },
+        {
+          "component_id": "hydraulics",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-KB-MC-M704K-3B611FF48386-012",
+      "components": [
+        {
+          "component_id": "chassis",
+          "part_ids": [
+            "front-axle"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-KB-MC-M704K-3B611FF48386-013",
+      "components": [
+        {
+          "component_id": "cooling",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-KB-MC-M704K-3B611FF48386-014",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": []
+        },
+        {
+          "component_id": "chassis",
+          "part_ids": [
+            "front-axle"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-KB-MC-M854K-77F37D3D3D0C-001",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-KB-MC-M854K-77F37D3D3D0C-002",
+      "components": [
+        {
+          "component_id": "chassis",
+          "part_ids": [
+            "tyre"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-KB-MC-M854K-77F37D3D3D0C-003",
+      "components": [
+        {
+          "component_id": "chassis",
+          "part_ids": [
+            "tyre"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-KB-MC-M854K-77F37D3D3D0C-004",
+      "components": [
+        {
+          "component_id": "chassis",
+          "part_ids": [
+            "tyre"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-KB-MC-M854K-77F37D3D3D0C-005",
+      "components": [
+        {
+          "component_id": "chassis",
+          "part_ids": [
+            "tyre"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-KB-MC-M854K-77F37D3D3D0C-006",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "ignition-switch"
+          ]
+        },
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        },
+        {
+          "component_id": "pto",
+          "part_ids": [
+            "pto-clutch"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-KB-MC-M854K-77F37D3D3D0C-007",
+      "components": [
+        {
+          "component_id": "chassis",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-KB-MC-M854K-77F37D3D3D0C-008",
+      "components": [
+        {
+          "component_id": "cooling",
+          "part_ids": [
+            "fan-belt"
+          ]
+        },
+        {
+          "component_id": "engine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-KB-MC-M854K-77F37D3D3D0C-009",
+      "components": [
+        {
+          "component_id": "brakes",
+          "part_ids": [
+            "brake-pedal"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-KB-MC-M854K-77F37D3D3D0C-010",
+      "components": [
+        {
+          "component_id": "cab",
+          "part_ids": []
+        },
+        {
+          "component_id": "cooling",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-KB-MC-M854K-77F37D3D3D0C-011",
+      "components": [
+        {
+          "component_id": "chassis",
+          "part_ids": []
+        },
+        {
+          "component_id": "steering",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-KB-MC-M854K-77F37D3D3D0C-012",
+      "components": [
+        {
+          "component_id": "chassis",
+          "part_ids": [
+            "front-axle"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-KB-MC-M704-M954-143E571B0468-001",
+      "components": [
+        {
+          "component_id": "brakes",
+          "part_ids": [
+            "brake-pedal"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-KB-MC-M704-M954-143E571B0468-002",
+      "components": [
+        {
+          "component_id": "chassis",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-KB-MC-M704-M954-143E571B0468-003",
+      "components": [
+        {
+          "component_id": "cooling",
+          "part_ids": [
+            "fan-belt"
+          ]
+        },
+        {
+          "component_id": "electrical",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-KB-MC-M704-M954-143E571B0468-004",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": [
+            "clutch-pedal"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-KB-MC-M704-M954-143E571B0468-005",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": []
+        },
+        {
+          "component_id": "lubrication",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-KB-MC-M704-M954-143E571B0468-006",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        },
+        {
+          "component_id": "hydraulics",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-KB-MC-M704-M954-143E571B0468-007",
+      "components": [
+        {
+          "component_id": "chassis",
+          "part_ids": [
+            "front-axle"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-KB-MC-M704-M954-143E571B0468-008",
+      "components": [
+        {
+          "component_id": "cooling",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-KB-MC-M704-M954-143E571B0468-009",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": []
+        },
+        {
+          "component_id": "steering",
+          "part_ids": []
+        }
+      ]
     }
   ]
 }
