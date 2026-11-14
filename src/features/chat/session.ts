@@ -167,7 +167,7 @@ export function parseChatMetadata(value: unknown): Pick<ChatMessage, 'diagnostic
 }
 
 export function parseFaultCodes(value: string): string[] {
-  const codes = value.match(/(?:[A-Z][A-Z0-9]{1,7}[ \t]+\d{1,7}\.\d{1,2}(?=[\s,，;；、]|$)|[^\s,，;；、]+)/gi) ?? [];
+  const codes = value.match(/(?:[A-Z][A-Z0-9]{1,7}[ \t]+\d{1,7}\.\d{1,2}|\d[ \t]*[/／][ \t]*\d{3}[ \t]*[/／][ \t]*\d{2})(?=[\s,，;；、]|$)|[^\s,，;；、]+/gi) ?? [];
   if (codes.length > 20 || codes.some(code => code.length > 32)) throw new Error('故障码最多20个，每个不超过32字符');
   return [...new Set(codes)];
 }

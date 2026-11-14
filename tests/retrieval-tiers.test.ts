@@ -136,6 +136,48 @@ test('instrument display codes use their precise model table and retain legacy t
   assert.ok(legacy.some(chunk => chunk.entryId === 'KB-KB-M5-20261016-108'));
 });
 
+test('three-field displays preserve zeros and require a unique card for the exact model', async t => {
+  const cards = loadKnowledgeSnapshot().chunks.filter(chunk =>
+    chunk.sourceId === lfSource && chunk.entryType === '维护/故障知识' && chunk.entryId && chunk.heading.includes('｜'));
+  const [target, differentSystem, conflicting, duplicate] = cards;
+  assert.ok(target && differentSystem && conflicting && duplicate);
+  const original = fs.readFileSync;
+  const codes = [[target, '1 / 013 / 01'], [differentSystem, '2/013/01'],
+    [conflicting, '3/204/05'], [duplicate, '3/204/05']] as const;
+  const mock = t.mock.method(fs, 'readFileSync', (...args: Parameters<typeof fs.readFileSync>) => {
+    const data = original(...args);
+    return codes.filter(([card]) => String(args[0]) === path.resolve(card.source))
+      .reduce<string | Buffer>((text, [card, code]) => {
+        const input = String(text);
+        const newline = input.includes('\r\n') ? '\r\n' : '\n';
+        const heading = `## ${card.heading}${newline}`;
+        return input.replace(heading, `${heading}${newline}- 故障码：${code}${newline}`);
+      }, data);
+  });
+  t.after(() => { mock.mock.restore(); reloadKnowledgeSnapshot(); });
+  reloadKnowledgeSnapshot();
+
+  const executor = new ToolExecutor(buildContextRegistry());
+  const response = await executor.execute('search_knowledge', {
+    query: '东方红 LF1504 仪表跳出 1 ／ 013 ／ 01 是什么', context: lf, limit: 5,
+  });
+  assert.equal(response.ok, true);
+  const hits = JSON.parse(response.content).chunks;
+  assert.deepEqual(hits.map((chunk: KnowledgeChunk) => [chunk.entryId, chunk.faultCodes, chunk.applicability]),
+    [[target.entryId, ['1/013/01'], 'matched']]);
+  assert.deepEqual(retrieve('如何处理仪表报警？', 5, { ...lf, faultCodes: ['2 / 013 / 01'] }).map(chunk => chunk.entryId),
+    [differentSystem.entryId]);
+  for (const query of ['故障码 1/013/02 是什么', '3/204/05', '013/01', '1/013',
+    '故障码 013/01 是什么意思', '故障码 1/013 是什么意思', '故障码 1/13/01', '故障码 1/013/1']) {
+    assert.deepEqual(retrieve(query, 5, lf), [], query);
+  }
+  assert.deepEqual(retrieve('1/013/01', 5), []);
+  assert.deepEqual(retrieve('1/013/01', 5, { ...lf, model: 'LF99999' }), []);
+  assert.deepEqual(retrieve('怎么查？', 5, { ...lf, faultCodes: ['1 / 013'] }), []);
+  assert.ok(retrieve('东方红 LF1504 水温过高，原单号 1/999/99', 5, lf).length);
+  assert.equal(resolveScope('井关 TJW1233 故障码 3/204/05', { brand: 'ISEKI', model: 'TJW1233' }).identityConflict, false);
+});
+
 test('hydraulic test-port labels remain in the query without conflicting with tractor identity', () => {
   const context = { machineType: '拖拉机', brand: 'Belarus', model: '3522.5' };
   for (const query of [

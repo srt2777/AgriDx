@@ -82,6 +82,7 @@ test('diagnostic request sends engine/codes and text, never reply metadata or de
   const reply = { id: 'answer', ...parseChatResponse(payload) };
   const codes = parseFaultCodes(' E001，E002; E001、P1234 ');
   assert.deepEqual(parseFaultCodes('PTP 177.17，PTI 177.17 P1234'), ['PTP 177.17', 'PTI 177.17', 'P1234']);
+  assert.deepEqual(parseFaultCodes('1 / 013 / 01，2／013／01 E001'), ['1 / 013 / 01', '2／013／01', 'E001']);
   assert.deepEqual(codes, ['E001', 'E002', 'P1234']);
   const request = createChatRequest([reply], '继续检查', { machineType: '拖拉机', brand: '东方红', model: 'LF1504', engineModel: ' ENGINE-A ', faultCodes: codes });
   assert.equal(request.engineModel, 'ENGINE-A');
