@@ -109,6 +109,32 @@ test('a shared fault number requires its controller prefix before retrieving exa
   assert.ok(retrieve('水温过高 177.17 摄氏度', 5, lf).length);
 });
 
+test('instrument display codes use their precise model table and retain legacy text search', t => {
+  const card = loadKnowledgeSnapshot().chunks.find(chunk =>
+    chunk.sourceId === lfSource && chunk.entryType === '维护/故障知识' && chunk.entryId && chunk.heading.includes('｜'));
+  assert.ok(card);
+  const original = fs.readFileSync;
+  const mock = t.mock.method(fs, 'readFileSync', (...args: Parameters<typeof fs.readFileSync>) => {
+    const data = original(...args);
+    if (String(args[0]) !== path.resolve(card.source)) return data;
+    const input = String(data);
+    const newline = input.includes('\r\n') ? '\r\n' : '\n';
+    const heading = `## ${card.heading}${newline}`;
+    return input.replace(heading, `${heading}${newline}- 故障码：ERROR-8、ERROR-ENG、ERROR-41${newline}`);
+  });
+  t.after(() => { mock.mock.restore(); reloadKnowledgeSnapshot(); });
+  reloadKnowledgeSnapshot();
+  for (const query of ['东方红 LF1504 显示 error‑8', '故障码 ERROR-41 是什么', 'ERROR-ENG']) {
+    assert.deepEqual(retrieve(query, 5, lf).map(chunk => chunk.entryId), [card.entryId]);
+  }
+  assert.deepEqual(retrieve('仪表故障怎么查', 5, { ...lf, faultCodes: ['ERROR-41'] })
+    .map(chunk => chunk.entryId), [card.entryId]);
+  assert.deepEqual(retrieve('故障码 ERROR-88', 5, lf), []);
+  assert.ok(!archive(retrieve('ERROR-8', 5, { ...lf, model: 'LF99999' })).some(chunk => chunk.entryId === card.entryId));
+  const legacy = retrieve('ERROR-ENG', 12, { brand: '久保田', model: 'M5-091' });
+  assert.ok(legacy.some(chunk => chunk.entryId === 'KB-KB-M5-20261016-108'));
+});
+
 test('component and general candidates never become direct repair evidence through a high score', () => {
   const reviewed: KnowledgeChunk = {
     source: 'fixture.md', heading: 'TEST-TIER-001｜起动困难', text: '合成接口测试，不是维修资料。',
