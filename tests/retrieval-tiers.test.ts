@@ -74,8 +74,12 @@ test('a shared fault number requires its controller prefix before retrieving exa
     const data = original(...args);
     const relevant = [[powerShift, 'PTP 000177.17、P242F'], [autoPowr, 'PTI 177.17']] as const;
     return relevant.filter(([card]) => String(args[0]) === path.resolve(card.source))
-      .reduce<string | Buffer>((text, [card, code]) =>
-        String(text).replace(`## ${card.heading}\n`, `## ${card.heading}\n\n- 故障码：${code}\n`), data);
+      .reduce<string | Buffer>((text, [card, code]) => {
+        const input = String(text);
+        const newline = input.includes('\r\n') ? '\r\n' : '\n';
+        const heading = `## ${card.heading}${newline}`;
+        return input.replace(heading, `${heading}${newline}- 故障码：${code}${newline}`);
+      }, data);
   });
   t.after(() => { mock.mock.restore(); reloadKnowledgeSnapshot(); });
   reloadKnowledgeSnapshot();
