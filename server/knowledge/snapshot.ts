@@ -138,7 +138,9 @@ export function reloadKnowledgeSnapshot(): KnowledgeSnapshot {
   const manualSourceIds = freezeData(archive.sources.filter(source =>
     /整机|使用.*(?:说明|手册)|维修手册|保养说明书|保养手册/.test(source.document_type ?? ''))
     .map(source => source.source_id));
-  chunks.push(...archive.chunks, ...learningChunks(learning));
+  // Passing records as arguments to push can overflow the stack on a large archive.
+  for (const chunk of archive.chunks) chunks.push(chunk);
+  for (const chunk of learningChunks(learning)) chunks.push(chunk);
   freezeData(chunks);
   const baseCatalog = freezeData(selectCatalog());
   const kbVersion = readVersionMetadata();
