@@ -72,7 +72,7 @@ test('a shared fault number requires its controller prefix before retrieving exa
   const original = fs.readFileSync;
   const mock = t.mock.method(fs, 'readFileSync', (...args: Parameters<typeof fs.readFileSync>) => {
     const data = original(...args);
-    const relevant = [[powerShift, 'PTP 177.17'], [autoPowr, 'PTI 177.17']] as const;
+    const relevant = [[powerShift, 'PTP 000177.17、P242F'], [autoPowr, 'PTI 177.17']] as const;
     return relevant.filter(([card]) => String(args[0]) === path.resolve(card.source))
       .reduce<string | Buffer>((text, [card, code]) =>
         String(text).replace(`## ${card.heading}\n`, `## ${card.heading}\n\n- 故障码：${code}\n`), data);
@@ -95,6 +95,9 @@ test('a shared fault number requires its controller prefix before retrieving exa
   for (const [query, card] of [['PTP 177.17', powerShift], ['故障码 pti 177.17 是什么意思', autoPowr]] as const) {
     assert.deepEqual(retrieve(query, 5, lf).map(chunk => chunk.entryId), [card.entryId]);
   }
+  const powertrain = retrieve('P242F', 5, lf);
+  assert.deepEqual(powertrain.map(chunk => chunk.entryId), [powerShift.entryId]);
+  assert.deepEqual(powertrain[0].faultCodes, ['PTP 000177.17', 'P242F']);
   assert.deepEqual(retrieve('如何排查？', 5, { ...lf, faultCodes: ['PTI 177.17'] }).map(chunk => chunk.entryId), [autoPowr.entryId]);
   assert.deepEqual(retrieve('故障码 ECU 177.17', 5, lf), []);
   assert.deepEqual(retrieve('故障码 177.18', 5, lf), []);

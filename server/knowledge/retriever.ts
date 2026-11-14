@@ -15,7 +15,7 @@ import { loadKnowledgeSnapshot, peekKnowledgeSnapshot, type KnowledgeSnapshot } 
 import { archiveApplicability, queryWithoutIdentity, resolveScope, type ResolvedScope, type RetrievalContext } from './scope';
 import { mentionsEntryId, referenceVerification, requiredDiagnosticCoverage } from './evidence';
 import { buildVectorIndex, rankVectorCandidates, VECTOR_ONLY_ARCHIVE_LIMIT, VECTOR_ONLY_LEARNING_LIMIT, type VectorIndex } from './vectorRecall';
-import { requestedFaultCodes } from './fault-codes';
+import { requestedFaultCodes, faultCodeKey } from './fault-codes';
 
 interface IndexedChunk {
   chunk: KnowledgeChunk;
@@ -36,7 +36,7 @@ let index: IndexedChunk[] = [];
 let generation = 0;
 let preparedSnapshot: KnowledgeSnapshot | undefined;
 let manualScopes: KnowledgeChunk[] = [];
-let chunksByFaultNumber = new Map<string, { controller: string; chunk: KnowledgeChunk }[]>();
+let chunksByFaultNumber = new Map<string, { controller?: string; chunk: KnowledgeChunk }[]>();
 let retrievalRequests = 0;
 let cacheHits = 0;
 let scoringPasses = 0;
@@ -153,10 +153,12 @@ function prepareSnapshot(snapshot: KnowledgeSnapshot): void {
   for (const chunk of chunks) {
     if (referenceVerification(chunk.status) === 'failed') continue;
     for (const code of chunk.faultCodes ?? []) {
-      const [controller, number] = code.split(' ');
-      const matching = chunksByFaultNumber.get(number) ?? [];
+      const [prefixOrCode, number] = code.split(' ');
+      const controller = number ? prefixOrCode : undefined;
+      const key = number ? faultCodeKey(number) : prefixOrCode;
+      const matching = chunksByFaultNumber.get(key) ?? [];
       matching.push({ controller, chunk });
-      chunksByFaultNumber.set(number, matching);
+      chunksByFaultNumber.set(key, matching);
     }
   }
   generation++;
@@ -212,8 +214,9 @@ function findFaultCodeEvidence(query: string, context: RetrievalContext, scope: 
   const resolved = new Map<KnowledgeChunk, KnowledgeChunk['applicability']>();
   let recognized = false;
   for (const request of requests) {
-    const known = chunksByFaultNumber.get(request.number);
-    if (!request.explicit && !known?.some(item => item.controller === request.controller)) continue;
+    const isDotted = request.number.includes('.');
+    const known = chunksByFaultNumber.get(isDotted ? faultCodeKey(request.number) : request.number);
+    if (!(request.explicit && isDotted) && (!known || (request.controller && !known.some(item => item.controller === request.controller)))) continue;
     // An explicit numeric code without an indexed match must not fall back to
     // a similarly numbered card via lexical or vector overlap.
     recognized = true;
@@ -222,13 +225,13 @@ function findFaultCodeEvidence(query: string, context: RetrievalContext, scope: 
       const applicability = archiveApplicability(chunk, scope);
       return applicability ? [{ controller, chunk, applicability }] : [];
     });
-    const controllers = [...new Set(eligible.map(item => item.controller))].sort();
+    const controllers = [...new Set(eligible.flatMap(item => item.controller ?? []))].sort();
     if (controllers.length > 1) {
       ambiguity.push({ number: request.number, controllers });
       continue;
     }
     for (const { chunk, applicability } of eligible) {
-      resolved.set(chunk, request.controller ? applicability : 'pending');
+      resolved.set(chunk, request.controller || !isDotted ? applicability : 'pending');
     }
   }
   return recognized ? { resolved, ambiguity } : undefined;

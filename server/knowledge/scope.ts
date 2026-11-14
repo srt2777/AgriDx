@@ -31,6 +31,7 @@ const BRAND_ALIASES: Record<string, string[]> = {
 
 let indexedManualNumbers: string[] = [];
 let indexedReferenceIds = new Set<string>();
+let indexedPowertrainCodes = new Set<string>();
 
 function escapeRegex(text: string): string {
   return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -97,6 +98,9 @@ export function configureIndexedModels(chunks: KnowledgeChunk[]): void {
   ))];
   indexedModels = [...new Set(chunks.flatMap(declaredModels))]
     .filter((model) => /^[a-z0-9.]+$/.test(model)).sort((a, b) => b.length - a.length);
+  const modelNames = new Set(indexedModels);
+  indexedPowertrainCodes = new Set(chunks.flatMap(chunk => chunk.faultCodes ?? [])
+    .map(code => code.toLowerCase()).filter(code => /^p[a-f0-9]{4}$/.test(code) && !modelNames.has(code)));
   modelFamilies = [...new Set([
     'workmaster', 'lx', 't', 'pl', 'tg',
     ...indexedModels.flatMap((model) => {
@@ -116,7 +120,8 @@ function modelMentions(text: string): ModelMention[] {
   // Preserve the existing LX2620-LX2620SU grouped alias without merging two identities.
   const scanText = withoutReferences(text).replace(/-(?=lx\s*\d)/gi, '/')
     .replace(/((?:故障码|错误码|报警码|报码|\b(?:fault|error)\s+code\b)\s*[:：=]?\s*)([a-z]+\d[a-z0-9]*(?:[.-][a-z0-9]+)*)/gi,
-      (_match, label: string, code: string) => label + ' '.repeat(code.length));
+      (_match, label: string, code: string) => label + ' '.repeat(code.length))
+    .replace(/\bp[a-f0-9]{4}\b/gi, code => indexedPowertrainCodes.has(code.toLowerCase()) ? ' '.repeat(code.length) : code);
   const mentions: ModelMention[] = [];
   for (const model of indexedModels) {
     const pattern = [...model].map(escapeRegex).join('[\\s\\-_/()（）]*');

@@ -2,6 +2,7 @@ import type { CoordinationDecision, DiagnosisCandidateAssessment, DiagnosticCove
 import type { KnowledgeChunk } from '../knowledge/retriever';
 import { archiveApplicability, queryWithoutIdentity, resolveScope, type RetrievalContext, type ResolvedScope } from '../knowledge/scope';
 import { hasIndexedReference, mentionsEntryId, referenceVerification, requiredDiagnosticCoverage } from '../knowledge/evidence';
+import { faultCodeKey } from '../knowledge/fault-codes';
 export { requiredDiagnosticCoverage } from '../knowledge/evidence';
 
 export interface DiagnosisRouterConfig {
@@ -62,7 +63,7 @@ function candidateMatch(chunk: KnowledgeChunk, input: DiagnosisRouterInput, reso
   // No engine or fault-code alias registry exists. Preserve significant
   // punctuation instead of inventing E-001 = E001 or 12/34 = 1234 aliases.
   const engineIdentity = (value: string) => value.trim().toUpperCase().replace(/\s+/g, ' ');
-  const codeIdentity = (value: string) => value.trim().toUpperCase().replace(/\s+/g, '');
+  const codeIdentity = (value: string) => faultCodeKey(value.trim().replace(/\s+/g, '')).toUpperCase();
   if (input.scope.engineModel && chunk.engineModel && engineIdentity(input.scope.engineModel) !== engineIdentity(chunk.engineModel)) return 'conflict';
   if (input.scope.faultCodes?.length && chunk.faultCodes?.length && !input.scope.faultCodes.every(code => chunk.faultCodes!.some(known => codeIdentity(known) === codeIdentity(code)))) return 'conflict';
   if (chunk.configuration && !resolved.configurations.includes(chunk.configuration)) return 'unknown';
