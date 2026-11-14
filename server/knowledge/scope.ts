@@ -27,6 +27,7 @@ const BRAND_ALIASES: Record<string, string[]> = {
   玉柴: ['玉柴', 'yuchai'],
   约翰迪尔: ['约翰迪尔', 'john deere', 'johndeere'],
   ISEKI: ['井关', 'iseki'],
+  Belarus: ['belarus', 'беларус'],
   千寻位置: ['千寻位置', '千耘', 'qianxun', '千寻位置 / 千耘'],
   华测: ['华测', 'chcnav', '华测导航', 'huace'],
 };
@@ -34,6 +35,15 @@ const BRAND_ALIASES: Record<string, string[]> = {
 let indexedManualNumbers: string[] = [];
 let indexedReferenceIds = new Set<string>();
 let indexedPowertrainCodes = new Set<string>();
+
+// Manufacturer English catalog (printed p.150) and the 2015 3022ДЦ.1 manual
+// identify the same BF06M1013FC-equipped model. No spelling rule applies to other models.
+const MODEL_ALIASES = new Map([['3022дц.1', '3022dc.1']]);
+const MODEL_CHAR = '[a-z0-9\\p{Script=Cyrillic}]';
+const MODEL_TOKEN_START = `(?<!${MODEL_CHAR})`;
+const MODEL_TOKEN_END = `(?!${MODEL_CHAR}|[.-]${MODEL_CHAR})`;
+const BELARUS_3022_TOKEN = new RegExp(`${MODEL_TOKEN_START}3022(?:\\.[a-z0-9]+|${MODEL_CHAR}+(?:[.-]${MODEL_CHAR}+)*)${MODEL_TOKEN_END}`, 'giu');
+const CYRILLIC_WORD = /^\p{Script=Cyrillic}+$/u;
 
 function escapeRegex(text: string): string {
   return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -48,16 +58,21 @@ function withoutReferences(text: string): string {
   clean = clean.replace(/(?<![a-z0-9_-])[a-z0-9]+(?:-[a-z0-9]+)+(?![a-z0-9_-])/gi,
     (reference) => indexedReferenceIds.has(reference.toUpperCase()) ? ' '.repeat(reference.length) : reference);
   for (const number of indexedManualNumbers) {
-    clean = clean.replace(new RegExp(`(?<![a-z0-9])${escapeRegex(number)}(?![a-z0-9.-])`, 'gi'),
+    clean = clean.replace(new RegExp(`${MODEL_TOKEN_START}${escapeRegex(number)}(?![a-z0-9.\\p{Script=Cyrillic}-])`, 'giu'),
       (reference) => ' '.repeat(reference.length));
   }
   return clean;
+}
+
+function cyrillicBrandPattern(alias: string): RegExp {
+  return new RegExp(`(?<!\\p{Script=Cyrillic})${alias}(?!\\p{Script=Cyrillic})`, 'giu');
 }
 
 function brandsIn(text: string): string[] {
   const lower = withoutReferences(text).toLowerCase();
   return Object.entries(BRAND_ALIASES).filter(([, aliases]) => aliases.some((alias) => {
     if (/^[a-z ]+$/.test(alias)) return new RegExp(`(^|[^a-z])${alias.replace(/ /g, '\\s*')}([^a-z]|$)`).test(lower);
+    if (CYRILLIC_WORD.test(alias)) return cyrillicBrandPattern(alias).test(lower);
     return lower.includes(alias);
   })).map(([brand]) => brand);
 }
@@ -70,6 +85,10 @@ function canonicalBrand(brand: string | undefined): string | undefined {
 
 function normalizeModel(model: string): string {
   return model.toLowerCase().replace(/欧豹|系列|平台|拖拉机/g, '').replace(/[\s\-_/()（）]/g, '');
+}
+
+function canonicalModel(model: string): string {
+  return MODEL_ALIASES.get(model) ?? model;
 }
 
 /** Only Chinese national-emission labels are aliases; Tier/Stage IV is a separate standard. */
@@ -88,6 +107,7 @@ function declaredModels(chunk: KnowledgeChunk): string[] {
 }
 
 let indexedModels: string[] = [];
+let modelPatterns: { model: string; pattern: RegExp }[] = [];
 let modelFamilies: string[] = ['workmaster', 'lx', 't', 'pl', 'tg'];
 
 /** Rebuilt on reload so source model lists drive recognition as the archive grows. */
@@ -96,10 +116,14 @@ export function configureIndexedModels(chunks: KnowledgeChunk[]): void {
     .filter((id): id is string => Boolean(id)));
   // Only registered manual numbers are references; dotted model suffixes remain identities.
   indexedManualNumbers = [...new Set(chunks.flatMap((chunk) =>
-    chunk.version?.match(/\bSM-[A-Z0-9]+(?:[.-][A-Z0-9]+)+\b/gi) ?? [],
+    chunk.version?.match(/\bSM-[A-Z0-9]+(?:[.-][A-Z0-9]+)+\b|(?<![a-z0-9\p{Script=Cyrillic}])\d+[\p{Script=Cyrillic}]+\.\d+-\d+(?:-\d+)?\s+РЭ(?!\p{Script=Cyrillic})/giu) ?? [],
   ))];
-  indexedModels = [...new Set(chunks.flatMap(declaredModels))]
-    .filter((model) => /^[a-z0-9.]+$/.test(model)).sort((a, b) => b.length - a.length);
+  const declared = new Set([...chunks.flatMap(declaredModels), ...MODEL_ALIASES.keys(), ...MODEL_ALIASES.values()]);
+  indexedModels = [...declared].filter((model) => /^[a-z0-9.]+$/.test(model)).sort((a, b) => b.length - a.length);
+  modelPatterns = [...declared].filter((model) => /^[0-9a-z.\p{Script=Cyrillic}]+$/u.test(model)).map((model) => {
+    const token = [...model].map(escapeRegex).join('[\\s\\-_/()（）]*');
+    return { model, pattern: new RegExp(`${MODEL_TOKEN_START}${token}${MODEL_TOKEN_END}`, 'giu') };
+  });
   const modelNames = new Set(indexedModels);
   indexedPowertrainCodes = new Set(chunks.flatMap(chunk => chunk.faultCodes ?? [])
     .map(code => code.toLowerCase()).filter(code => /^p[a-f0-9]{4}$/.test(code) && !modelNames.has(code)));
@@ -134,27 +158,30 @@ function modelMentions(text: string): ModelMention[] {
       (_match, label: string, code: string) => label + ' '.repeat(code.length))
     .replace(/\bp[a-f0-9]{4}\b/gi, code => indexedPowertrainCodes.has(code.toLowerCase()) ? ' '.repeat(code.length) : code);
   const mentions: ModelMention[] = [];
-  for (const model of indexedModels) {
-    const pattern = [...model].map(escapeRegex).join('[\\s\\-_/()（）]*');
-    const regex = new RegExp(`(?<![a-z0-9])${pattern}(?![a-z0-9])`, 'gi');
-    for (const match of scanText.matchAll(regex)) {
+  for (const {model, pattern} of modelPatterns) {
+    for (const match of scanText.matchAll(pattern)) {
       mentions.push({ start: match.index!, end: match.index! + match[0].length, model });
     }
   }
+  // Nearby unknown 3022 variants remain complete identities, including mixed scripts.
+  for (const match of scanText.matchAll(BELARUS_3022_TOKEN)) {
+    mentions.push({ start: match.index!, end: match.index! + match[0].length, model: normalizeModel(match[0]) });
+  }
   // Unknown models in indexed families remain identities, preventing a generic fallback.
   const families = modelFamilies.map(escapeRegex).join('|');
-  const regex = new RegExp(`(?<![a-z0-9])(?:${families})[\\s-]*\\d[a-z0-9]*(?:[.-]\\s*[a-z0-9]+)*(?:\\s+(?:pro|su))?(?:\\s*[(（]\\s*g\\d+\\s*[)）])?`, 'gi');
+  const regex = new RegExp(`${MODEL_TOKEN_START}(?:${families})[\\s-]*\\d[a-z0-9]*(?:[.-]\\s*[a-z0-9]+)*(?:\\s+(?:pro|su))?(?:\\s*[(（]\\s*g\\d+\\s*[)）])?(?!${MODEL_CHAR})`, 'giu');
   for (const match of scanText.matchAll(regex)) {
     mentions.push({ start: match.index!, end: match.index! + match[0].length, model: normalizeModel(match[0]) });
   }
   // Unknown families require a recognized brand or an explicit model label, never a bare number.
-  const candidate = '(?:[a-z]+|\\d+[a-z]+)[\\s-]*\\d[a-z0-9]*(?:[.-]\\s*[a-z0-9]+)*(?:\\s+(?:pro|su))?(?:\\s*[(（]\\s*g\\d+\\s*[)）])?';
+  const letters = '[a-z\\p{Script=Cyrillic}]';
+  const candidate = `(?:${letters}+|\\d+${letters}+)[\\s-]*\\d${MODEL_CHAR}*(?:[.-]\\s*${MODEL_CHAR}+)*(?:\\s+(?:pro|su))?(?:\\s*[(（]\\s*g\\d+\\s*[)）])?`;
   const aliases = Object.values(BRAND_ALIASES).flat().sort((a, b) => b.length - a.length)
     .map((alias) => /^[a-z ]+$/.test(alias)
       ? `(?<![a-z])${alias.replace(/ /g, '\\s*')}(?![a-z])` : escapeRegex(alias)).join('|');
   for (const pattern of [
-    new RegExp(`(?:${aliases})[\\s:：-]*(${candidate})(?![a-z0-9])`, 'gi'),
-    new RegExp(`(?:型号|机型)\\s*[:：=]?\\s*(?:为|是)?\\s*(${candidate})(?![a-z0-9])`, 'gi'),
+    new RegExp(`(?:${aliases})[\\s:：-]*(${candidate})(?!${MODEL_CHAR})`, 'giu'),
+    new RegExp(`(?:型号|机型)\\s*[:：=]?\\s*(?:为|是)?\\s*(${candidate})(?!${MODEL_CHAR})`, 'giu'),
   ]) {
     for (const match of scanText.matchAll(pattern)) {
       const model = normalizeModel(match[1]);
@@ -172,7 +199,7 @@ function modelMentions(text: string): ModelMention[] {
 
 function modelsIn(text: string): string[] {
   text = normalizeNationalEmissions(text);
-  const models = modelMentions(text).map((mention) => mention.model);
+  const models = modelMentions(text).map((mention) => canonicalModel(mention.model));
   if (text.includes('国三')) models.push('国三');
   if (text.includes('国四') && !models.some((model) => model.endsWith('g4'))) models.push('国四');
   return [...new Set(models)];
@@ -185,7 +212,9 @@ export function queryWithoutIdentity(query: string): string {
     for (const alias of [...aliases].sort((a, b) => b.length - a.length)) {
       text = /^[a-z ]+$/.test(alias)
         ? text.replace(new RegExp(`(^|[^a-z])${alias.replace(/ /g, '\\s*')}(?=[^a-z]|$)`, 'gi'), '$1 ')
-        : text.replaceAll(alias, ' ');
+        : CYRILLIC_WORD.test(alias)
+          ? text.replace(cyrillicBrandPattern(alias), ' ')
+          : text.replaceAll(alias, ' ');
     }
   }
   for (const mention of modelMentions(text).sort((a, b) => b.start - a.start)) {
@@ -217,9 +246,9 @@ export function resolveScope(query: string, context: RetrievalContext): Resolved
   const brand = explicitBrand ? canonicalBrand(explicitBrand) : queryBrands.length === 1 ? queryBrands[0] : undefined;
   const explicitModel = context.model?.trim();
   // Remove only recognized emission labels; undocumented model suffixes remain distinct identities.
-  const contextModels = explicitModel ? declaredModels({ source: '', heading: '', text: '',
+  const contextModels = explicitModel ? [...new Set(declaredModels({ source: '', heading: '', text: '',
     model: normalizeNationalEmissions(explicitModel).replace(/国三|国四/g, ''),
-  }).filter(Boolean) : [];
+  }).filter(Boolean).map(canonicalModel))] : [];
   const queryModels = modelsIn(queryIdentity);
   const models = contextModels.length ? contextModels : queryModels;
   // This pair is an explicitly documented product alias, not a shared-manual model range.
@@ -274,7 +303,7 @@ export function archiveApplicability(chunk: KnowledgeChunk, scope: ResolvedScope
   if (scope.electric && brand !== '鸿鹄' && brand !== '千寻位置') return undefined;
   if (chunk.configuration && scope.configurations.some((configuration) => configuration !== chunk.configuration)) return undefined;
   if (chunk.driveConfiguration && scope.driveConfigurations.some((configuration) => configuration !== chunk.driveConfiguration)) return undefined;
-  const allowed = declaredModels(chunk);
+  const allowed = declaredModels(chunk).map(canonicalModel);
   const emissionStage = chunk.emissionStage ?? (chunk.emissionStageUnknown ? undefined
     : chunk.model === '国三拖拉机' ? '国三'
       : allowed.length > 0 && allowed.every((model) => model.endsWith('g4')) ? '国四' : undefined);
