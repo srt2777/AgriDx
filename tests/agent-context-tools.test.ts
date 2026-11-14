@@ -1,3 +1,5 @@
+import { MAX_TOOL_OUTPUT } from '../agent/config';
+import { loadKnowledgeBase } from '../server/knowledge/retriever';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { buildContextRegistry } from '../agent/context-tools';
@@ -15,4 +17,20 @@ test('session and reports are bound to the host context and reject model-supplie
 });
 test('knowledge entry preserves its provenance and does not assert applicability',async()=>{
  const e=new ToolExecutor(buildContextRegistry());assert.match((await e.execute('get_knowledge_entry',{entryId:'does-not-exist'})).content,/NOT_FOUND/);
+});
+
+test('knowledge search fits complete citations into the tool output budget', async () => {
+  loadKnowledgeBase();
+  const executor = new ToolExecutor(buildContextRegistry());
+  const question = { query: '发动机难以起动', context: { brand: '东方红', model: 'LF804S' } };
+  const one = await executor.execute('search_knowledge', { ...question, limit: 1 });
+  const response = await executor.execute('search_knowledge', { ...question, limit: 5 });
+  assert.equal(response.ok, true);
+  assert.ok(Array.from(response.content).length <= MAX_TOOL_OUTPUT);
+  const full = JSON.parse(response.content);
+  const first = JSON.parse(one.content);
+  assert.ok(full.omittedEntries > 0);
+  assert.equal(full.chunks.length + full.omittedEntries, 5);
+  assert.deepEqual(full.chunks[0], first.chunks[0]);
+  assert.ok(full.chunks[0].sourceId && full.chunks[0].locator && full.chunks[0].text);
 });

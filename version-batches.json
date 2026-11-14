@@ -1134,6 +1134,13 @@
       "base": "4.1.15",
       "version": "4.1.16",
       "date": "2026-11-14"
+    },
+    {
+      "id": "knowledge-agent-json-budget-20261114",
+      "kind": "fix",
+      "base": "4.1.16",
+      "version": "4.1.17",
+      "date": "2026-11-14"
     }
   ]
 }
