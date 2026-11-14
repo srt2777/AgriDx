@@ -2,8 +2,9 @@
 
 这里保存从 Crossref 官方接口取得的农业相关期刊书目元数据，不是论文全文、手册、已核验研究结论或实车诊断案例。原有来源归档与通识索引独立保留。
 
-- 本批已实际取得并逐条核对 486,764 条文献元数据，与原有 13,236 条合计 500,000 条索引记录。机器统计读取 `manifest.json` 的 `records`；`target` 仅表示目标，不代替实际计数。完整来源对照结果见 `verification.json`，分类与期刊统计见 `statistics.json`。
-- `journals.json` 保存人工选择的农业相关期刊、实际接口返回的 ISSN、期刊注册信息入口与领域。相关性在期刊层面筛选，未逐篇评估科学质量；候选期刊涵盖农机、作物、土壤、园艺、食品、养殖和林业，实际已取得的领域以 `manifest.json` 为准（包含历史文献，不宣称全部为近期研究），不代表全部是农机故障知识。
+- 2026-11-13 对全部 486,764 条书目执行保守的标题主题筛查，移出 484,769 条，保留 1,995 条明确提及农机或相关机械系统的检索线索。通知、编辑信息、出版更新及主题不明记录不再进入当前分片。逐条移除理由保存在 `quality-exclusions.jsonl.gz`，计数见 `quality-audit.json`，原数据可从 Git 历史恢复。
+- 这是全量本地元数据规则筛查，未逐篇打开 DOI 或核验论文全文。标题筛查可能漏掉相关文献，也不能保证保留项的科学质量。宁缺毋滥；后续只能在核对正文后补回。书目单列，完全不计入知识与学习总数。
+- 期刊名单只保存采集出处，不是逐条收录许可。历史 `provenance.json` / `verification.json` 是清理前的采集与字段比对证据，不能用作当前记录数或正文核验结果。
 - 每条保存原始标题、作者、期刊、出版日期字段、DOI、出版方、Crossref 原记录入口、取得时间、对应下载响应 SHA-256。日期保留原始精度，不补造月份或日期；不自动翻译、生成摘要或补写结论。
 - 按小写 DOI 去重，并以 NFKC 规范化标题、发表年份和期刊复核重复；缺少合法 DOI、有效标题或发表年份、类型/期刊不匹配及明显封面目录等记录不入库。保留的更正类记录仍是文献记录，不计为独立故障或实车案例。不同 DOI 的关联版本仍可能存在，不能将索引数解释为独立科学发现数量。
 - `diagnosticEvidence=false`、`fullTextVerified=false` 是强制边界。文献不进入维修检索器、不附加伪造的品牌/机型/页码，不从题目推断参数或故障原因。更正、撤稿、全文可访问性与结论尚未逐篇独立核实。
@@ -19,7 +20,7 @@ FAO AGRIS 曾作为候选来源，本次官方 ODS 入口和目录返回 403，�
 
 ```bash
 python3 scripts/collect-literature.py --cache /绝对路径/公开来源缓存 --skip-failed
-node --import tsx scripts/build-literature-index.ts
+node --import tsx scripts/build-literature-index.ts --quality-filter
 python3 scripts/verify-literature-source.py --cache /绝对路径/公开来源缓存 --output /绝对路径/校验结果.json
 node --import tsx --test tests/literature.test.ts
 ```

@@ -74,7 +74,7 @@ export default function KnowledgePage() {
 
       {!graphView && <><div className="catalog-stats" aria-live="polite">
         {[
-          [summary.total, t('索引记录合计（含文献）', 'Indexed records including literature')],
+          [summary.total, t('归档与学习记录（不含书目）', 'Archive and learning records excluding bibliography')],
           [researchCount, t('正文研究知识（非维修规程）', 'Research notes, not repair procedures')],
           [literatureCount, t('农业文献（未核验全文）', 'Literature metadata, full text unverified')],
           [catalog?.totals.entries, t('归档与学习条目', 'Archive and learning entries')],

@@ -97,7 +97,7 @@ test('协调层不带任何版本号', () => {
 /* 品牌统一同时影响新旧界面，分别递进界面编号。 */
 test('界面编号与本分支改动一致', () => {
   const versions = read('../src/lib/ui-versions.ts');
-  assert.ok(versions.includes("new: 'NV1.11'"), '新版界面编号应为 NV1.11');
-  assert.ok(versions.includes("old: 'OV1.16'"), '旧版界面编号应为 OV1.16');
+  assert.ok(versions.includes("new: 'NV1.12'"), '新版界面编号应为 NV1.12');
+  assert.ok(versions.includes("old: 'OV1.18'"), '旧版界面编号应为 OV1.18');
   assert.ok(!versions.includes('NV1.3'), '旧的新版编号 NV1.3 不应残留');
 });

@@ -22,7 +22,7 @@ test('archive citation preserves actual DOI and provenance, never promotes metad
 test('explicit lookup is served by actual chat service without model calls or diagnostic evidence',async()=>{
  const service=createDiagnosticService({hasAnyConfigured:()=>false,chat:async()=>{throw new Error('must not call model');}}, {literatureSearch:getLiterature});
  const reply=await service({history:[{role:'user',content:'查文献：tractor'}]});
- assert.equal(reply.model,'literature-archive');assert.match(reply.choices[0].message.content,/483/);
+ assert.equal(reply.model,'literature-archive');const matches=await getLiterature(new URLSearchParams({q:'tractor'})); assert.ok(matches.total>0); assert.ok(reply.choices[0].message.content.includes(`匹配 ${matches.total} 条`));
  assert.ok(reply.knowledgeSources.every(s=>s.usage==='reference-only'&&s.diagnosticEvidence===false));
  const research=await service({history:[{role:'user',content:'查知识条目：RK-GEAR-002'}]});
  assert.match(research.choices[0].message.content,/96.70%/);assert.match(research.choices[0].message.content,/98.89%/);

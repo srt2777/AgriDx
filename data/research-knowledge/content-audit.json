@@ -1,0 +1,20 @@
+{
+  "scanned": 13243,
+  "archive": 6361,
+  "learning": 6875,
+  "research": 7,
+  "types": {
+    "安全操作": 766,
+    "操作/维护知识": 2878,
+    "维护/故障知识": 2108,
+    "机型资料": 5,
+    "资料缺口": 8,
+    "资料索引": 513,
+    "系统适用边界": 20,
+    "资料核验": 11,
+    "系统安装/调试": 52,
+    "通识学习": 6875
+  },
+  "issues": [],
+  "scope": "All local indexed bodies checked for missing content, duplicate IDs and notice titles. Not an expert review or live-link/full-text verification. Metadata/navigation entries remain provenance, not repair instructions."
+}
