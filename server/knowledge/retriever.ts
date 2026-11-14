@@ -37,6 +37,7 @@ let generation = 0;
 let preparedSnapshot: KnowledgeSnapshot | undefined;
 let manualScopes: KnowledgeChunk[] = [];
 let chunksByFaultNumber = new Map<string, { controller?: string; chunk: KnowledgeChunk }[]>();
+let displayCodeScopes: KnowledgeChunk[] = [];
 let retrievalRequests = 0;
 let cacheHits = 0;
 let scoringPasses = 0;
@@ -150,7 +151,8 @@ function prepareSnapshot(snapshot: KnowledgeSnapshot): void {
   manualScopes = [...new Map(nextIndex.filter(item => item.chunk.sourceId && manualIds.has(item.chunk.sourceId))
     .map(item => [item.applicabilityKey, item.chunk])).values()];
   chunksByFaultNumber = new Map();
-  for (const chunk of chunks) {
+  const displayScopes = new Map<string, KnowledgeChunk>();
+  for (const { chunk, applicabilityKey } of nextIndex) {
     if (referenceVerification(chunk.status) === 'failed') continue;
     for (const code of chunk.faultCodes ?? []) {
       const [prefixOrCode, number] = code.split(' ');
@@ -159,8 +161,10 @@ function prepareSnapshot(snapshot: KnowledgeSnapshot): void {
       const matching = chunksByFaultNumber.get(key) ?? [];
       matching.push({ controller, chunk });
       chunksByFaultNumber.set(key, matching);
+      if (key.startsWith('ERROR-')) displayScopes.set(applicabilityKey, chunk);
     }
   }
+  displayCodeScopes = [...displayScopes.values()];
   generation++;
   retrievalCache.clear();
   manualAvailabilityCache.clear();
@@ -213,18 +217,26 @@ function findFaultCodeEvidence(query: string, context: RetrievalContext, scope: 
   const ambiguity: { number: string; controllers: string[] }[] = [];
   const resolved = new Map<KnowledgeChunk, KnowledgeChunk['applicability']>();
   let recognized = false;
+  let applicableDisplayTable: boolean | undefined;
   for (const request of requests) {
     const isDotted = request.number.includes('.');
+    const isDisplayCode = request.number.startsWith('ERROR-');
     const known = chunksByFaultNumber.get(isDotted ? faultCodeKey(request.number) : request.number);
-    if (!(request.explicit && isDotted) && (!known || (request.controller && !known.some(item => item.controller === request.controller)))) continue;
-    // An explicit numeric code without an indexed match must not fall back to
-    // a similarly numbered card via lexical or vector overlap.
-    recognized = true;
     const eligible = (known ?? []).flatMap(({ controller, chunk }) => {
       if (request.controller && controller !== request.controller) return [];
       const applicability = archiveApplicability(chunk, scope);
       return applicability ? [{ controller, chunk, applicability }] : [];
     });
+    if (isDisplayCode) {
+      // Preserve text search for legacy manuals without an indexed display-code table.
+      if (!eligible.length) {
+        applicableDisplayTable ??= displayCodeScopes.some(chunk => archiveApplicability(chunk, scope) === 'matched');
+        if (!applicableDisplayTable) continue;
+      }
+    } else if (!(request.explicit && isDotted) &&
+        (!known || (request.controller && !known.some(item => item.controller === request.controller)))) continue;
+    // An unlisted code in an applicable table must not recall a differently numbered card.
+    recognized = true;
     const controllers = [...new Set(eligible.flatMap(item => item.controller ?? []))].sort();
     if (controllers.length > 1) {
       ambiguity.push({ number: request.number, controllers });

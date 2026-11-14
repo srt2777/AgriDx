@@ -1,3 +1,4 @@
+import { displayFaultCodePattern } from './fault-codes';
 import type { KnowledgeChunk } from './retriever';
 
 export interface RetrievalContext {
@@ -119,6 +120,7 @@ interface ModelMention {
 function modelMentions(text: string): ModelMention[] {
   // Preserve the existing LX2620-LX2620SU grouped alias without merging two identities.
   const scanText = withoutReferences(text).replace(/-(?=lx\s*\d)/gi, '/')
+    .replace(displayFaultCodePattern, code => ' '.repeat(code.length))
     .replace(/((?:故障码|错误码|报警码|报码|\b(?:fault|error)\s+code\b)\s*[:：=]?\s*)([a-z]+\d[a-z0-9]*(?:[.-][a-z0-9]+)*)/gi,
       (_match, label: string, code: string) => label + ' '.repeat(code.length))
     .replace(/\bp[a-f0-9]{4}\b/gi, code => indexedPowertrainCodes.has(code.toLowerCase()) ? ' '.repeat(code.length) : code);
