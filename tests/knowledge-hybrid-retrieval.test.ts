@@ -82,6 +82,7 @@ test('混合检索对照：同一批问题，加向量前后 top-6 命中与错�
     { q: '拖拉机提升器升不起来' },
     { q: '发动机冒黑烟没劲' },
     { q: '拖拉机换挡卡住了挂不进去' },
+    { q: '东方红 LF1504 拖拉机 水温过高 冷却液泄漏检查正常', ctx: { brand: '东方红', model: 'LF1504' } },
     { q: '东方红 LF804S 启动困难', ctx: { brand: '久保田', model: 'LX2620' } },
     { q: '发动机启动困难', ctx: { machineType: '拖拉机', brand: '久保田', model: 'LX9999' } },
   ];
@@ -112,7 +113,7 @@ test('混合检索对照：同一批问题，加向量前后 top-6 命中与错�
       if (chunk.retrieval?.recall === 'keyword+vector') keywordPlusVector++;
     }
   }
-  // 14 问里至少补回 1 条（提升器同义表述），且 0 丢失。
+  // 开放问题的关键词覆盖随手册扩充而增加。确切机型场景仍应能补回条目。
   assert.equal(losses, 0);
   assert.ok(gains >= 1, `gains=${gains}`);
   assert.ok(keywordPlusVector >= 1, `keyword+vector=${keywordPlusVector}`);
@@ -122,7 +123,7 @@ test('混合检索对照：同一批问题，加向量前后 top-6 命中与错�
   // 构建耗时随机器负载波动很大（空闲约 4–12s，负载 40 时约 44s）；上限只防
   // 构建失控，不作性能承诺。
   assert.ok(stats.buildMs > 0 && stats.buildMs < 120000, `buildMs=${stats.buildMs}`);
-  console.log(`[hybrid-retrieval] 14 问：补回 ${gains} 条、丢失 ${losses} 条、关键词+向量双支持 ${keywordPlusVector} 条；`
+  console.log(`[hybrid-retrieval] ${questions.length} 问：补回 ${gains} 条、丢失 ${losses} 条、关键词+向量双支持 ${keywordPlusVector} 条；`
     + `向量索引 ${stats.documents} 篇 / ${stats.features} 特征 / 构建 ${stats.buildMs}ms / 阈值 ${VECTOR_RECALL_THRESHOLD}`);
 });
 
@@ -168,21 +169,18 @@ test('混合检索：归档关键词为空时向量候选不抢占结果头，�
   assert.equal(on[vectorAt].retrieval?.recall, 'vector');
 });
 
-test('混合检索：提升器同义表述补回同组件参考条目，关键词片段保留在前', () => {
+test('混合检索：未指明机型的提升器问题保留关键词结果并标记适用范围', () => {
   const off = retrieve('拖拉机提升器升不起来', 6, {}, { vectorRecall: false });
   const on = retrieve('拖拉机提升器升不起来', 6, {});
-  assert.equal(off.length, 1);
-  assert.equal(off[0].retrieval?.recall, 'keyword');
+  assert.ok(off.length > 0);
+  assert.match(off[0].heading, /悬挂|举升|提升|升降/);
   assert.equal(on[0].entryId, off[0].entryId);
   assert.equal(on[0].relevance?.score, off[0].relevance?.score);
-  const gained = on.find(chunk => chunk.entryId === 'KB-WZ-TSME-0470');
-  assert.ok(gained, '向量应补回提升器同组件条目');
-  // 注：去掉机型通用词前补回的是 KB2000-20261015-WDWF21-049（余弦约 0.20，
-  // 其中“拖拉机”三个字串贡献了大部分）；去掉后它的余弦掉到阈值以下，现补
-  // 回的是同组件条目 KB-WZ-TSME-0470（提升器的调整，余弦 0.12）。
-  assert.equal(gained.retrieval?.recall, 'vector');
-  assert.equal(gained.retrieval?.referenceOnly, true);
-  assert.equal(gained.relevance?.score, 0);
+  const after = new Map(on.map(chunk => [chunk.entryId, chunk]));
+  for (const chunk of off) {
+    assert.equal(after.get(chunk.entryId)?.relevance?.score, chunk.relevance?.score);
+  }
+  assert.ok(on.filter(chunk => chunk.sourceId).every(chunk => chunk.retrieval?.referenceOnly));
 });
 
 test('混合检索：关键词命中只备注向量支持，不改分数；显式编号查找不走向量', () => {
@@ -216,11 +214,16 @@ test('混合检索：未知型号、排放不匹配时仍无归档条目，不�
 });
 
 test('混合检索：仅向量命中的条目只作参考，路由器永不把它判为直接证据', () => {
-  const on = retrieve('拖拉机提升器升不起来', 6, {});
-  assert.ok(on.some(chunk => chunk.entryId === 'KB-WZ-TSME-0470'));
-  const decision = decideDiagnosisRoute({ query: '拖拉机提升器升不起来', currentQuery: '拖拉机提升器升不起来',
-    scope: {}, retrieved: on, clarificationNeeded: false, llmConfigured: false });
-  assert.ok(!decision.directEligibleIds?.includes('KB-WZ-TSME-0470'));
+  const query = '东方红 LF1504 拖拉机 水温过高 冷却液泄漏检查正常';
+  const scope = { brand: '东方红', model: 'LF1504', machineType: '拖拉机' };
+  const on = retrieve(query, 6, scope);
+  const vectorOnly = on.find(chunk => chunk.retrieval?.recall === 'vector');
+  assert.equal(vectorOnly?.entryId, 'KB2000-20261015-YTOLF1504-011');
+  assert.equal(vectorOnly?.relevance?.score, 0);
+  assert.equal(vectorOnly?.retrieval?.referenceOnly, true);
+  const decision = decideDiagnosisRoute({ query, currentQuery: '冷却液泄漏检查正常', scope,
+    retrieved: on, clarificationNeeded: false, llmConfigured: false });
+  assert.ok(!decision.directEligibleIds?.includes(vectorOnly!.entryId!));
   assert.notEqual(decision.evidenceLevel, 'direct_reference');
   assert.equal(decision.retrievalOutcome, 'insufficient_evidence');
 });

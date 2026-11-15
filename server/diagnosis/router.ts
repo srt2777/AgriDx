@@ -133,8 +133,11 @@ export function decideDiagnosisRoute(input: DiagnosisRouterInput, config: Readon
   // 不能仅凭它把路由推向 safe——否则一次同义补位就会打断原故障的观察记录
   //（planner-integration “原故障恢复”回归）；高风险升级仍以关键词命中的
   // 证据为准。
+  // An uncertain model reference needs a strong topic match to change risk.
+  // Common words alone can surface a different subsystem in an open question.
   const indexedHighRisk = candidates.some((candidate, index) => !candidate.excluded && candidate.sourceIndexed &&
     candidate.retrieval?.recall !== 'vector' &&
+    (!candidate.retrieval?.referenceOnly || candidate.relevance.level === 'high') &&
     TECHNICAL.has(input.retrieved[index].entryType ?? '') && candidate.riskLevel === 'high');
   const riskLevel: DiagnosticRiskLevel = HIGH_RISK.test(`${input.query}\n${input.currentQuery}`) || indexedHighRisk ? 'high'
     : usable.length && usable.every(candidate => candidate.riskLevel === 'low') ? 'low' : 'unknown';
