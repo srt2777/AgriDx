@@ -71473,6 +71473,692 @@
           "part_ids": []
         }
       ]
+    },
+    {
+      "entry_id": "KB-JD-3B-OMSU37973-A6-CN-001",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-3B-OMSU37973-A6-CN-002",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-3B-OMSU37973-A6-CN-003",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-3B-OMSU37973-A6-CN-004",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": [
+            "clutch-pedal",
+            "clutch-release",
+            "clutch-spring"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-3B-OMSU37973-A6-CN-005",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-3B-OMSU37973-A6-CN-006",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-3B-OMSU37973-A6-CN-007",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-3B-OMSU37973-A6-CN-008",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hydraulic-filter",
+            "hydraulic-pump"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-3B-OMSU37973-A6-CN-009",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hydraulic-filter",
+            "hydraulic-cooler",
+            "hitch-control"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-3B-OMSU37973-A6-CN-010",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-3B-OMSU37973-A6-CN-011",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hydraulic-hose"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-3B-OMSU37973-A6-CN-012",
+      "components": [
+        {
+          "component_id": "brakes",
+          "part_ids": [
+            "brake-friction",
+            "brake-pedal"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-3B-OMSU37973-A6-CN-013",
+      "components": [
+        {
+          "component_id": "brakes",
+          "part_ids": [
+            "brake-pedal"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-3B-OMSU37973-A6-CN-014",
+      "components": [
+        {
+          "component_id": "brakes",
+          "part_ids": [
+            "brake-friction",
+            "brake-pedal"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-3B-OMSU37973-A6-CN-016",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-3B-OMSU37973-A6-CN-017",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hydraulic-filter"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-3B-OMSU37973-A6-CN-018",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hitch-control"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-3B-OMSU37973-A6-CN-019",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hitch-control"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-3B-OMSU37973-A6-CN-020",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hitch-control"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-3B-OMSU37973-A6-CN-021",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-3B-OMSU37973-A6-CN-022",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hitch-control"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-3B-OMSU37973-A6-CN-023",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "battery"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-3B-OMSU37973-A6-CN-024",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "starter",
+            "fuse"
+          ]
+        },
+        {
+          "component_id": "pto",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-3B-OMSU37973-A6-CN-025",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "starter",
+            "battery"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-3B-OMSU37973-A6-CN-026",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "fuse"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-3B-OMSU37973-A6-CN-027",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "battery",
+            "fuse",
+            "wiring"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-3B-OMSU37973-A6-CN-028",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "brush"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-3B-OMSU37973-A6-CN-029",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-2C-OMSU37872-A6-CN-001",
+      "components": [
+        {
+          "component_id": "steering",
+          "part_ids": []
+        },
+        {
+          "component_id": "chassis",
+          "part_ids": [
+            "tyre"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-2C-OMSU37872-A6-CN-002",
+      "components": [
+        {
+          "component_id": "brakes",
+          "part_ids": [
+            "brake-pedal"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-2C-OMSU37872-A6-CN-003",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-2C-OMSU37872-A6-CN-004",
+      "components": [
+        {
+          "component_id": "lubrication",
+          "part_ids": [
+            "oil-dipstick"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-2C-OMSU37872-A6-CN-005",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": []
+        },
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-2C-OMSU37872-A6-CN-006",
+      "components": [
+        {
+          "component_id": "steering",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-2C-OMSU37872-A6-CN-007",
+      "components": [
+        {
+          "component_id": "fuel",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-2C-OMSU37872-A6-CN-008",
+      "components": [
+        {
+          "component_id": "fuel",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-KIOTI-CS2530CH-CS2530CH-EU-GMW0117-001",
+      "components": [
+        {
+          "component_id": "fuel",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-KIOTI-CS2530CH-CS2530CH-EU-GMW0117-002",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-KIOTI-CS2530CH-CS2530CH-EU-GMW0117-003",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-KIOTI-CS2530CH-CS2530CH-EU-GMW0117-004",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-KIOTI-CS2530CH-CS2530CH-EU-GMW0117-005",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-KIOTI-CS2530CH-CS2530CH-EU-GMW0117-006",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-KIOTI-CS2530CH-CS2530CH-EU-GMW0117-007",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-KIOTI-CS2530CH-CS2530CH-EU-GMW0117-008",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-KIOTI-CS2530CH-CS2530CH-EU-GMW0117-009",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-KIOTI-CS2530CH-CS2530CH-EU-GMW0117-010",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-KIOTI-CS2530CH-CS2530CH-EU-GMW0117-011",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-KIOTI-CS2530CH-CS2530CH-EU-GMW0117-013",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-KIOTI-CS2530CH-CS2530CH-EU-GMW0117-014",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-KIOTI-CS2530CH-CS2530CH-EU-GMW0117-019",
+      "components": [
+        {
+          "component_id": "brakes",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-KIOTI-CS2530CH-CS2530CH-EU-GMW0117-020",
+      "components": [
+        {
+          "component_id": "brakes",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-KIOTI-CS2530CH-CS2530CH-EU-GMW0117-021",
+      "components": [
+        {
+          "component_id": "chassis",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-KIOTI-CS2530CH-CS2530CH-EU-GMW0117-022",
+      "components": [
+        {
+          "component_id": "chassis",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-KIOTI-CS2530CH-CS2530CH-EU-GMW0117-023",
+      "components": [
+        {
+          "component_id": "chassis",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-KIOTI-CS2530CH-CS2530CH-EU-GMW0117-024",
+      "components": [
+        {
+          "component_id": "chassis",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-KIOTI-CS2530CH-CS2530CH-EU-GMW0117-025",
+      "components": [
+        {
+          "component_id": "steering",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-KIOTI-CS2530CH-CS2530CH-EU-GMW0117-026",
+      "components": [
+        {
+          "component_id": "steering",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-KIOTI-CS2530CH-CS2530CH-EU-GMW0117-027",
+      "components": [
+        {
+          "component_id": "steering",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-KIOTI-CS2530CH-CS2530CH-EU-GMW0117-028",
+      "components": [
+        {
+          "component_id": "steering",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-KIOTI-CS2530CH-CS2530CH-EU-GMW0117-029",
+      "components": [
+        {
+          "component_id": "steering",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-KIOTI-CS2530CH-CS2530CH-EU-GMW0117-030",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-KIOTI-CS2530CH-CS2530CH-EU-GMW0117-031",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-KIOTI-CS2530CH-CS2530CH-EU-GMW0117-032",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-KIOTI-CS2530CH-CS2530CH-EU-GMW0117-037",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-KIOTI-CS2530CH-CS2530CH-EU-GMW0117-038",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-KIOTI-CS2530CH-CS2530CH-EU-GMW0117-039",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-KIOTI-CS2530CH-CS2530CH-EU-GMW0117-040",
+      "components": [
+        {
+          "component_id": "pto",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-KIOTI-CS2530CH-CS2530CH-EU-GMW0117-041",
+      "components": [
+        {
+          "component_id": "pto",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-KIOTI-CS2530CH-CS2530CH-EU-GMW0117-042",
+      "components": [
+        {
+          "component_id": "pto",
+          "part_ids": []
+        }
+      ]
     }
   ]
 }
