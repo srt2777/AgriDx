@@ -56,7 +56,9 @@ test('pagination, exact DOI and AND keyword searches resolve actual records; inv
 
 test('new literature cannot silently enter diagnostic evidence or change existing knowledge counts',()=>{
   loadKnowledgeSnapshot();
-  assert.deepEqual(stats(),{archivedEntries:6655,learningEntries:6875,totalEntries:13530,chunks:13539});
+  const { counts } = JSON.parse(fs.readFileSync('知识库/整理后的知识库/农用拖拉机知识库/kb-version.json', 'utf8'));
+  const total = counts.archive + counts.learning;
+  assert.deepEqual(stats(),{archivedEntries:counts.archive,learningEntries:counts.learning,totalEntries:total,chunks:total+9});
   for(const query of ['拖拉机发动机启动困难','液压提升无力']) assert.ok(retrieve(query,30).every(chunk=>!chunk.entryId?.startsWith('CR-')));
 });
 

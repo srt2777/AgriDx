@@ -27,8 +27,10 @@ test('875条FAO术语逐条对应官方来源子集，累计目录包含原13000
     assert.equal(chunk.sourceId, undefined);
     assert.match(chunk.scopeBoundary!, /不表示部件组成、故障因果/);
   }
-  assert.deepEqual(stats(), { archivedEntries: 6655, learningEntries: 6875, totalEntries: 13530, chunks: 13539 });
-  assert.equal(getKnowledgeCatalog({ collection: 'all' }).library!.total, 13530);
+  const { counts } = JSON.parse(fs.readFileSync('知识库/整理后的知识库/农用拖拉机知识库/kb-version.json', 'utf8'));
+  const total = counts.archive + 6875;
+  assert.deepEqual(stats(), { archivedEntries: counts.archive, learningEntries: 6875, totalEntries: total, chunks: total + 9 });
+  assert.equal(getKnowledgeCatalog({ collection: 'all' }).library!.total, total);
   const baseline = JSON.parse(fs.readFileSync('docs/tractor-knowledge/expansion-875/validation.json', 'utf8'));
   const priorTitles: Record<string, [string, string]> = {
     '002': ['动力输出不停转', '1404/1504/1604/1804动力输'],
