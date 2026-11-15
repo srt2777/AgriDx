@@ -17,6 +17,7 @@ import { parseDiagnosticRequest } from '../server/diagnosis/request';
 import { createReadOnlyFileSystem } from '../src/dev-preview/filesystem.mjs';
 import browserPath from '../src/dev-preview/path.mjs';
 import type { ChatResponse } from '../shared/chat';
+import type { CatalogFilters } from '../shared/knowledge-catalog';
 import { createCatalogRoutes } from '../server/routes/catalog';
 const transported = (value: unknown) => JSON.parse(JSON.stringify(value));
 
@@ -66,7 +67,23 @@ test('实际浏览器构建保持完整知识目录、诊断来源与型号隔�
     loadKnowledgeCatalog();
     const catalog = await (await previewFetch('/api/knowledge/catalog')).json();
     assert.match(catalog.kbVersion, /^20\d{2}\.\d{2}\.\d+$/);
-    assert.deepEqual(catalog, getKnowledgeCatalog());
+    const serverCatalog = getKnowledgeCatalog();
+    assert.deepEqual(catalog, serverCatalog);
+    // The response repeats the same catalog tree for every scope. Serialize its
+    // immutable fields once and compare the complete response bytes for every selection.
+    const baseFields = new Map(Object.entries(serverCatalog));
+    const baseJson = new Map(Array.from(baseFields, ([key, value]) => [key, JSON.stringify(value)]));
+    async function assertCatalogSelection(filters: CatalogFilters) {
+      const query = new URLSearchParams(Object.entries(filters));
+      const response = await previewFetch(`/api/knowledge/catalog?${query}`);
+      assert.equal(response.status, 200, query.toString());
+      const fields: string[] = [];
+      for (const [key, value] of Object.entries(getKnowledgeCatalog(filters))) {
+        const encoded = value === baseFields.get(key) ? baseJson.get(key) : JSON.stringify(value);
+        if (encoded !== undefined) fields.push(`${JSON.stringify(key)}:${encoded}`);
+      }
+      assert.ok(await response.text() === `{${fields.join(',')}}`, `目录响应与服务端不同：${query}`);
+    }
     const app = express(); app.use('/api', createCatalogRoutes(getKnowledgeCatalog));
     const server = app.listen(0, '127.0.0.1'); await once(server, 'listening');
     try {
@@ -88,14 +105,11 @@ test('实际浏览器构建保持完整知识目录、诊断来源与型号隔�
     for (const brand of catalog.brands) {
       for (const model of brand.models) {
         const filters = { brand: brand.name, model: model.name };
-        const actual = await (await previewFetch(`/api/knowledge/catalog?${new URLSearchParams(filters)}`)).json();
-        assert.deepEqual(actual, transported(getKnowledgeCatalog(filters)));
+        await assertCatalogSelection(filters);
         selections++;
         for (const component of model.components) {
           for (const part of component.parts) {
-            const selected = { ...filters, component: component.id, part: part.id };
-            const result = await (await previewFetch(`/api/knowledge/catalog?${new URLSearchParams(selected)}`)).json();
-            assert.deepEqual(result, transported(getKnowledgeCatalog(selected)));
+            await assertCatalogSelection({ ...filters, component: component.id, part: part.id });
             selections++;
           }
         }
