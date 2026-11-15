@@ -6,6 +6,7 @@ import { loadArchive } from '../server/knowledge/archive';
 import { getKnowledgeCatalog, loadKnowledgeCatalog } from '../server/knowledge/catalog';
 import { loadKnowledgeBase, retrieve } from '../server/knowledge/retriever';
 import { generateLocalKnowledgeReply } from '../server/knowledge/fallbackDiagnosis';
+import { beforeJd1404TitleCorrection } from './helpers/legacy-jd1404-archive';
 
 const index = '知识库/整理后的知识库/农用拖拉机知识库';
 const manifest = JSON.parse(fs.readFileSync(`${index}/采集记录/20261017_十条知识同步验证.json`, 'utf8')) as {
@@ -29,13 +30,14 @@ loadKnowledgeCatalog();
 
 test('十条同步批次保留4853行索引、65份正文、旧来源和旧导航', () => {
   const base = manifest.baseline_integrity;
-  const prefix = Buffer.from(fs.readFileSync(`${index}/entries.jsonl`, 'utf8').replace(/\r\n/g, '\n')).subarray(0, base.entries_bytes);
+  const readHistorical = (file: string) => beforeJd1404TitleCorrection(fs.readFileSync(file, 'utf8').replace(/\r\n/g, '\n'));
+  const prefix = Buffer.from(readHistorical(`${index}/entries.jsonl`)).subarray(0, base.entries_bytes);
   assert.equal(hash(prefix), base.entries_sha256);
   const entries = prefix.toString('utf8').trim().split(/\r?\n/).map(line => JSON.parse(line) as { knowledge_path: string });
   assert.equal(entries.length, 4853);
   const paths = [...new Set(entries.map(e => e.knowledge_path))].sort();
   assert.equal(paths.length, base.knowledge_documents);
-  assert.equal(hash(paths.map(p => `${p}\0${hash(fs.readFileSync(p, 'utf8').replace(/\r\n/g, '\n'))}`).join('\n')), base.knowledge_sha256);
+  assert.equal(hash(paths.map(p => `${p}\0${hash(readHistorical(p))}`).join('\n')), base.knowledge_sha256);
   const sources = JSON.parse(fs.readFileSync(`${index}/sources.json`, 'utf8'));
   const hierarchy = JSON.parse(fs.readFileSync(`${index}/hierarchy.json`, 'utf8'));
   assert.equal(hash(JSON.stringify(sources.slice(0, 27).map(before3510))), base.sources_sha256);

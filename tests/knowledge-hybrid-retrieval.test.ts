@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { loadKnowledgeBase, retrieve, retrieveWithDiagnostics, describeSource, vectorRecallStats } from '../server/knowledge/retriever';
+import { loadKnowledgeBase, retrieve, retrieveWithDiagnostics, describeSource, stats as knowledgeStats, vectorRecallStats } from '../server/knowledge/retriever';
 import { buildVectorIndex, rankVectorCandidates, vectorFeatureHashes, VECTOR_RECALL_THRESHOLD } from '../server/knowledge/vectorRecall';
 import { decideDiagnosisRoute } from '../server/diagnosis/router';
 
@@ -117,7 +117,7 @@ test('混合检索对照：同一批问题，加向量前后 top-6 命中与错�
   assert.ok(gains >= 1, `gains=${gains}`);
   assert.ok(keywordPlusVector >= 1, `keyword+vector=${keywordPlusVector}`);
   const stats = vectorRecallStats();
-  assert.equal(stats.documents, 13539);
+  assert.equal(stats.documents, knowledgeStats().chunks);
   assert.ok(stats.features > 100000, `features=${stats.features}`);
   // 构建耗时随机器负载波动很大（空闲约 4–12s，负载 40 时约 44s）；上限只防
   // 构建失控，不作性能承诺。

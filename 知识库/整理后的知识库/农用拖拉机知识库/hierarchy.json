@@ -71144,6 +71144,335 @@
           "part_ids": []
         }
       ]
+    },
+    {
+      "entry_id": "KB-CF-CN-CFJ2204-G4-JVT-562-001",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-CF-CN-CFJ2204-G4-JVT-562-002",
+      "components": [
+        {
+          "component_id": "pto",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-CF-CN-CFJ2204-G4-JVT-562-003",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": [
+            "differential-lock"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-CF-CN-CFJ2204-G4-JVT-562-004",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": [
+            "differential-lock"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-CF-CN-CFJ2204-G4-JVT-562-005",
+      "components": [
+        {
+          "component_id": "pto",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-CF-CN-CFJ2204-G4-JVT-562-006",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-CF-CN-CFJ2204-G4-JVT-562-007",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-CF-CN-CFJ2204-G4-JVT-563-001",
+      "components": [
+        {
+          "component_id": "chassis",
+          "part_ids": [
+            "front-axle"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-CF-CN-CFJ2204-G4-JVT-563-003",
+      "components": [
+        {
+          "component_id": "chassis",
+          "part_ids": [
+            "tyre"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-CF-CN-CFJ2204-G4-JVT-563-004",
+      "components": [
+        {
+          "component_id": "chassis",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-CF-CN-CFJ2204-G4-JVT-563-005",
+      "components": [
+        {
+          "component_id": "chassis",
+          "part_ids": [
+            "front-axle"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-CF-CN-CFJ2204-G4-JVT-655-001",
+      "components": [
+        {
+          "component_id": "steering",
+          "part_ids": []
+        },
+        {
+          "component_id": "chassis",
+          "part_ids": [
+            "tyre"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-CF-CN-CFJ2204-G4-JVT-655-002",
+      "components": [
+        {
+          "component_id": "steering",
+          "part_ids": [
+            "steering-cylinder"
+          ]
+        },
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hydraulic-hose"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-CF-CN-CFJ2204-G4-JVT-655-003",
+      "components": [
+        {
+          "component_id": "steering",
+          "part_ids": [
+            "steering-cylinder"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-CF-CN-CFJ2204-G4-JVT-656-001",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "wiring"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-CF-CN-CFJ2204-G4-JVT-656-002",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "battery",
+            "wiring"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-CF-CN-CFJ2204-G4-JVT-656-003",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "wiring"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-CF-CN-CFJ2204-G4-JVT-656-004",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "starter",
+            "wiring"
+          ]
+        },
+        {
+          "component_id": "cooling",
+          "part_ids": [
+            "fan-belt"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-CF-CN-CFJ2204-G4-JVT-656-005",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "instrument-panel",
+            "wiring",
+            "battery"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-1404-OMSU38852-L4-CN-002",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-1404-OMSU38852-L4-CN-008",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-1404-OMSU38852-L4-CN-010",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": []
+        },
+        {
+          "component_id": "fuel",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-904105412041354-OMSJ16422-L4-CN-001",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-001",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-002",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": []
+        },
+        {
+          "component_id": "lubrication",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-WZ-MD700-W201308060-II-001",
+      "components": [
+        {
+          "component_id": "chassis",
+          "part_ids": [
+            "front-axle"
+          ]
+        },
+        {
+          "component_id": "steering",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-WZ-MD904-NW201710052-001",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "wiring"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-WZ-MD904-NW201710052-002",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-WZ-MD904-NW201710052-004",
+      "components": [
+        {
+          "component_id": "steering",
+          "part_ids": [
+            "steering-cylinder"
+          ]
+        },
+        {
+          "component_id": "hydraulics",
+          "part_ids": []
+        }
+      ]
     }
   ]
 }

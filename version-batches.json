@@ -1274,6 +1274,13 @@
       "base": "4.1.35",
       "version": "4.1.36",
       "date": "2026-11-14"
+    },
+    {
+      "id": "20261115-domestic-tractor-batch",
+      "kind": "knowledge",
+      "base": "4.1.36",
+      "version": "4.1.37",
+      "date": "2026-11-15"
     }
   ]
 }

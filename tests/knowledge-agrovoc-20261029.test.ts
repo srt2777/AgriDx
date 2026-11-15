@@ -10,6 +10,7 @@ import { hasDiagnosticEvidence } from '../server/knowledge/systemPrompt';
 import { buildDiagnosticReply, renderDiagnosticReply } from '../server/diagnosis/reply';
 import { decideCoordination } from '../server/knowledge/coordination';
 import { parseKnowledgeCatalog } from '../src/features/knowledge/catalog-api';
+import { beforeJd1404TitleCorrection } from './helpers/legacy-jd1404-archive';
 
 test('875条FAO术语逐条对应官方来源子集，累计目录包含原13000条和新增手册知识，且保留原6000条通识', () => {
   const result = spawnSync(process.execPath, ['scripts/agrovoc-learning.mjs', '--check'], { encoding: 'utf8' });
@@ -27,8 +28,10 @@ test('875条FAO术语逐条对应官方来源子集，累计目录包含原13000
     assert.equal(chunk.sourceId, undefined);
     assert.match(chunk.scopeBoundary!, /不表示部件组成、故障因果/);
   }
-  assert.deepEqual(stats(), { archivedEntries: 6655, learningEntries: 6875, totalEntries: 13530, chunks: 13539 });
-  assert.equal(getKnowledgeCatalog({ collection: 'all' }).library!.total, 13530);
+  const { counts } = JSON.parse(fs.readFileSync('知识库/整理后的知识库/农用拖拉机知识库/kb-version.json', 'utf8'));
+  const total = counts.archive + 6875;
+  assert.deepEqual(stats(), { archivedEntries: counts.archive, learningEntries: 6875, totalEntries: total, chunks: total + 9 });
+  assert.equal(getKnowledgeCatalog({ collection: 'all' }).library!.total, total);
   const baseline = JSON.parse(fs.readFileSync('docs/tractor-knowledge/expansion-875/validation.json', 'utf8'));
   const priorTitles: Record<string, [string, string]> = {
     '002': ['动力输出不停转', '1404/1504/1604/1804动力输'],
@@ -39,7 +42,7 @@ test('875条FAO术语逐条对应官方来源子集，累计目录包含原13000
     '038': ['动力输出压力不显示', '1404/1504/1604/1804动力输（5）'],
   };
   for (const [file, expected] of Object.entries(baseline.baseline_files)) {
-    let content = fs.readFileSync(file, 'utf8').replace(/\r\n/g, '\n');
+    let content = beforeJd1404TitleCorrection(fs.readFileSync(file, 'utf8').replace(/\r\n/g, '\n'));
     // The 2026-10-29 snapshot is an immutable prefix, not a ban on future additions.
     if (file.endsWith('/农用拖拉机知识库/entries.jsonl')) {
       content = content.split('\n').slice(0, 6125).join('\n') + '\n';
