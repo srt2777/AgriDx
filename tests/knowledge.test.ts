@@ -72,6 +72,11 @@ test('indexes each archived entry exactly once and preserves the 9 existing chun
     // A manual-index title can ask about the whole documented range; repair entries stay exact.
     if (entry_type === '资料索引' && range && titleModels.length > 1 && titleModels.every((item) => rangeModels.has(item))) {
       exactModel = range.join('/');
+    } else if (titleModels.length > 1 && titleModels.every((item) => rangeModels.has(item))) {
+      // A repair title naming several models (e.g. 更换初级和次级滤芯（1204、1354型）)
+      // must be asked with exactly those models; asking with only the first one
+      // reads as an identity conflict and returns nothing.
+      exactModel = titleModels.join('/');
     }
     const found = retrieve(title, indexed.length, { ...tractor, brand, model: exactModel });
     const chunk = expectEntry(found, entry_id);
