@@ -176,7 +176,7 @@ interface ModelMention {
 function withoutHydraulicTestPortLabels(text: string): string {
   const portLabel = /((?:测压[口点]|压力?测试?[口点]|(?:液压|压力)检测[口点]|\bpressure\s+(?:test\s+)?(?:port|point|tap)\b)\s*[:：#]?\s*)([A-Z]{1,2}\d{1,2})(?![a-z0-9_.-])/gi;
   return text.replace(portLabel, (_match, prefix: string, label: string) => prefix + ' '.repeat(label.length))
-    .replace(/((?:液压输出(?:口)?|第[一二三四\d]+路输出口)\s*)([AB]\d{1,2}(?:[、，,\/（(]\s*[AB]\d{1,2})*)(?![a-z0-9_.-])/gi,
+    .replace(/((?:液压输出(?:口)?|第[一二三四\d]+路输出口)\s*)([AB]\d{1,2}(?:[、，,/（(]\s*[AB]\d{1,2})*)(?![a-z0-9_.-])/gi,
       (_match, prefix: string, labels: string) => prefix + ' '.repeat(labels.length))
     .replace(/(测(?:量|试)?\s*)([A-Z]\d{1,2})(?=\s*(?:口\s*)?压力)/gi,
       (_match, prefix: string, label: string) => prefix + ' '.repeat(label.length));
