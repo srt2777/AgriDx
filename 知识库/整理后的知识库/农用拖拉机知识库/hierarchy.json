@@ -71115,6 +71115,35 @@
           ]
         }
       ]
+    },
+    {
+      "entry_id": "KB-YTO-1804-IMPLEMENT2015-001",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hitch-control"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-YTO-1804-IMPLEMENT2015-002",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-YTO-1604-1804-HYD2015-009",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": []
+        }
+      ]
     }
   ]
 }

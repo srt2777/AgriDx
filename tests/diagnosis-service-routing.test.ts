@@ -67,6 +67,26 @@ function assertOneRetrieval(response: ChatResponse, h: ReturnType<typeof harness
     for (const entryId of item.evidenceIds) assert.ok(sourceIds.has(entryId), `answer evidence must be displayed: ${entryId}`);
   }
 }
+test('video citations show original timestamps and preserve manual and report pagination', async () => {
+  const video = document({ sourceTitle: '示例培训', sourceDocumentType: '原厂培训视频',
+    locator: '原厂视频 01:02.0–01:42.5' });
+  const manual = document({ sourceTitle: '示例使用说明书', sourceDocumentType: '整机使用说明书',
+    pages: { pdf: '7', printed: '3' } });
+  const report = document({ sourceTitle: '示例可靠性试验', sourceDocumentType: '检验检测报告故障案例',
+    pages: { pdf: '12', printed: '9' } });
+  const samples = [
+    [video, '视频资料：示例培训，原厂视频 01:02.0–01:42.5'],
+    [manual, '手册：示例使用说明书，PDF第7页，印刷第3页'],
+    [report, '资料：示例可靠性试验，PDF第12页，印刷第9页'],
+  ] as const;
+  for (const [source, label] of samples) {
+    const response = await harness([source], { configured: false }).diagnose(request('knowledge_only'));
+    assert.equal(response.knowledgeSources[0]?.evidenceLabel, label);
+    assert.equal(response.knowledgeSources[0]?.locator, source.locator);
+    assert.deepEqual(response.knowledgeSources[0]?.pages, source.pages);
+  }
+});
+
 function memory(progress: string, deviceId: string): DiagnosticMemory {
   return { session: { id: `session-${deviceId}`, deviceId, title: '合成诊断', progress, summary: '', revision: 0,
     updatedAt: '2026-10-13T00:00:00Z', messages: [], device: { id: deviceId, ...identity, name: '合成设备', hours: null, notes: '', updatedAt: '2026-10-13T00:00:00Z' } }, priorReports: [] };
