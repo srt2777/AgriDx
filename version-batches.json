@@ -1302,6 +1302,13 @@
       "base": "4.1.39",
       "version": "4.1.40",
       "date": "2026-11-15"
+    },
+    {
+      "id": "workshop-cohort-20261115",
+      "kind": "knowledge",
+      "base": "4.1.40",
+      "version": "4.1.41",
+      "date": "2026-11-15"
     }
   ]
 }
