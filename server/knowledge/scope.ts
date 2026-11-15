@@ -176,9 +176,17 @@ interface ModelMention {
 function withoutHydraulicTestPortLabels(text: string): string {
   const portLabel = /((?:测压[口点]|压力?测试?[口点]|(?:液压|压力)检测[口点]|\bpressure\s+(?:test\s+)?(?:port|point|tap)\b)\s*[:：#]?\s*)([A-Z]{1,2}\d{1,2})(?![a-z0-9_.-])/gi;
   return text.replace(portLabel, (_match, prefix: string, label: string) => prefix + ' '.repeat(label.length))
+    .replace(/((?:液压输出(?:口)?|第[一二三四\d]+路输出口)\s*)([AB]\d{1,2}(?:[、，,\/（(]\s*[AB]\d{1,2})*)(?![a-z0-9_.-])/gi,
+      (_match, prefix: string, labels: string) => prefix + ' '.repeat(labels.length))
     .replace(/(测(?:量|试)?\s*)([A-Z]\d{1,2})(?=\s*(?:口\s*)?压力)/gi,
       (_match, prefix: string, label: string) => prefix + ' '.repeat(label.length));
 }
+
+const biodieselGrade = 'b(?:100|[1-9]\\d?|0)';
+const biodieselRange = `${biodieselGrade}(?:\\s*(?:至|到|~|～|–|—|-)\\s*${biodieselGrade})?`;
+const gradeAfterFuel = new RegExp(`((?:生物柴油(?:的)?(?:允许范围|掺混比例|等级|标号|可用|可到|使用|上限)?|\\bbiodiesel(?:\\s+blend)?)\\s*(?:为|是|[:：=])?\\s*)(${biodieselRange})(?![a-z0-9_.-])`, 'gi');
+const gradeBeforeFuel = new RegExp(`(?<![a-z0-9_.-])${biodieselRange}(?=\\s*(?:[-－]|以上|以下)?\\s*(?:浓度)?(?:的)?(?:生物柴油|燃油维护周期|biodiesel\\b))`, 'gi');
+const gradeBeforeService = new RegExp(`((?:改用|换用)\\s*(?:高于|低于)\\s*)(${biodieselGrade})(?=\\s*前(?:建议|应|须|需)?(?:先)?更换机油)`, 'gi');
 
 function withoutNumericMeasurementsOrSerials(text: string): string {
   // Only unambiguous labels qualify single-letter units and numbers used as parts or serial references.
@@ -195,6 +203,12 @@ function withoutNumericMeasurementsOrSerials(text: string): string {
 function modelMentions(text: string): ModelMention[] {
   // Preserve the existing LX2620-LX2620SU grouped alias without merging two identities.
   const scanText = withoutHydraulicTestPortLabels(withoutReferences(text)).replace(/-(?=lx\s*\d)/gi, '/')
+    // B-series model families overlap biodiesel blends such as B5 and B20.
+    // Ignore the code only when nearby text identifies it as a fuel blend.
+    .replace(gradeAfterFuel, (_match, label: string, blend: string) => label + ' '.repeat(blend.length))
+    .replace(gradeBeforeService,
+      (_match, label: string, blend: string) => label + ' '.repeat(blend.length))
+    .replace(gradeBeforeFuel, blend => ' '.repeat(blend.length))
     .replace(displayFaultCodePattern, code => ' '.repeat(code.length))
     .replace(threeFieldFaultCodePattern, code => ' '.repeat(code.length))
     .replace(/((?:故障码|错误码|报警码|报码|\b(?:dtc|(?:fault|error)\s+code)\b)\s*[:：=]?\s*)([a-z]+\d[a-z0-9]*(?:[.-][a-z0-9]+)*|\d{1,7}(?:\.\d{1,2})?)(?![a-z0-9_.-])/gi,
