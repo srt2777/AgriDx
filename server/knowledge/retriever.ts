@@ -33,6 +33,7 @@ const NON_DIAGNOSTIC_TYPES = new Set(['机型资料', '资料缺口', '资料索
 // ---- 启动时索引 ----
 let chunks: KnowledgeChunk[] = [];
 let index: IndexedChunk[] = [];
+let positionsByEntryId = new Map<string, number[]>();
 let generation = 0;
 let preparedSnapshot: KnowledgeSnapshot | undefined;
 let manualScopes: KnowledgeChunk[] = [];
@@ -152,9 +153,15 @@ function prepareSnapshot(snapshot: KnowledgeSnapshot): void {
   manualScopes = [...new Map(nextIndex.filter(item => item.chunk.sourceId && manualIds.has(item.chunk.sourceId))
     .map(item => [item.applicabilityKey, item.chunk])).values()];
   chunksByFaultNumber = new Map();
+  positionsByEntryId = new Map();
   const displayScopes = new Map<string, KnowledgeChunk>();
   const threeFieldScopes = new Map<string, KnowledgeChunk>();
-  for (const { chunk, applicabilityKey } of nextIndex) {
+  for (const [position, { chunk, applicabilityKey }] of nextIndex.entries()) {
+    if (chunk.entryId) {
+      const positions = positionsByEntryId.get(chunk.entryId) ?? [];
+      positions.push(position);
+      positionsByEntryId.set(chunk.entryId, positions);
+    }
     if (referenceVerification(chunk.status) === 'failed') continue;
     for (const code of chunk.faultCodes ?? []) {
       const [prefixOrCode, number] = code.split(' ');
@@ -525,9 +532,13 @@ export function retrieve(query: string, k = MAX_CHUNKS_IN_PROMPT, context: Retri
   const componentSources = new Set<KnowledgeChunk>();
   // Many sections share one source/configuration scope. Resolve each distinct scope once.
   const applicabilityByScope = new Map<string, KnowledgeChunk['applicability']>();
-  let position = -1;
-  for (const indexed of index) {
-    position++;
+  // Keep snapshot order for equally ranked ID lookups and the original
+  // position used by the keyword/vector indexes.
+  const positions = requestedIds.size
+    ? [...requestedIds].flatMap(id => positionsByEntryId.get(id) ?? []).sort((a, b) => a - b)
+    : index.keys();
+  for (const position of positions) {
+    const indexed = index[position];
     const c = indexed.chunk;
     // A failed review cannot consume a top-k slot or reach either answer path.
     if (referenceVerification(c.status) === 'failed') continue;
