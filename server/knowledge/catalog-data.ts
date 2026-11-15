@@ -28,7 +28,7 @@ interface CatalogState {
   catalog: KnowledgeCatalog;
   chunks: KnowledgeChunk[];
   links: Map<string, EntryLink[]>;
-  sources: Map<string, SourceMetadata>;
+  chunksByModel: Map<string, Map<string, KnowledgeChunk[]>>;
   commonDefinition: CommonFrameworkDefinition;
   library: { entry: LibraryEntry; searchable: string }[];
 }
@@ -168,12 +168,30 @@ export function buildKnowledgeCatalog(chunks: KnowledgeChunk[], sourceRecords: A
     }
     sources.set(source.source_id, { source_id: source.source_id, model: source.model, document_type: source.document_type });
   }
-  const brandNames = [...new Set(chunks.map((chunk) => chunk.brand!))];
+  // Populate the exact-model lists in original archive order. Brand and model
+  // strings remain independent so names shared across manufacturers cannot mix.
+  const chunksByBrand = new Map<string, KnowledgeChunk[]>();
+  const chunksByModel = new Map<string, Map<string, KnowledgeChunk[]>>();
+  for (const chunk of chunks) {
+    const brand = chunk.brand!;
+    const brandChunks = chunksByBrand.get(brand) ?? [];
+    brandChunks.push(chunk);
+    chunksByBrand.set(brand, brandChunks);
+    const modelChunks = chunksByModel.get(brand) ?? new Map<string, KnowledgeChunk[]>();
+    for (const model of new Set(modelsOf(chunk, sources))) {
+      const entries = modelChunks.get(model) ?? [];
+      entries.push(chunk);
+      modelChunks.set(model, entries);
+    }
+    chunksByModel.set(brand, modelChunks);
+  }
+  const brandNames = [...chunksByBrand.keys()];
   const brands: CatalogBrand[] = brandNames.sort((a, b) => a.localeCompare(b, 'zh-CN')).map((brand) => {
-    const brandChunks = chunks.filter((chunk) => chunk.brand === brand);
-    const modelNames = [...new Set(brandChunks.flatMap((chunk) => modelsOf(chunk, sources)))];
+    const brandChunks = chunksByBrand.get(brand)!;
+    const byModel = chunksByModel.get(brand)!;
+    const modelNames = [...byModel.keys()];
     const models: CatalogModel[] = modelNames.sort((a, b) => a.localeCompare(b, 'zh-CN')).map((model) => {
-      const modelChunks = brandChunks.filter((chunk) => modelsOf(chunk, sources).includes(model));
+      const modelChunks = byModel.get(model)!;
       const navigation = modelChunks.every((chunk) => /配套|导航|辅助转向/.test(sources.get(chunk.sourceId!)!.document_type));
       const components: CatalogComponent[] = index.components
         .filter((definition) => navigation
@@ -232,7 +250,7 @@ export function buildKnowledgeCatalog(chunks: KnowledgeChunk[], sourceRecords: A
     entry.entryId, entry.title, entry.entryType, entry.content,
     ...(entry.collection === 'archive' ? [entry.brand, ...entry.models, entry.sourceId] : [entry.topic]),
   ].join('\n')) }));
-  const state = { catalog, chunks, links, sources, commonDefinition, library };
+  const state = { catalog, chunks, links, chunksByModel, commonDefinition, library };
   return (filters = {}) => {
     const selected = selectKnowledgeCatalog(state, filters);
     return filters.collection || filters.kind || filters.topic || filters.entryType || filters.q || filters.page || filters.role
@@ -295,8 +313,7 @@ function selectKnowledgeCatalog(current: CatalogState, requested: CatalogFilters
   if (filters.part && !component?.parts.some((part) => part.id === filters.part)) {
     throw new RangeError('零部件没有该型号的关联证据，请重新选择。');
   }
-  const selectedChunks = current.chunks.filter((chunk) => applicable(chunk) && chunk.brand === brand.name &&
-    modelsOf(chunk, current.sources).includes(model.name) && (!filters.component ||
+  const selectedChunks = current.chunksByModel.get(brand.name)!.get(model.name)!.filter((chunk) => applicable(chunk) && (!filters.component ||
       includesLink(current.links.get(chunk.entryId!)!, filters.component, filters.part)));
   const symptomChunks = selectedChunks.filter(chunk => !symptomIds || symptomIds.has(chunk.entryId!));
   const missing = model.components.filter((item) => !['documents', 'machine'].includes(item.id) && item.faultCount === 0);

@@ -1295,6 +1295,13 @@
       "base": "4.1.38",
       "version": "4.1.39",
       "date": "2026-11-15"
+    },
+    {
+      "id": "20261115-tractor-manual-cohort",
+      "kind": "knowledge",
+      "base": "4.1.39",
+      "version": "4.1.40",
+      "date": "2026-11-15"
     }
   ]
 }
