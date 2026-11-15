@@ -75,10 +75,15 @@ def prepare(repo, packages):
     sources = by_key(read_json(sources_path), 'source_id')
     prior_entries = by_key(read_rows(entries_path), 'entry_id')
     hierarchy = read_json(hierarchy_path)
+    part_terms = {
+        component['id']: {part['id']: part['evidence_terms'] for part in component['parts']}
+        for component in hierarchy['components']
+    }
     original_hashes = {row[field] for row in sources.values()
                        for field in ('manual_sha256', 'original_media_sha256', 'sha256') if row.get(field)}
     titles = {key: entry_id for entry_id, row in prior_entries.items() for key in title_keys(row)}
     new_entries, new_links, output_files = [], [], {}
+    unsupported_links = []
     for package in packages:
         incoming = by_key(read_rows(package / 'entries.jsonl'), 'entry_id')
         links = by_key(read_json(package / 'hierarchy-links.json'), 'entry_id')
@@ -130,8 +135,20 @@ def prepare(repo, packages):
                 if (entry['title'] != title or entry['locator'] not in body or source_id not in body
                         or entry['brand'] != new_sources[source_id]['brand']):
                     raise ValueError(f'正文与来源、标题或证据定位不一致: {entry_id}')
+                evidence = f'{title}\n{body}'
+                for link in links[entry_id]['components']:
+                    component = link['component_id']
+                    if component not in part_terms:
+                        unsupported_links.append(f'{entry_id}/{component}')
+                        continue
+                    for part in link['part_ids']:
+                        if not any(term in evidence for term in part_terms[component].get(part, ())):
+                            unsupported_links.append(f'{entry_id}/{component}/{part}')
             card = header + ''.join(sections[entry['entry_id']][2] for entry in entries)
             output_files[target] = (card.rstrip() + '\n').encode('utf-8')
+
+    if unsupported_links:
+        raise ValueError('组件未知或零件缺少正文依据:\n' + '\n'.join(unsupported_links))
 
     hierarchy['entries'].extend(new_links)
     output_files[entries_path] = (entries_path.read_bytes().rstrip(b'\r\n') + b'\n'

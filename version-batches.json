@@ -1281,6 +1281,13 @@
       "base": "4.1.36",
       "version": "4.1.37",
       "date": "2026-11-15"
+    },
+    {
+      "id": "20261115-deere-kioti-manuals",
+      "kind": "knowledge",
+      "base": "4.1.37",
+      "version": "4.1.38",
+      "date": "2026-11-15"
     }
   ]
 }
