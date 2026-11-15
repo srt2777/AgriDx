@@ -10,6 +10,7 @@ import { hasDiagnosticEvidence } from '../server/knowledge/systemPrompt';
 import { buildDiagnosticReply, renderDiagnosticReply } from '../server/diagnosis/reply';
 import { decideCoordination } from '../server/knowledge/coordination';
 import { parseKnowledgeCatalog } from '../src/features/knowledge/catalog-api';
+import { beforeJd1404TitleCorrection } from './helpers/legacy-jd1404-archive';
 
 test('875条FAO术语逐条对应官方来源子集，累计目录包含原13000条和新增手册知识，且保留原6000条通识', () => {
   const result = spawnSync(process.execPath, ['scripts/agrovoc-learning.mjs', '--check'], { encoding: 'utf8' });
@@ -41,7 +42,7 @@ test('875条FAO术语逐条对应官方来源子集，累计目录包含原13000
     '038': ['动力输出压力不显示', '1404/1504/1604/1804动力输（5）'],
   };
   for (const [file, expected] of Object.entries(baseline.baseline_files)) {
-    let content = fs.readFileSync(file, 'utf8').replace(/\r\n/g, '\n');
+    let content = beforeJd1404TitleCorrection(fs.readFileSync(file, 'utf8').replace(/\r\n/g, '\n'));
     // The 2026-10-29 snapshot is an immutable prefix, not a ban on future additions.
     if (file.endsWith('/农用拖拉机知识库/entries.jsonl')) {
       content = content.split('\n').slice(0, 6125).join('\n') + '\n';

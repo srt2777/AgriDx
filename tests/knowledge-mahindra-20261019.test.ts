@@ -6,6 +6,7 @@ import { loadArchive } from '../server/knowledge/archive';
 import { getKnowledgeCatalog } from '../server/knowledge/catalog';
 import { generateLocalKnowledgeReply } from '../server/knowledge/fallbackDiagnosis';
 import { loadKnowledgeBase, retrieve } from '../server/knowledge/retriever';
+import { beforeJd1404TitleCorrection } from './helpers/legacy-jd1404-archive';
 
 const index = '知识库/整理后的知识库/农用拖拉机知识库';
 const manifest = JSON.parse(fs.readFileSync(`${index}/采集记录/20261019_烟色耗油后轮四条.json`, 'utf8')) as {
@@ -29,13 +30,13 @@ loadKnowledgeBase();
 
 test('续补四条保持4873行旧索引、67份正文、其他来源及原导航不变', () => {
   const base = manifest.baseline_integrity;
-  const prefix = Buffer.from(read(`${index}/entries.jsonl`)).subarray(0, base.entries_bytes);
+  const prefix = Buffer.from(beforeJd1404TitleCorrection(read(`${index}/entries.jsonl`))).subarray(0, base.entries_bytes);
   assert.equal(hash(prefix), base.entries_sha256);
   const old = prefix.toString('utf8').trim().split('\n').map(line => JSON.parse(line) as { knowledge_path: string });
   assert.equal(old.length, 4873);
   const paths = [...new Set(old.map(e => e.knowledge_path))].sort();
   assert.equal(paths.length, base.knowledge_documents);
-  assert.equal(hash(paths.map(p => `${p}\0${hash(read(p))}`).join('\n')), base.knowledge_sha256);
+  assert.equal(hash(paths.map(p => `${p}\0${hash(beforeJd1404TitleCorrection(read(p)))}`).join('\n')), base.knowledge_sha256);
   const hierarchy = JSON.parse(read(`${index}/hierarchy.json`));
   assert.equal(hash(JSON.stringify(hierarchy.entries.slice(0, 4873))), base.hierarchy_sha256);
   assert.equal(hash(JSON.stringify(hierarchy.components)), base.components_sha256);
