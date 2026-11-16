@@ -74,6 +74,10 @@ function brandsIn(text: string): string[] {
   return Object.entries(BRAND_ALIASES).filter(([, aliases]) => aliases.some((alias) => {
     if (/^[a-z ]+$/.test(alias)) return new RegExp(`(^|[^a-z])${alias.replace(/ /g, '\\s*')}([^a-z]|$)`).test(lower);
     if (CYRILLIC_WORD.test(alias)) return cyrillicBrandPattern(alias).test(lower);
+    // “时风” is also the everyday “时 + 风扇/风机” (when the fan/blower …):
+    // a bare 时风扇/时风机 is not the Shifeng brand (KB-JD-8RG4-OMTA30801-G3-CN-419
+    // 《发动机转速低时风扇传动转速急剧上升》was misread as a Shifeng question).
+    if (alias === '时风') return /时风(?![扇机])/.test(lower);
     return lower.includes(alias);
   })).map(([brand]) => brand);
 }
@@ -264,7 +268,10 @@ export function queryWithoutIdentity(query: string): string {
         ? text.replace(new RegExp(`(^|[^a-z])${alias.replace(/ /g, '\\s*')}(?=[^a-z]|$)`, 'gi'), '$1 ')
         : CYRILLIC_WORD.test(alias)
           ? text.replace(cyrillicBrandPattern(alias), ' ')
-          : text.replaceAll(alias, ' ');
+          // Same 时风扇/时风机 exception as brandsIn: keep the fan/blower wording intact.
+          : alias === '时风'
+            ? text.replace(/时风(?![扇机])/g, ' ')
+            : text.replaceAll(alias, ' ');
     }
   }
   for (const mention of modelMentions(text).sort((a, b) => b.start - a.start)) {
@@ -327,13 +334,26 @@ export function resolveScope(query: string, context: RetrievalContext): Resolved
   // Clearly attached implements are not a change of the machine being discussed.
   // 配套 / 配装也是挂接动词（归档条目 KB-WZ-TSME-0374《配套收获机械时加高一级
   // 滤清器效果更好》说的就是拖拉机配套收获机具时的滤清器做法，不是换机型）。
-  const queryTypeIdentity = queryIdentity.replace(/(?:挂接|连接|牵引|配套|配装|\bPTO\s*接)\s*(?:的\s*)?(?:收割机|收获机|插秧机|植保机|播种机|无人机|combine|transplanter|sprayer)/gi, ' ');
+  const attachedImplements = queryIdentity.replace(/(?:挂接|连接|牵引|配套|配装|\bPTO\s*接)\s*(?:的\s*)?(?:收割机|收获机|插秧机|植保机|播种机|无人机|combine|transplanter|sprayer)/gi, ' ');
+  // The implement noun need not sit directly after the hitch verb: handbook
+  // titles such as《机具连接例1压力控制阀应用：谷物条播机与气吹式播种机》
+  // (KB-JD-8RG4-OMTA30801-G3-CN-231) and real questions ("8R拖拉机怎么连接
+  // 气吹式播种机") name the implement after other words. Strip implement
+  // nouns that appear after the first remaining hitch verb; a machine named
+  // before it (e.g. 联合收割机挂接播种机) still identifies the machine.
+  const hitchVerbAt = attachedImplements.search(/(?:挂接|连接|牵引|配套|配装|\bPTO\s*接)/i);
+  const queryTypeIdentity = hitchVerbAt < 0 ? attachedImplements
+    : attachedImplements.slice(0, hitchVerbAt) + attachedImplements.slice(hitchVerbAt)
+      .replace(/(?:收割机|收获机|插秧机|植保机|播种机|无人机|combine|transplanter|sprayer)/gi, ' ');
   const typeConflict = Boolean(type && (tractorContext ? nonTractor.test(queryTypeIdentity)
     : nonTractor.test(type) && /拖拉机|\btractor\b/i.test(queryTypeIdentity)));
   const identityConflict = brandConflict || modelConflict || typeConflict;
   // Powered accessories and service tools do not identify the tractor's propulsion system.
+  // Electric mirrors are accessories too: 电动(手动)伸缩/折叠/加热/调节后视镜
+  // (KB-JD-8RG4-OMTA30801-G3-CN-274《调整后视镜：电动手动伸缩与加热》was
+  // misread as an electric-tractor question).
   const queryPowerIdentity = queryIdentity.replace(/电动(?:工具|扳手|螺丝刀)|\belectric\s+(?:tools?|wrenches?|screwdrivers?)\b/gi, ' ')
-    .replace(/电动(?=(?:供油|输油|燃油|提升|液压|冷却|水|机油|润滑)?泵|风扇|预热装置|雨刷|座椅|车窗)|\belectric\s+(?=(?:(?:fuel|lift|feed|hydraulic|coolant|oil|water)\s+){0,2}pumps?\b|fans?\b|wipers?\b)/gi, '')
+    .replace(/电动(?=(?:供油|输油|燃油|提升|液压|冷却|水|机油|润滑)?泵|风扇|预热装置|雨刷|座椅|车窗|(?:手动)?(?:伸缩|折叠|加热|调节)|后视镜)|\belectric\s+(?=(?:(?:fuel|lift|feed|hydraulic|coolant|oil|water)\s+){0,2}pumps?\b|fans?\b|wipers?\b|mirrors?\b)/gi, '')
     // Manual steering becoming unavailable does not identify an autonomous tractor.
     .replace(/无人力转向/g, '人力转向')
     // A named transmission control is not an electric tractor identity.
