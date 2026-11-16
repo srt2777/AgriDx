@@ -2974,3 +2974,360 @@
 {"entry_id": "KB-JD-1404-OMSU38852-L4-CN-411", "roles": ["action"], "role_basis": "原文标记"}
 {"entry_id": "KB-JD-1404-OMSU38852-L4-CN-412", "roles": ["action"], "role_basis": "原文标记"}
 {"entry_id": "KB-JD-1404-OMSU38852-L4-CN-413", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-199", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-200", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-201", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-202", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-203", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-204", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-205", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-206", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-207", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-208", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-209", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-210", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-211", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-212", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-213", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-214", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-215", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-216", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-217", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-218", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-219", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-220", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-221", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-222", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-223", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-224", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-225", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-226", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-227", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-228", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-229", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-230", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-231", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-232", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-233", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-234", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-235", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-236", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-237", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-238", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-239", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-240", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-241", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-242", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-243", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-244", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-245", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-246", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-247", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-248", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-249", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-250", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-251", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-252", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-253", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-254", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-255", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-256", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-257", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-258", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-259", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-260", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-261", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-262", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-263", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-264", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-265", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-266", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-267", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-268", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-269", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-270", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-271", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-272", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-273", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-274", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-275", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-276", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-277", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-278", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-279", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-280", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-281", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-282", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-283", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-284", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-285", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-286", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-287", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-288", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-289", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-290", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-291", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-292", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-293", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-294", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-295", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-296", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-297", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-298", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-299", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-300", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-301", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-302", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-303", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-304", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-305", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-306", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-307", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-308", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-309", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-310", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-311", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-312", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-313", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-314", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-315", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-316", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-317", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-318", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-319", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-320", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-321", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-322", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-323", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-324", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-325", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-326", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-327", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-328", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-329", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-330", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-331", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-332", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-333", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-334", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-335", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-336", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-337", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-338", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-339", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-340", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-341", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-342", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-343", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-344", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-345", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-346", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-347", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-348", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-349", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-350", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-351", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-352", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-353", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-354", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-355", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-356", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-357", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-358", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-359", "roles": ["symptom", "cause", "action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-004", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-006", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-007", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-008", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-009", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-010", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-011", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-012", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-013", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-014", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-015", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-016", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-017", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-018", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-019", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-020", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-021", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-022", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-023", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-024", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-025", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-026", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-027", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-028", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-029", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-030", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-031", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-032", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-033", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-034", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-035", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-036", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-037", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-038", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-039", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-040", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-041", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-042", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-043", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-044", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-045", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-046", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-047", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-048", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-049", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-050", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-051", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-052", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-053", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-054", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-055", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-056", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-057", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-058", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-059", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-060", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-061", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-062", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-063", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-064", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-065", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-066", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-067", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-068", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-069", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-070", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-071", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-072", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-073", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-074", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-075", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-076", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-077", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-078", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-079", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-080", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-081", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-082", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-083", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-084", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-085", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-086", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-087", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-088", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-089", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-090", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-091", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-092", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-093", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-094", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-095", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-096", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-097", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-098", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-099", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-100", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-101", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-102", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-103", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-104", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-105", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-106", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-107", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-108", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-109", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-110", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-111", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-112", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-113", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-114", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-115", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-116", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-117", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-118", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-119", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-120", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-121", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-122", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-123", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-124", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-125", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-126", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-127", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-128", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-129", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-130", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-131", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-132", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-133", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-134", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-135", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-136", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-137", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-138", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-139", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-140", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-141", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-142", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-143", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-144", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-145", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-146", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-147", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-148", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-149", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-150", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-151", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-152", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-153", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-154", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-155", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-156", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-157", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-158", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-159", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-160", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-161", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-162", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-163", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-164", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-165", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-166", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-167", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-168", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-169", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-170", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-171", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-172", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-173", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-174", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-175", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-176", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-177", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-178", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-179", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-180", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-181", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-182", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-183", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-184", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-185", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-186", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-187", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-188", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-189", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-190", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-191", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-192", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-193", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-194", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-195", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-196", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-197", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-198", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-360", "roles": ["action"], "role_basis": "原文标记"}
+{"entry_id": "KB-JD-JD5-OMSJ16405-E5-CN-361", "roles": ["action"], "role_basis": "原文标记"}
