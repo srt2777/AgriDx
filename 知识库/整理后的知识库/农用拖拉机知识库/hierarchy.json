@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-15",
+  "updated_at": "2026-11-16",
   "purpose": "仅为已有知识条目的分层导航；零件关联不是故障确诊，不新增维修事实、型号或兼容性。",
   "components": [
     {
@@ -98921,6 +98921,5323 @@
         },
         {
           "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-012",
+      "components": [
+        {
+          "component_id": "documents",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-013",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-014",
+      "components": [
+        {
+          "component_id": "documents",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-015",
+      "components": [
+        {
+          "component_id": "documents",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-016",
+      "components": [
+        {
+          "component_id": "documents",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-017",
+      "components": [
+        {
+          "component_id": "documents",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-018",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-019",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-020",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-021",
+      "components": [
+        {
+          "component_id": "fuel",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-022",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-023",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-024",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-025",
+      "components": [
+        {
+          "component_id": "fuel",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-026",
+      "components": [
+        {
+          "component_id": "cab",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-027",
+      "components": [
+        {
+          "component_id": "pto",
+          "part_ids": [
+            "pto-shaft"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-028",
+      "components": [
+        {
+          "component_id": "pto",
+          "part_ids": [
+            "pto-shaft"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-029",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-030",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-031",
+      "components": [
+        {
+          "component_id": "cab",
+          "part_ids": [
+            "rops"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-032",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-033",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-034",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-035",
+      "components": [
+        {
+          "component_id": "cab",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-036",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-037",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-038",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-039",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-040",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-041",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-042",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-043",
+      "components": [
+        {
+          "component_id": "cab",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-044",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-045",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "battery"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-046",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "battery"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-047",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-048",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-049",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-050",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-051",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": [
+            "exhaust-aftertreatment"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-052",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": [
+            "exhaust-aftertreatment"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-053",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-054",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-055",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "starter"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-056",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-057",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-058",
+      "components": [
+        {
+          "component_id": "cooling",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-059",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-060",
+      "components": [
+        {
+          "component_id": "chassis",
+          "part_ids": [
+            "tyre"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-061",
+      "components": [
+        {
+          "component_id": "chassis",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-062",
+      "components": [
+        {
+          "component_id": "chassis",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-063",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hydraulic-hose"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-064",
+      "components": [
+        {
+          "component_id": "fuel",
+          "part_ids": [
+            "fuel-hose"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-065",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-066",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-067",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-068",
+      "components": [
+        {
+          "component_id": "cab",
+          "part_ids": [
+            "rops"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-069",
+      "components": [
+        {
+          "component_id": "cooling",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-070",
+      "components": [
+        {
+          "component_id": "fuel",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-071",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-072",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-073",
+      "components": [
+        {
+          "component_id": "pto",
+          "part_ids": [
+            "pto-shaft"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-074",
+      "components": [
+        {
+          "component_id": "pto",
+          "part_ids": [
+            "pto-shaft"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-075",
+      "components": [
+        {
+          "component_id": "documents",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-076",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-077",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": [
+            "exhaust-aftertreatment"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-078",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-079",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-080",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": [
+            "exhaust-aftertreatment"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-081",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": [
+            "exhaust-aftertreatment"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-082",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": [
+            "exhaust-aftertreatment"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-083",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": [
+            "exhaust-aftertreatment"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-084",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": [
+            "exhaust-aftertreatment"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-085",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-086",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-087",
+      "components": [
+        {
+          "component_id": "fuel",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-088",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "battery"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-089",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "starter"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-090",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-091",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-092",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-093",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-094",
+      "components": [
+        {
+          "component_id": "fuel",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-095",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-096",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "battery"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-097",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-098",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-099",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-100",
+      "components": [
+        {
+          "component_id": "cooling",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-101",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": [
+            "exhaust-aftertreatment"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-102",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-103",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": [
+            "exhaust-aftertreatment"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-104",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-105",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": [
+            "exhaust-aftertreatment"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-106",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": [
+            "exhaust-aftertreatment"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-107",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-108",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-109",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-110",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-111",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "ignition-switch"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-112",
+      "components": [
+        {
+          "component_id": "brakes",
+          "part_ids": [
+            "brake-pedal"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-113",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "instrument-panel"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-114",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "instrument-panel"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-115",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "instrument-panel"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-116",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "instrument-panel"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-117",
+      "components": [
+        {
+          "component_id": "cooling",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-118",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "instrument-panel"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-119",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hitch-control"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-120",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-121",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hydraulic-valve"
+          ]
+        },
+        {
+          "component_id": "pto",
+          "part_ids": [
+            "pto-shaft"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-122",
+      "components": [
+        {
+          "component_id": "cab",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-123",
+      "components": [
+        {
+          "component_id": "cab",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-124",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "instrument-panel"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-125",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": [
+            "differential-lock"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-126",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": [
+            "differential-lock"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-127",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-128",
+      "components": [
+        {
+          "component_id": "brakes",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-129",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-130",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-131",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-132",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-133",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-134",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-135",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-136",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-137",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-138",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-139",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-140",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-141",
+      "components": [
+        {
+          "component_id": "steering",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-142",
+      "components": [
+        {
+          "component_id": "steering",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-143",
+      "components": [
+        {
+          "component_id": "steering",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-144",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-145",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "wiring"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-146",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-147",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-148",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-149",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-150",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-151",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-152",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-153",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-154",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-155",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-156",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": [
+            "differential-lock"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-157",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-158",
+      "components": [
+        {
+          "component_id": "brakes",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-159",
+      "components": [
+        {
+          "component_id": "brakes",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-160",
+      "components": [
+        {
+          "component_id": "brakes",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-161",
+      "components": [
+        {
+          "component_id": "brakes",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-162",
+      "components": [
+        {
+          "component_id": "brakes",
+          "part_ids": [
+            "brake-pedal"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-163",
+      "components": [
+        {
+          "component_id": "brakes",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-164",
+      "components": [
+        {
+          "component_id": "brakes",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-165",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-166",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-167",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": [
+            "differential-lock"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-168",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-169",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-170",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "instrument-panel"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-171",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": [
+            "clutch-pedal"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-172",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-173",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-174",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-175",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-176",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-177",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-178",
+      "components": [
+        {
+          "component_id": "pto",
+          "part_ids": [
+            "pto-shaft"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-179",
+      "components": [
+        {
+          "component_id": "pto",
+          "part_ids": [
+            "pto-shaft"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-180",
+      "components": [
+        {
+          "component_id": "pto",
+          "part_ids": [
+            "pto-shaft"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-181",
+      "components": [
+        {
+          "component_id": "pto",
+          "part_ids": [
+            "pto-shaft"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-182",
+      "components": [
+        {
+          "component_id": "pto",
+          "part_ids": [
+            "pto-shaft"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-183",
+      "components": [
+        {
+          "component_id": "pto",
+          "part_ids": [
+            "pto-shaft"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-184",
+      "components": [
+        {
+          "component_id": "pto",
+          "part_ids": [
+            "pto-shaft"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-185",
+      "components": [
+        {
+          "component_id": "pto",
+          "part_ids": [
+            "pto-shaft"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-186",
+      "components": [
+        {
+          "component_id": "pto",
+          "part_ids": [
+            "pto-shaft"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-187",
+      "components": [
+        {
+          "component_id": "pto",
+          "part_ids": [
+            "pto-shaft"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-188",
+      "components": [
+        {
+          "component_id": "pto",
+          "part_ids": [
+            "pto-shaft"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-189",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-190",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hitch-control"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-191",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hitch-control"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-192",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hitch-control"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-193",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hitch-control"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-194",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hitch-control"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-195",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-196",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hitch-control"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-197",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hitch-control"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-198",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hitch-control"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-199",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hitch-control"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-200",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-201",
+      "components": [
+        {
+          "component_id": "chassis",
+          "part_ids": [
+            "tyre"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-202",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-203",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-204",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-205",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hitch-control"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-206",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hitch-control"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-207",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-208",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-209",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-210",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-211",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-212",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-213",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-214",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-215",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hydraulic-valve"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-216",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hydraulic-valve"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-217",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hydraulic-valve"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-218",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hydraulic-valve"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-219",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hydraulic-valve"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-220",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hydraulic-valve"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-221",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hydraulic-valve"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-222",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hydraulic-valve"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-223",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hydraulic-valve"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-224",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-225",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hydraulic-valve"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-226",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hydraulic-hose"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-227",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hydraulic-hose"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-228",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-229",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-230",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-231",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-232",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-233",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-234",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-235",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-236",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-237",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-238",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hitch-control"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-239",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hydraulic-valve"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-240",
+      "components": [
+        {
+          "component_id": "chassis",
+          "part_ids": [
+            "tyre"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-241",
+      "components": [
+        {
+          "component_id": "chassis",
+          "part_ids": [
+            "tyre"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-242",
+      "components": [
+        {
+          "component_id": "chassis",
+          "part_ids": [
+            "tyre"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-243",
+      "components": [
+        {
+          "component_id": "chassis",
+          "part_ids": [
+            "tyre"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-244",
+      "components": [
+        {
+          "component_id": "chassis",
+          "part_ids": [
+            "tyre"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-245",
+      "components": [
+        {
+          "component_id": "chassis",
+          "part_ids": [
+            "tyre"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-246",
+      "components": [
+        {
+          "component_id": "chassis",
+          "part_ids": [
+            "tyre"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-247",
+      "components": [
+        {
+          "component_id": "chassis",
+          "part_ids": [
+            "tyre"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-248",
+      "components": [
+        {
+          "component_id": "chassis",
+          "part_ids": [
+            "tyre"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-249",
+      "components": [
+        {
+          "component_id": "chassis",
+          "part_ids": [
+            "tyre"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-250",
+      "components": [
+        {
+          "component_id": "chassis",
+          "part_ids": [
+            "tyre"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-251",
+      "components": [
+        {
+          "component_id": "chassis",
+          "part_ids": [
+            "wheel-rim"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-252",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-253",
+      "components": [
+        {
+          "component_id": "chassis",
+          "part_ids": [
+            "tyre"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-254",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-255",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-256",
+      "components": [
+        {
+          "component_id": "chassis",
+          "part_ids": [
+            "tyre"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-257",
+      "components": [
+        {
+          "component_id": "chassis",
+          "part_ids": [
+            "tyre"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-258",
+      "components": [
+        {
+          "component_id": "chassis",
+          "part_ids": [
+            "tyre"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-259",
+      "components": [
+        {
+          "component_id": "chassis",
+          "part_ids": [
+            "tyre"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-260",
+      "components": [
+        {
+          "component_id": "chassis",
+          "part_ids": [
+            "wheel-rim"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-261",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-262",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-263",
+      "components": [
+        {
+          "component_id": "chassis",
+          "part_ids": [
+            "tyre"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-264",
+      "components": [
+        {
+          "component_id": "chassis",
+          "part_ids": [
+            "tyre"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-265",
+      "components": [
+        {
+          "component_id": "chassis",
+          "part_ids": [
+            "tyre"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-266",
+      "components": [
+        {
+          "component_id": "chassis",
+          "part_ids": [
+            "tyre"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-267",
+      "components": [
+        {
+          "component_id": "chassis",
+          "part_ids": [
+            "wheel-rim"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-268",
+      "components": [
+        {
+          "component_id": "chassis",
+          "part_ids": [
+            "wheel-rim"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-269",
+      "components": [
+        {
+          "component_id": "chassis",
+          "part_ids": [
+            "tyre"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-270",
+      "components": [
+        {
+          "component_id": "chassis",
+          "part_ids": [
+            "tyre"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-271",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-272",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-273",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-274",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-275",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-276",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-277",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-278",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-279",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-280",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-281",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-282",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-283",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-284",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-285",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-286",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-287",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-288",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-289",
+      "components": [
+        {
+          "component_id": "chassis",
+          "part_ids": [
+            "tyre"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-290",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-291",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-292",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-293",
+      "components": [
+        {
+          "component_id": "chassis",
+          "part_ids": [
+            "tyre"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-294",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-295",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-296",
+      "components": [
+        {
+          "component_id": "chassis",
+          "part_ids": [
+            "tyre"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-297",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-298",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-299",
+      "components": [
+        {
+          "component_id": "chassis",
+          "part_ids": [
+            "tyre"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-300",
+      "components": [
+        {
+          "component_id": "chassis",
+          "part_ids": [
+            "tyre"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-301",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-302",
+      "components": [
+        {
+          "component_id": "chassis",
+          "part_ids": [
+            "tyre"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-303",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-304",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-305",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-306",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-307",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-308",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-309",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-310",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-311",
+      "components": [
+        {
+          "component_id": "fuel",
+          "part_ids": [
+            "fuel-filter"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-312",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-313",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-314",
+      "components": [
+        {
+          "component_id": "fuel",
+          "part_ids": [
+            "fuel-filter"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-315",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-316",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-317",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-318",
+      "components": [
+        {
+          "component_id": "lubrication",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-319",
+      "components": [
+        {
+          "component_id": "lubrication",
+          "part_ids": [
+            "oil-filter"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-320",
+      "components": [
+        {
+          "component_id": "cooling",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-321",
+      "components": [
+        {
+          "component_id": "cooling",
+          "part_ids": [
+            "radiator-cap"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-322",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-323",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-324",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-325",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-326",
+      "components": [
+        {
+          "component_id": "fuel",
+          "part_ids": [
+            "injector"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-329",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-327",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-328",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-330",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-331",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-332",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-333",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-334",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-335",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-336",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": [
+            "air-filter"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-337",
+      "components": [
+        {
+          "component_id": "cooling",
+          "part_ids": [
+            "radiator"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-338",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-339",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-340",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-341",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "wiring"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-342",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-343",
+      "components": [
+        {
+          "component_id": "fuel",
+          "part_ids": [
+            "water-separator"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-344",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": [
+            "exhaust-aftertreatment"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-345",
+      "components": [
+        {
+          "component_id": "cooling",
+          "part_ids": [
+            "coolant-pump"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-346",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-347",
+      "components": [
+        {
+          "component_id": "lubrication",
+          "part_ids": [
+            "oil-dipstick"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-348",
+      "components": [
+        {
+          "component_id": "chassis",
+          "part_ids": [
+            "tyre"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-349",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-350",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-351",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-352",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-353",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-354",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hydraulic-filter"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-355",
+      "components": [
+        {
+          "component_id": "lubrication",
+          "part_ids": [
+            "oil-filter"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-356",
+      "components": [
+        {
+          "component_id": "fuel",
+          "part_ids": [
+            "fuel-filter"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-357",
+      "components": [
+        {
+          "component_id": "cab",
+          "part_ids": [
+            "cab-filter"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-358",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": [
+            "air-filter"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-359",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hydraulic-valve"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-360",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-361",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hydraulic-filter"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-362",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-363",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-364",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-365",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-366",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-367",
+      "components": [
+        {
+          "component_id": "cooling",
+          "part_ids": [
+            "thermostat"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-368",
+      "components": [
+        {
+          "component_id": "cooling",
+          "part_ids": [
+            "thermostat"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-369",
+      "components": [
+        {
+          "component_id": "steering",
+          "part_ids": [
+            "steering-pins"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-370",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hydraulic-cylinder"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-371",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-372",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-373",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "wiring"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-374",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "battery"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-375",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "battery"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-376",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "fuse"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-377",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "fuse"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-378",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "fuse"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-379",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-380",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-381",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-382",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-383",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-384",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "battery"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-385",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "battery"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-386",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-387",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-388",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-389",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "battery"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-390",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-391",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-392",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-393",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "battery"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-394",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-395",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "wiring"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-396",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-397",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "starter"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-398",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-399",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "battery"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-400",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "battery"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-401",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-402",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-403",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hydraulic-valve"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-404",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "battery"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-405",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-406",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "battery"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-407",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "fuse"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-408",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-409",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-410",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-411",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "fuse"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-412",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-413",
+      "components": [
+        {
+          "component_id": "fuel",
+          "part_ids": [
+            "fuel-hose"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-414",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-415",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "starter"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-416",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-417",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-418",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-419",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-420",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-421",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-422",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-423",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-424",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-425",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": [
+            "air-filter"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-426",
+      "components": [
+        {
+          "component_id": "fuel",
+          "part_ids": [
+            "fuel-filter"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-427",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-428",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-429",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-430",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-431",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-432",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": [
+            "turbocharger"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-433",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-434",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-435",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": [
+            "air-filter"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-436",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-437",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-438",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": [
+            "turbocharger"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-439",
+      "components": [
+        {
+          "component_id": "cooling",
+          "part_ids": [
+            "radiator"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-440",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-441",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-442",
+      "components": [
+        {
+          "component_id": "cooling",
+          "part_ids": [
+            "radiator"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-443",
+      "components": [
+        {
+          "component_id": "cooling",
+          "part_ids": [
+            "radiator-cap"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-444",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-445",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-446",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-447",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-448",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-449",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": [
+            "air-filter"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-450",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-451",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-452",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-453",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-454",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-455",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-456",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-457",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-458",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hitch-control"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-459",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-460",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-461",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-462",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-463",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-464",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-465",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-466",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-467",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-468",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hitch-control"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-469",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-470",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-471",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-472",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "fuse"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-473",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-474",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "wiring"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-475",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-476",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-477",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-478",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-479",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hydraulic-cooler"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-480",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-481",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-482",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-483",
+      "components": [
+        {
+          "component_id": "cab",
+          "part_ids": [
+            "cab-filter"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-484",
+      "components": [
+        {
+          "component_id": "cab",
+          "part_ids": [
+            "cab-filter"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-485",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-486",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-487",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-488",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-489",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-490",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-491",
+      "components": [
+        {
+          "component_id": "cab",
+          "part_ids": [
+            "condenser"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-492",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-493",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-494",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-495",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-496",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-497",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "fuse"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-498",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "fuse"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-499",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-500",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hydraulic-valve"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-501",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-502",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hydraulic-valve"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-503",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-504",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hydraulic-cylinder"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-505",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-506",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-507",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-508",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hydraulic-valve"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-509",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-510",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-511",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hydraulic-valve"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-512",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-513",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-514",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hydraulic-valve"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-515",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-516",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-517",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-518",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-519",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": [
+            "differential-lock"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-520",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-521",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-522",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-523",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-524",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-525",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-526",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-527",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-528",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-529",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-530",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-531",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-532",
+      "components": [
+        {
+          "component_id": "brakes",
+          "part_ids": [
+            "brake-pedal"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-533",
+      "components": [
+        {
+          "component_id": "brakes",
+          "part_ids": [
+            "brake-pedal"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-534",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-535",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "instrument-panel"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-536",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-537",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-538",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-539",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": [
+            "turbocharger"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-540",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-541",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hydraulic-valve"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-542",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": [
+            "differential-lock"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-543",
+      "components": [
+        {
+          "component_id": "pto",
+          "part_ids": [
+            "pto-shaft"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-544",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "battery"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-545",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-546",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-547",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-548",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-549",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-550",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-551",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-552",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-553",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "starter"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-554",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-555",
+      "components": [
+        {
+          "component_id": "documents",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-556",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-557",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-8RG4-OMTA30801-G3-CN-558",
+      "components": [
+        {
+          "component_id": "documents",
           "part_ids": []
         }
       ]

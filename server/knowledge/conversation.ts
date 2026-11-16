@@ -35,11 +35,18 @@ const MACHINE_TYPES: [RegExp, string][] = [
 function declaredMachineType(text: string): string | undefined {
   // Document references and an explicitly attached implement do not identify
   // the primary machine. Use the same implement exception as the scope gate.
-  const primary = queryWithoutIdentity(text).replace(
+  const attached = queryWithoutIdentity(text).replace(
     // 配套 / 配装也是挂接动词（与 scope.ts 的机具例外保持一致）。
     /(?:挂接|连接|牵引|配套|配装|\bPTO\s*接)\s*(?:的\s*)?(?:收割机|收获机|插秧机|植保机|播种机|无人机|combine|transplanter|sprayer)/gi,
     ' ',
   );
+  // As in scope.ts, the implement noun need not sit directly after the hitch
+  // verb (e.g. 机具连接例1…气吹式播种机); strip implement nouns after the
+  // first remaining hitch verb, keeping a machine named before it.
+  const hitchVerbAt = attached.search(/(?:挂接|连接|牵引|配套|配装|\bPTO\s*接)/i);
+  const primary = hitchVerbAt < 0 ? attached
+    : attached.slice(0, hitchVerbAt) + attached.slice(hitchVerbAt)
+      .replace(/(?:收割机|收获机|插秧机|植保机|播种机|无人机|combine|transplanter|sprayer)/gi, ' ');
   return MACHINE_TYPES.find(([pattern]) => pattern.test(primary))?.[1];
 }
 
