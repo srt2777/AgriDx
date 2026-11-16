@@ -64,6 +64,40 @@ test('JD5 批 kb300k-batch2-jd5-20261115：新增诊断条目全部以原文标�
   const queue = lines('role-review-queue.jsonl');
   for (const e of batch) assert.ok(!queue.some((q) => q.entry_id === e.entry_id));
 });
+test('8R 批 kb300k-batch2-jd8r-20261116：156 条原文标记写入旁路文件，339 条列入人工核对队列', () => {
+  // 约翰迪尔 8R G4 操作手册 OMTA30801 G3 新增 547 条；其中旧条目 -005/-006/-008/-011 不计入本批。
+  const jd8rSource = 'SRC-JD-8RG4-OMTA30801-G3-CN';
+  const prior = new Set(['KB-JD-8RG4-OMTA30801-G3-CN-005', 'KB-JD-8RG4-OMTA30801-G3-CN-006', 'KB-JD-8RG4-OMTA30801-G3-CN-008', 'KB-JD-8RG4-OMTA30801-G3-CN-011']);
+  const batch = lines('entries.jsonl').filter((e) => e.source_id === jd8rSource && !prior.has(e.entry_id));
+  assert.equal(batch.length, 547);
+  const annotatable = batch.filter((e) => !NON_DIAGNOSTIC.has(e.entry_type));
+  assert.equal(annotatable.length, 495);
+  const nonAnnotatable = batch.filter((e) => NON_DIAGNOSTIC.has(e.entry_type));
+  assert.equal(nonAnnotatable.length, 52);
+  const tags = lines('entry-roles.jsonl');
+  const batchTags = tags.filter((t) => batch.some((e) => e.entry_id === t.entry_id));
+  assert.equal(batchTags.length, 156);
+  assert.equal(new Set(batchTags.map((t) => t.entry_id)).size, 156);
+  for (const t of batchTags) assert.equal(t.role_basis, '原文标记');
+  assert.ok(batchTags.every((t) => !t.roles.includes('check') && !t.roles.includes('retest')));
+  const queue = lines('role-review-queue.jsonl');
+  const batchQueue = queue.filter((q) => batch.some((e) => e.entry_id === q.entry_id));
+  assert.equal(batchQueue.length, 339);
+  assert.equal(new Set(batchQueue.map((q) => q.entry_id)).size, 339);
+  for (const q of batchQueue) assert.equal(q.status, 'pending');
+  // 旁路与队列互不重叠、恰好覆盖 495 条可标注条目；52 条五类不标注条目两边都不进。
+  const tagged = new Set(batchTags.map((t) => t.entry_id));
+  const queued = new Set(batchQueue.map((q) => q.entry_id));
+  for (const id of tagged) assert.ok(!queued.has(id));
+  assert.equal(tagged.size + queued.size, annotatable.length);
+  for (const e of nonAnnotatable) assert.ok(!tagged.has(e.entry_id) && !queued.has(e.entry_id));
+  // 人审阻塞修正：本批 hierarchy 不得再挂 navigation（-049/-139/-140/-285/-286/-499 已改挂 machine）。
+  const hierarchy = JSON.parse(readFileSync('知识库/整理后的知识库/农用拖拉机知识库/hierarchy.json', 'utf8'));
+  const batchHier = hierarchy.entries.filter((h) => batch.some((e) => e.entry_id === h.entry_id));
+  assert.equal(batchHier.length, 547);
+  assert.ok(batchHier.every((h) => h.components.length > 0));
+  assert.ok(!batchHier.some((h) => h.components.some((c) => c.component_id === 'navigation')));
+});
 
 test('自动标注只用原文标记依据，角色按规范顺序且不含 retest', () => {
   for (const t of lines('entry-roles.jsonl')) {
