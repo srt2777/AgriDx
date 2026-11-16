@@ -47,6 +47,24 @@ test('试点批 kb300k-pilot-jd-20261115：新增诊断条目全部以原文标�
   for (const e of pilot) assert.ok(!queue.some((q) => q.entry_id === e.entry_id));
 });
 
+test('JD5 批 kb300k-batch2-jd5-20261115：新增诊断条目全部以原文标记写入旁路文件', () => {
+  // 约翰迪尔 JD5 操作手册 OMSJ16405 E5 新增 394 条；其中旧条目 -001/-002 不计入本批。
+  const jd5Source = 'SRC-JD-JD5-OMSJ16405-E5-CN';
+  const prior = new Set(['KB-JD-JD5-OMSJ16405-E5-CN-001', 'KB-JD-JD5-OMSJ16405-E5-CN-002']);
+  const batch = lines('entries.jsonl').filter((e) => e.source_id === jd5Source && !prior.has(e.entry_id));
+  assert.equal(batch.length, 394);
+  const diagnostic = batch.filter((e) => !NON_DIAGNOSTIC.has(e.entry_type));
+  assert.equal(diagnostic.length, 357);
+  const tags = lines('entry-roles.jsonl');
+  const batchTags = tags.filter((t) => batch.some((e) => e.entry_id === t.entry_id));
+  assert.equal(batchTags.length, 357);
+  assert.equal(new Set(batchTags.map((t) => t.entry_id)).size, 357);
+  for (const e of diagnostic) assert.ok(batchTags.some((t) => t.entry_id === e.entry_id));
+  for (const t of batchTags) assert.equal(t.role_basis, '原文标记');
+  const queue = lines('role-review-queue.jsonl');
+  for (const e of batch) assert.ok(!queue.some((q) => q.entry_id === e.entry_id));
+});
+
 test('自动标注只用原文标记依据，角色按规范顺序且不含 retest', () => {
   for (const t of lines('entry-roles.jsonl')) {
     assert.deepEqual(Object.keys(t).sort(), ['entry_id', 'role_basis', 'roles']);
