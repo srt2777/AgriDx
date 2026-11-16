@@ -68,7 +68,7 @@ test('875条FAO术语逐条对应官方来源子集，累计目录包含原13000
       }
     } else if (file.endsWith('/农用拖拉机知识库/entry-roles.jsonl')) {
       // 2026-10-29 快照前缀为前 2,222 行；试点批（kb300k-pilot-jd-20261115）
-      // 起首次追加旁路行（+754），前缀哈希须保持不变。
+      // 与 JD5 批（kb300k-batch2-jd5-20261115）起首次追加旁路行（+754、+357），前缀哈希须保持不变。
       content = content.split('\n').slice(0, 2222).join('\n') + '\n';
     } else if (file.endsWith('/农用拖拉机知识库/sources.json')) {
       const nextSource = content.indexOf(',\n  {\n    "source_id": "SRC-NH-T1254B-T1404B-91783224"');
