@@ -6,12 +6,14 @@ import { createHash } from 'node:crypto';
 import { createInterface } from 'node:readline';
 import { buildContextRegistry } from '../agent/context-tools';
 import { ToolExecutor } from '../agent/tools';
+import { referenceVerification } from '../server/knowledge/evidence';
 
 const indexPath = '知识库/整理后的知识库/农用拖拉机知识库/entries.jsonl';
 
 type Entry = {
   entry_id: string;
   source_id: string;
+  entry_type: string;
   brand: string;
   model: string;
   models?: string[];
@@ -61,6 +63,9 @@ for await (const line of createInterface({ input: createReadStream(indexPath), c
   const detail = JSON.parse(detailResult.content);
   assert.equal(detail.entryId, id);
   assert.equal(detail.sourceId, sourceId);
+  if (previous === undefined && ['维护/故障知识', '操作/维护知识'].includes(entry.entry_type)) {
+    assert.equal(referenceVerification(detail.status), 'verified', id + ' 的原页复核状态未被 Agent 识别');
+  }
   if (entry.models) assert.deepEqual(new Set(detail.models), new Set(entry.models), id);
   assert.ok(detail.content.includes(locator), id);
   const minimumSerial = serialMinimums.get(sourceId);
