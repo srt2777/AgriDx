@@ -105796,7 +105796,9 @@
       "components": [
         {
           "component_id": "electrical",
-          "part_ids": []
+          "part_ids": [
+            "fuse"
+          ]
         }
       ]
     },
@@ -105841,7 +105843,9 @@
       "components": [
         {
           "component_id": "electrical",
-          "part_ids": []
+          "part_ids": [
+            "battery"
+          ]
         }
       ]
     },
@@ -105859,7 +105863,9 @@
       "components": [
         {
           "component_id": "hydraulics",
-          "part_ids": []
+          "part_ids": [
+            "hydraulic-cylinder"
+          ]
         }
       ]
     },
@@ -105868,7 +105874,9 @@
       "components": [
         {
           "component_id": "lubrication",
-          "part_ids": []
+          "part_ids": [
+            "oil-filter"
+          ]
         }
       ]
     },
@@ -105886,7 +105894,9 @@
       "components": [
         {
           "component_id": "fuel",
-          "part_ids": []
+          "part_ids": [
+            "fuel-hose"
+          ]
         }
       ]
     },
@@ -105895,7 +105905,10 @@
       "components": [
         {
           "component_id": "transmission",
-          "part_ids": []
+          "part_ids": [
+            "clutch-spring",
+            "clutch-pedal"
+          ]
         }
       ]
     },
@@ -105913,7 +105926,9 @@
       "components": [
         {
           "component_id": "electrical",
-          "part_ids": []
+          "part_ids": [
+            "battery"
+          ]
         }
       ]
     },
@@ -106030,7 +106045,9 @@
       "components": [
         {
           "component_id": "cooling",
-          "part_ids": []
+          "part_ids": [
+            "coolant-pump"
+          ]
         }
       ]
     },
@@ -106057,7 +106074,9 @@
       "components": [
         {
           "component_id": "hydraulics",
-          "part_ids": []
+          "part_ids": [
+            "hydraulic-cylinder"
+          ]
         }
       ]
     },
@@ -106066,7 +106085,9 @@
       "components": [
         {
           "component_id": "electrical",
-          "part_ids": []
+          "part_ids": [
+            "starter"
+          ]
         }
       ]
     },
@@ -106138,7 +106159,9 @@
       "components": [
         {
           "component_id": "hydraulics",
-          "part_ids": []
+          "part_ids": [
+            "hydraulic-cylinder"
+          ]
         }
       ]
     },
@@ -106183,7 +106206,9 @@
       "components": [
         {
           "component_id": "brakes",
-          "part_ids": []
+          "part_ids": [
+            "brake-friction"
+          ]
         }
       ]
     },
@@ -106202,7 +106227,8 @@
         {
           "component_id": "transmission",
           "part_ids": [
-            "clutch-pedal"
+            "clutch-pedal",
+            "clutch-spring"
           ]
         }
       ]
