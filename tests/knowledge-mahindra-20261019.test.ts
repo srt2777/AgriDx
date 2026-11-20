@@ -1,3 +1,4 @@
+import { octoberComponents } from './helpers/historical-component-parts';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import fs from 'node:fs';
@@ -39,7 +40,7 @@ test('续补四条保持4873行旧索引、67份正文、其他来源及原导�
   assert.equal(hash(paths.map(p => `${p}\0${hash(beforeJd1404TitleCorrection(read(p)))}`).join('\n')), base.knowledge_sha256);
   const hierarchy = JSON.parse(read(`${index}/hierarchy.json`));
   assert.equal(hash(JSON.stringify(hierarchy.entries.slice(0, 4873))), base.hierarchy_sha256);
-  assert.equal(hash(JSON.stringify(hierarchy.components)), base.components_sha256);
+  assert.equal(hash(JSON.stringify(octoberComponents(hierarchy.components))), base.components_sha256);
   const sources = JSON.parse(read(`${index}/sources.json`)) as { source_id: string }[];
   const historical = sources.slice(0, 28);
   assert.equal(historical.at(-1)?.source_id, 'SRC-MH-6065-6075-CAB-REV01');
