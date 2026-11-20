@@ -24,3 +24,5 @@ node verify-catalog.cjs
 python3 build-catalog-delta.py /path/to/AgriDx a83ad98 8951fd7 > catalog-4.1.54-delta.json
 node verify-catalog.cjs https://agridx-v4-development.orangeglade33.chatgpt.site/ catalog-4.1.54-delta.json
 ```
+
+开发站 4.1.54 已用浏览器核对主库提交 970afec。四批 141 条、430 个机型组合全部匹配，八个下架编号均未出现。[完整目录](public-4.1.54-delta.json)、[7M 与 LF1504 九种问法](public-4.1.54-7m-lf.json)、[宁波和奔野五种问法](public-4.1.54-ningbo-benye.json)。问答记录包含实际返回的正文和引用，可区分直接答复、资料引用与停机提示。

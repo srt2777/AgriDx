@@ -6,8 +6,10 @@ const rows = JSON.parse(fs.readFileSync(process.argv[3] || path.join(__dirname, 
   const browser = await chromium.launch({executablePath:process.env.BROWSER_EXECUTABLE,headless:true});
   try {
     const page = await browser.newPage();
-    await page.goto(process.argv[2] || 'https://agridx-v4-development.orangeglade33.chatgpt.site/');
-    await page.getByText('知识库',{exact:true}).first().click();
+    const location = new URL(process.argv[2] || 'https://agridx-v4-development.orangeglade33.chatgpt.site/');
+    location.hash = '/knowledge';
+    await page.goto(location.href, { waitUntil: 'domcontentloaded' });
+    await page.locator('a[href$="/knowledge"][aria-current="page"]').first().waitFor();
     await page.waitForFunction(()=>performance.getEntriesByType('resource').some(e=>/\/api-[^/]+\.js$/.test(e.name)));
     const result = await page.evaluate(async rows=>{
       const commit=document.querySelector('meta[name="agridx-build-commit"]').content;

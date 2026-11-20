@@ -1,6 +1,6 @@
 const assert = require('node:assert/strict');
 const { chromium } = require('playwright-core');
-const cases = [
+const cases = process.argv[3] ? JSON.parse(require('node:fs').readFileSync(process.argv[3], 'utf8')) : [
   ['约翰迪尔', '7M-2304', '整机序列号 100001', true],
   ['约翰迪尔', '7M-2504', '整机序列号 108901', true],
   ['约翰迪尔', '7M-2304', '整机序列号 100000', false],
@@ -17,7 +17,7 @@ const cases = [
     query: deere ? '初级空气滤芯吹洗的气压、喷嘴距离和气流方向，手册怎么说？' : '空调压缩机与风扇供电的保险丝和继电器，手册怎么说？',
     expected: deere ? 'KB-JD-7M-OMAL249107-100001-CN-053' : 'KB-YTO-LF1504-ELEC-007',
     prefix: deere ? 'KB-JD-7M-OMAL249107-' : 'KB-YTO-LF1504-ELEC-',
-    page: deere ? '220A-2' : '2-27'
+    page: deere ? '220A-2' : '2-27', answerTerms: deere ? ['5 bar','50 mm','3 mm'] : []
   };
 });
 
@@ -25,8 +25,10 @@ async function run() {
   const browser = await chromium.launch({ executablePath: process.env.BROWSER_EXECUTABLE });
   try {
     const page = await browser.newPage();
-    await page.goto(process.argv[2] || 'https://agridx-v4-development.orangeglade33.chatgpt.site/');
-    await page.getByText('知识库', { exact: true }).first().click();
+    const location = new URL(process.argv[2] || 'https://agridx-v4-development.orangeglade33.chatgpt.site/');
+    location.hash = '/knowledge';
+    await page.goto(location.href, { waitUntil: 'domcontentloaded' });
+    await page.locator('a[href$="/knowledge"][aria-current="page"]').first().waitFor();
     await page.waitForFunction(() => performance.getEntriesByType('resource').some(r => /\/api-[^/]+\.js$/.test(r.name)));
     const report = await page.evaluate(async cases => {
       let api;
@@ -45,7 +47,7 @@ async function run() {
             messages: [{role: 'user', content}] })
         });
         const data = await response.json();
-        results.push({ content, status: response.status, answer: data.choices?.[0]?.message?.content?.split('\n\n')[0],
+        results.push({ content, status: response.status, answer: data.choices?.[0]?.message?.content,
           batchCitations: (data.knowledgeSources || []).filter(s => s.entryId?.startsWith(prefix)).map(s => [s.entryId, s.locator]) });
       }
       return {commit: document.querySelector('meta[name="agridx-build-commit"]').content, results};
@@ -57,9 +59,8 @@ async function run() {
       if (test.eligible) {
         assert.equal(row.batchCitations[0]?.[0], test.expected);
         assert.ok(row.batchCitations[0][1].includes(test.page));
-        if (test.brand === '约翰迪尔') {
-          for (const term of ['5 bar','50 mm','3 mm']) assert.ok(row.answer.includes(term), term);
-        }
+        for (const term of test.answerTerms || []) assert.ok(row.answer.includes(term), term);
+        if (test.excluded) assert.ok(row.batchCitations.every(([id]) => id !== test.excluded));
       } else {
         assert.deepEqual(row.batchCitations, [], row.content);
       }

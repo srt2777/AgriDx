@@ -1,0 +1,46 @@
+[
+  {
+    "brand": "约翰迪尔",
+    "model": "304",
+    "query": "运行一会儿变速箱油温很高，要先检查哪里？",
+    "expected": "KB-JD-OMSU37872-A6-FT-001",
+    "page": "115-1",
+    "prefix": "KB-JD-OMSU37872-A6-FT-",
+    "eligible": true,
+    "excluded": null
+  },
+  {
+    "brand": "约翰迪尔",
+    "model": "2C-354",
+    "query": "起动机转得慢，电瓶接头也有锈，应该查哪些？",
+    "expected": "KB-JD-OMSU37872-A6-FT-022",
+    "page": "115-6",
+    "prefix": "KB-JD-OMSU37872-A6-FT-",
+    "eligible": true,
+    "excluded": null
+  },
+  {
+    "brand": "奔野",
+    "model": "BY350",
+    "query": "两驱离合踏板的自由行程和工作行程，手册怎么说？",
+    "expected": "KB-BENYE-BY350-BY404-35-40-EN-016",
+    "page": "29",
+    "prefix": "KB-BENYE-BY350-BY404-35-40-EN-",
+    "eligible": true,
+    "excluded": null
+  },
+  {
+    "brand": "奔野",
+    "model": "BY354",
+    "query": "两驱离合踏板的自由行程和工作行程，手册怎么说？",
+    "prefix": "KB-BENYE-BY350-BY404-35-40-EN-016",
+    "eligible": false
+  },
+  {
+    "brand": "奔野",
+    "model": "BY350(G4)",
+    "query": "两驱离合踏板的自由行程和工作行程，手册怎么说？",
+    "prefix": "KB-BENYE-BY350-BY404-35-40-EN-016",
+    "eligible": false
+  }
+]
