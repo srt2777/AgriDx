@@ -105772,6 +105772,783 @@
           ]
         }
       ]
+    },
+    {
+      "entry_id": "KB-WD1000-WD1004-2010-023-001",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-WD1000-WD1004-2010-023-002",
+      "components": [
+        {
+          "component_id": "cooling",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-WD1000-WD1004-2010-023-003",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-WD1000-WD1004-2010-023-004",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-WD1000-WD1004-2010-023-005",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-WD1000-WD1004-2010-023-006",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-WD1000-WD1004-2010-023-007",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-WD1000-WD1004-2010-023-008",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-WD1000-WD1004-2010-023-009",
+      "components": [
+        {
+          "component_id": "cooling",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-WD1000-WD1004-2010-023-010",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-WD1000-WD1004-2010-023-011",
+      "components": [
+        {
+          "component_id": "lubrication",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-WD1000-WD1004-2010-023-012",
+      "components": [
+        {
+          "component_id": "lubrication",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-LWS2604-YH2020WJ01327-001",
+      "components": [
+        {
+          "component_id": "fuel",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-LWS2604-YH2020WJ01327-002",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-LWS2604-YH2020WJ01327-003",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-LWS2604-YH2020WJ01327-004",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-LWS2604-YH2020WJ01327-005",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-LWS2604-YH2020WJ01327-006",
+      "components": [
+        {
+          "component_id": "cab",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-LWS2604-YH2020WJ01327-007",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-LWS2604-YH2020WJ01327-008",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-LWS2604-YH2020WJ01327-009",
+      "components": [
+        {
+          "component_id": "cooling",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-LWS2604-YH2020WJ01327-010",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-GT1204-1-WT202105008-001",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-GT1204-1-WT202105008-002",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-GT1204-1-WT202105008-003",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-GT1204-1-WT202105008-004",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-GT1204-1-WT202105008-005",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-GT1204-1-WT202105008-006",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-GT1204-1-WT202105008-007",
+      "components": [
+        {
+          "component_id": "cooling",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-704-B-YJW202404003-001",
+      "components": [
+        {
+          "component_id": "steering",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-704-B-YJW202404003-002",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-704-B-YJW202404003-003",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-704-B-YJW202404003-004",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-704-B-YJW202404003-005",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-704-B-YJW202404003-006",
+      "components": [
+        {
+          "component_id": "fuel",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-704-B-YJW202404003-007",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-704-B-YJW202404003-008",
+      "components": [
+        {
+          "component_id": "steering",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DMC1404-1-DMC2240204-001",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DMC1404-1-DMC2240204-002",
+      "components": [
+        {
+          "component_id": "machine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DMC1404-1-DMC2240204-003",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DMC1404-1-DMC2240204-004",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DMC1404-1-DMC2240204-005",
+      "components": [
+        {
+          "component_id": "steering",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DMC1404-1-DMC2240204-006",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DMC1404-1-DMC2240204-007",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DMC1404-1-DMC2240204-008",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DMC1404-1-DMC2240204-009",
+      "components": [
+        {
+          "component_id": "brakes",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-TRIAL-TF2004-WJ2018DKKX027-001",
+      "components": [
+        {
+          "component_id": "steering",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-TRIAL-TF2004-WJ2018DKKX027-002",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": [
+            "clutch-pedal"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-TRIAL-TF2004-WJ2018DKKX027-003",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hydraulic-cylinder"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-TRIAL-TF2004-WJ2018DKKX027-004",
+      "components": [
+        {
+          "component_id": "cooling",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-TRIAL-TF2004-WJ2018DKKX027-005",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-TRIAL-TF2004-WJ2018DKKX027-006",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-TRIAL-TF2004-WJ2018DKKX027-007",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-TRIAL-TF2004-WJ2018DKKX027-008",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": [
+            "air-filter"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-TRIAL-TF2004-WJ2018DKKX027-009",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-TRIAL-TF2004-WJ2018DKKX027-010",
+      "components": [
+        {
+          "component_id": "fuel",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-TRIAL-RG2104-WJ2017IKKX020-001",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "wiring"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-TRIAL-RG2104-WJ2017IKKX020-002",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "starter"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-TRIAL-RG2104-WJ2017IKKX020-003",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": [
+            "clutch-pedal"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-TRIAL-RG2104-WJ2017IKKX020-004",
+      "components": [
+        {
+          "component_id": "steering",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-TRIAL-RG2104-WJ2017IKKX020-005",
+      "components": [
+        {
+          "component_id": "cooling",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-TRIAL-RG2104-WJ2017IKKX020-006",
+      "components": [
+        {
+          "component_id": "steering",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-TRIAL-RG2104-WJ2017IKKX020-007",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-TRIAL-TAIJIU-704-A-LT20GK0251-001",
+      "components": [
+        {
+          "component_id": "fuel",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-TRIAL-TAIJIU-704-A-LT20GK0251-002",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hydraulic-cylinder"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-TRIAL-TAIJIU-704-A-LT20GK0251-003",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-TRIAL-TAIJIU-704-A-LT20GK0251-004",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "fuse"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-TRIAL-TAIJIU-704-A-LT20GK0251-005",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-TRIAL-TAIJIU-704-A-LT20GK0251-006",
+      "components": [
+        {
+          "component_id": "chassis",
+          "part_ids": [
+            "front-axle"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-TRIAL-TAIJIU-704-A-LT20GK0251-007",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-TRIAL-YTO-LX804-2009KSS047-001",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hydraulic-valve"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-TRIAL-YTO-LX804-2009KSS047-002",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-TRIAL-YTO-LX804-2009KSS047-003",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": [
+            "clutch-release"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-TRIAL-YTO-LX804-2009KSS047-004",
+      "components": [
+        {
+          "component_id": "cooling",
+          "part_ids": [
+            "temperature-sensor"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-TRIAL-YTO-LX804-2009KSS047-005",
+      "components": [
+        {
+          "component_id": "cooling",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-TRIAL-JD-3B-504-TJ-2014K-10-001",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hydraulic-pump"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-TRIAL-JD-3B-504-TJ-2014K-10-002",
+      "components": [
+        {
+          "component_id": "steering",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-TRIAL-JD-3B-504-TJ-2014K-10-003",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-TRIAL-JD-3B-504-TJ-2014K-10-004",
+      "components": [
+        {
+          "component_id": "fuel",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-TRIAL-JD-3B-504-TJ-2014K-10-005",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": [
+            "air-filter"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-TRIAL-JD-3B-504-TJ-2014K-10-006",
+      "components": [
+        {
+          "component_id": "lubrication",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-TRIAL-JD-3B-504-TJ-2014K-10-007",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-TRIAL-JD-3B-504-TJ-2014K-10-008",
+      "components": [
+        {
+          "component_id": "steering",
+          "part_ids": [
+            "steering-cylinder"
+          ]
+        }
+      ]
     }
   ]
 }

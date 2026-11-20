@@ -8928,5 +8928,389 @@
       "411": "印刷 9-S2，起动前充电灯不亮时的电源和 L 端子线路、发动机运行后充电灯不灭核对发电机 L 端子、危险警示灯和转向灯同时不亮的检查",
       "444": "原厂印刷信息、供应方及出版物编号"
     }
+  },
+  {
+    "source_id": "SRC-WD1000-WD1004-2010-023",
+    "brand": "沃得",
+    "model": "WD1000 / WD1004",
+    "models": [
+      "WD1000",
+      "WD1004"
+    ],
+    "model_ids": [
+      "WD1000",
+      "WD1004"
+    ],
+    "title": "沃得WD1000／WD1004可靠性试验故障记录（2010）委检字01类第023号",
+    "title_status": "已核对",
+    "title_evidence": "封面及附表13机型",
+    "publisher": "江苏省盐城市农业机械试验鉴定站",
+    "version": "（2010）委检字01类第023号",
+    "document_type": "可靠性试验报告",
+    "role": "已发生故障与实修动作",
+    "source_level": "公开检验报告",
+    "path": "知识库/原始农机说明书/沃得/WD1000-WD1004-2010/来源记录.md",
+    "knowledge_path": "知识库/整理后的知识库/农用拖拉机知识库/机型知识卡/沃得-WD1000-WD1004-2010-试验故障记录.md",
+    "url": "https://td.sxwhkj.com/UpStore/ReliableSrc/2021/e57f17a5-c985-46fb-aaba-1f950d4add14.pdf",
+    "download_url": "https://td.sxwhkj.com/UpStore/ReliableSrc/2021/e57f17a5-c985-46fb-aaba-1f950d4add14.pdf",
+    "scope_boundary": "本报告所列 WD1000 或 WD1004 的原始试验样机，故障与处置按原表型号区分。",
+    "status": "试验报告封面与附表13已目视核验。",
+    "collected_at": "2026-11-15",
+    "language": "中文",
+    "storage_type": "link_and_source_record",
+    "manual_sha256": "276c053d354410f63d20aa39f7a7d2464abe7b6fe18b8f34f87f0e90ce03cc3b",
+    "manual_pdf_pages": 39,
+    "manual_bytes": 2840314,
+    "sha256": "a8865474af5bbbfe5111b18c73e0ba5fd032df06dbcb04c2734e4b9be4967de4",
+    "bytes": 600,
+    "hash_scope": "sha256/bytes对应来源记录，manual_*对应报告原件。",
+    "verified_pdf_pages": {
+      "1": "封面及生产方",
+      "37": "附表13的WD1000故障行",
+      "38": "附表13续表的WD1004故障行"
+    }
+  },
+  {
+    "source_id": "SRC-LWS2604-YH2020WJ01327",
+    "brand": "力王",
+    "model": "LWS2604",
+    "models": [
+      "LWS2604"
+    ],
+    "model_ids": [
+      "LWS2604"
+    ],
+    "title": "LWS2604 可靠性使用试验故障记录 YH2020WJ01327",
+    "title_status": "已核对",
+    "title_evidence": "PDF封面、印刷故障表及报告编号",
+    "publisher": "江苏沿海农业机械检测有限公司",
+    "document_type": "可靠性试验原始故障记录",
+    "source_level": "公开试验报告",
+    "role": "已实际记录的故障与处置",
+    "path": "知识库/原始农机说明书/力王/LWS2604-YH2020WJ01327/来源记录.md",
+    "knowledge_path": "知识库/整理后的知识库/农用拖拉机知识库/机型知识卡/力王-LWS2604-YH2020WJ01327-可靠性试验.md",
+    "url": "https://td.sxwhkj.com/UpStore/ReliableSrc/2021/4c160ae7-ccd6-44f4-b11c-2bda9b32a100.pdf",
+    "download_url": "https://td.sxwhkj.com/UpStore/ReliableSrc/2021/4c160ae7-ccd6-44f4-b11c-2bda9b32a100.pdf",
+    "scope_boundary": "限报告 YH2020WJ01327 所列 LWS2604 试验样机及装配，仅作该故障的实测案例参考。",
+    "status": "封面及对应试验故障表已目视核验。",
+    "version": "YH2020WJ01327",
+    "collected_at": "2026-11-15",
+    "language": "中文",
+    "storage_type": "link_and_source_record",
+    "manual_sha256": "18452b4ae71a2c7f2a322cb773224726a1168a73136399dec48272e4658ffd4b",
+    "manual_pdf_pages": 13,
+    "manual_bytes": 1805617,
+    "sha256": "1a0ea11ac5fa9c23980e962bc890be20eb77924166d74822ee90b837049cdba6",
+    "bytes": 537,
+    "hash_scope": "sha256 和 bytes 对应来源记录，manual_* 对应PDF原件。",
+    "verified_pdf_pages": {
+      "1": "核对封面机型与原报告编号",
+      "13": "核对对应样机的故障行"
+    }
+  },
+  {
+    "source_id": "SRC-GT1204-1-WT202105008",
+    "brand": "泰山国泰",
+    "model": "GT1204-1",
+    "models": [
+      "GT1204-1"
+    ],
+    "model_ids": [
+      "GT1204-1"
+    ],
+    "title": "GT1204-1 可靠性使用试验故障记录 WT202105008",
+    "title_status": "已核对",
+    "title_evidence": "PDF封面、印刷故障表及报告编号",
+    "publisher": "黑龙江省彤廷质检技术有限公司",
+    "document_type": "可靠性试验原始故障记录",
+    "source_level": "公开试验报告",
+    "role": "已实际记录的故障与处置",
+    "path": "知识库/原始农机说明书/泰山国泰/GT1204-1-WT202105008/来源记录.md",
+    "knowledge_path": "知识库/整理后的知识库/农用拖拉机知识库/机型知识卡/泰山国泰-GT1204-1-WT202105008-可靠性试验.md",
+    "url": "https://td.sxwhkj.com/UpStore/ReliableSrc/2022/63aa34a5-a58c-48c8-9895-df7c6c55ec68.pdf",
+    "download_url": "https://td.sxwhkj.com/UpStore/ReliableSrc/2022/63aa34a5-a58c-48c8-9895-df7c6c55ec68.pdf",
+    "scope_boundary": "限报告 WT202105008 所列 GT1204-1 试验样机及装配，仅作该故障的实测案例参考。",
+    "status": "封面及对应试验故障表已目视核验。",
+    "version": "WT202105008",
+    "collected_at": "2026-11-15",
+    "language": "中文",
+    "storage_type": "link_and_source_record",
+    "manual_sha256": "0f3bcdf6741b5ac21007fdbaf9f273204ec3c170b4df0af2d3422c60b22beaeb",
+    "manual_pdf_pages": 13,
+    "manual_bytes": 1589567,
+    "sha256": "73e7b89e3f7fea887bac19846f1c1d9b2479d494e18e76658abf1abd5eff6ef1",
+    "bytes": 535,
+    "hash_scope": "sha256 和 bytes 对应来源记录，manual_* 对应PDF原件。",
+    "verified_pdf_pages": {
+      "1": "核对封面机型与原报告编号",
+      "13": "核对对应样机的故障行"
+    }
+  },
+  {
+    "source_id": "SRC-704-B-YJW202404003",
+    "brand": "鲁东",
+    "model": "704-B",
+    "models": [
+      "704-B"
+    ],
+    "model_ids": [
+      "704-B"
+    ],
+    "title": "704-B 可靠性使用试验故障记录 YJW202404003",
+    "title_status": "已核对",
+    "title_evidence": "PDF封面、印刷故障表及报告编号",
+    "publisher": "河南省机械设计研究院检验检测技术有限公司",
+    "document_type": "可靠性试验原始故障记录",
+    "source_level": "公开试验报告",
+    "role": "已实际记录的故障与处置",
+    "path": "知识库/原始农机说明书/鲁东/704-B-YJW202404003/来源记录.md",
+    "knowledge_path": "知识库/整理后的知识库/农用拖拉机知识库/机型知识卡/鲁东-704-B-YJW202404003-可靠性试验.md",
+    "url": "https://td.sxwhkj.com/UpStore/ReliableSrc/2025/bd4249e6-c922-43cf-9908-598c46767a46.pdf",
+    "download_url": "https://td.sxwhkj.com/UpStore/ReliableSrc/2025/bd4249e6-c922-43cf-9908-598c46767a46.pdf",
+    "scope_boundary": "限报告 YJW202404003 所列 704-B 试验样机及装配，仅作该故障的实测案例参考。",
+    "status": "封面及对应试验故障表已目视核验。",
+    "version": "YJW202404003",
+    "collected_at": "2026-11-15",
+    "language": "中文",
+    "storage_type": "link_and_source_record",
+    "manual_sha256": "d2e0cb65bf52bb19812b6fd24520e4726b22cc9f203fc86f0bccd76ea30c4034",
+    "manual_pdf_pages": 11,
+    "manual_bytes": 2915532,
+    "sha256": "4e4d819a4ff12366987e8363f5b68a200f87185655f0ba4d9049ea0c0b47cba6",
+    "bytes": 548,
+    "hash_scope": "sha256 和 bytes 对应来源记录，manual_* 对应PDF原件。",
+    "verified_pdf_pages": {
+      "1": "核对封面机型与原报告编号",
+      "10": "核对对应样机的故障行"
+    }
+  },
+  {
+    "source_id": "SRC-DMC1404-1-DMC2240204",
+    "brand": "金世纪",
+    "model": "DMC1404-1",
+    "models": [
+      "DMC1404-1"
+    ],
+    "model_ids": [
+      "DMC1404-1"
+    ],
+    "title": "DMC1404-1 可靠性使用试验故障记录 DMC2240204",
+    "title_status": "已核对",
+    "title_evidence": "PDF封面、印刷故障表及报告编号",
+    "publisher": "潍坊市产品质量检验所",
+    "document_type": "可靠性试验原始故障记录",
+    "source_level": "公开试验报告",
+    "role": "已实际记录的故障与处置",
+    "path": "知识库/原始农机说明书/金世纪/DMC1404-1-DMC2240204/来源记录.md",
+    "knowledge_path": "知识库/整理后的知识库/农用拖拉机知识库/机型知识卡/金世纪-DMC1404-1-DMC2240204-可靠性试验.md",
+    "url": "https://td.sxwhkj.com/UpStore/ReliableSrc/2021/2b31a5b3-575e-4134-be87-c1bfa74a6593.pdf",
+    "download_url": "https://td.sxwhkj.com/UpStore/ReliableSrc/2021/2b31a5b3-575e-4134-be87-c1bfa74a6593.pdf",
+    "scope_boundary": "限报告 DMC2240204 所列 DMC1404-1 试验样机及装配，仅作该故障的实测案例参考。",
+    "status": "封面及对应试验故障表已目视核验。",
+    "version": "DMC2240204",
+    "collected_at": "2026-11-15",
+    "language": "中文",
+    "storage_type": "link_and_source_record",
+    "manual_sha256": "a9c76cbd02b75e80bf1fc048f27ec0f6a729db0551d12835547856ae8c9a0dc9",
+    "manual_pdf_pages": 16,
+    "manual_bytes": 1912307,
+    "sha256": "94708fce8f812824127bf9b87aa643abc28cd75882ce5f1fabcad25da217d585",
+    "bytes": 523,
+    "hash_scope": "sha256 和 bytes 对应来源记录，manual_* 对应PDF原件。",
+    "verified_pdf_pages": {
+      "1": "核对封面机型与原报告编号",
+      "13": "核对对应样机的故障行"
+    }
+  },
+  {
+    "source_id": "SRC-TRIAL-TF2004-WJ2018DKKX027",
+    "brand": "米基林",
+    "models": [
+      "TF2004"
+    ],
+    "model_ids": [
+      "TF2004"
+    ],
+    "model": "TF2004",
+    "title": "米基林 TF2004 可靠性使用试验原报告 WJ2018DKKX027",
+    "title_status": "已核对",
+    "title_evidence": "原试验报告封面及故障汇总表",
+    "publisher": "河南省拖拉机柴油机产品质量监督检验中心",
+    "document_type": "可靠性使用试验报告",
+    "source_level": "公开试验报告",
+    "role": "样机真实故障与处置证据",
+    "path": "知识库/原始农机说明书/米基林/TF2004-WJ2018DKKX027/来源记录.md",
+    "knowledge_path": "知识库/整理后的知识库/农用拖拉机知识库/机型知识卡/米基林-TF2004-WJ2018DKKX027-可靠性试验.md",
+    "url": "https://td.sxwhkj.com/UpStore/ReliableSrc/2020/956978fb-945a-4f6b-b347-fd4a5e5a1739.pdf",
+    "download_url": "https://td.sxwhkj.com/UpStore/ReliableSrc/2020/956978fb-945a-4f6b-b347-fd4a5e5a1739.pdf",
+    "scope_boundary": "米基林 TF2004 的检验报告 WJ2018DKKX027 所记样机。报告处置以本次样机为适用范围。",
+    "status": "核对原报告封面、故障表的样机、现象和实际处置",
+    "version": "WJ2018DKKX027",
+    "collected_at": "2026-11-15",
+    "language": "中文",
+    "storage_type": "link_and_source_record",
+    "manual_sha256": "cbc479b78f39fedeeed0891b4253e71d574de17ed74a3fa8edea501d876f5ebd",
+    "manual_pdf_pages": 11,
+    "manual_bytes": 4067472,
+    "sha256": "7307e3a91ab9a63e3215dcb1764d06cd5dd36820bae39f82d8ed769ac251aeb7",
+    "bytes": 590,
+    "hash_scope": "来源记录与报告原件分列。",
+    "verified_pdf_pages": {
+      "1": "核对报告封面、制造企业和完整机型。",
+      "8": "核对印刷第6页 表6 原始故障单元格。"
+    }
+  },
+  {
+    "source_id": "SRC-TRIAL-RG2104-WJ2017IKKX020",
+    "brand": "中联重科",
+    "models": [
+      "RG2104"
+    ],
+    "model_ids": [
+      "RG2104"
+    ],
+    "model": "RG2104",
+    "title": "中联重科 RG2104 可靠性使用试验原报告 WJ2017IKKX020",
+    "title_status": "已核对",
+    "title_evidence": "原试验报告封面及故障汇总表",
+    "publisher": "河南省拖拉机柴油机产品质量监督检验中心",
+    "document_type": "可靠性使用试验报告",
+    "source_level": "公开试验报告",
+    "role": "样机真实故障与处置证据",
+    "path": "知识库/原始农机说明书/中联重科/RG2104-WJ2017IKKX020/来源记录.md",
+    "knowledge_path": "知识库/整理后的知识库/农用拖拉机知识库/机型知识卡/中联重科-RG2104-WJ2017IKKX020-可靠性试验.md",
+    "url": "https://td.sxwhkj.com/UpStore/ReliableSrc/2021/ddbd64a6-15ab-4215-b57c-9a89092e32bb.pdf",
+    "download_url": "https://td.sxwhkj.com/UpStore/ReliableSrc/2021/ddbd64a6-15ab-4215-b57c-9a89092e32bb.pdf",
+    "scope_boundary": "中联重科 RG2104 的检验报告 WJ2017IKKX020 所记样机。报告处置以本次样机为适用范围。",
+    "status": "核对原报告封面、故障表的样机、现象和实际处置",
+    "version": "WJ2017IKKX020",
+    "collected_at": "2026-11-15",
+    "language": "中文",
+    "storage_type": "link_and_source_record",
+    "manual_sha256": "48c5849436f22883edee0ecbe8ef62e02c12d7c75d11ed58242bfa2625b84906",
+    "manual_pdf_pages": 10,
+    "manual_bytes": 4056707,
+    "sha256": "1a66ceb2b6e518d62c36f2f0f2210796ea3381ac2d1c53fef1b278e7f1319e7a",
+    "bytes": 647,
+    "hash_scope": "来源记录与报告原件分列。",
+    "verified_pdf_pages": {
+      "1": "核对报告封面、制造企业和完整机型。",
+      "7": "核对印刷第6页 表6 原始故障单元格。"
+    }
+  },
+  {
+    "source_id": "SRC-TRIAL-TAIJIU-704-A-LT20GK0251",
+    "brand": "洛阳泰九",
+    "models": [
+      "704-A"
+    ],
+    "model_ids": [
+      "704-A"
+    ],
+    "model": "704-A",
+    "title": "洛阳泰九 704-A 可靠性使用试验原报告 LT20GK0251",
+    "title_status": "已核对",
+    "title_evidence": "原试验报告封面及故障汇总表",
+    "publisher": "国家拖拉机质量监督检验中心",
+    "document_type": "可靠性使用试验报告",
+    "source_level": "公开试验报告",
+    "role": "样机真实故障与处置证据",
+    "path": "知识库/原始农机说明书/洛阳泰九/704-A-LT20GK0251/来源记录.md",
+    "knowledge_path": "知识库/整理后的知识库/农用拖拉机知识库/机型知识卡/洛阳泰九-704-A-LT20GK0251-可靠性试验.md",
+    "url": "https://td.sxwhkj.com/UpStore/ReliableSrc/2021/86f0512f-0a81-427b-ba2c-aaacf7882d48.pdf",
+    "download_url": "https://td.sxwhkj.com/UpStore/ReliableSrc/2021/86f0512f-0a81-427b-ba2c-aaacf7882d48.pdf",
+    "scope_boundary": "洛阳泰九 704-A 的检验报告 LT20GK0251 所记样机。报告处置以本次样机为适用范围。",
+    "status": "核对原报告封面、故障表的样机、现象和实际处置",
+    "version": "LT20GK0251",
+    "collected_at": "2026-11-15",
+    "language": "中文",
+    "storage_type": "link_and_source_record",
+    "manual_sha256": "7371a1998e5e2c0244a56a4da38220899d60ff08e73d1b33a014b50002589dd6",
+    "manual_pdf_pages": 13,
+    "manual_bytes": 1808688,
+    "sha256": "9555173f583d1c9248345ed249aad27334d049ba35645832524a176790777750",
+    "bytes": 644,
+    "hash_scope": "来源记录与报告原件分列。",
+    "verified_pdf_pages": {
+      "1": "核对报告封面、制造企业和完整机型。",
+      "13": "核对印刷第11页 表十一 原始故障单元格。"
+    }
+  },
+  {
+    "source_id": "SRC-TRIAL-YTO-LX804-2009KSS047",
+    "brand": "东方红",
+    "models": [
+      "LX804"
+    ],
+    "model_ids": [
+      "LX804"
+    ],
+    "model": "LX804",
+    "title": "东方红 LX804 可靠性使用试验原报告 2009KSS047",
+    "title_status": "已核对",
+    "title_evidence": "原试验报告封面及故障汇总表",
+    "publisher": "河南省农业机械试验鉴定站",
+    "document_type": "可靠性使用试验报告",
+    "source_level": "公开试验报告",
+    "role": "样机真实故障与处置证据",
+    "path": "知识库/原始农机说明书/东方红/LX804-2009KSS047/来源记录.md",
+    "knowledge_path": "知识库/整理后的知识库/农用拖拉机知识库/机型知识卡/东方红-LX804-2009KSS047-可靠性试验.md",
+    "url": "https://td.sxwhkj.com/UpStore/ReliableSrc/2023/88aaa6f7-c608-493c-b269-086942a5177b.pdf",
+    "download_url": "https://td.sxwhkj.com/UpStore/ReliableSrc/2023/88aaa6f7-c608-493c-b269-086942a5177b.pdf",
+    "scope_boundary": "东方红 LX804 的检验报告 2009KSS047 所记样机。报告处置以本次样机为适用范围。",
+    "status": "核对原报告封面、故障表的样机、现象和实际处置",
+    "version": "2009KSS047",
+    "collected_at": "2026-11-15",
+    "language": "中文",
+    "storage_type": "link_and_source_record",
+    "manual_sha256": "6941b8e6bd3a79b1731d2872d78bab7d727dd93c32f19ef73dd82d44ca1c21e0",
+    "manual_pdf_pages": 12,
+    "manual_bytes": 1362449,
+    "sha256": "2b1e35c7240017b72899cb54f228ec6ed05954113ccf042a6729a2ca25926078",
+    "bytes": 646,
+    "hash_scope": "来源记录与报告原件分列。",
+    "verified_pdf_pages": {
+      "1": "核对报告封面、制造企业和完整机型。",
+      "10": "核对印刷第8页 表九 原始故障单元格。",
+      "11": "核对印刷第9页 表九 原始故障单元格。"
+    }
+  },
+  {
+    "source_id": "SRC-TRIAL-JD-3B-504-TJ-2014K-10",
+    "brand": "约翰迪尔",
+    "models": [
+      "3B-504"
+    ],
+    "model_ids": [
+      "3B-504"
+    ],
+    "model": "3B-504",
+    "title": "约翰迪尔 3B-504 可靠性使用试验原报告 TJ-2014K-10",
+    "title_status": "已核对",
+    "title_evidence": "原试验报告封面及故障汇总表",
+    "publisher": "天津市农业机械试验鉴定站",
+    "document_type": "可靠性使用试验报告",
+    "source_level": "公开试验报告",
+    "role": "样机真实故障与处置证据",
+    "path": "知识库/原始农机说明书/约翰迪尔/3B-504-TJ-2014K-10/来源记录.md",
+    "knowledge_path": "知识库/整理后的知识库/农用拖拉机知识库/机型知识卡/约翰迪尔-3B-504-TJ-2014K-10-可靠性试验.md",
+    "url": "https://td.sxwhkj.com/UpStore/ReliableSrc/2021/259f03b0-a41a-479e-85d1-b55de9336f57.pdf",
+    "download_url": "https://td.sxwhkj.com/UpStore/ReliableSrc/2021/259f03b0-a41a-479e-85d1-b55de9336f57.pdf",
+    "scope_boundary": "约翰迪尔 3B-504 的检验报告 TJ-2014K-10 所记样机。报告处置以本次样机为适用范围。",
+    "status": "核对原报告封面、故障表的样机、现象和实际处置",
+    "version": "TJ-2014K-10",
+    "collected_at": "2026-11-15",
+    "language": "中文",
+    "storage_type": "link_and_source_record",
+    "manual_sha256": "aed3064e1d2a0e16aa38f45f10fe8550b981787754eb2aa90f4979b300e84837",
+    "manual_pdf_pages": 9,
+    "manual_bytes": 350214,
+    "sha256": "37d67eeb2fe24078f86cb3201e70c661683204d237ed82e2e917c1b91d45f41c",
+    "bytes": 609,
+    "hash_scope": "来源记录与报告原件分列。",
+    "verified_pdf_pages": {
+      "1": "核对报告封面、制造企业和完整机型。",
+      "8": "核对横置表 表5 原始故障单元格。"
+    }
   }
 ]
