@@ -1,0 +1,69 @@
+[
+  {
+    "brand": "东方红",
+    "model": "YTO-454",
+    "query": "运输和田间作业，前后轮胎压力分别是多少？",
+    "prefix": "KB-YTO-454-MF504-OM-RU-",
+    "eligible": true,
+    "expected": "KB-YTO-454-MF504-OM-RU-SUP-001",
+    "page": "第10页",
+    "answerTerms": [
+      "147–196 kPa",
+      "98–118 kPa",
+      "8.3-20",
+      "12.4-28"
+    ]
+  },
+  {
+    "brand": "东方红",
+    "model": "YTO-MF454",
+    "query": "运输和田间作业，前后轮胎压力分别是多少？",
+    "prefix": "KB-YTO-454-MF504-OM-RU-",
+    "eligible": true,
+    "expected": "KB-YTO-454-MF504-OM-RU-SUP-001",
+    "page": "第10页",
+    "answerTerms": [
+      "147–196 kPa",
+      "98–118 kPa",
+      "8.3-20",
+      "12.4-28"
+    ]
+  },
+  {
+    "brand": "东方红",
+    "model": "YTO-504",
+    "query": "运输和田间作业，前后轮胎压力分别是多少？",
+    "prefix": "KB-YTO-454-MF504-OM-RU-",
+    "eligible": true,
+    "expected": "KB-YTO-454-MF504-OM-RU-SUP-001",
+    "page": "第10页",
+    "answerTerms": [
+      "147–196 kPa",
+      "98–118 kPa",
+      "8.3-20",
+      "12.4-28"
+    ]
+  },
+  {
+    "brand": "东方红",
+    "model": "YTO-MF504",
+    "query": "运输和田间作业，前后轮胎压力分别是多少？",
+    "prefix": "KB-YTO-454-MF504-OM-RU-",
+    "eligible": true,
+    "expected": "KB-YTO-454-MF504-OM-RU-SUP-001",
+    "page": "第10页",
+    "answerTerms": [
+      "147–196 kPa",
+      "98–118 kPa",
+      "8.3-20",
+      "12.4-28"
+    ]
+  },
+  {
+    "brand": "东风",
+    "model": "YTO-504",
+    "query": "运输和田间作业，前后轮胎压力分别是多少？",
+    "prefix": "KB-YTO-454-MF504-OM-RU-",
+    "eligible": false
+  }
+]

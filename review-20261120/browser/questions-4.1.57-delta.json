@@ -1,0 +1,54 @@
+[
+  {
+    "brand": "雷沃",
+    "model": "TD900",
+    "query": "前轮前束和标准轮胎气压应该是多少？",
+    "prefix": "KB-LOVOL-TD-TL2-SM-02-EN-",
+    "eligible": true,
+    "expected": "KB-LOVOL-TD-TL2-SM-02-EN-SUP-001",
+    "page": "第124页",
+    "answerTerms": [
+      "5–10 mm",
+      "200–250 kPa"
+    ]
+  },
+  {
+    "brand": "雷沃",
+    "model": "TD904",
+    "query": "前轮前束和标准轮胎气压应该是多少？",
+    "prefix": "KB-LOVOL-TD-TL2-SM-02-EN-",
+    "eligible": true,
+    "expected": "KB-LOVOL-TD-TL2-SM-02-EN-SUP-002",
+    "page": "第124页",
+    "answerTerms": [
+      "0–5 mm",
+      "150–180 kPa"
+    ]
+  },
+  {
+    "brand": "东风",
+    "model": "ZB35",
+    "query": "发动机机油液位何时测量及换油时机？",
+    "prefix": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-",
+    "eligible": true,
+    "expected": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-SUP-001",
+    "page": "7-5",
+    "answerTerms": [
+      "至少 5 分钟"
+    ]
+  },
+  {
+    "brand": "东风",
+    "model": "TD900",
+    "query": "前轮前束和标准轮胎气压应该是多少？",
+    "prefix": "KB-LOVOL-TD-TL2-SM-02-EN-",
+    "eligible": false
+  },
+  {
+    "brand": "雷沃",
+    "model": "ZB35",
+    "query": "发动机机油液位何时测量及换油时机？",
+    "prefix": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-",
+    "eligible": false
+  }
+]

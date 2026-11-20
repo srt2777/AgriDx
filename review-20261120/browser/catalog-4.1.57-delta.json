@@ -1,0 +1,2720 @@
+[
+  {
+    "brand": "雷沃",
+    "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-001",
+    "source_id": "SRC-LOVOL-TD-TL2-SM-02-EN",
+    "title": "离合器负载下打滑的检查",
+    "locator": "PDF物理第79页；印刷第70页；表3-6",
+    "models": [
+      "TD750",
+      "TD754",
+      "TD800",
+      "TD804",
+      "TD820",
+      "TD824",
+      "TD850",
+      "TD854",
+      "TD900",
+      "TD904",
+      "TD950",
+      "TD954",
+      "TD1000",
+      "TD1004",
+      "TD1100",
+      "TD1104"
+    ],
+    "bodyHash": "a33ca1cff56ae333caed4d4d97fc7473f0e7e0f18fd38b24fc6d2dc36419585d"
+  },
+  {
+    "brand": "雷沃",
+    "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-002",
+    "source_id": "SRC-LOVOL-TD-TL2-SM-02-EN",
+    "title": "离合器分离不彻底、挂挡响的检查",
+    "locator": "PDF物理第79页；印刷第70页；表3-6",
+    "models": [
+      "TD750",
+      "TD754",
+      "TD800",
+      "TD804",
+      "TD820",
+      "TD824",
+      "TD850",
+      "TD854",
+      "TD900",
+      "TD904",
+      "TD950",
+      "TD954",
+      "TD1000",
+      "TD1004",
+      "TD1100",
+      "TD1104"
+    ],
+    "bodyHash": "56d5ed1d190eb4115c9dfb2fb7bc328aa760d788a49a3f44e0914c286ad5413a"
+  },
+  {
+    "brand": "雷沃",
+    "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-003",
+    "source_id": "SRC-LOVOL-TD-TL2-SM-02-EN",
+    "title": "起步时车辆抖动的离合器检查",
+    "locator": "PDF物理第79页；印刷第70页；表3-6",
+    "models": [
+      "TD750",
+      "TD754",
+      "TD800",
+      "TD804",
+      "TD820",
+      "TD824",
+      "TD850",
+      "TD854",
+      "TD900",
+      "TD904",
+      "TD950",
+      "TD954",
+      "TD1000",
+      "TD1004",
+      "TD1100",
+      "TD1104"
+    ],
+    "bodyHash": "259d67379c4c2970d7549753fe6ec0afb88f37db0b46dd8c932c84250ba60819"
+  },
+  {
+    "brand": "雷沃",
+    "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-004",
+    "source_id": "SRC-LOVOL-TD-TL2-SM-02-EN",
+    "title": "变速箱挂挡费力或挂不进",
+    "locator": "PDF物理第79页；印刷第70页；表3-7",
+    "models": [
+      "TD750",
+      "TD754",
+      "TD800",
+      "TD804",
+      "TD820",
+      "TD824",
+      "TD850",
+      "TD854",
+      "TD900",
+      "TD904",
+      "TD950",
+      "TD954",
+      "TD1000",
+      "TD1004",
+      "TD1100",
+      "TD1104"
+    ],
+    "bodyHash": "73e028ed03860a5fc88b8273293a4baeca18a4bf2bf08bc9e108ee408f545fd8"
+  },
+  {
+    "brand": "雷沃",
+    "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-005",
+    "source_id": "SRC-LOVOL-TD-TL2-SM-02-EN",
+    "title": "已挂挡位自动脱挡的内部检查",
+    "locator": "PDF物理第79页；印刷第70页；表3-7",
+    "models": [
+      "TD750",
+      "TD754",
+      "TD800",
+      "TD804",
+      "TD820",
+      "TD824",
+      "TD850",
+      "TD854",
+      "TD900",
+      "TD904",
+      "TD950",
+      "TD954",
+      "TD1000",
+      "TD1004",
+      "TD1100",
+      "TD1104"
+    ],
+    "bodyHash": "7c8229c5971427bc68873458cb73b77d155bba6a74b008886b9de65612506867"
+  },
+  {
+    "brand": "雷沃",
+    "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-006",
+    "source_id": "SRC-LOVOL-TD-TL2-SM-02-EN",
+    "title": "挡位错乱时检查换挡机构定位部件",
+    "locator": "PDF物理第79至80页；印刷第70至71页；表3-7",
+    "models": [
+      "TD750",
+      "TD754",
+      "TD800",
+      "TD804",
+      "TD820",
+      "TD824",
+      "TD850",
+      "TD854",
+      "TD900",
+      "TD904",
+      "TD950",
+      "TD954",
+      "TD1000",
+      "TD1004",
+      "TD1100",
+      "TD1104"
+    ],
+    "bodyHash": "35d640c17441486f7d6e64774ecde137b6f54a6c5e4e0b293d7a58faf5e907a7"
+  },
+  {
+    "brand": "雷沃",
+    "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-007",
+    "source_id": "SRC-LOVOL-TD-TL2-SM-02-EN",
+    "title": "变速箱底部检查盖漏油定位",
+    "locator": "PDF物理第80页；印刷第71页；表3-7",
+    "models": [
+      "TD750",
+      "TD754",
+      "TD800",
+      "TD804",
+      "TD820",
+      "TD824",
+      "TD850",
+      "TD854",
+      "TD900",
+      "TD904",
+      "TD950",
+      "TD954",
+      "TD1000",
+      "TD1004",
+      "TD1100",
+      "TD1104"
+    ],
+    "bodyHash": "c8569aa523fa3a45ced79815c9aa2a4c49da8a436cff6567d02787bd83a07834"
+  },
+  {
+    "brand": "雷沃",
+    "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-008",
+    "source_id": "SRC-LOVOL-TD-TL2-SM-02-EN",
+    "title": "变速箱内部敲击或异常噪声",
+    "locator": "PDF物理第80页；印刷第71页；表3-7",
+    "models": [
+      "TD750",
+      "TD754",
+      "TD800",
+      "TD804",
+      "TD820",
+      "TD824",
+      "TD850",
+      "TD854",
+      "TD900",
+      "TD904",
+      "TD950",
+      "TD954",
+      "TD1000",
+      "TD1004",
+      "TD1100",
+      "TD1104"
+    ],
+    "bodyHash": "23f43744a8387ab9efc8ef536e585876dd812e8b12525a8ffce152efe0adf7e2"
+  },
+  {
+    "brand": "雷沃",
+    "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-009",
+    "source_id": "SRC-LOVOL-TD-TL2-SM-02-EN",
+    "title": "后桥中央传动噪声逐渐增大",
+    "locator": "PDF物理第80页；印刷第71页；表3-8",
+    "models": [
+      "TD750",
+      "TD754",
+      "TD800",
+      "TD804",
+      "TD820",
+      "TD824",
+      "TD850",
+      "TD854",
+      "TD900",
+      "TD904",
+      "TD950",
+      "TD954",
+      "TD1000",
+      "TD1004",
+      "TD1100",
+      "TD1104"
+    ],
+    "bodyHash": "2d84a19859da1c23f3e243e82b813d2943f15dbc3769374a16edfffecc9415f6"
+  },
+  {
+    "brand": "雷沃",
+    "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-010",
+    "source_id": "SRC-LOVOL-TD-TL2-SM-02-EN",
+    "title": "小锥齿轮轴承或差速器轴承过热",
+    "locator": "PDF物理第80页；印刷第71页；表3-8",
+    "models": [
+      "TD750",
+      "TD754",
+      "TD800",
+      "TD804",
+      "TD820",
+      "TD824",
+      "TD850",
+      "TD854",
+      "TD900",
+      "TD904",
+      "TD950",
+      "TD954",
+      "TD1000",
+      "TD1004",
+      "TD1100",
+      "TD1104"
+    ],
+    "bodyHash": "6e15a029b602bbf974beec7e30534c5ce9064c611e809e571e811bc025bedb90"
+  },
+  {
+    "brand": "雷沃",
+    "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-011",
+    "source_id": "SRC-LOVOL-TD-TL2-SM-02-EN",
+    "title": "末端传动异常响声",
+    "locator": "PDF物理第80页；印刷第71页；表3-8",
+    "models": [
+      "TD750",
+      "TD754",
+      "TD800",
+      "TD804",
+      "TD820",
+      "TD824",
+      "TD850",
+      "TD854",
+      "TD900",
+      "TD904",
+      "TD950",
+      "TD954",
+      "TD1000",
+      "TD1004",
+      "TD1100",
+      "TD1104"
+    ],
+    "bodyHash": "1a3b0568881b6aed165aa37d435bfb240dd9d624b872d7d3bb3de707e7a6744d"
+  },
+  {
+    "brand": "雷沃",
+    "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-012",
+    "source_id": "SRC-LOVOL-TD-TL2-SM-02-EN",
+    "title": "制动失效时检查液压制动回路",
+    "locator": "PDF物理第81页；印刷第72页；表3-8",
+    "models": [
+      "TD750",
+      "TD754",
+      "TD800",
+      "TD804",
+      "TD820",
+      "TD824",
+      "TD850",
+      "TD854",
+      "TD900",
+      "TD904",
+      "TD950",
+      "TD954",
+      "TD1000",
+      "TD1004",
+      "TD1100",
+      "TD1104"
+    ],
+    "bodyHash": "67073608238aede7f4bfa62efdea632e5f1d04475b201bc29f0433eeea15d8bd"
+  },
+  {
+    "brand": "雷沃",
+    "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-013",
+    "source_id": "SRC-LOVOL-TD-TL2-SM-02-EN",
+    "title": "制动时车辆向一侧跑偏",
+    "locator": "PDF物理第81页；印刷第72页；表3-8",
+    "models": [
+      "TD750",
+      "TD754",
+      "TD800",
+      "TD804",
+      "TD820",
+      "TD824",
+      "TD850",
+      "TD854",
+      "TD900",
+      "TD904",
+      "TD950",
+      "TD954",
+      "TD1000",
+      "TD1004",
+      "TD1100",
+      "TD1104"
+    ],
+    "bodyHash": "4cacaaef231bde4ede646d815eac1df85206890eb5c04e65362a81c01e6baeca"
+  },
+  {
+    "brand": "雷沃",
+    "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-014",
+    "source_id": "SRC-LOVOL-TD-TL2-SM-02-EN",
+    "title": "四驱前胎异常磨损的检查项目",
+    "locator": "PDF物理第81页；印刷第72页；表3-9",
+    "models": [
+      "TD754",
+      "TD804",
+      "TD824",
+      "TD854",
+      "TD904",
+      "TD954",
+      "TD1004",
+      "TD1104"
+    ],
+    "bodyHash": "9545e5b36bde2e58d44506e28a499bf44f570383cfd5ad3457eb42381c823ba1"
+  },
+  {
+    "brand": "雷沃",
+    "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-015",
+    "source_id": "SRC-LOVOL-TD-TL2-SM-02-EN",
+    "title": "前轮行驶摆动时检查连接与前束",
+    "locator": "PDF物理第81页；印刷第72页；表3-9",
+    "models": [
+      "TD750",
+      "TD754",
+      "TD800",
+      "TD804",
+      "TD820",
+      "TD824",
+      "TD850",
+      "TD854",
+      "TD900",
+      "TD904",
+      "TD950",
+      "TD954",
+      "TD1000",
+      "TD1004",
+      "TD1100",
+      "TD1104"
+    ],
+    "bodyHash": "1b5f13a95a277399b291ee642ae8adcd8f662ac5b4a90ae9b487f882d8938878"
+  },
+  {
+    "brand": "雷沃",
+    "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-016",
+    "source_id": "SRC-LOVOL-TD-TL2-SM-02-EN",
+    "title": "四驱前桥传动噪声偏大",
+    "locator": "PDF物理第81页；印刷第72页；表3-9",
+    "models": [
+      "TD754",
+      "TD804",
+      "TD824",
+      "TD854",
+      "TD904",
+      "TD954",
+      "TD1004",
+      "TD1104"
+    ],
+    "bodyHash": "2d2fc31459382f823285a7d56e2a175644870a384c825fe4ad08aca00639a372"
+  },
+  {
+    "brand": "雷沃",
+    "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-017",
+    "source_id": "SRC-LOVOL-TD-TL2-SM-02-EN",
+    "title": "四驱传动轴与护套同时发热",
+    "locator": "PDF物理第82页；印刷第73页；表3-9",
+    "models": [
+      "TD754",
+      "TD804",
+      "TD824",
+      "TD854",
+      "TD904",
+      "TD954",
+      "TD1004",
+      "TD1104"
+    ],
+    "bodyHash": "515d316c8c6cff9a37a1f12a6557494e74572c36e0b9475623656cb38f80e8f5"
+  },
+  {
+    "brand": "雷沃",
+    "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-018",
+    "source_id": "SRC-LOVOL-TD-TL2-SM-02-EN",
+    "title": "四驱分动箱运行噪声过大",
+    "locator": "PDF物理第82页；印刷第73页；表3-9",
+    "models": [
+      "TD754",
+      "TD804",
+      "TD824",
+      "TD854",
+      "TD904",
+      "TD954",
+      "TD1004",
+      "TD1104"
+    ],
+    "bodyHash": "57a569260930a03b62d696df6084c48158ca3ccd935ae77f43c744372f2bb67f"
+  },
+  {
+    "brand": "雷沃",
+    "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-019",
+    "source_id": "SRC-LOVOL-TD-TL2-SM-02-EN",
+    "title": "液压转向器或管接头外漏油",
+    "locator": "PDF物理第82页；印刷第73页；表3-10",
+    "models": [
+      "TD750",
+      "TD754",
+      "TD800",
+      "TD804",
+      "TD820",
+      "TD824",
+      "TD850",
+      "TD854",
+      "TD900",
+      "TD904",
+      "TD950",
+      "TD954",
+      "TD1000",
+      "TD1004",
+      "TD1100",
+      "TD1104"
+    ],
+    "bodyHash": "b2112310965fb2fffa816a99cf1545d0bfab08468e9d051d4c872bb5949215e9"
+  },
+  {
+    "brand": "雷沃",
+    "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-020",
+    "source_id": "SRC-LOVOL-TD-TL2-SM-02-EN",
+    "title": "慢转较轻快转变重的液压转向诊断",
+    "locator": "PDF物理第82页；印刷第73页；表3-10",
+    "models": [
+      "TD750",
+      "TD754",
+      "TD800",
+      "TD804",
+      "TD820",
+      "TD824",
+      "TD850",
+      "TD854",
+      "TD900",
+      "TD904",
+      "TD950",
+      "TD954",
+      "TD1000",
+      "TD1004",
+      "TD1100",
+      "TD1104"
+    ],
+    "bodyHash": "e9615722c7a974a52cad2ff6af4854be204faed235a77ee1db5cd4907c93a3d7"
+  },
+  {
+    "brand": "雷沃",
+    "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-021",
+    "source_id": "SRC-LOVOL-TD-TL2-SM-02-EN",
+    "title": "液压转向失效的内部检查",
+    "locator": "PDF物理第82页；印刷第73页；表3-10",
+    "models": [
+      "TD750",
+      "TD754",
+      "TD800",
+      "TD804",
+      "TD820",
+      "TD824",
+      "TD850",
+      "TD854",
+      "TD900",
+      "TD904",
+      "TD950",
+      "TD954",
+      "TD1000",
+      "TD1004",
+      "TD1100",
+      "TD1104"
+    ],
+    "bodyHash": "cff82959f22ed16b31c3b301bff201d211a35983f29a8a3a8582c69214c0a195"
+  },
+  {
+    "brand": "雷沃",
+    "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-022",
+    "source_id": "SRC-LOVOL-TD-TL2-SM-02-EN",
+    "title": "手动转向模式转方向盘但油缸不动",
+    "locator": "PDF物理第82页；印刷第73页；表3-10",
+    "models": [
+      "TD750",
+      "TD754",
+      "TD800",
+      "TD804",
+      "TD820",
+      "TD824",
+      "TD850",
+      "TD854",
+      "TD900",
+      "TD904",
+      "TD950",
+      "TD954",
+      "TD1000",
+      "TD1004",
+      "TD1100",
+      "TD1104"
+    ],
+    "bodyHash": "e09500498b43f2dff40855c051b14b0ff265762a9ba69419f436923bee92eb25"
+  },
+  {
+    "brand": "雷沃",
+    "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-023",
+    "source_id": "SRC-LOVOL-TD-TL2-SM-02-EN",
+    "title": "液压转向响应迟钝的磨损检查",
+    "locator": "PDF物理第83页；印刷第74页；表3-10",
+    "models": [
+      "TD750",
+      "TD754",
+      "TD800",
+      "TD804",
+      "TD820",
+      "TD824",
+      "TD850",
+      "TD854",
+      "TD900",
+      "TD904",
+      "TD950",
+      "TD954",
+      "TD1000",
+      "TD1004",
+      "TD1100",
+      "TD1104"
+    ],
+    "bodyHash": "66a148836d4717368316433cbc4baf8643c726fd1cbffa7405d59e1e4819cac4"
+  },
+  {
+    "brand": "雷沃",
+    "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-024",
+    "source_id": "SRC-LOVOL-TD-TL2-SM-02-EN",
+    "title": "悬挂在空载和负载下都无法举升",
+    "locator": "PDF物理第83页；印刷第74页；表3-11",
+    "models": [
+      "TD750",
+      "TD754",
+      "TD800",
+      "TD804",
+      "TD820",
+      "TD824",
+      "TD850",
+      "TD854",
+      "TD900",
+      "TD904",
+      "TD950",
+      "TD954",
+      "TD1000",
+      "TD1004",
+      "TD1100",
+      "TD1104"
+    ],
+    "bodyHash": "246e84ae869d3d1c9a5e265d82f0451122a9f4c5f92f8bb286c7cecac2e0fdbe"
+  },
+  {
+    "brand": "雷沃",
+    "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-025",
+    "source_id": "SRC-LOVOL-TD-TL2-SM-02-EN",
+    "title": "轻载能举升而重载举不动或升得很慢",
+    "locator": "PDF物理第83页；印刷第74页；表3-11",
+    "models": [
+      "TD750",
+      "TD754",
+      "TD800",
+      "TD804",
+      "TD820",
+      "TD824",
+      "TD850",
+      "TD854",
+      "TD900",
+      "TD904",
+      "TD950",
+      "TD954",
+      "TD1000",
+      "TD1004",
+      "TD1100",
+      "TD1104"
+    ],
+    "bodyHash": "b10524258adc07dbff27cc1107e27dec8d5217af676353c6906bec86df33b837"
+  },
+  {
+    "brand": "雷沃",
+    "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-026",
+    "source_id": "SRC-LOVOL-TD-TL2-SM-02-EN",
+    "title": "农具举升抖动或持续慢升",
+    "locator": "PDF物理第83页；印刷第74页；表3-11",
+    "models": [
+      "TD750",
+      "TD754",
+      "TD800",
+      "TD804",
+      "TD820",
+      "TD824",
+      "TD850",
+      "TD854",
+      "TD900",
+      "TD904",
+      "TD950",
+      "TD954",
+      "TD1000",
+      "TD1004",
+      "TD1100",
+      "TD1104"
+    ],
+    "bodyHash": "d824c47f7d9e0415898b17a83f183f0a7ae3df25c36ffdcefbfb6447f0c9cb4b"
+  },
+  {
+    "brand": "雷沃",
+    "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-027",
+    "source_id": "SRC-LOVOL-TD-TL2-SM-02-EN",
+    "title": "农具举起后反复点头或熄火后很快沉降",
+    "locator": "PDF物理第84页；印刷第75页；表3-11",
+    "models": [
+      "TD750",
+      "TD754",
+      "TD800",
+      "TD804",
+      "TD820",
+      "TD824",
+      "TD850",
+      "TD854",
+      "TD900",
+      "TD904",
+      "TD950",
+      "TD954",
+      "TD1000",
+      "TD1004",
+      "TD1100",
+      "TD1104"
+    ],
+    "bodyHash": "4a7f412460935752d33b8f357dfd88245df4c44774f0b51a18fcaf48ba456d8d"
+  },
+  {
+    "brand": "雷沃",
+    "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-028",
+    "source_id": "SRC-LOVOL-TD-TL2-SM-02-EN",
+    "title": "悬挂到顶后分配器出现尖响",
+    "locator": "PDF物理第84页；印刷第75页；表3-11",
+    "models": [
+      "TD750",
+      "TD754",
+      "TD800",
+      "TD804",
+      "TD820",
+      "TD824",
+      "TD850",
+      "TD854",
+      "TD900",
+      "TD904",
+      "TD950",
+      "TD954",
+      "TD1000",
+      "TD1004",
+      "TD1100",
+      "TD1104"
+    ],
+    "bodyHash": "4c9451afa2e77324ed15def0f5b26f7fd4c2f779757107153fefc832ad3407c7"
+  },
+  {
+    "brand": "雷沃",
+    "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-029",
+    "source_id": "SRC-LOVOL-TD-TL2-SM-02-EN",
+    "title": "提升器缸盖液压输出不足时检查下降速度控制阀",
+    "locator": "PDF物理第84页；印刷第75页；表3-11",
+    "models": [
+      "TD750",
+      "TD754",
+      "TD800",
+      "TD804",
+      "TD820",
+      "TD824",
+      "TD850",
+      "TD854",
+      "TD900",
+      "TD904",
+      "TD950",
+      "TD954",
+      "TD1000",
+      "TD1004",
+      "TD1100",
+      "TD1104"
+    ],
+    "bodyHash": "45ff5867b17d8e89137cd01adcfc18174921af7aab873f1f65bdb6ac9759943d"
+  },
+  {
+    "brand": "雷沃",
+    "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-030",
+    "source_id": "SRC-LOVOL-TD-TL2-SM-02-EN",
+    "title": "选装气制动供气压力不足",
+    "locator": "PDF物理第84页；印刷第75页；表3-12",
+    "models": [
+      "TD750",
+      "TD754",
+      "TD800",
+      "TD804",
+      "TD820",
+      "TD824",
+      "TD850",
+      "TD854",
+      "TD900",
+      "TD904",
+      "TD950",
+      "TD954",
+      "TD1000",
+      "TD1004",
+      "TD1100",
+      "TD1104"
+    ],
+    "bodyHash": "d07623deb5095d8a67a8c84effdd2351d59b282ef15deb8d7e592a78299101d8"
+  },
+  {
+    "brand": "雷沃",
+    "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-031",
+    "source_id": "SRC-LOVOL-TD-TL2-SM-02-EN",
+    "title": "气制动阀不回位时检查异物和积液",
+    "locator": "PDF物理第84页；印刷第75页；表3-12",
+    "models": [
+      "TD750",
+      "TD754",
+      "TD800",
+      "TD804",
+      "TD820",
+      "TD824",
+      "TD850",
+      "TD854",
+      "TD900",
+      "TD904",
+      "TD950",
+      "TD954",
+      "TD1000",
+      "TD1004",
+      "TD1100",
+      "TD1104"
+    ],
+    "bodyHash": "da348546d9d7c5892b64331637fb0a15048fe9c2da62b71bf4982bb5050f75ad"
+  },
+  {
+    "brand": "雷沃",
+    "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-032",
+    "source_id": "SRC-LOVOL-TD-TL2-SM-02-EN",
+    "title": "气制动阀不排气时检查挺杆和弹簧",
+    "locator": "PDF物理第85页；印刷第76页；表3-12",
+    "models": [
+      "TD750",
+      "TD754",
+      "TD800",
+      "TD804",
+      "TD820",
+      "TD824",
+      "TD850",
+      "TD854",
+      "TD900",
+      "TD904",
+      "TD950",
+      "TD954",
+      "TD1000",
+      "TD1004",
+      "TD1100",
+      "TD1104"
+    ],
+    "bodyHash": "2c6c14de00616d0df0ff0f2ee5861eb0884f25f27aada359e1977af5cd53cdf0"
+  },
+  {
+    "brand": "雷沃",
+    "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-033",
+    "source_id": "SRC-LOVOL-TD-TL2-SM-02-EN",
+    "title": "接通起动开关后起动机完全不转",
+    "locator": "PDF物理第85页；印刷第76页；表3-13",
+    "models": [
+      "TD750",
+      "TD754",
+      "TD800",
+      "TD804",
+      "TD820",
+      "TD824",
+      "TD850",
+      "TD854",
+      "TD900",
+      "TD904",
+      "TD950",
+      "TD954",
+      "TD1000",
+      "TD1004",
+      "TD1100",
+      "TD1104"
+    ],
+    "bodyHash": "266cc6e6f246bd772aa3035fe3ec636ae02500264ab3c5877736a5e2c6b62b7d"
+  },
+  {
+    "brand": "雷沃",
+    "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-034",
+    "source_id": "SRC-LOVOL-TD-TL2-SM-02-EN",
+    "title": "起动机虽然转动但带不动发动机",
+    "locator": "PDF物理第85页；印刷第76页；表3-13",
+    "models": [
+      "TD750",
+      "TD754",
+      "TD800",
+      "TD804",
+      "TD820",
+      "TD824",
+      "TD850",
+      "TD854",
+      "TD900",
+      "TD904",
+      "TD950",
+      "TD954",
+      "TD1000",
+      "TD1004",
+      "TD1100",
+      "TD1104"
+    ],
+    "bodyHash": "8390a9a9b12814f2bca233ef502280bb22633e3942823fda2d0b636879196368"
+  },
+  {
+    "brand": "雷沃",
+    "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-035",
+    "source_id": "SRC-LOVOL-TD-TL2-SM-02-EN",
+    "title": "发动机已经着车但起动机仍转并伴尖响",
+    "locator": "PDF物理第85页；印刷第76页；表3-13",
+    "models": [
+      "TD750",
+      "TD754",
+      "TD800",
+      "TD804",
+      "TD820",
+      "TD824",
+      "TD850",
+      "TD854",
+      "TD900",
+      "TD904",
+      "TD950",
+      "TD954",
+      "TD1000",
+      "TD1004",
+      "TD1100",
+      "TD1104"
+    ],
+    "bodyHash": "3b524d8080787cf35aba412de942e22297f3a49f6c6740f063b75793fb624353"
+  },
+  {
+    "brand": "雷沃",
+    "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-036",
+    "source_id": "SRC-LOVOL-TD-TL2-SM-02-EN",
+    "title": "发电机不向电气系统供电",
+    "locator": "PDF物理第86页；印刷第77页；表3-14",
+    "models": [
+      "TD750",
+      "TD754",
+      "TD800",
+      "TD804",
+      "TD820",
+      "TD824",
+      "TD850",
+      "TD854",
+      "TD900",
+      "TD904",
+      "TD950",
+      "TD954",
+      "TD1000",
+      "TD1004",
+      "TD1100",
+      "TD1104"
+    ],
+    "bodyHash": "b1fb459b70bd09c07361c93c6c35829b6401620195ab798131b6ad2204d345be"
+  },
+  {
+    "brand": "雷沃",
+    "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-037",
+    "source_id": "SRC-LOVOL-TD-TL2-SM-02-EN",
+    "title": "发电机充电不足且蓄电池经常欠电",
+    "locator": "PDF物理第86页；印刷第77页；表3-14",
+    "models": [
+      "TD750",
+      "TD754",
+      "TD800",
+      "TD804",
+      "TD820",
+      "TD824",
+      "TD850",
+      "TD854",
+      "TD900",
+      "TD904",
+      "TD950",
+      "TD954",
+      "TD1000",
+      "TD1004",
+      "TD1100",
+      "TD1104"
+    ],
+    "bodyHash": "67df253ee813176e2ac559d0e9226f5a316d6940576823e115acf94d80286763"
+  },
+  {
+    "brand": "雷沃",
+    "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-038",
+    "source_id": "SRC-LOVOL-TD-TL2-SM-02-EN",
+    "title": "充电异常偏高并反复烧灯泡",
+    "locator": "PDF物理第86页；印刷第77页；表3-14",
+    "models": [
+      "TD750",
+      "TD754",
+      "TD800",
+      "TD804",
+      "TD820",
+      "TD824",
+      "TD850",
+      "TD854",
+      "TD900",
+      "TD904",
+      "TD950",
+      "TD954",
+      "TD1000",
+      "TD1004",
+      "TD1100",
+      "TD1104"
+    ],
+    "bodyHash": "f1efbfeb590ddee35964e0ea28a00b0c7eb8f3b5e09679720f3da187b200f046"
+  },
+  {
+    "brand": "雷沃",
+    "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-039",
+    "source_id": "SRC-LOVOL-TD-TL2-SM-02-EN",
+    "title": "蓄电池容量低导致拖拉机起动困难",
+    "locator": "PDF物理第86页；印刷第77页；表3-15",
+    "models": [
+      "TD750",
+      "TD754",
+      "TD800",
+      "TD804",
+      "TD820",
+      "TD824",
+      "TD850",
+      "TD854",
+      "TD900",
+      "TD904",
+      "TD950",
+      "TD954",
+      "TD1000",
+      "TD1004",
+      "TD1100",
+      "TD1104"
+    ],
+    "bodyHash": "a05baf4ac69d4766cd482beed0df60c3c246c5bce3385de34f4cb9d86c16150c"
+  },
+  {
+    "brand": "雷沃",
+    "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-040",
+    "source_id": "SRC-LOVOL-TD-TL2-SM-02-EN",
+    "title": "蓄电池停放后异常自放电",
+    "locator": "PDF物理第86至87页；印刷第77至78页；表3-15",
+    "models": [
+      "TD750",
+      "TD754",
+      "TD800",
+      "TD804",
+      "TD820",
+      "TD824",
+      "TD850",
+      "TD854",
+      "TD900",
+      "TD904",
+      "TD950",
+      "TD954",
+      "TD1000",
+      "TD1004",
+      "TD1100",
+      "TD1104"
+    ],
+    "bodyHash": "b855f50ecb011b6dea13693aab8ce8963e974366b74b0b51a1f0dfb74e57e270"
+  },
+  {
+    "brand": "雷沃",
+    "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-041",
+    "source_id": "SRC-LOVOL-TD-TL2-SM-02-EN",
+    "title": "水温表持续偏低时检查接插件与传感器",
+    "locator": "PDF物理第87页；印刷第78页；表3-16",
+    "models": [
+      "TD750",
+      "TD754",
+      "TD800",
+      "TD804",
+      "TD820",
+      "TD824",
+      "TD850",
+      "TD854",
+      "TD900",
+      "TD904",
+      "TD950",
+      "TD954",
+      "TD1000",
+      "TD1004",
+      "TD1100",
+      "TD1104"
+    ],
+    "bodyHash": "dee389f49d5719ff0eba68fa961cc61b1f48cfc2fccd9d02b8fcb66abf202c0b"
+  },
+  {
+    "brand": "雷沃",
+    "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-042",
+    "source_id": "SRC-LOVOL-TD-TL2-SM-02-EN",
+    "title": "机油压力表指示异常时检查测量链路",
+    "locator": "PDF物理第87页；印刷第78页；表3-16",
+    "models": [
+      "TD750",
+      "TD754",
+      "TD800",
+      "TD804",
+      "TD820",
+      "TD824",
+      "TD850",
+      "TD854",
+      "TD900",
+      "TD904",
+      "TD950",
+      "TD954",
+      "TD1000",
+      "TD1004",
+      "TD1100",
+      "TD1104"
+    ],
+    "bodyHash": "3972345107d0bf97b0a33e489c3bad89899684ff7a2fb4633b9cafa544e6812a"
+  },
+  {
+    "brand": "雷沃",
+    "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-043",
+    "source_id": "SRC-LOVOL-TD-TL2-SM-02-EN",
+    "title": "前大灯无法切换远光近光",
+    "locator": "PDF物理第87页；印刷第78页；表3-17",
+    "models": [
+      "TD750",
+      "TD754",
+      "TD800",
+      "TD804",
+      "TD820",
+      "TD824",
+      "TD850",
+      "TD854",
+      "TD900",
+      "TD904",
+      "TD950",
+      "TD954",
+      "TD1000",
+      "TD1004",
+      "TD1100",
+      "TD1104"
+    ],
+    "bodyHash": "1de31e40be9f5e037d8e7da097e6f0a9bad6a782dc18deaace1ce195a693db86"
+  },
+  {
+    "brand": "雷沃",
+    "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-044",
+    "source_id": "SRC-LOVOL-TD-TL2-SM-02-EN",
+    "title": "尾灯不亮检查灯光支路开路",
+    "locator": "PDF物理第87页；印刷第78页；表3-17",
+    "models": [
+      "TD750",
+      "TD754",
+      "TD800",
+      "TD804",
+      "TD820",
+      "TD824",
+      "TD850",
+      "TD854",
+      "TD900",
+      "TD904",
+      "TD950",
+      "TD954",
+      "TD1000",
+      "TD1004",
+      "TD1100",
+      "TD1104"
+    ],
+    "bodyHash": "08582ed3ec79b5c024131d0539a672352c0eb6b4aa2677ba8b7116eb45486756"
+  },
+  {
+    "brand": "雷沃",
+    "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-SUP-001",
+    "source_id": "SRC-LOVOL-TD-TL2-SM-02-EN",
+    "title": "两驱前轮前束和标准轮胎气压核对",
+    "locator": "PDF物理第133页；印刷第124页；表8-1 行走系统两驱栏",
+    "models": [
+      "TD750",
+      "TD800",
+      "TD820",
+      "TD850",
+      "TD900",
+      "TD950",
+      "TD1000",
+      "TD1100"
+    ],
+    "bodyHash": "6f3475d27dce76360a54e1125ed610e0afec6e560aaa67ac11b4c132b30ae49d"
+  },
+  {
+    "brand": "雷沃",
+    "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-SUP-002",
+    "source_id": "SRC-LOVOL-TD-TL2-SM-02-EN",
+    "title": "四驱前轮前束和标准轮胎气压核对",
+    "locator": "PDF物理第133页；印刷第124页；表8-1 行走系统四驱栏",
+    "models": [
+      "TD754",
+      "TD804",
+      "TD824",
+      "TD854",
+      "TD904",
+      "TD954",
+      "TD1004",
+      "TD1104"
+    ],
+    "bodyHash": "c98db9a22539f32ec9b3c50718ae4a98d5a23117be6a0b5d9388695d5a8de896"
+  },
+  {
+    "brand": "雷沃",
+    "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-SUP-003",
+    "source_id": "SRC-LOVOL-TD-TL2-SM-02-EN",
+    "title": "水田后轮胎压须识别 11-32 规格",
+    "locator": "PDF物理第133页；印刷第124页；表8-1 后轮胎压栏",
+    "models": [
+      "TD750",
+      "TD754",
+      "TD800",
+      "TD804",
+      "TD820",
+      "TD824",
+      "TD850",
+      "TD854",
+      "TD900",
+      "TD904",
+      "TD950",
+      "TD954",
+      "TD1000",
+      "TD1004",
+      "TD1100",
+      "TD1104"
+    ],
+    "bodyHash": "6bed4f2d247a26620c0e52b4276913df1f82195a37aeb1a1c73a2c8f26655cce"
+  },
+  {
+    "brand": "雷沃",
+    "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-SUP-004",
+    "source_id": "SRC-LOVOL-TD-TL2-SM-02-EN",
+    "title": "液压泵更换前核对提升器型式和齿轮泵代号",
+    "locator": "PDF物理第133页；印刷第124页；表8-1 工作装置与油泵",
+    "models": [
+      "TD750",
+      "TD754",
+      "TD800",
+      "TD804",
+      "TD820",
+      "TD824",
+      "TD850",
+      "TD854",
+      "TD900",
+      "TD904",
+      "TD950",
+      "TD954",
+      "TD1000",
+      "TD1004",
+      "TD1100",
+      "TD1104"
+    ],
+    "bodyHash": "99b4e196e63be7aea1dd6b84f0eb28009e51e4a758da4501a662c15ec8c4416a"
+  },
+  {
+    "brand": "雷沃",
+    "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-SUP-005",
+    "source_id": "SRC-LOVOL-TD-TL2-SM-02-EN",
+    "title": "提升油缸缸径、行程和作用方式按提升器识别",
+    "locator": "PDF物理第133页；印刷第124页；表8-1 液压油缸与提升器",
+    "models": [
+      "TD750",
+      "TD754",
+      "TD800",
+      "TD804",
+      "TD820",
+      "TD824",
+      "TD850",
+      "TD854",
+      "TD900",
+      "TD904",
+      "TD950",
+      "TD954",
+      "TD1000",
+      "TD1004",
+      "TD1100",
+      "TD1104"
+    ],
+    "bodyHash": "5165aa7f2dd5a8b9eb02a538dad3cd9d6ea7fab170c41aa942dd9a5f74f42684"
+  },
+  {
+    "brand": "雷沃",
+    "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-SUP-006",
+    "source_id": "SRC-LOVOL-TD-TL2-SM-02-EN",
+    "title": "更换悬挂连接件时核对三点悬挂销孔和接头宽度",
+    "locator": "PDF物理第133页；印刷第124页；表8-1 悬挂机构",
+    "models": [
+      "TD750",
+      "TD754",
+      "TD800",
+      "TD804",
+      "TD820",
+      "TD824",
+      "TD850",
+      "TD854",
+      "TD900",
+      "TD904",
+      "TD950",
+      "TD954",
+      "TD1000",
+      "TD1004",
+      "TD1100",
+      "TD1104"
+    ],
+    "bodyHash": "44978b55e327d01efc2de8b7ac3a263e6d41379a525f6a796ac7d39cf0796500"
+  },
+  {
+    "brand": "雷沃",
+    "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-SUP-007",
+    "source_id": "SRC-LOVOL-TD-TL2-SM-02-EN",
+    "title": "识别提升器型式和外接液压接口",
+    "locator": "PDF物理第134页；印刷第125页；表8-1 液压输出规格",
+    "models": [
+      "TD750",
+      "TD754",
+      "TD800",
+      "TD804",
+      "TD820",
+      "TD824",
+      "TD850",
+      "TD854",
+      "TD900",
+      "TD904",
+      "TD950",
+      "TD954",
+      "TD1000",
+      "TD1004",
+      "TD1100",
+      "TD1104"
+    ],
+    "bodyHash": "2f4fadc8216614edf1d583ac18cb64db4d7e26d83d2468d58f0d7ed3f14dbbba"
+  },
+  {
+    "brand": "雷沃",
+    "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-SUP-008",
+    "source_id": "SRC-LOVOL-TD-TL2-SM-02-EN",
+    "title": "匹配农具前核对动力输出轴花键与实装转速组合",
+    "locator": "PDF物理第134页；印刷第125页；表8-1 动力输出轴规格及转速",
+    "models": [
+      "TD750",
+      "TD754",
+      "TD800",
+      "TD804",
+      "TD820",
+      "TD824",
+      "TD850",
+      "TD854",
+      "TD900",
+      "TD904",
+      "TD950",
+      "TD954",
+      "TD1000",
+      "TD1004",
+      "TD1100",
+      "TD1104"
+    ],
+    "bodyHash": "40921f4c32b63c5ab48443448ec7a12bf61a7cf8585adc0b1bb438cafc3a386d"
+  },
+  {
+    "brand": "雷沃",
+    "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-SUP-009",
+    "source_id": "SRC-LOVOL-TD-TL2-SM-02-EN",
+    "title": "替换蓄电池时核对电压容量和搭铁极性",
+    "locator": "PDF物理第134页；印刷第125页；表8-1 电气仪表系统",
+    "models": [
+      "TD750",
+      "TD754",
+      "TD800",
+      "TD804",
+      "TD820",
+      "TD824",
+      "TD850",
+      "TD854",
+      "TD900",
+      "TD904",
+      "TD950",
+      "TD954",
+      "TD1000",
+      "TD1004",
+      "TD1100",
+      "TD1104"
+    ],
+    "bodyHash": "41e4e86291ce41f823e4b1a6bf294aefc8b20bcbcd5c9b503e015a778ff912fc"
+  },
+  {
+    "brand": "雷沃",
+    "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-SUP-010",
+    "source_id": "SRC-LOVOL-TD-TL2-SM-02-EN",
+    "title": "前照灯型号应核对额定电压和双灯丝功率",
+    "locator": "PDF物理第134页；印刷第125页；表8-1 灯具规格",
+    "models": [
+      "TD750",
+      "TD754",
+      "TD800",
+      "TD804",
+      "TD820",
+      "TD824",
+      "TD850",
+      "TD854",
+      "TD900",
+      "TD904",
+      "TD950",
+      "TD954",
+      "TD1000",
+      "TD1004",
+      "TD1100",
+      "TD1104"
+    ],
+    "bodyHash": "41014468d102170a9aba1d7149562873dd27b27b79a3cbef0f5a5099aab063e4"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-001",
+    "source_id": "SRC-DONGFENG-ZB25-ZB35-ZB45-EN",
+    "title": "柴油机不着车时怎样区分供油、压缩与正时问题",
+    "locator": "PDF物理第69页；印刷第9-1页；9.1.1a–c",
+    "models": [
+      "ZB25",
+      "ZB35",
+      "ZB45"
+    ],
+    "bodyHash": "a7aa6ecd0d7912d25793ba4e60dac47ba049c96dd0ec2b06faaf8300cce08050"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-004",
+    "source_id": "SRC-DONGFENG-ZB25-ZB35-ZB45-EN",
+    "title": "发动机机油压力偏低或没有压力",
+    "locator": "PDF物理第69页；印刷第9-1页；9.1.2a 节",
+    "models": [
+      "ZB25",
+      "ZB35",
+      "ZB45"
+    ],
+    "bodyHash": "4bc60222fb805b7e2dd1776b45bc06f113beec21d3b446eb8c3db3e1e9221ef2"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-005",
+    "source_id": "SRC-DONGFENG-ZB25-ZB35-ZB45-EN",
+    "title": "机油压力过高时检查调压阀与油液黏度",
+    "locator": "PDF物理第70页；印刷第9-2页；9.1.2b 节",
+    "models": [
+      "ZB25",
+      "ZB35",
+      "ZB45"
+    ],
+    "bodyHash": "1bb4447cf73f410caa5f8196665e8a17e713d8a9b98d1fb260ee1af23542f0fe"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-006",
+    "source_id": "SRC-DONGFENG-ZB25-ZB35-ZB45-EN",
+    "title": "气门摇臂轴得不到润滑油",
+    "locator": "PDF物理第70页；印刷第9-2页；9.1.2c 节",
+    "models": [
+      "ZB25",
+      "ZB35",
+      "ZB45"
+    ],
+    "bodyHash": "a0dac7f5798b6624a8d4bd221def14e3b3de69518996eff19f2bb2b5961067f0"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-007",
+    "source_id": "SRC-DONGFENG-ZB25-ZB35-ZB45-EN",
+    "title": "柴油机出力不足时的供油、进气与压缩检查",
+    "locator": "PDF物理第70至71页；印刷第9-2至9-3页；9.1.4 节",
+    "models": [
+      "ZB25",
+      "ZB35",
+      "ZB45"
+    ],
+    "bodyHash": "552118ad40d96f55f1b0b91e1f6a52cb56ebeb84f007afc2ca088f55655c3103"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-008",
+    "source_id": "SRC-DONGFENG-ZB25-ZB35-ZB45-EN",
+    "title": "发动机有节律敲击时检查气门机构",
+    "locator": "PDF物理第71页；印刷第9-3页；9.1.5 节",
+    "models": [
+      "ZB25",
+      "ZB35",
+      "ZB45"
+    ],
+    "bodyHash": "c30ed6038d2ac698f5786aec5eb0f4b347c85bddf052485ac94f899ca97fb066"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-009",
+    "source_id": "SRC-DONGFENG-ZB25-ZB35-ZB45-EN",
+    "title": "柴油机强烈振动时检查缸间差异和支承",
+    "locator": "PDF物理第71页；印刷第9-3页；9.1.6 节",
+    "models": [
+      "ZB25",
+      "ZB35",
+      "ZB45"
+    ],
+    "bodyHash": "a356aea2b7a0c7dee18ea98f283f84ba6989feb7437d69adefc3176f37711a9a"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-010",
+    "source_id": "SRC-DONGFENG-ZB25-ZB35-ZB45-EN",
+    "title": "发动机过热时检查水循环与负载",
+    "locator": "PDF物理第72页；印刷第9-4页；9.1.7 节",
+    "models": [
+      "ZB25",
+      "ZB35",
+      "ZB45"
+    ],
+    "bodyHash": "649cfaa2958a1044c36557d417a05b904014b317bb29450e49d41c026f959b3c"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-011",
+    "source_id": "SRC-DONGFENG-ZB25-ZB35-ZB45-EN",
+    "title": "发动机消耗机油太快的排查",
+    "locator": "PDF物理第72页；印刷第9-4页；9.1.8 节",
+    "models": [
+      "ZB25",
+      "ZB35",
+      "ZB45"
+    ],
+    "bodyHash": "1679b81f05b562f0540475880d6034aa012c9816699abd2166902c4bd8507c72"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-012",
+    "source_id": "SRC-DONGFENG-ZB25-ZB35-ZB45-EN",
+    "title": "曲轴箱机油液位自行上升时检查冷却液串入",
+    "locator": "PDF物理第72页；印刷第9-4页；9.1.9 节",
+    "models": [
+      "ZB25",
+      "ZB35",
+      "ZB45"
+    ],
+    "bodyHash": "a36724ed182c8bd280e201733406b714948ede938d54f390c7203f19d52c0d17"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-013",
+    "source_id": "SRC-DONGFENG-ZB25-ZB35-ZB45-EN",
+    "title": "发动机飞车停机后的喷油调速检查",
+    "locator": "PDF物理第72页；印刷第9-4页；9.1.10 节",
+    "models": [
+      "ZB25",
+      "ZB35",
+      "ZB45"
+    ],
+    "bodyHash": "58877ad9eafb36f8c1f75929040ca844faa3dcd7e7e12e4979fe08b706b54998"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-014",
+    "source_id": "SRC-DONGFENG-ZB25-ZB35-ZB45-EN",
+    "title": "发动机转速周期性上下波动",
+    "locator": "PDF物理第73页；印刷第9-5页；9.1.11 节",
+    "models": [
+      "ZB25",
+      "ZB35",
+      "ZB45"
+    ],
+    "bodyHash": "de597015f7c612205b99a2da36e34e543ffcd519a38de7f8fe09207e9a502412"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-015",
+    "source_id": "SRC-DONGFENG-ZB25-ZB35-ZB45-EN",
+    "title": "柴油机运行中熄火后排查供油和机械卡滞",
+    "locator": "PDF物理第73页；印刷第9-5页；9.1.12 节",
+    "models": [
+      "ZB25",
+      "ZB35",
+      "ZB45"
+    ],
+    "bodyHash": "4e86b5392b538310389249760d1a6d218037f3fd26a628595bb9ee3b1e8950d9"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-016",
+    "source_id": "SRC-DONGFENG-ZB25-ZB35-ZB45-EN",
+    "title": "离合器打滑时检查漏油和有效压紧",
+    "locator": "PDF物理第73页；印刷第9-5页；9.2.1a 节",
+    "models": [
+      "ZB25",
+      "ZB35",
+      "ZB45"
+    ],
+    "bodyHash": "c6f698024a0502178189198fbb18e7842b48750e20a1ec6df28f8188472bb5ba"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-017",
+    "source_id": "SRC-DONGFENG-ZB25-ZB35-ZB45-EN",
+    "title": "离合器分离不彻底并伴换挡响或起步抖",
+    "locator": "PDF物理第73页；印刷第9-5页；9.2.1b 节",
+    "models": [
+      "ZB25",
+      "ZB35",
+      "ZB45"
+    ],
+    "bodyHash": "02811043395b9400f4fc0c59c26da3e3fc6f93f60432be6abf4f5cce3dd385b5"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-018",
+    "source_id": "SRC-DONGFENG-ZB25-ZB35-ZB45-EN",
+    "title": "离合器分离动作伴振动或噪声",
+    "locator": "PDF物理第74页；印刷第9-6页；9.2.1c 节",
+    "models": [
+      "ZB25",
+      "ZB35",
+      "ZB45"
+    ],
+    "bodyHash": "09f84ecdaf28aa55ac265fb51a03f82c77d679193675e2d0dfffce8e5adb68b2"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-019",
+    "source_id": "SRC-DONGFENG-ZB25-ZB35-ZB45-EN",
+    "title": "装鼓式制动时制动力不足",
+    "locator": "PDF物理第74页；印刷第9-6页；9.2.2a 节",
+    "models": [
+      "ZB25"
+    ],
+    "bodyHash": "f1cc1870d7e5500f19a70009dfeebd800e2cdbf10258141c955f65ba884ad991"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-020",
+    "source_id": "SRC-DONGFENG-ZB25-ZB35-ZB45-EN",
+    "title": "解除制动后拖滞并发热",
+    "locator": "PDF物理第74页；印刷第9-6页；9.2.2b 节",
+    "models": [
+      "ZB25"
+    ],
+    "bodyHash": "44621489141528f7f12c3a5c268e8c88446ea3ccab4777681aaad7ccd666b5d9"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-021",
+    "source_id": "SRC-DONGFENG-ZB25-ZB35-ZB45-EN",
+    "title": "变速箱内部响声检查啮合印迹和零件磨损",
+    "locator": "PDF物理第74页；印刷第9-6页；9.2.3a 节",
+    "models": [
+      "ZB25",
+      "ZB35",
+      "ZB45"
+    ],
+    "bodyHash": "60e236e24b4f9349aa1ceb1e3701b629f0d1d8b3786f0cb2889dd098550281b1"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-022",
+    "source_id": "SRC-DONGFENG-ZB25-ZB35-ZB45-EN",
+    "title": "挂入的挡位自动跳出",
+    "locator": "PDF物理第74页；印刷第9-6页；9.2.3b 节",
+    "models": [
+      "ZB25",
+      "ZB35",
+      "ZB45"
+    ],
+    "bodyHash": "4ab23cdd37afcf42bf8d38639a79f28735b10549528afad7fd2ca949f0f5887f"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-023",
+    "source_id": "SRC-DONGFENG-ZB25-ZB35-ZB45-EN",
+    "title": "变速箱过热的侧隙和油液检查",
+    "locator": "PDF物理第75页；印刷第9-7页；9.2.3c 节",
+    "models": [
+      "ZB25",
+      "ZB35",
+      "ZB45"
+    ],
+    "bodyHash": "f60a334fa5bb64ab6d9d161f6240be477bea5cdde661b6dcd3bf9fbc4747c947"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-024",
+    "source_id": "SRC-DONGFENG-ZB25-ZB35-ZB45-EN",
+    "title": "前轮行驶时摆动的轴承与转向连接检查",
+    "locator": "PDF物理第75页；印刷第9-7页；9.2.4a 节",
+    "models": [
+      "ZB25",
+      "ZB35",
+      "ZB45"
+    ],
+    "bodyHash": "1b7d60ebbfefce27be88fa34ca374de07e54e860076dff1aab4e2639fd1fa85c"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-025",
+    "source_id": "SRC-DONGFENG-ZB25-ZB35-ZB45-EN",
+    "title": "前轮胎早期磨损检查前束和气压",
+    "locator": "PDF物理第75页；印刷第9-7页；9.2.4b 节",
+    "models": [
+      "ZB25",
+      "ZB35",
+      "ZB45"
+    ],
+    "bodyHash": "0cfc52e8b7e3692993345200b60f2a670a518b4f10772347e2ec143eced6c4f8"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-026",
+    "source_id": "SRC-DONGFENG-ZB25-ZB35-ZB45-EN",
+    "title": "全液压转向变重时检查油液和吸油侧",
+    "locator": "PDF物理第75页；印刷第9-7页；9.2.5a 节",
+    "models": [
+      "ZB25",
+      "ZB35",
+      "ZB45"
+    ],
+    "bodyHash": "71657296667db11f2cd27e224785220aaee458a3e3c15e3b2ed17f5490cadc8a"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-027",
+    "source_id": "SRC-DONGFENG-ZB25-ZB35-ZB45-EN",
+    "title": "全液压转向外漏检查接头和密封",
+    "locator": "PDF物理第75页；印刷第9-7页；9.2.5b 节",
+    "models": [
+      "ZB25",
+      "ZB35",
+      "ZB45"
+    ],
+    "bodyHash": "7ba20299787e976e2e3d44ec59b85080d198cade314b43e970d63ff019c1eae2"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-028",
+    "source_id": "SRC-DONGFENG-ZB25-ZB35-ZB45-EN",
+    "title": "转向失效时核对转子与随动轴装配及单向阀",
+    "locator": "PDF物理第75页；印刷第9-7页；9.2.5c 节",
+    "models": [
+      "ZB25",
+      "ZB35",
+      "ZB45"
+    ],
+    "bodyHash": "563017ae36fe29ef3b0cbc3b3a1cee0dfcbaf4e9a80ec59a5dc20500e6379977"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-029",
+    "source_id": "SRC-DONGFENG-ZB25-ZB35-ZB45-EN",
+    "title": "三点悬挂完全不能升起",
+    "locator": "PDF物理第76页；印刷第9-8页；9.2.6a 节",
+    "models": [
+      "ZB25",
+      "ZB35",
+      "ZB45"
+    ],
+    "bodyHash": "45eb27b1acc0969c8979c2845ab5abad692485224636206de25204b5342bb983"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-030",
+    "source_id": "SRC-DONGFENG-ZB25-ZB35-ZB45-EN",
+    "title": "农具悬挂提起后无法下降",
+    "locator": "PDF物理第76页；印刷第9-8页；9.2.6b 节",
+    "models": [
+      "ZB25",
+      "ZB35",
+      "ZB45"
+    ],
+    "bodyHash": "ef5c05f9aa76886ba9b91ab39686dd74caea5dd5fefebdad4e855d3d5dc410e9"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-031",
+    "source_id": "SRC-DONGFENG-ZB25-ZB35-ZB45-EN",
+    "title": "蓄电池供电不足时区分接线和充电系统",
+    "locator": "PDF物理第76页；印刷第9-8页；9.3.1a 节",
+    "models": [
+      "ZB25",
+      "ZB35",
+      "ZB45"
+    ],
+    "bodyHash": "33ba230b9a087c621b6e14584d572ba24446cb51aabfa486c65fa6f5164225d1"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-032",
+    "source_id": "SRC-DONGFENG-ZB25-ZB35-ZB45-EN",
+    "title": "蓄电池过热 端子短路与充电过量检查",
+    "locator": "PDF物理第77页；印刷第9-9页；9.3.1b 节",
+    "models": [
+      "ZB25",
+      "ZB35",
+      "ZB45"
+    ],
+    "bodyHash": "db8c6b6885279fb29c04ad1bb574514f09c156927f8036af68a74a28d09b5c25"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-033",
+    "source_id": "SRC-DONGFENG-ZB25-ZB35-ZB45-EN",
+    "title": "蓄电池有效容量持续下降的电池侧检查",
+    "locator": "PDF物理第77页；印刷第9-9页；9.3.1c 节",
+    "models": [
+      "ZB25",
+      "ZB35",
+      "ZB45"
+    ],
+    "bodyHash": "d5b8b9acf3f88dcc3d9eea7d73bd6567f537134a70430f9d0e5d9a50c9098b80"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-034",
+    "source_id": "SRC-DONGFENG-ZB25-ZB35-ZB45-EN",
+    "title": "发电机完全不发电时检查整流和绕组",
+    "locator": "PDF物理第77页；印刷第9-9页；9.3.2a 节",
+    "models": [
+      "ZB25",
+      "ZB35",
+      "ZB45"
+    ],
+    "bodyHash": "e1264c142e597c89599cb51df6d679ec1a133964c4255e02e1ed83e0f5640bf6"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-035",
+    "source_id": "SRC-DONGFENG-ZB25-ZB35-ZB45-EN",
+    "title": "发电机供给电流持续偏低",
+    "locator": "PDF物理第77页；印刷第9-9页；9.3.2b 节",
+    "models": [
+      "ZB25",
+      "ZB35",
+      "ZB45"
+    ],
+    "bodyHash": "1519bdd90fc44f0a92cd93000f1a44f0ad6fc75b224641e0b7d805a503e2cb91"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-036",
+    "source_id": "SRC-DONGFENG-ZB25-ZB35-ZB45-EN",
+    "title": "发电机输出电流时高时低",
+    "locator": "PDF物理第77页；印刷第9-9页；9.3.2c 节",
+    "models": [
+      "ZB25",
+      "ZB35",
+      "ZB45"
+    ],
+    "bodyHash": "c9951e2cf742855b298fda8db77ee520d42e7b6ed0461da3c90148323c2f49dc"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-037",
+    "source_id": "SRC-DONGFENG-ZB25-ZB35-ZB45-EN",
+    "title": "发电机运转异响检查安装与转子擦碰",
+    "locator": "PDF物理第78页；印刷第9-10页；9.3.2d 节",
+    "models": [
+      "ZB25",
+      "ZB35",
+      "ZB45"
+    ],
+    "bodyHash": "a86a4bb15954e43560196fc36a4eca4ecbef7e46362bf0c253b826d634dcd494"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-038",
+    "source_id": "SRC-DONGFENG-ZB25-ZB35-ZB45-EN",
+    "title": "起动机完全不动作时检查主回路",
+    "locator": "PDF物理第78页；印刷第9-10页；9.3.3a 节",
+    "models": [
+      "ZB25",
+      "ZB35",
+      "ZB45"
+    ],
+    "bodyHash": "3b7b9c713052332fe18545f29e294828ce8f260ac385089f9e9fe7a3b521a430"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-039",
+    "source_id": "SRC-DONGFENG-ZB25-ZB35-ZB45-EN",
+    "title": "发动机起动后起动机不退出",
+    "locator": "PDF物理第78页；印刷第9-10页；9.3.3b 节",
+    "models": [
+      "ZB25",
+      "ZB35",
+      "ZB45"
+    ],
+    "bodyHash": "c226294c58937db41b80a26422073f20d11d137a0a10c692eb7cd37513d6fcbe"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-SUP-001",
+    "source_id": "SRC-DONGFENG-ZB25-ZB35-ZB45-EN",
+    "title": "发动机机油液位何时测量及换油时机",
+    "locator": "PDF物理第60、63、64页；印刷第7-5、8-2、8-3页；7.5、8.2.1–8.2.2",
+    "models": [
+      "ZB25",
+      "ZB35",
+      "ZB45"
+    ],
+    "bodyHash": "19639c39a686189241ee5800eba4e61e172da0c8fded5ed1caa0f0414a9df40c"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-SUP-002",
+    "source_id": "SRC-DONGFENG-ZB25-ZB35-ZB45-EN",
+    "title": "发动机机油容量核对四点五升组",
+    "locator": "PDF物理第6、63页；印刷第S-1、8-2页；整机规格及8.2.1机油容量",
+    "models": [
+      "ZB25",
+      "ZB35"
+    ],
+    "bodyHash": "1c1b94abbf988e8b5f47c072d257d4de59ff36d0b132d9e186d24b70809f9069"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-SUP-003",
+    "source_id": "SRC-DONGFENG-ZB25-ZB35-ZB45-EN",
+    "title": "四缸发动机机油容量按 ZB45 规格核对",
+    "locator": "PDF物理第6、63页；印刷第S-1、8-2页；整机规格及8.2.1机油容量",
+    "models": [
+      "ZB45"
+    ],
+    "bodyHash": "d5a506ce676dee1f3689dba0df11582c00315e167da75e56aa81168e13853958"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-SUP-004",
+    "source_id": "SRC-DONGFENG-ZB25-ZB35-ZB45-EN",
+    "title": "ZB25 变速箱和前桥油量的核对",
+    "locator": "PDF物理第6、64、65页；印刷第S-1、8-3、8-4页；整机规格与8.3、8.4",
+    "models": [
+      "ZB25"
+    ],
+    "bodyHash": "1d924e00adf336e2585efc12bbfbd068c712a487fdb868ca4ecbb15e91796729"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-SUP-005",
+    "source_id": "SRC-DONGFENG-ZB25-ZB35-ZB45-EN",
+    "title": "变速箱和前桥分别用多少油，如何核对油位",
+    "locator": "PDF物理第6、64、65页；印刷第S-1、8-3、8-4页；整机规格与8.3、8.4",
+    "models": [
+      "ZB35",
+      "ZB45"
+    ],
+    "bodyHash": "0b4aea4c9d16d729c57830481471f769d91106f1c712d442ffbe6d00ff5ba544"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-SUP-006",
+    "source_id": "SRC-DONGFENG-ZB25-ZB35-ZB45-EN",
+    "title": "旋装式燃油滤清器更换周期及安装检查",
+    "locator": "PDF物理第60、63页；印刷第7-5、8-2页；7.5及8.1.5",
+    "models": [
+      "ZB25",
+      "ZB35",
+      "ZB45"
+    ],
+    "bodyHash": "32a7f83346d44c4721f97bd6420d8a0156b1e772447083007c159e88f13edcf6"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-SUP-007",
+    "source_id": "SRC-DONGFENG-ZB25-ZB35-ZB45-EN",
+    "title": "更换变速箱油时如何识别液压吸油侧滤清器",
+    "locator": "PDF物理第64页；印刷第8-3页；8.3.2",
+    "models": [
+      "ZB25",
+      "ZB35",
+      "ZB45"
+    ],
+    "bodyHash": "ce0146d831e9f2cc5fd49b529fe8f2b92609b02f3f98ed027a625149eb03d263"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-SUP-008",
+    "source_id": "SRC-DONGFENG-ZB25-ZB35-ZB45-EN",
+    "title": "哪些工况需要给低压燃油系统排气",
+    "locator": "PDF物理第62页；印刷第8-1页；8.1.2–8.1.4",
+    "models": [
+      "ZB25",
+      "ZB35",
+      "ZB45"
+    ],
+    "bodyHash": "40a0f68ea9942e721ae147d90b1766a5ecbe4cead8298f3ab76519f7b9180e0d"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-SUP-009",
+    "source_id": "SRC-DONGFENG-ZB25-ZB35-ZB45-EN",
+    "title": "散热器护网和芯体如何清除草籽与糠屑",
+    "locator": "PDF物理第65、66页；印刷第8-4、8-5页；8.6、8.6.2",
+    "models": [
+      "ZB25",
+      "ZB35",
+      "ZB45"
+    ],
+    "bodyHash": "8daa4b5ee9c5efba689d5a5016be1c4163a2030c55ef58d7ed92995e28781d62"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-SUP-010",
+    "source_id": "SRC-DONGFENG-ZB25-ZB35-ZB45-EN",
+    "title": "作业前检查哪些底盘润滑点",
+    "locator": "PDF物理第65页；印刷第8-4页；8.5.1–8.5.2",
+    "models": [
+      "ZB25",
+      "ZB35",
+      "ZB45"
+    ],
+    "bodyHash": "55dd83e8455988b28bab3ab95871859a3eba248322e4661ebe26ce0b7ab06a87"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-SUP-011",
+    "source_id": "SRC-DONGFENG-ZB25-ZB35-ZB45-EN",
+    "title": "冷却系统容量和冷态液位按机型怎么核对",
+    "locator": "PDF物理第65、66页；印刷第8-4、8-5页；8.6.1及8.6.5",
+    "models": [
+      "ZB25",
+      "ZB35",
+      "ZB45"
+    ],
+    "bodyHash": "b0973ded2b1f9ce2a5e4d1adf4d3645741204ee417f96568dc9a15bc01145971"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-SUP-012",
+    "source_id": "SRC-DONGFENG-ZB25-ZB35-ZB45-EN",
+    "title": "农用花纹轮胎如何核对前后胎压",
+    "locator": "PDF物理第66、67页；印刷第8-5、8-6页；8.7 农用花纹轮胎压力表",
+    "models": [
+      "ZB25",
+      "ZB35",
+      "ZB45"
+    ],
+    "bodyHash": "aa426b03076f3d21ea3378885c5c8e43136f343527cd90feec394b6a19a13d5c"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-SUP-013",
+    "source_id": "SRC-DONGFENG-ZB25-ZB35-ZB45-EN",
+    "title": "干式空气滤清器的集尘杯与滤芯怎么清理",
+    "locator": "PDF物理第67页；印刷第8-6页；8.8",
+    "models": [
+      "ZB25",
+      "ZB35",
+      "ZB45"
+    ],
+    "bodyHash": "b5be32fcc65e0246309d811c36b43042465a3fe83f5a126fcb379188b87556e0"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-SUP-014",
+    "source_id": "SRC-DONGFENG-ZB25-ZB35-ZB45-EN",
+    "title": "长期停放时如何存放蓄电池",
+    "locator": "PDF物理第67、68页；印刷第8-6、8-7页；8.9.1",
+    "models": [
+      "ZB25",
+      "ZB35",
+      "ZB45"
+    ],
+    "bodyHash": "c64d98c70e0a99aab0281e4b8f91e64af59f689b1f8db8afc1330bb9ce5923f7"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-SUP-015",
+    "source_id": "SRC-DONGFENG-ZB25-ZB35-ZB45-EN",
+    "title": "三点悬挂如何分别校正农具倾角、水平和侧摆",
+    "locator": "PDF物理第68页；印刷第8-7页；8.10.1–8.10.3",
+    "models": [
+      "ZB25",
+      "ZB35",
+      "ZB45"
+    ],
+    "bodyHash": "1e16377cc2294ac4ea1e9b716a7d42bd6795b60adca214a0b75ee2cc4555aae7"
+  },
+  {
+    "brand": "黄海金马",
+    "entry_id": "KB-JINMA-HHJM-35E-OM-EN-001",
+    "source_id": "SRC-JINMA-HHJM-35E-OM-EN",
+    "title": "柴油机不着车时区分供油不畅与起动阻力偏小",
+    "locator": "PDF物理第75页；印刷第70页；第7.1节",
+    "models": [
+      "300E",
+      "304E",
+      "350E",
+      "354E"
+    ],
+    "bodyHash": "74ca0bcf53e9e7226623bcda9708b7d9d0fd1135046ec94af27841fcdffe4baf"
+  },
+  {
+    "brand": "黄海金马",
+    "entry_id": "KB-JINMA-HHJM-35E-OM-EN-003",
+    "source_id": "SRC-JINMA-HHJM-35E-OM-EN",
+    "title": "柴油机自行熄火时区分燃油供应与机械故障",
+    "locator": "PDF物理第75页；印刷第70页；第7.2节",
+    "models": [
+      "300E",
+      "304E",
+      "350E",
+      "354E"
+    ],
+    "bodyHash": "e4f5bcc74a54fb15d2f60df310c351d26bcdd8feb90d83a9ac1529eb6453fccd"
+  },
+  {
+    "brand": "黄海金马",
+    "entry_id": "KB-JINMA-HHJM-35E-OM-EN-004",
+    "source_id": "SRC-JINMA-HHJM-35E-OM-EN",
+    "title": "施加负荷后柴油机动力不足的排查",
+    "locator": "PDF物理第76页；印刷第71页；第7.3节",
+    "models": [
+      "300E",
+      "304E",
+      "350E",
+      "354E"
+    ],
+    "bodyHash": "ac3b4de9c211ecd17447410c8fe02c5bf99c646b8c9475a7678b56c28a1e9b89"
+  },
+  {
+    "brand": "黄海金马",
+    "entry_id": "KB-JINMA-HHJM-35E-OM-EN-005",
+    "source_id": "SRC-JINMA-HHJM-35E-OM-EN",
+    "title": "排气冒黑烟时检查负荷与进排气",
+    "locator": "PDF物理第76页；印刷第71页；第7.4节",
+    "models": [
+      "300E",
+      "304E",
+      "350E",
+      "354E"
+    ],
+    "bodyHash": "78c571ad5dadfd36766066b190bcb825c392063a2eb34e34d080f5761e0c0c74"
+  },
+  {
+    "brand": "黄海金马",
+    "entry_id": "KB-JINMA-HHJM-35E-OM-EN-006",
+    "source_id": "SRC-JINMA-HHJM-35E-OM-EN",
+    "title": "柴油机持续冒蓝烟时检查油位和机油进入气缸",
+    "locator": "PDF物理第76页；印刷第71页；第7.4节",
+    "models": [
+      "300E",
+      "304E",
+      "350E",
+      "354E"
+    ],
+    "bodyHash": "2fd553c09c1fab01b4b719100d74f3f8702b65c4a84d478ca46c41abf6103f99"
+  },
+  {
+    "brand": "黄海金马",
+    "entry_id": "KB-JINMA-HHJM-35E-OM-EN-007",
+    "source_id": "SRC-JINMA-HHJM-35E-OM-EN",
+    "title": "柴油机排气冒白烟时区分燃油混水和气缸进水",
+    "locator": "PDF物理第76页；印刷第71页；第7.4节",
+    "models": [
+      "300E",
+      "304E",
+      "350E",
+      "354E"
+    ],
+    "bodyHash": "30b75152effdfbc2a4572888b1f7ab59b220a261a26fbb1c0ae6bb3985f63781"
+  },
+  {
+    "brand": "黄海金马",
+    "entry_id": "KB-JINMA-HHJM-35E-OM-EN-008",
+    "source_id": "SRC-JINMA-HHJM-35E-OM-EN",
+    "title": "冷却液温度过高时区分实际过热与仪表失灵",
+    "locator": "PDF物理第77页；印刷第72页；第7.5节",
+    "models": [
+      "300E",
+      "304E",
+      "350E",
+      "354E"
+    ],
+    "bodyHash": "a7dc5f3a3a13ed4ef7971c7cd32a4b76a13c741f3788895fded4615de24d98a4"
+  },
+  {
+    "brand": "黄海金马",
+    "entry_id": "KB-JINMA-HHJM-35E-OM-EN-009",
+    "source_id": "SRC-JINMA-HHJM-35E-OM-EN",
+    "title": "柴油机飞车停机后检查喷油泵连杆和调速器",
+    "locator": "PDF物理第77页；印刷第72页；第7.6节",
+    "models": [
+      "300E",
+      "304E",
+      "350E",
+      "354E"
+    ],
+    "bodyHash": "bd95986774236f0d3fbac41cf8d46876a10a7fbbb2b26e218d059ea8cdf182a8"
+  },
+  {
+    "brand": "黄海金马",
+    "entry_id": "KB-JINMA-HHJM-35E-OM-EN-010",
+    "source_id": "SRC-JINMA-HHJM-35E-OM-EN",
+    "title": "柴油机随转速变化敲击或齿轮室异响",
+    "locator": "PDF物理第77页；印刷第72页；第7.7节",
+    "models": [
+      "300E",
+      "304E",
+      "350E",
+      "354E"
+    ],
+    "bodyHash": "b3a71f82f7875d3e6b5d23e3ca83c0823bc284f48367d57c973f8a74a1e1b92f"
+  },
+  {
+    "brand": "黄海金马",
+    "entry_id": "KB-JINMA-HHJM-35E-OM-EN-011",
+    "source_id": "SRC-JINMA-HHJM-35E-OM-EN",
+    "title": "机油压力过低或为零时检查润滑油路",
+    "locator": "PDF物理第78页；印刷第73页；第7.8节",
+    "models": [
+      "300E",
+      "304E",
+      "350E",
+      "354E"
+    ],
+    "bodyHash": "53d928fb05eb68f3d9d368dbdbef18df0ab5ef82df9f1d7d7aa011cc8d7f4e3a"
+  },
+  {
+    "brand": "黄海金马",
+    "entry_id": "KB-JINMA-HHJM-35E-OM-EN-012",
+    "source_id": "SRC-JINMA-HHJM-35E-OM-EN",
+    "title": "装对应制动盘时排查制动效能下降",
+    "locator": "PDF物理第78页；印刷第73页；第7.9节",
+    "models": [
+      "300E",
+      "304E",
+      "350E",
+      "354E"
+    ],
+    "bodyHash": "3b631c342ac02914fe9a8ec98874d8135a3bd38a40d593ecde1a38b317067730"
+  },
+  {
+    "brand": "黄海金马",
+    "entry_id": "KB-JINMA-HHJM-35E-OM-EN-013",
+    "source_id": "SRC-JINMA-HHJM-35E-OM-EN",
+    "title": "松开制动后分离不完全并发热",
+    "locator": "PDF物理第78页；印刷第73页；第7.9节",
+    "models": [
+      "300E",
+      "304E",
+      "350E",
+      "354E"
+    ],
+    "bodyHash": "3eef4758167ac10ed81d0e7fb4d5e211097ea2eeb695e67995b07510481942d1"
+  },
+  {
+    "brand": "黄海金马",
+    "entry_id": "KB-JINMA-HHJM-35E-OM-EN-014",
+    "source_id": "SRC-JINMA-HHJM-35E-OM-EN",
+    "title": "负载下离合器打滑检查摩擦盘和自由行程",
+    "locator": "PDF物理第78页；印刷第73页；第7.10节",
+    "models": [
+      "300E",
+      "304E",
+      "350E",
+      "354E"
+    ],
+    "bodyHash": "2332503aaab5cbcf10c36e9d31d063b39051460ce55d73e3f8c63447a249f5d8"
+  },
+  {
+    "brand": "黄海金马",
+    "entry_id": "KB-JINMA-HHJM-35E-OM-EN-015",
+    "source_id": "SRC-JINMA-HHJM-35E-OM-EN",
+    "title": "离合器分离不彻底造成挂挡困难或响声",
+    "locator": "PDF物理第78页；印刷第73页；第7.10节",
+    "models": [
+      "300E",
+      "304E",
+      "350E",
+      "354E"
+    ],
+    "bodyHash": "e8b651f90e79ea5ab4c46d2d744982514286826e0635fe6652d0fe055e3ef0c9"
+  },
+  {
+    "brand": "黄海金马",
+    "entry_id": "KB-JINMA-HHJM-35E-OM-EN-016",
+    "source_id": "SRC-JINMA-HHJM-35E-OM-EN",
+    "title": "车辆在开始移动时抖动的摩擦盘检查",
+    "locator": "PDF物理第78页；印刷第73页；第7.10节",
+    "models": [
+      "300E",
+      "304E",
+      "350E",
+      "354E"
+    ],
+    "bodyHash": "c72047045f5aa88b8aab8b7de405ee6619bec5007375c347372e33ae81c17fee"
+  },
+  {
+    "brand": "黄海金马",
+    "entry_id": "KB-JINMA-HHJM-35E-OM-EN-017",
+    "source_id": "SRC-JINMA-HHJM-35E-OM-EN",
+    "title": "悬挂在轻载和重载下都无法升起",
+    "locator": "PDF物理第79页；印刷第74页；第7.11节",
+    "models": [
+      "300E",
+      "304E",
+      "350E",
+      "354E"
+    ],
+    "bodyHash": "854a1c84feeb559f5e259dd7f1fef9e9cb04f6b60168078df40f575c8bea3481"
+  },
+  {
+    "brand": "黄海金马",
+    "entry_id": "KB-JINMA-HHJM-35E-OM-EN-018",
+    "source_id": "SRC-JINMA-HHJM-35E-OM-EN",
+    "title": "农具空载举升正常而带负荷举不动",
+    "locator": "PDF物理第79页；印刷第74页；第7.11节",
+    "models": [
+      "300E",
+      "304E",
+      "350E",
+      "354E"
+    ],
+    "bodyHash": "5c98f030433601547ab5c6da39ef879f9f5eeedb3369a30504f1eecb906ab500"
+  },
+  {
+    "brand": "黄海金马",
+    "entry_id": "KB-JINMA-HHJM-35E-OM-EN-019",
+    "source_id": "SRC-JINMA-HHJM-35E-OM-EN",
+    "title": "提升手柄到举升位置时液压泵尖响",
+    "locator": "PDF物理第79页；印刷第74页；第7.11节",
+    "models": [
+      "300E",
+      "304E",
+      "350E",
+      "354E"
+    ],
+    "bodyHash": "cedc7c7194f88faad66f66717f19e3a1663f862383f44560cc0a16c686479b20"
+  },
+  {
+    "brand": "黄海金马",
+    "entry_id": "KB-JINMA-HHJM-35E-OM-EN-020",
+    "source_id": "SRC-JINMA-HHJM-35E-OM-EN",
+    "title": "提升农具反复点头且静置下沉快",
+    "locator": "PDF物理第79页；印刷第74页；第7.11节",
+    "models": [
+      "300E",
+      "304E",
+      "350E",
+      "354E"
+    ],
+    "bodyHash": "bb83e1cbb8976bb1ff17249331757511cddf9fe276a48d0fb10b0a85d43ab2ab"
+  },
+  {
+    "brand": "黄海金马",
+    "entry_id": "KB-JINMA-HHJM-35E-OM-EN-021",
+    "source_id": "SRC-JINMA-HHJM-35E-OM-EN",
+    "title": "农具可举升但最高位置过低或者超程",
+    "locator": "PDF物理第80页；印刷第75页；第7.11节",
+    "models": [
+      "300E",
+      "304E",
+      "350E",
+      "354E"
+    ],
+    "bodyHash": "9556b613e6c5b486f7eddcfe1560a918e152c69269253f59ea5f6c7d3ea21b49"
+  },
+  {
+    "brand": "黄海金马",
+    "entry_id": "KB-JINMA-HHJM-35E-OM-EN-022",
+    "source_id": "SRC-JINMA-HHJM-35E-OM-EN",
+    "title": "农具位置无法下降时检查下降速度控制阀",
+    "locator": "PDF物理第80页；印刷第75页；第7.11节",
+    "models": [
+      "300E",
+      "304E",
+      "350E",
+      "354E"
+    ],
+    "bodyHash": "9e3c04cd1b0e5de3fe78fcbf2f0dacd8e5bb24e25172d63f6b79e91d061f4b46"
+  },
+  {
+    "brand": "黄海金马",
+    "entry_id": "KB-JINMA-HHJM-35E-OM-EN-023",
+    "source_id": "SRC-JINMA-HHJM-35E-OM-EN",
+    "title": "液压油异常升温与提升器位置相关",
+    "locator": "PDF物理第80页；印刷第75页；第7.11节",
+    "models": [
+      "300E",
+      "304E",
+      "350E",
+      "354E"
+    ],
+    "bodyHash": "afa681ec29fcaca71d145e8f560816a7e7d9bda8ded4dfaa84399a6e24490e33"
+  },
+  {
+    "brand": "黄海金马",
+    "entry_id": "KB-JINMA-HHJM-35E-OM-EN-024",
+    "source_id": "SRC-JINMA-HHJM-35E-OM-EN",
+    "title": "提升控制手柄操纵发涩卡滞",
+    "locator": "PDF物理第80页；印刷第75页；第7.11节",
+    "models": [
+      "300E",
+      "304E",
+      "350E",
+      "354E"
+    ],
+    "bodyHash": "1021fe8733372d960a5966688221a3c27428a170ef5e9ed67092ea8cd38bf86c"
+  },
+  {
+    "brand": "黄海金马",
+    "entry_id": "KB-JINMA-HHJM-35E-OM-EN-025",
+    "source_id": "SRC-JINMA-HHJM-35E-OM-EN",
+    "title": "起动机完全无响应的供电和本体检查",
+    "locator": "PDF物理第80页；印刷第75页；第7.12.1节",
+    "models": [
+      "300E",
+      "304E",
+      "350E",
+      "354E"
+    ],
+    "bodyHash": "ac2af2e228067a41713161b30fccdb965e171f7d76f124a337924786868082a0"
+  },
+  {
+    "brand": "黄海金马",
+    "entry_id": "KB-JINMA-HHJM-35E-OM-EN-026",
+    "source_id": "SRC-JINMA-HHJM-35E-OM-EN",
+    "title": "起动机转动无力时区分接触与欠电",
+    "locator": "PDF物理第80页；印刷第75页；第7.12.1节",
+    "models": [
+      "300E",
+      "304E",
+      "350E",
+      "354E"
+    ],
+    "bodyHash": "13cd59639405da76bd3667d50b8fe3f2c54a014b0f6321c1dd90ef4a55463467"
+  },
+  {
+    "brand": "黄海金马",
+    "entry_id": "KB-JINMA-HHJM-35E-OM-EN-027",
+    "source_id": "SRC-JINMA-HHJM-35E-OM-EN",
+    "title": "起动小齿轮不啮合并伴冲击",
+    "locator": "PDF物理第80页；印刷第75页；第7.12.1节",
+    "models": [
+      "300E",
+      "304E",
+      "350E",
+      "354E"
+    ],
+    "bodyHash": "fe9db408c62fb08530ab9ebfc12a454495b73f2c782f140c06b4b383987c29b7"
+  },
+  {
+    "brand": "黄海金马",
+    "entry_id": "KB-JINMA-HHJM-35E-OM-EN-028",
+    "source_id": "SRC-JINMA-HHJM-35E-OM-EN",
+    "title": "蓄电池长期亏电时检查充电线路压降",
+    "locator": "PDF物理第81页；印刷第76页；第7.12.2节",
+    "models": [
+      "300E",
+      "304E",
+      "350E",
+      "354E"
+    ],
+    "bodyHash": "09f9545727fc33de0852b552aff8c6d30edd90bc5c4c7691d13d759130577be7"
+  },
+  {
+    "brand": "黄海金马",
+    "entry_id": "KB-JINMA-HHJM-35E-OM-EN-029",
+    "source_id": "SRC-JINMA-HHJM-35E-OM-EN",
+    "title": "仪表指示失常时分段检查电路、传感器、仪表",
+    "locator": "PDF物理第81页；印刷第76页；第7.12.3节",
+    "models": [
+      "300E",
+      "304E",
+      "350E",
+      "354E"
+    ],
+    "bodyHash": "aa7999fed8d812fcfdd27779bb0688d3f23f3f51a9394011fd62671044308747"
+  },
+  {
+    "brand": "黄海金马",
+    "entry_id": "KB-JINMA-HHJM-35E-OM-EN-030",
+    "source_id": "SRC-JINMA-HHJM-35E-OM-EN",
+    "title": "大灯或尾灯转向灯失效的灯光线路排查",
+    "locator": "PDF物理第81页；印刷第76页；第7.12.4节",
+    "models": [
+      "300E",
+      "304E",
+      "350E",
+      "354E"
+    ],
+    "bodyHash": "0cf36fbbf648e3ce3aa2367ae29fea3cda7920a2ec9d08f1d1207b2a60bd2c06"
+  },
+  {
+    "brand": "黄海金马",
+    "entry_id": "KB-JINMA-HHJM-35E-OM-EN-031",
+    "source_id": "SRC-JINMA-HHJM-35E-OM-EN",
+    "title": "硅整流发电机无输出时检查接线、二极管和调压",
+    "locator": "PDF物理第82页；印刷第77页；第7.12.5节",
+    "models": [
+      "300E",
+      "304E",
+      "350E",
+      "354E"
+    ],
+    "bodyHash": "ce4fdafc5ce6beca6257a3072c92d20762a286c3c1e95a6a883ef3dc9fc2bee3"
+  },
+  {
+    "brand": "黄海金马",
+    "entry_id": "KB-JINMA-HHJM-35E-OM-EN-032",
+    "source_id": "SRC-JINMA-HHJM-35E-OM-EN",
+    "title": "发电机仍有输出但充电不足",
+    "locator": "PDF物理第82页；印刷第77页；第7.12.5节",
+    "models": [
+      "300E",
+      "304E",
+      "350E",
+      "354E"
+    ],
+    "bodyHash": "bc1d4ed6c98a28b9cde72e0cbe0471ba6139f769a3bebd073be600c9c3085943"
+  },
+  {
+    "brand": "黄海金马",
+    "entry_id": "KB-JINMA-HHJM-35E-OM-EN-033",
+    "source_id": "SRC-JINMA-HHJM-35E-OM-EN",
+    "title": "充电电流波动时查打滑、接触及调节器",
+    "locator": "PDF物理第82页；印刷第77页；第7.12.5节",
+    "models": [
+      "300E",
+      "304E",
+      "350E",
+      "354E"
+    ],
+    "bodyHash": "b7a45897592518f774d6110bd0009dd977dfa245b252e6f31614e65c34ac622c"
+  },
+  {
+    "brand": "黄海金马",
+    "entry_id": "KB-JINMA-HHJM-35E-OM-EN-034",
+    "source_id": "SRC-JINMA-HHJM-35E-OM-EN",
+    "title": "发电机有焦糊味时检查发热部件",
+    "locator": "PDF物理第82页；印刷第77页；第7.12.5节",
+    "models": [
+      "300E",
+      "304E",
+      "350E",
+      "354E"
+    ],
+    "bodyHash": "5925c946fd272e59082457ecbfbb8d663a99d84b35914446d0ba53744b3ae0a2"
+  },
+  {
+    "brand": "黄海金马",
+    "entry_id": "KB-JINMA-HHJM-35E-OM-EN-035",
+    "source_id": "SRC-JINMA-HHJM-35E-OM-EN",
+    "title": "充电电流过大时区分蓄电池单格短路和调节故障",
+    "locator": "PDF物理第82页；印刷第77页；第7.12.5节",
+    "models": [
+      "300E",
+      "304E",
+      "350E",
+      "354E"
+    ],
+    "bodyHash": "0a2a8656ec7cdb9b1a9a72bc293db3696b462d1acd2cac33756616ba54e86e05"
+  },
+  {
+    "brand": "黄海金马",
+    "entry_id": "KB-JINMA-HHJM-164Y-OM-EN-001",
+    "source_id": "SRC-JINMA-HHJM-164Y-OM-EN",
+    "title": "发动机起动困难时如何检查燃油、压缩和蓄电池",
+    "locator": "PDF物理第51页；目录对应第46页；第七章7.1.1第2–6项",
+    "models": [
+      "HHJM-164Y"
+    ],
+    "bodyHash": "76aa4316f0a069e439712ea450eac9040d175e2e775ef6e861760e257678f4db"
+  },
+  {
+    "brand": "黄海金马",
+    "entry_id": "KB-JINMA-HHJM-164Y-OM-EN-004",
+    "source_id": "SRC-JINMA-HHJM-164Y-OM-EN",
+    "title": "柴油机动力不足时如何检查滤芯、喷油和气缸作功",
+    "locator": "PDF物理第51页；目录对应第46页；第七章7.1.2第1–5、7项",
+    "models": [
+      "HHJM-164Y"
+    ],
+    "bodyHash": "f5ede446afcff679d5903de8472ab654be4362b2157a79bc5b4822b8d2f0b119"
+  },
+  {
+    "brand": "黄海金马",
+    "entry_id": "KB-JINMA-HHJM-164Y-OM-EN-007",
+    "source_id": "SRC-JINMA-HHJM-164Y-OM-EN",
+    "title": "柴油机过热时检查风扇带和持续过载",
+    "locator": "PDF物理第53页；目录对应第48页；第七章7.1.5第1–3项",
+    "models": [
+      "HHJM-164Y"
+    ],
+    "bodyHash": "339d45f8020aa75a13cbbbe9264d638071df3f7655d9320e54f515e66a22dbae"
+  },
+  {
+    "brand": "黄海金马",
+    "entry_id": "KB-JINMA-HHJM-164Y-OM-EN-008",
+    "source_id": "SRC-JINMA-HHJM-164Y-OM-EN",
+    "title": "离合器打滑时检查摩擦片和压紧弹簧",
+    "locator": "PDF物理第53页；目录对应第48页；第七章7.2.1第1–4项",
+    "models": [
+      "HHJM-164Y"
+    ],
+    "bodyHash": "91bfcc9715344a41fc0298ee2934644c88e6c8ea482a4483c26d5ffc5abb3ead"
+  },
+  {
+    "brand": "黄海金马",
+    "entry_id": "KB-JINMA-HHJM-164Y-OM-EN-009",
+    "source_id": "SRC-JINMA-HHJM-164Y-OM-EN",
+    "title": "分离不彻底导致挂挡困难时检查踏板与分离间隙",
+    "locator": "PDF物理第53页；目录对应第48页；第七章7.2.2第1–2项",
+    "models": [
+      "HHJM-164Y"
+    ],
+    "bodyHash": "4dc3d8158c406ebd87e4b68728b5d3caa666d68da1925d12d6954a7be1b6eb7c"
+  },
+  {
+    "brand": "黄海金马",
+    "entry_id": "KB-JINMA-HHJM-164Y-OM-EN-010",
+    "source_id": "SRC-JINMA-HHJM-164Y-OM-EN",
+    "title": "变速箱异响时检查断齿、轴承和中央传动间隙",
+    "locator": "PDF物理第53页；目录对应第48页；第七章7.2.3第1–4项",
+    "models": [
+      "HHJM-164Y"
+    ],
+    "bodyHash": "326c11286948c052a8dac89c490b34c6fb2b67bab944c450b435dc9a3e171611"
+  },
+  {
+    "brand": "黄海金马",
+    "entry_id": "KB-JINMA-HHJM-164Y-OM-EN-011",
+    "source_id": "SRC-JINMA-HHJM-164Y-OM-EN",
+    "title": "变速箱过热时核对啮合间隙和润滑油",
+    "locator": "PDF物理第53页；目录对应第48页；第七章7.2.4第1–3项",
+    "models": [
+      "HHJM-164Y"
+    ],
+    "bodyHash": "49579b6c95a5a99ea78a8a944f87ed3ba805f8ae346afea8f92a39d119de50b8"
+  },
+  {
+    "brand": "黄海金马",
+    "entry_id": "KB-JINMA-HHJM-164Y-OM-EN-012",
+    "source_id": "SRC-JINMA-HHJM-164Y-OM-EN",
+    "title": "制动力不足时检查制动蹄摩擦衬片",
+    "locator": "PDF物理第54页；目录对应第49页；第七章7.3.1第1–3项",
+    "models": [
+      "HHJM-164Y"
+    ],
+    "bodyHash": "47ad39595bc98a358d3a052c69634213c70103f627d87e98bbdb95a2c272d819"
+  },
+  {
+    "brand": "黄海金马",
+    "entry_id": "KB-JINMA-HHJM-164Y-OM-EN-013",
+    "source_id": "SRC-JINMA-HHJM-164Y-OM-EN",
+    "title": "制动跑偏时对比左右踏板行程和摩擦衬片",
+    "locator": "PDF物理第54页；目录对应第49页；第七章7.3.2第1–3项",
+    "models": [
+      "HHJM-164Y"
+    ],
+    "bodyHash": "d47fb652c860ae59eb716d9edac183f29d8a3390ded6e8a4b5dab8e4b3fa17b1"
+  },
+  {
+    "brand": "黄海金马",
+    "entry_id": "KB-JINMA-HHJM-164Y-OM-EN-014",
+    "source_id": "SRC-JINMA-HHJM-164Y-OM-EN",
+    "title": "制动不回位并发热时检查复位弹簧和鼓间隙",
+    "locator": "PDF物理第54页；目录对应第49页；第七章7.3.3第1–2项",
+    "models": [
+      "HHJM-164Y"
+    ],
+    "bodyHash": "6ca639bfb758f5e3ca7123dd1236209de1967c2a41a3bd53a8ae8d84f5ff7f32"
+  },
+  {
+    "brand": "黄海金马",
+    "entry_id": "KB-JINMA-HHJM-164Y-OM-EN-015",
+    "source_id": "SRC-JINMA-HHJM-164Y-OM-EN",
+    "title": "液压转向沉重时检查前轮气压、供油及进气",
+    "locator": "PDF物理第54页；目录对应第49页；第七章7.4.1第2–5项",
+    "models": [
+      "HHJM-164Y"
+    ],
+    "bodyHash": "8c368b78cae867f450e30a10f72b1407fcee899b2a125efc32d0ced5e7e3844c"
+  },
+  {
+    "brand": "黄海金马",
+    "entry_id": "KB-JINMA-HHJM-164Y-OM-EN-016",
+    "source_id": "SRC-JINMA-HHJM-164Y-OM-EN",
+    "title": "正常直行自动偏向一侧时对比轮胎",
+    "locator": "PDF物理第54页；目录对应第49页；第七章7.4.2第1–2项",
+    "models": [
+      "HHJM-164Y"
+    ],
+    "bodyHash": "131e48fb0e590f8132bfae5e0ed7a6028ea83e506ed212725b494473bc32903f"
+  },
+  {
+    "brand": "黄海金马",
+    "entry_id": "KB-JINMA-HHJM-164Y-OM-EN-017",
+    "source_id": "SRC-JINMA-HHJM-164Y-OM-EN",
+    "title": "前轮摆动时检查轮轴承、球头销及轴套",
+    "locator": "PDF物理第55页；目录对应第50页；第七章7.4.3第1–4项",
+    "models": [
+      "HHJM-164Y"
+    ],
+    "bodyHash": "f72aedfd369538febc69b62713225436c9abfe464ca76d61fa838357a8f42abb"
+  },
+  {
+    "brand": "黄海金马",
+    "entry_id": "KB-JINMA-HHJM-164Y-OM-EN-018",
+    "source_id": "SRC-JINMA-HHJM-164Y-OM-EN",
+    "title": "轮胎过早磨损时核对前束、压力及驱动轮安装",
+    "locator": "PDF物理第55页；目录对应第50页；第七章7.4.4第1–3项",
+    "models": [
+      "HHJM-164Y"
+    ],
+    "bodyHash": "7970cddb6e160b1da5bc6612f2ba94492ebf4a78f37c27b10d8763d41d16213a"
+  },
+  {
+    "brand": "黄海金马",
+    "entry_id": "KB-JINMA-HHJM-164Y-OM-EN-019",
+    "source_id": "SRC-JINMA-HHJM-164Y-OM-EN",
+    "title": "悬挂农具不能升降时检查调节阀和主阀卡阻",
+    "locator": "PDF物理第55页；目录对应第50页；第七章7.5.1第1–2项",
+    "models": [
+      "HHJM-164Y"
+    ],
+    "bodyHash": "90ce41198f604ee1d65d140658f6d320284c516b8ac69396f059ef03cb9cdf15"
+  },
+  {
+    "brand": "黄海金马",
+    "entry_id": "KB-JINMA-HHJM-164Y-OM-EN-020",
+    "source_id": "SRC-JINMA-HHJM-164Y-OM-EN",
+    "title": "悬挂静置下沉过快时检查油缸活塞密封和分配器",
+    "locator": "PDF物理第55页；目录对应第50页；第七章7.5.2第1–3项",
+    "models": [
+      "HHJM-164Y"
+    ],
+    "bodyHash": "ac92874c8dc1684bdd5135224966cc51a7c7bd8b6daee204e308eeb30039901d"
+  },
+  {
+    "brand": "黄海金马",
+    "entry_id": "KB-JINMA-HHJM-164Y-OM-EN-021",
+    "source_id": "SRC-JINMA-HHJM-164Y-OM-EN",
+    "title": "起动机不转时区分接线、蓄电池和起动机内部故障",
+    "locator": "PDF物理第56页；目录对应第51页；第七章7.6.1第1（1–4）项",
+    "models": [
+      "HHJM-164Y"
+    ],
+    "bodyHash": "cbd97914adfdafe8eedb4d0446f8dc5e6d7faa64b4595999fef3a13df30de46f"
+  },
+  {
+    "brand": "黄海金马",
+    "entry_id": "KB-JINMA-HHJM-164Y-OM-EN-022",
+    "source_id": "SRC-JINMA-HHJM-164Y-OM-EN",
+    "title": "起动机无力时检查换向器、电刷和电磁开关",
+    "locator": "PDF物理第56页；目录对应第51页；第七章7.6.1第2（1–5）项",
+    "models": [
+      "HHJM-164Y"
+    ],
+    "bodyHash": "6e63b3f026d5d1481fff583c5eacddef5e92a8d9109ebe56754179ce60394570"
+  },
+  {
+    "brand": "黄海金马",
+    "entry_id": "KB-JINMA-HHJM-164Y-OM-EN-023",
+    "source_id": "SRC-JINMA-HHJM-164Y-OM-EN",
+    "title": "起动小齿轮未啮合便转动并撞齿时检查衔铁行程",
+    "locator": "PDF物理第56页；目录对应第51页；第七章7.6.1第3项",
+    "models": [
+      "HHJM-164Y"
+    ],
+    "bodyHash": "0e211c70ffdc16e4982fcedce44aa1285f5b8f0cbb54c60a636ebae4223513ec"
+  },
+  {
+    "brand": "黄海金马",
+    "entry_id": "KB-JINMA-HHJM-164Y-OM-EN-024",
+    "source_id": "SRC-JINMA-HHJM-164Y-OM-EN",
+    "title": "蓄电池经常亏电时区分充电回路故障与极板短路",
+    "locator": "PDF物理第56页；目录对应第51页；第七章7.6.2第1（1–3）项",
+    "models": [
+      "HHJM-164Y"
+    ],
+    "bodyHash": "6d81e6d0f1284080901e76dd37a010ff063d11caeae783fab3d20bbb95c9ce06"
+  }
+]
