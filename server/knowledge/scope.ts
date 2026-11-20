@@ -290,7 +290,7 @@ function modelsIn(text: string): string[] {
 
 /** Identity selects eligible documents without inflating their symptom relevance. */
 export function queryWithoutIdentity(query: string): string {
-  let text = normalizeNationalEmissions(withoutReferences(query));
+  let text = normalizeNationalEmissions(withoutReferences(query)).replace(/(?:整机序列号|拖拉机序列号|整机编号)\s*[:：=#]?\s*(?:为|是)?\s*\d{6}(?![a-z\d._-])/gi, ' ');
   for (const aliases of Object.values(BRAND_ALIASES)) {
     for (const alias of [...aliases].sort((a, b) => b.length - a.length)) {
       text = /^[a-z ]+$/.test(alias)
@@ -315,6 +315,7 @@ export interface ResolvedScope {
   emissions: string[];
   configurations: ('CAB' | 'ROPS')[];
   driveConfigurations: ('2WD' | '4WD')[];
+  machineSerial?: string;
   ambiguous: boolean;
   identityConflict: boolean;
   tractorArchive: boolean;
@@ -322,6 +323,21 @@ export interface ResolvedScope {
   /** No brand and no concrete model named: archive and 通识 entries are searched together (2026-10-22). */
   openArchive: boolean;
   electric: boolean;
+}
+
+/** An exact machine ID is required for serial-limited manuals. A parts ID or a quoted range cannot identify a tractor. */
+function explicitMachineSerial(text: string): string | undefined {
+  const labels = [...text.matchAll(/(?:整机序列号|拖拉机序列号|整机编号)/g)];
+  if (labels.length !== 1) return undefined;
+  const label = labels[0];
+  const before = text.slice(0, label.index);
+  if (/(?:排除|不适用|假设|如果|手册(?:注明|标注)?|要求|最低|起始|终止)\s*$/.test(before)) return undefined;
+  const suffix = text.slice(label.index + label[0].length);
+  const value = /^\s*[:：=#]?\s*(?:为|是)?\s*(\d{6})(?![a-z\d._-])/i.exec(suffix);
+  if (!value) return undefined;
+  const after = suffix.slice(value[0].length);
+  if (/^\s*(?:起|以上|以下|以前|以后|及以|之前|之后|[~～–—至到]|(?:或|和|与|、|，|,|\/)\s*\d{6}(?![a-z\d]))/.test(after)) return undefined;
+  return value[1];
 }
 
 export function resolveScope(query: string, context: RetrievalContext): ResolvedScope {
@@ -391,7 +407,7 @@ export function resolveScope(query: string, context: RetrievalContext): Resolved
   const electric = /电动|新能源|无人|electric|autonomous|new-energy/i.test([type, explicitBrand, context.model, queryPowerIdentity].filter(Boolean).join(' ')) ||
     brand === '鸿鹄' || models.includes('t70');
   const ambiguous = queryBrands.length > 1 || contextBrands.length > 1;
-  return { brand, models, emissions, configurations, driveConfigurations, ambiguous, identityConflict, tractorArchive, electric, genericKnowledge: tractorArchive && !identityConflict && !electric && !brand && models.length === 0 && emissions.length === 0 && !ambiguous,
+  return { brand, models, emissions, configurations, driveConfigurations, machineSerial: explicitMachineSerial(queryIdentity), ambiguous, identityConflict, tractorArchive, electric, genericKnowledge: tractorArchive && !identityConflict && !electric && !brand && models.length === 0 && emissions.length === 0 && !ambiguous,
     openArchive: tractorArchive && !identityConflict && !electric && !ambiguous && !brand && models.every((model) => model === '国三' || model === '国四') };
 }
 
@@ -402,6 +418,7 @@ export function archiveApplicability(chunk: KnowledgeChunk, scope: ResolvedScope
   if (scope.electric && brand !== '鸿鹄' && brand !== '千寻位置') return undefined;
   if (chunk.configuration && scope.configurations.some((configuration) => configuration !== chunk.configuration)) return undefined;
   if (chunk.driveConfiguration && scope.driveConfigurations.some((configuration) => configuration !== chunk.driveConfiguration)) return undefined;
+  if (chunk.minimumMachineSerial && (!scope.machineSerial || scope.machineSerial < chunk.minimumMachineSerial)) return undefined;
   const allowed = declaredModels(chunk).map(canonicalModel);
   const emissionStage = chunk.emissionStage ?? (chunk.emissionStageUnknown ? undefined
     : chunk.model === '国三拖拉机' ? '国三'
