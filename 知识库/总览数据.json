@@ -1,24 +1,24 @@
 {
   "schema_version": 1,
   "snapshot_date_shanghai": "2026-11-20",
-  "repository_version": "4.1.53",
+  "repository_version": "4.1.54",
   "scope": "仅由现有索引派生的统计与导航，不是新增维修事实，不加入检索",
   "input_sha256": {
-    "知识库/整理后的知识库/农用拖拉机知识库/sources.json": "2f04f3e60409237c1416d484edf8e7375b1366315e24942ae777e6e063cd7f7e",
-    "知识库/整理后的知识库/农用拖拉机知识库/entries.jsonl": "48e41b77d173298ea0fd713fccf63b0ebdfe9177b3716cf5716c20886c946a71",
+    "知识库/整理后的知识库/农用拖拉机知识库/sources.json": "8579a1e7e07546eddee5d4e908b1866998c07d1bebd8e4a931c89dfadf437f3c",
+    "知识库/整理后的知识库/农用拖拉机知识库/entries.jsonl": "a24a289e73b4b9438274ea272a55fee1b0a29f5c705ae7f600a3338884400825",
     "docs/tractor-knowledge/index.jsonl": "1eac29d4f33681de65628b95b992b248f35c62578fb2f9e45ac5b1fdda8b414f",
     "docs/tractor-knowledge/expansion-5000/index.jsonl": "f498bd5dce2b3f96730ab5d508936d5852d0173416e2636878e35aabcda3fbfc",
     "docs/tractor-knowledge/expansion-875/index.jsonl": "e722d56d222848de51fe758932a03e7bff4c24093d7c6b3d8de2509c5608d46e"
   },
   "totals": {
-    "sources": 151,
-    "archived_entries": 10050,
+    "sources": 153,
+    "archived_entries": 10139,
     "learning_entries": 6875,
-    "total_library_entries": 16925,
-    "knowledge_documents": 194,
+    "total_library_entries": 17014,
+    "knowledge_documents": 196,
     "brand_labels": 29,
     "generic_chunks": 9,
-    "retrieval_chunks": 16934,
+    "retrieval_chunks": 17023,
     "information_or_scope_entries": 696
   },
   "brands": [
@@ -81,6 +81,11 @@
       "label": "奔野",
       "sources": 2,
       "entries": 96
+    },
+    {
+      "label": "东风",
+      "sources": 3,
+      "entries": 91
     },
     {
       "label": "洋马",
@@ -158,11 +163,6 @@
       "entries": 7
     },
     {
-      "label": "东风",
-      "sources": 1,
-      "entries": 2
-    },
-    {
       "label": "鸿鹄",
       "sources": 1,
       "entries": 2
@@ -170,8 +170,8 @@
   ],
   "entry_types": {
     "安全操作": 950,
-    "操作/维护知识": 4130,
-    "维护/故障知识": 4222,
+    "操作/维护知识": 4164,
+    "维护/故障知识": 4277,
     "机型资料": 115,
     "资料缺口": 8,
     "资料索引": 530,
@@ -182,32 +182,32 @@
   "source_purposes": {
     "维护网页": 30,
     "报道背景": 1,
-    "整机／维保PDF": 74,
+    "整机／维保PDF": 75,
     "交机培训PDF": 11,
     "配套导航PDF": 2,
-    "发动机维护PDF": 2,
+    "发动机维护PDF": 3,
     "未分类资料": 31
   },
   "entries_by_source_purpose": {
-    "整机／维保PDF": 8849,
+    "整机／维保PDF": 8892,
     "维护网页": 592,
     "报道背景": 2,
     "交机培训PDF": 262,
     "配套导航PDF": 18,
-    "发动机维护PDF": 115,
+    "发动机维护PDF": 161,
     "未分类资料": 212
   },
   "storage": {
     "仓库网页快照": 4,
     "仓库PDF原件": 15,
-    "PDF链接＋来源记录": 98,
+    "PDF链接＋来源记录": 100,
     "网页链接＋来源记录": 27,
     "其他存放方式": 7
   },
   "entries_by_storage": {
     "仓库PDF原件": 2956,
     "仓库网页快照": 11,
-    "PDF链接＋来源记录": 6446,
+    "PDF链接＋来源记录": 6535,
     "网页链接＋来源记录": 583,
     "其他存放方式": 54
   },
@@ -272,8 +272,9 @@
     "证据页文本及图像已核验。仅限本条所引页与原册机型。": 6,
     "引用选页已核对。手册原件、技术正文、印刷页及整机序列号范围均已对照。": 56,
     "引用选页已核对。逐行比对原手册电气图表与正文。": 16,
-    "选页表格及续页已目视核对；按实装配置使用。": 26,
-    "所列原文与表格已核对，保留总成和版本限制。": 43
+    "引用选页已核对。已逐行核对故障表及续页，适用性按实装配置确认。": 26,
+    "引用选页已核对。英文原件按实装总成及所列型号使用。": 43,
+    "引用选页已核对。已按原表逐项核对原页和配置，以本版适用范围为限。": 89
   },
   "research": {
     "reports": 3,
@@ -13400,6 +13401,135 @@
       ],
       "knowledge_paths": [
         "知识库/整理后的知识库/农用拖拉机知识库/机型知识卡/奔野-BY350-BY404-英文手册.md"
+      ]
+    },
+    {
+      "source_id": "SRC-DONGFENG-DF504-DF554-RU-MINIAGRO",
+      "brand": "东风",
+      "model": "DF504 / DF554",
+      "version": "常州东风俄文 DF504／DF554 说明书，版期以原件印刷信息为准",
+      "version_date": null,
+      "pdf_metadata_date": null,
+      "scope_boundary": "限本俄文手册列明的 DF504、DF554 与书中相符的发动机、离合器、前桥和油路配置。以在用机铭牌、随机手册和实装件核验适用性。",
+      "status": "封面机型、印刷页码、原始故障表及保养周期已核对",
+      "content_group": "整机／维保PDF",
+      "storage_group": "PDF链接＋来源记录",
+      "source_path": "知识库/原始农机说明书/东风/DF504-DF554-RU/来源记录.md",
+      "source_url": "https://miniagro.ua/image/catalog/instrukcia/instrukcijadonffeng504.pdf",
+      "entry_count": 43,
+      "entry_ids": [
+        "KB-DONGFENG-DF504-DF554-RU-001",
+        "KB-DONGFENG-DF504-DF554-RU-002",
+        "KB-DONGFENG-DF504-DF554-RU-003",
+        "KB-DONGFENG-DF504-DF554-RU-004",
+        "KB-DONGFENG-DF504-DF554-RU-005",
+        "KB-DONGFENG-DF504-DF554-RU-006",
+        "KB-DONGFENG-DF504-DF554-RU-007",
+        "KB-DONGFENG-DF504-DF554-RU-008",
+        "KB-DONGFENG-DF504-DF554-RU-009",
+        "KB-DONGFENG-DF504-DF554-RU-010",
+        "KB-DONGFENG-DF504-DF554-RU-011",
+        "KB-DONGFENG-DF504-DF554-RU-012",
+        "KB-DONGFENG-DF504-DF554-RU-013",
+        "KB-DONGFENG-DF504-DF554-RU-014",
+        "KB-DONGFENG-DF504-DF554-RU-015",
+        "KB-DONGFENG-DF504-DF554-RU-016",
+        "KB-DONGFENG-DF504-DF554-RU-017",
+        "KB-DONGFENG-DF504-DF554-RU-018",
+        "KB-DONGFENG-DF504-DF554-RU-019",
+        "KB-DONGFENG-DF504-DF554-RU-020",
+        "KB-DONGFENG-DF504-DF554-RU-021",
+        "KB-DONGFENG-DF504-DF554-RU-022",
+        "KB-DONGFENG-DF504-DF554-RU-023",
+        "KB-DONGFENG-DF504-DF554-RU-024",
+        "KB-DONGFENG-DF504-DF554-RU-025",
+        "KB-DONGFENG-DF504-DF554-RU-026",
+        "KB-DONGFENG-DF504-DF554-RU-027",
+        "KB-DONGFENG-DF504-DF554-RU-028",
+        "KB-DONGFENG-DF504-DF554-RU-029",
+        "KB-DONGFENG-DF504-DF554-RU-030",
+        "KB-DONGFENG-DF504-DF554-RU-031",
+        "KB-DONGFENG-DF504-DF554-RU-032",
+        "KB-DONGFENG-DF504-DF554-RU-033",
+        "KB-DONGFENG-DF504-DF554-RU-034",
+        "KB-DONGFENG-DF504-DF554-RU-035",
+        "KB-DONGFENG-DF504-DF554-RU-036",
+        "KB-DONGFENG-DF504-DF554-RU-037",
+        "KB-DONGFENG-DF504-DF554-RU-038",
+        "KB-DONGFENG-DF504-DF554-RU-039",
+        "KB-DONGFENG-DF504-DF554-RU-040",
+        "KB-DONGFENG-DF504-DF554-RU-041",
+        "KB-DONGFENG-DF504-DF554-RU-SUP-042",
+        "KB-DONGFENG-DF504-DF554-RU-SUP-043"
+      ],
+      "knowledge_paths": [
+        "知识库/整理后的知识库/农用拖拉机知识库/机型知识卡/东风-DF504-DF554-俄文整机手册.md"
+      ]
+    },
+    {
+      "source_id": "SRC-DONGFENG-DF254-DF404-G2-6-EN",
+      "brand": "东风",
+      "model": "DF254G2-6 / DF304G2-6 / DF354G2-6 / DF404G2-6",
+      "version": "英文 G2-6 版，原件日期待核",
+      "version_date": null,
+      "pdf_metadata_date": null,
+      "scope_boundary": "限本英文版规格表的 DF254G2-6、DF304G2-6、DF354G2-6、DF404G2-6 和与该版相符的实装件。前两款配表列 390 发动机、后两款配表列 490 发动机，具体修理应核对实际发动机及总成。",
+      "status": "核对了原书技术规格、配置、章节及印刷页脚。",
+      "content_group": "发动机维护PDF",
+      "storage_group": "PDF链接＋来源记录",
+      "source_path": "知识库/原始农机说明书/东风/DF254-DF404-G2-6-EN/来源记录.md",
+      "source_url": "https://www.lkw-reparaturhandbuecher.com/files/dongfeng/Dongfeng%20DF404G2-6%20Service%20Manual%20PDF.pdf",
+      "entry_count": 46,
+      "entry_ids": [
+        "KB-DONGFENG-DF254-DF404-G2-6-EN-001",
+        "KB-DONGFENG-DF254-DF404-G2-6-EN-002",
+        "KB-DONGFENG-DF254-DF404-G2-6-EN-003",
+        "KB-DONGFENG-DF254-DF404-G2-6-EN-004",
+        "KB-DONGFENG-DF254-DF404-G2-6-EN-005",
+        "KB-DONGFENG-DF254-DF404-G2-6-EN-006",
+        "KB-DONGFENG-DF254-DF404-G2-6-EN-007",
+        "KB-DONGFENG-DF254-DF404-G2-6-EN-008",
+        "KB-DONGFENG-DF254-DF404-G2-6-EN-009",
+        "KB-DONGFENG-DF254-DF404-G2-6-EN-010",
+        "KB-DONGFENG-DF254-DF404-G2-6-EN-011",
+        "KB-DONGFENG-DF254-DF404-G2-6-EN-012",
+        "KB-DONGFENG-DF254-DF404-G2-6-EN-013",
+        "KB-DONGFENG-DF254-DF404-G2-6-EN-014",
+        "KB-DONGFENG-DF254-DF404-G2-6-EN-015",
+        "KB-DONGFENG-DF254-DF404-G2-6-EN-016",
+        "KB-DONGFENG-DF254-DF404-G2-6-EN-017",
+        "KB-DONGFENG-DF254-DF404-G2-6-EN-SUP-018",
+        "KB-DONGFENG-DF254-DF404-G2-6-EN-SUP-019",
+        "KB-DONGFENG-DF254-DF404-G2-6-EN-SUP-020",
+        "KB-DONGFENG-DF254-DF404-G2-6-EN-SUP-021",
+        "KB-DONGFENG-DF254-DF404-G2-6-EN-SUP-022",
+        "KB-DONGFENG-DF254-DF404-G2-6-EN-SUP-023",
+        "KB-DONGFENG-DF254-DF404-G2-6-EN-SUP-024",
+        "KB-DONGFENG-DF254-DF404-G2-6-EN-SUP-025",
+        "KB-DONGFENG-DF254-DF404-G2-6-EN-SUP-026",
+        "KB-DONGFENG-DF254-DF404-G2-6-EN-SUP-027",
+        "KB-DONGFENG-DF254-DF404-G2-6-EN-SUP-028",
+        "KB-DONGFENG-DF254-DF404-G2-6-EN-SUP-029",
+        "KB-DONGFENG-DF254-DF404-G2-6-EN-SUP-030",
+        "KB-DONGFENG-DF254-DF404-G2-6-EN-SUP-031",
+        "KB-DONGFENG-DF254-DF404-G2-6-EN-SUP-032",
+        "KB-DONGFENG-DF254-DF404-G2-6-EN-SUP-033",
+        "KB-DONGFENG-DF254-DF404-G2-6-EN-SUP-034",
+        "KB-DONGFENG-DF254-DF404-G2-6-EN-SUP-035",
+        "KB-DONGFENG-DF254-DF404-G2-6-EN-SUP-036",
+        "KB-DONGFENG-DF254-DF404-G2-6-EN-SUP-037",
+        "KB-DONGFENG-DF254-DF404-G2-6-EN-SUP-038",
+        "KB-DONGFENG-DF254-DF404-G2-6-EN-SUP-039",
+        "KB-DONGFENG-DF254-DF404-G2-6-EN-SUP-040",
+        "KB-DONGFENG-DF254-DF404-G2-6-EN-SUP-041",
+        "KB-DONGFENG-DF254-DF404-G2-6-EN-SUP-042",
+        "KB-DONGFENG-DF254-DF404-G2-6-EN-SUP-043",
+        "KB-DONGFENG-DF254-DF404-G2-6-EN-SUP-044",
+        "KB-DONGFENG-DF254-DF404-G2-6-EN-SUP-045",
+        "KB-DONGFENG-DF254-DF404-G2-6-EN-SUP-046"
+      ],
+      "knowledge_paths": [
+        "知识库/整理后的知识库/农用拖拉机知识库/机型知识卡/东风-DF254-DF404-G2-6-英文维修手册.md"
       ]
     }
   ]

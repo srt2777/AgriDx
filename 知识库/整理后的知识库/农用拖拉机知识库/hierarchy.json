@@ -109092,6 +109092,1056 @@
           ]
         }
       ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-DF504-DF554-RU-001",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": [
+            "clutch-friction",
+            "clutch-spring",
+            "clutch-release"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-DF504-DF554-RU-002",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": [
+            "clutch-release",
+            "clutch-pedal"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-DF504-DF554-RU-003",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": [
+            "clutch-friction",
+            "clutch-release"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-DF504-DF554-RU-004",
+      "components": [
+        {
+          "component_id": "pto",
+          "part_ids": []
+        },
+        {
+          "component_id": "transmission",
+          "part_ids": [
+            "clutch-pedal"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-DF504-DF554-RU-005",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": [
+            "gears"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-DF504-DF554-RU-006",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-DF504-DF554-RU-007",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        },
+        {
+          "component_id": "engine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-DF504-DF554-RU-008",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-DF504-DF554-RU-009",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-DF504-DF554-RU-010",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-DF504-DF554-RU-011",
+      "components": [
+        {
+          "component_id": "brakes",
+          "part_ids": [
+            "brake-friction",
+            "brake-pedal"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-DF504-DF554-RU-012",
+      "components": [
+        {
+          "component_id": "brakes",
+          "part_ids": [
+            "brake-pedal"
+          ]
+        },
+        {
+          "component_id": "chassis",
+          "part_ids": [
+            "tyre"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-DF504-DF554-RU-013",
+      "components": [
+        {
+          "component_id": "brakes",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-DF504-DF554-RU-014",
+      "components": [
+        {
+          "component_id": "chassis",
+          "part_ids": [
+            "tyre",
+            "wheel-rim",
+            "front-axle"
+          ]
+        },
+        {
+          "component_id": "steering",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-DF504-DF554-RU-015",
+      "components": [
+        {
+          "component_id": "chassis",
+          "part_ids": [
+            "front-axle"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-DF504-DF554-RU-016",
+      "components": [
+        {
+          "component_id": "chassis",
+          "part_ids": [
+            "front-axle"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-DF504-DF554-RU-017",
+      "components": [
+        {
+          "component_id": "steering",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-DF504-DF554-RU-018",
+      "components": [
+        {
+          "component_id": "steering",
+          "part_ids": []
+        },
+        {
+          "component_id": "chassis",
+          "part_ids": [
+            "tyre"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-DF504-DF554-RU-019",
+      "components": [
+        {
+          "component_id": "steering",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-DF504-DF554-RU-020",
+      "components": [
+        {
+          "component_id": "steering",
+          "part_ids": [
+            "steering-cylinder"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-DF504-DF554-RU-021",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hydraulic-valve"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-DF504-DF554-RU-022",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hydraulic-valve",
+            "hitch-control"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-DF504-DF554-RU-023",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hydraulic-valve"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-DF504-DF554-RU-024",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hitch-control"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-DF504-DF554-RU-025",
+      "components": [
+        {
+          "component_id": "cooling",
+          "part_ids": [
+            "fan-belt"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-DF504-DF554-RU-026",
+      "components": [
+        {
+          "component_id": "steering",
+          "part_ids": [
+            "steering-cylinder"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-DF504-DF554-RU-027",
+      "components": [
+        {
+          "component_id": "chassis",
+          "part_ids": [
+            "front-axle"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-DF504-DF554-RU-028",
+      "components": [
+        {
+          "component_id": "fuel",
+          "part_ids": [
+            "fuel-filter"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-DF504-DF554-RU-029",
+      "components": [
+        {
+          "component_id": "lubrication",
+          "part_ids": [
+            "oil-filter"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-DF504-DF554-RU-030",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hydraulic-filter"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-DF504-DF554-RU-031",
+      "components": [
+        {
+          "component_id": "fuel",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-DF504-DF554-RU-032",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        },
+        {
+          "component_id": "hydraulics",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-DF504-DF554-RU-033",
+      "components": [
+        {
+          "component_id": "chassis",
+          "part_ids": [
+            "front-axle"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-DF504-DF554-RU-034",
+      "components": [
+        {
+          "component_id": "steering",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-DF504-DF554-RU-035",
+      "components": [
+        {
+          "component_id": "fuel",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-DF504-DF554-RU-036",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-DF504-DF554-RU-037",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        },
+        {
+          "component_id": "hydraulics",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-DF504-DF554-RU-038",
+      "components": [
+        {
+          "component_id": "cooling",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-DF504-DF554-RU-039",
+      "components": [
+        {
+          "component_id": "chassis",
+          "part_ids": [
+            "front-axle"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-DF504-DF554-RU-040",
+      "components": [
+        {
+          "component_id": "steering",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-DF504-DF554-RU-041",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": [
+            "air-filter"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-DF504-DF554-RU-SUP-042",
+      "components": [
+        {
+          "component_id": "lubrication",
+          "part_ids": [
+            "oil-dipstick"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-DF504-DF554-RU-SUP-043",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "starter"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-DF254-DF404-G2-6-EN-001",
+      "components": [
+        {
+          "component_id": "lubrication",
+          "part_ids": [
+            "oil-dipstick"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-DF254-DF404-G2-6-EN-002",
+      "components": [
+        {
+          "component_id": "steering",
+          "part_ids": []
+        },
+        {
+          "component_id": "chassis",
+          "part_ids": [
+            "front-axle"
+          ]
+        },
+        {
+          "component_id": "cooling",
+          "part_ids": [
+            "coolant-pump"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-DF254-DF404-G2-6-EN-003",
+      "components": [
+        {
+          "component_id": "lubrication",
+          "part_ids": [
+            "oil-filter"
+          ]
+        },
+        {
+          "component_id": "fuel",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-DF254-DF404-G2-6-EN-004",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": [
+            "clutch-pedal"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-DF254-DF404-G2-6-EN-005",
+      "components": [
+        {
+          "component_id": "lubrication",
+          "part_ids": [
+            "oil-filter"
+          ]
+        },
+        {
+          "component_id": "fuel",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-DF254-DF404-G2-6-EN-006",
+      "components": [
+        {
+          "component_id": "cooling",
+          "part_ids": [
+            "fan-belt"
+          ]
+        },
+        {
+          "component_id": "fuel",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-DF254-DF404-G2-6-EN-007",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": [
+            "air-filter"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-DF254-DF404-G2-6-EN-008",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-DF254-DF404-G2-6-EN-009",
+      "components": [
+        {
+          "component_id": "fuel",
+          "part_ids": [
+            "injector"
+          ]
+        },
+        {
+          "component_id": "engine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-DF254-DF404-G2-6-EN-010",
+      "components": [
+        {
+          "component_id": "cooling",
+          "part_ids": []
+        },
+        {
+          "component_id": "fuel",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-DF254-DF404-G2-6-EN-011",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": []
+        },
+        {
+          "component_id": "fuel",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-DF254-DF404-G2-6-EN-012",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-DF254-DF404-G2-6-EN-013",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-DF254-DF404-G2-6-EN-014",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": []
+        },
+        {
+          "component_id": "lubrication",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-DF254-DF404-G2-6-EN-015",
+      "components": [
+        {
+          "component_id": "lubrication",
+          "part_ids": []
+        },
+        {
+          "component_id": "engine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-DF254-DF404-G2-6-EN-016",
+      "components": [
+        {
+          "component_id": "cooling",
+          "part_ids": []
+        },
+        {
+          "component_id": "lubrication",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-DF254-DF404-G2-6-EN-017",
+      "components": [
+        {
+          "component_id": "fuel",
+          "part_ids": []
+        },
+        {
+          "component_id": "engine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-DF254-DF404-G2-6-EN-SUP-018",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": [
+            "air-filter"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-DF254-DF404-G2-6-EN-SUP-019",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-DF254-DF404-G2-6-EN-SUP-020",
+      "components": [
+        {
+          "component_id": "fuel",
+          "part_ids": [
+            "fuel-filter",
+            "injector"
+          ]
+        },
+        {
+          "component_id": "engine",
+          "part_ids": [
+            "air-filter"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-DF254-DF404-G2-6-EN-SUP-021",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": []
+        },
+        {
+          "component_id": "fuel",
+          "part_ids": [
+            "injector"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-DF254-DF404-G2-6-EN-SUP-022",
+      "components": [
+        {
+          "component_id": "cooling",
+          "part_ids": [
+            "coolant-pump"
+          ]
+        },
+        {
+          "component_id": "lubrication",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-DF254-DF404-G2-6-EN-SUP-023",
+      "components": [
+        {
+          "component_id": "fuel",
+          "part_ids": [
+            "fuel-filter"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-DF254-DF404-G2-6-EN-SUP-024",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": [
+            "clutch-friction",
+            "clutch-release",
+            "clutch-pedal"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-DF254-DF404-G2-6-EN-SUP-025",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": [
+            "clutch-friction",
+            "clutch-release",
+            "clutch-pedal"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-DF254-DF404-G2-6-EN-SUP-026",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": [
+            "clutch-spring",
+            "clutch-release"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-DF254-DF404-G2-6-EN-SUP-027",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-DF254-DF404-G2-6-EN-SUP-028",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": [
+            "shift-fork"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-DF254-DF404-G2-6-EN-SUP-029",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-DF254-DF404-G2-6-EN-SUP-030",
+      "components": [
+        {
+          "component_id": "steering",
+          "part_ids": [
+            "steering-pins"
+          ]
+        },
+        {
+          "component_id": "chassis",
+          "part_ids": [
+            "wheel-bearing"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-DF254-DF404-G2-6-EN-SUP-031",
+      "components": [
+        {
+          "component_id": "chassis",
+          "part_ids": [
+            "tyre"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-DF254-DF404-G2-6-EN-SUP-032",
+      "components": [
+        {
+          "component_id": "steering",
+          "part_ids": [
+            "steering-cylinder"
+          ]
+        },
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hydraulic-pump"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-DF254-DF404-G2-6-EN-SUP-033",
+      "components": [
+        {
+          "component_id": "steering",
+          "part_ids": [
+            "steering-valve"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-DF254-DF404-G2-6-EN-SUP-034",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hydraulic-pump",
+            "hydraulic-valve",
+            "hydraulic-cylinder"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-DF254-DF404-G2-6-EN-SUP-035",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hydraulic-valve"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-DF254-DF404-G2-6-EN-SUP-036",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "battery",
+            "wiring"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-DF254-DF404-G2-6-EN-SUP-037",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "brush"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-DF254-DF404-G2-6-EN-SUP-038",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "brush"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-DF254-DF404-G2-6-EN-SUP-039",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "brush",
+            "wiring"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-DF254-DF404-G2-6-EN-SUP-040",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-DF254-DF404-G2-6-EN-SUP-041",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "starter",
+            "battery",
+            "fuse",
+            "brush"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-DF254-DF404-G2-6-EN-SUP-042",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "starter",
+            "battery",
+            "brush"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-DF254-DF404-G2-6-EN-SUP-043",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "starter"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-DF254-DF404-G2-6-EN-SUP-044",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "starter"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-DF254-DF404-G2-6-EN-SUP-045",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hitch-linkage"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-DF254-DF404-G2-6-EN-SUP-046",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hitch-linkage"
+          ]
+        }
+      ]
     }
   ]
 }
