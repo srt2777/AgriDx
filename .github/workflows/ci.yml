@@ -18,7 +18,8 @@ jobs:
   verify:
     name: verify (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 15
+    # Windows can finish verify near 15 minutes and time out during runner cleanup.
+    timeout-minutes: 25
     strategy:
       fail-fast: false
       matrix:
