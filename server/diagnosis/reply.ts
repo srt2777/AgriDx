@@ -144,7 +144,7 @@ export function buildDiagnosticReply(input: DiagnosticReplyInput): DiagnosticRep
     if (point && namedTopic && !assessSuggestedAction(point.text).restricted) {
       reply.understanding = plain(point.text);
       reply.sourceNote = [first.scopeBoundary?.split('\n')[0], first.sourceTitle || first.heading,
-        first.locator, first.entryId].filter(Boolean).join('。');
+        first.locator, first.entryId].filter(Boolean).join(' ');
       return reply;
     }
   }
