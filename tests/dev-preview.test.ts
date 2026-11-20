@@ -100,9 +100,19 @@ test('实际浏览器构建保持完整知识目录、诊断来源与型号隔�
         fetch(`http://127.0.0.1:${address.port}/api/knowledge/relations`), previewFetch('/api/knowledge/relations'),
       ]);
       assert.equal(nodeResponse.status, 200); assert.equal(previewResponse.status, 200);
-      const [nodeText, previewText] = await Promise.all([nodeResponse.text(), previewResponse.text()]);
-      const digest = (value: string) => createHash('sha256').update(value).digest('hex');
-      assert.equal(digest(previewText), digest(nodeText));
+      async function digest(response: Response) {
+        const hash = createHash('sha256');
+        assert.ok(response.body);
+        const reader = response.body.getReader();
+        for (;;) {
+          const chunk = await reader.read();
+          if (chunk.done) break;
+          hash.update(chunk.value);
+        }
+        return hash.digest('hex');
+      }
+      const [nodeHash, previewHash] = await Promise.all([digest(nodeResponse), digest(previewResponse)]);
+      assert.equal(previewHash, nodeHash);
       const [nodePage, previewPage] = await Promise.all([
         fetch(`http://127.0.0.1:${address.port}/api/knowledge/relations?offset=42&limit=20`), previewFetch('/api/knowledge/relations?offset=42&limit=20'),
       ]);

@@ -1,4 +1,5 @@
 /// <reference types="node" />
+import { relationJsonChunks } from '../../shared/relation-json';
 import { requestLiterature } from '../features/knowledge/literature-api';
 import { createDiagnosticService } from '../../server/diagnosis/service';
 import { previewAiProvider, readPreviewAiStatus } from './ai-gateway';
@@ -77,7 +78,19 @@ async function dispatchPreviewFetch(input: string, options: RequestInit = {}): P
         coordination: { defaultMode: aiStatus.enabled ? 'auto' : 'knowledge_only', allowExternalAi: aiStatus.enabled, configValid: true },
       });
     } else if (url.pathname === '/api/knowledge/relations' && method === 'GET') {
-      try { response = json(pageKnowledgeRelations(getKnowledgeRelations(), url.searchParams)); }
+      try {
+        const chunks = relationJsonChunks(pageKnowledgeRelations(getKnowledgeRelations(), url.searchParams));
+        const encoder = new TextEncoder();
+        const body = new ReadableStream<Uint8Array>({
+          pull(controller) {
+            const chunk = chunks.next();
+            if (chunk.done) controller.close();
+            else controller.enqueue(encoder.encode(chunk.value));
+          },
+          cancel() { chunks.return(undefined); },
+        });
+        response = new Response(body, { headers: { 'Content-Type': 'application/json; charset=utf-8' } });
+      }
       catch (error) { if (error instanceof RangeError) return json({ error: error.message, code: 'bad_request' }, 400); throw error; }
     } else if (url.pathname === '/api/knowledge/causal-edges' && method === 'GET') {
       response = json(getCausalEdges());

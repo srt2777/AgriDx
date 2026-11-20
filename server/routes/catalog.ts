@@ -1,3 +1,6 @@
+import { Readable } from 'node:stream';
+import { pipeline } from 'node:stream/promises';
+import { relationJsonChunks } from '../../shared/relation-json';
 import { getLiterature } from '../knowledge/literature';
 import { Router } from 'express';
 import { CATALOG_FILTER_KEYS, canonicalCatalogBrand, validCatalogCondition, type CatalogFilters } from '../../shared/knowledge-catalog';
@@ -21,10 +24,23 @@ export function createCatalogRoutes(getCatalog: ServerRuntime['getCatalog']): Ro
     try { res.json(getCausalEdges()); }
     catch (error) { console.error('[causal-edges] unexpected error:', error); res.status(500).json({ error: '因果边暂时无法读取。', code: 'causal_edges_unavailable' }); }
   });
-  router.get('/knowledge/relations', (req, res) => {
+  router.get('/knowledge/relations', async (req, res) => {
     res.set('Cache-Control', 'no-store');
-    try { res.json(pageKnowledgeRelations(relationsForCatalog(getCatalog()), new URL(req.originalUrl, 'http://localhost').searchParams)); }
-    catch (error) { if (error instanceof RangeError) { res.status(400).json({ error: error.message, code: 'bad_request' }); return; } console.error('[relations] unexpected error:', error); res.status(500).json({ error: '知识关系暂时无法读取。', code: 'relations_unavailable' }); }
+    let relations;
+    try {
+      relations = pageKnowledgeRelations(relationsForCatalog(getCatalog()), new URL(req.originalUrl, 'http://localhost').searchParams);
+    } catch (error) {
+      if (error instanceof RangeError) { res.status(400).json({ error: error.message, code: 'bad_request' }); return; }
+      console.error('[relations] unexpected error:', error);
+      res.status(500).json({ error: '知识关系暂时无法读取。', code: 'relations_unavailable' });
+      return;
+    }
+    res.type('application/json');
+    try {
+      await pipeline(Readable.from(relationJsonChunks(relations), { objectMode: false }), res);
+    } catch (error) {
+      if (!req.aborted && !res.destroyed) throw error;
+    }
   });
   router.get('/knowledge/community-reports', (req, res) => {
     res.set('Cache-Control', 'no-store');
