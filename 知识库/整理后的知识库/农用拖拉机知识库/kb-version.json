@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "kb_version": "2026.11.32",
+  "kb_version": "2026.11.33",
   "released": "2026-11-20",
   "project_version": "4.1.55",
   "counts": {
@@ -10,7 +10,7 @@
     "markdown_files": 260
   },
   "content_hash": {
-    "entries": "a24a289e73b4b9438274ea272a55fee1b0a29f5c705ae7f600a3338884400825",
+    "entries": "df8095196dc4fd06eb63ce0d864ec1428126ff387dd222fc06a7ecab88e677ac",
     "sources": "8579a1e7e07546eddee5d4e908b1866998c07d1bebd8e4a931c89dfadf437f3c",
     "hierarchy": "026d85ccddec938ecc5c783589f22f79bde8cf63fce3bce54d8c312f65b0114b",
     "entry_roles": "d721675d47ff0b849249ef18a2075299ca2067d003c182486705166651272328",
@@ -19,7 +19,7 @@
     "learning_expansion": "f498bd5dce2b3f96730ab5d508936d5852d0173416e2636878e35aabcda3fbfc",
     "learning_terminology": "e722d56d222848de51fe758932a03e7bff4c24093d7c6b3d8de2509c5608d46e",
     "terminology_source": "4e46f51952a624aaf64564699e56e31ba8bca070e7ed826d0513192c89dac0bd",
-    "markdown": "f8c91f7607af77d78b67df225ec8a01a98f7fd47bcb72aa406b98f6b6aff03f9",
+    "markdown": "0a6e4c85eda14f5206dad2144d805ddfcc27f0d37acd6d269b342a2e8c232c86",
     "learning_markdown": "1984a5f0c25b88b85bd5ceef6c9633c942d7776d51e08afaa6579fe293889c4b"
   }
 }
