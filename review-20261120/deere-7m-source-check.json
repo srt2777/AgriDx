@@ -1,0 +1,463 @@
+{
+  "manual": "OMAL249107",
+  "manual_sha256": "d2b0176b4951762cef04676d313db4d39abbb96b9027131be0e3016a51851edd",
+  "pdf_pages": 464,
+  "models": [
+    "7M-2304",
+    "7M-2504"
+  ],
+  "initial_serial": "100001",
+  "verification": "PDF 文件哈希及每条记录的物理页与印刷页脚已逐项匹配。此核验仅覆盖来源定位。",
+  "state": "候选，未计入主库",
+  "records": [
+    {
+      "entry_id": "KB-JD-7M-OMAL249107-100001-CN-001",
+      "pdf_pages": [
+        381
+      ],
+      "printed_pages": [
+        "220B-3"
+      ]
+    },
+    {
+      "entry_id": "KB-JD-7M-OMAL249107-100001-CN-002",
+      "pdf_pages": [
+        414
+      ],
+      "printed_pages": [
+        "220E-12"
+      ]
+    },
+    {
+      "entry_id": "KB-JD-7M-OMAL249107-100001-CN-003",
+      "pdf_pages": [
+        415
+      ],
+      "printed_pages": [
+        "220E-13"
+      ]
+    },
+    {
+      "entry_id": "KB-JD-7M-OMAL249107-100001-CN-004",
+      "pdf_pages": [
+        416
+      ],
+      "printed_pages": [
+        "220E-14"
+      ]
+    },
+    {
+      "entry_id": "KB-JD-7M-OMAL249107-100001-CN-005",
+      "pdf_pages": [
+        417
+      ],
+      "printed_pages": [
+        "220E-15"
+      ]
+    },
+    {
+      "entry_id": "KB-JD-7M-OMAL249107-100001-CN-006",
+      "pdf_pages": [
+        428
+      ],
+      "printed_pages": [
+        "300BA-3"
+      ]
+    },
+    {
+      "entry_id": "KB-JD-7M-OMAL249107-100001-CN-007",
+      "pdf_pages": [
+        421
+      ],
+      "printed_pages": [
+        "300A-1"
+      ]
+    },
+    {
+      "entry_id": "KB-JD-7M-OMAL249107-100001-CN-008",
+      "pdf_pages": [
+        421
+      ],
+      "printed_pages": [
+        "300A-1"
+      ]
+    },
+    {
+      "entry_id": "KB-JD-7M-OMAL249107-100001-CN-009",
+      "pdf_pages": [
+        421
+      ],
+      "printed_pages": [
+        "300A-1"
+      ]
+    },
+    {
+      "entry_id": "KB-JD-7M-OMAL249107-100001-CN-010",
+      "pdf_pages": [
+        421
+      ],
+      "printed_pages": [
+        "300A-1"
+      ]
+    },
+    {
+      "entry_id": "KB-JD-7M-OMAL249107-100001-CN-011",
+      "pdf_pages": [
+        421
+      ],
+      "printed_pages": [
+        "300A-1"
+      ]
+    },
+    {
+      "entry_id": "KB-JD-7M-OMAL249107-100001-CN-012",
+      "pdf_pages": [
+        421
+      ],
+      "printed_pages": [
+        "300A-1"
+      ]
+    },
+    {
+      "entry_id": "KB-JD-7M-OMAL249107-100001-CN-013",
+      "pdf_pages": [
+        421
+      ],
+      "printed_pages": [
+        "300A-1"
+      ]
+    },
+    {
+      "entry_id": "KB-JD-7M-OMAL249107-100001-CN-014",
+      "pdf_pages": [
+        421
+      ],
+      "printed_pages": [
+        "300A-1"
+      ]
+    },
+    {
+      "entry_id": "KB-JD-7M-OMAL249107-100001-CN-015",
+      "pdf_pages": [
+        422
+      ],
+      "printed_pages": [
+        "300A-2"
+      ]
+    },
+    {
+      "entry_id": "KB-JD-7M-OMAL249107-100001-CN-016",
+      "pdf_pages": [
+        422
+      ],
+      "printed_pages": [
+        "300A-2"
+      ]
+    },
+    {
+      "entry_id": "KB-JD-7M-OMAL249107-100001-CN-017",
+      "pdf_pages": [
+        422
+      ],
+      "printed_pages": [
+        "300A-2"
+      ]
+    },
+    {
+      "entry_id": "KB-JD-7M-OMAL249107-100001-CN-018",
+      "pdf_pages": [
+        422
+      ],
+      "printed_pages": [
+        "300A-2"
+      ]
+    },
+    {
+      "entry_id": "KB-JD-7M-OMAL249107-100001-CN-019",
+      "pdf_pages": [
+        422
+      ],
+      "printed_pages": [
+        "300A-2"
+      ]
+    },
+    {
+      "entry_id": "KB-JD-7M-OMAL249107-100001-CN-020",
+      "pdf_pages": [
+        422,
+        423
+      ],
+      "printed_pages": [
+        "300A-2",
+        "300A-3"
+      ]
+    },
+    {
+      "entry_id": "KB-JD-7M-OMAL249107-100001-CN-021",
+      "pdf_pages": [
+        423
+      ],
+      "printed_pages": [
+        "300A-3"
+      ]
+    },
+    {
+      "entry_id": "KB-JD-7M-OMAL249107-100001-CN-022",
+      "pdf_pages": [
+        423
+      ],
+      "printed_pages": [
+        "300A-3"
+      ]
+    },
+    {
+      "entry_id": "KB-JD-7M-OMAL249107-100001-CN-023",
+      "pdf_pages": [
+        423,
+        424
+      ],
+      "printed_pages": [
+        "300A-3",
+        "300A-4"
+      ]
+    },
+    {
+      "entry_id": "KB-JD-7M-OMAL249107-100001-CN-024",
+      "pdf_pages": [
+        424
+      ],
+      "printed_pages": [
+        "300A-4"
+      ]
+    },
+    {
+      "entry_id": "KB-JD-7M-OMAL249107-100001-CN-025",
+      "pdf_pages": [
+        424
+      ],
+      "printed_pages": [
+        "300A-4"
+      ]
+    },
+    {
+      "entry_id": "KB-JD-7M-OMAL249107-100001-CN-026",
+      "pdf_pages": [
+        424
+      ],
+      "printed_pages": [
+        "300A-4"
+      ]
+    },
+    {
+      "entry_id": "KB-JD-7M-OMAL249107-100001-CN-027",
+      "pdf_pages": [
+        424
+      ],
+      "printed_pages": [
+        "300A-4"
+      ]
+    },
+    {
+      "entry_id": "KB-JD-7M-OMAL249107-100001-CN-028",
+      "pdf_pages": [
+        425
+      ],
+      "printed_pages": [
+        "300A-5"
+      ]
+    },
+    {
+      "entry_id": "KB-JD-7M-OMAL249107-100001-CN-029",
+      "pdf_pages": [
+        425
+      ],
+      "printed_pages": [
+        "300A-5"
+      ]
+    },
+    {
+      "entry_id": "KB-JD-7M-OMAL249107-100001-CN-030",
+      "pdf_pages": [
+        425
+      ],
+      "printed_pages": [
+        "300A-5"
+      ]
+    },
+    {
+      "entry_id": "KB-JD-7M-OMAL249107-100001-CN-031",
+      "pdf_pages": [
+        425
+      ],
+      "printed_pages": [
+        "300A-5"
+      ]
+    },
+    {
+      "entry_id": "KB-JD-7M-OMAL249107-100001-CN-032",
+      "pdf_pages": [
+        425
+      ],
+      "printed_pages": [
+        "300A-5"
+      ]
+    },
+    {
+      "entry_id": "KB-JD-7M-OMAL249107-100001-CN-033",
+      "pdf_pages": [
+        425
+      ],
+      "printed_pages": [
+        "300A-5"
+      ]
+    },
+    {
+      "entry_id": "KB-JD-7M-OMAL249107-100001-CN-034",
+      "pdf_pages": [
+        425
+      ],
+      "printed_pages": [
+        "300A-5"
+      ]
+    },
+    {
+      "entry_id": "KB-JD-7M-OMAL249107-100001-CN-035",
+      "pdf_pages": [
+        339
+      ],
+      "printed_pages": [
+        "210B-1"
+      ]
+    },
+    {
+      "entry_id": "KB-JD-7M-OMAL249107-100001-CN-036",
+      "pdf_pages": [
+        339
+      ],
+      "printed_pages": [
+        "210B-1"
+      ]
+    },
+    {
+      "entry_id": "KB-JD-7M-OMAL249107-100001-CN-037",
+      "pdf_pages": [
+        339
+      ],
+      "printed_pages": [
+        "210B-1"
+      ]
+    },
+    {
+      "entry_id": "KB-JD-7M-OMAL249107-100001-CN-038",
+      "pdf_pages": [
+        339
+      ],
+      "printed_pages": [
+        "210B-1"
+      ]
+    },
+    {
+      "entry_id": "KB-JD-7M-OMAL249107-100001-CN-039",
+      "pdf_pages": [
+        339,
+        340
+      ],
+      "printed_pages": [
+        "210B-1",
+        "210B-2"
+      ]
+    },
+    {
+      "entry_id": "KB-JD-7M-OMAL249107-100001-CN-040",
+      "pdf_pages": [
+        340
+      ],
+      "printed_pages": [
+        "210B-2"
+      ]
+    },
+    {
+      "entry_id": "KB-JD-7M-OMAL249107-100001-CN-041",
+      "pdf_pages": [
+        340
+      ],
+      "printed_pages": [
+        "210B-2"
+      ]
+    },
+    {
+      "entry_id": "KB-JD-7M-OMAL249107-100001-CN-042",
+      "pdf_pages": [
+        340
+      ],
+      "printed_pages": [
+        "210B-2"
+      ]
+    },
+    {
+      "entry_id": "KB-JD-7M-OMAL249107-100001-CN-043",
+      "pdf_pages": [
+        340
+      ],
+      "printed_pages": [
+        "210B-2"
+      ]
+    },
+    {
+      "entry_id": "KB-JD-7M-OMAL249107-100001-CN-044",
+      "pdf_pages": [
+        340
+      ],
+      "printed_pages": [
+        "210B-2"
+      ]
+    },
+    {
+      "entry_id": "KB-JD-7M-OMAL249107-100001-CN-045",
+      "pdf_pages": [
+        340
+      ],
+      "printed_pages": [
+        "210B-2"
+      ]
+    },
+    {
+      "entry_id": "KB-JD-7M-OMAL249107-100001-CN-046",
+      "pdf_pages": [
+        340
+      ],
+      "printed_pages": [
+        "210B-2"
+      ]
+    },
+    {
+      "entry_id": "KB-JD-7M-OMAL249107-100001-CN-047",
+      "pdf_pages": [
+        340,
+        341
+      ],
+      "printed_pages": [
+        "210B-2",
+        "210B-3"
+      ]
+    },
+    {
+      "entry_id": "KB-JD-7M-OMAL249107-100001-CN-048",
+      "pdf_pages": [
+        341
+      ],
+      "printed_pages": [
+        "210B-3"
+      ]
+    },
+    {
+      "entry_id": "KB-JD-7M-OMAL249107-100001-CN-049",
+      "pdf_pages": [
+        341
+      ],
+      "printed_pages": [
+        "210B-3"
+      ]
+    }
+  ]
+}
