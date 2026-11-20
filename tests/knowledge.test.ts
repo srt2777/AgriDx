@@ -103,7 +103,16 @@ test('source model lists select only an exact documented John Deere configuratio
     assert.equal(chunk.applicability, 'matched');
     expectEntry(retrieve(`${brand} 6E-1204(G4) 不能起动`), entryId);
   }
-  for (const model of ['6E-1204', '6E-1204(G3)', '6E-1204(G5)', '6E-1204-X(G4)', '6E-1604(G4)']) {
+  // The C2 manual documents the unsuffixed model independently of the G4 manual.
+  for (const hits of [
+    retrieve('不能起动', 100, { ...tractor, brand: '约翰迪尔', model: '6E-1204' }),
+    retrieve('John Deere 6E-1204 不能起动', 100),
+  ]) {
+    const archived = hits.filter(chunk => chunk.indexedReference);
+    assert.ok(archived.length > 0);
+    assert.ok(archived.every(chunk => chunk.sourceId === 'SRC-JD-6E-OMSU64123-C2-CN' && chunk.applicability === 'matched'));
+  }
+  for (const model of ['6E-1204(G3)', '6E-1204(G5)', '6E-1204-X(G4)', '6E-1604(G4)']) {
     assert.equal(retrieve('不能起动', 100, { ...tractor, brand: '约翰迪尔', model }).length, 0, model);
     assert.equal(retrieve(`John Deere ${model} 不能起动`, 100).length, 0, model);
   }

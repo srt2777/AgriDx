@@ -112,7 +112,10 @@ test('6E slow cranking retains its electrical and oil candidates only for docume
     assert.match(formatForPrompt([chunk]), /PDF第184页；印刷300-11/);
     assert.ok(retrieve(`国三 ${query}`, 100, context).every(isLearningReference));
   }
-  for (const model of ['6E-1204', '6E-1204(G3)', '6E-1204-X(G4)', '6E-1604(G4)']) {
+  const c2 = retrieve(query, 100, { machineType: '拖拉机', brand: '约翰迪尔', model: '6E-1204' });
+  assert.ok(c2.some(chunk => chunk.sourceId === 'SRC-JD-6E-OMSU64123-C2-CN' && chunk.applicability === 'matched'));
+  assert.ok(c2.every(chunk => chunk.sourceId === 'SRC-JD-6E-OMSU64123-C2-CN' || isLearningReference(chunk)));
+  for (const model of ['6E-1204(G3)', '6E-1204-X(G4)', '6E-1604(G4)']) {
     assert.ok(retrieve(query, 100, { machineType: '拖拉机', brand: '约翰迪尔', model }).every(isLearningReference), model);
   }
 });

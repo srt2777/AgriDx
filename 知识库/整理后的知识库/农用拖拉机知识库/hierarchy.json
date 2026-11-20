@@ -58477,34 +58477,7 @@
       ]
     },
     {
-      "entry_id": "KB-WZ-TSME-0003",
-      "components": [
-        {
-          "component_id": "machine",
-          "part_ids": []
-        }
-      ]
-    },
-    {
       "entry_id": "KB-WZ-TSME-0004",
-      "components": [
-        {
-          "component_id": "machine",
-          "part_ids": []
-        }
-      ]
-    },
-    {
-      "entry_id": "KB-WZ-TSME-0005",
-      "components": [
-        {
-          "component_id": "machine",
-          "part_ids": []
-        }
-      ]
-    },
-    {
-      "entry_id": "KB-WZ-TSME-0006",
       "components": [
         {
           "component_id": "machine",
@@ -58540,33 +58513,6 @@
       ]
     },
     {
-      "entry_id": "KB-WZ-TSME-0010",
-      "components": [
-        {
-          "component_id": "machine",
-          "part_ids": []
-        }
-      ]
-    },
-    {
-      "entry_id": "KB-WZ-TSME-0011",
-      "components": [
-        {
-          "component_id": "machine",
-          "part_ids": []
-        }
-      ]
-    },
-    {
-      "entry_id": "KB-WZ-TSME-0012",
-      "components": [
-        {
-          "component_id": "machine",
-          "part_ids": []
-        }
-      ]
-    },
-    {
       "entry_id": "KB-WZ-TSME-0013",
       "components": [
         {
@@ -58577,24 +58523,6 @@
     },
     {
       "entry_id": "KB-WZ-TSME-0014",
-      "components": [
-        {
-          "component_id": "machine",
-          "part_ids": []
-        }
-      ]
-    },
-    {
-      "entry_id": "KB-WZ-TSME-0015",
-      "components": [
-        {
-          "component_id": "machine",
-          "part_ids": []
-        }
-      ]
-    },
-    {
-      "entry_id": "KB-WZ-TSME-0016",
       "components": [
         {
           "component_id": "machine",
@@ -107446,6 +107374,68 @@
           "part_ids": [
             "battery"
           ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-5E-OMSU55602-G9-SV-B858CE02",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": [
+            "air-filter"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-5E-OMSU55602-G9-SV-10DB6C79",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "battery"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-5E-OMSU55602-G9-SV-F0526BDC",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-5E-OMSU55602-G9-SV-60DFD74D",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "wiring"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-5E-OMSU55602-G9-SV-98EDA881",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "wiring"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-5E-OMSU55602-G9-SV-0412DFE4",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": []
         }
       ]
     }

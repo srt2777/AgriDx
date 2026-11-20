@@ -1358,6 +1358,13 @@
       "base": "4.1.47",
       "version": "4.1.48",
       "date": "2026-11-20"
+    },
+    {
+      "id": "ningbo-5e-service-six-20261120",
+      "kind": "knowledge",
+      "base": "4.1.48",
+      "version": "4.1.49",
+      "date": "2026-11-20"
     }
   ]
 }
