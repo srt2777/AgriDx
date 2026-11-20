@@ -1407,6 +1407,13 @@
       "base": "4.1.54",
       "version": "4.1.55",
       "date": "2026-11-20"
+    },
+    {
+      "id": "yto-shifeng-manuals-20261120",
+      "kind": "knowledge",
+      "base": "4.1.55",
+      "version": "4.1.56",
+      "date": "2026-11-20"
     }
   ]
 }
