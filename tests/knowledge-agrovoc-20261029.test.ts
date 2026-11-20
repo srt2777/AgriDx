@@ -1,3 +1,4 @@
+import { octoberComponents } from './helpers/historical-component-parts';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { spawnSync } from 'node:child_process';
@@ -89,6 +90,7 @@ test('875条FAO术语逐条对应官方来源子集，累计目录包含原13000
     } else if (file.endsWith('/农用拖拉机知识库/hierarchy.json')) {
       const hierarchy = JSON.parse(content);
       hierarchy.updated_at = '2026-10-29';
+      hierarchy.components = octoberComponents(hierarchy.components);
       hierarchy.entries = hierarchy.entries.slice(0, 6125 - 8);
       content = JSON.stringify(hierarchy, null, 2) + '\n';
     }

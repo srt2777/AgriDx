@@ -1,3 +1,4 @@
+import { octoberComponents } from './helpers/historical-component-parts';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import fs from 'node:fs';
@@ -42,7 +43,7 @@ test('十条同步批次保留4853行索引、65份正文、旧来源和旧导�
   const hierarchy = JSON.parse(fs.readFileSync(`${index}/hierarchy.json`, 'utf8'));
   assert.equal(hash(JSON.stringify(sources.slice(0, 27).map(before3510))), base.sources_sha256);
   assert.equal(hash(JSON.stringify(hierarchy.entries.slice(0, 4853))), base.hierarchy_sha256);
-  assert.equal(hash(JSON.stringify(hierarchy.components)), base.components_sha256);
+  assert.equal(hash(JSON.stringify(octoberComponents(hierarchy.components))), base.components_sha256);
 });
 
 test('十条均有唯一正文、来源及原页，继承6065/6075四驱驾驶室范围而不推断中国国四', () => {
