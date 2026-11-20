@@ -1,5 +1,7 @@
 const { chromium } = require('playwright-core');
-const rows = require('./catalog-4.1.50.json');
+const fs = require('node:fs');
+const path = require('node:path');
+const rows = JSON.parse(fs.readFileSync(process.argv[3] || path.join(__dirname, 'catalog-4.1.50.json'), 'utf8'));
 (async () => {
   const browser = await chromium.launch({executablePath:process.env.BROWSER_EXECUTABLE,headless:true});
   try {
