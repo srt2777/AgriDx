@@ -5,15 +5,17 @@ import { BookOpen, ChevronRight, Search } from 'lucide-react';
 import type { KnowledgeLibrary, KnowledgeOrganization, LibraryEntry, LibraryKind } from '@shared/knowledge-catalog';
 import DeferredMarkdown from '@/components/DeferredMarkdown';
 import { KnowledgePeek } from '@/components/CardPeek';
+import { findOverheatEvidence, OVERHEAT_MODELS } from '@shared/cognitive-twin';
 import { useUiVersion } from '@/hooks/useUiVersion';
 
-function LibraryCard({ entry, lang }: { entry: LibraryEntry; lang: string }) {
-  const [open, setOpen] = useState(false);
+function LibraryCard({ entry, lang, initiallyOpen }: { entry: LibraryEntry; lang: string; initiallyOpen: boolean }) {
+  const [open, setOpen] = useState(initiallyOpen);
+  const twinEvidence = entry.collection === 'archive' ? findOverheatEvidence(entry.entryId, entry.sourceId) : undefined;
   const version = useUiVersion();
   const { t, format, separator } = useUiCopy(lang);
   const terminology = entry.collection === 'learning' && entry.learningKind === 'terminology';
   const category = terminology ? t('术语参考', 'Terminology reference') : entry.collection === 'learning' ? t('通识学习', 'General learning') : t('来源归档', 'Source archive');
-  return <details className="evidence-entry" onToggle={event => setOpen(event.currentTarget.open)}>
+  return <details className="evidence-entry" open={open} onToggle={event => setOpen(event.currentTarget.open)}>
     <summary><BookOpen size={20} strokeWidth={1.4} /><div><h3>{format(entry.title)}</h3>
       <span>{entry.entryId}{separator}{category}{(version === 'new' || format(entry.entryType) !== category) && <>{separator}{format(entry.entryType)}</>}</span>
     </div>{version === 'new' && <KnowledgePeek kind={entry.collection === 'learning' ? 'learning' : 'archive'} caption={entry.entryType} />}<ChevronRight size={18} className="evidence-toggle" /></summary>
@@ -31,7 +33,16 @@ function LibraryCard({ entry, lang }: { entry: LibraryEntry; lang: string }) {
           <div><dt>{t('适用范围', 'Applicability')}</dt><dd>{entry.scopeBoundary}</dd></div>
         </>}
       </dl>
+      {twinEvidence && <dl className="evidence-provenance">
+        <div><dt>{t('认知孪生适用范围', 'Cognitive twin applicability')}</dt><dd>{OVERHEAT_MODELS.join(' / ')}{separator}{t('须核对设备配置', 'Confirm equipment configuration')}{twinEvidence.optional && <>{separator}{t('须确认装配 Visctronic 风扇', 'Requires a confirmed Visctronic fan')}</>}</dd></div>
+        <div><dt>{t('条目在孪生中的用途', 'Use in the cognitive twin')}</dt><dd>{t('用于生成发动机过热的候选原因。当前案例的支持或冲突由检查报告决定。', 'Provides a candidate cause of engine overheating. Case inspection reports determine support or conflict.')}</dd></div>
+      </dl>}
       <div className="prose prose-sm max-w-none overflow-x-auto dark:prose-invert"><DeferredMarkdown>{entry.content}</DeferredMarkdown></div>
+      {twinEvidence && <div className="evidence-entry-footer">
+        <Link className="hero-text-link" to={`/cognitive-twin?${new URLSearchParams({ evidence: twinEvidence.id })}`}>
+          {t('到认知孪生中核对这条候选原因', 'Review this candidate in the cognitive twin')}<ChevronRight size={15} />
+        </Link>
+      </div>}
       {entry.collection === 'archive' && <div className="evidence-entry-footer"><Link className="hero-text-link" to={`/knowledge?${new URLSearchParams({ brand: entry.brand, model: entry.models[0] })}`}>
         {t('查看这份资料的机型目录', 'Open this document’s model directory')}<ChevronRight size={15} />
       </Link></div>}
@@ -39,11 +50,12 @@ function LibraryCard({ entry, lang }: { entry: LibraryEntry; lang: string }) {
   </details>;
 }
 
-export default function KnowledgeLibraryBrowser({ library, organization, filters, lang, onChange }: {
+export default function KnowledgeLibraryBrowser({ library, organization, filters, lang, expandedEntryId, onChange }: {
   library: KnowledgeLibrary;
   organization?: KnowledgeOrganization;
   filters: { kind?: string; topic?: string; entryType?: string };
   lang: string;
+  expandedEntryId?: string;
   onChange: (values: { q?: string; page?: string; collection?: string; kind?: string; topic?: string; entryType?: string; role?: string }) => void;
 }) {
   const { t, format, separator } = useUiCopy(lang);
@@ -78,7 +90,7 @@ export default function KnowledgeLibraryBrowser({ library, organization, filters
       <button type="submit" className="catalog-action"><Search size={16} />{t('搜索', 'Search')}</button>
       {library.query && <button type="button" className="catalog-reset" onClick={() => onChange({ q: '' })}>{t('清除', 'Clear')}</button>}
     </form>
-    {library.entries.length ? library.entries.map(entry => <LibraryCard key={entry.entryId} entry={entry} lang={lang} />)
+    {library.entries.length ? library.entries.map(entry => <LibraryCard key={`${expandedEntryId ?? ""}:${entry.entryId}`} entry={entry} lang={lang} initiallyOpen={expandedEntryId === entry.entryId} />)
       : <div className="catalog-empty"><BookOpen size={25} /><p>{t('没有找到匹配条目，请更换关键词或资料类型。', 'No matching entries. Try another keyword or collection.')}</p></div>}
     <nav className="library-pagination" aria-label={t('知识目录分页', 'Knowledge library pagination')}>
       <button className="catalog-action" disabled={library.page <= 1} onClick={() => onChange({ page: String(library.page - 1) })}>{t('上一页', 'Previous')}</button>

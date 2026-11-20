@@ -2,6 +2,6 @@ import type { UiVersion } from '@/hooks/useUiVersion';
 
 /** Independent interface release numbers; the project build version remains separate. */
 export const UI_RELEASES: Record<UiVersion, string> = {
-  new: 'NV1.12',
-  old: 'OV1.18',
+  new: 'NV1.13',
+  old: 'OV1.19',
 };

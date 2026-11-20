@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { indexedDB } from 'fake-indexeddb';
-import { OVERHEAT_EVIDENCE, appendEvent, analyzeTwin, twinHandoff, FRESHNESS_MS, type TwinCase, type TwinEvent } from '../shared/cognitive-twin';
+import { OVERHEAT_EVIDENCE, OVERHEAT_MODELS, findOverheatEvidence, appendEvent, analyzeTwin, twinHandoff, FRESHNESS_MS, type TwinCase, type TwinEvent } from '../shared/cognitive-twin';
 import { createTwinCase, saveTwinEvent, listTwinCases, deleteTwinCase } from '../src/features/cognitive-twin/store';
 const at = Date.now();
 const stamp = new Date(at).toISOString();
@@ -53,7 +53,16 @@ test('review requires supported cause, reviewer and retest; new observation reop
 test('evidence projection matches source index; no imported metadata replaces manual scope',()=>{
  const rows=fs.readFileSync('知识库/整理后的知识库/农用拖拉机知识库/entries.jsonl','utf8').trim().split('\n').map(l=>JSON.parse(l));
  assert.equal(OVERHEAT_EVIDENCE.length,11);
- for(const item of OVERHEAT_EVIDENCE){const row=rows.find(x=>x.entry_id===item.id);assert.ok(row);assert.equal(row.source_id,item.sourceId);assert.equal(row.locator,item.locator);assert.equal(row.status,item.status);assert.equal(row.title,'发动机过热：'+item.title);}
+ for (const item of OVERHEAT_EVIDENCE) {
+   const row = rows.find(x => x.entry_id === item.id);
+   assert.ok(row);
+   assert.equal(findOverheatEvidence(row.entry_id, row.source_id), item);
+   assert.equal(findOverheatEvidence(row.entry_id, 'unrelated-source'), undefined);
+   assert.deepEqual(row.models, OVERHEAT_MODELS);
+   assert.equal(row.locator, item.locator);
+   assert.equal(row.status, item.status);
+   assert.equal(row.title, '发动机过热：' + item.title);
+ }
 });
 test('browser transactions isolate cases, reject stale writes and cannot resurrect deletion',async()=>{
  Object.assign(globalThis,{indexedDB});
