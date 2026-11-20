@@ -363,7 +363,7 @@ function tokenize(text: string): string[] {
 }
 
 /** Vocabulary only: these aliases express symptoms, never infer a failed component. */
-const GENERIC_QUERY_WORDS = /联合收割机|联合收获机|收割机|收获机|拖拉机|插秧机|植保机|播种机|农业机械|农用机械|农机|请问|请帮我|怎么办|怎么修|怎么处理|怎么回事|是什么原因|什么原因|我的|这台|那台|这个|那个|\b(?:tractor|combine|transplanter|sprayer)\b/gi;
+const GENERIC_QUERY_WORDS = /联合收割机|联合收获机|收割机|收获机|拖拉机|插秧机|植保机|播种机|农业机械|农用机械|农机|请问|请帮我|怎么办|怎么修|怎么处理|怎么回事|怎么了|是什么原因|什么原因|我的|这台|那台|这个|那个|\b(?:tractor|combine|transplanter|sprayer)\b/gi;
 const SYMPTOM_ALIASES = [
   ['启动', '起动'],
   ['打不着', '打不着火', '不着车', '不能着车', '打不着车', '无法启动', '无法起动', '不能启动', '不能起动', '启动不了', '起动不了', '启动困难', '起动困难', '不着火'],
