@@ -112949,6 +112949,283 @@
           "part_ids": []
         }
       ]
+    },
+    {
+      "entry_id": "KB-JD-5E-OMSU55602-G9-CN-CK-82FE4F09",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": [
+            "turbocharger"
+          ]
+        },
+        {
+          "component_id": "cooling",
+          "part_ids": [
+            "radiator"
+          ]
+        },
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hydraulic-hose"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-5E-OMSU55602-G9-CN-CK-83C46F66",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": [
+            "clutch-pedal"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-5E-OMSU55602-G9-CN-CK-83C46F67",
+      "components": [
+        {
+          "component_id": "cab",
+          "part_ids": [
+            "cab-filter"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-5E-OMSU55602-G9-CN-CK-83C46F68",
+      "components": [
+        {
+          "component_id": "cab",
+          "part_ids": [
+            "cab-filter",
+            "condenser"
+          ]
+        },
+        {
+          "component_id": "cooling",
+          "part_ids": [
+            "radiator"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-5E-OMSU55602-G9-CN-CK-83C46F69",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-5E-OMSU55602-G9-CN-CK-831ED744",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": []
+        },
+        {
+          "component_id": "fuel",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-5E-OMSU55602-G9-CN-CK-83C46F6C",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": [
+            "clutch-pedal"
+          ]
+        },
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "starter"
+          ]
+        },
+        {
+          "component_id": "pto",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-5E-OMSU55602-G9-CN-CK-84402C82",
+      "components": [
+        {
+          "component_id": "chassis",
+          "part_ids": [
+            "wheel-rim"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-5E-OMSU55602-G9-CN-CK-83C46F6E",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-5E-OMSU55602-G9-MT-0106DD76",
+      "components": [
+        {
+          "component_id": "chassis",
+          "part_ids": [
+            "tyre"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-5E-OMSU55602-G9-CN-CK-840FEA8F",
+      "components": [
+        {
+          "component_id": "steering",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-5E-OMSU55602-G9-CN-CK-840FEA95",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-5E-OMSU55602-G9-CN-CK-840FEA96",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-5E-OMSU55602-G9-CN-CK-83C47155",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-5E-OMSU55602-G9-CN-CK-840FEA97",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-5E-OMSU55602-G9-CN-CK-83C4B6A6",
+      "components": [
+        {
+          "component_id": "cooling",
+          "part_ids": [
+            "radiator",
+            "radiator-cap"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-5E-OMSU55602-G9-CN-CK-82AF2681",
+      "components": [
+        {
+          "component_id": "fuel",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-5E-OMSU55602-G9-MT-9B7E03D9",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "alternator"
+          ]
+        },
+        {
+          "component_id": "cooling",
+          "part_ids": [
+            "fan-belt"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-5E-OMSU55602-G9-CN-CK-83C4B783",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "battery"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-5E-OMSU55602-G9-CN-CK-829DE582",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "battery"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-5E-OMSU55602-G9-CN-CK-83C4B78A",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-5E-OMSU55602-G9-CN-CK-83C4B78E",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "fuse",
+            "wiring"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-5E-OMSU55602-G9-CN-CK-83C4B78D",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "starter",
+            "battery",
+            "alternator",
+            "wiring"
+          ]
+        }
+      ]
     }
   ]
 }

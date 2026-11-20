@@ -4,28 +4,28 @@
   "repository_version": "4.1.57",
   "scope": "仅由现有索引派生的统计与导航，不是新增维修事实，不加入检索",
   "input_sha256": {
-    "知识库/整理后的知识库/农用拖拉机知识库/sources.json": "61f4d103fe8b166440941198e66380de7623530062e17994407c94e9e8f07a87",
-    "知识库/整理后的知识库/农用拖拉机知识库/entries.jsonl": "b168833fa36672fa2700fc379c8b90b2867292694573ada30171debb36cbe13c",
+    "知识库/整理后的知识库/农用拖拉机知识库/sources.json": "fb3c41e477ce8c28e6c255f1e662c93a6594060b371c3dc76ddbddbaa8424682",
+    "知识库/整理后的知识库/农用拖拉机知识库/entries.jsonl": "31a5a45b9e6d52245819401381b2cdeccec026488c4b44c80398df7e0aaa776e",
     "docs/tractor-knowledge/index.jsonl": "1eac29d4f33681de65628b95b992b248f35c62578fb2f9e45ac5b1fdda8b414f",
     "docs/tractor-knowledge/expansion-5000/index.jsonl": "f498bd5dce2b3f96730ab5d508936d5852d0173416e2636878e35aabcda3fbfc",
     "docs/tractor-knowledge/expansion-875/index.jsonl": "e722d56d222848de51fe758932a03e7bff4c24093d7c6b3d8de2509c5608d46e"
   },
   "totals": {
     "sources": 160,
-    "archived_entries": 10382,
+    "archived_entries": 10405,
     "learning_entries": 6875,
-    "total_library_entries": 17257,
+    "total_library_entries": 17280,
     "knowledge_documents": 203,
     "brand_labels": 31,
     "generic_chunks": 9,
-    "retrieval_chunks": 17266,
+    "retrieval_chunks": 17289,
     "information_or_scope_entries": 696
   },
   "brands": [
     {
       "label": "约翰迪尔",
       "sources": 21,
-      "entries": 4274
+      "entries": 4297
     },
     {
       "label": "东方红",
@@ -180,7 +180,7 @@
   ],
   "entry_types": {
     "安全操作": 950,
-    "操作/维护知识": 4194,
+    "操作/维护知识": 4217,
     "维护/故障知识": 4490,
     "机型资料": 115,
     "资料缺口": 8,
@@ -199,7 +199,7 @@
     "未分类资料": 31
   },
   "entries_by_source_purpose": {
-    "整机／维保PDF": 9135,
+    "整机／维保PDF": 9158,
     "维护网页": 592,
     "报道背景": 2,
     "交机培训PDF": 262,
@@ -217,7 +217,7 @@
   "entries_by_storage": {
     "仓库PDF原件": 2956,
     "仓库网页快照": 11,
-    "PDF链接＋来源记录": 6778,
+    "PDF链接＋来源记录": 6801,
     "网页链接＋来源记录": 583,
     "其他存放方式": 54
   },
@@ -286,7 +286,8 @@
     "引用选页已核对。英文原件按实装总成及所列型号使用。": 43,
     "引用选页已核对。已按原表逐项核对原页和配置，以本版适用范围为限。": 89,
     "引用选页已核对。已对照原版排故表或保养条文与配置表，按该版实际机型和配置使用。": 83,
-    "引用选页已核对。已对照本版故障表、保养条文或规格表，按实际车型和配置使用。": 160
+    "引用选页已核对。已对照本版故障表、保养条文或规格表，按实际车型和配置使用。": 160,
+    "引用选页已核对。已对照宁波版 PDF、同一原厂网页章节及实装配置。": 23
   },
   "research": {
     "reports": 3,
@@ -13239,7 +13240,7 @@
       "storage_group": "PDF链接＋来源记录",
       "source_path": "知识库/原始农机说明书/约翰迪尔/5E-OMSU55602-G9-CN/来源记录.md",
       "source_url": "https://techinfo-omview.apps-prod-vpn.us.e06.c01.johndeerecloud.com/omview/omsu55602",
-      "entry_count": 29,
+      "entry_count": 52,
       "entry_ids": [
         "KB-JD-5E-OMSU55602-G9-CN-010",
         "KB-JD-5E-OMSU55602-G9-CN-011",
@@ -13269,7 +13270,30 @@
         "KB-JD-5E-OMSU55602-G9-SV-F0526BDC",
         "KB-JD-5E-OMSU55602-G9-SV-60DFD74D",
         "KB-JD-5E-OMSU55602-G9-SV-98EDA881",
-        "KB-JD-5E-OMSU55602-G9-SV-0412DFE4"
+        "KB-JD-5E-OMSU55602-G9-SV-0412DFE4",
+        "KB-JD-5E-OMSU55602-G9-CN-CK-82FE4F09",
+        "KB-JD-5E-OMSU55602-G9-CN-CK-83C46F66",
+        "KB-JD-5E-OMSU55602-G9-CN-CK-83C46F67",
+        "KB-JD-5E-OMSU55602-G9-CN-CK-83C46F68",
+        "KB-JD-5E-OMSU55602-G9-CN-CK-83C46F69",
+        "KB-JD-5E-OMSU55602-G9-CN-CK-831ED744",
+        "KB-JD-5E-OMSU55602-G9-CN-CK-83C46F6C",
+        "KB-JD-5E-OMSU55602-G9-CN-CK-84402C82",
+        "KB-JD-5E-OMSU55602-G9-CN-CK-83C46F6E",
+        "KB-JD-5E-OMSU55602-G9-MT-0106DD76",
+        "KB-JD-5E-OMSU55602-G9-CN-CK-840FEA8F",
+        "KB-JD-5E-OMSU55602-G9-CN-CK-840FEA95",
+        "KB-JD-5E-OMSU55602-G9-CN-CK-840FEA96",
+        "KB-JD-5E-OMSU55602-G9-CN-CK-83C47155",
+        "KB-JD-5E-OMSU55602-G9-CN-CK-840FEA97",
+        "KB-JD-5E-OMSU55602-G9-CN-CK-83C4B6A6",
+        "KB-JD-5E-OMSU55602-G9-CN-CK-82AF2681",
+        "KB-JD-5E-OMSU55602-G9-MT-9B7E03D9",
+        "KB-JD-5E-OMSU55602-G9-CN-CK-83C4B783",
+        "KB-JD-5E-OMSU55602-G9-CN-CK-829DE582",
+        "KB-JD-5E-OMSU55602-G9-CN-CK-83C4B78A",
+        "KB-JD-5E-OMSU55602-G9-CN-CK-83C4B78E",
+        "KB-JD-5E-OMSU55602-G9-CN-CK-83C4B78D"
       ],
       "knowledge_paths": [
         "知识库/整理后的知识库/农用拖拉机知识库/机型知识卡/约翰迪尔-5E-OMSU55602-G9-保养检查.md",

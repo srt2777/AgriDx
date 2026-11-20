@@ -120,6 +120,17 @@ function requireStrings(value: unknown, fields: string[], label: string): void {
   )) throw new Error(`知识索引字段缺失：${label}`);
 }
 
+export function parseArchiveSections(text: string) {
+  const sections = new Map<string, { heading: string; text: string }>();
+  for (const match of text.matchAll(/^##\s+([^\r\n]+)\r?\n([\s\S]*?)(?=^##\s+|(?![\s\S]))/gm)) {
+    const heading = match[1].trim();
+    const key = heading.split('｜')[0].trim();
+    if (sections.has(key)) throw new Error(`知识章节重复：${key}`);
+    sections.set(key, { heading, text: match[2].trim() });
+  }
+  return sections;
+}
+
 /** Only indexed entry sections are loaded; raw manuals, READMEs and pending lists are excluded. */
 export function loadArchive(archiveRoot = ARCHIVE_ROOT, options: { configureModels?: boolean } = {}): { chunks: KnowledgeChunk[]; fileCount: number; sources: ArchiveSource[]; indexTexts: Record<'sources.json' | 'entries.jsonl', string> } {
   const INDEX_ROOT = path.join(archiveRoot, '农用拖拉机知识库');
@@ -208,14 +219,7 @@ export function loadArchive(archiveRoot = ARCHIVE_ROOT, options: { configureMode
     }
     let sections = documents.get(file);
     if (!sections) {
-      sections = new Map();
-      const text = fs.readFileSync(file, 'utf8');
-      for (const match of text.matchAll(/^##\s+([^\r\n]+)\r?\n([\s\S]*?)(?=^##\s+|(?![\s\S]))/gm)) {
-        const heading = match[1].trim();
-        const key = heading.split('｜')[0].trim();
-        if (sections.has(key)) throw new Error(`知识章节重复：${key}`);
-        sections.set(key, { heading, text: match[2].trim() });
-      }
+      sections = parseArchiveSections(fs.readFileSync(file, 'utf8'));
       documents.set(file, sections);
     }
     const section = sections.get(entry.entry_id);

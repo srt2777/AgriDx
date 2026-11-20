@@ -1421,6 +1421,13 @@
       "base": "4.1.56",
       "version": "4.1.57",
       "date": "2026-11-20"
+    },
+    {
+      "id": "deere-5e-cn-config-20261120",
+      "kind": "knowledge",
+      "base": "4.1.57",
+      "version": "4.1.58",
+      "date": "2026-11-20"
     }
   ]
 }

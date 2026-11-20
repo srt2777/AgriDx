@@ -6,6 +6,7 @@ import { createHash } from 'node:crypto';
 import { createInterface } from 'node:readline';
 import { buildContextRegistry } from '../agent/context-tools';
 import { ToolExecutor } from '../agent/tools';
+import { parseArchiveSections } from '../server/knowledge/archive';
 import { referenceVerification } from '../server/knowledge/evidence';
 
 const indexPath = '知识库/整理后的知识库/农用拖拉机知识库/entries.jsonl';
@@ -19,6 +20,7 @@ type Entry = {
   models?: string[];
   title: string;
   locator: string;
+  knowledge_path: string;
 };
 
 const baseline = process.argv[2] ?? 'origin/main';
@@ -32,6 +34,30 @@ for await (const line of createInterface({ input: original.stdout, crlfDelay: In
   if (line.trim()) baselineRows.set((JSON.parse(line) as Entry).entry_id, fingerprint(line));
 }
 assert.equal((await gitClose)[0], 0, '无法读取基线知识索引');
+
+// A technical correction can change only the Markdown body while its index row stays identical.
+const markdown = indexPath.replace('entries.jsonl', '**/*.md');
+const splitPaths = (value: string) => value.split('\0').filter(Boolean);
+const changes = splitPaths(execFileSync('git', ['diff', '--no-renames', '--diff-filter=AMD', '--name-status', '-z',
+  baseCommit, '--', markdown], { encoding: 'utf8' }));
+const untracked = splitPaths(execFileSync('git', ['ls-files', '--others', '--exclude-standard', '-z', '--', markdown], { encoding: 'utf8' }));
+for (const path of untracked) changes.push('A', path);
+const changedSections = new Map<string, string | undefined>();
+for (let i = 0; i < changes.length; i += 2) {
+  const status = changes[i], path = changes[i + 1];
+  const priorText = status === 'A' ? '' : execFileSync('git', ['show', baseCommit + ':' + path], {
+    encoding: 'utf8', maxBuffer: 128 * 1024 * 1024,
+  });
+  const prior = parseArchiveSections(priorText.replace(/\r\n/g, '\n'));
+  const current = parseArchiveSections(status === 'D' ? '' : readFileSync(path, 'utf8').replace(/\r\n/g, '\n'));
+  const scopeChanged = prior.get('来源与适用范围')?.text !== current.get('来源与适用范围')?.text;
+  for (const key of new Set([...prior.keys(), ...current.keys()])) {
+    const old = prior.get(key), updated = current.get(key);
+    if (scopeChanged || old?.heading !== updated?.heading || old?.text !== updated?.text) {
+      changedSections.set(path + '\0' + key, updated?.text);
+    }
+  }
+}
 
 const sourceRows = JSON.parse(readFileSync(indexPath.replace('entries.jsonl', 'sources.json'), 'utf8')) as
   { source_id: string; minimum_machine_serial?: string }[];
@@ -47,13 +73,18 @@ async function search(query: string, brand: string, model: string) {
 
 let checkedEntries = 0;
 let modifiedEntries = 0;
+let bodyOnlyEntries = 0;
 let matchedModels = 0;
 let rejectedModels = 0;
 for await (const line of createInterface({ input: createReadStream(indexPath), crlfDelay: Infinity })) {
   if (!line.trim()) continue;
   const entry = JSON.parse(line) as Entry;
   const previous = baselineRows.get(entry.entry_id);
-  if (previous === fingerprint(line)) continue;
+  const sectionKey = entry.knowledge_path + '\0' + entry.entry_id;
+  if (previous === fingerprint(line)) {
+    if (!changedSections.has(sectionKey)) continue;
+    bodyOnlyEntries++;
+  }
   if (previous !== undefined) modifiedEntries++;
   const { entry_id: id, source_id: sourceId, brand, title, locator } = entry;
   const models = entry.models ?? [entry.model];
@@ -68,6 +99,11 @@ for await (const line of createInterface({ input: createReadStream(indexPath), c
   }
   if (entry.models) assert.deepEqual(new Set(detail.models), new Set(entry.models), id);
   assert.ok(detail.content.includes(locator), id);
+  if (changedSections.has(sectionKey)) {
+    const expected = changedSections.get(sectionKey);
+    assert.ok(expected, id + ' 的索引仍指向已移除的正文');
+    assert.equal(detail.content.replace(/\r\n/g, '\n'), expected, id + ' 的 Agent 正文与手册卡片不一致');
+  }
   const minimumSerial = serialMinimums.get(sourceId);
   const prefix = minimumSerial ? `整机序列号 ${minimumSerial}，` : '';
   for (const model of models) {
@@ -91,5 +127,5 @@ for await (const line of createInterface({ input: createReadStream(indexPath), c
   }
   checkedEntries++;
 }
-assert.ok(checkedEntries, '当前工作树相对基线没有新增或变更的索引行');
-console.log(JSON.stringify({ baseCommit, checkedEntries, addedEntries: checkedEntries - modifiedEntries, modifiedEntries, matchedModels, rejectedModels }, null, 2));
+assert.ok(checkedEntries, '当前工作树相对基线没有新增或变更的索引或手册正文');
+console.log(JSON.stringify({ baseCommit, checkedEntries, addedEntries: checkedEntries - modifiedEntries, modifiedEntries, bodyOnlyEntries, matchedModels, rejectedModels }, null, 2));
