@@ -8,7 +8,7 @@ const lines = (name) => readFileSync(`${root}/${name}`, 'utf8').split(/\r?\n/).f
 
 test('AI 角色建议只写在队列 ai_suggestion，status 保持 pending，不进入 entry-roles.jsonl', () => {
   const queue = lines('role-review-queue.jsonl');
-  assert.equal(queue.length, 3685); // 2026-10-29 快照 3346 行 + 8R 批（kb300k-batch2-jd8r-20261116）339 行
+  assert.equal(queue.length, 3685 - 8); // 2026-10-29 快照 3346 行 + 8R 批（kb300k-batch2-jd8r-20261116）339 行，扣除 8 条已清理通知
   for (const q of queue) {
     assert.equal(q.status, 'pending');
     const a = q.ai_suggestion;

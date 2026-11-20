@@ -207,10 +207,12 @@ function withoutNumericMeasurementsOrSerials(text: string): string {
   const ordinal = /(第[ \t]*)(\d{3,4})(?=[ \t]*号(?:线|针脚|插针|端子))/g;
   const engineSpeed = /((?:每分钟|发动机转速|主轴转速|PTO转速)[ \t]*[:：=]?[ \t]*(?:为|是)?[ \t]*)(\d{3,4})(?=[ \t]*转(?!向|动|速|矩|子|轴|换|角))/gi;
   const hours = /((?:工时|运行时间|使用时间|运行|运转|工作|开机|累计)[ \t]*[:：=]?[ \t]*(?:为|是)?[ \t]*)(\d{3,4}[ \t]*h)(?![a-z0-9])/gi;
+  // "完成400h技术保养" names a service interval. A standalone 400H can still be a model.
+  const serviceHours = /(完成[ \t]*)(\d{3,4}[ \t]*h)(?=[ \t]*(?:技术)?保养)/gi;
   const liters = /((?:油箱容量|容积|容量|加注|补充|消耗|油量)[ \t]*[:：=]?[ \t]*(?:为|是)?[ \t]*)(\d{3,4}[ \t]*[l升])(?![a-z0-9]|降|程|举|高|压|档|挡)/gi;
   const blankValue = (_match: string, label: string, value: string) => label + ' '.repeat(value.length);
   return text.replace(serialNumber, blankValue).replace(ordinal, blankValue)
-    .replace(engineSpeed, blankValue).replace(hours, blankValue).replace(liters, blankValue);
+    .replace(engineSpeed, blankValue).replace(hours, blankValue).replace(serviceHours, blankValue).replace(liters, blankValue);
 }
 
 function modelMentions(text: string): ModelMention[] {

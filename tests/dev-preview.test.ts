@@ -72,17 +72,25 @@ test('实际浏览器构建保持完整知识目录、诊断来源与型号隔�
     // The response repeats the same catalog tree for every scope. Serialize its
     // immutable fields once and compare the complete response bytes for every selection.
     const baseFields = new Map(Object.entries(serverCatalog));
-    const baseJson = new Map(Array.from(baseFields, ([key, value]) => [key, JSON.stringify(value)]));
+    const baseJson = new Map(Array.from(baseFields, ([key, value]) => [key, Buffer.from(JSON.stringify(value))]));
     async function assertCatalogSelection(filters: CatalogFilters) {
       const query = new URLSearchParams(Object.entries(filters));
       const response = await previewFetch(`/api/knowledge/catalog?${query}`);
       assert.equal(response.status, 200, query.toString());
-      const fields: string[] = [];
-      for (const [key, value] of Object.entries(getKnowledgeCatalog(filters))) {
-        const encoded = value === baseFields.get(key) ? baseJson.get(key) : JSON.stringify(value);
-        if (encoded !== undefined) fields.push(`${JSON.stringify(key)}:${encoded}`);
+      const bytes = Buffer.from(await response.arrayBuffer());
+      let offset = 0;
+      function expectBytes(expected: Buffer) {
+        assert.ok(bytes.subarray(offset, offset + expected.length).equals(expected), `目录字节不符：${query} @${offset}`);
+        offset += expected.length;
       }
-      assert.ok(await response.text() === `{${fields.join(',')}}`, `目录响应与服务端不同：${query}`);
+      expectBytes(Buffer.from('{'));
+      for (const [key, value] of Object.entries(getKnowledgeCatalog(filters))) {
+        if (value === undefined) continue;
+        expectBytes(Buffer.from(`${offset > 1 ? ',' : ''}${JSON.stringify(key)}:`));
+        expectBytes(value === baseFields.get(key) ? baseJson.get(key)! : Buffer.from(JSON.stringify(value)));
+      }
+      expectBytes(Buffer.from('}'));
+      assert.equal(offset, bytes.length, query.toString());
     }
     const app = express(); app.use('/api', createCatalogRoutes(getKnowledgeCatalog));
     const server = app.listen(0, '127.0.0.1'); await once(server, 'listening');

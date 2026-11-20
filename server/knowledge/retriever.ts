@@ -389,9 +389,11 @@ const SYMPTOM_ALIASES = [
 function symptomTokens(query: string): { tokens: Map<string, number>; groups: readonly (readonly string[])[] } {
   const text = queryWithoutIdentity(query).replace(GENERIC_QUERY_WORDS, ' ');
   const tokens = new Map(tokenize(text).map((token) => [token, 1]));
+  // “启动前” describes when to do a procedure, not a starting fault.
+  const symptomText = text.replace(/(?:启动|起动)(?:之)?前/g, ' ');
   const groups: (readonly string[])[] = [];
   for (const group of SYMPTOM_ALIASES) {
-    if (!group.some((term) => text.includes(term))) continue;
+    if (!group.some((term) => symptomText.includes(term))) continue;
     groups.push(group);
     // Expanded aliases must match the whole phrase. Their incidental bigrams
     // (for example 声音 inside 异常声音) would broaden recall to unrelated faults.

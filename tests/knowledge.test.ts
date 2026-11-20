@@ -103,7 +103,16 @@ test('source model lists select only an exact documented John Deere configuratio
     assert.equal(chunk.applicability, 'matched');
     expectEntry(retrieve(`${brand} 6E-1204(G4) 不能起动`), entryId);
   }
-  for (const model of ['6E-1204', '6E-1204(G3)', '6E-1204(G5)', '6E-1204-X(G4)', '6E-1604(G4)']) {
+  // The C2 manual documents the unsuffixed model independently of the G4 manual.
+  for (const hits of [
+    retrieve('不能起动', 100, { ...tractor, brand: '约翰迪尔', model: '6E-1204' }),
+    retrieve('John Deere 6E-1204 不能起动', 100),
+  ]) {
+    const archived = hits.filter(chunk => chunk.indexedReference);
+    assert.ok(archived.length > 0);
+    assert.ok(archived.every(chunk => chunk.sourceId === 'SRC-JD-6E-OMSU64123-C2-CN' && chunk.applicability === 'matched'));
+  }
+  for (const model of ['6E-1204(G3)', '6E-1204(G5)', '6E-1204-X(G4)', '6E-1604(G4)']) {
     assert.equal(retrieve('不能起动', 100, { ...tractor, brand: '约翰迪尔', model }).length, 0, model);
     assert.equal(retrieve(`John Deere ${model} 不能起动`, 100).length, 0, model);
   }
@@ -673,4 +682,15 @@ test('reloading the index is idempotent and the original generic retrieval remai
   const found = retrieve('发动机水温过高开锅');
   assert.ok(found.length > 0 && found.length <= 6);
   assert.ok(archived(found).every((chunk) => chunk.applicability === 'pending'));
+});
+
+test('8R 启动前的加热器操作按部件检索，起动故障另行匹配', () => {
+  const context = { ...tractor, brand: '约翰迪尔', model: '8R-2304(G4)' };
+  for (const question of ['冬季启动前，辅助加热器该如何使用？请引用原手册页码。', '起动前怎么用辅助加热器？']) {
+    const [first] = retrieve(question, 5, context);
+    assert.equal(first?.entryId, 'KB-JD-8RG4-OMTA30801-G3-CN-100');
+    assert.match(first.locator ?? '', /PDF物理第44页/);
+  }
+  const [fault] = retrieve('发动机无法启动，起动机不转', 5, context);
+  assert.match(fault.heading, /起动|启动/);
 });

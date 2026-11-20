@@ -1337,6 +1337,34 @@
       "base": "4.1.44",
       "version": "4.1.45",
       "date": "2026-11-20"
+    },
+    {
+      "id": "prestart-handbook-retrieval-20261120",
+      "kind": "fix",
+      "base": "4.1.45",
+      "version": "4.1.46",
+      "date": "2026-11-20"
+    },
+    {
+      "id": "deere-cn-operator-20261120",
+      "kind": "knowledge",
+      "base": "4.1.46",
+      "version": "4.1.47",
+      "date": "2026-11-20"
+    },
+    {
+      "id": "preview-catalog-bytes-20261120",
+      "kind": "maintenance",
+      "base": "4.1.47",
+      "version": "4.1.48",
+      "date": "2026-11-20"
+    },
+    {
+      "id": "ningbo-5e-service-six-20261120",
+      "kind": "knowledge",
+      "base": "4.1.48",
+      "version": "4.1.49",
+      "date": "2026-11-20"
     }
   ]
 }
