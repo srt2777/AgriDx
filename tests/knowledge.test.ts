@@ -674,3 +674,14 @@ test('reloading the index is idempotent and the original generic retrieval remai
   assert.ok(found.length > 0 && found.length <= 6);
   assert.ok(archived(found).every((chunk) => chunk.applicability === 'pending'));
 });
+
+test('8R 启动前的加热器操作按部件检索，起动故障另行匹配', () => {
+  const context = { ...tractor, brand: '约翰迪尔', model: '8R-2304(G4)' };
+  for (const question of ['冬季启动前，辅助加热器该如何使用？请引用原手册页码。', '起动前怎么用辅助加热器？']) {
+    const [first] = retrieve(question, 5, context);
+    assert.equal(first?.entryId, 'KB-JD-8RG4-OMTA30801-G3-CN-100');
+    assert.match(first.locator ?? '', /PDF物理第44页/);
+  }
+  const [fault] = retrieve('发动机无法启动，起动机不转', 5, context);
+  assert.match(fault.heading, /起动|启动/);
+});
