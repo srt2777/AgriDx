@@ -1414,6 +1414,13 @@
       "base": "4.1.55",
       "version": "4.1.56",
       "date": "2026-11-20"
+    },
+    {
+      "id": "lovol-dongfeng-jinma-20261120",
+      "kind": "knowledge",
+      "base": "4.1.56",
+      "version": "4.1.57",
+      "date": "2026-11-20"
     }
   ]
 }

@@ -111085,6 +111085,1870 @@
           "part_ids": []
         }
       ]
+    },
+    {
+      "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-001",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": [
+            "clutch-friction",
+            "clutch-spring",
+            "clutch-pedal"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-002",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": [
+            "clutch-release",
+            "clutch-pedal"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-003",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": [
+            "clutch-release",
+            "clutch-friction"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-004",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": [
+            "gears"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-005",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-006",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": [
+            "gears"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-007",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        },
+        {
+          "component_id": "lubrication",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-008",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-009",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-010",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-011",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-012",
+      "components": [
+        {
+          "component_id": "brakes",
+          "part_ids": [
+            "brake-friction",
+            "brake-hose"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-013",
+      "components": [
+        {
+          "component_id": "brakes",
+          "part_ids": [
+            "brake-friction",
+            "brake-pedal",
+            "brake-hose"
+          ]
+        },
+        {
+          "component_id": "chassis",
+          "part_ids": [
+            "tyre"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-014",
+      "components": [
+        {
+          "component_id": "chassis",
+          "part_ids": [
+            "tyre",
+            "wheel-rim"
+          ]
+        },
+        {
+          "component_id": "steering",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-015",
+      "components": [
+        {
+          "component_id": "chassis",
+          "part_ids": [
+            "wheel-bearing",
+            "wheel-rim"
+          ]
+        },
+        {
+          "component_id": "steering",
+          "part_ids": [
+            "steering-pins"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-016",
+      "components": [
+        {
+          "component_id": "chassis",
+          "part_ids": [
+            "front-axle"
+          ]
+        },
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-017",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        },
+        {
+          "component_id": "chassis",
+          "part_ids": [
+            "front-axle"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-018",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-019",
+      "components": [
+        {
+          "component_id": "steering",
+          "part_ids": []
+        },
+        {
+          "component_id": "hydraulics",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-020",
+      "components": [
+        {
+          "component_id": "steering",
+          "part_ids": [
+            "steering-valve",
+            "steering-cylinder"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-021",
+      "components": [
+        {
+          "component_id": "steering",
+          "part_ids": [
+            "steering-cylinder"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-022",
+      "components": [
+        {
+          "component_id": "steering",
+          "part_ids": [
+            "steering-cylinder"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-023",
+      "components": [
+        {
+          "component_id": "steering",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-024",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-025",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hydraulic-cylinder"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-026",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hydraulic-seal"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-027",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hydraulic-valve",
+            "hydraulic-cylinder",
+            "hydraulic-seal"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-028",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-029",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hydraulic-valve",
+            "hydraulic-cylinder"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-030",
+      "components": [
+        {
+          "component_id": "brakes",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-031",
+      "components": [
+        {
+          "component_id": "brakes",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-032",
+      "components": [
+        {
+          "component_id": "brakes",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-033",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "starter",
+            "battery",
+            "wiring"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-034",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "starter",
+            "battery",
+            "brush",
+            "wiring"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-035",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "starter"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-036",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "wiring"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-037",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "battery"
+          ]
+        },
+        {
+          "component_id": "cooling",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-038",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-039",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "battery"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-040",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "battery",
+            "wiring"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-041",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "wiring"
+          ]
+        },
+        {
+          "component_id": "cooling",
+          "part_ids": [
+            "temperature-sensor"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-042",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "wiring"
+          ]
+        },
+        {
+          "component_id": "lubrication",
+          "part_ids": [
+            "oil-pressure-switch"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-043",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-044",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "wiring"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-SUP-001",
+      "components": [
+        {
+          "component_id": "chassis",
+          "part_ids": [
+            "tyre"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-SUP-002",
+      "components": [
+        {
+          "component_id": "chassis",
+          "part_ids": [
+            "tyre",
+            "front-axle"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-SUP-003",
+      "components": [
+        {
+          "component_id": "chassis",
+          "part_ids": [
+            "tyre"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-SUP-004",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hydraulic-pump"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-SUP-005",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hydraulic-cylinder"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-SUP-006",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hitch-linkage"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-SUP-007",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hydraulic-valve"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-SUP-008",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-SUP-009",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "battery",
+            "wiring"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-LOVOL-TD-TL2-SM-02-EN-SUP-010",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-001",
+      "components": [
+        {
+          "component_id": "fuel",
+          "part_ids": [
+            "injector"
+          ]
+        },
+        {
+          "component_id": "engine",
+          "part_ids": []
+        },
+        {
+          "component_id": "lubrication",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-004",
+      "components": [
+        {
+          "component_id": "lubrication",
+          "part_ids": [
+            "oil-pump"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-005",
+      "components": [
+        {
+          "component_id": "lubrication",
+          "part_ids": [
+            "oil-filter"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-006",
+      "components": [
+        {
+          "component_id": "lubrication",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-007",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": [
+            "air-filter"
+          ]
+        },
+        {
+          "component_id": "fuel",
+          "part_ids": [
+            "injector"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-008",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": []
+        },
+        {
+          "component_id": "fuel",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-009",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": []
+        },
+        {
+          "component_id": "fuel",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-010",
+      "components": [
+        {
+          "component_id": "cooling",
+          "part_ids": [
+            "thermostat",
+            "coolant-pump"
+          ]
+        },
+        {
+          "component_id": "lubrication",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-011",
+      "components": [
+        {
+          "component_id": "lubrication",
+          "part_ids": []
+        },
+        {
+          "component_id": "engine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-012",
+      "components": [
+        {
+          "component_id": "lubrication",
+          "part_ids": []
+        },
+        {
+          "component_id": "cooling",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-013",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": []
+        },
+        {
+          "component_id": "fuel",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-014",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": []
+        },
+        {
+          "component_id": "fuel",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-015",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": []
+        },
+        {
+          "component_id": "fuel",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-016",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": [
+            "clutch-spring",
+            "clutch-pedal"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-017",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": [
+            "clutch-pedal",
+            "clutch-release"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-018",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": [
+            "clutch-release"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-019",
+      "components": [
+        {
+          "component_id": "brakes",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-020",
+      "components": [
+        {
+          "component_id": "brakes",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-021",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-022",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-023",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-024",
+      "components": [
+        {
+          "component_id": "chassis",
+          "part_ids": [
+            "wheel-bearing"
+          ]
+        },
+        {
+          "component_id": "steering",
+          "part_ids": [
+            "steering-pins"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-025",
+      "components": [
+        {
+          "component_id": "chassis",
+          "part_ids": [
+            "tyre"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-026",
+      "components": [
+        {
+          "component_id": "steering",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-027",
+      "components": [
+        {
+          "component_id": "steering",
+          "part_ids": []
+        },
+        {
+          "component_id": "hydraulics",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-028",
+      "components": [
+        {
+          "component_id": "steering",
+          "part_ids": [
+            "steering-valve"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-029",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hydraulic-cylinder"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-030",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hydraulic-valve"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-031",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "battery",
+            "wiring"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-032",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "battery"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-033",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "battery"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-034",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-035",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": []
+        },
+        {
+          "component_id": "cooling",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-036",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-037",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-038",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "starter",
+            "battery",
+            "wiring",
+            "brush"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-039",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "starter"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-SUP-001",
+      "components": [
+        {
+          "component_id": "lubrication",
+          "part_ids": [
+            "oil-filter"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-SUP-002",
+      "components": [
+        {
+          "component_id": "lubrication",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-SUP-003",
+      "components": [
+        {
+          "component_id": "lubrication",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-SUP-004",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        },
+        {
+          "component_id": "chassis",
+          "part_ids": [
+            "front-axle"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-SUP-005",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        },
+        {
+          "component_id": "chassis",
+          "part_ids": [
+            "front-axle"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-SUP-006",
+      "components": [
+        {
+          "component_id": "fuel",
+          "part_ids": [
+            "fuel-filter"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-SUP-007",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hydraulic-filter",
+            "hydraulic-pump"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-SUP-008",
+      "components": [
+        {
+          "component_id": "fuel",
+          "part_ids": [
+            "fuel-filter"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-SUP-009",
+      "components": [
+        {
+          "component_id": "cooling",
+          "part_ids": [
+            "radiator"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-SUP-010",
+      "components": [
+        {
+          "component_id": "steering",
+          "part_ids": []
+        },
+        {
+          "component_id": "transmission",
+          "part_ids": [
+            "clutch-pedal"
+          ]
+        },
+        {
+          "component_id": "brakes",
+          "part_ids": [
+            "brake-pedal"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-SUP-011",
+      "components": [
+        {
+          "component_id": "cooling",
+          "part_ids": [
+            "radiator"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-SUP-012",
+      "components": [
+        {
+          "component_id": "chassis",
+          "part_ids": [
+            "tyre"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-SUP-013",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": [
+            "air-filter"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-SUP-014",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "battery"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-DONGFENG-ZB25-ZB35-ZB45-EN-SUP-015",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hitch-linkage"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JINMA-HHJM-35E-OM-EN-001",
+      "components": [
+        {
+          "component_id": "fuel",
+          "part_ids": [
+            "injector"
+          ]
+        },
+        {
+          "component_id": "engine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JINMA-HHJM-35E-OM-EN-003",
+      "components": [
+        {
+          "component_id": "fuel",
+          "part_ids": [
+            "injector"
+          ]
+        },
+        {
+          "component_id": "engine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JINMA-HHJM-35E-OM-EN-004",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": [
+            "air-filter"
+          ]
+        },
+        {
+          "component_id": "fuel",
+          "part_ids": [
+            "fuel-filter",
+            "injector"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JINMA-HHJM-35E-OM-EN-005",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": [
+            "air-filter"
+          ]
+        },
+        {
+          "component_id": "fuel",
+          "part_ids": [
+            "injector"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JINMA-HHJM-35E-OM-EN-006",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": []
+        },
+        {
+          "component_id": "lubrication",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JINMA-HHJM-35E-OM-EN-007",
+      "components": [
+        {
+          "component_id": "fuel",
+          "part_ids": []
+        },
+        {
+          "component_id": "engine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JINMA-HHJM-35E-OM-EN-008",
+      "components": [
+        {
+          "component_id": "cooling",
+          "part_ids": [
+            "coolant-pump",
+            "thermostat"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JINMA-HHJM-35E-OM-EN-009",
+      "components": [
+        {
+          "component_id": "fuel",
+          "part_ids": []
+        },
+        {
+          "component_id": "engine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JINMA-HHJM-35E-OM-EN-010",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": []
+        },
+        {
+          "component_id": "fuel",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JINMA-HHJM-35E-OM-EN-011",
+      "components": [
+        {
+          "component_id": "lubrication",
+          "part_ids": [
+            "oil-pump"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JINMA-HHJM-35E-OM-EN-012",
+      "components": [
+        {
+          "component_id": "brakes",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JINMA-HHJM-35E-OM-EN-013",
+      "components": [
+        {
+          "component_id": "brakes",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JINMA-HHJM-35E-OM-EN-014",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": [
+            "clutch-friction",
+            "clutch-pedal"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JINMA-HHJM-35E-OM-EN-015",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": [
+            "clutch-pedal",
+            "clutch-release"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JINMA-HHJM-35E-OM-EN-016",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": [
+            "clutch-friction"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JINMA-HHJM-35E-OM-EN-017",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hydraulic-valve"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JINMA-HHJM-35E-OM-EN-018",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hydraulic-cylinder"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JINMA-HHJM-35E-OM-EN-019",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JINMA-HHJM-35E-OM-EN-020",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hydraulic-valve",
+            "hydraulic-cylinder"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JINMA-HHJM-35E-OM-EN-021",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JINMA-HHJM-35E-OM-EN-022",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hydraulic-valve"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JINMA-HHJM-35E-OM-EN-023",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hydraulic-cylinder"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JINMA-HHJM-35E-OM-EN-024",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hydraulic-valve"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JINMA-HHJM-35E-OM-EN-025",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "starter",
+            "battery",
+            "brush",
+            "wiring"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JINMA-HHJM-35E-OM-EN-026",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "starter",
+            "battery",
+            "brush"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JINMA-HHJM-35E-OM-EN-027",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "starter"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JINMA-HHJM-35E-OM-EN-028",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "battery",
+            "wiring"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JINMA-HHJM-35E-OM-EN-029",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": []
+        },
+        {
+          "component_id": "cooling",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JINMA-HHJM-35E-OM-EN-030",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "wiring"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JINMA-HHJM-35E-OM-EN-031",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "wiring"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JINMA-HHJM-35E-OM-EN-032",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": []
+        },
+        {
+          "component_id": "cooling",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JINMA-HHJM-35E-OM-EN-033",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JINMA-HHJM-35E-OM-EN-034",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JINMA-HHJM-35E-OM-EN-035",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "battery"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JINMA-HHJM-164Y-OM-EN-001",
+      "components": [
+        {
+          "component_id": "fuel",
+          "part_ids": []
+        },
+        {
+          "component_id": "engine",
+          "part_ids": []
+        },
+        {
+          "component_id": "electrical",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JINMA-HHJM-164Y-OM-EN-004",
+      "components": [
+        {
+          "component_id": "fuel",
+          "part_ids": []
+        },
+        {
+          "component_id": "engine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JINMA-HHJM-164Y-OM-EN-007",
+      "components": [
+        {
+          "component_id": "cooling",
+          "part_ids": []
+        },
+        {
+          "component_id": "engine",
+          "part_ids": []
+        },
+        {
+          "component_id": "fuel",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JINMA-HHJM-164Y-OM-EN-008",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JINMA-HHJM-164Y-OM-EN-009",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JINMA-HHJM-164Y-OM-EN-010",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JINMA-HHJM-164Y-OM-EN-011",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JINMA-HHJM-164Y-OM-EN-012",
+      "components": [
+        {
+          "component_id": "brakes",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JINMA-HHJM-164Y-OM-EN-013",
+      "components": [
+        {
+          "component_id": "brakes",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JINMA-HHJM-164Y-OM-EN-014",
+      "components": [
+        {
+          "component_id": "brakes",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JINMA-HHJM-164Y-OM-EN-015",
+      "components": [
+        {
+          "component_id": "steering",
+          "part_ids": []
+        },
+        {
+          "component_id": "hydraulics",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JINMA-HHJM-164Y-OM-EN-016",
+      "components": [
+        {
+          "component_id": "chassis",
+          "part_ids": []
+        },
+        {
+          "component_id": "steering",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JINMA-HHJM-164Y-OM-EN-017",
+      "components": [
+        {
+          "component_id": "chassis",
+          "part_ids": []
+        },
+        {
+          "component_id": "steering",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JINMA-HHJM-164Y-OM-EN-018",
+      "components": [
+        {
+          "component_id": "chassis",
+          "part_ids": []
+        },
+        {
+          "component_id": "steering",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JINMA-HHJM-164Y-OM-EN-019",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JINMA-HHJM-164Y-OM-EN-020",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JINMA-HHJM-164Y-OM-EN-021",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JINMA-HHJM-164Y-OM-EN-022",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JINMA-HHJM-164Y-OM-EN-023",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JINMA-HHJM-164Y-OM-EN-024",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": []
+        }
+      ]
     }
   ]
 }
