@@ -1365,6 +1365,13 @@
       "base": "4.1.48",
       "version": "4.1.49",
       "date": "2026-11-20"
+    },
+    {
+      "id": "manual-lookup-cited-answer-20261120",
+      "kind": "knowledge",
+      "base": "4.1.49",
+      "version": "4.1.50",
+      "date": "2026-11-20"
     }
   ]
 }
