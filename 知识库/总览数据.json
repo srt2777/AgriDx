@@ -4,8 +4,8 @@
   "repository_version": "4.1.52",
   "scope": "仅由现有索引派生的统计与导航，不是新增维修事实，不加入检索",
   "input_sha256": {
-    "知识库/整理后的知识库/农用拖拉机知识库/sources.json": "d20706297a2f65d62f54b21be9f817f71cd0fe67ebfb4185fda3a0458ee5013c",
-    "知识库/整理后的知识库/农用拖拉机知识库/entries.jsonl": "a4796346e098bedb8d73795bfa6dd0b5ea1176040c476f6529595df2da18bd38",
+    "知识库/整理后的知识库/农用拖拉机知识库/sources.json": "e364f37a302691493f78c669c7386a4cb1bf0e58e8c274e40f225bd79eed0899",
+    "知识库/整理后的知识库/农用拖拉机知识库/entries.jsonl": "5d299d84b1345746d307f31f2e21ddae20f20651f8e9e1783c30d53cf01a9495",
     "docs/tractor-knowledge/index.jsonl": "1eac29d4f33681de65628b95b992b248f35c62578fb2f9e45ac5b1fdda8b414f",
     "docs/tractor-knowledge/expansion-5000/index.jsonl": "f498bd5dce2b3f96730ab5d508936d5852d0173416e2636878e35aabcda3fbfc",
     "docs/tractor-knowledge/expansion-875/index.jsonl": "e722d56d222848de51fe758932a03e7bff4c24093d7c6b3d8de2509c5608d46e"
@@ -15,7 +15,7 @@
     "archived_entries": 9981,
     "learning_entries": 6875,
     "total_library_entries": 16856,
-    "knowledge_documents": 191,
+    "knowledge_documents": 192,
     "brand_labels": 29,
     "generic_chunks": 9,
     "retrieval_chunks": 16865,
@@ -3069,6 +3069,7 @@
         "知识库/整理后的知识库/农用拖拉机知识库/机型知识卡/东方红_LF1504.md",
         "知识库/整理后的知识库/农用拖拉机知识库/机型知识卡/东方红_LF1504_20261015缺口补充.md",
         "知识库/整理后的知识库/农用拖拉机知识库/机型知识卡/东方红_LF1504_20261016续补.md",
+        "知识库/整理后的知识库/农用拖拉机知识库/机型知识卡/东方红_LF1504_电气图表.md",
         "知识库/整理后的知识库/农用拖拉机知识库/机型知识卡/增补2000_YTOLF1504_20261015.md"
       ]
     },
