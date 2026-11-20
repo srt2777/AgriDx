@@ -1,7 +1,7 @@
 import type { CoordinationDecision, DiagnosticReply } from '../../shared/diagnosis';
 import type { PriorDeviceReport } from '../../shared/memory';
 import type { KnowledgeChunk } from '../knowledge/types';
-import type { RetrievalContext } from '../knowledge/scope';
+import { queryWithoutIdentity, type RetrievalContext } from '../knowledge/scope';
 import { hasIndexedReference, referenceVerification } from '../knowledge/evidence';
 import { assessSuggestedAction } from './answerGuard';
 
@@ -135,16 +135,25 @@ export function buildDiagnosticReply(input: DiagnosticReplyInput): DiagnosticRep
   // from loosely related parts. Fault reports retain the normal diagnostic path.
   const first = chunks[0];
   const question = input.currentQuery || input.query;
-  if (coordination.route === 'local' && first && exact.includes(first) && scope.model && first.locator &&
-      first.entryType === '操作/维护知识' && /怎么|如何|手册|说明书|页码|多长时间|多少分钟/.test(question) &&
+  const reviewedPoint = first && exact.includes(first) && scope.model && first.locator &&
+    first.entryType === '操作/维护知识' ? fields(first.text) : [];
+  const citation = () => [first.scopeBoundary?.split('\n').filter(Boolean).join(' '), first.sourceTitle || first.heading,
+    first.locator, first.entryId].filter(Boolean).join(' ');
+  // Only a request made up of tyre specifications and question words may show this
+  // read-only field on a restricted route. An operating or repair report cannot match.
+  const tyreSpecification = reviewedPoint.find(field => field.label === '轮胎规格');
+  const subject = scope.model ? question.toUpperCase().replaceAll(scope.model.toUpperCase(), ' ') : question;
+  const tyreQuestion = queryWithoutIdentity(subject).replace(/[\s，、。？！,?.!]/g, '');
+  const asksTyreSpecification = /胎压|轮胎(?:气压|压力)|前束/.test(tyreQuestion) &&
+    /^(?:请问|请|问|手册|标准|原配|前轮|后轮|前后轮|车轮|轮胎|胎压|前束|压力|气压|前后|运输|田间|作业|工况|时|和|与|的|分别|应该|应|是|为|多少|数值|规定|值)+$/.test(tyreQuestion);
+  if (reviewedPoint.length && coordination.route === 'local' && /怎么|如何|手册|说明书|页码|多长时间|多少|何时/.test(question) &&
       !/故障|失灵|失效|报警|异常|过热|不亮|无效|不起动|无法|不工作|损坏|冒烟|漏电/.test(question)) {
-    const point = fields(first.text).find(field => field.label === '手册要点');
+    const point = reviewedPoint.find(field => field.label === '手册要点') ?? (asksTyreSpecification ? tyreSpecification : undefined);
     const title = first.heading.split('｜').at(-1) ?? '';
     const namedTopic = [...question.matchAll(/(?=([\p{Script=Han}]{3}))/gu)].some(match => title.includes(match[1]));
     if (point && namedTopic && !assessSuggestedAction(point.text).restricted) {
       reply.understanding = plain(point.text);
-      reply.sourceNote = [first.scopeBoundary?.split('\n').filter(Boolean).join(' '), first.sourceTitle || first.heading,
-        first.locator, first.entryId].filter(Boolean).join(' ');
+      reply.sourceNote = citation();
       return reply;
     }
   }
@@ -179,6 +188,10 @@ export function buildDiagnosticReply(input: DiagnosticReplyInput): DiagnosticRep
       : /水温|冷却|热车|水箱|过热/.test(query) ? '高温或冷却异常需要先排除烫伤与继续运行的风险'
       : /PTO|动力输出|传动轴/i.test(query) ? '动力输出或传动部件异常有卷入和意外运动风险' : '当前情况还涉及未排除的操作风险';
     reply.understanding = `${system}。先停止危险作业，按本机安全规程安全停机；现在不安排试车、拆检或调压。`;
+    if (asksTyreSpecification && tyreSpecification && !assessSuggestedAction(tyreSpecification.text).restricted) {
+      reply.understanding = plain(tyreSpecification.text) + '\n' + reply.understanding;
+      reply.sourceNote = citation();
+    }
     reply.suggestions.push({ text: '保持与运动、高温和带压部件的安全距离，不要绕过安全联锁；请具备相应资质的维修人员现场核对。', kind: 'professional', evidenceIds: [], priority: 1 });
   } else {
     for (const chunk of exact) {
