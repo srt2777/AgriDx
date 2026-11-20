@@ -1,0 +1,46 @@
+{
+  "head": "a83ad980b20dd9fd1aa16bee967a1a337d5f2374",
+  "baseline": "a127ae5c9bcdd00b6ae45c508d48010d60fc41e7",
+  "archive_index": "知识库/整理后的知识库/农用拖拉机知识库/entries.jsonl",
+  "archived_total": 9909,
+  "by_type": {
+    "维护/故障知识": 4144,
+    "操作/维护知识": 4067,
+    "安全操作": 950,
+    "资料索引": 530,
+    "机型资料": 115,
+    "系统安装/调试": 52,
+    "系统适用边界": 32,
+    "资料核验": 11,
+    "资料缺口": 8
+  },
+  "baseline_total": 6361,
+  "new_ids": 3556,
+  "new_ids_by_type": {
+    "维护/故障知识": 2036,
+    "操作/维护知识": 1197,
+    "安全操作": 184,
+    "机型资料": 110,
+    "资料索引": 17,
+    "系统适用边界": 12
+  },
+  "removed_baseline_ids": [
+    "KB-WZ-TSME-0003",
+    "KB-WZ-TSME-0005",
+    "KB-WZ-TSME-0006",
+    "KB-WZ-TSME-0010",
+    "KB-WZ-TSME-0011",
+    "KB-WZ-TSME-0012",
+    "KB-WZ-TSME-0015",
+    "KB-WZ-TSME-0016"
+  ],
+  "net_archive_growth": 3548,
+  "review_queues": {
+    "scoped": 404,
+    "downloaded": 1113,
+    "shared_ids_between_queues": 0,
+    "unique_ids_outside_main": 1517,
+    "scope": "仅按编号比对。技术内容仍可能重复，候选不计入维修新增或发布门槛。"
+  },
+  "production_release_target": 500000
+}
