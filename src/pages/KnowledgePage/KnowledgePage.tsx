@@ -10,6 +10,7 @@ import { useLang } from '@/hooks/useLang';
 import { useUiVersion } from '@/hooks/useUiVersion';
 import { useKnowledgeCatalog } from '@/hooks/useKnowledgeCatalog';
 import type { CatalogEntry } from '@shared/knowledge-catalog';
+import { findOverheatEvidence, OVERHEAT_EVIDENCE, OVERHEAT_MODELS } from '@shared/cognitive-twin';
 import { CATALOG_FILTER_KEYS } from '@shared/knowledge-catalog';
 import { LiquidGlass } from '@/components/ui/liquid-glass';
 import { lazy, Suspense } from 'react';
@@ -29,6 +30,8 @@ export default function KnowledgePage() {
   const version = useUiVersion();
   const { t, format, separator } = useUiCopy(lang);
   const [params, setParams] = useSearchParams();
+  const overheatTopic = params.get('twin') === 'overheat';
+  const requestedEvidence = overheatTopic ? findOverheatEvidence(params.get('q') ?? '') : undefined;
   const literatureView = params.get('view') === 'literature';
   const graphView = params.get('view') === 'graph';
   const machineView = !literatureView && !graphView && (params.get('view') === 'machine' || ['brand', 'model', 'component', 'part', 'symptom', 'configuration', 'driveConfiguration', 'emissionStage'].some(key => params.has(key)));
@@ -99,11 +102,25 @@ export default function KnowledgePage() {
           onClick={() => setParams(id === 'machine' || id === 'graph' || id === 'literature' ? { view: id } : { collection: id })}>{label}</button>)}
       </nav>
 
+      {!graphView && !literatureView && !machineView && <details className="evidence-entry" open={(overheatTopic && !requestedEvidence) || undefined}>
+        <summary><BookOpen size={20} /><div>
+          <h2>{t('认知数字孪生 · 发动机过热', 'Cognitive digital twin · Engine overheating')}</h2>
+          <span>{OVERHEAT_MODELS.join(' / ')}{separator}{t(`${OVERHEAT_EVIDENCE.length} 条手册候选原因`, `${OVERHEAT_EVIDENCE.length} candidate causes from the manual`)}</span>
+        </div><ChevronRight size={18} className="evidence-toggle" /></summary>
+        <div className="evidence-entry-body">
+          <ul>{OVERHEAT_EVIDENCE.map(entry => <li key={entry.id}>
+            <Link className="hero-text-link" to={`/knowledge?${new URLSearchParams({ collection: 'archive', q: entry.id, twin: 'overheat' })}`}>{format(entry.title)}</Link>
+            {entry.optional && <span>{separator}{t('需 Visctronic 风扇', 'Requires a Visctronic fan')}</span>}
+          </li>)}</ul>
+          <Link className="hero-text-link" to="/cognitive-twin">{t('打开认知孪生工作台', 'Open the cognitive twin workbench')}<ChevronRight size={15} /></Link>
+        </div>
+      </details>}
+
       {literatureView && <ErrorBoundary fallback={<p role="alert">文献检索暂时不可用，请刷新重试。</p>}><Suspense fallback={<p role="status">正在加载文献检索…</p>}><LiteratureBrowser /></Suspense></ErrorBoundary>}
 
       {graphView && !loading && !failed && catalog && <KnowledgeGraph catalog={catalog} lang={lang} />}
 
-      {!loading && !failed && !graphView && !literatureView && !machineView && catalog?.library && <KnowledgeLibraryBrowser library={catalog.library} organization={catalog.organization}
+      {!loading && !failed && !graphView && !literatureView && !machineView && catalog?.library && <KnowledgeLibraryBrowser library={catalog.library} organization={catalog.organization} expandedEntryId={requestedEvidence?.id}
         filters={{ kind: params.get('kind') ?? (params.get('collection') === 'archive' ? 'archive' : undefined), topic: params.get('topic') ?? undefined, entryType: params.get('entryType') ?? undefined }} lang={lang} onChange={values => {
         const next = new URLSearchParams(params);
         next.delete('page');

@@ -1,5 +1,10 @@
 import evidence from './overheat-evidence.json';
+export const OVERHEAT_MODELS: readonly string[] = ['T1254B', 'T1404-B'];
 export const OVERHEAT_EVIDENCE = evidence;
+
+export function findOverheatEvidence(entryId: string, sourceId?: string) {
+  return evidence.find(entry => entry.id === entryId && (sourceId === undefined || entry.sourceId === sourceId));
+}
 export type TwinSource = 'simulated' | 'user-reported';
 export type Finding = 'supported' | 'conflicting' | 'unknown';
 export interface TwinProfile { equipmentId: string; model: string; configurationChecked: boolean; optionalFan: 'unknown' | 'present' | 'absent' }
@@ -17,7 +22,7 @@ export function validateCase(value: TwinCase): void {
   if (!value || !validId(value.id) || !['simulated', 'user-reported'].includes(value.source) || !date(value.createdAt) ||
     !Number.isSafeInteger(value.revision) || value.revision < 0 || !Array.isArray(value.events) || value.events.length > 500) throw Error('案例格式无效');
   const p = value.profile;
-  if (!p || !text(p.equipmentId, 80) || !['未知', 'T1254B', 'T1404-B'].includes(p.model) || typeof p.configurationChecked !== 'boolean' || !['unknown','present','absent'].includes(p.optionalFan)) throw Error('设备档案无效');
+  if (!p || !text(p.equipmentId, 80) || (p.model !== '未知' && !OVERHEAT_MODELS.includes(p.model)) || typeof p.configurationChecked !== 'boolean' || !['unknown','present','absent'].includes(p.optionalFan)) throw Error('设备档案无效');
   if (value.revision !== value.events.length) throw Error('案例版本不一致');
   const ids = new Set<string>();
   for (const event of value.events) {
@@ -55,7 +60,7 @@ export function appendEvent(current: TwinCase, event: TwinEvent, expectedRevisio
 }
 export function analyzeTwin(value: TwinCase, now = Date.now()) {
   validateCase(value);
-  const applicable = ['T1254B','T1404-B'].includes(value.profile.model) && value.profile.configurationChecked;
+  const applicable = OVERHEAT_MODELS.includes(value.profile.model) && value.profile.configurationChecked;
   const observations = value.events.filter(e => e.kind === 'observation');
   const latest = observations.at(-1);
   const observationIndex = latest ? value.events.indexOf(latest) : -1;
