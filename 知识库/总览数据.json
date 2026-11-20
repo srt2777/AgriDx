@@ -1,24 +1,24 @@
 {
   "schema_version": 1,
   "snapshot_date_shanghai": "2026-11-20",
-  "repository_version": "4.1.51",
+  "repository_version": "4.1.52",
   "scope": "仅由现有索引派生的统计与导航，不是新增维修事实，不加入检索",
   "input_sha256": {
     "知识库/整理后的知识库/农用拖拉机知识库/sources.json": "e364f37a302691493f78c669c7386a4cb1bf0e58e8c274e40f225bd79eed0899",
-    "知识库/整理后的知识库/农用拖拉机知识库/entries.jsonl": "b6a7485fdea1a206d9ab2bd5c55d659a4c0951ac4a57d3ccdea79744f136409d",
+    "知识库/整理后的知识库/农用拖拉机知识库/entries.jsonl": "5d299d84b1345746d307f31f2e21ddae20f20651f8e9e1783c30d53cf01a9495",
     "docs/tractor-knowledge/index.jsonl": "1eac29d4f33681de65628b95b992b248f35c62578fb2f9e45ac5b1fdda8b414f",
     "docs/tractor-knowledge/expansion-5000/index.jsonl": "f498bd5dce2b3f96730ab5d508936d5852d0173416e2636878e35aabcda3fbfc",
     "docs/tractor-knowledge/expansion-875/index.jsonl": "e722d56d222848de51fe758932a03e7bff4c24093d7c6b3d8de2509c5608d46e"
   },
   "totals": {
     "sources": 150,
-    "archived_entries": 9965,
+    "archived_entries": 9981,
     "learning_entries": 6875,
-    "total_library_entries": 16840,
-    "knowledge_documents": 191,
+    "total_library_entries": 16856,
+    "knowledge_documents": 192,
     "brand_labels": 29,
     "generic_chunks": 9,
-    "retrieval_chunks": 16849,
+    "retrieval_chunks": 16865,
     "information_or_scope_entries": 696
   },
   "brands": [
@@ -30,7 +30,7 @@
     {
       "label": "东方红",
       "sources": 36,
-      "entries": 1312
+      "entries": 1328
     },
     {
       "label": "ISEKI",
@@ -170,7 +170,7 @@
   ],
   "entry_types": {
     "安全操作": 950,
-    "操作/维护知识": 4089,
+    "操作/维护知识": 4105,
     "维护/故障知识": 4178,
     "机型资料": 115,
     "资料缺口": 8,
@@ -189,7 +189,7 @@
     "未分类资料": 31
   },
   "entries_by_source_purpose": {
-    "整机／维保PDF": 8764,
+    "整机／维保PDF": 8780,
     "维护网页": 592,
     "报道背景": 2,
     "交机培训PDF": 262,
@@ -207,7 +207,7 @@
   "entries_by_storage": {
     "仓库PDF原件": 2956,
     "仓库网页快照": 11,
-    "PDF链接＋来源记录": 6361,
+    "PDF链接＋来源记录": 6377,
     "网页链接＋来源记录": 583,
     "其他存放方式": 54
   },
@@ -270,7 +270,8 @@
     "已核对封面、原厂章节和印刷故障表": 12,
     "已核对原厂章节、维修步骤和PDF印刷页": 11,
     "证据页文本及图像已核验。仅限本条所引页与原册机型。": 6,
-    "引用选页已核对。手册原件、技术正文、印刷页及整机序列号范围均已对照。": 56
+    "引用选页已核对。手册原件、技术正文、印刷页及整机序列号范围均已对照。": 56,
+    "引用选页已核对。逐行比对原手册电气图表与正文。": 16
   },
   "research": {
     "reports": 3,
@@ -2857,7 +2858,7 @@
       "storage_group": "PDF链接＋来源记录",
       "source_path": "知识库/原始农机说明书/东方红/LF1504/来源记录.md",
       "source_url": "https://www.nongjitong.com/product/yto_lf1504_tractor.html",
-      "entry_count": 188,
+      "entry_count": 204,
       "entry_ids": [
         "KB-YTO-LF1504-001",
         "KB-YTO-LF1504-002",
@@ -3046,12 +3047,29 @@
         "KB-YTO-LF1504-040",
         "KB-YTO-LF1504-041",
         "KB-YTO-LF1504-042",
-        "KB-YTO-LF1504-043"
+        "KB-YTO-LF1504-043",
+        "KB-YTO-LF1504-ELEC-001",
+        "KB-YTO-LF1504-ELEC-002",
+        "KB-YTO-LF1504-ELEC-003",
+        "KB-YTO-LF1504-ELEC-004",
+        "KB-YTO-LF1504-ELEC-005",
+        "KB-YTO-LF1504-ELEC-006",
+        "KB-YTO-LF1504-ELEC-007",
+        "KB-YTO-LF1504-ELEC-008",
+        "KB-YTO-LF1504-ELEC-009",
+        "KB-YTO-LF1504-ELEC-010",
+        "KB-YTO-LF1504-ELEC-011",
+        "KB-YTO-LF1504-ELEC-012",
+        "KB-YTO-LF1504-ELEC-013",
+        "KB-YTO-LF1504-ELEC-014",
+        "KB-YTO-LF1504-ELEC-015",
+        "KB-YTO-LF1504-ELEC-016"
       ],
       "knowledge_paths": [
         "知识库/整理后的知识库/农用拖拉机知识库/机型知识卡/东方红_LF1504.md",
         "知识库/整理后的知识库/农用拖拉机知识库/机型知识卡/东方红_LF1504_20261015缺口补充.md",
         "知识库/整理后的知识库/农用拖拉机知识库/机型知识卡/东方红_LF1504_20261016续补.md",
+        "知识库/整理后的知识库/农用拖拉机知识库/机型知识卡/东方红_LF1504_电气图表.md",
         "知识库/整理后的知识库/农用拖拉机知识库/机型知识卡/增补2000_YTOLF1504_20261015.md"
       ]
     },
