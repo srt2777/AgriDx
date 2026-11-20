@@ -347,6 +347,21 @@ test('accepts supported model aliases in context and in a recognizable query', (
   expectEntry(retrieve('雷沃 国三 发动机电气接头与传感器'), 'LV-NR3-001');
 });
 
+test('biodiesel blend labels preserve the manual scope after loading Kubota B-series models', () => {
+  const title = '本册生物柴油允许范围为B5';
+  assert.equal(resolveScope(title, workmaster).identityConflict, false);
+  expectEntry(retrieve(title, 20, workmaster), 'KB-NH-WM25-20261013-029');
+  assert.deepEqual(resolveScope('久保田 B2601 可用 B20 生物柴油吗？', tractor).models, ['b2601']);
+  assert.deepEqual(resolveScope('B6至B20生物柴油的保养周期', tractor).models, []);
+  assert.deepEqual(resolveScope('第一路液压输出A1、B1，如何接油管？', tractor).models, []);
+  assert.deepEqual(resolveScope('久保田 B5 拖拉机冷车难起动', tractor).models, ['b5']);
+  // Handbook title pattern: the grades sit after a topic phrase and a colon
+  // (KB-JD-8RG4-OMTA30801-G3-CN-312); without the topic rule the B-series
+  // family reads B20/B100 as models and the 8R context conflicts.
+  assert.deepEqual(resolveScope('生物柴油使用要求与限制：B20与B100功率经济性影响', tractor).models, []);
+  assert.equal(resolveScope('生物柴油使用要求与限制：B20与B100功率经济性影响', { ...tractor, brand: '约翰迪尔', model: '8R-2304(G4)' }).identityConflict, false);
+});
+
 test('does not apply WORKMASTER25 entries to WORKMASTER25S or an unsupported model', () => {
   for (const model of ['WORKMASTER25S', 'WORKMASTER 25S', 'WORKMASTER35']) {
     assert.equal(archived(retrieve(startQuery, 100, { ...workmaster, model })).length, 0, model);

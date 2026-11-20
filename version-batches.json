@@ -1325,10 +1325,24 @@
       "date": "2026-11-16"
     },
     {
-      "id": "twin-knowledge-20261120",
-      "kind": "feature",
+      "id": "kb300k-pr302-20261116-rebase",
+      "kind": "knowledge",
       "base": "4.1.43",
       "version": "4.1.44",
+      "date": "2026-11-17"
+    },
+    {
+      "id": "domestic-field-cases-20261120",
+      "kind": "knowledge",
+      "base": "4.1.44",
+      "version": "4.1.45",
+      "date": "2026-11-20"
+    },
+    {
+      "id": "twin-knowledge-20261120",
+      "kind": "feature",
+      "base": "4.1.45",
+      "version": "4.1.46",
       "date": "2026-11-20"
     }
   ]
