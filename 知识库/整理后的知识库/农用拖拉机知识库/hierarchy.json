@@ -42,6 +42,14 @@
             "驻车清洁",
             "再生"
           ]
+        },
+        {
+          "id": "flywheel-end-seal",
+          "name": "飞轮端油封",
+          "evidence_terms": [
+            "飞轮端油封",
+            "飞轮末端油封"
+          ]
         }
       ]
     },
@@ -274,6 +282,29 @@
             "燃油传感器",
             "油量传感器"
           ]
+        },
+        {
+          "id": "relay",
+          "name": "继电器",
+          "evidence_terms": [
+            "继电器"
+          ]
+        },
+        {
+          "id": "diode",
+          "name": "二极管",
+          "evidence_terms": [
+            "二极管"
+          ]
+        },
+        {
+          "id": "alternator",
+          "name": "交流发电机",
+          "evidence_terms": [
+            "交流发电机",
+            "发电机故障",
+            "发电机本体"
+          ]
         }
       ]
     },
@@ -338,6 +369,28 @@
           "name": "静液压传动油滤芯",
           "evidence_terms": [
             "静液压传动油滤芯"
+          ]
+        },
+        {
+          "id": "gearbox-oil-filter",
+          "name": "变速箱油滤清器",
+          "evidence_terms": [
+            "变速箱油滤清器"
+          ]
+        },
+        {
+          "id": "shift-fork",
+          "name": "换档拨叉",
+          "evidence_terms": [
+            "换档拨叉",
+            "拨叉机构"
+          ]
+        },
+        {
+          "id": "gearbox-bearing",
+          "name": "变速箱轴承",
+          "evidence_terms": [
+            "滚柱轴承"
           ]
         }
       ]
@@ -455,6 +508,22 @@
           "evidence_terms": [
             "冷却器"
           ]
+        },
+        {
+          "id": "hitch-linkage",
+          "name": "悬挂拉杆与防摆链",
+          "evidence_terms": [
+            "上拉杆",
+            "斜拉杆",
+            "防摆链"
+          ]
+        },
+        {
+          "id": "rockshaft-lever-friction",
+          "name": "摇臂轴控制杆摩擦机构",
+          "evidence_terms": [
+            "控制杆摩擦力"
+          ]
         }
       ]
     },
@@ -542,6 +611,20 @@
             "制动管",
             "管路进气",
             "管路有空气"
+          ]
+        },
+        {
+          "id": "brake-return-spring",
+          "name": "制动回位弹簧",
+          "evidence_terms": [
+            "回位弹簧"
+          ]
+        },
+        {
+          "id": "brake-piston-seal",
+          "name": "制动活塞密封圈",
+          "evidence_terms": [
+            "制动活塞密封圈"
           ]
         }
       ]
@@ -108186,6 +108269,313 @@
           "component_id": "electrical",
           "part_ids": [
             "wiring"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-OMSU37872-A6-FT-001",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": [
+            "gearbox-oil-filter"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-OMSU37872-A6-FT-002",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": [
+            "shift-fork"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-OMSU37872-A6-FT-003",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": [
+            "clutch-friction",
+            "clutch-spring",
+            "clutch-pedal"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-OMSU37872-A6-FT-004",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        },
+        {
+          "component_id": "engine",
+          "part_ids": [
+            "flywheel-end-seal"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-OMSU37872-A6-FT-005",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": [
+            "gearbox-bearing"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-OMSU37872-A6-FT-006",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hydraulic-filter",
+            "hydraulic-pump",
+            "hydraulic-hose"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-OMSU37872-A6-FT-007",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hydraulic-cooler",
+            "hitch-control"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-OMSU37872-A6-FT-008",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hitch-control"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-OMSU37872-A6-FT-009",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hydraulic-hose"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-OMSU37872-A6-FT-010",
+      "components": [
+        {
+          "component_id": "brakes",
+          "part_ids": [
+            "brake-friction"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-OMSU37872-A6-FT-011",
+      "components": [
+        {
+          "component_id": "brakes",
+          "part_ids": [
+            "brake-pedal"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-OMSU37872-A6-FT-012",
+      "components": [
+        {
+          "component_id": "brakes",
+          "part_ids": [
+            "brake-friction",
+            "brake-return-spring"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-OMSU37872-A6-FT-013",
+      "components": [
+        {
+          "component_id": "brakes",
+          "part_ids": [
+            "brake-pedal",
+            "brake-piston-seal"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-OMSU37872-A6-FT-014",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hitch-linkage"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-OMSU37872-A6-FT-015",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hitch-control"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-OMSU37872-A6-FT-016",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hydraulic-filter"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-OMSU37872-A6-FT-017",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hitch-control",
+            "hitch-linkage"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-OMSU37872-A6-FT-018",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hitch-control",
+            "hitch-linkage"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-OMSU37872-A6-FT-019",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "rockshaft-lever-friction"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-OMSU37872-A6-FT-020",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "instrument-panel",
+            "battery",
+            "alternator"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-OMSU37872-A6-FT-021",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "starter",
+            "battery",
+            "fuse"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-OMSU37872-A6-FT-022",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "starter",
+            "battery",
+            "wiring"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-OMSU37872-A6-FT-023",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "fuse",
+            "battery"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-OMSU37872-A6-FT-024",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "relay",
+            "diode"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-OMSU37872-A6-FT-025",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "alternator"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-OMSU37872-A6-FT-026",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "alternator"
           ]
         }
       ]

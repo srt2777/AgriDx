@@ -2,15 +2,18 @@ import assert from 'node:assert/strict';
 import { execFileSync, spawn } from 'node:child_process';
 import { createReadStream, readFileSync } from 'node:fs';
 import { once } from 'node:events';
+import { createHash } from 'node:crypto';
 import { createInterface } from 'node:readline';
 import { buildContextRegistry } from '../agent/context-tools';
 import { ToolExecutor } from '../agent/tools';
+import { referenceVerification } from '../server/knowledge/evidence';
 
 const indexPath = '知识库/整理后的知识库/农用拖拉机知识库/entries.jsonl';
 
 type Entry = {
   entry_id: string;
   source_id: string;
+  entry_type: string;
   brand: string;
   model: string;
   models?: string[];
@@ -22,9 +25,11 @@ const baseline = process.argv[2] ?? 'origin/main';
 const baseCommit = execFileSync('git', ['rev-parse', '--verify', '--end-of-options', `${baseline}^{commit}`], { encoding: 'utf8' }).trim();
 const original = spawn('git', ['show', `${baseCommit}:${indexPath}`], { stdio: ['ignore', 'pipe', 'inherit'] });
 const gitClose = once(original, 'close');
-const originalIds = new Set<string>();
+// Store a fingerprint per row so unchanged records need no Agent query.
+const fingerprint = (line: string) => createHash('sha256').update(line).digest('base64');
+const baselineRows = new Map<string, string>();
 for await (const line of createInterface({ input: original.stdout, crlfDelay: Infinity })) {
-  if (line.trim()) originalIds.add((JSON.parse(line) as Entry).entry_id);
+  if (line.trim()) baselineRows.set((JSON.parse(line) as Entry).entry_id, fingerprint(line));
 }
 assert.equal((await gitClose)[0], 0, '无法读取基线知识索引');
 
@@ -41,12 +46,15 @@ async function search(query: string, brand: string, model: string) {
 }
 
 let checkedEntries = 0;
+let modifiedEntries = 0;
 let matchedModels = 0;
 let rejectedModels = 0;
 for await (const line of createInterface({ input: createReadStream(indexPath), crlfDelay: Infinity })) {
   if (!line.trim()) continue;
   const entry = JSON.parse(line) as Entry;
-  if (originalIds.has(entry.entry_id)) continue;
+  const previous = baselineRows.get(entry.entry_id);
+  if (previous === fingerprint(line)) continue;
+  if (previous !== undefined) modifiedEntries++;
   const { entry_id: id, source_id: sourceId, brand, title, locator } = entry;
   const models = entry.models ?? [entry.model];
   assert.ok(models.length, id);
@@ -55,6 +63,10 @@ for await (const line of createInterface({ input: createReadStream(indexPath), c
   const detail = JSON.parse(detailResult.content);
   assert.equal(detail.entryId, id);
   assert.equal(detail.sourceId, sourceId);
+  if (previous === undefined && ['维护/故障知识', '操作/维护知识'].includes(entry.entry_type)) {
+    assert.equal(referenceVerification(detail.status), 'verified', id + ' 的原页复核状态未被 Agent 识别');
+  }
+  if (entry.models) assert.deepEqual(new Set(detail.models), new Set(entry.models), id);
   assert.ok(detail.content.includes(locator), id);
   const minimumSerial = serialMinimums.get(sourceId);
   const prefix = minimumSerial ? `整机序列号 ${minimumSerial}，` : '';
@@ -79,5 +91,5 @@ for await (const line of createInterface({ input: createReadStream(indexPath), c
   }
   checkedEntries++;
 }
-assert.ok(checkedEntries, '当前工作树相对基线没有新条目');
-console.log(JSON.stringify({ baseCommit, checkedEntries, matchedModels, rejectedModels }, null, 2));
+assert.ok(checkedEntries, '当前工作树相对基线没有新增或变更的索引行');
+console.log(JSON.stringify({ baseCommit, checkedEntries, addedEntries: checkedEntries - modifiedEntries, modifiedEntries, matchedModels, rejectedModels }, null, 2));
