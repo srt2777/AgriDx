@@ -1400,6 +1400,13 @@
       "base": "4.1.53",
       "version": "4.1.54",
       "date": "2026-11-20"
+    },
+    {
+      "id": "dongfeng-six-models-20261120",
+      "kind": "knowledge",
+      "base": "4.1.54",
+      "version": "4.1.55",
+      "date": "2026-11-20"
     }
   ]
 }

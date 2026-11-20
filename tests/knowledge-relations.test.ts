@@ -1,3 +1,4 @@
+import { relationJsonChunks } from '../shared/relation-json';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
@@ -20,11 +21,15 @@ test('heuristic membership and shared components remain bounded and deterministi
   assert.ok(!data.nodes.some(id=>id.includes('千寻位置')));
   assert.ok(data.edges.filter(e=>e.type==='membership' && e.evidence.childCount===0).every(e=>e.strength===0));
   assert.deepEqual(buildKnowledgeRelations(getKnowledgeCatalog()),data);
-  const bytes=Buffer.byteLength(JSON.stringify(data)); console.log(`[relations] ${data.nodes.length} nodes, ${data.edges.length} edges, ${bytes} bytes uncompressed`);
+  let bytes = 0; for (const chunk of relationJsonChunks(data)) bytes += Buffer.byteLength(chunk); console.log(`[relations] ${data.nodes.length} nodes, ${data.edges.length} edges, ${bytes} bytes uncompressed`);
   assert.equal(parseKnowledgeRelations(data,new Set(data.nodes)),data);
   const page=pageKnowledgeRelations(data,new URLSearchParams('offset=100&limit=200'));
   assert.deepEqual(page.edges,data.edges.slice(100,300)); assert.equal(page.page?.total,data.edges.length);
   assert.equal(parseKnowledgeRelations(page,new Set(data.nodes)),page);
+  const fullWindow = pageKnowledgeRelations(data, new URLSearchParams('offset=42&limit=600'));
+  assert.equal([...relationJsonChunks(fullWindow)].join(''), JSON.stringify(fullWindow));
+  const emptyWindow = pageKnowledgeRelations(data, new URLSearchParams('offset='+data.edges.length));
+  assert.equal([...relationJsonChunks(emptyWindow)].join(''), JSON.stringify(emptyWindow));
   assert.throws(()=>pageKnowledgeRelations(data,new URLSearchParams('limit=10001')),/分页/);
 });
 test('client rejects invalid nodes, duplicates and unsafe strength', () => {
