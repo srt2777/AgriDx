@@ -110,3 +110,19 @@ test('general sources with identical review status are grouped without losing ID
   assert.match(reply.sourceNote, /通识（无手册页码）/);
   assert.match(reply.sourceNote, /不能作为本机参数或维修操作依据/);
 });
+
+test('verified handbook lookups cite the first matching topic and preserve scope and fault routing', () => {
+  const point = '光域上边界应低于灯中心高度标线。';
+  const chunk: KnowledgeChunk = { ...manual, entryType: '操作/维护知识', heading: 'TEST-001｜前大灯近光高度',
+    locator: '印刷110-4', sourceTitle: '合成测试手册', text: '- 手册要点：' + point };
+  const input = { query: '怎么检查前大灯高度？', chunks: [chunk, manual], scope: { model: 'M' }, coordination: route };
+  const answer = buildDiagnosticReply(input);
+  assert.equal(answer.understanding, point);
+  assert.match(answer.sourceNote, /合成测试机型.*合成测试手册.*110-4.*TEST-001/);
+  assert.deepEqual(answer.suggestions, []);
+  for (const query of ['前大灯不亮怎么修？', '如何拆装变速箱？']) {
+    assert.notEqual(buildDiagnosticReply({ ...input, query }).understanding, point);
+  }
+  assert.notEqual(buildDiagnosticReply({ ...input, chunks: [{ ...chunk, applicability: 'pending' }] }).understanding, point);
+  assert.notEqual(buildDiagnosticReply({ ...input, coordination: { ...route, route: 'safe' } }).understanding, point);
+});

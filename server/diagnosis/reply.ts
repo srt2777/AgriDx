@@ -130,6 +130,24 @@ export function buildDiagnosticReply(input: DiagnosticReplyInput): DiagnosticRep
     reply.supportLevel = reference.length ? 'reference_only' : 'none';
     return reply;
   }
+  // A reviewed handbook answer can carry its own conditions and page. Keep a
+  // procedural lookup on the first matching source instead of combining advice
+  // from loosely related parts. Fault reports retain the normal diagnostic path.
+  const first = chunks[0];
+  const question = input.currentQuery || input.query;
+  if (coordination.route === 'local' && first && exact.includes(first) && scope.model && first.locator &&
+      first.entryType === '操作/维护知识' && /怎么|如何|手册|说明书|页码/.test(question) &&
+      !/故障|失灵|失效|报警|异常|过热|不亮|无效|不起动|无法|不工作|损坏|冒烟|漏电/.test(question)) {
+    const point = fields(first.text).find(field => field.label === '手册要点');
+    const title = first.heading.split('｜').at(-1) ?? '';
+    const namedTopic = [...question.matchAll(/(?=([\p{Script=Han}]{3}))/gu)].some(match => title.includes(match[1]));
+    if (point && namedTopic && !assessSuggestedAction(point.text).restricted) {
+      reply.understanding = plain(point.text);
+      reply.sourceNote = [first.scopeBoundary?.split('\n')[0], first.sourceTitle || first.heading,
+        first.locator, first.entryId].filter(Boolean).join('。');
+      return reply;
+    }
+  }
   const terms = chunks.filter(chunk => chunk.learningKind === 'terminology');
   if (terms.length && !scope.brand && !scope.model && coordination.route !== 'safe' &&
     !/故障|异常|不转|不起|不着|困难|过高|过热|无力|泄漏|漏油|异响|冒烟|怎么办|排查|检查|维修|拆卸|调压/.test(query)) {
