@@ -9,16 +9,16 @@ const NON_DIAGNOSTIC = new Set(['系统适用边界', '资料索引', '资料核
 const ORDER = ['symptom', 'cause', 'check', 'action', 'retest'];
 
 test('角色旁路文件与人工核对队列恰好覆盖既有快照中可标注条目且互不重叠', () => {
-  // The previously audited 6,125-entry snapshot remains byte-locked.
-  const entries = lines('entries.jsonl').slice(0, 6125);
+  // The original 6,125-entry snapshot excludes eight retired notices.
+  const entries = lines('entries.jsonl').slice(0, 6125 - 8);
   const snapshotIds = new Set(entries.map((e) => e.entry_id));
   // Later batches append their own sidecar rows; the snapshot partition counts only its own rows.
   const tags = lines('entry-roles.jsonl').filter((t) => snapshotIds.has(t.entry_id));
   const queue = lines('role-review-queue.jsonl').filter((q) => snapshotIds.has(q.entry_id));
   const taggable = new Set(entries.filter((e) => !NON_DIAGNOSTIC.has(e.entry_type)).map((e) => e.entry_id));
-  assert.equal(taggable.size, 5568);
+  assert.equal(taggable.size, 5568 - 8);
   assert.equal(tags.length, 2222);
-  assert.equal(queue.length, 3346);
+  assert.equal(queue.length, 3346 - 8);
   const tagged = new Set(tags.map((t) => t.entry_id));
   const queued = new Set(queue.map((q) => q.entry_id));
   assert.equal(tagged.size, tags.length);

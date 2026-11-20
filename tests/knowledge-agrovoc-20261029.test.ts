@@ -41,11 +41,19 @@ test('875条FAO术语逐条对应官方来源子集，累计目录包含原13000
     '009': ['差速锁压力过高或过低', '1404/1504/1604/1804差速锁'],
     '038': ['动力输出压力不显示', '1404/1504/1604/1804动力输（5）'],
   };
-  for (const [file, expected] of Object.entries(baseline.baseline_files)) {
+  // Derived from 8ebaff0 by removing only Wuzheng records 0003, 0005, 0006,
+  // 0010, 0011, 0012, 0015 and 0016. Every remaining byte is still compared.
+  const afterNoticeRemoval: Record<string, string> = {
+    '32e8e677d92efc7520ab3030564c398a2e2df36c18694be1067ee9daea6ec81a': '2c2350501a578c02336350291f18fe59caec9f16b7f190e0b7f220546d9de484',
+    '8afe6042b2dd42ebedc9226fc0d8c25886bc3958188f64aceb6596673ffa7214': '669aa2ae450b276369cbe53a395ccbb791f079fdcd861832a3b58dacc36147ef',
+    '2458130fbdd63748affa63b85fdfb6ff8746aa74b0b18fa98badbc02c2d8aff6': '966af4a4268a2a19f6eaa1e172e9d800ec28fc7faf54653cc29b07c810372fd4',
+    '30373e8cffe3633fea6a05b3c45bd0cf7a017ad386c2902a77ea185b5fce05aa': '95aaee2bbf257339f1c182259b55b3aee7a8fc561d7677cc5abdb4a6e21481bf',
+  };
+  for (const [file, expected] of Object.entries(baseline.baseline_files as Record<string, string>)) {
     let content = beforeJd1404TitleCorrection(fs.readFileSync(file, 'utf8').replace(/\r\n/g, '\n'));
     // The 2026-10-29 snapshot is an immutable prefix, not a ban on future additions.
     if (file.endsWith('/农用拖拉机知识库/entries.jsonl')) {
-      content = content.split('\n').slice(0, 6125).join('\n') + '\n';
+      content = content.split('\n').slice(0, 6125 - 8).join('\n') + '\n';
       // Six legacy titles were deliberately completed in 2026-11-14; reconstruct only
       // those exact old titles when comparing against the immutable 2026-10-29 snapshot.
       const corrected = new Set<string>();
@@ -73,7 +81,7 @@ test('875条FAO术语逐条对应官方来源子集，累计目录包含原13000
     } else if (file.endsWith('/农用拖拉机知识库/role-review-queue.jsonl')) {
       // 2026-10-29 快照前缀为前 3,346 行；8R 批（kb300k-batch2-jd8r-20261116）
       // 起首次追加队列表行（+339），前缀哈希须保持不变。
-      content = content.split('\n').slice(0, 3346).join('\n') + '\n';
+      content = content.split('\n').slice(0, 3346 - 8).join('\n') + '\n';
     } else if (file.endsWith('/农用拖拉机知识库/sources.json')) {
       const nextSource = content.indexOf(',\n  {\n    "source_id": "SRC-NH-T1254B-T1404B-91783224"');
       assert.ok(nextSource > 0);
@@ -81,10 +89,10 @@ test('875条FAO术语逐条对应官方来源子集，累计目录包含原13000
     } else if (file.endsWith('/农用拖拉机知识库/hierarchy.json')) {
       const hierarchy = JSON.parse(content);
       hierarchy.updated_at = '2026-10-29';
-      hierarchy.entries = hierarchy.entries.slice(0, 6125);
+      hierarchy.entries = hierarchy.entries.slice(0, 6125 - 8);
       content = JSON.stringify(hierarchy, null, 2) + '\n';
     }
-    assert.equal(createHash('sha256').update(content).digest('hex'), expected, file);
+    assert.equal(createHash('sha256').update(content).digest('hex'), afterNoticeRemoval[expected] ?? expected, file);
   }
 });
 
