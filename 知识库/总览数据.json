@@ -1,24 +1,24 @@
 {
   "schema_version": 1,
   "snapshot_date_shanghai": "2026-11-20",
-  "repository_version": "4.1.54",
+  "repository_version": "4.1.55",
   "scope": "仅由现有索引派生的统计与导航，不是新增维修事实，不加入检索",
   "input_sha256": {
-    "知识库/整理后的知识库/农用拖拉机知识库/sources.json": "8579a1e7e07546eddee5d4e908b1866998c07d1bebd8e4a931c89dfadf437f3c",
-    "知识库/整理后的知识库/农用拖拉机知识库/entries.jsonl": "a24a289e73b4b9438274ea272a55fee1b0a29f5c705ae7f600a3338884400825",
+    "知识库/整理后的知识库/农用拖拉机知识库/sources.json": "2dc9d565b145948fd9f8a7844eee06287d8da205efef2edc25a7691046d6e695",
+    "知识库/整理后的知识库/农用拖拉机知识库/entries.jsonl": "dd31668e478c70f46b0db1895b4c814404030d3edd8db52c5cf0d3e8340d824d",
     "docs/tractor-knowledge/index.jsonl": "1eac29d4f33681de65628b95b992b248f35c62578fb2f9e45ac5b1fdda8b414f",
     "docs/tractor-knowledge/expansion-5000/index.jsonl": "f498bd5dce2b3f96730ab5d508936d5852d0173416e2636878e35aabcda3fbfc",
     "docs/tractor-knowledge/expansion-875/index.jsonl": "e722d56d222848de51fe758932a03e7bff4c24093d7c6b3d8de2509c5608d46e"
   },
   "totals": {
-    "sources": 153,
-    "archived_entries": 10139,
+    "sources": 156,
+    "archived_entries": 10222,
     "learning_entries": 6875,
-    "total_library_entries": 17014,
-    "knowledge_documents": 196,
-    "brand_labels": 29,
+    "total_library_entries": 17097,
+    "knowledge_documents": 199,
+    "brand_labels": 30,
     "generic_chunks": 9,
-    "retrieval_chunks": 17023,
+    "retrieval_chunks": 17106,
     "information_or_scope_entries": 696
   },
   "brands": [
@@ -29,8 +29,8 @@
     },
     {
       "label": "东方红",
-      "sources": 36,
-      "entries": 1328
+      "sources": 38,
+      "entries": 1389
     },
     {
       "label": "ISEKI",
@@ -103,6 +103,11 @@
       "entries": 24
     },
     {
+      "label": "时风",
+      "sources": 1,
+      "entries": 22
+    },
+    {
       "label": "Branson",
       "sources": 2,
       "entries": 20
@@ -170,8 +175,8 @@
   ],
   "entry_types": {
     "安全操作": 950,
-    "操作/维护知识": 4164,
-    "维护/故障知识": 4277,
+    "操作/维护知识": 4169,
+    "维护/故障知识": 4355,
     "机型资料": 115,
     "资料缺口": 8,
     "资料索引": 530,
@@ -182,14 +187,14 @@
   "source_purposes": {
     "维护网页": 30,
     "报道背景": 1,
-    "整机／维保PDF": 75,
+    "整机／维保PDF": 78,
     "交机培训PDF": 11,
     "配套导航PDF": 2,
     "发动机维护PDF": 3,
     "未分类资料": 31
   },
   "entries_by_source_purpose": {
-    "整机／维保PDF": 8892,
+    "整机／维保PDF": 8975,
     "维护网页": 592,
     "报道背景": 2,
     "交机培训PDF": 262,
@@ -200,14 +205,14 @@
   "storage": {
     "仓库网页快照": 4,
     "仓库PDF原件": 15,
-    "PDF链接＋来源记录": 100,
+    "PDF链接＋来源记录": 103,
     "网页链接＋来源记录": 27,
     "其他存放方式": 7
   },
   "entries_by_storage": {
     "仓库PDF原件": 2956,
     "仓库网页快照": 11,
-    "PDF链接＋来源记录": 6535,
+    "PDF链接＋来源记录": 6618,
     "网页链接＋来源记录": 583,
     "其他存放方式": 54
   },
@@ -274,7 +279,8 @@
     "引用选页已核对。逐行比对原手册电气图表与正文。": 16,
     "引用选页已核对。已逐行核对故障表及续页，适用性按实装配置确认。": 26,
     "引用选页已核对。英文原件按实装总成及所列型号使用。": 43,
-    "引用选页已核对。已按原表逐项核对原页和配置，以本版适用范围为限。": 89
+    "引用选页已核对。已按原表逐项核对原页和配置，以本版适用范围为限。": 89,
+    "引用选页已核对。已对照原版排故表或保养条文与配置表，按该版实际机型和配置使用。": 83
   },
   "research": {
     "reports": 3,
@@ -13530,6 +13536,149 @@
       ],
       "knowledge_paths": [
         "知识库/整理后的知识库/农用拖拉机知识库/机型知识卡/东风-DF254-DF404-G2-6-英文维修手册.md"
+      ]
+    },
+    {
+      "source_id": "SRC-YTO-X604-LX954-RU",
+      "brand": "东方红",
+      "model": "X604 / X654 / X704 / X754 / X804 / X854 / X904 / LX904H / LX954",
+      "version": "俄文版，发行日期不详",
+      "version_date": null,
+      "pdf_metadata_date": null,
+      "scope_boundary": "按俄文手册对应的实装机构使用。凡涉及副离合器、液压制动或液压转向，均须确认实车总成与相应表格一致。手册无明确发行日期及销售地区。同名机在实装条件不符时须另查对应手册。",
+      "status": "核对俄文原件型号、印刷页和表格，记录对应故障及处理要点",
+      "content_group": "整机／维保PDF",
+      "storage_group": "PDF链接＋来源记录",
+      "source_path": "知识库/原始农机说明书/东方红/X604-LX954-RU/来源记录.md",
+      "source_url": "https://tractormanualz.com/wp-content/uploads/2019/04/YTO-X604-LX954-Tractor-Operator-Manual.pdf",
+      "entry_count": 35,
+      "entry_ids": [
+        "KB-YTO-X604-LX954-RU-001",
+        "KB-YTO-X604-LX954-RU-002",
+        "KB-YTO-X604-LX954-RU-003",
+        "KB-YTO-X604-LX954-RU-004",
+        "KB-YTO-X604-LX954-RU-005",
+        "KB-YTO-X604-LX954-RU-006",
+        "KB-YTO-X604-LX954-RU-007",
+        "KB-YTO-X604-LX954-RU-008",
+        "KB-YTO-X604-LX954-RU-009",
+        "KB-YTO-X604-LX954-RU-010",
+        "KB-YTO-X604-LX954-RU-011",
+        "KB-YTO-X604-LX954-RU-012",
+        "KB-YTO-X604-LX954-RU-013",
+        "KB-YTO-X604-LX954-RU-014",
+        "KB-YTO-X604-LX954-RU-015",
+        "KB-YTO-X604-LX954-RU-016",
+        "KB-YTO-X604-LX954-RU-017",
+        "KB-YTO-X604-LX954-RU-018",
+        "KB-YTO-X604-LX954-RU-019",
+        "KB-YTO-X604-LX954-RU-020",
+        "KB-YTO-X604-LX954-RU-021",
+        "KB-YTO-X604-LX954-RU-022",
+        "KB-YTO-X604-LX954-RU-023",
+        "KB-YTO-X604-LX954-RU-024",
+        "KB-YTO-X604-LX954-RU-025",
+        "KB-YTO-X604-LX954-RU-026",
+        "KB-YTO-X604-LX954-RU-027",
+        "KB-YTO-X604-LX954-RU-028",
+        "KB-YTO-X604-LX954-RU-029",
+        "KB-YTO-X604-LX954-RU-030",
+        "KB-YTO-X604-LX954-RU-SUP-001",
+        "KB-YTO-X604-LX954-RU-SUP-002",
+        "KB-YTO-X604-LX954-RU-SUP-003",
+        "KB-YTO-X604-LX954-RU-SUP-004",
+        "KB-YTO-X604-LX954-RU-SUP-005"
+      ],
+      "knowledge_paths": [
+        "知识库/整理后的知识库/农用拖拉机知识库/机型知识卡/东方红-X604-LX954-俄文手册.md"
+      ]
+    },
+    {
+      "source_id": "SRC-YTO-454-MF504-OM-RU",
+      "brand": "东方红",
+      "model": "YTO-454 / YTO-MF454 / YTO-504 / YTO-MF504",
+      "version": "俄语版，出版日期待核",
+      "version_date": null,
+      "pdf_metadata_date": null,
+      "scope_boundary": "适用于本册俄语版车型表所列四驱 YTO-454、YTO-MF454、YTO-504、YTO-MF504。先核对铭牌、四驱底盘与本册所列配置。",
+      "status": "已核对说明书封面、车型表、配置和故障表原图",
+      "content_group": "整机／维保PDF",
+      "storage_group": "PDF链接＋来源记录",
+      "source_path": "知识库/原始农机说明书/东方红/YTO-454-MF504-RU/来源记录.md",
+      "source_url": "https://hostozavr.com/files/traktora/instrukcija-po-jekspluatacii-traktorov-yto-454-yto-mf454-yto-504-i-yto-mf504.pdf",
+      "entry_count": 26,
+      "entry_ids": [
+        "KB-YTO-454-MF504-OM-RU-001",
+        "KB-YTO-454-MF504-OM-RU-002",
+        "KB-YTO-454-MF504-OM-RU-003",
+        "KB-YTO-454-MF504-OM-RU-004",
+        "KB-YTO-454-MF504-OM-RU-005",
+        "KB-YTO-454-MF504-OM-RU-006",
+        "KB-YTO-454-MF504-OM-RU-007",
+        "KB-YTO-454-MF504-OM-RU-008",
+        "KB-YTO-454-MF504-OM-RU-009",
+        "KB-YTO-454-MF504-OM-RU-010",
+        "KB-YTO-454-MF504-OM-RU-011",
+        "KB-YTO-454-MF504-OM-RU-012",
+        "KB-YTO-454-MF504-OM-RU-013",
+        "KB-YTO-454-MF504-OM-RU-014",
+        "KB-YTO-454-MF504-OM-RU-015",
+        "KB-YTO-454-MF504-OM-RU-016",
+        "KB-YTO-454-MF504-OM-RU-017",
+        "KB-YTO-454-MF504-OM-RU-019",
+        "KB-YTO-454-MF504-OM-RU-020",
+        "KB-YTO-454-MF504-OM-RU-021",
+        "KB-YTO-454-MF504-OM-RU-SUP-001",
+        "KB-YTO-454-MF504-OM-RU-SUP-002",
+        "KB-YTO-454-MF504-OM-RU-SUP-003",
+        "KB-YTO-454-MF504-OM-RU-SUP-004",
+        "KB-YTO-454-MF504-OM-RU-SUP-005",
+        "KB-YTO-454-MF504-OM-RU-SUP-006"
+      ],
+      "knowledge_paths": [
+        "知识库/整理后的知识库/农用拖拉机知识库/机型知识卡/东方红-YTO-454-MF504-原厂故障排除.md"
+      ]
+    },
+    {
+      "source_id": "SRC-SHIFENG-SF240-SF244-RU",
+      "brand": "时风",
+      "model": "SF240 / SF244",
+      "version": "俄文SF系列；手册版次日期待核实。",
+      "version_date": null,
+      "pdf_metadata_date": null,
+      "scope_boundary": "限山东时风俄文说明书第2页所列 SF240 两驱与 SF244 四驱，且机械、液压及电气总成与该版原图相符。离合、制动、电路或有压油路内部作业由维修人员进行；表中是待检查的原因。",
+      "status": "已对照原书所列俄文条目和排故表，不同版次与实装件须核对。",
+      "content_group": "整机／维保PDF",
+      "storage_group": "PDF链接＋来源记录",
+      "source_path": "知识库/原始农机说明书/时风/SF240-SF244-RU/来源记录.md",
+      "source_url": "https://tractormanualz.com/wp-content/uploads/2019/01/Shifeng-240-244-Tractor-Operator-Manual.pdf",
+      "entry_count": 22,
+      "entry_ids": [
+        "KB-SHIFENG-SF240-SF244-RU-001",
+        "KB-SHIFENG-SF240-SF244-RU-002",
+        "KB-SHIFENG-SF240-SF244-RU-003",
+        "KB-SHIFENG-SF240-SF244-RU-004",
+        "KB-SHIFENG-SF240-SF244-RU-005",
+        "KB-SHIFENG-SF240-SF244-RU-006",
+        "KB-SHIFENG-SF240-SF244-RU-007",
+        "KB-SHIFENG-SF240-SF244-RU-008",
+        "KB-SHIFENG-SF240-SF244-RU-009",
+        "KB-SHIFENG-SF240-SF244-RU-010",
+        "KB-SHIFENG-SF240-SF244-RU-011",
+        "KB-SHIFENG-SF240-SF244-RU-012",
+        "KB-SHIFENG-SF240-SF244-RU-013",
+        "KB-SHIFENG-SF240-SF244-RU-014",
+        "KB-SHIFENG-SF240-SF244-RU-015",
+        "KB-SHIFENG-SF240-SF244-RU-016",
+        "KB-SHIFENG-SF240-SF244-RU-017",
+        "KB-SHIFENG-SF240-SF244-RU-018",
+        "KB-SHIFENG-SF240-SF244-RU-019",
+        "KB-SHIFENG-SF240-SF244-RU-020",
+        "KB-SHIFENG-SF240-SF244-RU-021",
+        "KB-SHIFENG-SF240-SF244-RU-022"
+      ],
+      "knowledge_paths": [
+        "知识库/整理后的知识库/农用拖拉机知识库/机型知识卡/时风-SF240-SF244-俄文手册.md"
       ]
     }
   ]

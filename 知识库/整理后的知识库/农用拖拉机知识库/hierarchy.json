@@ -110142,6 +110142,949 @@
           ]
         }
       ]
+    },
+    {
+      "entry_id": "KB-YTO-X604-LX954-RU-001",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": [
+            "clutch-friction",
+            "clutch-spring",
+            "clutch-pedal"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-YTO-X604-LX954-RU-002",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-YTO-X604-LX954-RU-003",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": [
+            "gears"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-YTO-X604-LX954-RU-004",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-YTO-X604-LX954-RU-005",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-YTO-X604-LX954-RU-006",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-YTO-X604-LX954-RU-007",
+      "components": [
+        {
+          "component_id": "brakes",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-YTO-X604-LX954-RU-008",
+      "components": [
+        {
+          "component_id": "chassis",
+          "part_ids": [
+            "tyre",
+            "wheel-rim",
+            "front-axle"
+          ]
+        },
+        {
+          "component_id": "steering",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-YTO-X604-LX954-RU-009",
+      "components": [
+        {
+          "component_id": "chassis",
+          "part_ids": [
+            "front-axle"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-YTO-X604-LX954-RU-010",
+      "components": [
+        {
+          "component_id": "chassis",
+          "part_ids": [
+            "front-axle"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-YTO-X604-LX954-RU-011",
+      "components": [
+        {
+          "component_id": "steering",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-YTO-X604-LX954-RU-012",
+      "components": [
+        {
+          "component_id": "steering",
+          "part_ids": [
+            "steering-valve",
+            "steering-cylinder"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-YTO-X604-LX954-RU-013",
+      "components": [
+        {
+          "component_id": "steering",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-YTO-X604-LX954-RU-014",
+      "components": [
+        {
+          "component_id": "steering",
+          "part_ids": [
+            "steering-valve",
+            "steering-cylinder"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-YTO-X604-LX954-RU-015",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hydraulic-valve",
+            "hydraulic-pump"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-YTO-X604-LX954-RU-016",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hydraulic-filter",
+            "hydraulic-pump"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-YTO-X604-LX954-RU-017",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hydraulic-valve",
+            "hydraulic-cylinder"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-YTO-X604-LX954-RU-018",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hydraulic-filter",
+            "hydraulic-pump"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-YTO-X604-LX954-RU-019",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hitch-control"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-YTO-X604-LX954-RU-020",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hydraulic-valve",
+            "hitch-control"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-YTO-X604-LX954-RU-021",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "starter",
+            "battery",
+            "wiring",
+            "brush",
+            "ignition-switch"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-YTO-X604-LX954-RU-022",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "starter"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-YTO-X604-LX954-RU-023",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "wiring",
+            "brush"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-YTO-X604-LX954-RU-024",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "brush",
+            "battery"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-YTO-X604-LX954-RU-025",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-YTO-X604-LX954-RU-026",
+      "components": [
+        {
+          "component_id": "cooling",
+          "part_ids": [
+            "temperature-sensor"
+          ]
+        },
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "wiring"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-YTO-X604-LX954-RU-027",
+      "components": [
+        {
+          "component_id": "cooling",
+          "part_ids": [
+            "temperature-sensor"
+          ]
+        },
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "wiring"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-YTO-X604-LX954-RU-028",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "fuel-sensor",
+            "wiring"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-YTO-X604-LX954-RU-029",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "wiring"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-YTO-X604-LX954-RU-030",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "wiring"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-YTO-X604-LX954-RU-SUP-001",
+      "components": [
+        {
+          "component_id": "steering",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-YTO-X604-LX954-RU-SUP-002",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "starter",
+            "battery",
+            "brush"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-YTO-X604-LX954-RU-SUP-003",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "battery",
+            "wiring"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-YTO-X604-LX954-RU-SUP-004",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "battery",
+            "wiring"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-YTO-X604-LX954-RU-SUP-005",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "wiring"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-YTO-454-MF504-OM-RU-001",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-YTO-454-MF504-OM-RU-002",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-YTO-454-MF504-OM-RU-003",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-YTO-454-MF504-OM-RU-004",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-YTO-454-MF504-OM-RU-005",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-YTO-454-MF504-OM-RU-006",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-YTO-454-MF504-OM-RU-007",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-YTO-454-MF504-OM-RU-008",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-YTO-454-MF504-OM-RU-009",
+      "components": [
+        {
+          "component_id": "chassis",
+          "part_ids": []
+        },
+        {
+          "component_id": "steering",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-YTO-454-MF504-OM-RU-010",
+      "components": [
+        {
+          "component_id": "chassis",
+          "part_ids": []
+        },
+        {
+          "component_id": "steering",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-YTO-454-MF504-OM-RU-011",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-YTO-454-MF504-OM-RU-012",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-YTO-454-MF504-OM-RU-013",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-YTO-454-MF504-OM-RU-014",
+      "components": [
+        {
+          "component_id": "brakes",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-YTO-454-MF504-OM-RU-015",
+      "components": [
+        {
+          "component_id": "brakes",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-YTO-454-MF504-OM-RU-016",
+      "components": [
+        {
+          "component_id": "brakes",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-YTO-454-MF504-OM-RU-017",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hydraulic-pump",
+            "hydraulic-filter",
+            "hydraulic-valve"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-YTO-454-MF504-OM-RU-019",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-YTO-454-MF504-OM-RU-020",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-YTO-454-MF504-OM-RU-021",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-YTO-454-MF504-OM-RU-SUP-001",
+      "components": [
+        {
+          "component_id": "chassis",
+          "part_ids": [
+            "tyre"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-YTO-454-MF504-OM-RU-SUP-002",
+      "components": [
+        {
+          "component_id": "brakes",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-YTO-454-MF504-OM-RU-SUP-003",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "starter",
+            "battery",
+            "wiring",
+            "brush"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-YTO-454-MF504-OM-RU-SUP-004",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "starter",
+            "battery",
+            "brush"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-YTO-454-MF504-OM-RU-SUP-005",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "battery",
+            "wiring"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-YTO-454-MF504-OM-RU-SUP-006",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "battery"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-SHIFENG-SF240-SF244-RU-001",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-SHIFENG-SF240-SF244-RU-002",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": [
+            "clutch-friction",
+            "clutch-spring",
+            "clutch-pedal"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-SHIFENG-SF240-SF244-RU-003",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": [
+            "clutch-release",
+            "clutch-pedal",
+            "clutch-friction"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-SHIFENG-SF240-SF244-RU-004",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": [
+            "clutch-release"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-SHIFENG-SF240-SF244-RU-005",
+      "components": [
+        {
+          "component_id": "brakes",
+          "part_ids": [
+            "brake-friction"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-SHIFENG-SF240-SF244-RU-006",
+      "components": [
+        {
+          "component_id": "brakes",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-SHIFENG-SF240-SF244-RU-007",
+      "components": [
+        {
+          "component_id": "brakes",
+          "part_ids": [
+            "brake-pedal"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-SHIFENG-SF240-SF244-RU-008",
+      "components": [
+        {
+          "component_id": "chassis",
+          "part_ids": [
+            "wheel-bearing"
+          ]
+        },
+        {
+          "component_id": "steering",
+          "part_ids": [
+            "steering-pins"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-SHIFENG-SF240-SF244-RU-009",
+      "components": [
+        {
+          "component_id": "chassis",
+          "part_ids": [
+            "tyre"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-SHIFENG-SF240-SF244-RU-010",
+      "components": [
+        {
+          "component_id": "steering",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-SHIFENG-SF240-SF244-RU-011",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hydraulic-pump",
+            "hydraulic-cylinder"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-SHIFENG-SF240-SF244-RU-012",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-SHIFENG-SF240-SF244-RU-013",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "starter",
+            "battery",
+            "wiring",
+            "brush"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-SHIFENG-SF240-SF244-RU-014",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "starter",
+            "battery",
+            "brush"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-SHIFENG-SF240-SF244-RU-015",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "starter"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-SHIFENG-SF240-SF244-RU-016",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "wiring"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-SHIFENG-SF240-SF244-RU-017",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "wiring"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-SHIFENG-SF240-SF244-RU-018",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-SHIFENG-SF240-SF244-RU-019",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-SHIFENG-SF240-SF244-RU-020",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-SHIFENG-SF240-SF244-RU-021",
+      "components": [
+        {
+          "component_id": "lubrication",
+          "part_ids": []
+        },
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        },
+        {
+          "component_id": "hydraulics",
+          "part_ids": []
+        },
+        {
+          "component_id": "cooling",
+          "part_ids": []
+        },
+        {
+          "component_id": "chassis",
+          "part_ids": [
+            "tyre"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-SHIFENG-SF240-SF244-RU-022",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": [
+            "clutch-pedal"
+          ]
+        },
+        {
+          "component_id": "brakes",
+          "part_ids": [
+            "brake-pedal"
+          ]
+        },
+        {
+          "component_id": "chassis",
+          "part_ids": [
+            "wheel-bearing"
+          ]
+        },
+        {
+          "component_id": "steering",
+          "part_ids": []
+        }
+      ]
     }
   ]
 }
