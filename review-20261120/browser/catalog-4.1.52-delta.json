@@ -1,0 +1,850 @@
+[
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "7M-2304",
+      "7M-2504"
+    ],
+    "entry_id": "KB-JD-7M-OMAL249107-100001-CN-001",
+    "source_id": "SRC-JD-7M-OMAL249107-100001-CN",
+    "title": "备用电动液压泵不供电时的右后轮保险和继电器定位",
+    "locator": "PDF物理第381页；印刷页脚 220B-3；备用电动液压泵不供电时的右后轮保险和继电器定位",
+    "bodyHash": "e3e67989740d4b034b3a93119e38dc80de154555b2a3f616ff8762a456a57fda"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "7M-2304",
+      "7M-2504"
+    ],
+    "entry_id": "KB-JD-7M-OMAL249107-100001-CN-002",
+    "source_id": "SRC-JD-7M-OMAL249107-100001-CN",
+    "title": "备用电动液压泵单独换油的间隔、容量和紧固值",
+    "locator": "PDF物理第414页；印刷页脚 220E-12；备用电动液压泵单独换油的间隔、容量和紧固值",
+    "bodyHash": "9ed84d5c9d1bfc1cfde21d54294e97c02061baf4627ae8a92fc248437124f618"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "7M-2304",
+      "7M-2504"
+    ],
+    "entry_id": "KB-JD-7M-OMAL249107-100001-CN-003",
+    "source_id": "SRC-JD-7M-OMAL249107-100001-CN",
+    "title": "双液压变速滤芯同换后的 10 至 15 分钟静置复查",
+    "locator": "PDF物理第414、415页；印刷页脚 220E-12、220E-13；双液压变速滤芯同换后的 10 至 15 分钟静置复查",
+    "bodyHash": "53b53fbfe7df91d8c64b3bfdedcdcde4c3681819f9244215820823901ea08ae0"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "7M-2304",
+      "7M-2504"
+    ],
+    "entry_id": "KB-JD-7M-OMAL249107-100001-CN-004",
+    "source_id": "SRC-JD-7M-OMAL249107-100001-CN",
+    "title": "清洁传动液压进油滤网时区别 50、37、18 牛米紧固点",
+    "locator": "PDF物理第415、416页；印刷页脚 220E-13、220E-14；清洁传动液压进油滤网时区别 50、37、18 牛米紧固点",
+    "bodyHash": "950eda694af149d975200ddb4990e5eefb6c9b87326788d3748aca123862c5bc"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "7M-2304",
+      "7M-2504"
+    ],
+    "entry_id": "KB-JD-7M-OMAL249107-100001-CN-005",
+    "source_id": "SRC-JD-7M-OMAL249107-100001-CN",
+    "title": "前动力输出轴独立机壳换油量和金属碎屑检修条件",
+    "locator": "PDF物理第417页；印刷页脚 220E-15；前动力输出轴独立机壳换油量和金属碎屑检修条件",
+    "bodyHash": "827afeb937016940b1e8b4d58ae57c5a2ba0d0942b9724033e8ed6753f576632"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "7M-2304",
+      "7M-2504"
+    ],
+    "entry_id": "KB-JD-7M-OMAL249107-100001-CN-006",
+    "source_id": "SRC-JD-7M-OMAL249107-100001-CN",
+    "title": "角柱显示器只出现部分故障的筛选识别和刷新方法",
+    "locator": "PDF物理第427、428页；印刷页脚 300BA-2、300BA-3；角柱显示器只出现部分故障的筛选识别和刷新方法",
+    "bodyHash": "a1c53ea7679e3f5cdae6104adacdcef5ccfaab530a735e6156df5f722f472c48"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "7M-2304",
+      "7M-2504"
+    ],
+    "entry_id": "KB-JD-7M-OMAL249107-100001-CN-007",
+    "source_id": "SRC-JD-7M-OMAL249107-100001-CN",
+    "title": "变速箱油温高时检查油位、冷却器和滤清器",
+    "locator": "PDF物理第421页，印刷300A-1，官方章节 09001faa849cf1b9",
+    "bodyHash": "8dbb8e3d401146ddf10ac6b265ee5b4f579a922e3fbc3f0f028c3b8625db454b"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "7M-2304",
+      "7M-2504"
+    ],
+    "entry_id": "KB-JD-7M-OMAL249107-100001-CN-008",
+    "source_id": "SRC-JD-7M-OMAL249107-100001-CN",
+    "title": "变速箱低油压区分供油不足和滤清器阻塞",
+    "locator": "PDF物理第421页，印刷300A-1，官方章节 09001faa849cf1b9",
+    "bodyHash": "9012fc535d0641849d90ba3c1a2fb02198b1c820af730ef7ca87ffdb45ecd0e2"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "7M-2304",
+      "7M-2504"
+    ],
+    "entry_id": "KB-JD-7M-OMAL249107-100001-CN-009",
+    "source_id": "SRC-JD-7M-OMAL249107-100001-CN",
+    "title": "冷机换挡与转向同时迟缓时核对油温",
+    "locator": "PDF物理第421页，印刷300A-1，官方章节 09001faa849cf1b9",
+    "bodyHash": "bd091b31a37dce2f6e683b7665613288e7de2181dd114bd301e608e600d8042d"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "7M-2304",
+      "7M-2504"
+    ],
+    "entry_id": "KB-JD-7M-OMAL249107-100001-CN-010",
+    "source_id": "SRC-JD-7M-OMAL249107-100001-CN",
+    "title": "液压系统整体失效时先区分低油位与电路开路",
+    "locator": "PDF物理第421页，印刷300A-1，官方章节 09001faa849cf1ba",
+    "bodyHash": "48fb2cf0908aef90f8240cb94dc984ec9c501b2832275fd134f6ee6e17081c7a"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "7M-2304",
+      "7M-2504"
+    ],
+    "entry_id": "KB-JD-7M-OMAL249107-100001-CN-011",
+    "source_id": "SRC-JD-7M-OMAL249107-100001-CN",
+    "title": "液压滤清器出现阻塞或旁通报警时检查堵塞",
+    "locator": "PDF物理第421页，印刷300A-1，官方章节 09001faa849cf1ba",
+    "bodyHash": "ea162e39e7a8ac4707e3270343c172433c308f06fc3b6c8e7fa1ba9935a9fc8c"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "7M-2304",
+      "7M-2504"
+    ],
+    "entry_id": "KB-JD-7M-OMAL249107-100001-CN-012",
+    "source_id": "SRC-JD-7M-OMAL249107-100001-CN",
+    "title": "液压油过热时核对油冷却器及SCV中位",
+    "locator": "PDF物理第421页，印刷300A-1，官方章节 09001faa849cf1ba",
+    "bodyHash": "4837a8b51ebc35148b3f190355cc0902f4ff78c65d18d78285394b8f18d99239"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "7M-2304",
+      "7M-2504"
+    ],
+    "entry_id": "KB-JD-7M-OMAL249107-100001-CN-013",
+    "source_id": "SRC-JD-7M-OMAL249107-100001-CN",
+    "title": "悬挂对控制旋钮的动作不一致时核对位置反馈",
+    "locator": "PDF物理第421页，印刷300A-1，官方章节 09001faa849cf1ba",
+    "bodyHash": "c651e7c5abb738a3025d01ea391704c4ad17bd4a723cf9e8a7ae118afaf8b56a"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "7M-2304",
+      "7M-2504"
+    ],
+    "entry_id": "KB-JD-7M-OMAL249107-100001-CN-014",
+    "source_id": "SRC-JD-7M-OMAL249107-100001-CN",
+    "title": "悬挂起升慢时核对60D或60E的起升设置",
+    "locator": "PDF物理第421页，印刷300A-1，官方章节 09001faa849cf1ba",
+    "bodyHash": "4ed9118b11290608de52fbc35c7848ab0e99550d9256e2bafb7e1bf065a54b70"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "7M-2304",
+      "7M-2504"
+    ],
+    "entry_id": "KB-JD-7M-OMAL249107-100001-CN-015",
+    "source_id": "SRC-JD-7M-OMAL249107-100001-CN",
+    "title": "外接油缸无法带载上升时依次辨认SCV流量与连接",
+    "locator": "PDF物理第422页，印刷300A-2，官方章节 09001faa849cf1bb",
+    "bodyHash": "4df868e026de951bb346104ca5142557ea24df6cfe3a9e654608b777723456b0"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "7M-2304",
+      "7M-2504"
+    ],
+    "entry_id": "KB-JD-7M-OMAL249107-100001-CN-016",
+    "source_id": "SRC-JD-7M-OMAL249107-100001-CN",
+    "title": "外接油缸速度异常时区分机械和电子SCV调流",
+    "locator": "PDF物理第422页，印刷300A-2，官方章节 09001faa849cf1ba",
+    "bodyHash": "e7ef87c841cea06a0bf8924bff8cce801a3b4ca66fa35672992ed890dfdc0cca"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "7M-2304",
+      "7M-2504"
+    ],
+    "entry_id": "KB-JD-7M-OMAL249107-100001-CN-017",
+    "source_id": "SRC-JD-7M-OMAL249107-100001-CN",
+    "title": "外接油缸动作方向异常时核对供回油软管配接",
+    "locator": "PDF物理第422页，印刷300A-2，官方章节 09001faa849cf1bb",
+    "bodyHash": "9c8d8e07d2137f89664cccf4d84a3a1edf329f77c740e6110e6c5cc9445aec8a"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "7M-2304",
+      "7M-2504"
+    ],
+    "entry_id": "KB-JD-7M-OMAL249107-100001-CN-018",
+    "source_id": "SRC-JD-7M-OMAL249107-100001-CN",
+    "title": "SCV锁止时间过短时核对设置和操纵杆回位时限",
+    "locator": "PDF物理第422页，印刷300A-2，官方章节 09001faa849cf1bb",
+    "bodyHash": "379ce222b070b2adb55c205def5e53173ca78f3a2e98a1cf77ae1a6b892671a9"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "7M-2304",
+      "7M-2504"
+    ],
+    "entry_id": "KB-JD-7M-OMAL249107-100001-CN-019",
+    "source_id": "SRC-JD-7M-OMAL249107-100001-CN",
+    "title": "SCV操纵杆无法释放时区分浮动锁止与机构故障",
+    "locator": "PDF物理第422页，印刷300A-2，官方章节 09001faa849cf1bb",
+    "bodyHash": "8eed2c6d17931c1a7b8b275d761ea233b3d93afaf55fc0c2da2d3d2529caa4e5"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "7M-2304",
+      "7M-2504"
+    ],
+    "entry_id": "KB-JD-7M-OMAL249107-100001-CN-020",
+    "source_id": "SRC-JD-7M-OMAL249107-100001-CN",
+    "title": "发动机难起动时优先核对防盗钥匙和低压燃油供应",
+    "locator": "PDF物理第422、423页，印刷300A-2、300A-3，官方章节 09001faa849cf1bc",
+    "bodyHash": "3a39456e4dd5533b704e19d60f9ae6ec16258bbfa1e6e59ea51d9e920b6a7766"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "7M-2304",
+      "7M-2504"
+    ],
+    "entry_id": "KB-JD-7M-OMAL249107-100001-CN-021",
+    "source_id": "SRC-JD-7M-OMAL249107-100001-CN",
+    "title": "冷却液足仍过热时核对风扇皮带及冷却气流",
+    "locator": "PDF物理第423页，印刷300A-3，官方章节 09001faa849cf1bc",
+    "bodyHash": "7f032b6b762707b0621265654b17f855ea6483da166429d7a16ad3c1373ecc11"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "7M-2304",
+      "7M-2504"
+    ],
+    "entry_id": "KB-JD-7M-OMAL249107-100001-CN-022",
+    "source_id": "SRC-JD-7M-OMAL249107-100001-CN",
+    "title": "机油消耗过大时区分油品粘度和外部渗漏",
+    "locator": "PDF物理第423页，印刷300A-3，官方章节 09001faa849cf1bc",
+    "bodyHash": "9ab9cd607ed624954bdb509191726aa786f671b1fa9d6fbb67aae0f8cf49ad04"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "7M-2304",
+      "7M-2504"
+    ],
+    "entry_id": "KB-JD-7M-OMAL249107-100001-CN-023",
+    "source_id": "SRC-JD-7M-OMAL249107-100001-CN",
+    "title": "发动机冒黑烟或灰烟时核对燃油和空滤堵塞",
+    "locator": "PDF物理第423、424页，印刷300A-3、300A-4，官方章节 09001faa849cf1bc",
+    "bodyHash": "80b48b448c3c80bea87b281847f7ba44b51999a21d675381841ca3454c6505ed"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "7M-2304",
+      "7M-2504"
+    ],
+    "entry_id": "KB-JD-7M-OMAL249107-100001-CN-024",
+    "source_id": "SRC-JD-7M-OMAL249107-100001-CN",
+    "title": "发动机冒白烟时先核对冷机状态再查供油和加热",
+    "locator": "PDF物理第424页，印刷300A-4，官方章节 09001faa849cf1bc",
+    "bodyHash": "df36554090159bbe5418e0630f088f37d6fb4b8f484b436cb41da50ce21c5fa9"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "7M-2304",
+      "7M-2504"
+    ],
+    "entry_id": "KB-JD-7M-OMAL249107-100001-CN-025",
+    "source_id": "SRC-JD-7M-OMAL249107-100001-CN",
+    "title": "蓄电池充不进电时依次看接头皮带和电池状态",
+    "locator": "PDF物理第424页，印刷300A-4，官方章节 09001faa849cf1bd",
+    "bodyHash": "f7a7bec6bbea92ae5829eb6f54cb3923c95713424f5926db8b28038a1d27f03f"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "7M-2304",
+      "7M-2504"
+    ],
+    "entry_id": "KB-JD-7M-OMAL249107-100001-CN-026",
+    "source_id": "SRC-JD-7M-OMAL249107-100001-CN",
+    "title": "起动机无动作时区分供电异常和起动过热保护",
+    "locator": "PDF物理第424页，印刷300A-4，官方章节 09001faa849cf1bd",
+    "bodyHash": "f32503c74685151a454d2518eb1bca96a81097490405dc0b45f1f3ab1ee62c17"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "7M-2304",
+      "7M-2504"
+    ],
+    "entry_id": "KB-JD-7M-OMAL249107-100001-CN-027",
+    "source_id": "SRC-JD-7M-OMAL249107-100001-CN",
+    "title": "起动机能转但低速时检查电量与接头氧化",
+    "locator": "PDF物理第424页，印刷300A-4，官方章节 09001faa849cf1bd",
+    "bodyHash": "9ad5500fd03026b77e86bc4b6fdb07189c6412129a98f084e2916c53ac296ff0"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "7M-2304",
+      "7M-2504"
+    ],
+    "entry_id": "KB-JD-7M-OMAL249107-100001-CN-028",
+    "source_id": "SRC-JD-7M-OMAL249107-100001-CN",
+    "title": "驾驶室进灰时检查空调滤芯周围的旁通路径",
+    "locator": "PDF物理第425页，印刷300A-5，官方章节 09001faa84c00f31",
+    "bodyHash": "6d4a33a78839e5a131afb72dea35a7aaaa5857f4ab5c27f76a86cbd122c560c6"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "7M-2304",
+      "7M-2504"
+    ],
+    "entry_id": "KB-JD-7M-OMAL249107-100001-CN-029",
+    "source_id": "SRC-JD-7M-OMAL249107-100001-CN",
+    "title": "驾驶室送风偏弱时区分进风侧与换热器堵塞",
+    "locator": "PDF物理第425页，印刷300A-5，官方章节 09001faa84c00f31",
+    "bodyHash": "73efbbdbe083db6c2b36f975df330833f93d8e30431c35ea7a814deed0af1bc0"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "7M-2304",
+      "7M-2504"
+    ],
+    "entry_id": "KB-JD-7M-OMAL249107-100001-CN-030",
+    "source_id": "SRC-JD-7M-OMAL249107-100001-CN",
+    "title": "暖风关不掉时检查软管走向及水阀拉线",
+    "locator": "PDF物理第425页，印刷300A-5，官方章节 09001faa84c00f31",
+    "bodyHash": "593737bed0ca733b01f68c8eae6802317ef918561fb41117a53a9458f1bfdb59"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "7M-2304",
+      "7M-2504"
+    ],
+    "entry_id": "KB-JD-7M-OMAL249107-100001-CN-031",
+    "source_id": "SRC-JD-7M-OMAL249107-100001-CN",
+    "title": "空调完全不制冷时区分开关皮带及供电制冷剂异常",
+    "locator": "PDF物理第425页，印刷300A-5，官方章节 09001faa84c00f31",
+    "bodyHash": "81673531de5c50acf284296b38545cf71b9ac3d6581fc1e2ed2e3e36bfa67374"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "7M-2304",
+      "7M-2504"
+    ],
+    "entry_id": "KB-JD-7M-OMAL249107-100001-CN-032",
+    "source_id": "SRC-JD-7M-OMAL249107-100001-CN",
+    "title": "制冷间歇时检查前部冷却组件气流",
+    "locator": "PDF物理第425页，印刷300A-5，官方章节 09001faa84c00f31",
+    "bodyHash": "861cdca9859c9eefb0d8c879f6d87c5e0304f7506a76d93b1c469b812daff7bd"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "7M-2304",
+      "7M-2504"
+    ],
+    "entry_id": "KB-JD-7M-OMAL249107-100001-CN-033",
+    "source_id": "SRC-JD-7M-OMAL249107-100001-CN",
+    "title": "座椅悬架失灵时核对对应保险丝",
+    "locator": "PDF物理第425页，印刷300A-5，官方章节 09001faa84c00f31",
+    "bodyHash": "f16fdb2c23b61e97fefecbea399b9666fbee334d4a9d533723f9969a339d20df"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "7M-2304",
+      "7M-2504"
+    ],
+    "entry_id": "KB-JD-7M-OMAL249107-100001-CN-034",
+    "source_id": "SRC-JD-7M-OMAL249107-100001-CN",
+    "title": "车辆颠簸跳动时比较轮胎负荷与紧固件",
+    "locator": "PDF物理第425页，印刷300A-5，官方章节 09001faa84c00f31",
+    "bodyHash": "56964825e57d9599435dd87520873ac727a35b7d28e0dc07c3ca37f010a55998"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "7M-2304",
+      "7M-2504"
+    ],
+    "entry_id": "KB-JD-7M-OMAL249107-100001-CN-035",
+    "source_id": "SRC-JD-7M-OMAL249107-100001-CN",
+    "title": "极其潮湿和泥泞工况下的悬挂润滑点",
+    "locator": "PDF物理第339页，印刷210B-1，官方章节 0000000005417936",
+    "bodyHash": "987939b79cadb0d5ac68f1742f055b9c7c31c6b39c0398e1fd2c43e2b092df9c"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "7M-2304",
+      "7M-2504"
+    ],
+    "entry_id": "KB-JD-7M-OMAL249107-100001-CN-036",
+    "source_id": "SRC-JD-7M-OMAL249107-100001-CN",
+    "title": "极其潮湿和泥泞工况下的万向节轴润滑点",
+    "locator": "PDF物理第339页，印刷210B-1，官方章节 0000000005417936",
+    "bodyHash": "a1c45cceb0f916fb0ab2308084c1d0ab813c5a48b313acb7fe1c1530874da6b1"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "7M-2304",
+      "7M-2504"
+    ],
+    "entry_id": "KB-JD-7M-OMAL249107-100001-CN-037",
+    "source_id": "SRC-JD-7M-OMAL249107-100001-CN",
+    "title": "可换向PTO加伸轴支架的润滑项",
+    "locator": "PDF物理第339页，印刷210B-1，官方章节 0000000005417937",
+    "bodyHash": "2d95a9df2aa82712d4876c0f340225d93116aef00bbfc3fa7e3ee4178f1f9428"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "7M-2304",
+      "7M-2504"
+    ],
+    "entry_id": "KB-JD-7M-OMAL249107-100001-CN-038",
+    "source_id": "SRC-JD-7M-OMAL249107-100001-CN",
+    "title": "变速箱与液压油滤清器的报警条件和同步更换",
+    "locator": "PDF物理第339、340、414页；印刷页脚 210B-1、210B-2、220E-12",
+    "bodyHash": "65358c479d20eaa2fd57eb4f1f953fdf3ce17501105db75f6a65b90a53e13f29"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "7M-2304",
+      "7M-2504"
+    ],
+    "entry_id": "KB-JD-7M-OMAL249107-100001-CN-040",
+    "source_id": "SRC-JD-7M-OMAL249107-100001-CN",
+    "title": "换轮或调轮距后的紧固复查时点",
+    "locator": "PDF物理第340页，印刷210B-2，官方章节 0000000005417937",
+    "bodyHash": "1ec53c830f66ac946e73d8467112726df8130641614fedc3d88ab39b011f50ab"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "7M-2304",
+      "7M-2504"
+    ],
+    "entry_id": "KB-JD-7M-OMAL249107-100001-CN-041",
+    "source_id": "SRC-JD-7M-OMAL249107-100001-CN",
+    "title": "多尘工况下检查DEF罐通气过滤器",
+    "locator": "PDF物理第340页，印刷210B-2，官方章节 0000000005417937",
+    "bodyHash": "63b07e393305b15f2658b42f61ee98562e2678bf308d8197ec76327ac0f1cd14"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "7M-2304",
+      "7M-2504"
+    ],
+    "entry_id": "KB-JD-7M-OMAL249107-100001-CN-042",
+    "source_id": "SRC-JD-7M-OMAL249107-100001-CN",
+    "title": "4500小时或三年周期的DEF系统保养项目",
+    "locator": "PDF物理第340页，印刷210B-2，官方章节 0000000005417937",
+    "bodyHash": "140db0bd883dbb51a56cfa40a19e64ded6e5679a6fdf3ce217708330774c3b82"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "7M-2304",
+      "7M-2504"
+    ],
+    "entry_id": "KB-JD-7M-OMAL249107-100001-CN-043",
+    "source_id": "SRC-JD-7M-OMAL249107-100001-CN",
+    "title": "发动机次级空气滤芯的换件条件",
+    "locator": "PDF物理第340页，印刷210B-2，官方章节 0000000005417937",
+    "bodyHash": "ad844cdec92cb334e46aeca221c385d1b2bba140630ce45a6e56e7651b1a9f9a"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "7M-2304",
+      "7M-2504"
+    ],
+    "entry_id": "KB-JD-7M-OMAL249107-100001-CN-044",
+    "source_id": "SRC-JD-7M-OMAL249107-100001-CN",
+    "title": "更换发动机初级空滤时同步更换驾驶室两类滤芯",
+    "locator": "PDF物理第340页，印刷210B-2，官方章节 0000000005417937",
+    "bodyHash": "36342aef8f2d00d6ff18182eb617c0b6b3596896fc64a134fbbad9b2a378fa63"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "7M-2304",
+      "7M-2504"
+    ],
+    "entry_id": "KB-JD-7M-OMAL249107-100001-CN-045",
+    "source_id": "SRC-JD-7M-OMAL249107-100001-CN",
+    "title": "座椅安全带年检与小时检查取先到者",
+    "locator": "PDF物理第340页，印刷210B-2，官方章节 0000000005417937",
+    "bodyHash": "a8b374dccdee4454e9996f18ac4a71c903e74d98a7756cae6c6792dea8f39052"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "7M-2304",
+      "7M-2504"
+    ],
+    "entry_id": "KB-JD-7M-OMAL249107-100001-CN-046",
+    "source_id": "SRC-JD-7M-OMAL249107-100001-CN",
+    "title": "发动机传动皮带年检与小时检查取先到者",
+    "locator": "PDF物理第340页，印刷210B-2，官方章节 0000000005417937",
+    "bodyHash": "d342bcef69603b1b481ced72b7c64c483a0d2e251001bce1e3cb3610c6c8ba60"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "7M-2304",
+      "7M-2504"
+    ],
+    "entry_id": "KB-JD-7M-OMAL249107-100001-CN-047",
+    "source_id": "SRC-JD-7M-OMAL249107-100001-CN",
+    "title": "机油及机油滤清器的磨合与年度更换约束",
+    "locator": "PDF物理第340、341页，印刷210B-2、210B-3，官方章节 0000000005417917",
+    "bodyHash": "78b2b5a912f7880ad3779229a8fd6078b66a99d76c13d15db6dd8c1fd61cd866"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "7M-2304",
+      "7M-2504"
+    ],
+    "entry_id": "KB-JD-7M-OMAL249107-100001-CN-048",
+    "source_id": "SRC-JD-7M-OMAL249107-100001-CN",
+    "title": "两款发动机的750小时标准机油保养条件",
+    "locator": "PDF物理第341页，印刷210B-3，官方章节 0000000005417917",
+    "bodyHash": "b85f13620ed93b25065c4242a0a39942571315eeb1581bf3b0e9822d7a2ab526"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "7M-2304",
+      "7M-2504"
+    ],
+    "entry_id": "KB-JD-7M-OMAL249107-100001-CN-049",
+    "source_id": "SRC-JD-7M-OMAL249107-100001-CN",
+    "title": "机油和滤清器周期减半的三个列明条件",
+    "locator": "PDF物理第341页，印刷210B-3，官方章节 0000000005417917",
+    "bodyHash": "341a14fa6cb8d6b1b49772cafafddf653416b0967d23e015a9d5690a826e0718"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "7M-2304",
+      "7M-2504"
+    ],
+    "entry_id": "KB-JD-7M-OMAL249107-100001-CN-050",
+    "source_id": "SRC-JD-7M-OMAL249107-100001-CN",
+    "title": "水平中冷器配置下，清洁后如何确认组合式冷却器装回到位",
+    "locator": "PDF物理第374页；印刷页脚 220A-1",
+    "bodyHash": "9ca608c20c7b0aafa649f85e93e15467e2dda741492cf5eee1e79897439ef1b6"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "7M-2304",
+      "7M-2504"
+    ],
+    "entry_id": "KB-JD-7M-OMAL249107-100001-CN-051",
+    "source_id": "SRC-JD-7M-OMAL249107-100001-CN",
+    "title": "收获作业后检查空气滤清器除尘阀",
+    "locator": "PDF物理第374页；印刷页脚 220A-1",
+    "bodyHash": "df3980cca79bf7ec97d8c8d13c79a9351ad281f29b74343e8a51b56289b545f9"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "7M-2304",
+      "7M-2504"
+    ],
+    "entry_id": "KB-JD-7M-OMAL249107-100001-CN-052",
+    "source_id": "SRC-JD-7M-OMAL249107-100001-CN",
+    "title": "进气受限报警时，初级滤芯的清洁次数和换件条件",
+    "locator": "PDF物理第374、375页；印刷页脚 220A-1、220A-2",
+    "bodyHash": "0a7afd494a163bc89edde0dbb48160a0cc8649d7e9d0bbeddacb6d5682dae3c2"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "7M-2304",
+      "7M-2504"
+    ],
+    "entry_id": "KB-JD-7M-OMAL249107-100001-CN-053",
+    "source_id": "SRC-JD-7M-OMAL249107-100001-CN",
+    "title": "初级空气滤芯吹洗的气压、喷嘴距离和气流方向",
+    "locator": "PDF物理第375页；印刷页脚 220A-2",
+    "bodyHash": "59ff1eb8de889cb26ae9fd3aa9481f36c4ee395202494c6bf1532957dd6003cf"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "7M-2304",
+      "7M-2504"
+    ],
+    "entry_id": "KB-JD-7M-OMAL249107-100001-CN-054",
+    "source_id": "SRC-JD-7M-OMAL249107-100001-CN",
+    "title": "驾驶室进风与循环滤芯清洁后的复装检查",
+    "locator": "PDF物理第375、376页；印刷页脚 220A-2、220A-3",
+    "bodyHash": "0e01bf16b00097abc988494e2392d12808567682165c640738fcf8d1089f5913"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "7M-2304",
+      "7M-2504"
+    ],
+    "entry_id": "KB-JD-7M-OMAL249107-100001-CN-055",
+    "source_id": "SRC-JD-7M-OMAL249107-100001-CN",
+    "title": "燃油滤清器出现水或沉淀物后的排放与输油泵运行时间",
+    "locator": "PDF物理第376页；印刷页脚 220A-3",
+    "bodyHash": "28e64aa7a294dde08488ce031e217732d70c663de1b8a833f81bf7b00dae14d1"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "7M-2304",
+      "7M-2504"
+    ],
+    "entry_id": "KB-JD-7M-OMAL249107-100001-CN-056",
+    "source_id": "SRC-JD-7M-OMAL249107-100001-CN",
+    "title": "DEF加注口滤网的清洗介质与溢液白痕的识别",
+    "locator": "PDF物理第377页；印刷页脚 220A-4",
+    "bodyHash": "b032af6093e63849b3467e5f80064bf36ad714cf0b2dc8b2a5a9e9e0ad588ee0"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "7M-2304",
+      "7M-2504"
+    ],
+    "entry_id": "KB-JD-7M-OMAL249107-100001-CN-057",
+    "source_id": "SRC-JD-7M-OMAL249107-100001-CN",
+    "title": "DEF罐受污染后的滤芯配置与恢复运行前的浓度检查",
+    "locator": "PDF物理第377、378页；印刷页脚 220A-4、220A-5",
+    "bodyHash": "485973f278e14edfae54c50e0b0d80fec0cc0663aa64033ea0307c5856a20dad"
+  },
+  {
+    "brand": "东方红",
+    "models": [
+      "LF1504"
+    ],
+    "entry_id": "KB-YTO-LF1504-ELEC-001",
+    "source_id": "SRC-YTO-LF1504-SMLF150449010",
+    "title": "道路照明与工作灯的保险丝及分组继电器",
+    "locator": "PDF物理第41、42页；印刷页脚 2-26、2-27；道路照明与工作灯的保险丝及分组继电器",
+    "bodyHash": "d2be28262bbd6e65be7efa5029e5d381171b9ec46bf9fe551671c5f79daeac2c"
+  },
+  {
+    "brand": "东方红",
+    "models": [
+      "LF1504"
+    ],
+    "entry_id": "KB-YTO-LF1504-ELEC-002",
+    "source_id": "SRC-YTO-LF1504-SMLF150449010",
+    "title": "组合仪表失电时区分两路电源保险丝",
+    "locator": "PDF物理第42页；印刷页脚 2-27；组合仪表失电时区分两路电源保险丝",
+    "bodyHash": "d857c8bc5536b31a88daf68d59adc1d8f8cdad74d51f43d3b10a969f10bc4fcf"
+  },
+  {
+    "brand": "东方红",
+    "models": [
+      "LF1504"
+    ],
+    "entry_id": "KB-YTO-LF1504-ELEC-003",
+    "source_id": "SRC-YTO-LF1504-SMLF150449010",
+    "title": "发动机控制与起动回路分别使用哪路保险丝",
+    "locator": "PDF物理第42页；印刷页脚 2-27；发动机控制与起动回路分别使用哪路保险丝",
+    "bodyHash": "cc41adf3cc1a9d8d3c7eeaf4407c1211c88842243d87ab5148630036b3e17923"
+  },
+  {
+    "brand": "东方红",
+    "models": [
+      "LF1504"
+    ],
+    "entry_id": "KB-YTO-LF1504-ELEC-004",
+    "source_id": "SRC-YTO-LF1504-SMLF150449010",
+    "title": "传动控制器两路供电的保险丝规格",
+    "locator": "PDF物理第42页；印刷页脚 2-27；传动控制器两路供电的保险丝规格",
+    "bodyHash": "029e1d6e339e6f069d4aa071f13dcb17fa89de0c76b69152e026c87044f96458"
+  },
+  {
+    "brand": "东方红",
+    "models": [
+      "LF1504"
+    ],
+    "entry_id": "KB-YTO-LF1504-ELEC-005",
+    "source_id": "SRC-YTO-LF1504-SMLF150449010",
+    "title": "电控提升器电源故障时区分两个保险丝位置",
+    "locator": "PDF物理第42页；印刷页脚 2-27；电控提升器电源故障时区分两个保险丝位置",
+    "bodyHash": "d609dfc16fec06aa8cf103d4afbf34a18f6c76d8b9a88723731f389087e59d9f"
+  },
+  {
+    "brand": "东方红",
+    "models": [
+      "LF1504"
+    ],
+    "entry_id": "KB-YTO-LF1504-ELEC-006",
+    "source_id": "SRC-YTO-LF1504-SMLF150449010",
+    "title": "前后刮水器和前洗涤器共用保险丝的位置",
+    "locator": "PDF物理第42页；印刷页脚 2-27；前后刮水器和前洗涤器共用保险丝的位置",
+    "bodyHash": "6383797d29ffb5024accf21620dc48cf0004d18759fe2e50375293ee3f5d4ed6"
+  },
+  {
+    "brand": "东方红",
+    "models": [
+      "LF1504"
+    ],
+    "entry_id": "KB-YTO-LF1504-ELEC-007",
+    "source_id": "SRC-YTO-LF1504-SMLF150449010",
+    "title": "空调压缩机与风扇供电的保险丝和继电器",
+    "locator": "PDF物理第41、42页；印刷页脚 2-26、2-27；空调压缩机与风扇供电的保险丝和继电器",
+    "bodyHash": "ac2bd3b6125d489f5681c0d58b17ca4e58b02fc5de4de9e304d0aa25f19ddfb2"
+  },
+  {
+    "brand": "东方红",
+    "models": [
+      "LF1504"
+    ],
+    "entry_id": "KB-YTO-LF1504-ELEC-008",
+    "source_id": "SRC-YTO-LF1504-SMLF150449010",
+    "title": "门控踏步灯与室内灯常亮的模式及共同供电",
+    "locator": "PDF物理第42、44页；印刷页脚 2-27、2-29；门控踏步灯与室内灯常亮的模式及共同供电",
+    "bodyHash": "7f9a51538eed85a778fb7b02769c163712fa124f4f9f466777729127fe2211a0"
+  },
+  {
+    "brand": "东方红",
+    "models": [
+      "LF1504"
+    ],
+    "entry_id": "KB-YTO-LF1504-ELEC-009",
+    "source_id": "SRC-YTO-LF1504-SMLF150449010",
+    "title": "检修工作灯电源插座与点烟器插座的额定负载",
+    "locator": "PDF物理第42、45页；印刷页脚 2-27、2-30；检修工作灯电源插座与点烟器插座的额定负载",
+    "bodyHash": "37d750e21a3d688f853952d3e91436e9d856f2acb680aaf268be9204b573843c"
+  },
+  {
+    "brand": "东方红",
+    "models": [
+      "LF1504"
+    ],
+    "entry_id": "KB-YTO-LF1504-ELEC-010",
+    "source_id": "SRC-YTO-LF1504-SMLF150449010",
+    "title": "发动机线束接口上控制器的两路电源与地线",
+    "locator": "PDF物理第43页；印刷页脚 2-28；发动机线束接口上控制器的两路电源与地线",
+    "bodyHash": "f8e959b66e1fd16290e351651a376b8d4e0028ad0082d3426a87d23b3cf01a23"
+  },
+  {
+    "brand": "东方红",
+    "models": [
+      "LF1504"
+    ],
+    "entry_id": "KB-YTO-LF1504-ELEC-011",
+    "source_id": "SRC-YTO-LF1504-SMLF150449010",
+    "title": "发动机停机警示、故障警示和预热指示的针脚区别",
+    "locator": "PDF物理第43页；印刷页脚 2-28；发动机停机警示、故障警示和预热指示的针脚区别",
+    "bodyHash": "25c56ec7871fc9ce0f9ea05bbd8f8450f2c3c7e69664f654232eba9cc94dc01c"
+  },
+  {
+    "brand": "东方红",
+    "models": [
+      "LF1504"
+    ],
+    "entry_id": "KB-YTO-LF1504-ELEC-012",
+    "source_id": "SRC-YTO-LF1504-SMLF150449010",
+    "title": "电子手油门线束与脚手油门同时动作时的优先关系",
+    "locator": "PDF物理第43、46页；印刷页脚 2-28、2-31；电子手油门线束与脚手油门同时动作时的优先关系",
+    "bodyHash": "d0dd74d2ab073712a07dae5be0471446919e69306a27a68d68e764f65d71009d"
+  },
+  {
+    "brand": "东方红",
+    "models": [
+      "LF1504"
+    ],
+    "entry_id": "KB-YTO-LF1504-ELEC-013",
+    "source_id": "SRC-YTO-LF1504-SMLF150449010",
+    "title": "电子脚油门双通道信号与地线如何区分",
+    "locator": "PDF物理第43页；印刷页脚 2-28；电子脚油门双通道信号与地线如何区分",
+    "bodyHash": "1b21e61e7e840fbbd18411d6156ed984a32d051593efec408b9b4d9b7892b1fb"
+  },
+  {
+    "brand": "东方红",
+    "models": [
+      "LF1504"
+    ],
+    "entry_id": "KB-YTO-LF1504-ELEC-014",
+    "source_id": "SRC-YTO-LF1504-SMLF150449010",
+    "title": "发动机控制器总线与整车总线的高低线对应关系",
+    "locator": "PDF物理第43页；印刷页脚 2-28；发动机控制器总线与整车总线的高低线对应关系",
+    "bodyHash": "3f79cd3253a501ea7b0bd783a6d177c8cfe1c73dc154c260ba64fd673f25a340"
+  },
+  {
+    "brand": "东方红",
+    "models": [
+      "LF1504"
+    ],
+    "entry_id": "KB-YTO-LF1504-ELEC-015",
+    "source_id": "SRC-YTO-LF1504-SMLF150449010",
+    "title": "七孔挂车灯插座的方向灯、停车灯和制动灯接线",
+    "locator": "PDF物理第44、45页；印刷页脚 2-29、2-30；七孔挂车灯插座的方向灯、停车灯和制动灯接线",
+    "bodyHash": "08a62bfa201b5ee55d35a32a870c514bb3f8d7dfeba36da7d2ad121b5ed65305"
+  },
+  {
+    "brand": "东方红",
+    "models": [
+      "LF1504"
+    ],
+    "entry_id": "KB-YTO-LF1504-ELEC-016",
+    "source_id": "SRC-YTO-LF1504-SMLF150449010",
+    "title": "发动机电控线束接插件的断电、密封和固定检查",
+    "locator": "PDF物理第47、48页；印刷页脚 2-32、2-33；发动机电控线束接插件的断电、密封和固定检查",
+    "bodyHash": "8c34030c5cd40bfbf589c1388c5fe8858735c6ea05300fed1c69be3c610fa945"
+  }
+]
