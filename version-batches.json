@@ -1344,6 +1344,13 @@
       "base": "4.1.45",
       "version": "4.1.46",
       "date": "2026-11-20"
+    },
+    {
+      "id": "deere-cn-operator-20261120",
+      "kind": "knowledge",
+      "base": "4.1.46",
+      "version": "4.1.47",
+      "date": "2026-11-20"
     }
   ]
 }
