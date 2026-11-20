@@ -17,3 +17,10 @@ node verify-catalog.cjs
 4.1.50 已在用户指定的开发站复验，网页提交为 `a83ad980b20dd9fd1aa16bee967a1a337d5f2374`。[目录核验](public-4.1.50.json)覆盖 304 个新增编号、1,104 个机型对应关系及八个下架编号。[问答核验](public-4.1.50-questions.json)记录 8R 冷却液辅助加热器和 5E 前大灯对光的回答、首条引用及印刷页码。
 
 [4.1.52 本批清单](catalog-4.1.52-delta.json)覆盖 56 条国行 7M 手册知识和 16 条东方红 LF1504 电气知识。用同一目录脚本传入该清单，可对比 128 个机型对应关系。运行 `node verify-7m-lf1504.cjs [网址]` 核验九个问题，包括较早序列号、零件号、国四与错机型排除。[本地构建目录核对](local-4.1.52-delta.json)及[本地问答实测](local-4.1.52-questions.json)对应分支提交 cac85f9。LF1504 电气提问返回手册页引用和安全停机提示，7M 进气提问直接返回手册参数。
+
+4.1.54 的[待上线核对清单](catalog-4.1.54-delta.json)覆盖四批共 141 个新增编号和 430 个条目与机型组合。用仓库两个版本的 Markdown 正文独立计算摘要，已与此前 4.1.52 的 72 条目录清单逐字段比对一致。此清单用于开发站部署后的验收。
+
+```sh
+python3 build-catalog-delta.py /path/to/AgriDx a83ad98 8951fd7 > catalog-4.1.54-delta.json
+node verify-catalog.cjs https://agridx-v4-development.orangeglade33.chatgpt.site/ catalog-4.1.54-delta.json
+```
