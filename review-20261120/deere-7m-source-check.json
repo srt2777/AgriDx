@@ -7,7 +7,7 @@
     "7M-2504"
   ],
   "initial_serial": "100001",
-  "verification": "PDF 文件哈希及每条记录的物理页与印刷页脚已逐项匹配。此核验仅覆盖来源定位。",
+  "verification": "文件哈希、物理页与印刷页脚已复核；逐条比对症状、条件、技术数值与手册原表。未核验实车。",
   "state": "候选，未计入主库",
   "records": [
     {
@@ -83,7 +83,8 @@
       ],
       "printed_pages": [
         "300A-1"
-      ]
+      ],
+      "content_review": "已对照所列手册页的故障表或保养表复核。仍待适用性和 Agent 检索验证。"
     },
     {
       "entry_id": "KB-JD-7M-OMAL249107-100001-CN-008",
@@ -92,7 +93,8 @@
       ],
       "printed_pages": [
         "300A-1"
-      ]
+      ],
+      "content_review": "已对照所列手册页的故障表或保养表复核。仍待适用性和 Agent 检索验证。"
     },
     {
       "entry_id": "KB-JD-7M-OMAL249107-100001-CN-009",
@@ -101,7 +103,8 @@
       ],
       "printed_pages": [
         "300A-1"
-      ]
+      ],
+      "content_review": "已对照所列手册页的故障表或保养表复核。仍待适用性和 Agent 检索验证。"
     },
     {
       "entry_id": "KB-JD-7M-OMAL249107-100001-CN-010",
@@ -110,7 +113,8 @@
       ],
       "printed_pages": [
         "300A-1"
-      ]
+      ],
+      "content_review": "已对照所列手册页的故障表或保养表复核。仍待适用性和 Agent 检索验证。"
     },
     {
       "entry_id": "KB-JD-7M-OMAL249107-100001-CN-011",
@@ -119,7 +123,8 @@
       ],
       "printed_pages": [
         "300A-1"
-      ]
+      ],
+      "content_review": "已对照所列手册页的故障表或保养表复核。仍待适用性和 Agent 检索验证。"
     },
     {
       "entry_id": "KB-JD-7M-OMAL249107-100001-CN-012",
@@ -128,7 +133,8 @@
       ],
       "printed_pages": [
         "300A-1"
-      ]
+      ],
+      "content_review": "已对照所列手册页的故障表或保养表复核。仍待适用性和 Agent 检索验证。"
     },
     {
       "entry_id": "KB-JD-7M-OMAL249107-100001-CN-013",
@@ -137,7 +143,8 @@
       ],
       "printed_pages": [
         "300A-1"
-      ]
+      ],
+      "content_review": "已对照所列手册页的故障表或保养表复核。仍待适用性和 Agent 检索验证。"
     },
     {
       "entry_id": "KB-JD-7M-OMAL249107-100001-CN-014",
@@ -146,7 +153,8 @@
       ],
       "printed_pages": [
         "300A-1"
-      ]
+      ],
+      "content_review": "已对照所列手册页的故障表或保养表复核。仍待适用性和 Agent 检索验证。"
     },
     {
       "entry_id": "KB-JD-7M-OMAL249107-100001-CN-015",
@@ -155,7 +163,8 @@
       ],
       "printed_pages": [
         "300A-2"
-      ]
+      ],
+      "content_review": "已对照所列手册页的故障表或保养表复核。仍待适用性和 Agent 检索验证。"
     },
     {
       "entry_id": "KB-JD-7M-OMAL249107-100001-CN-016",
@@ -164,7 +173,8 @@
       ],
       "printed_pages": [
         "300A-2"
-      ]
+      ],
+      "content_review": "已对照所列手册页的故障表或保养表复核。仍待适用性和 Agent 检索验证。"
     },
     {
       "entry_id": "KB-JD-7M-OMAL249107-100001-CN-017",
@@ -173,7 +183,8 @@
       ],
       "printed_pages": [
         "300A-2"
-      ]
+      ],
+      "content_review": "已对照所列手册页的故障表或保养表复核。仍待适用性和 Agent 检索验证。"
     },
     {
       "entry_id": "KB-JD-7M-OMAL249107-100001-CN-018",
@@ -182,7 +193,8 @@
       ],
       "printed_pages": [
         "300A-2"
-      ]
+      ],
+      "content_review": "已对照所列手册页的故障表或保养表复核。仍待适用性和 Agent 检索验证。"
     },
     {
       "entry_id": "KB-JD-7M-OMAL249107-100001-CN-019",
@@ -191,7 +203,8 @@
       ],
       "printed_pages": [
         "300A-2"
-      ]
+      ],
+      "content_review": "已对照所列手册页的故障表或保养表复核。仍待适用性和 Agent 检索验证。"
     },
     {
       "entry_id": "KB-JD-7M-OMAL249107-100001-CN-020",
@@ -202,7 +215,8 @@
       "printed_pages": [
         "300A-2",
         "300A-3"
-      ]
+      ],
+      "content_review": "已对照所列手册页的故障表或保养表复核。仍待适用性和 Agent 检索验证。"
     },
     {
       "entry_id": "KB-JD-7M-OMAL249107-100001-CN-021",
@@ -211,7 +225,8 @@
       ],
       "printed_pages": [
         "300A-3"
-      ]
+      ],
+      "content_review": "已对照所列手册页的故障表或保养表复核。仍待适用性和 Agent 检索验证。"
     },
     {
       "entry_id": "KB-JD-7M-OMAL249107-100001-CN-022",
@@ -220,7 +235,8 @@
       ],
       "printed_pages": [
         "300A-3"
-      ]
+      ],
+      "content_review": "已对照所列手册页的故障表或保养表复核。仍待适用性和 Agent 检索验证。"
     },
     {
       "entry_id": "KB-JD-7M-OMAL249107-100001-CN-023",
@@ -231,7 +247,8 @@
       "printed_pages": [
         "300A-3",
         "300A-4"
-      ]
+      ],
+      "content_review": "已对照所列手册页的故障表或保养表复核。仍待适用性和 Agent 检索验证。"
     },
     {
       "entry_id": "KB-JD-7M-OMAL249107-100001-CN-024",
@@ -240,7 +257,8 @@
       ],
       "printed_pages": [
         "300A-4"
-      ]
+      ],
+      "content_review": "已对照所列手册页的故障表或保养表复核。仍待适用性和 Agent 检索验证。"
     },
     {
       "entry_id": "KB-JD-7M-OMAL249107-100001-CN-025",
@@ -249,7 +267,8 @@
       ],
       "printed_pages": [
         "300A-4"
-      ]
+      ],
+      "content_review": "已对照所列手册页的故障表或保养表复核。仍待适用性和 Agent 检索验证。"
     },
     {
       "entry_id": "KB-JD-7M-OMAL249107-100001-CN-026",
@@ -258,7 +277,8 @@
       ],
       "printed_pages": [
         "300A-4"
-      ]
+      ],
+      "content_review": "已对照所列手册页的故障表或保养表复核。仍待适用性和 Agent 检索验证。"
     },
     {
       "entry_id": "KB-JD-7M-OMAL249107-100001-CN-027",
@@ -267,7 +287,8 @@
       ],
       "printed_pages": [
         "300A-4"
-      ]
+      ],
+      "content_review": "已对照所列手册页的故障表或保养表复核。仍待适用性和 Agent 检索验证。"
     },
     {
       "entry_id": "KB-JD-7M-OMAL249107-100001-CN-028",
@@ -276,7 +297,8 @@
       ],
       "printed_pages": [
         "300A-5"
-      ]
+      ],
+      "content_review": "已对照所列手册页的故障表或保养表复核。仍待适用性和 Agent 检索验证。"
     },
     {
       "entry_id": "KB-JD-7M-OMAL249107-100001-CN-029",
@@ -285,7 +307,8 @@
       ],
       "printed_pages": [
         "300A-5"
-      ]
+      ],
+      "content_review": "已对照所列手册页的故障表或保养表复核。仍待适用性和 Agent 检索验证。"
     },
     {
       "entry_id": "KB-JD-7M-OMAL249107-100001-CN-030",
@@ -294,7 +317,8 @@
       ],
       "printed_pages": [
         "300A-5"
-      ]
+      ],
+      "content_review": "已对照所列手册页的故障表或保养表复核。仍待适用性和 Agent 检索验证。"
     },
     {
       "entry_id": "KB-JD-7M-OMAL249107-100001-CN-031",
@@ -303,7 +327,8 @@
       ],
       "printed_pages": [
         "300A-5"
-      ]
+      ],
+      "content_review": "已对照所列手册页的故障表或保养表复核。仍待适用性和 Agent 检索验证。"
     },
     {
       "entry_id": "KB-JD-7M-OMAL249107-100001-CN-032",
@@ -312,7 +337,8 @@
       ],
       "printed_pages": [
         "300A-5"
-      ]
+      ],
+      "content_review": "已对照所列手册页的故障表或保养表复核。仍待适用性和 Agent 检索验证。"
     },
     {
       "entry_id": "KB-JD-7M-OMAL249107-100001-CN-033",
@@ -321,7 +347,8 @@
       ],
       "printed_pages": [
         "300A-5"
-      ]
+      ],
+      "content_review": "已对照所列手册页的故障表或保养表复核。仍待适用性和 Agent 检索验证。"
     },
     {
       "entry_id": "KB-JD-7M-OMAL249107-100001-CN-034",
@@ -330,7 +357,8 @@
       ],
       "printed_pages": [
         "300A-5"
-      ]
+      ],
+      "content_review": "已对照所列手册页的故障表或保养表复核。仍待适用性和 Agent 检索验证。"
     },
     {
       "entry_id": "KB-JD-7M-OMAL249107-100001-CN-035",
@@ -339,7 +367,8 @@
       ],
       "printed_pages": [
         "210B-1"
-      ]
+      ],
+      "content_review": "已对照所列手册页的故障表或保养表复核。仍待适用性和 Agent 检索验证。"
     },
     {
       "entry_id": "KB-JD-7M-OMAL249107-100001-CN-036",
@@ -348,7 +377,8 @@
       ],
       "printed_pages": [
         "210B-1"
-      ]
+      ],
+      "content_review": "已对照所列手册页的故障表或保养表复核。仍待适用性和 Agent 检索验证。"
     },
     {
       "entry_id": "KB-JD-7M-OMAL249107-100001-CN-037",
@@ -357,16 +387,22 @@
       ],
       "printed_pages": [
         "210B-1"
-      ]
+      ],
+      "content_review": "已对照所列手册页的故障表或保养表复核。仍待适用性和 Agent 检索验证。"
     },
     {
       "entry_id": "KB-JD-7M-OMAL249107-100001-CN-038",
       "pdf_pages": [
-        339
+        339,
+        340,
+        414
       ],
       "printed_pages": [
-        "210B-1"
-      ]
+        "210B-1",
+        "210B-2",
+        "220E-12"
+      ],
+      "content_review": "已对照所列手册页的故障表或保养表复核。仍待适用性和 Agent 检索验证。"
     },
     {
       "entry_id": "KB-JD-7M-OMAL249107-100001-CN-039",
@@ -377,7 +413,9 @@
       "printed_pages": [
         "210B-1",
         "210B-2"
-      ]
+      ],
+      "merged_candidate": "KB-JD-7M-OMAL249107-100001-CN-038",
+      "content_review": "已对照所列手册页的故障表或保养表复核。仍待适用性和 Agent 检索验证。"
     },
     {
       "entry_id": "KB-JD-7M-OMAL249107-100001-CN-040",
@@ -386,7 +424,8 @@
       ],
       "printed_pages": [
         "210B-2"
-      ]
+      ],
+      "content_review": "已对照所列手册页的故障表或保养表复核。仍待适用性和 Agent 检索验证。"
     },
     {
       "entry_id": "KB-JD-7M-OMAL249107-100001-CN-041",
@@ -395,7 +434,8 @@
       ],
       "printed_pages": [
         "210B-2"
-      ]
+      ],
+      "content_review": "已对照所列手册页的故障表或保养表复核。仍待适用性和 Agent 检索验证。"
     },
     {
       "entry_id": "KB-JD-7M-OMAL249107-100001-CN-042",
@@ -404,7 +444,8 @@
       ],
       "printed_pages": [
         "210B-2"
-      ]
+      ],
+      "content_review": "已对照所列手册页的故障表或保养表复核。仍待适用性和 Agent 检索验证。"
     },
     {
       "entry_id": "KB-JD-7M-OMAL249107-100001-CN-043",
@@ -413,7 +454,8 @@
       ],
       "printed_pages": [
         "210B-2"
-      ]
+      ],
+      "content_review": "已对照所列手册页的故障表或保养表复核。仍待适用性和 Agent 检索验证。"
     },
     {
       "entry_id": "KB-JD-7M-OMAL249107-100001-CN-044",
@@ -422,7 +464,8 @@
       ],
       "printed_pages": [
         "210B-2"
-      ]
+      ],
+      "content_review": "已对照所列手册页的故障表或保养表复核。仍待适用性和 Agent 检索验证。"
     },
     {
       "entry_id": "KB-JD-7M-OMAL249107-100001-CN-045",
@@ -431,7 +474,8 @@
       ],
       "printed_pages": [
         "210B-2"
-      ]
+      ],
+      "content_review": "已对照所列手册页的故障表或保养表复核。仍待适用性和 Agent 检索验证。"
     },
     {
       "entry_id": "KB-JD-7M-OMAL249107-100001-CN-046",
@@ -440,7 +484,8 @@
       ],
       "printed_pages": [
         "210B-2"
-      ]
+      ],
+      "content_review": "已对照所列手册页的故障表或保养表复核。仍待适用性和 Agent 检索验证。"
     },
     {
       "entry_id": "KB-JD-7M-OMAL249107-100001-CN-047",
@@ -451,7 +496,8 @@
       "printed_pages": [
         "210B-2",
         "210B-3"
-      ]
+      ],
+      "content_review": "已对照所列手册页的故障表或保养表复核。仍待适用性和 Agent 检索验证。"
     },
     {
       "entry_id": "KB-JD-7M-OMAL249107-100001-CN-048",
@@ -460,7 +506,8 @@
       ],
       "printed_pages": [
         "210B-3"
-      ]
+      ],
+      "content_review": "已对照所列手册页的故障表或保养表复核。仍待适用性和 Agent 检索验证。"
     },
     {
       "entry_id": "KB-JD-7M-OMAL249107-100001-CN-049",
@@ -469,7 +516,8 @@
       ],
       "printed_pages": [
         "210B-3"
-      ]
+      ],
+      "content_review": "已对照所列手册页的故障表或保养表复核。仍待适用性和 Agent 检索验证。"
     }
   ]
 }
