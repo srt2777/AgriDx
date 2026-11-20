@@ -1,0 +1,4146 @@
+[
+  {
+    "brand": "洋马",
+    "models": [
+      "EF494T"
+    ],
+    "entry_id": "KB-YANMAR-EF494T-TM201106-001",
+    "title": "前桥油位检查与渗漏筛查",
+    "source_id": "SRC-YANMAR-EF494T-TM201106",
+    "locator": "PDF物理第35页；印刷第27页；前桥油",
+    "bodyHash": "df2eb18636cee10b7705b1990040da8627b60ec235c096a73f77c46bfafd1e34"
+  },
+  {
+    "brand": "洋马",
+    "models": [
+      "EF494T"
+    ],
+    "entry_id": "KB-YANMAR-EF494T-TM201106-002",
+    "title": "传动油管路滤芯更换周期",
+    "source_id": "SRC-YANMAR-EF494T-TM201106",
+    "locator": "PDF物理第36页；印刷第28页；1.6 传动油滤芯",
+    "bodyHash": "c8e663a9b74f8727e82d927e21cec67c74bb4f7f6394873fd95274ca15193620"
+  },
+  {
+    "brand": "洋马",
+    "models": [
+      "EF494T"
+    ],
+    "entry_id": "KB-YANMAR-EF494T-TM201106-003",
+    "title": "燃油滤芯更换后的供油检查",
+    "source_id": "SRC-YANMAR-EF494T-TM201106",
+    "locator": "PDF物理第36页；印刷第28页；1.6 燃油滤芯",
+    "bodyHash": "fad3fe2731ce73a83d6649cc7ceedbef802fdb1c23086372041ee84f3446853e"
+  },
+  {
+    "brand": "洋马",
+    "models": [
+      "EF494T"
+    ],
+    "entry_id": "KB-YANMAR-EF494T-TM201106-004",
+    "title": "冷却液储液罐液位检查",
+    "source_id": "SRC-YANMAR-EF494T-TM201106",
+    "locator": "PDF物理第36页；印刷第28页；1.7 冷却水",
+    "bodyHash": "84062735941284e7784097d87866daed02251bd31e84e59f309e2f28e67fa566"
+  },
+  {
+    "brand": "洋马",
+    "models": [
+      "EF494T"
+    ],
+    "entry_id": "KB-YANMAR-EF494T-TM201106-005",
+    "title": "双层空气滤芯的粉尘工况保养",
+    "source_id": "SRC-YANMAR-EF494T-TM201106",
+    "locator": "PDF物理第38页；印刷第30页；1.9 空气滤芯",
+    "bodyHash": "cd0dca2ee419b39317308f13f02e7bbc75663c7fa5a3a8566b514a716ee61c4b"
+  },
+  {
+    "brand": "洋马",
+    "models": [
+      "EF494T"
+    ],
+    "entry_id": "KB-YANMAR-EF494T-TM201106-006",
+    "title": "制动单边作用与左右踏板自由行程",
+    "source_id": "SRC-YANMAR-EF494T-TM201106",
+    "locator": "PDF物理第44页；印刷第36页；1.14 制动调整",
+    "bodyHash": "203868f874ef827574c77fa7f9c0d0b64ee6baa07e6a2540d4c88dffb8361ac0"
+  },
+  {
+    "brand": "洋马",
+    "models": [
+      "EF494T"
+    ],
+    "entry_id": "KB-YANMAR-EF494T-TM201106-007",
+    "title": "方向盘游隙过大",
+    "source_id": "SRC-YANMAR-EF494T-TM201106",
+    "locator": "PDF物理第45页；印刷第37页；1.16 转向盘",
+    "bodyHash": "df36653013bccb15a618ded664cdc82ef028cd958a5d11ef353deca8550fe483"
+  },
+  {
+    "brand": "洋马",
+    "models": [
+      "EF494T"
+    ],
+    "entry_id": "KB-YANMAR-EF494T-TM201106-008",
+    "title": "风扇皮带打滑或挠度异常",
+    "source_id": "SRC-YANMAR-EF494T-TM201106",
+    "locator": "PDF物理第46页；印刷第38页；1.17 风扇皮带",
+    "bodyHash": "742b8deb0acd86ef82fe0e7c272bd186c14e986296d0938f06588c1c87a82093"
+  },
+  {
+    "brand": "洋马",
+    "models": [
+      "EF494T"
+    ],
+    "entry_id": "KB-YANMAR-EF494T-TM201106-009",
+    "title": "保险盒支路与主回路识别",
+    "source_id": "SRC-YANMAR-EF494T-TM201106",
+    "locator": "PDF物理第47页；印刷第39页；1.19 保险丝",
+    "bodyHash": "2266936d44cd60e310ffffea15cb344d80b37e12087789434e43f79d597189c0"
+  },
+  {
+    "brand": "洋马",
+    "models": [
+      "EF494T"
+    ],
+    "entry_id": "KB-YANMAR-EF494T-TM201106-010",
+    "title": "主变速与 PTO 空挡联锁开关检查",
+    "source_id": "SRC-YANMAR-EF494T-TM201106",
+    "locator": "PDF物理第219页；印刷第211页；电气检查 §13、§14",
+    "bodyHash": "35a6391dcc65bd00ad2420684ecf4bd8f2cfabb6aa4898a38849811f04e6afa6"
+  },
+  {
+    "brand": "洋马",
+    "models": [
+      "EF494T"
+    ],
+    "entry_id": "KB-YANMAR-EF494T-TM201106-011",
+    "title": "充电指示异常与发电机接线检查",
+    "source_id": "SRC-YANMAR-EF494T-TM201106",
+    "locator": "PDF物理第222页；印刷第214页；10.2.3",
+    "bodyHash": "ca77fe720c366be79a477e65620f433ec4730b34612fc2d37babcdffa7c6c9a0"
+  },
+  {
+    "brand": "洋马",
+    "models": [
+      "EF494T"
+    ],
+    "entry_id": "KB-YANMAR-EF494T-TM201106-012",
+    "title": "悬挂控制阀拆检的止拆界限",
+    "source_id": "SRC-YANMAR-EF494T-TM201106",
+    "locator": "PDF物理第201页；印刷第193页；9.2.2",
+    "bodyHash": "7b05a870d98a475449b615242b3a7f65c9dcbd3351073d020cfbcce0a65dd380"
+  },
+  {
+    "brand": "洋马",
+    "models": [
+      "EF494T"
+    ],
+    "entry_id": "KB-YANMAR-EF494T-TM201106-013",
+    "title": "发动机油尺读数和换油间隔",
+    "source_id": "SRC-YANMAR-EF494T-TM201106",
+    "locator": "PDF物理第33页；印刷第25页；1.5 发动机机油",
+    "bodyHash": "33b92b5fc53bb120a54f5368eeec2de742530e268e3cf9846af039fe8eb8924c"
+  },
+  {
+    "brand": "洋马",
+    "models": [
+      "EF494T"
+    ],
+    "entry_id": "KB-YANMAR-EF494T-TM201106-014",
+    "title": "传动油位与共用油路的保养",
+    "source_id": "SRC-YANMAR-EF494T-TM201106",
+    "locator": "PDF物理第34页；印刷第26页；1.5 传动油",
+    "bodyHash": "d6d8d5572eccbea27b3f8007368aec82bd4d5a9d90cce9d6fa11e6390bf77696"
+  },
+  {
+    "brand": "洋马",
+    "models": [
+      "EF494T"
+    ],
+    "entry_id": "KB-YANMAR-EF494T-TM201106-015",
+    "title": "柴油油水分离器浮环上升与排水",
+    "source_id": "SRC-YANMAR-EF494T-TM201106",
+    "locator": "PDF物理第37页；印刷第29页；1.8 油水分离器",
+    "bodyHash": "9dbe1391d84441c0a22ff57d1e072ad992124ad4b7c1ae697e465620d465bc59"
+  },
+  {
+    "brand": "洋马",
+    "models": [
+      "EF494T"
+    ],
+    "entry_id": "KB-YANMAR-EF494T-TM201106-016",
+    "title": "可加液蓄电池的液位及接线顺序",
+    "source_id": "SRC-YANMAR-EF494T-TM201106",
+    "locator": "PDF物理第39、40页；印刷第31、32页；1.10 蓄电池检查",
+    "bodyHash": "b294d87594f6b518f3c0a6c04cc8d475fb34ed7ad680de82022c7113e88c4d73"
+  },
+  {
+    "brand": "洋马",
+    "models": [
+      "EF494T"
+    ],
+    "entry_id": "KB-YANMAR-EF494T-TM201106-017",
+    "title": "燃油、散热器及助力转向管路老化检查",
+    "source_id": "SRC-YANMAR-EF494T-TM201106",
+    "locator": "PDF物理第40页；印刷第32页；1.11 软管和管路检查",
+    "bodyHash": "bc7d9247462d9a0613b2149ae4df3080eb4444251709a544e8f8ebd4c7a1b25a"
+  },
+  {
+    "brand": "洋马",
+    "models": [
+      "EF494T"
+    ],
+    "entry_id": "KB-YANMAR-EF494T-TM201106-018",
+    "title": "线束绝缘、接头及杂物检查",
+    "source_id": "SRC-YANMAR-EF494T-TM201106",
+    "locator": "PDF物理第40页；印刷第32页；1.12 电气线束检查",
+    "bodyHash": "512eb47b3c2b8d6cc2a0fbaae7244b194a38058f634a47c2a8fc416052a80e41"
+  },
+  {
+    "brand": "洋马",
+    "models": [
+      "EF494T"
+    ],
+    "entry_id": "KB-YANMAR-EF494T-TM201106-020",
+    "title": "传动轴接头润滑间隔与护罩复装",
+    "source_id": "SRC-YANMAR-EF494T-TM201106",
+    "locator": "PDF物理第42、43页；印刷第34、35页；1.13 前后传动轴接头润滑",
+    "bodyHash": "d5fdd561dd881457f3924002865a5c87f4d74f7640200cf00c8e0789bedddd45"
+  },
+  {
+    "brand": "洋马",
+    "models": [
+      "EF494T"
+    ],
+    "entry_id": "KB-YANMAR-EF494T-TM201106-021",
+    "title": "标准型离合踏板自由行程",
+    "source_id": "SRC-YANMAR-EF494T-TM201106",
+    "locator": "PDF物理第45页；印刷第37页；1.15 标准型离合器调整",
+    "bodyHash": "e7f67abfe031087ed69793bab8376208515fd00df9edc1022cdd3033770868fc"
+  },
+  {
+    "brand": "洋马",
+    "models": [
+      "EF494T"
+    ],
+    "entry_id": "KB-YANMAR-EF494T-TM201106-027",
+    "title": "干式离合从动盘的换件判据",
+    "source_id": "SRC-YANMAR-EF494T-TM201106",
+    "locator": "PDF物理第129页；印刷第121页；第 4 章 离合器从动盘检查",
+    "bodyHash": "2d9e28351146138ba491f9a68828b901d69688ec7ac5f5464159fddb5a5ae332"
+  },
+  {
+    "brand": "洋马",
+    "models": [
+      "EF494T"
+    ],
+    "entry_id": "KB-YANMAR-EF494T-TM201106-028",
+    "title": "离合器分离轴承有旷量或旋转不顺",
+    "source_id": "SRC-YANMAR-EF494T-TM201106",
+    "locator": "PDF物理第131页；印刷第123页；第 4 章 分离轴承复查",
+    "bodyHash": "9f532d2a3f7a2344d4628045513540b647e89abc9fa63ae44ccfa239b03ac30c"
+  },
+  {
+    "brand": "洋马",
+    "models": [
+      "EF494T"
+    ],
+    "entry_id": "KB-YANMAR-EF494T-TM201106-029",
+    "title": "离合压盘装回时的定心和螺栓扭矩",
+    "source_id": "SRC-YANMAR-EF494T-TM201106",
+    "locator": "PDF物理第131页；印刷第123页；4.2.2 压盘总成安装",
+    "bodyHash": "8a62e2fc80f1089b8de79703c02ab526bc370f762f2aeee17f87a27a6454b463"
+  },
+  {
+    "brand": "洋马",
+    "models": [
+      "EF494T"
+    ],
+    "entry_id": "KB-YANMAR-EF494T-TM201106-030",
+    "title": "离合器壳发动机侧油封和中间板的装配顺序",
+    "source_id": "SRC-YANMAR-EF494T-TM201106",
+    "locator": "PDF物理第147页；印刷第139页；第 5 章 传动总成中间板和离合器壳油封",
+    "bodyHash": "52dee3478b76095c54c155f9a1010ef72fc92843079cd72cfaaa238d85458bda"
+  },
+  {
+    "brand": "洋马",
+    "models": [
+      "EF494T"
+    ],
+    "entry_id": "KB-YANMAR-EF494T-TM201106-031",
+    "title": "前驱输出轴油封可从外侧更换",
+    "source_id": "SRC-YANMAR-EF494T-TM201106",
+    "locator": "PDF物理第151页；印刷第143页；5.5.1 变速箱前驱输出轴分解图",
+    "bodyHash": "8fa17d6d5c3bbdbe158b6d013344e32a27bf262a302db3837bf21602833514c2"
+  },
+  {
+    "brand": "洋马",
+    "models": [
+      "EF494T"
+    ],
+    "entry_id": "KB-YANMAR-EF494T-TM201106-032",
+    "title": "湿式制动盘厚度磨损极限和叠片装复",
+    "source_id": "SRC-YANMAR-EF494T-TM201106",
+    "locator": "PDF物理第163页；印刷第155页；第 6 章 湿式制动执行器分解及磨损极限",
+    "bodyHash": "b1430706e9651d5dc198ac7b930d971eb326ea8c4b42890d891fd7fb9c60bf08"
+  },
+  {
+    "brand": "洋马",
+    "models": [
+      "EF494T"
+    ],
+    "entry_id": "KB-YANMAR-EF494T-TM201106-033",
+    "title": "转向振动时核对前轮前束",
+    "source_id": "SRC-YANMAR-EF494T-TM201106",
+    "locator": "PDF物理第170页；印刷第162页；7.3 前轮定位",
+    "bodyHash": "605d2a594628f1be9e556081b62d26f45132b182aa9f28eade7caa375dcdc457"
+  },
+  {
+    "brand": "洋马",
+    "models": [
+      "EF494T"
+    ],
+    "entry_id": "KB-YANMAR-EF494T-TM201106-034",
+    "title": "前轴承座复装应恢复原机垫片配置",
+    "source_id": "SRC-YANMAR-EF494T-TM201106",
+    "locator": "PDF物理第171页；印刷第163页；7.4 前轴承座拆装",
+    "bodyHash": "2ba1f8f4e2c4ddbe00b5d6bbcff56deefd1eace6b79ba860138134d6b65c8461"
+  },
+  {
+    "brand": "洋马",
+    "models": [
+      "EF494T"
+    ],
+    "entry_id": "KB-YANMAR-EF494T-TM201106-035",
+    "title": "前桥主动小齿轮轴承预紧的起转扭矩",
+    "source_id": "SRC-YANMAR-EF494T-TM201106",
+    "locator": "PDF物理第174、175页；印刷第166、167页；7.6.2 前桥主动小齿轮装配",
+    "bodyHash": "628591b44ade0681faf2f591f1ec7129be47d0068286ab76a21a1f5e4bc30859"
+  },
+  {
+    "brand": "洋马",
+    "models": [
+      "EF494T"
+    ],
+    "entry_id": "KB-YANMAR-EF494T-TM201106-036",
+    "title": "助力转向阀渗漏的密封件及阀体维修范围",
+    "source_id": "SRC-YANMAR-EF494T-TM201106",
+    "locator": "PDF物理第182、184页；印刷第174、176页；8.2.1 助力转向阀拆卸与 8.2.3 漏油检修",
+    "bodyHash": "b0d49c2b6623bda1804816e493bc7032b0ada42ade262d6dc8d9a6fbbb29613e"
+  },
+  {
+    "brand": "洋马",
+    "models": [
+      "EF494T"
+    ],
+    "entry_id": "KB-YANMAR-EF494T-TM201106-037",
+    "title": "助力转向偏重时的溢流压力检查",
+    "source_id": "SRC-YANMAR-EF494T-TM201106",
+    "locator": "PDF物理第183页；印刷第175页；8.2.2 助力转向溢流压力检测",
+    "bodyHash": "bd806aac91ca791495c689b2086567f2ff9426815b61b753c3d3bd54173dfe7b"
+  },
+  {
+    "brand": "洋马",
+    "models": [
+      "EF494T"
+    ],
+    "entry_id": "KB-YANMAR-EF494T-TM201106-038",
+    "title": "提升臂控制阀装回后检查反馈连杆",
+    "source_id": "SRC-YANMAR-EF494T-TM201106",
+    "locator": "PDF物理第193、194、200、203页；印刷第185、186、192、195页；9.1.8 位置反馈连杆与 9.2.1、9.2.4 装回调校",
+    "bodyHash": "aa3a8ffaf1d00c73f96114fef569d491ad06b30732f0d6b48462d9311db8ea79"
+  },
+  {
+    "brand": "洋马",
+    "models": [
+      "EF494T"
+    ],
+    "entry_id": "KB-YANMAR-EF494T-TM201106-039",
+    "title": "提升回路主溢流压力和定点测试",
+    "source_id": "SRC-YANMAR-EF494T-TM201106",
+    "locator": "PDF物理第202页；印刷第194页；9.2.3 提升回路主溢流压力",
+    "bodyHash": "f1e3477b11e2c270d6fe0f79f260dc4e8b32428ad21fac1a43cb5a438f5cb443"
+  },
+  {
+    "brand": "洋马",
+    "models": [
+      "EF494T"
+    ],
+    "entry_id": "KB-YANMAR-EF494T-TM201106-040",
+    "title": "外接液压机具应使用指定输出口",
+    "source_id": "SRC-YANMAR-EF494T-TM201106",
+    "locator": "PDF物理第209页；印刷第201页；第 9 章 外接液压输出错误接法",
+    "bodyHash": "a6b7a39773376d40f118b88522f024966839babeb5d2887d664f38bc83c3865c"
+  },
+  {
+    "brand": "洋马",
+    "models": [
+      "EF494T"
+    ],
+    "entry_id": "KB-YANMAR-EF494T-TM201106-041",
+    "title": "起动机 B、S 端子供电定位",
+    "source_id": "SRC-YANMAR-EF494T-TM201106",
+    "locator": "PDF物理第215页；印刷第207页；10.1.3 起动马达搭铁电压",
+    "bodyHash": "c18441c1281e61ea21f413019b53df6c4a44b5a7eee8d133ebe616f52ad05e58"
+  },
+  {
+    "brand": "洋马",
+    "models": [
+      "EF494T"
+    ],
+    "entry_id": "KB-YANMAR-EF494T-TM201106-042",
+    "title": "燃油切断电磁铁失电停机及回路区分",
+    "source_id": "SRC-YANMAR-EF494T-TM201106",
+    "locator": "PDF物理第216页；印刷第208页；10.1.3 燃油切断电磁铁",
+    "bodyHash": "f44d18d0e1bb8658222da4ff94dc664923751d8f2d4ff43b431380adca685fb0"
+  },
+  {
+    "brand": "洋马",
+    "models": [
+      "EF494T"
+    ],
+    "entry_id": "KB-YANMAR-EF494T-TM201106-043",
+    "title": "燃油切断电磁铁继电器的单件检查",
+    "source_id": "SRC-YANMAR-EF494T-TM201106",
+    "locator": "PDF物理第218页；印刷第210页；10.1.3 电磁继电器单件检查",
+    "bodyHash": "c2fa1a1c906279e3f6feacf95edcb2dbd21dabc6393840e5cadc683847896433"
+  },
+  {
+    "brand": "洋马",
+    "models": [
+      "EF494T"
+    ],
+    "entry_id": "KB-YANMAR-EF494T-TM201106-044",
+    "title": "水温表异常时核对传感器电阻和车端供电",
+    "source_id": "SRC-YANMAR-EF494T-TM201106",
+    "locator": "PDF物理第226页；印刷第218页；10.3.3 冷却液温度传感器",
+    "bodyHash": "882baf0727bf06b992b672120162bb247c4d8ca7ffedccb8658db4f8c4b63cc9"
+  },
+  {
+    "brand": "洋马",
+    "models": [
+      "EF494T"
+    ],
+    "entry_id": "KB-YANMAR-EF494T-TM201106-046",
+    "title": "燃油表失准时的浮子电阻范围",
+    "source_id": "SRC-YANMAR-EF494T-TM201106",
+    "locator": "PDF物理第227页；印刷第219页；10.3.3 燃油液位传感器",
+    "bodyHash": "20154c150b1021619f202d52273403f9a9e5b5e857842ee94ebfd51de4b1b0d0"
+  },
+  {
+    "brand": "洋马",
+    "models": [
+      "EF494T"
+    ],
+    "entry_id": "KB-YANMAR-EF494T-TM201106-047",
+    "title": "轮胎气压和前载荷作业核对",
+    "source_id": "SRC-YANMAR-EF494T-TM201106",
+    "locator": "PDF物理第29、48页；印刷第21、40页；0.3.8 轮胎规格及 1.20 轮胎检查",
+    "bodyHash": "7e3dfbd4aabd38495e98e150e1ca3eb09c5931758f29f31428879c4af3ae4efc"
+  },
+  {
+    "brand": "洋马",
+    "models": [
+      "EF494T"
+    ],
+    "entry_id": "KB-YANMAR-EF494T-TM201106-049",
+    "title": "油箱重新装车时恢复橡胶垫",
+    "source_id": "SRC-YANMAR-EF494T-TM201106",
+    "locator": "PDF物理第54页；印刷第46页；2.4 座架及油箱拆装",
+    "bodyHash": "4c3bf7d0cd97bbf80abb7534bb6a49f934d54c7f1c920f0ae373c9983664f8c4"
+  },
+  {
+    "brand": "洋马",
+    "models": [
+      "EF494T"
+    ],
+    "entry_id": "KB-YANMAR-EF494T-TM201106-050",
+    "title": "拆分发动机和离合器壳前的稳定及管路检查",
+    "source_id": "SRC-YANMAR-EF494T-TM201106",
+    "locator": "PDF物理第55、58、61页；印刷第47、50、53页；2.5.1–2.5.2 发动机与离合器壳分离及对接",
+    "bodyHash": "9091d5a5c7c36fbf475ffeddcc3e013820d678ffb9ea9b12be14087dc080d3be"
+  },
+  {
+    "brand": "洋马",
+    "models": [
+      "EF494T"
+    ],
+    "entry_id": "KB-YANMAR-EF494T-TM201106-051",
+    "title": "离合器壳与变速箱分离后的定位和复装核对",
+    "source_id": "SRC-YANMAR-EF494T-TM201106",
+    "locator": "PDF物理第64、65、66页；印刷第56、57、58页；2.6.2 离合器壳与变速箱分离",
+    "bodyHash": "cf265171fb6ccd8925b0b5c76a98c8e5123fdc388ea93f122fa8101de6647edd"
+  },
+  {
+    "brand": "洋马",
+    "models": [
+      "EF494T"
+    ],
+    "entry_id": "KB-YANMAR-EF494T-TM201106-052",
+    "title": "拆 PTO 模块时拨臂和空挡开关干涉",
+    "source_id": "SRC-YANMAR-EF494T-TM201106",
+    "locator": "PDF物理第68页；印刷第60页；2.6.4 PTO 模块和安全开关",
+    "bodyHash": "fd05a8f4db1ec50554d7c9995ca424a56cfff372d6697b5f031ee82b20b5aa3b"
+  },
+  {
+    "brand": "洋马",
+    "models": [
+      "EF494T"
+    ],
+    "entry_id": "KB-YANMAR-EF494T-TM201106-053",
+    "title": "前桥中心销复装的摆动间隙与防脱",
+    "source_id": "SRC-YANMAR-EF494T-TM201106",
+    "locator": "PDF物理第70页；印刷第62页；2.7 前桥总成复装",
+    "bodyHash": "cfc9ba693dccd7728c81b3012c696dacb0a490fc58e0111f564f4df65b62ba23"
+  },
+  {
+    "brand": "洋马",
+    "models": [
+      "EF494T"
+    ],
+    "entry_id": "KB-YANMAR-EF494T-TM201106-056",
+    "title": "散热器盖压力保持试验",
+    "source_id": "SRC-YANMAR-EF494T-TM201106",
+    "locator": "PDF物理第103页；印刷第95页；第 3 章 散热器盖测压",
+    "bodyHash": "3f03efa0229279afe6b894c57ec7197dd1540f0a7093695f23b04ecf02d8ddab"
+  },
+  {
+    "brand": "洋马",
+    "models": [
+      "EF494T"
+    ],
+    "entry_id": "KB-YANMAR-EF494T-TM201106-070",
+    "title": "后桥差速锁切换位置和转向限制",
+    "source_id": "SRC-YANMAR-EF494T-TM201106",
+    "locator": "PDF物理第160页；印刷第152页；6.1.2 后桥差速锁",
+    "bodyHash": "727e01c3f98f08e158ea27305df1257974df7c8454c86dc951fca19a307ec4ef"
+  },
+  {
+    "brand": "洋马",
+    "models": [
+      "EF494T"
+    ],
+    "entry_id": "KB-YANMAR-EF494T-TM201106-071",
+    "title": "悬挂机具外力冲击时的油缸安全阀",
+    "source_id": "SRC-YANMAR-EF494T-TM201106",
+    "locator": "PDF物理第191页；印刷第183页；9.1.5 提升油缸冲击安全阀",
+    "bodyHash": "c6cecd4746045e73fcaffc87285be5dba9f9eb728d362c98f5ddf492a4b49956"
+  },
+  {
+    "brand": "洋马",
+    "models": [
+      "EF494T"
+    ],
+    "entry_id": "KB-YANMAR-EF494T-TM201106-072",
+    "title": "单作用与双作用机具的原厂输出口方向",
+    "source_id": "SRC-YANMAR-EF494T-TM201106",
+    "locator": "PDF物理第204、205页；印刷第196、197页；9.3.1–9.3.2 单作用和双作用液压输出",
+    "bodyHash": "825468fcb79e3110a86e876a306c6f7d5e3cce3cb31770178161645c414d95d8"
+  },
+  {
+    "brand": "洋马",
+    "models": [
+      "EF494T"
+    ],
+    "entry_id": "KB-YANMAR-EF494T-TM201106-073",
+    "title": "前照灯远近光灯丝的断电检查",
+    "source_id": "SRC-YANMAR-EF494T-TM201106",
+    "locator": "PDF物理第230、232页；印刷第222、224页；10.4.1、10.4.3 前照灯及灯泡",
+    "bodyHash": "1b4c17d96bfe0328ffce5d336aa1f02b2b0df0502cc5741cd56330609a9e0e49"
+  },
+  {
+    "brand": "洋马",
+    "models": [
+      "EF494T"
+    ],
+    "entry_id": "KB-YANMAR-EF494T-TM201106-074",
+    "title": "喇叭失声时的单件电阻参照",
+    "source_id": "SRC-YANMAR-EF494T-TM201106",
+    "locator": "PDF物理第232页；印刷第224页；10.4.3 喇叭单件检查",
+    "bodyHash": "2b384e446ba8fe449cc83a9dcdfc8d158576dcd39e17514bfea5bc7e12c7cd8b"
+  },
+  {
+    "brand": "洋马",
+    "models": [
+      "EF494T"
+    ],
+    "entry_id": "KB-YANMAR-EF494T-TM201106-075",
+    "title": "远近光继电器单件端子核对",
+    "source_id": "SRC-YANMAR-EF494T-TM201106",
+    "locator": "PDF物理第230、232页；印刷第222、224页；10.4.1、10.4.3 前照灯继电器",
+    "bodyHash": "82df3fbeed60911cfc8bcf178d243b1ddea8a055b6700d6d75fd3a637da004e2"
+  },
+  {
+    "brand": "洋马",
+    "models": [
+      "EF494T"
+    ],
+    "entry_id": "KB-YANMAR-EF494T-TM201106-076",
+    "title": "左右转向灯闪烁频率和灯泡断电检查",
+    "source_id": "SRC-YANMAR-EF494T-TM201106",
+    "locator": "PDF物理第232、233页；印刷第224、225页；10.4.3 闪光继电器与转向灯",
+    "bodyHash": "bb37c797f6f454a9661bdff3e2d085270b1c18e6367cc8c2f492bb522e1f2872"
+  },
+  {
+    "brand": "洋马",
+    "models": [
+      "EF494T"
+    ],
+    "entry_id": "KB-YANMAR-EF494T-TM201106-077",
+    "title": "钥匙开关 OFF、ON 和 START 挡导通关系",
+    "source_id": "SRC-YANMAR-EF494T-TM201106",
+    "locator": "PDF物理第219、233页；印刷第211、225页；10.1.3、10.4.3 钥匙开关单件检查",
+    "bodyHash": "8d8e524d89d0253c5528b4d7363911230770db1b8a3f2fddfbdc18c5f0b974c1"
+  },
+  {
+    "brand": "洋马",
+    "models": [
+      "EF494T"
+    ],
+    "entry_id": "KB-YANMAR-EF494T-TM201106-078",
+    "title": "组合开关各挡位的端子通断",
+    "source_id": "SRC-YANMAR-EF494T-TM201106",
+    "locator": "PDF物理第233页；印刷第225页；10.4.3 照明／转向灯／喇叭组合开关",
+    "bodyHash": "ca90838e6b4c1bcd99ca67dcbe8d4f5d0cc7782ae2342b3237a9ef66f9107971"
+  },
+  {
+    "brand": "Branson",
+    "models": [
+      "3620",
+      "4820",
+      "5520"
+    ],
+    "entry_id": "KB-BRANSON-3620-4820-5520-B20W-202009-001",
+    "title": "通电后起动机小齿轮不推出",
+    "source_id": "SRC-BRANSON-3620-4820-5520-B20W-202009",
+    "locator": "PDF物理第70页；印刷第2-14页；发动机缺陷诊断与管理",
+    "bodyHash": "5374c03110040ed16dc192fd23a16d9d9ee87822f471f7b1fec353823f445ae1"
+  },
+  {
+    "brand": "Branson",
+    "models": [
+      "3620",
+      "4820",
+      "5520"
+    ],
+    "entry_id": "KB-BRANSON-3620-4820-5520-B20W-202009-002",
+    "title": "小齿轮已啮合飞轮齿圈而起动机不转",
+    "source_id": "SRC-BRANSON-3620-4820-5520-B20W-202009",
+    "locator": "PDF物理第70页；印刷第2-14页；发动机缺陷诊断与管理",
+    "bodyHash": "a23ee3e1f9f910ea51fde7cbd854bceccad05ca56e24fbaf5991144f2afe32cf"
+  },
+  {
+    "brand": "Branson",
+    "models": [
+      "3620",
+      "4820",
+      "5520"
+    ],
+    "entry_id": "KB-BRANSON-3620-4820-5520-B20W-202009-003",
+    "title": "起动机转动而驱动齿轮无法啮合",
+    "source_id": "SRC-BRANSON-3620-4820-5520-B20W-202009",
+    "locator": "PDF物理第70页；印刷第2-14页；发动机缺陷诊断与管理",
+    "bodyHash": "70c13f059186bc6395ec4827079ef823b71ae05ea301b005aa12681857746ee9"
+  },
+  {
+    "brand": "Branson",
+    "models": [
+      "3620",
+      "4820",
+      "5520"
+    ],
+    "entry_id": "KB-BRANSON-3620-4820-5520-B20W-202009-004",
+    "title": "起动机和小齿轮动作但发动机不转",
+    "source_id": "SRC-BRANSON-3620-4820-5520-B20W-202009",
+    "locator": "PDF物理第70页；印刷第2-14页；发动机缺陷诊断与管理",
+    "bodyHash": "ecc398f3c0a9ac84c97f07d5444d6ba239558b46ca9e2ce99b5e00549671a7b5"
+  },
+  {
+    "brand": "Branson",
+    "models": [
+      "3620",
+      "4820",
+      "5520"
+    ],
+    "entry_id": "KB-BRANSON-3620-4820-5520-B20W-202009-005",
+    "title": "发动机点火后很快熄火",
+    "source_id": "SRC-BRANSON-3620-4820-5520-B20W-202009",
+    "locator": "PDF物理第71页；印刷第2-15页；发动机缺陷诊断与管理",
+    "bodyHash": "5019cb7549c0be9fa652b171a445c30ff3fdf69813c4b9191b2e448b997dfe35"
+  },
+  {
+    "brand": "Branson",
+    "models": [
+      "3620",
+      "4820",
+      "5520"
+    ],
+    "entry_id": "KB-BRANSON-3620-4820-5520-B20W-202009-006",
+    "title": "油门回怠速后转速不稳",
+    "source_id": "SRC-BRANSON-3620-4820-5520-B20W-202009",
+    "locator": "PDF物理第71页；印刷第2-15页；发动机缺陷诊断与管理",
+    "bodyHash": "4b6ec1344bd9a2519987fe3d49bf22f7d0440c2f0a8b170e461dddd31103e860"
+  },
+  {
+    "brand": "Branson",
+    "models": [
+      "3620",
+      "4820",
+      "5520"
+    ],
+    "entry_id": "KB-BRANSON-3620-4820-5520-B20W-202009-007",
+    "title": "寒冷条件下发动机输出下降",
+    "source_id": "SRC-BRANSON-3620-4820-5520-B20W-202009",
+    "locator": "PDF物理第71页；印刷第2-15页；发动机缺陷诊断与管理",
+    "bodyHash": "e663f5366c9c32f8d2b8f8395e46f596336f78508c9e8062c8f39f2295700e45"
+  },
+  {
+    "brand": "Branson",
+    "models": [
+      "3620",
+      "4820",
+      "5520"
+    ],
+    "entry_id": "KB-BRANSON-3620-4820-5520-B20W-202009-008",
+    "title": "燃油消耗升高且怀疑回油管受限",
+    "source_id": "SRC-BRANSON-3620-4820-5520-B20W-202009",
+    "locator": "PDF物理第73页；印刷第2-17页；发动机缺陷诊断与管理",
+    "bodyHash": "30aa6e1badaf6b6acfb802a27180c3d897140a1189cce24c2ae7b785e87cb595"
+  },
+  {
+    "brand": "Branson",
+    "models": [
+      "3620",
+      "4820",
+      "5520"
+    ],
+    "entry_id": "KB-BRANSON-3620-4820-5520-B20W-202009-009",
+    "title": "发动机机油消耗升高且外部无明显漏油",
+    "source_id": "SRC-BRANSON-3620-4820-5520-B20W-202009",
+    "locator": "PDF物理第73页；印刷第2-17页；发动机缺陷诊断与管理",
+    "bodyHash": "28f900f0dd400ab5f8adc977fab88090526e8379fc33f68e8e742534a7530157"
+  },
+  {
+    "brand": "Branson",
+    "models": [
+      "3620",
+      "4820",
+      "5520"
+    ],
+    "entry_id": "KB-BRANSON-3620-4820-5520-B20W-202009-012",
+    "title": "传动油到液压齿轮泵前的两级过滤",
+    "source_id": "SRC-BRANSON-3620-4820-5520-B20W-202009",
+    "locator": "PDF物理第349页；印刷第6-53页；液压滤芯及滤网",
+    "bodyHash": "b028e5a4a6d57daea0711ba8bd7cc4f5e510c7825a7f89ae56170e520ec4bda0"
+  },
+  {
+    "brand": "Branson",
+    "models": [
+      "3620",
+      "4820",
+      "5520"
+    ],
+    "entry_id": "KB-BRANSON-3620-4820-5520-B20W-202009-013",
+    "title": "液压滤芯的首次更换与后续间隔",
+    "source_id": "SRC-BRANSON-3620-4820-5520-B20W-202009",
+    "locator": "PDF物理第349页；印刷第6-53页；液压滤芯及滤网",
+    "bodyHash": "9917dd9fe2bd28a29a664c8f90b9c248012af64ec3bcdc25c702ba8a82d2c04a"
+  },
+  {
+    "brand": "Branson",
+    "models": [
+      "3620",
+      "4820",
+      "5520"
+    ],
+    "entry_id": "KB-BRANSON-3620-4820-5520-B20W-202009-014",
+    "title": "后悬挂抬不起且可能存在阀芯卡阻",
+    "source_id": "SRC-BRANSON-3620-4820-5520-B20W-202009",
+    "locator": "PDF物理第351页；印刷第6-55页；液压排故",
+    "bodyHash": "14921c164a03a9b305c83e573a7165bcc55c22670e21542922ce42844151296f"
+  },
+  {
+    "brand": "Branson",
+    "models": [
+      "3620",
+      "4820",
+      "5520"
+    ],
+    "entry_id": "KB-BRANSON-3620-4820-5520-B20W-202009-015",
+    "title": "后悬挂无法降低且操纵杆动作正常",
+    "source_id": "SRC-BRANSON-3620-4820-5520-B20W-202009",
+    "locator": "PDF物理第351页；印刷第6-55页；液压排故",
+    "bodyHash": "f1c0334f164717bcebc2d85e07917f1afff548e7ff78760aab8a2c9ab057c746"
+  },
+  {
+    "brand": "Branson",
+    "models": [
+      "K68",
+      "K68R",
+      "K72",
+      "K72R",
+      "K78",
+      "K78R",
+      "7845",
+      "7845R"
+    ],
+    "entry_id": "KB-BRANSON-K68-K72-K78-7845-K72W-201504-001",
+    "title": "开关置启动位且起动机完全不动作",
+    "source_id": "SRC-BRANSON-K68-K72-K78-7845-K72W-201504",
+    "locator": "PDF物理第400页；印刷第6-28页；电气故障排查矩阵 5.1.4",
+    "bodyHash": "b3c5bf068036735edbe6219486077ed313ba92d9716257c6b3571bd7743884ac"
+  },
+  {
+    "brand": "Branson",
+    "models": [
+      "K68",
+      "K68R",
+      "K72",
+      "K72R",
+      "K78",
+      "K78R",
+      "7845",
+      "7845R"
+    ],
+    "entry_id": "KB-BRANSON-K68-K72-K78-7845-K72W-201504-002",
+    "title": "起动机动作但发动机未能点火",
+    "source_id": "SRC-BRANSON-K68-K72-K78-7845-K72W-201504",
+    "locator": "PDF物理第400页；印刷第6-28页；电气故障排查矩阵 5.1.4",
+    "bodyHash": "9ec7491f04ee3f2d63a372ea815f4136e953bc67f3b05764af3aca5fa562ba35"
+  },
+  {
+    "brand": "Branson",
+    "models": [
+      "K68",
+      "K68R",
+      "K72",
+      "K72R",
+      "K78",
+      "K78R",
+      "7845",
+      "7845R"
+    ],
+    "entry_id": "KB-BRANSON-K68-K72-K78-7845-K72W-201504-003",
+    "title": "发动机停机指令无效",
+    "source_id": "SRC-BRANSON-K68-K72-K78-7845-K72W-201504",
+    "locator": "PDF物理第400页；印刷第6-28页；电气故障排查矩阵 5.1.4",
+    "bodyHash": "9ed1afb6a24fae7fe0bf3fa47d5f7badcbe78912e4db8a6d2da53901d8afcb20"
+  },
+  {
+    "brand": "Branson",
+    "models": [
+      "K68",
+      "K68R",
+      "K72",
+      "K72R",
+      "K78",
+      "K78R",
+      "7845",
+      "7845R"
+    ],
+    "entry_id": "KB-BRANSON-K68-K72-K78-7845-K72W-201504-004",
+    "title": "冷车预热指示不亮",
+    "source_id": "SRC-BRANSON-K68-K72-K78-7845-K72W-201504",
+    "locator": "PDF物理第400页；印刷第6-28页；电气故障排查矩阵 5.1.4",
+    "bodyHash": "146bdf5320f1fa28f435428e25dbfcaee5d0fb1b12af7446cd41c4f5422633f1"
+  },
+  {
+    "brand": "Branson",
+    "models": [
+      "K68",
+      "K68R",
+      "K72",
+      "K72R",
+      "K78",
+      "K78R",
+      "7845",
+      "7845R"
+    ],
+    "entry_id": "KB-BRANSON-K68-K72-K78-7845-K72W-201504-005",
+    "title": "预热指示持续不灭",
+    "source_id": "SRC-BRANSON-K68-K72-K78-7845-K72W-201504",
+    "locator": "PDF物理第400页；印刷第6-28页；电气故障排查矩阵 5.1.4",
+    "bodyHash": "3cd1e788982224ed38030d7bf824a01289082e05b6f251e6e3d90df869092099"
+  },
+  {
+    "brand": "Branson",
+    "models": [
+      "K68",
+      "K68R",
+      "K72",
+      "K72R",
+      "K78",
+      "K78R",
+      "7845",
+      "7845R"
+    ],
+    "entry_id": "KB-BRANSON-K68-K72-K78-7845-K72W-201504-006",
+    "title": "充电警告灯在应点亮时不亮",
+    "source_id": "SRC-BRANSON-K68-K72-K78-7845-K72W-201504",
+    "locator": "PDF物理第400页；印刷第6-28页；电气故障排查矩阵 5.1.4",
+    "bodyHash": "14a6fd3114524b9337ab8be1bf230ee2e5d3776b66499f36df2af79795a786ea"
+  },
+  {
+    "brand": "Branson",
+    "models": [
+      "K68",
+      "K68R",
+      "K72",
+      "K72R",
+      "K78",
+      "K78R",
+      "7845",
+      "7845R"
+    ],
+    "entry_id": "KB-BRANSON-K68-K72-K78-7845-K72W-201504-007",
+    "title": "发动机运行后充电警告灯一直亮",
+    "source_id": "SRC-BRANSON-K68-K72-K78-7845-K72W-201504",
+    "locator": "PDF物理第400页；印刷第6-28页；电气故障排查矩阵 5.1.4",
+    "bodyHash": "9f6937ed4ef54f94e2ceec125ca2f7988e1ebaa3b392122263b35da956737611"
+  },
+  {
+    "brand": "久保田",
+    "models": [
+      "B2301",
+      "B2601"
+    ],
+    "entry_id": "KB-KB-B2301-B2601-9Y11111560-001",
+    "title": "柴油机不能起动且怀疑缸内漏压",
+    "source_id": "SRC-KB-B2301-B2601-9Y11111560",
+    "locator": "PDF物理第75页；印刷第1-S1页；原厂维修排查",
+    "bodyHash": "840c6d3bdc8e4b84dc487aa1d470806e0610b6e3dd77380fb14fd00b0696c4c2"
+  },
+  {
+    "brand": "久保田",
+    "models": [
+      "B2301",
+      "B2601"
+    ],
+    "entry_id": "KB-KB-B2301-B2601-9Y11111560-002",
+    "title": "柴油机转速不稳时区分过滤与调速故障",
+    "source_id": "SRC-KB-B2301-B2601-9Y11111560",
+    "locator": "PDF物理第76页；印刷第1-S2页；原厂维修排查",
+    "bodyHash": "5e1bec6e67d80277acd318df3cee61d74efb6260273c58e43b5d4d8abc3565f7"
+  },
+  {
+    "brand": "久保田",
+    "models": [
+      "B2301",
+      "B2601"
+    ],
+    "entry_id": "KB-KB-B2301-B2601-9Y11111560-003",
+    "title": "白烟或蓝烟的油位及缸压排查",
+    "source_id": "SRC-KB-B2301-B2601-9Y11111560",
+    "locator": "PDF物理第76页；印刷第1-S2页；原厂维修排查",
+    "bodyHash": "96ec745aff3726bbeea5310d7161ccf4b8e1c78f007dfe45a5a9438864739d26"
+  },
+  {
+    "brand": "久保田",
+    "models": [
+      "B2301",
+      "B2601"
+    ],
+    "entry_id": "KB-KB-B2301-B2601-9Y11111560-004",
+    "title": "静液压传动双向失效或动力不足",
+    "source_id": "SRC-KB-B2301-B2601-9Y11111560",
+    "locator": "PDF物理第157页；印刷第2-S1页；原厂维修排查",
+    "bodyHash": "694e9992891f7c624c15b0da4aca845ee460e46a35830d647ace6ec7218d3079"
+  },
+  {
+    "brand": "久保田",
+    "models": [
+      "B2301",
+      "B2601"
+    ],
+    "entry_id": "KB-KB-B2301-B2601-9Y11111560-005",
+    "title": "传动油过热时的散热和压力排查",
+    "source_id": "SRC-KB-B2301-B2601-9Y11111560",
+    "locator": "PDF物理第157页；印刷第2-S1页；原厂维修排查",
+    "bodyHash": "b76c5142817b405bdd838c45cace487384dbbbe67ba73d5357db09e504ff7423"
+  },
+  {
+    "brand": "久保田",
+    "models": [
+      "B2301",
+      "B2601"
+    ],
+    "entry_id": "KB-KB-B2301-B2601-9Y11111560-006",
+    "title": "静液压踏板回中后拖拉机仍爬行",
+    "source_id": "SRC-KB-B2301-B2601-9Y11111560",
+    "locator": "PDF物理第158页；印刷第2-S2页；原厂维修排查",
+    "bodyHash": "d0d069504f42576e63995102b055047d73b73d534c8a641101ca46c03273c94a"
+  },
+  {
+    "brand": "久保田",
+    "models": [
+      "B2301",
+      "B2601"
+    ],
+    "entry_id": "KB-KB-B2301-B2601-9Y11111560-007",
+    "title": "静液压前进或后退只有一个方向有效",
+    "source_id": "SRC-KB-B2301-B2601-9Y11111560",
+    "locator": "PDF物理第158页；印刷第2-S2页；原厂维修排查",
+    "bodyHash": "8f3cf6f3a32e52350146d15462f0fd9bb79449d65ba79310afea8ff60ec56b24"
+  },
+  {
+    "brand": "久保田",
+    "models": [
+      "B2301",
+      "B2601"
+    ],
+    "entry_id": "KB-KB-B2301-B2601-9Y11111560-008",
+    "title": "独立动力输出离合器打滑",
+    "source_id": "SRC-KB-B2301-B2601-9Y11111560",
+    "locator": "PDF物理第159页；印刷第2-S3页；原厂维修排查",
+    "bodyHash": "8ffc987ca434f981d6d8ace6fed038cd87658bd25035dadd0636a4cc3f47e45d"
+  },
+  {
+    "brand": "久保田",
+    "models": [
+      "B2301",
+      "B2601"
+    ],
+    "entry_id": "KB-KB-B2301-B2601-9Y11111560-009",
+    "title": "独立动力输出离合器拖滞",
+    "source_id": "SRC-KB-B2301-B2601-9Y11111560",
+    "locator": "PDF物理第159页；印刷第2-S3页；原厂维修排查",
+    "bodyHash": "30827a4b2d3a2d234adaa2414fd8db7f189bc10917c6e737155cbc67fac847b7"
+  },
+  {
+    "brand": "久保田",
+    "models": [
+      "B2301",
+      "B2601"
+    ],
+    "entry_id": "KB-KB-B2301-B2601-9Y11111560-010",
+    "title": "仅转弯时后桥发出异响",
+    "source_id": "SRC-KB-B2301-B2601-9Y11111560",
+    "locator": "PDF物理第205页；印刷第3-S1页；原厂维修排查",
+    "bodyHash": "24927defe7e9ab9a69098c2e2792c69aa4bcfd3c150a0a068360209a4497dff0"
+  },
+  {
+    "brand": "久保田",
+    "models": [
+      "B2301",
+      "B2601"
+    ],
+    "entry_id": "KB-KB-B2301-B2601-9Y11111560-011",
+    "title": "两侧制动力不均匀的踏板和制动盘核对",
+    "source_id": "SRC-KB-B2301-B2601-9Y11111560",
+    "locator": "PDF物理第215页；印刷第4-S1页；原厂维修排查",
+    "bodyHash": "63e36f28950a2848ec78a22f890a2fdf217cc1b85ca850460bc347a2f7f2a26a"
+  },
+  {
+    "brand": "久保田",
+    "models": [
+      "B2301",
+      "B2601"
+    ],
+    "entry_id": "KB-KB-B2301-B2601-9Y11111560-012",
+    "title": "制动器拖滞的踏板行程和凸轮检查",
+    "source_id": "SRC-KB-B2301-B2601-9Y11111560",
+    "locator": "PDF物理第215页；印刷第4-S1页；原厂维修排查",
+    "bodyHash": "c7818407054d12c1183ad3481f49c2c27ad6152778f8a3b23d0c102f31fc3629"
+  },
+  {
+    "brand": "久保田",
+    "models": [
+      "B2301",
+      "B2601"
+    ],
+    "entry_id": "KB-KB-B2301-B2601-9Y11111560-013",
+    "title": "前轮左右游移的前桥支承与拉杆检查",
+    "source_id": "SRC-KB-B2301-B2601-9Y11111560",
+    "locator": "PDF物理第227页；印刷第5-S1页；原厂维修排查",
+    "bodyHash": "672a5743cfa8053e1915c6e043e948f0e7661d4e1590d4ec79751a2f3ef2c627"
+  },
+  {
+    "brand": "久保田",
+    "models": [
+      "B2301",
+      "B2601"
+    ],
+    "entry_id": "KB-KB-B2301-B2601-9Y11111560-014",
+    "title": "转向用力时轻时重检查吸油进气",
+    "source_id": "SRC-KB-B2301-B2601-9Y11111560",
+    "locator": "PDF物理第249页；印刷第6-S1页；原厂维修排查",
+    "bodyHash": "8b107038f51d4119e62268bd767205a46b629127046d19e5f0d824c9ba3e07a9"
+  },
+  {
+    "brand": "久保田",
+    "models": [
+      "B2301",
+      "B2601"
+    ],
+    "entry_id": "KB-KB-B2301-B2601-9Y11111560-015",
+    "title": "松开方向盘后方向盘自行转动",
+    "source_id": "SRC-KB-B2301-B2601-9Y11111560",
+    "locator": "PDF物理第249页；印刷第6-S1页；原厂维修排查",
+    "bodyHash": "141e1a5002534c9e018f27e4f11389fcbecaebe44b2db750469b9d50292228e3"
+  },
+  {
+    "brand": "久保田",
+    "models": [
+      "B2301",
+      "B2601"
+    ],
+    "entry_id": "KB-KB-B2301-B2601-9Y11111560-016",
+    "title": "机具不提升的有声与无声故障分流",
+    "source_id": "SRC-KB-B2301-B2601-9Y11111560",
+    "locator": "PDF物理第279页；印刷第7-S1页；原厂维修排查",
+    "bodyHash": "ea6694577c3a7178485cebbee7425a0376cee7d7e5e6f15f7726f8f5927d28a9"
+  },
+  {
+    "brand": "久保田",
+    "models": [
+      "B2301",
+      "B2601"
+    ],
+    "entry_id": "KB-KB-B2301-B2601-9Y11111560-017",
+    "title": "悬挂机具不能到达最大提升高度",
+    "source_id": "SRC-KB-B2301-B2601-9Y11111560",
+    "locator": "PDF物理第279页；印刷第7-S1页；原厂维修排查",
+    "bodyHash": "69af5331291920ed3a9f0bbd857172d38775841d87778090a75d6d8a9ca36a46"
+  },
+  {
+    "brand": "久保田",
+    "models": [
+      "B2301",
+      "B2601"
+    ],
+    "entry_id": "KB-KB-B2301-B2601-9Y11111560-018",
+    "title": "悬挂机具在自重下持续下降",
+    "source_id": "SRC-KB-B2301-B2601-9Y11111560",
+    "locator": "PDF物理第279页；印刷第7-S1页；原厂维修排查",
+    "bodyHash": "3902fa211b4f840a8a0cc7e1b871b71b025ec920baadabed2d57feecd40f127f"
+  },
+  {
+    "brand": "久保田",
+    "models": [
+      "B2301",
+      "B2601"
+    ],
+    "entry_id": "KB-KB-B2301-B2601-9Y11111560-019",
+    "title": "三点悬挂泵在规定压力下的流量参考",
+    "source_id": "SRC-KB-B2301-B2601-9Y11111560",
+    "locator": "PDF物理第280页；印刷第7-S2页；维修规格与允许限值",
+    "bodyHash": "a72e1f381f931f63729230684edf90be8b2b89adcf4923223b6bc166c346422f"
+  },
+  {
+    "brand": "久保田",
+    "models": [
+      "B2301",
+      "B2601"
+    ],
+    "entry_id": "KB-KB-B2301-B2601-9Y11111560-020",
+    "title": "全车电器均不工作时查主电源端子",
+    "source_id": "SRC-KB-B2301-B2601-9Y11111560",
+    "locator": "PDF物理第315页；印刷第8-S1页；原厂维修排查",
+    "bodyHash": "3bc98dd924fb044bc54f281833ec7ebec693c2f0b0bbd54961a9b16a883588de"
+  },
+  {
+    "brand": "久保田",
+    "models": [
+      "B2301",
+      "B2601"
+    ],
+    "entry_id": "KB-KB-B2301-B2601-9Y11111560-021",
+    "title": "起动机不转的安全开关与停机电磁阀继电器",
+    "source_id": "SRC-KB-B2301-B2601-9Y11111560",
+    "locator": "PDF物理第315页；印刷第8-S1页；原厂维修排查",
+    "bodyHash": "9247d70c6f70c501dd66fafa3314e772c7b96b4dbd6b2cf9aaa6719abca4ebe5"
+  },
+  {
+    "brand": "久保田",
+    "models": [
+      "B2301",
+      "B2601"
+    ],
+    "entry_id": "KB-KB-B2301-B2601-9Y11111560-022",
+    "title": "钥匙在预热位但预热指示灯不亮",
+    "source_id": "SRC-KB-B2301-B2601-9Y11111560",
+    "locator": "PDF物理第316页；印刷第8-S2页；原厂维修排查",
+    "bodyHash": "813a9dfd6bbf5145cfae9364872a7fdaa57892e48697447b4786e036d1392f35"
+  },
+  {
+    "brand": "久保田",
+    "models": [
+      "B2301",
+      "B2601"
+    ],
+    "entry_id": "KB-KB-B2301-B2601-9Y11111560-023",
+    "title": "驾驶员存在控制没有让发动机停机",
+    "source_id": "SRC-KB-B2301-B2601-9Y11111560",
+    "locator": "PDF物理第316页；印刷第8-S2页；原厂维修排查",
+    "bodyHash": "fd5b7668941429791eecbae974cc5b37df0f1bf7eca55d82e212b29a21052648"
+  },
+  {
+    "brand": "久保田",
+    "models": [
+      "L2501"
+    ],
+    "entry_id": "KB-KB-L2501-9Y11111210-001",
+    "title": "柴油机起动困难且气缸压缩泄漏的检查",
+    "source_id": "SRC-KB-L2501-9Y11111210",
+    "locator": "PDF物理第89页；印刷第1-S1页；原厂维修排查",
+    "bodyHash": "406b5dee584d46283cf3375df9a65df97b07e431149d5a6e79c6c9f1bbc2fb82"
+  },
+  {
+    "brand": "久保田",
+    "models": [
+      "L2501"
+    ],
+    "entry_id": "KB-KB-L2501-9Y11111210-002",
+    "title": "离合器分离不完全的自由行程和分离拨叉检查",
+    "source_id": "SRC-KB-L2501-9Y11111210",
+    "locator": "PDF物理第165页；印刷第2-S1页；原厂维修排查",
+    "bodyHash": "d51010ad8c54f016d39a7b736a6824e2615198956f83125fe9eb5fee54f4b8d2"
+  },
+  {
+    "brand": "久保田",
+    "models": [
+      "L2501"
+    ],
+    "entry_id": "KB-KB-L2501-9Y11111210-003",
+    "title": "离合器打滑时核对踏板与摩擦面",
+    "source_id": "SRC-KB-L2501-9Y11111210",
+    "locator": "PDF物理第165页；印刷第2-S1页；原厂维修排查",
+    "bodyHash": "c862136c4082bf7b5754be98962bc51e934d6cf09a0c15b7a376a9b037f1da92"
+  },
+  {
+    "brand": "久保田",
+    "models": [
+      "L2501"
+    ],
+    "entry_id": "KB-KB-L2501-9Y11111210-004",
+    "title": "制动效能下降时检查自由行程与凸轮机构",
+    "source_id": "SRC-KB-L2501-9Y11111210",
+    "locator": "PDF物理第289页；印刷第5-S1页；原厂维修排查",
+    "bodyHash": "5427aeb0b531dcdecd54bc75ccf3c107251aab8d2aadd8502ac59aa5084df3b9"
+  },
+  {
+    "brand": "久保田",
+    "models": [
+      "L2501"
+    ],
+    "entry_id": "KB-KB-L2501-9Y11111210-005",
+    "title": "方向盘不能回到中位的阀体检查",
+    "source_id": "SRC-KB-L2501-9Y11111210",
+    "locator": "PDF物理第331页；印刷第7-S1页；原厂维修排查",
+    "bodyHash": "f93f000f24c6e4ac1922f1bf1368624d243e9e6827f8751737faf7f925e3964c"
+  },
+  {
+    "brand": "久保田",
+    "models": [
+      "L2501"
+    ],
+    "entry_id": "KB-KB-L2501-9Y11111210-006",
+    "title": "转向费力时区分外部漏油和内部阀异常",
+    "source_id": "SRC-KB-L2501-9Y11111210",
+    "locator": "PDF物理第331页；印刷第7-S1页；原厂维修排查",
+    "bodyHash": "2c1a300e5fed33d8fcea84f0d199397fe26167f768e4ade334b722499d87f4bd"
+  },
+  {
+    "brand": "久保田",
+    "models": [
+      "L2501"
+    ],
+    "entry_id": "KB-KB-L2501-9Y11111210-007",
+    "title": "悬挂不升时按有无异响区分液压排查",
+    "source_id": "SRC-KB-L2501-9Y11111210",
+    "locator": "PDF物理第359页；印刷第8-S1页；原厂维修排查",
+    "bodyHash": "d7a886bcce5d52cd78763f8095442e96e8ea6d64037dcf4f8a6bf3933bec62ad"
+  },
+  {
+    "brand": "久保田",
+    "models": [
+      "L2501"
+    ],
+    "entry_id": "KB-KB-L2501-9Y11111210-008",
+    "title": "悬挂机具反复上下窜动的控制阀检查",
+    "source_id": "SRC-KB-L2501-9Y11111210",
+    "locator": "PDF物理第359页；印刷第8-S1页；原厂维修排查",
+    "bodyHash": "405729bae0567575de7c771f244c8ba78e61c54186ca18942d45e28596e3fe6e"
+  },
+  {
+    "brand": "久保田",
+    "models": [
+      "L2501"
+    ],
+    "entry_id": "KB-KB-L2501-9Y11111210-009",
+    "title": "悬挂机具下降不了的定位螺钉与锥阀检查",
+    "source_id": "SRC-KB-L2501-9Y11111210",
+    "locator": "PDF物理第359页；印刷第8-S1页；原厂维修排查",
+    "bodyHash": "91a35d22e67009bac79a6fce5aaa84dbf91019d95effa7fc873fa1efa6843790"
+  },
+  {
+    "brand": "久保田",
+    "models": [
+      "L2501"
+    ],
+    "entry_id": "KB-KB-L2501-9Y11111210-010",
+    "title": "液压油迅速升温时检查阀与泵内漏",
+    "source_id": "SRC-KB-L2501-9Y11111210",
+    "locator": "PDF物理第360页；印刷第8-S2页；原厂维修排查",
+    "bodyHash": "10596474b4ed19789aabd6cfcfcfe6eafbd0fec5bac4f6986b617c7b3982159c"
+  },
+  {
+    "brand": "久保田",
+    "models": [
+      "L2501"
+    ],
+    "entry_id": "KB-KB-L2501-9Y11111210-011",
+    "title": "起动机不转且需区分安全开关调整与 OPC 定时器",
+    "source_id": "SRC-KB-L2501-9Y11111210",
+    "locator": "PDF物理第410页；印刷第9-S1页；原厂维修排查",
+    "bodyHash": "654f75b2bbc89cc7f4b560b56a21caa0a064b1d0fc9943e3493d2df4b3412fb4"
+  },
+  {
+    "brand": "久保田",
+    "models": [
+      "L2501"
+    ],
+    "entry_id": "KB-KB-L2501-9Y11111210-012",
+    "title": "起动前充电灯不亮时的电源和 L 端子线路",
+    "source_id": "SRC-KB-L2501-9Y11111210",
+    "locator": "PDF物理第411页；印刷第9-S2页；原厂维修排查",
+    "bodyHash": "fa9be69c85522c7a8dfc7c0d233d4f077c001fbb4d15528ece1a0a53d90f01c9"
+  },
+  {
+    "brand": "久保田",
+    "models": [
+      "L2501"
+    ],
+    "entry_id": "KB-KB-L2501-9Y11111210-013",
+    "title": "发动机运行后充电灯不灭核对发电机 L 端子",
+    "source_id": "SRC-KB-L2501-9Y11111210",
+    "locator": "PDF物理第411页；印刷第9-S2页；原厂维修排查",
+    "bodyHash": "998f2c83db81837609b84e1dd9ec8cb62af46c0538a8e0dea2e8ede520a23c35"
+  },
+  {
+    "brand": "久保田",
+    "models": [
+      "L2501"
+    ],
+    "entry_id": "KB-KB-L2501-9Y11111210-014",
+    "title": "危险警示灯和转向灯同时不亮的检查",
+    "source_id": "SRC-KB-L2501-9Y11111210",
+    "locator": "PDF物理第411页；印刷第9-S2页；原厂维修排查",
+    "bodyHash": "271d056d72bb38a8d7528f47a3f3c1771d208edb61231be0361003ccc73431a0"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "JD1654",
+      "JD1854",
+      "JD2054",
+      "JD2104"
+    ],
+    "entry_id": "KB-JD-6J-OMAL221437-B7-CN-021",
+    "title": "发动机减振安装结构的搭铁电缆故障定位",
+    "source_id": "SRC-JD-6J-OMAL221437-B7-CN",
+    "locator": "PDF物理第126页；印刷页脚 85-3；发动机搭铁",
+    "bodyHash": "2b0bc0b78a50bd83dc5c9e9765c830c740ed83d8e6111f413d0b42d10478a3d3"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "JD1654",
+      "JD1854",
+      "JD2054",
+      "JD2104"
+    ],
+    "entry_id": "KB-JD-6J-OMAL221437-B7-CN-022",
+    "title": "左右制动踏板联锁后的对称性判据",
+    "source_id": "SRC-JD-6J-OMAL221437-B7-CN",
+    "locator": "PDF物理第132页；印刷页脚 100-3；检查液压制动器",
+    "bodyHash": "5445708717d48fbcd25ca51524d5dba36278f6a90e722f784cde3be0f4a6ec58"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "JD1654",
+      "JD1854",
+      "JD2054",
+      "JD2104"
+    ],
+    "entry_id": "KB-JD-6J-OMAL221437-B7-CN-023",
+    "title": "变速箱与液压共用油位的冷态检查位置",
+    "source_id": "SRC-JD-6J-OMAL221437-B7-CN",
+    "locator": "PDF物理第131页；印刷页脚 100-2；检查变速箱液压油油位",
+    "bodyHash": "658bf23fe302f7d9bc8d240572474f3eaae4a6c6bffb854b2e206aee2f9bc554"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "JD1654",
+      "JD1854",
+      "JD2054",
+      "JD2104"
+    ],
+    "entry_id": "KB-JD-6J-OMAL221437-B7-CN-024",
+    "title": "换成对燃油滤清器后的低压供油预充",
+    "source_id": "SRC-JD-6J-OMAL221437-B7-CN",
+    "locator": "PDF物理第135页；印刷页脚 105-2；更换燃油滤清器",
+    "bodyHash": "c82daa6cb036f0162a4c18d5336e4d7c3ab52f6a7602ce5c2885a1490dd78d3d"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "JD1654",
+      "JD1854",
+      "JD2054",
+      "JD2104"
+    ],
+    "entry_id": "KB-JD-6J-OMAL221437-B7-CN-025",
+    "title": "发动机至变速箱万向轴出现间隙的定期检查",
+    "source_id": "SRC-JD-6J-OMAL221437-B7-CN",
+    "locator": "PDF物理第135页；印刷页脚 105-2；发动机至变速箱之间的万向节",
+    "bodyHash": "2e887afcd90afe97705eaf2c368f9bc220cc827b195474732e9c4a5996c634d6"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "JD1654",
+      "JD1854",
+      "JD2054",
+      "JD2104"
+    ],
+    "entry_id": "KB-JD-6J-OMAL221437-B7-CN-026",
+    "title": "变速箱液压两只油滤芯同时更换并复核油位",
+    "source_id": "SRC-JD-6J-OMAL221437-B7-CN",
+    "locator": "PDF物理第137页；印刷页脚 110-1；更换变速箱和液压油滤清器",
+    "bodyHash": "d5a8c2f18f774d9ec052ab6216c9813cfa8113a9d40d375fc8403612140565a2"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "JD1654",
+      "JD1854",
+      "JD2054",
+      "JD2104"
+    ],
+    "entry_id": "KB-JD-6J-OMAL221437-B7-CN-027",
+    "title": "前轮最终传动换油时核对轮端油量与塞位置",
+    "source_id": "SRC-JD-6J-OMAL221437-B7-CN",
+    "locator": "PDF物理第132、137页；印刷页脚 100-3、110-1；检查和更换前桥最终传动油",
+    "bodyHash": "7fa35ba4479b4bdb233606d8345a1ea1e2238e68b2fd4da62bc90e006e000cf9"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "JD1654",
+      "JD1854",
+      "JD2054",
+      "JD2104"
+    ],
+    "entry_id": "KB-JD-6J-OMAL221437-B7-CN-028",
+    "title": "更换变速箱液压油时检查双进油滤网和复装扭矩",
+    "source_id": "SRC-JD-6J-OMAL221437-B7-CN",
+    "locator": "PDF物理第139页；印刷页脚 115-1；更换变速箱和液压油",
+    "bodyHash": "9b239facb4a8163afe7a16467d6131b484bb713e41b748f600b29362be0dcbeb"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "JD1654",
+      "JD1854",
+      "JD2054",
+      "JD2104"
+    ],
+    "entry_id": "KB-JD-6J-OMAL221437-B7-CN-029",
+    "title": "四驱前桥中央壳换油时的油面与螺塞规格",
+    "source_id": "SRC-JD-6J-OMAL221437-B7-CN",
+    "locator": "PDF物理第140页；印刷页脚 115-2；更换4x4前桥油",
+    "bodyHash": "9fa8cbb0ae7b4e6e3d0d33135e1997ffc67fb79a7af05040ccdee3a09d90fe7e"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "JD1654",
+      "JD1854",
+      "JD2054",
+      "JD2104"
+    ],
+    "entry_id": "KB-JD-6J-OMAL221437-B7-CN-030",
+    "title": "节温器更换时复核密封圈和壳盖螺栓",
+    "source_id": "SRC-JD-6J-OMAL221437-B7-CN",
+    "locator": "PDF物理第139、141页；印刷页脚 115-1、120-1；更换节温器",
+    "bodyHash": "7451db00f2107935b12dadfb40ac258a1114e1b4a5395743f8c8e9852715c6a5"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "JD1654",
+      "JD1854",
+      "JD2054",
+      "JD2104"
+    ],
+    "entry_id": "KB-JD-6J-OMAL221437-B7-CN-031",
+    "title": "喷油器按工时检测与更新界限",
+    "source_id": "SRC-JD-6J-OMAL221437-B7-CN",
+    "locator": "PDF物理第141页；印刷页脚 120-1；喷嘴检测",
+    "bodyHash": "8b9308c403d89196484793395fce5ca7fe9c6ee1e031d8af3d2065e703e83d12"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "JD1654",
+      "JD1854",
+      "JD2054",
+      "JD2104"
+    ],
+    "entry_id": "KB-JD-6J-OMAL221437-B7-CN-032",
+    "title": "空滤报警清洁后不灭时判断初级和安全滤芯",
+    "source_id": "SRC-JD-6J-OMAL221437-B7-CN",
+    "locator": "PDF物理第144、145页；印刷页脚 130-1、130-2；空气滤清器维护与安装",
+    "bodyHash": "79576335f7974a5ce97c7c409d66c3662444fe764e4bee3b9953dae4b15a5478"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "JD1654",
+      "JD1854",
+      "JD2054",
+      "JD2104"
+    ],
+    "entry_id": "KB-JD-6J-OMAL221437-B7-CN-034",
+    "title": "油水分离器排水和停用逾30天后的燃油箱检查",
+    "source_id": "SRC-JD-6J-OMAL221437-B7-CN",
+    "locator": "PDF物理第127、131页；印刷页脚 90-1、100-2；油水分离器排水和停用逾30天后的燃油箱检查",
+    "bodyHash": "c48dbc563a7403e0dca2ee5355bcb690c63639781a5fe91357f186f5ca6ebb45"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "JD1654",
+      "JD1854",
+      "JD2054",
+      "JD2104"
+    ],
+    "entry_id": "KB-JD-6J-OMAL221437-B7-CN-035",
+    "title": "排气隔热护罩积屑的停机清理",
+    "source_id": "SRC-JD-6J-OMAL221437-B7-CN",
+    "locator": "PDF物理第128页；印刷页脚 90-2；排气隔热护罩积屑的停机清理",
+    "bodyHash": "f2b5f56cd879006f4fc6e0a75ff2d86e18b2826316edc765c7c7697f717d31d2"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "JD1654",
+      "JD1854",
+      "JD2054",
+      "JD2104"
+    ],
+    "entry_id": "KB-JD-6J-OMAL221437-B7-CN-036",
+    "title": "泥泞作业缩短前桥万向节和后桥轴承润滑间隔",
+    "source_id": "SRC-JD-6J-OMAL221437-B7-CN",
+    "locator": "PDF物理第133、135页；印刷页脚 100-4、105-2；泥泞作业缩短前桥万向节和后桥轴承润滑间隔",
+    "bodyHash": "cb980d365903ce81dde458dc164c590363934d6fec0d9e58d4b461ce4fd0bd0a"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "JD1654",
+      "JD1854",
+      "JD2054",
+      "JD2104"
+    ],
+    "entry_id": "KB-JD-6J-OMAL221437-B7-CN-037",
+    "title": "换发动机机油时的放油塞密封和停机复查",
+    "source_id": "SRC-JD-6J-OMAL221437-B7-CN",
+    "locator": "PDF物理第134页；印刷页脚 105-1；换发动机机油时的放油塞密封和停机复查",
+    "bodyHash": "82554671c0cb4fca1adf9e64636f42c2096f736739a81299db72ff74b9fce3c6"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "JD1654",
+      "JD1854",
+      "JD2054",
+      "JD2104"
+    ],
+    "entry_id": "KB-JD-6J-OMAL221437-B7-CN-038",
+    "title": "进气软管接头漏气造成未过滤进气",
+    "source_id": "SRC-JD-6J-OMAL221437-B7-CN",
+    "locator": "PDF物理第136页；印刷页脚 105-3；进气软管接头漏气造成未过滤进气",
+    "bodyHash": "e6cbba1896b08e6edc69bd46eaa4148767bc4b4cb60d3345374ac2fff6781d01"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "JD1654",
+      "JD1854",
+      "JD2054",
+      "JD2104"
+    ],
+    "entry_id": "KB-JD-6J-OMAL221437-B7-CN-039",
+    "title": "座椅安全带与固定件的年度报废检查",
+    "source_id": "SRC-JD-6J-OMAL221437-B7-CN",
+    "locator": "PDF物理第138、143页；印刷页脚 110-2、126-1；座椅安全带与固定件的年度报废检查",
+    "bodyHash": "ba2196040364ce6f5276e84f0b19360ea54afb6e891f371b1a10b9cc39daa255"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "JD1654",
+      "JD1854",
+      "JD2054",
+      "JD2104"
+    ],
+    "entry_id": "KB-JD-6J-OMAL221437-B7-CN-040",
+    "title": "气门间隙的2000小时定期检查",
+    "source_id": "SRC-JD-6J-OMAL221437-B7-CN",
+    "locator": "PDF物理第141页；印刷页脚 120-1；气门间隙的2000小时定期检查",
+    "bodyHash": "d22c9fdc0fc93b26236fc113e604cc8fca1cc818c54911e519d3ca8e41489db8"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "JD1654",
+      "JD1854",
+      "JD2054",
+      "JD2104"
+    ],
+    "entry_id": "KB-JD-6J-OMAL221437-B7-CN-041",
+    "title": "液压软管年度检查的更换判据",
+    "source_id": "SRC-JD-6J-OMAL221437-B7-CN",
+    "locator": "PDF物理第143页；印刷页脚 126-1；液压软管年度检查的更换判据",
+    "bodyHash": "30ccd29054b108c7ae9626b9cc9000a41d1b079253f548bc1de79d64b970e09b"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "JD1654",
+      "JD1854",
+      "JD2054",
+      "JD2104"
+    ],
+    "entry_id": "KB-JD-6J-OMAL221437-B7-CN-042",
+    "title": "散热器护栅积污时的停机清洁",
+    "source_id": "SRC-JD-6J-OMAL221437-B7-CN",
+    "locator": "PDF物理第145页；印刷页脚 130-2；散热器护栅积污时的停机清洁",
+    "bodyHash": "ccb85a1b313a23c809a0cf756c3faf8f8f75672f5101cb9e4120d043d9039c98"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "JD1654",
+      "JD1854",
+      "JD2054",
+      "JD2104"
+    ],
+    "entry_id": "KB-JD-6J-OMAL221437-B7-CN-043",
+    "title": "曲轴减振器按4500小时或5年整件更新",
+    "source_id": "SRC-JD-6J-OMAL221437-B7-CN",
+    "locator": "PDF物理第148页；印刷页脚 130-5；曲轴减振器按4500小时或5年整件更新",
+    "bodyHash": "f8a1af7858f91dc729cbc5004f63838a43a54708de939fddba7369d4995cab26"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "JD1654",
+      "JD1854",
+      "JD2054",
+      "JD2104"
+    ],
+    "entry_id": "KB-JD-6J-OMAL221437-B7-CN-044",
+    "title": "蓄电池端子每周清洁及拆装顺序",
+    "source_id": "SRC-JD-6J-OMAL221437-B7-CN",
+    "locator": "PDF物理第148、149页；印刷页脚 130-5、130-6；蓄电池端子每周清洁及拆装顺序",
+    "bodyHash": "50695e8b49ed35a058741b32d86e59e53dd8825d6d72e3359c69df3f084978df"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "JD1654",
+      "JD1854",
+      "JD2054",
+      "JD2104"
+    ],
+    "entry_id": "KB-JD-6J-OMAL221437-B7-CN-045",
+    "title": "更换发动机舱保险丝时核对本机额定电流",
+    "source_id": "SRC-JD-6J-OMAL221437-B7-CN",
+    "locator": "PDF物理第151页；印刷页脚 130-8；更换发动机舱保险丝时核对本机额定电流",
+    "bodyHash": "e288f1c4c7d67b20d3662b8ec92a18a744fbe1742ea9bce5c0d080b323c2ea06"
+  },
+  {
+    "brand": "沃得",
+    "models": [
+      "WD1000"
+    ],
+    "entry_id": "KB-WD1000-WD1004-2010-023-001",
+    "title": "农具无法提升时查到分配器阀芯卡滞",
+    "source_id": "SRC-WD1000-WD1004-2010-023",
+    "locator": "PDF物理第37页；附表13；WD1000 1号样机负荷工作342小时",
+    "bodyHash": "1a415a3d079a74f6db131ba492399a64850e91ade698f28cc1580d2664e43fba"
+  },
+  {
+    "brand": "沃得",
+    "models": [
+      "WD1000"
+    ],
+    "entry_id": "KB-WD1000-WD1004-2010-023-002",
+    "title": "散热器出水软管渗水时确认胶管破裂并更换",
+    "source_id": "SRC-WD1000-WD1004-2010-023",
+    "locator": "PDF物理第37页；附表13；WD1000 1号样机负荷工作386小时",
+    "bodyHash": "d98e7742dc72c92935b9a4def369f13bf88b3cfd2fcfd5d39734d3c0f4c286d9"
+  },
+  {
+    "brand": "沃得",
+    "models": [
+      "WD1000"
+    ],
+    "entry_id": "KB-WD1000-WD1004-2010-023-003",
+    "title": "后工作灯不亮时查到保险丝熔断",
+    "source_id": "SRC-WD1000-WD1004-2010-023",
+    "locator": "PDF物理第37页；附表13；WD1000 1号样机负荷工作356小时",
+    "bodyHash": "e2e6f5d65a227948b0311e903304bbdecc19a562d916072dcd38ed49496a20c6"
+  },
+  {
+    "brand": "沃得",
+    "models": [
+      "WD1000"
+    ],
+    "entry_id": "KB-WD1000-WD1004-2010-023-004",
+    "title": "快速提升无动作时查到调整螺母松动",
+    "source_id": "SRC-WD1000-WD1004-2010-023",
+    "locator": "PDF物理第37页；附表13；WD1000 1号样机负荷工作586小时",
+    "bodyHash": "3e548850f96d422896feb68af196d8b0878ec7aaf3b821ef9a2844382d2e5207"
+  },
+  {
+    "brand": "沃得",
+    "models": [
+      "WD1000",
+      "WD1004"
+    ],
+    "entry_id": "KB-WD1000-WD1004-2010-023-005",
+    "title": "分配器进油接管漏油时查到固定螺栓松动",
+    "source_id": "SRC-WD1000-WD1004-2010-023",
+    "locator": "PDF物理第37页；附表13；WD1000 2号样机负荷工作331小时。PDF物理第38页；附表13；WD1004 4号样机负荷工作132小时",
+    "bodyHash": "753182cef4140d109700ad082dd2e73bb4f42822ac3ee1a626f36d86ba23d7f7"
+  },
+  {
+    "brand": "沃得",
+    "models": [
+      "WD1000",
+      "WD1004"
+    ],
+    "entry_id": "KB-WD1000-WD1004-2010-023-006",
+    "title": "齿轮泵出油管漏油时更换损坏的O形密封圈",
+    "source_id": "SRC-WD1000-WD1004-2010-023",
+    "locator": "PDF物理第37页；附表13；WD1000 2号样机负荷工作412小时。PDF物理第38页；附表13；WD1004 3号样机负荷工作280小时",
+    "bodyHash": "e318941e3d68894d6c564295e2d8870f50df11b729877cf2eb1e71fcbc5aefa1"
+  },
+  {
+    "brand": "沃得",
+    "models": [
+      "WD1000",
+      "WD1004"
+    ],
+    "entry_id": "KB-WD1000-WD1004-2010-023-007",
+    "title": "发动机回油管脱落时查到夹箍未夹紧",
+    "source_id": "SRC-WD1000-WD1004-2010-023",
+    "locator": "PDF物理第37页；附表13；WD1000 2号样机负荷工作458小时。PDF物理第38页；附表13；WD1004 4号样机负荷工作368小时",
+    "bodyHash": "dddefeb7f867e341d3069852005f1fe4f8718a0ff569812ba0dd5973b386d718"
+  },
+  {
+    "brand": "沃得",
+    "models": [
+      "WD1000"
+    ],
+    "entry_id": "KB-WD1000-WD1004-2010-023-008",
+    "title": "无法起动时发现蓄电池搭铁线松动",
+    "source_id": "SRC-WD1000-WD1004-2010-023",
+    "locator": "PDF物理第37页；附表13；WD1000 2号样机负荷工作638小时",
+    "bodyHash": "636dcaf13bba17eae434e669c86900bbd8098293b25e83690a5d8aa380689475"
+  },
+  {
+    "brand": "沃得",
+    "models": [
+      "WD1004"
+    ],
+    "entry_id": "KB-WD1000-WD1004-2010-023-009",
+    "title": "水温表无读数时查到水温传感器损坏",
+    "source_id": "SRC-WD1000-WD1004-2010-023",
+    "locator": "PDF物理第38页；附表13；WD1004 3号样机负荷工作350小时",
+    "bodyHash": "1b876f8a22e76e1ec6e54f35e0b645eb55bed4f6518ed5a12bddae1c1d5986e1"
+  },
+  {
+    "brand": "沃得",
+    "models": [
+      "WD1004"
+    ],
+    "entry_id": "KB-WD1000-WD1004-2010-023-010",
+    "title": "提升油缸内YX密封损坏的试验案例",
+    "source_id": "SRC-WD1000-WD1004-2010-023",
+    "locator": "PDF物理第38页；附表13；WD1004 3号样机负荷工作608小时",
+    "bodyHash": "42dfd1e5ffbb65233246bdfbc34c30cec7b46543facfa73df521fbed07170c21"
+  },
+  {
+    "brand": "沃得",
+    "models": [
+      "WD1004"
+    ],
+    "entry_id": "KB-WD1000-WD1004-2010-023-011",
+    "title": "机油滤清器处渗油时查到夹箍未紧",
+    "source_id": "SRC-WD1000-WD1004-2010-023",
+    "locator": "PDF物理第38页；附表13；WD1004 4号样机负荷工作315小时",
+    "bodyHash": "6994bf5916402aa27a44c58e6b7864ff32ca7819ace4d87122013f9c624c266a"
+  },
+  {
+    "brand": "沃得",
+    "models": [
+      "WD1004"
+    ],
+    "entry_id": "KB-WD1000-WD1004-2010-023-012",
+    "title": "机油压力表不工作时查到压力传感器损坏",
+    "source_id": "SRC-WD1000-WD1004-2010-023",
+    "locator": "PDF物理第38页；附表13；WD1004 4号样机负荷工作558小时",
+    "bodyHash": "f04cd637139fa5bfb3c78242a1345785cf6e54edf55de400678ecc4698bcee79"
+  },
+  {
+    "brand": "力王",
+    "models": [
+      "LWS2604"
+    ],
+    "entry_id": "KB-LWS2604-YH2020WJ01327-001",
+    "title": "反复熄火时发现损坏密封垫堵塞进油管",
+    "source_id": "SRC-LWS2604-YH2020WJ01327",
+    "locator": "PDF物理第13页；印刷第11页；附表5；1号样机 100.1 h",
+    "bodyHash": "edca51d5699d23930c3988506c7a6e9aadae848cbe08fb26dad952c05c3834d7"
+  },
+  {
+    "brand": "力王",
+    "models": [
+      "LWS2604"
+    ],
+    "entry_id": "KB-LWS2604-YH2020WJ01327-002",
+    "title": "离合器踏板不回位由回位弹簧失效引起",
+    "source_id": "SRC-LWS2604-YH2020WJ01327",
+    "locator": "PDF物理第13页；印刷第11页；附表5；1号样机 169.6 h",
+    "bodyHash": "1348c7c2ea2635513aa0d860b47a6e372d63d9fb063e2ec811d905b0de3baf20"
+  },
+  {
+    "brand": "力王",
+    "models": [
+      "LWS2604"
+    ],
+    "entry_id": "KB-LWS2604-YH2020WJ01327-003",
+    "title": "无法起动的样机更换了失效继电器",
+    "source_id": "SRC-LWS2604-YH2020WJ01327",
+    "locator": "PDF物理第13页；印刷第11页；附表5；1号样机 239.5 h",
+    "bodyHash": "633820763bfbe91c7ba1eaaadaf601ef60889263080451dacd8e1bc6533f64ef"
+  },
+  {
+    "brand": "力王",
+    "models": [
+      "LWS2604"
+    ],
+    "entry_id": "KB-LWS2604-YH2020WJ01327-004",
+    "title": "整车失电时发现电瓶搭铁线松动",
+    "source_id": "SRC-LWS2604-YH2020WJ01327",
+    "locator": "PDF物理第13页；印刷第11页；附表5；1号样机 378.4 h",
+    "bodyHash": "ceceab9341ca68da2d89da8ebb65197e199f93f43fa2c3b0b9387f1f5e82e755"
+  },
+  {
+    "brand": "力王",
+    "models": [
+      "LWS2604"
+    ],
+    "entry_id": "KB-LWS2604-YH2020WJ01327-005",
+    "title": "转向灯不亮时查到转向灯开关损坏",
+    "source_id": "SRC-LWS2604-YH2020WJ01327",
+    "locator": "PDF物理第13页；印刷第11页；附表5；1号样机 540.2 h",
+    "bodyHash": "d983fb225ae3013c12e58e5f9ad954cb45345fd47ae483f010779a2f722f3aae"
+  },
+  {
+    "brand": "力王",
+    "models": [
+      "LWS2604"
+    ],
+    "entry_id": "KB-LWS2604-YH2020WJ01327-006",
+    "title": "座椅不能调节时修复调节机构",
+    "source_id": "SRC-LWS2604-YH2020WJ01327",
+    "locator": "PDF物理第13页；印刷第11页；附表5；2号样机 82.6 h",
+    "bodyHash": "f659993ca788e6b81725eed6d3d85f3e6dc5924d260ed81e34c87d79745bf5ea"
+  },
+  {
+    "brand": "力王",
+    "models": [
+      "LWS2604"
+    ],
+    "entry_id": "KB-LWS2604-YH2020WJ01327-007",
+    "title": "燃油量表空白时更换失效的油量感应器",
+    "source_id": "SRC-LWS2604-YH2020WJ01327",
+    "locator": "PDF物理第13页；印刷第11页；附表5；2号样机 123.8 h",
+    "bodyHash": "890e5acb8a7525950845a9c8ff4a56159f11f0b4310bdd88ff4460d90ae868bc"
+  },
+  {
+    "brand": "力王",
+    "models": [
+      "LWS2604"
+    ],
+    "entry_id": "KB-LWS2604-YH2020WJ01327-008",
+    "title": "液压输出管漏油时发现密封垫失效",
+    "source_id": "SRC-LWS2604-YH2020WJ01327",
+    "locator": "PDF物理第13页；印刷第11页；附表5；2号样机 246.2 h",
+    "bodyHash": "1f386948448928a5b2361af14061b6e54aaea04a0b8a51dfd080238b3213e9d4"
+  },
+  {
+    "brand": "力王",
+    "models": [
+      "LWS2604"
+    ],
+    "entry_id": "KB-LWS2604-YH2020WJ01327-009",
+    "title": "进水管漏水时发现卡箍松动",
+    "source_id": "SRC-LWS2604-YH2020WJ01327",
+    "locator": "PDF物理第13页；印刷第11页；附表5；2号样机 420.9 h",
+    "bodyHash": "1bc03f81c8c2c9c149f089dd1c7d63cb8d00e3461f7deea01423875b6f9ad357"
+  },
+  {
+    "brand": "力王",
+    "models": [
+      "LWS2604"
+    ],
+    "entry_id": "KB-LWS2604-YH2020WJ01327-010",
+    "title": "机罩晃动时发现锁扣固定螺栓松动",
+    "source_id": "SRC-LWS2604-YH2020WJ01327",
+    "locator": "PDF物理第13页；印刷第11页；附表5；2号样机 529.7 h",
+    "bodyHash": "602532f6bbc25a8089d5e17d16fe5e111805eea48951192b52e0d4778f5027dd"
+  },
+  {
+    "brand": "泰山国泰",
+    "models": [
+      "GT1204-1"
+    ],
+    "entry_id": "KB-GT1204-1-WT202105008-001",
+    "title": "进气胶管破损时更换进气胶管",
+    "source_id": "SRC-GT1204-1-WT202105008",
+    "locator": "PDF物理第13页；印刷第11页；表4.6；1号样机 105 h",
+    "bodyHash": "598213575d60d03007f294111137b2b45fd4843c4ef45a844f2c8ea5e99557a0"
+  },
+  {
+    "brand": "泰山国泰",
+    "models": [
+      "GT1204-1"
+    ],
+    "entry_id": "KB-GT1204-1-WT202105008-002",
+    "title": "左侧下悬挂拉杆变形时换件",
+    "source_id": "SRC-GT1204-1-WT202105008",
+    "locator": "PDF物理第13页；印刷第11页；表4.6；2号样机 157 h",
+    "bodyHash": "dc7eb760d9b04c30bf31b7af983cc189b44cae2796b7d4720837f61859c80539"
+  },
+  {
+    "brand": "泰山国泰",
+    "models": [
+      "GT1204-1"
+    ],
+    "entry_id": "KB-GT1204-1-WT202105008-003",
+    "title": "排气管晃动时检查其固定螺栓",
+    "source_id": "SRC-GT1204-1-WT202105008",
+    "locator": "PDF物理第13页；印刷第11页；表4.6；1号样机 211 h",
+    "bodyHash": "d55a8df43acbc4732cb98dd5e9b36784b59c303f42e41f5cc24e01f8df59b528"
+  },
+  {
+    "brand": "泰山国泰",
+    "models": [
+      "GT1204-1"
+    ],
+    "entry_id": "KB-GT1204-1-WT202105008-004",
+    "title": "充电系统的实修案例涉及发电机皮带断裂",
+    "source_id": "SRC-GT1204-1-WT202105008",
+    "locator": "PDF物理第13页；印刷第11页；表4.6；2号样机 302 h",
+    "bodyHash": "05adff9f93b3fb9af48d58837c2ff5f07f99326fbed9de0f14b843750e71545d"
+  },
+  {
+    "brand": "泰山国泰",
+    "models": [
+      "GT1204-1"
+    ],
+    "entry_id": "KB-GT1204-1-WT202105008-005",
+    "title": "分动箱轴承损坏时更换轴承",
+    "source_id": "SRC-GT1204-1-WT202105008",
+    "locator": "PDF物理第13页；印刷第11页；表4.6；1号样机 385 h",
+    "bodyHash": "a1442e08d2f1ede9b426924e39b51ed83c2bd0660e72db14b78b125de2ce0b79"
+  },
+  {
+    "brand": "泰山国泰",
+    "models": [
+      "GT1204-1"
+    ],
+    "entry_id": "KB-GT1204-1-WT202105008-006",
+    "title": "转速表指示异常时发现转速传感器损坏",
+    "source_id": "SRC-GT1204-1-WT202105008",
+    "locator": "PDF物理第13页；印刷第11页；表4.6；1号样机 433 h",
+    "bodyHash": "184612daada241d15f91517b84db4e42ba39b7ca67f790daddbc22d8c6400f13"
+  },
+  {
+    "brand": "泰山国泰",
+    "models": [
+      "GT1204-1"
+    ],
+    "entry_id": "KB-GT1204-1-WT202105008-007",
+    "title": "冷却液过热时检出水泵性能下降",
+    "source_id": "SRC-GT1204-1-WT202105008",
+    "locator": "PDF物理第13页；印刷第11页；表4.6；2号样机 527 h",
+    "bodyHash": "dc3d9e434e127ee1e737b5c0b6e0a6a1263eec955f608920117259b1da0e8eee"
+  },
+  {
+    "brand": "鲁东",
+    "models": [
+      "704-B"
+    ],
+    "entry_id": "KB-704-B-YJW202404003-001",
+    "title": "转向器阀体漏油时更换损坏O形圈",
+    "source_id": "SRC-704-B-YJW202404003",
+    "locator": "PDF物理第10页；印刷第8页；表6；1号样机 192.4 h",
+    "bodyHash": "64eb398fdb1f730ab598d495e6076d2cde232a480a816518eafb1798bdfeff46"
+  },
+  {
+    "brand": "鲁东",
+    "models": [
+      "704-B"
+    ],
+    "entry_id": "KB-704-B-YJW202404003-002",
+    "title": "双闪灯失效时查到电子闪光器损坏",
+    "source_id": "SRC-704-B-YJW202404003",
+    "locator": "PDF物理第10页；印刷第8页；表6；1号样机 333.7 h",
+    "bodyHash": "bf43da9b220f9ea1af3ee6aee26264eeb7771458b3dc8df6f897cd7994e96423"
+  },
+  {
+    "brand": "鲁东",
+    "models": [
+      "704-B"
+    ],
+    "entry_id": "KB-704-B-YJW202404003-003",
+    "title": "提升油缸渗油时查到螺母松动",
+    "source_id": "SRC-704-B-YJW202404003",
+    "locator": "PDF物理第10页；印刷第8页；表6；1号样机 651.2 h",
+    "bodyHash": "dcdf872a1ff8d6301933bc33ada2f6e9f76fa5b8ba96010b222a5819222d1d4c"
+  },
+  {
+    "brand": "鲁东",
+    "models": [
+      "704-B"
+    ],
+    "entry_id": "KB-704-B-YJW202404003-004",
+    "title": "整机无法起动时查到起动电机失效",
+    "source_id": "SRC-704-B-YJW202404003",
+    "locator": "PDF物理第10页；印刷第8页；表6；1号样机 705.1 h",
+    "bodyHash": "48c720ad051c13011dea9ee39286ae4c555951c855cf81b958e00aa7c47d3410"
+  },
+  {
+    "brand": "鲁东",
+    "models": [
+      "704-B"
+    ],
+    "entry_id": "KB-704-B-YJW202404003-005",
+    "title": "机罩无法闭合时更换损坏的锁扣",
+    "source_id": "SRC-704-B-YJW202404003",
+    "locator": "PDF物理第10页；印刷第8页；表6；2号样机 201.7 h",
+    "bodyHash": "6b4ccd9a0ca8b686143ac9b298a75930f6fe782521d4b2934814e64ae1573012"
+  },
+  {
+    "brand": "鲁东",
+    "models": [
+      "704-B"
+    ],
+    "entry_id": "KB-704-B-YJW202404003-006",
+    "title": "突然熄火后确认油路进气并排气",
+    "source_id": "SRC-704-B-YJW202404003",
+    "locator": "PDF物理第10页；印刷第8页；表6；2号样机 392.6 h",
+    "bodyHash": "152b6aa9d4bc0cda75221bbaccf2521d1bf52210209294a0cf13571a6096d7b7"
+  },
+  {
+    "brand": "鲁东",
+    "models": [
+      "704-B"
+    ],
+    "entry_id": "KB-704-B-YJW202404003-007",
+    "title": "喇叭无声时更换失效部件",
+    "source_id": "SRC-704-B-YJW202404003",
+    "locator": "PDF物理第10页；印刷第8页；表6；2号样机 448.3 h",
+    "bodyHash": "b1550c4573b7469d257a2c1ea91e0c1ba940fa8c6c7755f105fc2ca204a67097"
+  },
+  {
+    "brand": "鲁东",
+    "models": [
+      "704-B"
+    ],
+    "entry_id": "KB-704-B-YJW202404003-008",
+    "title": "转向不灵敏时检查自由行程超限",
+    "source_id": "SRC-704-B-YJW202404003",
+    "locator": "PDF物理第10页；印刷第8页；表6；2号样机 651.5 h",
+    "bodyHash": "5d2ece6a59f16c4cee0e2a94f2e26566508f7aa99b5adee5b6aeda51137457ff"
+  },
+  {
+    "brand": "金世纪",
+    "models": [
+      "DMC1404-1"
+    ],
+    "entry_id": "KB-DMC1404-1-DMC2240204-001",
+    "title": "后转向灯不亮时检查线头松动",
+    "source_id": "SRC-DMC1404-1-DMC2240204",
+    "locator": "PDF物理第13页；印刷第11页；可靠性使用试验故障汇总表；1号样机 181.38 h",
+    "bodyHash": "a34e89f721cbb0adebed00737c737a5501d783a70661c7372262c368d2ce8ab4"
+  },
+  {
+    "brand": "金世纪",
+    "models": [
+      "DMC1404-1"
+    ],
+    "entry_id": "KB-DMC1404-1-DMC2240204-002",
+    "title": "回油管卡子松动时检查固定螺栓",
+    "source_id": "SRC-DMC1404-1-DMC2240204",
+    "locator": "PDF物理第13页；印刷第11页；可靠性使用试验故障汇总表；1号样机 417.48 h",
+    "bodyHash": "11df41cd1d7578de75e78a25b649dfb271897b53080e41f78e3e912504d8f918"
+  },
+  {
+    "brand": "金世纪",
+    "models": [
+      "DMC1404-1"
+    ],
+    "entry_id": "KB-DMC1404-1-DMC2240204-003",
+    "title": "空滤胶管漏气时查管箍松动",
+    "source_id": "SRC-DMC1404-1-DMC2240204",
+    "locator": "PDF物理第13页；印刷第11页；可靠性使用试验故障汇总表；1号样机 585.50 h",
+    "bodyHash": "0f2f13fc1591e773910e725c58749b42f05a339514eb8e9efb62c2a9632190c3"
+  },
+  {
+    "brand": "金世纪",
+    "models": [
+      "DMC1404-1"
+    ],
+    "entry_id": "KB-DMC1404-1-DMC2240204-004",
+    "title": "提升油缸渗油时更换损坏密封圈",
+    "source_id": "SRC-DMC1404-1-DMC2240204",
+    "locator": "PDF物理第13页；印刷第11页；可靠性使用试验故障汇总表；1号样机 640.77 h",
+    "bodyHash": "9544d23c46c189a436b0ae516d8de44ed3ecd6a0c24c96854c22accc9fce5459"
+  },
+  {
+    "brand": "金世纪",
+    "models": [
+      "DMC1404-1"
+    ],
+    "entry_id": "KB-DMC1404-1-DMC2240204-005",
+    "title": "转向回油管振动时查固定夹螺栓",
+    "source_id": "SRC-DMC1404-1-DMC2240204",
+    "locator": "PDF物理第13页；印刷第11页；可靠性使用试验故障汇总表；2号样机 235.92 h",
+    "bodyHash": "40cd93ccad9c03a06dada1afbc7308e1c4ff89756b77b2ec092ea456f4796a4f"
+  },
+  {
+    "brand": "金世纪",
+    "models": [
+      "DMC1404-1"
+    ],
+    "entry_id": "KB-DMC1404-1-DMC2240204-006",
+    "title": "蓄电池亏电时发现发电机线头松动",
+    "source_id": "SRC-DMC1404-1-DMC2240204",
+    "locator": "PDF物理第13页；印刷第11页；可靠性使用试验故障汇总表；2号样机 336.38 h",
+    "bodyHash": "58a91e68decb219f94f23643f88a3be9cf3ff06b9eb3502f2b3908cb656c0bc0"
+  },
+  {
+    "brand": "金世纪",
+    "models": [
+      "DMC1404-1"
+    ],
+    "entry_id": "KB-DMC1404-1-DMC2240204-007",
+    "title": "转速表显示异常时重新连接传感器插头",
+    "source_id": "SRC-DMC1404-1-DMC2240204",
+    "locator": "PDF物理第13页；印刷第11页；可靠性使用试验故障汇总表；2号样机 408.77 h",
+    "bodyHash": "670f1cd26c4b7d7520c575adf64c77d439c8786e997f7b2c9fc6effb7f71ded3"
+  },
+  {
+    "brand": "金世纪",
+    "models": [
+      "DMC1404-1"
+    ],
+    "entry_id": "KB-DMC1404-1-DMC2240204-008",
+    "title": "液压油管接头处漏油时查扣接螺母松动",
+    "source_id": "SRC-DMC1404-1-DMC2240204",
+    "locator": "PDF物理第13页；印刷第11页；可靠性使用试验故障汇总表；2号样机 562.57 h",
+    "bodyHash": "d9fdb1be313b05a618c3fef0f5caf5d70babfbd3df8d8f555646c77c5d7f449d"
+  },
+  {
+    "brand": "金世纪",
+    "models": [
+      "DMC1404-1"
+    ],
+    "entry_id": "KB-DMC1404-1-DMC2240204-009",
+    "title": "制动失效案例发现摩擦片严重磨损",
+    "source_id": "SRC-DMC1404-1-DMC2240204",
+    "locator": "PDF物理第13页；印刷第11页；可靠性使用试验故障汇总表；2号样机 634.39 h",
+    "bodyHash": "97c15654b320710d3a0bb1a82bf244882ab23cc1191753a7ccb8968334c52bfa"
+  },
+  {
+    "brand": "米基林",
+    "models": [
+      "TF2004"
+    ],
+    "entry_id": "KB-TRIAL-TF2004-WJ2018DKKX027-001",
+    "title": "方向盘自由行程过大与转向管路进气",
+    "source_id": "SRC-TRIAL-TF2004-WJ2018DKKX027",
+    "locator": "PDF物理第8页；印刷第6页；表6；样机1号 162.83 h",
+    "bodyHash": "4dd08c39c12c7ec7365680a842de408736187a94a8c6c6db978f9e4146af264e"
+  },
+  {
+    "brand": "米基林",
+    "models": [
+      "TF2004"
+    ],
+    "entry_id": "KB-TRIAL-TF2004-WJ2018DKKX027-002",
+    "title": "离合踏板回位缓慢与弹簧失效",
+    "source_id": "SRC-TRIAL-TF2004-WJ2018DKKX027",
+    "locator": "PDF物理第8页；印刷第6页；表6；样机1号 340.29 h",
+    "bodyHash": "7373314643f591606d026351b2195e7d1c4eed14500ec19bcd3f918aa43bfe22"
+  },
+  {
+    "brand": "米基林",
+    "models": [
+      "TF2004"
+    ],
+    "entry_id": "KB-TRIAL-TF2004-WJ2018DKKX027-003",
+    "title": "农具不能提升时发现提升油缸损坏",
+    "source_id": "SRC-TRIAL-TF2004-WJ2018DKKX027",
+    "locator": "PDF物理第8页；印刷第6页；表6；样机1号 483.61 h",
+    "bodyHash": "429677f0c5aca489158e5d058706df6c21a64e6c15e66e0d60618ac38d0b0662"
+  },
+  {
+    "brand": "米基林",
+    "models": [
+      "TF2004"
+    ],
+    "entry_id": "KB-TRIAL-TF2004-WJ2018DKKX027-004",
+    "title": "冷却水箱下部管口渗水与管箍松动",
+    "source_id": "SRC-TRIAL-TF2004-WJ2018DKKX027",
+    "locator": "PDF物理第8页；印刷第6页；表6；样机1号 624.05 h",
+    "bodyHash": "7e81450708c156010df56b2a85e4c21c9d6b3ea87531289de8a2e09cbe622f44"
+  },
+  {
+    "brand": "米基林",
+    "models": [
+      "TF2004"
+    ],
+    "entry_id": "KB-TRIAL-TF2004-WJ2018DKKX027-005",
+    "title": "转速表异常与传感器损坏",
+    "source_id": "SRC-TRIAL-TF2004-WJ2018DKKX027",
+    "locator": "PDF物理第8页；印刷第6页；表6；样机1号 749.18 h",
+    "bodyHash": "e798bfb0892ebde432fe4d2a415c283cc5c5745309567511eb089cab3732dda3"
+  },
+  {
+    "brand": "米基林",
+    "models": [
+      "TF2004"
+    ],
+    "entry_id": "KB-TRIAL-TF2004-WJ2018DKKX027-006",
+    "title": "液压油管漏油后更换油管",
+    "source_id": "SRC-TRIAL-TF2004-WJ2018DKKX027",
+    "locator": "PDF物理第8页；印刷第6页；表6；样机2号 171.54 h",
+    "bodyHash": "d5ee97c91a8ff62dcf00d31c1dbed437a99e182aba90f3c26170cfab90e5aaa5"
+  },
+  {
+    "brand": "米基林",
+    "models": [
+      "TF2004"
+    ],
+    "entry_id": "KB-TRIAL-TF2004-WJ2018DKKX027-007",
+    "title": "电子油门不起作用后更换故障件",
+    "source_id": "SRC-TRIAL-TF2004-WJ2018DKKX027",
+    "locator": "PDF物理第8页；印刷第6页；表6；样机2号 328.62 h",
+    "bodyHash": "cb8bce6ea28d1cf5861f4d66e3725e37e044144e286473dfec3e13b227ace57a"
+  },
+  {
+    "brand": "米基林",
+    "models": [
+      "TF2004"
+    ],
+    "entry_id": "KB-TRIAL-TF2004-WJ2018DKKX027-008",
+    "title": "空滤进气胶管漏气与管箍松动",
+    "source_id": "SRC-TRIAL-TF2004-WJ2018DKKX027",
+    "locator": "PDF物理第8页；印刷第6页；表6；样机2号 478.26 h",
+    "bodyHash": "4982bd0dcaec78078f588926bcd8160a41afb590611cba1007a19c79077be202"
+  },
+  {
+    "brand": "米基林",
+    "models": [
+      "TF2004"
+    ],
+    "entry_id": "KB-TRIAL-TF2004-WJ2018DKKX027-009",
+    "title": "三点悬挂上拉杆断裂后更换",
+    "source_id": "SRC-TRIAL-TF2004-WJ2018DKKX027",
+    "locator": "PDF物理第8页；印刷第6页；表6；样机2号 621.39 h",
+    "bodyHash": "97eb46e1fed1845c2d6836e9e52ba04cbbf898cc5365d285316c056f28277944"
+  },
+  {
+    "brand": "米基林",
+    "models": [
+      "TF2004"
+    ],
+    "entry_id": "KB-TRIAL-TF2004-WJ2018DKKX027-010",
+    "title": "整机功率不稳时发现柴油滤清器损坏",
+    "source_id": "SRC-TRIAL-TF2004-WJ2018DKKX027",
+    "locator": "PDF物理第8页；印刷第6页；表6；样机2号 735.95 h",
+    "bodyHash": "7bc33f4e6a8acbeaef782e905be2e24e3ff696437a7da81086b2f95cacc5ce4e"
+  },
+  {
+    "brand": "中联重科",
+    "models": [
+      "RG2104"
+    ],
+    "entry_id": "KB-TRIAL-RG2104-WJ2017IKKX020-001",
+    "title": "转速显示消失曾涉及仪表质量及线路接头",
+    "source_id": "SRC-TRIAL-RG2104-WJ2017IKKX020",
+    "locator": "PDF物理第7页；印刷第6页；表6；样机1号 240.7、340.8 h；2号 510.5 h",
+    "bodyHash": "afa647c8511ab74bd9dde1d3edd44203ca670841086b1da4a7e8b012b5c8e7a0"
+  },
+  {
+    "brand": "中联重科",
+    "models": [
+      "RG2104"
+    ],
+    "entry_id": "KB-TRIAL-RG2104-WJ2017IKKX020-002",
+    "title": "两台样机的起动机不转均见搭铁线松动",
+    "source_id": "SRC-TRIAL-RG2104-WJ2017IKKX020",
+    "locator": "PDF物理第7页；印刷第6页；表6；样机1号 266.8 h；2号 341.6 h",
+    "bodyHash": "69373aef5cac5a08ebfbc08be3272291aebd5c159502d06f20f761d19a9d3b3f"
+  },
+  {
+    "brand": "中联重科",
+    "models": [
+      "RG2104"
+    ],
+    "entry_id": "KB-TRIAL-RG2104-WJ2017IKKX020-003",
+    "title": "离合器分离不彻底与踏板行程过大",
+    "source_id": "SRC-TRIAL-RG2104-WJ2017IKKX020",
+    "locator": "PDF物理第7页；印刷第6页；表6；样机1号 284.0 h",
+    "bodyHash": "5567d89098408d517ab517759236f912d8f31cced2fcb09a78cedf44bc5376f0"
+  },
+  {
+    "brand": "中联重科",
+    "models": [
+      "RG2104"
+    ],
+    "entry_id": "KB-TRIAL-RG2104-WJ2017IKKX020-004",
+    "title": "转向油管渗漏与管体破损",
+    "source_id": "SRC-TRIAL-RG2104-WJ2017IKKX020",
+    "locator": "PDF物理第7页；印刷第6页；表6；样机1号 643.1 h",
+    "bodyHash": "a19e0e8d1d361390c1232afefcb89ec1c758def0fb5ebc744663fc598df94b56"
+  },
+  {
+    "brand": "中联重科",
+    "models": [
+      "RG2104"
+    ],
+    "entry_id": "KB-TRIAL-RG2104-WJ2017IKKX020-005",
+    "title": "进水管渗水检查卡箍松动",
+    "source_id": "SRC-TRIAL-RG2104-WJ2017IKKX020",
+    "locator": "PDF物理第7页；印刷第6页；表6；样机1号 731.2 h",
+    "bodyHash": "81c65776f3d4c142fe0b822abcaf647876f74a1911b0fd4fbf6952f4dae411bf"
+  },
+  {
+    "brand": "中联重科",
+    "models": [
+      "RG2104"
+    ],
+    "entry_id": "KB-TRIAL-RG2104-WJ2017IKKX020-006",
+    "title": "方向盘转向沉重时发现转向油不足",
+    "source_id": "SRC-TRIAL-RG2104-WJ2017IKKX020",
+    "locator": "PDF物理第7页；印刷第6页；表6；样机2号 241.6 h",
+    "bodyHash": "f814354aa186572b1fdd2a18c38cc9d076783ad2f9b3d94cd20f876613a95136"
+  },
+  {
+    "brand": "中联重科",
+    "models": [
+      "RG2104"
+    ],
+    "entry_id": "KB-TRIAL-RG2104-WJ2017IKKX020-007",
+    "title": "熄火拉线断裂后更换",
+    "source_id": "SRC-TRIAL-RG2104-WJ2017IKKX020",
+    "locator": "PDF物理第7页；印刷第6页；表6；样机2号 285.4 h",
+    "bodyHash": "148e1bbe1103dd72bdc0878e003ac1df65db75fe4543f4d96fc735a9ce68eeb8"
+  },
+  {
+    "brand": "洛阳泰九",
+    "models": [
+      "704-A"
+    ],
+    "entry_id": "KB-TRIAL-TAIJIU-704-A-LT20GK0251-001",
+    "title": "试验中发生燃油泵损坏并更换",
+    "source_id": "SRC-TRIAL-TAIJIU-704-A-LT20GK0251",
+    "locator": "PDF物理第13页；印刷第11页；表十一；样机1号 301.8 h",
+    "bodyHash": "b7f78f6cf88a50091e95964efb54c94a7ccb26ac5eb65b8d11045d81878ae19c"
+  },
+  {
+    "brand": "洛阳泰九",
+    "models": [
+      "704-A"
+    ],
+    "entry_id": "KB-TRIAL-TAIJIU-704-A-LT20GK0251-002",
+    "title": "提升油缸漏油定位到密封圈损伤",
+    "source_id": "SRC-TRIAL-TAIJIU-704-A-LT20GK0251",
+    "locator": "PDF物理第13页；印刷第11页；表十一；样机1号 448.9 h",
+    "bodyHash": "664b0fd98c1188f083b95bf6682aef1c4f7d6d782808deddcbafa00971f2315f"
+  },
+  {
+    "brand": "洛阳泰九",
+    "models": [
+      "704-A"
+    ],
+    "entry_id": "KB-TRIAL-TAIJIU-704-A-LT20GK0251-003",
+    "title": "组合开关故障后更换",
+    "source_id": "SRC-TRIAL-TAIJIU-704-A-LT20GK0251",
+    "locator": "PDF物理第13页；印刷第11页；表十一；样机1号 614.1 h",
+    "bodyHash": "3c6c5a7f775dd10c003bbd8e6ea34e998531e1c0ae354924bb8aad3b24e0f75d"
+  },
+  {
+    "brand": "洛阳泰九",
+    "models": [
+      "704-A"
+    ],
+    "entry_id": "KB-TRIAL-TAIJIU-704-A-LT20GK0251-004",
+    "title": "喇叭不响的试验故障是熔丝熔断",
+    "source_id": "SRC-TRIAL-TAIJIU-704-A-LT20GK0251",
+    "locator": "PDF物理第13页；印刷第11页；表十一；样机2号 278.5 h",
+    "bodyHash": "24c33f306cdb320729537dd38a0e373185052d96e1765a0c8fd621e1fb90bc0d"
+  },
+  {
+    "brand": "洛阳泰九",
+    "models": [
+      "704-A"
+    ],
+    "entry_id": "KB-TRIAL-TAIJIU-704-A-LT20GK0251-005",
+    "title": "发电机损坏后更换",
+    "source_id": "SRC-TRIAL-TAIJIU-704-A-LT20GK0251",
+    "locator": "PDF物理第13页；印刷第11页；表十一；样机2号 346.3 h",
+    "bodyHash": "b13f2658a1aeb0253b3f094feec85aea26b6a321f1f3980014401b3bf77fbc64"
+  },
+  {
+    "brand": "洛阳泰九",
+    "models": [
+      "704-A"
+    ],
+    "entry_id": "KB-TRIAL-TAIJIU-704-A-LT20GK0251-006",
+    "title": "前驱动桥壳渗油与螺栓松动",
+    "source_id": "SRC-TRIAL-TAIJIU-704-A-LT20GK0251",
+    "locator": "PDF物理第13页；印刷第11页；表十一；样机2号 405.8 h",
+    "bodyHash": "380e2aac34e84de8d69b8e678ec8efeb2ad2c13a00a5c69ccabd9e66cbab900c"
+  },
+  {
+    "brand": "洛阳泰九",
+    "models": [
+      "704-A"
+    ],
+    "entry_id": "KB-TRIAL-TAIJIU-704-A-LT20GK0251-007",
+    "title": "挂挡困难由离合器分离不彻底引起",
+    "source_id": "SRC-TRIAL-TAIJIU-704-A-LT20GK0251",
+    "locator": "PDF物理第13页；印刷第11页；表十一；样机2号 668.4 h",
+    "bodyHash": "1ce10370f1f9b0eb37e525ac9aaee924b7c529553e2215f6a11b506ac06c9bd0"
+  },
+  {
+    "brand": "东方红",
+    "models": [
+      "LX804"
+    ],
+    "entry_id": "KB-TRIAL-YTO-LX804-2009KSS047-001",
+    "title": "农具抖动并沉降快与单向阀漏油",
+    "source_id": "SRC-TRIAL-YTO-LX804-2009KSS047",
+    "locator": "PDF物理第10页；印刷第8页；表九；样机1号 112.3 h",
+    "bodyHash": "167db4a716a4f868e5a922840fba9c97087b6a73611a5391aa1a72afb9612a1a"
+  },
+  {
+    "brand": "东方红",
+    "models": [
+      "LX804"
+    ],
+    "entry_id": "KB-TRIAL-YTO-LX804-2009KSS047-002",
+    "title": "变速箱侧盖渗油时发现螺栓松动",
+    "source_id": "SRC-TRIAL-YTO-LX804-2009KSS047",
+    "locator": "PDF物理第10页；印刷第8页；表九；样机1号 376.3 h",
+    "bodyHash": "c07580890c8d8c631efd9d99e151559c0c89b066490919edb8bc1bc5121d1afd"
+  },
+  {
+    "brand": "东方红",
+    "models": [
+      "LX804"
+    ],
+    "entry_id": "KB-TRIAL-YTO-LX804-2009KSS047-003",
+    "title": "试验中分离轴承发生损坏并更换",
+    "source_id": "SRC-TRIAL-YTO-LX804-2009KSS047",
+    "locator": "PDF物理第10页；印刷第8页；表九；样机2号 114.5 h",
+    "bodyHash": "f7336cfe70a1d9a68af170520d68bf6bac4a99c63bcaad72336e7d09f18dc7ac"
+  },
+  {
+    "brand": "东方红",
+    "models": [
+      "LX804"
+    ],
+    "entry_id": "KB-TRIAL-YTO-LX804-2009KSS047-004",
+    "title": "水温传感器发生损坏并更换",
+    "source_id": "SRC-TRIAL-YTO-LX804-2009KSS047",
+    "locator": "PDF物理第11页；印刷第9页；表九；样机2号 371.6 h",
+    "bodyHash": "707a53e53c622d3b83571676315f00e9df790e061a5271fa93772280019c99c7"
+  },
+  {
+    "brand": "东方红",
+    "models": [
+      "LX804"
+    ],
+    "entry_id": "KB-TRIAL-YTO-LX804-2009KSS047-005",
+    "title": "发动机水箱漏水曾采用修焊处置",
+    "source_id": "SRC-TRIAL-YTO-LX804-2009KSS047",
+    "locator": "PDF物理第11页；印刷第9页；表九；样机2号 696.9 h",
+    "bodyHash": "af9a083bc1d161aa8f5be46a5b41fbd96a7c4ae100eb1dc18ba7f452813c2ca8"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "3B-504"
+    ],
+    "entry_id": "KB-TRIAL-JD-3B-504-TJ-2014K-10-001",
+    "title": "液压泵和齿轮泵前端盖漏油与涂胶不均",
+    "source_id": "SRC-TRIAL-JD-3B-504-TJ-2014K-10",
+    "locator": "PDF物理第8页；横置表；表5；样机1号 80、633 h；2号 110、633 h",
+    "bodyHash": "37e7b20524c4e47653ba2da2b06f9d4204acf3a8a61f322d93c5d900c8023103"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "3B-504"
+    ],
+    "entry_id": "KB-TRIAL-JD-3B-504-TJ-2014K-10-002",
+    "title": "转向管接头在两台试验样机上漏油",
+    "source_id": "SRC-TRIAL-JD-3B-504-TJ-2014K-10",
+    "locator": "PDF物理第8页；横置表；表5；样机1号 80 h；2号 110 h",
+    "bodyHash": "9a0f585aa6f933984a9fe535f1bb0ef527fd95a6c7f4b2e9f84f74b347c890e1"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "3B-504"
+    ],
+    "entry_id": "KB-TRIAL-JD-3B-504-TJ-2014K-10-003",
+    "title": "液压油壶在两台样机上出现三级漏油",
+    "source_id": "SRC-TRIAL-JD-3B-504-TJ-2014K-10",
+    "locator": "PDF物理第8页；横置表；表5；样机1号 80 h；2号 110 h",
+    "bodyHash": "1bc21b09eae5f68914d3f0f09e03e2a5b75717d75c558f475a402941afd8167f"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "3B-504"
+    ],
+    "entry_id": "KB-TRIAL-JD-3B-504-TJ-2014K-10-004",
+    "title": "两台样机柴油泵发生二级漏油并换件",
+    "source_id": "SRC-TRIAL-JD-3B-504-TJ-2014K-10",
+    "locator": "PDF物理第8页；横置表；表5；样机1号 80 h；2号 110 h",
+    "bodyHash": "38a07b0be385ca2d5d6aa3f1dd43840aab446bd92ae02449c0ce64f2166471b6"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "3B-504"
+    ],
+    "entry_id": "KB-TRIAL-JD-3B-504-TJ-2014K-10-005",
+    "title": "空滤和进气歧管之间漏油时核对油浴杯油位",
+    "source_id": "SRC-TRIAL-JD-3B-504-TJ-2014K-10",
+    "locator": "PDF物理第8页；横置表；表5；样机1号 633 h；2号 110 h",
+    "bodyHash": "c9eb69504dc204ae666f748d83344f791d5de6a22d2678bd646b09d7cbf4da48"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "3B-504"
+    ],
+    "entry_id": "KB-TRIAL-JD-3B-504-TJ-2014K-10-006",
+    "title": "机油堵头漏油定位到 O 形圈失效",
+    "source_id": "SRC-TRIAL-JD-3B-504-TJ-2014K-10",
+    "locator": "PDF物理第8页；横置表；表5；样机2号 548 h",
+    "bodyHash": "ee6081d1ef6b4ee1a013581e58a2823b63479b902eb1028a327fbe4b3dcb814a"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "3B-504"
+    ],
+    "entry_id": "KB-TRIAL-JD-3B-504-TJ-2014K-10-007",
+    "title": "变速箱底座漏油与装配涂胶不均",
+    "source_id": "SRC-TRIAL-JD-3B-504-TJ-2014K-10",
+    "locator": "PDF物理第8页；横置表；表5；样机2号 548 h",
+    "bodyHash": "55c04d3b2cb605e4ebae2abee2d32625e3219a8c2fb85ae66b8a51f4716737a0"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "3B-504"
+    ],
+    "entry_id": "KB-TRIAL-JD-3B-504-TJ-2014K-10-008",
+    "title": "转向油缸胶套破裂后更换",
+    "source_id": "SRC-TRIAL-JD-3B-504-TJ-2014K-10",
+    "locator": "PDF物理第8页；横置表；表5；样机2号 567 h",
+    "bodyHash": "940222c65bd5e6072e90aedb5baeb46292900e436d42ac68d01988a67fabe594"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "350",
+      "354",
+      "4035B",
+      "400",
+      "404",
+      "450",
+      "454",
+      "480",
+      "484"
+    ],
+    "entry_id": "KB-JD-OMSJ16412-L4-CN-001",
+    "title": "变速箱油过热检查油位、滤清器和油冷却器",
+    "source_id": "SRC-JD-OMSJ16412-L4-CN",
+    "locator": "PDF物理第130页；印刷第115-1页；变速箱故障排除",
+    "bodyHash": "7e5fb382c52ce83f5629faf65156c40bf581488fde8292067b9b1db95cc1517f"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "350",
+      "354",
+      "4035B",
+      "400",
+      "404",
+      "450",
+      "454",
+      "480",
+      "484"
+    ],
+    "entry_id": "KB-JD-OMSJ16412-L4-CN-002",
+    "title": "变速箱油压低先查油量与变速箱油滤清器",
+    "source_id": "SRC-JD-OMSJ16412-L4-CN",
+    "locator": "PDF物理第130页；印刷第115-1页；变速箱故障排除",
+    "bodyHash": "5cb45d491ac7c3a10910a5473b5d5d72b0965caa1fdf85289b2492b216a02826"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "350",
+      "354",
+      "4035B",
+      "400",
+      "404",
+      "450",
+      "454",
+      "480",
+      "484"
+    ],
+    "entry_id": "KB-JD-OMSJ16412-L4-CN-003",
+    "title": "变速箱在空挡卡住或换不到其他挡位",
+    "source_id": "SRC-JD-OMSJ16412-L4-CN",
+    "locator": "PDF物理第130页；印刷第115-1页；变速箱故障排除",
+    "bodyHash": "0c0b6d9414cd19f4459b6f42173f493d75a7009a3dcd6014a1cf401f832dbc72"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "350",
+      "354",
+      "4035B",
+      "400",
+      "404",
+      "450",
+      "454",
+      "480",
+      "484"
+    ],
+    "entry_id": "KB-JD-OMSJ16412-L4-CN-004",
+    "title": "离合器打滑检查弹簧、分离杆和踏板行程",
+    "source_id": "SRC-JD-OMSJ16412-L4-CN",
+    "locator": "PDF物理第130页；印刷第115-1页；变速箱故障排除",
+    "bodyHash": "7f23571f271193dbf659b18ff62027d1f3c3cba3962fc7d2f23151b5a0dbcdee"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "350",
+      "354",
+      "4035B",
+      "400",
+      "404",
+      "450",
+      "454",
+      "480",
+      "484"
+    ],
+    "entry_id": "KB-JD-OMSJ16412-L4-CN-005",
+    "title": "离合器发出振动声检查前轴承和内部件",
+    "source_id": "SRC-JD-OMSJ16412-L4-CN",
+    "locator": "PDF物理第130页；印刷第115-1页；变速箱故障排除",
+    "bodyHash": "d2b8f539e5671297534644560ee39f3a302efe9b32ae057e1da17d0e46aa6fc2"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "350",
+      "354",
+      "4035B",
+      "400",
+      "404",
+      "450",
+      "454",
+      "480",
+      "484"
+    ],
+    "entry_id": "KB-JD-OMSJ16412-L4-CN-006",
+    "title": "离合器壳渗油检查发动机飞轮端油封",
+    "source_id": "SRC-JD-OMSJ16412-L4-CN",
+    "locator": "PDF物理第130页；印刷第115-1页；变速箱故障排除",
+    "bodyHash": "4a6dec38e934b70fd4e6ab0358ac7b836ae31e986de6578137d9a70fafd6a78f"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "350",
+      "354",
+      "4035B",
+      "400",
+      "404",
+      "450",
+      "454",
+      "480",
+      "484"
+    ],
+    "entry_id": "KB-JD-OMSJ16412-L4-CN-007",
+    "title": "齿轮箱异响检查轴承、油位和啮合",
+    "source_id": "SRC-JD-OMSJ16412-L4-CN",
+    "locator": "PDF物理第130页；印刷第115-1页；变速箱故障排除",
+    "bodyHash": "f9d89cae039b62a6e1387920985860d476b25be7850ed1dbc37f63cd26d07552"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "350",
+      "354",
+      "4035B",
+      "400",
+      "404",
+      "450",
+      "454",
+      "480",
+      "484"
+    ],
+    "entry_id": "KB-JD-OMSJ16412-L4-CN-008",
+    "title": "整套液压失效检查供油、滤清器和泵管路",
+    "source_id": "SRC-JD-OMSJ16412-L4-CN",
+    "locator": "PDF物理第131页；印刷第115-2页；液压系统故障排除",
+    "bodyHash": "a7673d712516a876586787eff8d87f7edaf4552066bc69a0ef2dc4ab9da68cf1"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "350",
+      "354",
+      "4035B",
+      "400",
+      "404",
+      "450",
+      "454",
+      "480",
+      "484"
+    ],
+    "entry_id": "KB-JD-OMSJ16412-L4-CN-009",
+    "title": "液压油过热检查反馈机构和油冷却器",
+    "source_id": "SRC-JD-OMSJ16412-L4-CN",
+    "locator": "PDF物理第131页；印刷第115-2页；液压系统故障排除",
+    "bodyHash": "e5b9c56e9354c9f5e3d356fb5a9fc47d5d2c240a6aef05e5c5ed8c09cf84bc81"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "350",
+      "354",
+      "4035B",
+      "400",
+      "404",
+      "450",
+      "454",
+      "480",
+      "484"
+    ],
+    "entry_id": "KB-JD-OMSJ16412-L4-CN-010",
+    "title": "农具不能降下时检查下降速度阀堵塞",
+    "source_id": "SRC-JD-OMSJ16412-L4-CN",
+    "locator": "PDF物理第131页；印刷第115-2页；液压系统故障排除",
+    "bodyHash": "cb76585aa3ea7bfc958f1f55a196a16e376422042db8ca41561f092d55e9c954"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "350",
+      "354",
+      "4035B",
+      "400",
+      "404",
+      "450",
+      "454",
+      "480",
+      "484"
+    ],
+    "entry_id": "KB-JD-OMSJ16412-L4-CN-011",
+    "title": "农具举升有振动时检查接管和空气",
+    "source_id": "SRC-JD-OMSJ16412-L4-CN",
+    "locator": "PDF物理第131页；印刷第115-2页；液压系统故障排除",
+    "bodyHash": "a4e8f52234c930809be9e2d05b336fa7aaedcdd6dc07f79e1eb26f8186875cc1"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "350",
+      "354",
+      "4035B",
+      "400",
+      "404",
+      "450",
+      "454",
+      "480",
+      "484"
+    ],
+    "entry_id": "KB-JD-OMSJ16412-L4-CN-012",
+    "title": "制动器失效的摩擦件与踏板排查",
+    "source_id": "SRC-JD-OMSJ16412-L4-CN",
+    "locator": "PDF物理第132页；印刷第115-3页；制动系故障排除",
+    "bodyHash": "fff7e0dd262a001d3651cd503f2055782d3517ce007799ec330340af84beb29f"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "350",
+      "354",
+      "4035B",
+      "400",
+      "404",
+      "450",
+      "454",
+      "480",
+      "484"
+    ],
+    "entry_id": "KB-JD-OMSJ16412-L4-CN-013",
+    "title": "制动时机器偏向一侧检查左右踏板与摩擦总成",
+    "source_id": "SRC-JD-OMSJ16412-L4-CN",
+    "locator": "PDF物理第132页；印刷第115-3页；制动系故障排除",
+    "bodyHash": "9ac46bab129195d7e89b87f94457b376492240bd5a626c0acbec36e129a37411"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "350",
+      "354",
+      "4035B",
+      "400",
+      "404",
+      "450",
+      "454",
+      "480",
+      "484"
+    ],
+    "entry_id": "KB-JD-OMSJ16412-L4-CN-014",
+    "title": "制动无法完全释放、运输出现粘滞",
+    "source_id": "SRC-JD-OMSJ16412-L4-CN",
+    "locator": "PDF物理第132页；印刷第115-3页；制动系故障排除",
+    "bodyHash": "4cd05acbfb12f2eb46967c8b5707c425eb31b65ca7820303928e0bf894df1c67"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "350",
+      "354",
+      "4035B",
+      "400",
+      "404",
+      "450",
+      "454",
+      "480",
+      "484"
+    ],
+    "entry_id": "KB-JD-OMSJ16412-L4-CN-015",
+    "title": "踩稳制动后踏板向下沉降检查后制动器密封",
+    "source_id": "SRC-JD-OMSJ16412-L4-CN",
+    "locator": "PDF物理第132页；印刷第115-3页；制动系故障排除",
+    "bodyHash": "c5f34e57a61b229ebc66aba19f5074e788c0b3243a1c0898a9bd0945d0e275f3"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "350",
+      "354",
+      "4035B",
+      "400",
+      "404",
+      "450",
+      "454",
+      "480",
+      "484"
+    ],
+    "entry_id": "KB-JD-OMSJ16412-L4-CN-016",
+    "title": "三点悬挂运输离地高度不足时检查杆件位置",
+    "source_id": "SRC-JD-OMSJ16412-L4-CN",
+    "locator": "PDF物理第133页；印刷第115-4页；摇臂轴和三点悬挂架故障排除",
+    "bodyHash": "1d4ae17aa53099d7298344109d68573074c699b2aacfe764c69d1b6e97450f25"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "350",
+      "354",
+      "4035B",
+      "400",
+      "404",
+      "450",
+      "454",
+      "480",
+      "484"
+    ],
+    "entry_id": "KB-JD-OMSJ16412-L4-CN-017",
+    "title": "摇臂轴悬挂下降速度偏快或偏慢",
+    "source_id": "SRC-JD-OMSJ16412-L4-CN",
+    "locator": "PDF物理第133至134页；印刷第115-4至115-5页；摇臂轴和三点悬挂架故障排除",
+    "bodyHash": "57fb4770c9a021cb195899b19ce7f9a6f99da4807b74ccf909edcb60f18db995"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "350",
+      "354",
+      "4035B",
+      "400",
+      "404",
+      "450",
+      "454",
+      "480",
+      "484"
+    ],
+    "entry_id": "KB-JD-OMSJ16412-L4-CN-018",
+    "title": "悬挂提升慢或不提升先核对负荷与油温",
+    "source_id": "SRC-JD-OMSJ16412-L4-CN",
+    "locator": "PDF物理第133页；印刷第115-4页；摇臂轴和三点悬挂架故障排除",
+    "bodyHash": "17fe39b8e143e175bde3283c71d0d51b779f3431dc27b1186f576a6d56da8d9a"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "350",
+      "354",
+      "4035B",
+      "400",
+      "404",
+      "450",
+      "454",
+      "480",
+      "484"
+    ],
+    "entry_id": "KB-JD-OMSJ16412-L4-CN-019",
+    "title": "农具达不到要求入土深度的调节项目",
+    "source_id": "SRC-JD-OMSJ16412-L4-CN",
+    "locator": "PDF物理第133页；印刷第115-4页；摇臂轴和三点悬挂架故障排除",
+    "bodyHash": "5500bc1e1bba9bc62c222b90a6788ff3951cd54979c7022982e304dfffdc29b0"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "350",
+      "354",
+      "4035B",
+      "400",
+      "404",
+      "450",
+      "454",
+      "480",
+      "484"
+    ],
+    "entry_id": "KB-JD-OMSJ16412-L4-CN-020",
+    "title": "牵引力不足或悬挂无响应时检查中央拉杆支点",
+    "source_id": "SRC-JD-OMSJ16412-L4-CN",
+    "locator": "PDF物理第133页；印刷第115-4页；摇臂轴和三点悬挂架故障排除",
+    "bodyHash": "355a730f8cf36bac50632d5be3cf40b9eef0b4c2fb59096869e0a7c2cac96da9"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "350",
+      "354",
+      "4035B",
+      "400",
+      "404",
+      "450",
+      "454",
+      "480",
+      "484"
+    ],
+    "entry_id": "KB-JD-OMSJ16412-L4-CN-021",
+    "title": "悬挂反应过于灵敏时核对支点与牵引力传感",
+    "source_id": "SRC-JD-OMSJ16412-L4-CN",
+    "locator": "PDF物理第133页；印刷第115-4页；摇臂轴和三点悬挂架故障排除",
+    "bodyHash": "e8d9daf05c0844368ac9ff0f01bf8bec07b7317cd858b0c86083c8c49949678a"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "350",
+      "354",
+      "4035B",
+      "400",
+      "404",
+      "450",
+      "454",
+      "480",
+      "484"
+    ],
+    "entry_id": "KB-JD-OMSJ16412-L4-CN-022",
+    "title": "摇臂轴控制杆太松并自行漂移",
+    "source_id": "SRC-JD-OMSJ16412-L4-CN",
+    "locator": "PDF物理第134页；印刷第115-5页；摇臂轴和三点悬挂架故障排除",
+    "bodyHash": "8ab598579ebee43a57ca77c68dcfcc59e5e783225dd0044d250cabf52c7bd481"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "350",
+      "354",
+      "4035B",
+      "400",
+      "404",
+      "450",
+      "454",
+      "480",
+      "484"
+    ],
+    "entry_id": "KB-JD-OMSJ16412-L4-CN-023",
+    "title": "电瓶不充电检查端子、电池和交流发电机皮带",
+    "source_id": "SRC-JD-OMSJ16412-L4-CN",
+    "locator": "PDF物理第135页；印刷第115-6页；电气系统故障排除",
+    "bodyHash": "2baf36d179dba7869d766f2b41bfd6a9820db756810710a86013641d316ce28e"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "350",
+      "354",
+      "4035B",
+      "400",
+      "404",
+      "450",
+      "454",
+      "480",
+      "484"
+    ],
+    "entry_id": "KB-JD-OMSJ16412-L4-CN-024",
+    "title": "发动机运行时充电灯仍亮的检查顺序",
+    "source_id": "SRC-JD-OMSJ16412-L4-CN",
+    "locator": "PDF物理第135页；印刷第115-6页；电气系统故障排除",
+    "bodyHash": "8671c0a10aa30d7607968bdf31373b81ed4098da82c2ce6ac8d7204b2ac3d338"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "350",
+      "354",
+      "4035B",
+      "400",
+      "404",
+      "450",
+      "454",
+      "480",
+      "484"
+    ],
+    "entry_id": "KB-JD-OMSJ16412-L4-CN-025",
+    "title": "起动机不能工作时检查空挡条件和保险",
+    "source_id": "SRC-JD-OMSJ16412-L4-CN",
+    "locator": "PDF物理第135页；印刷第115-6页；电气系统故障排除",
+    "bodyHash": "9708b92e54ef30f163ee92423ab2d048b5328e75e4d62e0a188d4d218c8d9736"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "350",
+      "354",
+      "4035B",
+      "400",
+      "404",
+      "450",
+      "454",
+      "480",
+      "484"
+    ],
+    "entry_id": "KB-JD-OMSJ16412-L4-CN-026",
+    "title": "起动机带发动机转得慢时检查供电和机油",
+    "source_id": "SRC-JD-OMSJ16412-L4-CN",
+    "locator": "PDF物理第135页；印刷第115-6页；电气系统故障排除",
+    "bodyHash": "009e56c63cb01b60885673a814f6b861000807447c70117473c9053f5f6f42cd"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "350",
+      "354",
+      "4035B",
+      "400",
+      "404",
+      "450",
+      "454",
+      "480",
+      "484"
+    ],
+    "entry_id": "KB-JD-OMSJ16412-L4-CN-027",
+    "title": "仅照明回路失效时检查照明保险",
+    "source_id": "SRC-JD-OMSJ16412-L4-CN",
+    "locator": "PDF物理第135页；印刷第115-6页；电气系统故障排除",
+    "bodyHash": "44633ae54dc02b160679491d239cb5bff12ef7b8d74bfd171c8d2c2c0aa87026"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "350",
+      "354",
+      "4035B",
+      "400",
+      "404",
+      "450",
+      "454",
+      "480",
+      "484"
+    ],
+    "entry_id": "KB-JD-OMSJ16412-L4-CN-028",
+    "title": "整套电气无电时检查熔丝连接和电瓶连接",
+    "source_id": "SRC-JD-OMSJ16412-L4-CN",
+    "locator": "PDF物理第135页；印刷第115-6页；电气系统故障排除",
+    "bodyHash": "abd83862a51f36217af0cd48d325bc5bec8d9b0b1bf61bbf965e9a7f511ce719"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "350",
+      "354",
+      "4035B",
+      "400",
+      "404",
+      "450",
+      "454",
+      "480",
+      "484"
+    ],
+    "entry_id": "KB-JD-OMSJ16412-L4-CN-029",
+    "title": "继电器反复不动作或卡滞检查相关二极管",
+    "source_id": "SRC-JD-OMSJ16412-L4-CN",
+    "locator": "PDF物理第135页；印刷第115-6页；电气系统故障排除",
+    "bodyHash": "ec6d3c3d5d59e744a9a066396438871b185c62ebaa550c0e3d710889d7c64f66"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "350",
+      "354",
+      "4035B",
+      "400",
+      "404",
+      "450",
+      "454",
+      "480",
+      "484"
+    ],
+    "entry_id": "KB-JD-OMSJ16412-L4-CN-030",
+    "title": "电瓶过热 端子短路与充电电流检查",
+    "source_id": "SRC-JD-OMSJ16412-L4-CN",
+    "locator": "PDF物理第135页；印刷第115-6页；电气系统故障排除",
+    "bodyHash": "d1656f08f5f2558488f4c9ff23246b6e49395c4e5d22d7c03928befd4c07ce1f"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "350",
+      "354",
+      "4035B",
+      "400",
+      "404",
+      "450",
+      "454",
+      "480",
+      "484"
+    ],
+    "entry_id": "KB-JD-OMSJ16412-L4-CN-031",
+    "title": "交流发电机输出电流不稳检查电刷和端子",
+    "source_id": "SRC-JD-OMSJ16412-L4-CN",
+    "locator": "PDF物理第135至136页；印刷第115-6至115-7页；电气系统故障排除",
+    "bodyHash": "e0af0045a47d8a8eb32772300b4f267291e246886d69cdc77cdc833f4933acf5"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "350",
+      "354",
+      "4035B",
+      "400",
+      "404",
+      "450",
+      "454",
+      "480",
+      "484"
+    ],
+    "entry_id": "KB-JD-OMSJ16412-L4-CN-032",
+    "title": "交流发电机异响检查轴承和定转子擦碰",
+    "source_id": "SRC-JD-OMSJ16412-L4-CN",
+    "locator": "PDF物理第136页；印刷第115-7页；电气系统故障排除",
+    "bodyHash": "0fdbd53a2f1828ca8c3ed7d9fd4cc359a730736253d3d539957cc417d9098ff8"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "6E-1204",
+      "6E-1204-P",
+      "6E-1404",
+      "6E-1404-P",
+      "6E-1404-L",
+      "6E-1404-PL",
+      "6E-1504-L",
+      "6E-1504-PL"
+    ],
+    "entry_id": "KB-JD-6E-OMSU64123-C2-CN-001",
+    "title": "日常检查发动机机油油位",
+    "source_id": "SRC-JD-6E-OMSU64123-C2-CN",
+    "locator": "PDF物理第110页；印刷第220-1页；检查机油油位",
+    "bodyHash": "10c313f6689f43b55bf2b3a8ea1ca601deab0abfa9cd29732b3a9c3dc3e732e2"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "6E-1204",
+      "6E-1204-P",
+      "6E-1404",
+      "6E-1404-P",
+      "6E-1404-L",
+      "6E-1404-PL",
+      "6E-1504-L",
+      "6E-1504-PL"
+    ],
+    "entry_id": "KB-JD-6E-OMSU64123-C2-CN-002",
+    "title": "更换发动机机油和机油滤清器",
+    "source_id": "SRC-JD-6E-OMSU64123-C2-CN",
+    "locator": "PDF物理第111页；印刷第220-2页；更换发动机机油和过滤器",
+    "bodyHash": "cd187132edb51e62a038f22e1a7f172f534b72b6f981425ae695c455edce1804"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "6E-1204",
+      "6E-1204-P",
+      "6E-1404",
+      "6E-1404-P",
+      "6E-1404-L",
+      "6E-1404-PL",
+      "6E-1504-L",
+      "6E-1504-PL"
+    ],
+    "entry_id": "KB-JD-6E-OMSU64123-C2-CN-003",
+    "title": "空滤指示灯持续点亮时检查两级滤芯",
+    "source_id": "SRC-JD-6E-OMSU64123-C2-CN",
+    "locator": "PDF物理第114至115页；印刷第230-1至230-2页；保养空气滤清器",
+    "bodyHash": "4f0fd6cd0345fa8543bda13e661cf006388b0e15193f64500cf6fff00bd8e824"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "6E-1204",
+      "6E-1204-P",
+      "6E-1404",
+      "6E-1404-P",
+      "6E-1404-L",
+      "6E-1404-PL",
+      "6E-1504-L",
+      "6E-1504-PL"
+    ],
+    "entry_id": "KB-JD-6E-OMSU64123-C2-CN-004",
+    "title": "初级空气滤芯更换周期与装入方向",
+    "source_id": "SRC-JD-6E-OMSU64123-C2-CN",
+    "locator": "PDF物理第114至115页；印刷第230-1至230-2页；更换空气滤清器的初级滤芯",
+    "bodyHash": "b60693ffe5c3c0d8058e23d013570db5be20fcd1a9825fde2df80460b11839ab"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "6E-1204",
+      "6E-1204-P",
+      "6E-1404",
+      "6E-1404-P",
+      "6E-1404-L",
+      "6E-1404-PL",
+      "6E-1504-L",
+      "6E-1504-PL"
+    ],
+    "entry_id": "KB-JD-6E-OMSU64123-C2-CN-005",
+    "title": "次级空气滤芯更换周期与安装",
+    "source_id": "SRC-JD-6E-OMSU64123-C2-CN",
+    "locator": "PDF物理第115至116页；印刷第230-2至230-3页；更换空气滤清器的次级滤芯",
+    "bodyHash": "f89ec76c7ade562a2b4fc1316ac5abbecebcffb7c532429b732136be7b9b8ef3"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "6E-1204",
+      "6E-1204-P",
+      "6E-1404",
+      "6E-1404-P",
+      "6E-1404-L",
+      "6E-1404-PL",
+      "6E-1504-L",
+      "6E-1504-PL"
+    ],
+    "entry_id": "KB-JD-6E-OMSU64123-C2-CN-006",
+    "title": "燃油滤清器与油水分离器日常排水",
+    "source_id": "SRC-JD-6E-OMSU64123-C2-CN",
+    "locator": "PDF物理第118页；印刷第230-5页；排空燃油滤清器和油水分离器中的水和沉淀物",
+    "bodyHash": "d0f7926d8730367e2e34f157de4cde2c241f8d25575a0a78b8acc0221072cb91"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "6E-1204",
+      "6E-1204-P",
+      "6E-1404",
+      "6E-1404-P",
+      "6E-1404-L",
+      "6E-1404-PL",
+      "6E-1504-L",
+      "6E-1504-PL"
+    ],
+    "entry_id": "KB-JD-6E-OMSU64123-C2-CN-007",
+    "title": "更换独立油水分离器",
+    "source_id": "SRC-JD-6E-OMSU64123-C2-CN",
+    "locator": "PDF物理第118至119页；印刷第230-5至230-6页；更换油水分离器",
+    "bodyHash": "198ad89bda95f6770897543b68f739728808898ce4fa103c8f1fe0929f5acff9"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "6E-1204",
+      "6E-1204-P",
+      "6E-1404",
+      "6E-1404-P",
+      "6E-1404-L",
+      "6E-1404-PL",
+      "6E-1504-L",
+      "6E-1504-PL"
+    ],
+    "entry_id": "KB-JD-6E-OMSU64123-C2-CN-008",
+    "title": "更换次级燃油滤清器",
+    "source_id": "SRC-JD-6E-OMSU64123-C2-CN",
+    "locator": "PDF物理第119至120页；印刷第230-6至230-7页；更换次级燃油滤清器",
+    "bodyHash": "8567a4b38fd22ab6a993ba86dbe742176ea9dbd48780cef17dc707ab74f3a1df"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "6E-1204",
+      "6E-1204-P",
+      "6E-1404",
+      "6E-1404-P",
+      "6E-1404-L",
+      "6E-1404-PL",
+      "6E-1504-L",
+      "6E-1504-PL"
+    ],
+    "entry_id": "KB-JD-6E-OMSU64123-C2-CN-009",
+    "title": "更换带集水杯的初级燃油滤清器",
+    "source_id": "SRC-JD-6E-OMSU64123-C2-CN",
+    "locator": "PDF物理第119页；印刷第230-6页；更换初级燃油滤清器",
+    "bodyHash": "97b2f4f12591ffbed23f8c30c254253a51cfc3dba2f6d23e3455c5e68216f276"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "6E-1204",
+      "6E-1204-P",
+      "6E-1404",
+      "6E-1404-P",
+      "6E-1404-L",
+      "6E-1404-PL",
+      "6E-1504-L",
+      "6E-1504-PL"
+    ],
+    "entry_id": "KB-JD-6E-OMSU64123-C2-CN-010",
+    "title": "检查冷却液泄漏的三个位置",
+    "source_id": "SRC-JD-6E-OMSU64123-C2-CN",
+    "locator": "PDF物理第120页；印刷第230-7页；检查冷却系统是否泄漏",
+    "bodyHash": "5e0789363f73cc2fd7363dce7d5c3799ffde11288c0acf179876514b23909d9e"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "6E-1204",
+      "6E-1204-P",
+      "6E-1404",
+      "6E-1404-P",
+      "6E-1404-L",
+      "6E-1404-PL",
+      "6E-1504-L",
+      "6E-1504-PL"
+    ],
+    "entry_id": "KB-JD-6E-OMSU64123-C2-CN-011",
+    "title": "清洁前格栅和冷却器散热面",
+    "source_id": "SRC-JD-6E-OMSU64123-C2-CN",
+    "locator": "PDF物理第123页；印刷第230-10页；清洁前格栅、侧网板、散热器和油冷却器",
+    "bodyHash": "542a20c9357535ae936a157bef27d040458a570899639d72919d1928ab3005eb"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "6E-1204",
+      "6E-1204-P",
+      "6E-1404",
+      "6E-1404-P",
+      "6E-1404-L",
+      "6E-1404-PL",
+      "6E-1504-L",
+      "6E-1504-PL"
+    ],
+    "entry_id": "KB-JD-6E-OMSU64123-C2-CN-012",
+    "title": "换燃油滤清器后的低压燃油系统排气",
+    "source_id": "SRC-JD-6E-OMSU64123-C2-CN",
+    "locator": "PDF物理第123页；印刷第230-10页；排空燃油系统中的空气",
+    "bodyHash": "8f200e86a082a63c4b44d7b4b972fae300566c08e45eff10b1536c5469143542"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "6E-1204",
+      "6E-1204-P",
+      "6E-1404",
+      "6E-1404-P",
+      "6E-1404-L",
+      "6E-1404-PL",
+      "6E-1504-L",
+      "6E-1504-PL"
+    ],
+    "entry_id": "KB-JD-6E-OMSU64123-C2-CN-013",
+    "title": "更换交流发电机与风扇共用皮带",
+    "source_id": "SRC-JD-6E-OMSU64123-C2-CN",
+    "locator": "PDF物理第125页；印刷第240-2页；更换交流发电机/风扇皮带",
+    "bodyHash": "152800978fd5c77c7f84d2002ecb927b252e75f2f726f27c9a70df656fc97478"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "6E-1204",
+      "6E-1204-P",
+      "6E-1404",
+      "6E-1404-P",
+      "6E-1404-L",
+      "6E-1404-PL",
+      "6E-1504-L",
+      "6E-1504-PL"
+    ],
+    "entry_id": "KB-JD-6E-OMSU64123-C2-CN-014",
+    "title": "清理并防护蓄电池接线端子",
+    "source_id": "SRC-JD-6E-OMSU64123-C2-CN",
+    "locator": "PDF物理第125页；印刷第240-2页；保养电瓶",
+    "bodyHash": "5e15b37ee9aa56b91af5ecf6bae9779013093f9d316f1b60eeba4ddf0e001d7a"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "6E-1204",
+      "6E-1204-P",
+      "6E-1404",
+      "6E-1404-P",
+      "6E-1404-L",
+      "6E-1404-PL",
+      "6E-1504-L",
+      "6E-1504-PL"
+    ],
+    "entry_id": "KB-JD-6E-OMSU64123-C2-CN-015",
+    "title": "更换传动与液压共用油",
+    "source_id": "SRC-JD-6E-OMSU64123-C2-CN",
+    "locator": "PDF物理第134至135页；印刷第250A-1至250A-2页；更换传动/液压系统油",
+    "bodyHash": "42cd4d9456c4586eedf575cd42244e21cc97f6334bfdc7c11db4db0a7424d20b"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "6E-1204",
+      "6E-1204-P",
+      "6E-1404",
+      "6E-1404-P",
+      "6E-1404-L",
+      "6E-1404-PL",
+      "6E-1504-L",
+      "6E-1504-PL"
+    ],
+    "entry_id": "KB-JD-6E-OMSU64123-C2-CN-016",
+    "title": "每日查看变速箱液压共用油位",
+    "source_id": "SRC-JD-6E-OMSU64123-C2-CN",
+    "locator": "PDF物理第134页；印刷第250A-1页；检查变速箱/液压系统油位",
+    "bodyHash": "62de94f063e0d9bdb289fe5e33e87c6ac2ca9ccae7b5d62eec6f34cec5dfb035"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "6E-1204",
+      "6E-1204-P",
+      "6E-1404",
+      "6E-1404-P",
+      "6E-1404-L",
+      "6E-1404-PL",
+      "6E-1504-L",
+      "6E-1504-PL"
+    ],
+    "entry_id": "KB-JD-6E-OMSU64123-C2-CN-017",
+    "title": "更换变速箱液压油滤清器与密封圈",
+    "source_id": "SRC-JD-6E-OMSU64123-C2-CN",
+    "locator": "PDF物理第135页；印刷第250A-2页；更换变速箱/液压油滤清器",
+    "bodyHash": "1c9391f0ca2a9b6c9a29d296bb7b07aefbbd70e2b029b5e68c63988b684a7095"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "6E-1204",
+      "6E-1204-P",
+      "6E-1404",
+      "6E-1404-P",
+      "6E-1404-L",
+      "6E-1404-PL",
+      "6E-1504-L",
+      "6E-1504-PL"
+    ],
+    "entry_id": "KB-JD-6E-OMSU64123-C2-CN-018",
+    "title": "给机械前驱前桥两侧万向节补脂",
+    "source_id": "SRC-JD-6E-OMSU64123-C2-CN",
+    "locator": "PDF物理第136至137页；印刷第250B-1至250B-2页；润滑机械前轮驱动前桥",
+    "bodyHash": "134468c5fa19fb21607bd49a935c4468d1c4c2183538a26ae642717af3372f44"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "6E-1204",
+      "6E-1204-P",
+      "6E-1404",
+      "6E-1404-P",
+      "6E-1404-L",
+      "6E-1404-PL",
+      "6E-1504-L",
+      "6E-1504-PL"
+    ],
+    "entry_id": "KB-JD-6E-OMSU64123-C2-CN-019",
+    "title": "检查机械前驱轮毂油位",
+    "source_id": "SRC-JD-6E-OMSU64123-C2-CN",
+    "locator": "PDF物理第137页；印刷第250B-2页；检查机械前轮驱动车轮轮毂油位",
+    "bodyHash": "61ece5a9e090f290c68917a2a1324c599752990aa6a9099ae409dac4b93aba0f"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "6E-1204",
+      "6E-1204-P",
+      "6E-1404",
+      "6E-1404-P",
+      "6E-1404-L",
+      "6E-1404-PL",
+      "6E-1504-L",
+      "6E-1504-PL"
+    ],
+    "entry_id": "KB-JD-6E-OMSU64123-C2-CN-020",
+    "title": "检查机械前驱前桥桥壳油位",
+    "source_id": "SRC-JD-6E-OMSU64123-C2-CN",
+    "locator": "PDF物理第137页；印刷第250B-2页；检查机械前轮驱动桥壳油位",
+    "bodyHash": "ea7fa2450e6f88436a4242624ac18ad239585c4ecb27585d429c66183db3fa02"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "6E-1204",
+      "6E-1204-P",
+      "6E-1404",
+      "6E-1404-P",
+      "6E-1404-L",
+      "6E-1404-PL",
+      "6E-1504-L",
+      "6E-1504-PL"
+    ],
+    "entry_id": "KB-JD-6E-OMSU64123-C2-CN-021",
+    "title": "更换机械前驱轮毂油",
+    "source_id": "SRC-JD-6E-OMSU64123-C2-CN",
+    "locator": "PDF物理第138页；印刷第250B-3页；更换机械前轮驱动轮毂油",
+    "bodyHash": "1d355ac14b1995d07653793967535d8e4e2de7be4ee0eb5f35c0d07cdca104c3"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "6E-1204",
+      "6E-1204-P",
+      "6E-1404",
+      "6E-1404-P",
+      "6E-1404-L",
+      "6E-1404-PL",
+      "6E-1504-L",
+      "6E-1504-PL"
+    ],
+    "entry_id": "KB-JD-6E-OMSU64123-C2-CN-022",
+    "title": "更换机械前驱桥壳油",
+    "source_id": "SRC-JD-6E-OMSU64123-C2-CN",
+    "locator": "PDF物理第139页；印刷第250B-4页；更换机械前轮驱动前桥壳体油",
+    "bodyHash": "d974e4d03ef21dddef9590602262d6ffa6e8efbd0ec5c5dd549b9a2b82d39d9c"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "6E-1204",
+      "6E-1204-P",
+      "6E-1404",
+      "6E-1404-P",
+      "6E-1404-L",
+      "6E-1404-PL",
+      "6E-1504-L",
+      "6E-1504-PL"
+    ],
+    "entry_id": "KB-JD-6E-OMSU64123-C2-CN-023",
+    "title": "润滑后动力输出轴与复装卡环",
+    "source_id": "SRC-JD-6E-OMSU64123-C2-CN",
+    "locator": "PDF物理第141页；印刷第250D-1页；润滑动力输出轴",
+    "bodyHash": "c1ab1a2d811c179c67a302afe20213e9855a0e2c8caff642710c4f9636c29311"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "6E-1204",
+      "6E-1204-P",
+      "6E-1404",
+      "6E-1404-P",
+      "6E-1404-L",
+      "6E-1404-PL",
+      "6E-1504-L",
+      "6E-1504-PL"
+    ],
+    "entry_id": "KB-JD-6E-OMSU64123-C2-CN-024",
+    "title": "检查左右制动踏板是否异常沉降",
+    "source_id": "SRC-JD-6E-OMSU64123-C2-CN",
+    "locator": "PDF物理第142页；印刷第260-1页；检查制动踏板",
+    "bodyHash": "885a887194f738f8b587bc43203fb27cd0400adfc5b7cf76d691e575fda85dd5"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "5E-850",
+      "5E-854",
+      "5E-904",
+      "5E-954",
+      "5E-1000",
+      "5E-1004",
+      "5E-1200",
+      "5E-1204"
+    ],
+    "entry_id": "KB-JD-5E-OMSU55602-G9-CN-010",
+    "title": "三点悬挂牵引力响应不足先核对中央拉杆托架孔",
+    "source_id": "SRC-JD-5E-OMSU55602-G9-CN",
+    "locator": "PDF物理第147至148页；印刷第115-5至115-6页；提升器和三点悬挂故障排除",
+    "bodyHash": "9f3809b0f8b01ae53cf6bbe3ea33f22bdbee5c0a510151d22c47a1861ccfe51c"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "5E-850",
+      "5E-854",
+      "5E-904",
+      "5E-954",
+      "5E-1000",
+      "5E-1004",
+      "5E-1200",
+      "5E-1204"
+    ],
+    "entry_id": "KB-JD-5E-OMSU55602-G9-CN-011",
+    "title": "农具达不到设定耕深需核对提升拉杆和限位挡块",
+    "source_id": "SRC-JD-5E-OMSU55602-G9-CN",
+    "locator": "PDF物理第147页；印刷第115-5页；提升器和三点悬挂故障排除",
+    "bodyHash": "5f90b1b537f3b6aeb570f97ace097e813130ddbdb40c8a7b1dd7e116903c171c"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "5E-850",
+      "5E-854",
+      "5E-904",
+      "5E-954",
+      "5E-1000",
+      "5E-1004",
+      "5E-1200",
+      "5E-1204"
+    ],
+    "entry_id": "KB-JD-5E-OMSU55602-G9-CN-014",
+    "title": "变速箱油压偏低按油量滤清器和泄压阀检查",
+    "source_id": "SRC-JD-5E-OMSU55602-G9-CN",
+    "locator": "PDF物理第146页；印刷第115-4页；变速箱故障排除",
+    "bodyHash": "1611631e30532e808f41942c93e5e28cfbc85e63b6a1e0bdce8fcd5c1d034e53"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "5E-850",
+      "5E-854",
+      "5E-904",
+      "5E-954",
+      "5E-1000",
+      "5E-1004",
+      "5E-1200",
+      "5E-1204"
+    ],
+    "entry_id": "KB-JD-5E-OMSU55602-G9-CN-015",
+    "title": "变速箱油过热需查冷却器和悬挂反馈连杆",
+    "source_id": "SRC-JD-5E-OMSU55602-G9-CN",
+    "locator": "PDF物理第146页；印刷第115-4页；变速箱故障排除",
+    "bodyHash": "5ffb1934e7fbda1199e84059144da2c424fdd0e15cad5a9042cf513f505159b5"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "5E-850",
+      "5E-854",
+      "5E-904",
+      "5E-954",
+      "5E-1000",
+      "5E-1004",
+      "5E-1200",
+      "5E-1204"
+    ],
+    "entry_id": "KB-JD-5E-OMSU55602-G9-CN-016",
+    "title": "三点悬挂下降过快或过慢核对下降速度旋钮",
+    "source_id": "SRC-JD-5E-OMSU55602-G9-CN",
+    "locator": "PDF物理第147至148页；印刷第115-5至115-6页；提升器和三点悬挂故障排除",
+    "bodyHash": "b410a5ea461bba174a0b10d5a67274f9972c2ddb68de0104d23ccb2b481bb6c8"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "5E-850",
+      "5E-854",
+      "5E-904",
+      "5E-954",
+      "5E-1000",
+      "5E-1004",
+      "5E-1200",
+      "5E-1204"
+    ],
+    "entry_id": "KB-JD-5E-OMSU55602-G9-CN-017",
+    "title": "悬挂架对牵引力过敏核对中央拉杆下托架孔",
+    "source_id": "SRC-JD-5E-OMSU55602-G9-CN",
+    "locator": "PDF物理第148页；印刷第115-6页；提升器和三点悬挂故障排除",
+    "bodyHash": "b1d32114fddc77a82cc8a20329262376cd75338139d8b26c306d709b97ec8545"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "5E-850",
+      "5E-854",
+      "5E-904",
+      "5E-954",
+      "5E-1000",
+      "5E-1004",
+      "5E-1200",
+      "5E-1204"
+    ],
+    "entry_id": "KB-JD-5E-OMSU55602-G9-CN-018",
+    "title": "提升器控制杆自行漂移核对摩擦装置",
+    "source_id": "SRC-JD-5E-OMSU55602-G9-CN",
+    "locator": "PDF物理第148页；印刷第115-6页；提升器和三点悬挂故障排除",
+    "bodyHash": "2a16d5d746957c113f620bd79c7012fe57eacc6414e145a33edf0bfb9f59a050"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "5E-850",
+      "5E-854",
+      "5E-904",
+      "5E-954",
+      "5E-1000",
+      "5E-1004",
+      "5E-1200",
+      "5E-1204"
+    ],
+    "entry_id": "KB-JD-5E-OMSU55602-G9-CN-019",
+    "title": "整套液压系统失效需区分主滤清器和吸油滤网",
+    "source_id": "SRC-JD-5E-OMSU55602-G9-CN",
+    "locator": "PDF物理第146页；印刷第115-4页；液压系统故障排除",
+    "bodyHash": "71096b50a289d7f83f5415fc7229b50543e5a1bb86630e90bf8822df5adf79a7"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "5E-850",
+      "5E-854",
+      "5E-904",
+      "5E-954",
+      "5E-1000",
+      "5E-1004",
+      "5E-1200",
+      "5E-1204"
+    ],
+    "entry_id": "KB-JD-5E-OMSU55602-G9-CN-020",
+    "title": "转向失灵检查弹簧片、拨销与联动轴对位",
+    "source_id": "SRC-JD-5E-OMSU55602-G9-CN",
+    "locator": "PDF物理第151页；印刷第115-9页；转向系故障排除",
+    "bodyHash": "1b00cafe8db15e107515ff7fddda645ee902b1e4f56e83d9ea904effbb532df2"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "5E-850",
+      "5E-854",
+      "5E-904",
+      "5E-954",
+      "5E-1000",
+      "5E-1004",
+      "5E-1200",
+      "5E-1204"
+    ],
+    "entry_id": "KB-JD-5E-OMSU55602-G9-CN-021",
+    "title": "运输离地高度不够核对三点悬挂几何和防摆链",
+    "source_id": "SRC-JD-5E-OMSU55602-G9-CN",
+    "locator": "PDF物理第147页；印刷第115-5页；提升器和三点悬挂故障排除",
+    "bodyHash": "2e72143ccb9d8e2aa76cbdb917a11b6989539c76e655b22ff3dd71260e12e112"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "5E-850",
+      "5E-854",
+      "5E-904",
+      "5E-954",
+      "5E-1000",
+      "5E-1004",
+      "5E-1200",
+      "5E-1204"
+    ],
+    "entry_id": "KB-JD-5E-OMSU55602-G9-CN-023",
+    "title": "变速箱卡在空挡时区分变速连杆卡滞与互锁拉线失调",
+    "source_id": "SRC-JD-5E-OMSU55602-G9-CN",
+    "locator": "PDF物理第146页；印刷第115-4页；变速箱故障排除",
+    "bodyHash": "a6ebdf244e44ab69dfabb96de7a71b06c5b954592e3fa79e2f1b2d1db8b47ac8"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "5E-850",
+      "5E-854",
+      "5E-904",
+      "5E-954",
+      "5E-1000",
+      "5E-1004",
+      "5E-1200",
+      "5E-1204"
+    ],
+    "entry_id": "KB-JD-5E-OMSU55602-G9-CN-025",
+    "title": "继电器反复卡住或失效时查二极管",
+    "source_id": "SRC-JD-5E-OMSU55602-G9-CN",
+    "locator": "PDF物理第149页；印刷第115-7页；电气系统故障排除",
+    "bodyHash": "9d7be22f5a0ff6a6dc2e19299667a12c5faec71ccb1d638bd7257deae8cd2c79"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "5E-850",
+      "5E-854",
+      "5E-904",
+      "5E-954",
+      "5E-1000",
+      "5E-1004",
+      "5E-1200",
+      "5E-1204"
+    ],
+    "entry_id": "KB-JD-5E-OMSU55602-G9-MT-22A2769F",
+    "title": "同时更换空气滤清器主滤芯和安全滤芯",
+    "source_id": "SRC-JD-5E-OMSU55602-G9-CN",
+    "locator": "PDF物理第109页；印刷第90-2页；更换空气滤清器",
+    "bodyHash": "4d8ad9674e38085528866435033a31f7c12781e0909078766ae92992b426050b"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "5E-850",
+      "5E-854",
+      "5E-904",
+      "5E-954",
+      "5E-1000",
+      "5E-1004",
+      "5E-1200",
+      "5E-1204"
+    ],
+    "entry_id": "KB-JD-5E-OMSU55602-G9-MT-9D8118EB",
+    "title": "更换变速箱液压油滤清器后复查油位",
+    "source_id": "SRC-JD-5E-OMSU55602-G9-CN",
+    "locator": "PDF物理第109至110页；印刷第90-2至90-3页；更换变速箱油/液压油滤清器",
+    "bodyHash": "cbab0de6508e784d445babf66ad135d0ad0acca2711e5fddba2476ec0cd6a1a7"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "5E-850",
+      "5E-854",
+      "5E-904",
+      "5E-954",
+      "5E-1000",
+      "5E-1004",
+      "5E-1200",
+      "5E-1204"
+    ],
+    "entry_id": "KB-JD-5E-OMSU55602-G9-MT-5B957278",
+    "title": "清洁变速箱液压滤网并确认插入差速器箱前孔",
+    "source_id": "SRC-JD-5E-OMSU55602-G9-CN",
+    "locator": "PDF物理第110页；印刷第90-3页；清洁变速箱/液压油滤网",
+    "bodyHash": "b6f41ec4df46eaacb1cd4e4bd68d696086910889d39ec3486835bca3149bb9c0"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "5E-850",
+      "5E-854",
+      "5E-904",
+      "5E-954",
+      "5E-1000",
+      "5E-1004",
+      "5E-1200",
+      "5E-1204"
+    ],
+    "entry_id": "KB-JD-5E-OMSU55602-G9-MT-0EFE42AA",
+    "title": "机油油尺读数的低怠速和停机等待条件",
+    "source_id": "SRC-JD-5E-OMSU55602-G9-CN",
+    "locator": "PDF物理第118页；印刷第95-1页；检查机油油位",
+    "bodyHash": "da40efcda8a59cf9b62dabb015ee9a51616b673b7a2105afa06b5139ebd2c4ae"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "5E-850",
+      "5E-854",
+      "5E-904",
+      "5E-954",
+      "5E-1000",
+      "5E-1004",
+      "5E-1200",
+      "5E-1204"
+    ],
+    "entry_id": "KB-JD-5E-OMSU55602-G9-MT-EE105115",
+    "title": "机油滤清器密封垫定位和换油复查",
+    "source_id": "SRC-JD-5E-OMSU55602-G9-CN",
+    "locator": "PDF物理第118页；印刷第95-1页；更换机油和滤清器",
+    "bodyHash": "188a714ee1df86579d8837597285dcf39b0c6d5662437eeac9312997872c546d"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "5E-850",
+      "5E-854",
+      "5E-904",
+      "5E-954",
+      "5E-1000",
+      "5E-1004",
+      "5E-1200",
+      "5E-1204"
+    ],
+    "entry_id": "KB-JD-5E-OMSU55602-G9-MT-1B0512E3",
+    "title": "变速箱液压油位在水平地面停机五分钟后测读",
+    "source_id": "SRC-JD-5E-OMSU55602-G9-CN",
+    "locator": "PDF物理第118至119页；印刷第95-1至95-2页；检查变速箱/液压系统油位",
+    "bodyHash": "8bc63f4808e9d26951f3abd0e3726c4331aa02e3c4507b8dac472111631d469f"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "5E-850",
+      "5E-854",
+      "5E-904",
+      "5E-954",
+      "5E-1000",
+      "5E-1004",
+      "5E-1200",
+      "5E-1204"
+    ],
+    "entry_id": "KB-JD-5E-OMSU55602-G9-MT-2000B446",
+    "title": "冷却液泄漏检查散热器水箱底座和节温器壳体",
+    "source_id": "SRC-JD-5E-OMSU55602-G9-CN",
+    "locator": "PDF物理第130页；印刷第100-2页；检查冷却系统是否泄漏",
+    "bodyHash": "c98fca5a833a1bd1d4e430d0a9443f7a77e20f915ab7d0f6839b58360d8393bd"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "5E-850",
+      "5E-854",
+      "5E-904",
+      "5E-954",
+      "5E-1000",
+      "5E-1004",
+      "5E-1200",
+      "5E-1204"
+    ],
+    "entry_id": "KB-JD-5E-OMSU55602-G9-MT-2B7CA631",
+    "title": "侧滤网堵塞后清洁中冷器和散热器的方向",
+    "source_id": "SRC-JD-5E-OMSU55602-G9-CN",
+    "locator": "PDF物理第129至130页；印刷第100-1至100-2页；清洁前护栅、侧滤网、散热器和中冷器",
+    "bodyHash": "53ff78d53b699ce5aa12996934803101b97478daf3a7b972f6ae9abdf32feb3e"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "5E-850",
+      "5E-854",
+      "5E-904",
+      "5E-954",
+      "5E-1000",
+      "5E-1004",
+      "5E-1200",
+      "5E-1204"
+    ],
+    "entry_id": "KB-JD-5E-OMSU55602-G9-MT-34FD8BDE",
+    "title": "燃油滤清器排水后以放出燃油变清为停止条件",
+    "source_id": "SRC-JD-5E-OMSU55602-G9-CN",
+    "locator": "PDF物理第133页；印刷第105-2页；排空燃油滤清器中的水和沉淀物",
+    "bodyHash": "d0d94653cf1a9d3aa7ac8856d5b7c0360b229b21c86903d0a4ee440b36696b8c"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "5E-850",
+      "5E-854",
+      "5E-904",
+      "5E-954",
+      "5E-1000",
+      "5E-1004",
+      "5E-1200",
+      "5E-1204"
+    ],
+    "entry_id": "KB-JD-5E-OMSU55602-G9-MT-A506060B",
+    "title": "初级和二级燃油滤清器同时换新并排空气",
+    "source_id": "SRC-JD-5E-OMSU55602-G9-CN",
+    "locator": "PDF物理第134页；印刷第105-3页；更换初级/二级燃油滤清器",
+    "bodyHash": "9ec1e8a188adb5eb8c47db221f5c973720f693d46f6c36d9a55bd7c3f9935c17"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "5E-850",
+      "5E-854",
+      "5E-904",
+      "5E-954",
+      "5E-1000",
+      "5E-1004",
+      "5E-1200",
+      "5E-1204"
+    ],
+    "entry_id": "KB-JD-5E-OMSU55602-G9-MT-9D8168E1",
+    "title": "蓄电池接线端去腐蚀与负极拆装顺序",
+    "source_id": "SRC-JD-5E-OMSU55602-G9-CN",
+    "locator": "PDF物理第137页；印刷第110-3页；保养电瓶",
+    "bodyHash": "8d48e0beff6ebb08bad62d137b18cbc00c4801b7a858c9377520e9c19b0ea643"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "5E-850",
+      "5E-854",
+      "5E-904",
+      "5E-954",
+      "5E-1000",
+      "5E-1004",
+      "5E-1200",
+      "5E-1204"
+    ],
+    "entry_id": "KB-JD-5E-OMSU55602-G9-SV-B858CE02",
+    "title": "空滤阻塞灯点亮后的主滤芯清洁与复检",
+    "source_id": "SRC-JD-5E-OMSU55602-G9-CN",
+    "locator": "PDF物理第108页；印刷第90-1页；保养空气滤清器",
+    "bodyHash": "123f3c05ce9cc50eac93e697f241fe1fe81ed1e2ce50786f3cb8fef7d8bf75ce"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "5E-850",
+      "5E-854",
+      "5E-904",
+      "5E-954",
+      "5E-1000",
+      "5E-1004",
+      "5E-1200",
+      "5E-1204"
+    ],
+    "entry_id": "KB-JD-5E-OMSU55602-G9-SV-10DB6C79",
+    "title": "给蓄电池充电时选择车架搭铁点及拆线顺序",
+    "source_id": "SRC-JD-5E-OMSU55602-G9-CN",
+    "locator": "PDF物理第136页；印刷第110-2页；电瓶充电",
+    "bodyHash": "94bd383773bdb6b881f5da98746e36da231461746e2e7c1f720153e652f67fa1"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "5E-850",
+      "5E-854",
+      "5E-904",
+      "5E-954",
+      "5E-1000",
+      "5E-1004",
+      "5E-1200",
+      "5E-1204"
+    ],
+    "entry_id": "KB-JD-5E-OMSU55602-G9-SV-F0526BDC",
+    "title": "前大灯近光在墙面上的高度校验",
+    "source_id": "SRC-JD-5E-OMSU55602-G9-CN",
+    "locator": "PDF物理第138页；印刷第110-4页；前大灯对光",
+    "bodyHash": "50d866cfc3f9cb885de71feba8fb208ac289c5f6bbda075bdd63fe8ce9f6d6f5"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "5E-850",
+      "5E-854",
+      "5E-904",
+      "5E-954",
+      "5E-1000",
+      "5E-1004",
+      "5E-1200",
+      "5E-1204"
+    ],
+    "entry_id": "KB-JD-5E-OMSU55602-G9-SV-60DFD74D",
+    "title": "卤素前大灯灯泡冷却后的拆装",
+    "source_id": "SRC-JD-5E-OMSU55602-G9-CN",
+    "locator": "PDF物理第138页；印刷第110-4页；更换前大灯灯泡",
+    "bodyHash": "016d07bb5d85b4c7e95a9caf4c4202b30c7859424a239a23f0a124f23955bd67"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "5E-850",
+      "5E-854",
+      "5E-904",
+      "5E-954",
+      "5E-1000",
+      "5E-1004",
+      "5E-1200",
+      "5E-1204"
+    ],
+    "entry_id": "KB-JD-5E-OMSU55602-G9-SV-98EDA881",
+    "title": "更换工作灯时区分灯罩与内部灯泡总成的固定螺钉",
+    "source_id": "SRC-JD-5E-OMSU55602-G9-CN",
+    "locator": "PDF物理第139页；印刷第110-5页；更换工作灯灯泡",
+    "bodyHash": "c90e14790e5312b77fbe211205b63bacefee3ad643eceefff5941865150466a1"
+  },
+  {
+    "brand": "约翰迪尔",
+    "models": [
+      "5E-850",
+      "5E-854",
+      "5E-904",
+      "5E-954",
+      "5E-1000",
+      "5E-1004",
+      "5E-1200",
+      "5E-1204"
+    ],
+    "entry_id": "KB-JD-5E-OMSU55602-G9-SV-0412DFE4",
+    "title": "拆换尾灯和后报警灯时辨别两种灯架旋向",
+    "source_id": "SRC-JD-5E-OMSU55602-G9-CN",
+    "locator": "PDF物理第140页；印刷第110-6页；更换尾灯/后报警灯灯泡",
+    "bodyHash": "6188d382522ff412d2bb286aabbdcbe8b34f3f1125df3098222f95c7d1537fb1"
+  }
+]
