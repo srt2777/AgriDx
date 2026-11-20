@@ -338,7 +338,7 @@ test('Benye numeric model suffixes and brands stay distinct while measurements s
       assert.match(queryWithoutIdentity(question), /704(?:小时|号线)/);
     }
     for (const question of ['发动机转速504 r/min', '转向压力904kPa', '总工时704h', '零件号804G4A',
-      '油面高度504毫米', '第704号针脚开路']) {
+      '油面高度504毫米', '第704号针脚开路', '每工作800h（小时）技术保养（1）完成400h技术保养']) {
       assert.deepEqual(resolveScope(question, {}).models, [], question);
     }
   } finally {
