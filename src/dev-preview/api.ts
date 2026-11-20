@@ -13,7 +13,7 @@ import { renderDiagnosticReply } from '../../server/diagnosis/reply';
 import { DiagnosticInputError, parseDiagnosticRequest, type DiagnosticRequest } from '../../server/diagnosis/request';
 import type { ChatResponse } from '../../shared/chat';
 import type { SessionDetail, PriorDeviceReport } from '../../shared/memory';
-import { CATALOG_FILTER_KEYS, validCatalogCondition, type CatalogFilters } from '../../shared/knowledge-catalog';
+import { CATALOG_FILTER_KEYS, validCatalogCondition, type CatalogFilters, type KnowledgeCatalog } from '../../shared/knowledge-catalog';
 
 let ready = false;
 /** Reuse canonical retrieval, coordination and output checks with a same-origin AI proxy. */
@@ -38,6 +38,26 @@ function initialize() {
   ready = true;
 }
 const json = (payload: unknown, status = 200) => Response.json(payload, { status });
+
+// Every selection shares the immutable brand tree of its snapshot. Keep its UTF-8
+// bytes once, keyed by that tree so a reloaded snapshot always gets fresh data.
+const encodedBrandTrees = new WeakMap<KnowledgeCatalog['brands'], Blob>();
+
+function catalogResponse(catalog: KnowledgeCatalog): Response {
+  let tree = encodedBrandTrees.get(catalog.brands);
+  if (!tree) {
+    tree = new Blob([JSON.stringify(catalog.brands)]);
+    encodedBrandTrees.set(catalog.brands, tree);
+  }
+  const parts: BlobPart[] = ['{'];
+  for (const [key, value] of Object.entries(catalog)) {
+    if (value === undefined) continue;
+    if (parts.length > 1) parts.push(',');
+    parts.push(JSON.stringify(key), ':', key === 'brands' ? tree : JSON.stringify(value));
+  }
+  parts.push('}');
+  return new Response(new Blob(parts, { type: 'application/json' }));
+}
 
 /** Reuse the actual catalog and local RAG without sending preview traffic to production. */
 async function dispatchPreviewFetch(input: string, options: RequestInit = {}): Promise<Response> {
@@ -76,7 +96,7 @@ async function dispatchPreviewFetch(input: string, options: RequestInit = {}): P
       if ((filters.model && !filters.brand) || (filters.component && !filters.model) || (filters.part && !filters.component)) {
         return json({ error: '请依次选择品牌、完整型号、组件和零部件', code: 'bad_request' }, 400);
       }
-      response = json(getKnowledgeCatalog(filters));
+      response = catalogResponse(getKnowledgeCatalog(filters));
     } else if (url.pathname.startsWith('/api/memory')) {
       const body = options.body ? JSON.parse(String(options.body)) : {};
       response = json(previewMemoryRoute(new PreviewMemoryStore(), url.pathname, method, body));

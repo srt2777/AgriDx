@@ -1351,6 +1351,13 @@
       "base": "4.1.46",
       "version": "4.1.47",
       "date": "2026-11-20"
+    },
+    {
+      "id": "preview-catalog-bytes-20261120",
+      "kind": "maintenance",
+      "base": "4.1.47",
+      "version": "4.1.48",
+      "date": "2026-11-20"
     }
   ]
 }
