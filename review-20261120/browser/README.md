@@ -26,3 +26,5 @@ node verify-catalog.cjs https://agridx-v4-development.orangeglade33.chatgpt.site
 ```
 
 开发站 4.1.54 已用浏览器核对主库提交 970afec。四批 141 条、430 个机型组合全部匹配，八个下架编号均未出现。[完整目录](public-4.1.54-delta.json)、[7M 与 LF1504 九种问法](public-4.1.54-7m-lf.json)、[宁波和奔野五种问法](public-4.1.54-ningbo-benye.json)。问答记录包含实际返回的正文和引用，可区分直接答复、资料引用与停机提示。
+
+4.1.55 东风六机型的本地构建按 [89 条正文](catalog-4.1.55-delta.json) 核验，266 个机型组合匹配。[六道真实提问](local-4.1.55-questions.json) 直接检查答复中的两对尺寸、停机时间、原页及错品牌排除。4.1.56 东方红与时风的 [83 条验收清单](catalog-4.1.56-delta.json) 用于新版开发站复验。

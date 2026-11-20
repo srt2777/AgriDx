@@ -1,0 +1,1295 @@
+[
+  {
+    "brand": "东方红",
+    "entry_id": "KB-YTO-X604-LX954-RU-001",
+    "source_id": "SRC-YTO-X604-LX954-RU",
+    "title": "离合器打滑核对摩擦副与碟簧",
+    "locator": "PDF物理第100页；印刷第100页；表6-1第1项",
+    "models": [
+      "X604",
+      "X654",
+      "X704",
+      "X754",
+      "X804",
+      "X854",
+      "X904",
+      "LX904H",
+      "LX954"
+    ],
+    "bodyHash": "40bf74ce0e25f230c2642bac0f03bf785ae98eeb954d36dffd780107f5b2ded2"
+  },
+  {
+    "brand": "东方红",
+    "entry_id": "KB-YTO-X604-LX954-RU-002",
+    "source_id": "SRC-YTO-X604-LX954-RU",
+    "title": "副离合器分离不彻底核对柔性传动和外操纵杆",
+    "locator": "PDF物理第100页；印刷第100页；表6-1第4项",
+    "models": [
+      "X604",
+      "X654",
+      "X704",
+      "X754",
+      "X804",
+      "X854",
+      "X904",
+      "LX904H",
+      "LX954"
+    ],
+    "bodyHash": "3b9228fa41a6aedffbd23924684e872aafe04a1b2935a683fa6c988ca0c1a86b"
+  },
+  {
+    "brand": "东方红",
+    "entry_id": "KB-YTO-X604-LX954-RU-003",
+    "source_id": "SRC-YTO-X604-LX954-RU",
+    "title": "难以挂挡时检查离合分离和接合端面",
+    "locator": "PDF物理第100页；印刷第100页；表6-2第1项",
+    "models": [
+      "X604",
+      "X654",
+      "X704",
+      "X754",
+      "X804",
+      "X854",
+      "X904",
+      "LX904H",
+      "LX954"
+    ],
+    "bodyHash": "582ce0095146aef4afdb94090c26d045a601229576af59e033cdcafb63d03ffb"
+  },
+  {
+    "brand": "东方红",
+    "entry_id": "KB-YTO-X604-LX954-RU-004",
+    "source_id": "SRC-YTO-X604-LX954-RU",
+    "title": "变速箱敲击声需区分齿面轴承和润滑",
+    "locator": "PDF物理第100至101页；印刷第100至101页；表6-2第2项",
+    "models": [
+      "X604",
+      "X654",
+      "X704",
+      "X754",
+      "X804",
+      "X854",
+      "X904",
+      "LX904H",
+      "LX954"
+    ],
+    "bodyHash": "828d502889ff49739ba9665be9bab6a95d5f35718d2148b01d6cd0344ef5b819"
+  },
+  {
+    "brand": "东方红",
+    "entry_id": "KB-YTO-X604-LX954-RU-005",
+    "source_id": "SRC-YTO-X604-LX954-RU",
+    "title": "后桥主传动与差速器轴承过热核对预紧和油位",
+    "locator": "PDF物理第101页；印刷第101页；表6-3第2项",
+    "models": [
+      "X604",
+      "X654",
+      "X704",
+      "X754",
+      "X804",
+      "X854",
+      "X904",
+      "LX904H",
+      "LX954"
+    ],
+    "bodyHash": "5ab637cf677419dbb418e26b1a1e5b8b2ead92a0dac8914600a165c743647be4"
+  },
+  {
+    "brand": "东方红",
+    "entry_id": "KB-YTO-X604-LX954-RU-006",
+    "source_id": "SRC-YTO-X604-LX954-RU",
+    "title": "主传动异响核对定位螺钉和锁片",
+    "locator": "PDF物理第101页；印刷第101页；表6-3第3项",
+    "models": [
+      "X604",
+      "X654",
+      "X704",
+      "X754",
+      "X804",
+      "X854",
+      "X904",
+      "LX904H",
+      "LX954"
+    ],
+    "bodyHash": "becfe758f41bceb28070e8dd1143eeef2b09c7fab42b58bd9ba308ccd96f6d7d"
+  },
+  {
+    "brand": "东方红",
+    "entry_id": "KB-YTO-X604-LX954-RU-007",
+    "source_id": "SRC-YTO-X604-LX954-RU",
+    "title": "液压制动跑偏须核对两后胎压力和制动回路",
+    "locator": "PDF物理第101页；印刷第101页；表6-3第5项",
+    "models": [
+      "X604",
+      "X654",
+      "X704",
+      "X754",
+      "X804",
+      "X854",
+      "X904",
+      "LX904H",
+      "LX954"
+    ],
+    "bodyHash": "ba735c86b2ae17d1d17dd44921b8246bc9796e4f7d3470d4ed04932767aa289d"
+  },
+  {
+    "brand": "东方红",
+    "entry_id": "KB-YTO-X604-LX954-RU-008",
+    "source_id": "SRC-YTO-X604-LX954-RU",
+    "title": "前驱动轮胎异常磨损核对轮辋和转向销",
+    "locator": "PDF物理第101至102页；印刷第101至102页；表6-4第1项",
+    "models": [
+      "X604",
+      "X654",
+      "X704",
+      "X754",
+      "X804",
+      "X854",
+      "X904",
+      "LX904H",
+      "LX954"
+    ],
+    "bodyHash": "25a7bdfef535d300b9b555a46b32ede4010a6600a95bf8cc28cf7a6693a57ad9"
+  },
+  {
+    "brand": "东方红",
+    "entry_id": "KB-YTO-X604-LX954-RU-009",
+    "source_id": "SRC-YTO-X604-LX954-RU",
+    "title": "前驱动桥噪声大时区分齿轮啮合与轴承损坏",
+    "locator": "PDF物理第102页；印刷第102页；表6-4第3项",
+    "models": [
+      "X604",
+      "X654",
+      "X704",
+      "X754",
+      "X804",
+      "X854",
+      "X904",
+      "LX904H",
+      "LX954"
+    ],
+    "bodyHash": "134f48cb3d2de2165c9e38d13867444da5e3bfd88d6579559dc30dabdecee9ff"
+  },
+  {
+    "brand": "东方红",
+    "entry_id": "KB-YTO-X604-LX954-RU-010",
+    "source_id": "SRC-YTO-X604-LX954-RU",
+    "title": "前驱动桥传动轴发热核对挠曲和中间支承",
+    "locator": "PDF物理第102页；印刷第102页；表6-4第4项",
+    "models": [
+      "X604",
+      "X654",
+      "X704",
+      "X754",
+      "X804",
+      "X854",
+      "X904",
+      "LX904H",
+      "LX954"
+    ],
+    "bodyHash": "ea47f6d01e79075d00d48e0f2b156a5ab99618b88dd9199a0065ca787ffde8cf"
+  },
+  {
+    "brand": "东方红",
+    "entry_id": "KB-YTO-X604-LX954-RU-011",
+    "source_id": "SRC-YTO-X604-LX954-RU",
+    "title": "液压转向接合面和管接头漏油定位",
+    "locator": "PDF物理第102页；印刷第102页；表6-5第1项",
+    "models": [
+      "X604",
+      "X654",
+      "X704",
+      "X754",
+      "X804",
+      "X854",
+      "X904",
+      "LX904H",
+      "LX954"
+    ],
+    "bodyHash": "dc4942abcb2b6121e6aa266a8ef5f3b4f02bbe3628ac245f63d4a141517108f4"
+  },
+  {
+    "brand": "东方红",
+    "entry_id": "KB-YTO-X604-LX954-RU-012",
+    "source_id": "SRC-YTO-X604-LX954-RU",
+    "title": "液压转向沉重区分供油不足和转向回路故障",
+    "locator": "PDF物理第102至103页；印刷第102至103页；表6-5第2项",
+    "models": [
+      "X604",
+      "X654",
+      "X704",
+      "X754",
+      "X804",
+      "X854",
+      "X904",
+      "LX904H",
+      "LX954"
+    ],
+    "bodyHash": "e37eec63936217dbed007d97a3b9f9ebc09de31f03b6ae2d78f0cdcb4f01009a"
+  },
+  {
+    "brand": "东方红",
+    "entry_id": "KB-YTO-X604-LX954-RU-013",
+    "source_id": "SRC-YTO-X604-LX954-RU",
+    "title": "方向盘不能回中核对回位弹簧和轴阀同轴",
+    "locator": "PDF物理第103页；印刷第103页；表6-5第4项",
+    "models": [
+      "X604",
+      "X654",
+      "X704",
+      "X754",
+      "X804",
+      "X854",
+      "X904",
+      "LX904H",
+      "LX954"
+    ],
+    "bodyHash": "2dc61a8a096fcb5ad7fc8579cee0aa9abf99b40041c7677a90cc0437665b946c"
+  },
+  {
+    "brand": "东方红",
+    "entry_id": "KB-YTO-X604-LX954-RU-014",
+    "source_id": "SRC-YTO-X604-LX954-RU",
+    "title": "液压转向失效检查转子定子和油缸密封",
+    "locator": "PDF物理第103页；印刷第103页；表6-5第5项",
+    "models": [
+      "X604",
+      "X654",
+      "X704",
+      "X754",
+      "X804",
+      "X854",
+      "X904",
+      "LX904H",
+      "LX954"
+    ],
+    "bodyHash": "5460b3c71ab79773a06f04e82b585711f5d6249704eddfba9a9a7654156c1d0a"
+  },
+  {
+    "brand": "东方红",
+    "entry_id": "KB-YTO-X604-LX954-RU-015",
+    "source_id": "SRC-YTO-X604-LX954-RU",
+    "title": "农具完全不能提升先查吸油和单向阀",
+    "locator": "PDF物理第104页；印刷第104页；表6-6第1项",
+    "models": [
+      "X604",
+      "X654",
+      "X704",
+      "X754",
+      "X804",
+      "X854",
+      "X904",
+      "LX904H",
+      "LX954"
+    ],
+    "bodyHash": "db08ab41786e19338141fb1145b3317e123258e897849bd347c5df6199cf2017"
+  },
+  {
+    "brand": "东方红",
+    "entry_id": "KB-YTO-X604-LX954-RU-016",
+    "source_id": "SRC-YTO-X604-LX954-RU",
+    "title": "提升抖动和缓慢检查滤芯及吸油接头密封",
+    "locator": "PDF物理第104页；印刷第104页；表6-6第2项",
+    "models": [
+      "X604",
+      "X654",
+      "X704",
+      "X754",
+      "X804",
+      "X854",
+      "X904",
+      "LX904H",
+      "LX954"
+    ],
+    "bodyHash": "8920126638032810565280daf8c52e536308625a12d45416c2e739a517eddf5c"
+  },
+  {
+    "brand": "东方红",
+    "entry_id": "KB-YTO-X604-LX954-RU-017",
+    "source_id": "SRC-YTO-X604-LX954-RU",
+    "title": "农具频繁点头或熄火后很快下沉检查内泄",
+    "locator": "PDF物理第104页；印刷第104页；表6-6第3项",
+    "models": [
+      "X604",
+      "X654",
+      "X704",
+      "X754",
+      "X804",
+      "X854",
+      "X904",
+      "LX904H",
+      "LX954"
+    ],
+    "bodyHash": "c641feecdc08fb3502d68349eae596e02af0f018f24def33613068fddaf35a24"
+  },
+  {
+    "brand": "东方红",
+    "entry_id": "KB-YTO-X604-LX954-RU-018",
+    "source_id": "SRC-YTO-X604-LX954-RU",
+    "title": "轻载能提升而重载提不起时检查系统及缸安全阀",
+    "locator": "PDF物理第104页；印刷第104页；表6-6第4项",
+    "models": [
+      "X604",
+      "X654",
+      "X704",
+      "X754",
+      "X804",
+      "X854",
+      "X904",
+      "LX904H",
+      "LX954"
+    ],
+    "bodyHash": "3a4b469ac345dbfc6588dcc8b76ab39f42ba1ccf383942b526a9943404f331f3"
+  },
+  {
+    "brand": "东方红",
+    "entry_id": "KB-YTO-X604-LX954-RU-019",
+    "source_id": "SRC-YTO-X604-LX954-RU",
+    "title": "提升到顶即开启安全阀时检查提升行程",
+    "locator": "PDF物理第104页；印刷第104页；表6-6第5项",
+    "models": [
+      "X604",
+      "X654",
+      "X704",
+      "X754",
+      "X804",
+      "X854",
+      "X904",
+      "LX904H",
+      "LX954"
+    ],
+    "bodyHash": "c6c595915059fa048377d962b70bca22d4ba1470252d616c0ea85f6ea51f9fc7"
+  },
+  {
+    "brand": "东方红",
+    "entry_id": "KB-YTO-X604-LX954-RU-020",
+    "source_id": "SRC-YTO-X604-LX954-RU",
+    "title": "农具放不下时核对下降速度旋钮和回油",
+    "locator": "PDF物理第104至105页；印刷第104至105页；表6-6第6项",
+    "models": [
+      "X604",
+      "X654",
+      "X704",
+      "X754",
+      "X804",
+      "X854",
+      "X904",
+      "LX904H",
+      "LX954"
+    ],
+    "bodyHash": "4c5b5dba2654ce452a98a729a7752f4e0f931a87d9f3d9665f50fd8c990d2bc7"
+  },
+  {
+    "brand": "东方红",
+    "entry_id": "KB-YTO-X604-LX954-RU-021",
+    "source_id": "SRC-YTO-X604-LX954-RU",
+    "title": "起动机完全无反应核对电源搭铁和起动回路",
+    "locator": "PDF物理第105页；印刷第105页；表6-7第1项",
+    "models": [
+      "X604",
+      "X654",
+      "X704",
+      "X754",
+      "X804",
+      "X854",
+      "X904",
+      "LX904H",
+      "LX954"
+    ],
+    "bodyHash": "7f2fe2ba9a1713daae52428e6872f5bf1a6dc51b28518393c58fba71e02f40fd"
+  },
+  {
+    "brand": "东方红",
+    "entry_id": "KB-YTO-X604-LX954-RU-022",
+    "source_id": "SRC-YTO-X604-LX954-RU",
+    "title": "松开起动开关后起动机仍转时检查电磁主触点",
+    "locator": "PDF物理第105页；印刷第105页；表6-7第3项",
+    "models": [
+      "X604",
+      "X654",
+      "X704",
+      "X754",
+      "X804",
+      "X854",
+      "X904",
+      "LX904H",
+      "LX954"
+    ],
+    "bodyHash": "1bd849949d01c74712a6ee4e2df09cd9c96b2d6b6e9aedd487f6b359c34764ed"
+  },
+  {
+    "brand": "东方红",
+    "entry_id": "KB-YTO-X604-LX954-RU-023",
+    "source_id": "SRC-YTO-X604-LX954-RU",
+    "title": "发电机无输出时检查转子回路整流二极管和碳刷",
+    "locator": "PDF物理第105至106页；印刷第105至106页；表6-8第1项",
+    "models": [
+      "X604",
+      "X654",
+      "X704",
+      "X754",
+      "X804",
+      "X854",
+      "X904",
+      "LX904H",
+      "LX954"
+    ],
+    "bodyHash": "20159da6107f9e30841d7e8e19165695c453ffe03ac3eb26c1be745bdfa2429a"
+  },
+  {
+    "brand": "东方红",
+    "entry_id": "KB-YTO-X604-LX954-RU-024",
+    "source_id": "SRC-YTO-X604-LX954-RU",
+    "title": "发电机充电不足核对传动带和滑环接触",
+    "locator": "PDF物理第106页；印刷第106页；表6-8第2项",
+    "models": [
+      "X604",
+      "X654",
+      "X704",
+      "X754",
+      "X804",
+      "X854",
+      "X904",
+      "LX904H",
+      "LX954"
+    ],
+    "bodyHash": "2887cb22b0f3153ee91a48d80502fec381e571b4e8e16117d1a62e72dd8008df"
+  },
+  {
+    "brand": "东方红",
+    "entry_id": "KB-YTO-X604-LX954-RU-025",
+    "source_id": "SRC-YTO-X604-LX954-RU",
+    "title": "充电电流过大且灯泡易烧时检查调节器",
+    "locator": "PDF物理第106页；印刷第106页；表6-8第3项",
+    "models": [
+      "X604",
+      "X654",
+      "X704",
+      "X754",
+      "X804",
+      "X854",
+      "X904",
+      "LX904H",
+      "LX954"
+    ],
+    "bodyHash": "60f545f6ad4762c04acb6303f7e87120b47667bd580d41efa394fd9555e05e56"
+  },
+  {
+    "brand": "东方红",
+    "entry_id": "KB-YTO-X604-LX954-RU-026",
+    "source_id": "SRC-YTO-X604-LX954-RU",
+    "title": "水温表始终偏低检查开路与传感器",
+    "locator": "PDF物理第107页；印刷第107页；表6-10第1项",
+    "models": [
+      "X604",
+      "X654",
+      "X704",
+      "X754",
+      "X804",
+      "X854",
+      "X904",
+      "LX904H",
+      "LX954"
+    ],
+    "bodyHash": "3870fd9e3556127355be2180084e01d3a6e0601abcf393e33545ceb530561598"
+  },
+  {
+    "brand": "东方红",
+    "entry_id": "KB-YTO-X604-LX954-RU-027",
+    "source_id": "SRC-YTO-X604-LX954-RU",
+    "title": "水温表始终指高值需区分信号短路与传感器故障",
+    "locator": "PDF物理第107页；印刷第107页；表6-10第2项",
+    "models": [
+      "X604",
+      "X654",
+      "X704",
+      "X754",
+      "X804",
+      "X854",
+      "X904",
+      "LX904H",
+      "LX954"
+    ],
+    "bodyHash": "c4fefff60eec6536ba099efc90639f6266414e2c4cd8b30ced31bc8129646a50"
+  },
+  {
+    "brand": "东方红",
+    "entry_id": "KB-YTO-X604-LX954-RU-028",
+    "source_id": "SRC-YTO-X604-LX954-RU",
+    "title": "燃油表读数异常核对仪表线路及油量传感器",
+    "locator": "PDF物理第107页；印刷第107页；表6-10第3项",
+    "models": [
+      "X604",
+      "X654",
+      "X704",
+      "X754",
+      "X804",
+      "X854",
+      "X904",
+      "LX904H",
+      "LX954"
+    ],
+    "bodyHash": "f85fcb4cf1ccd5402907a6866779cb08f5bd646449397c917e9fdf6311007fff"
+  },
+  {
+    "brand": "东方红",
+    "entry_id": "KB-YTO-X604-LX954-RU-029",
+    "source_id": "SRC-YTO-X604-LX954-RU",
+    "title": "前照灯远光或近光不亮时检查组合开关和灯路",
+    "locator": "PDF物理第108页；印刷第108页；表6-11第1项",
+    "models": [
+      "X604",
+      "X654",
+      "X704",
+      "X754",
+      "X804",
+      "X854",
+      "X904",
+      "LX904H",
+      "LX954"
+    ],
+    "bodyHash": "be62b3b4e5adf51dafeaf0d2d517ee94b9f58c63a84ac240d9184690a134a7f2"
+  },
+  {
+    "brand": "东方红",
+    "entry_id": "KB-YTO-X604-LX954-RU-030",
+    "source_id": "SRC-YTO-X604-LX954-RU",
+    "title": "单独工作灯不亮时检查工作灯开关",
+    "locator": "PDF物理第108页；印刷第108页；表6-11第2项",
+    "models": [
+      "X604",
+      "X654",
+      "X704",
+      "X754",
+      "X804",
+      "X854",
+      "X904",
+      "LX904H",
+      "LX954"
+    ],
+    "bodyHash": "b2fae4b7b5f7695b23fac661bf6e08fe1798458d2388e7706f98480e0d9b1e83"
+  },
+  {
+    "brand": "东方红",
+    "entry_id": "KB-YTO-X604-LX954-RU-SUP-001",
+    "source_id": "SRC-YTO-X604-LX954-RU",
+    "title": "液压转向动作不平顺时核对阀芯阀套间隙和弹簧片",
+    "locator": "PDF物理第103页；印刷第103页；表6-5第6项",
+    "models": [
+      "X604",
+      "X654",
+      "X704",
+      "X754",
+      "X804",
+      "X854",
+      "X904",
+      "LX904H",
+      "LX954"
+    ],
+    "bodyHash": "0402d9d416b014e182e5edd525918d7796f4302a7e09ec819c1059156ea15979"
+  },
+  {
+    "brand": "东方红",
+    "entry_id": "KB-YTO-X604-LX954-RU-SUP-002",
+    "source_id": "SRC-YTO-X604-LX954-RU",
+    "title": "起动机带动无力时区分换向器、电磁开关和电源",
+    "locator": "PDF物理第105页；印刷第105页；表6-7第2项",
+    "models": [
+      "X604",
+      "X654",
+      "X704",
+      "X754",
+      "X804",
+      "X854",
+      "X904",
+      "LX904H",
+      "LX954"
+    ],
+    "bodyHash": "cd8697826a9853c25f3bb8c6f31be9e5742df07e4c10a16c40061d5271dcd842"
+  },
+  {
+    "brand": "东方红",
+    "entry_id": "KB-YTO-X604-LX954-RU-SUP-003",
+    "source_id": "SRC-YTO-X604-LX954-RU",
+    "title": "蓄电池自放电过快时区分外部导通与内部短路",
+    "locator": "PDF物理第106至107页；印刷第106至107页；表6-9第2项及续行",
+    "models": [
+      "X604",
+      "X654",
+      "X704",
+      "X754",
+      "X804",
+      "X854",
+      "X904",
+      "LX904H",
+      "LX954"
+    ],
+    "bodyHash": "20148615c1f0a850619b7d632f914d2f9bbdd0a244985a49b9b70c981f57085b"
+  },
+  {
+    "brand": "东方红",
+    "entry_id": "KB-YTO-X604-LX954-RU-SUP-004",
+    "source_id": "SRC-YTO-X604-LX954-RU",
+    "title": "蓄电池壳体损坏时检查通气、外部短路与固定",
+    "locator": "PDF物理第107页；印刷第107页；表6-9第4项",
+    "models": [
+      "X604",
+      "X654",
+      "X704",
+      "X754",
+      "X804",
+      "X854",
+      "X904",
+      "LX904H",
+      "LX954"
+    ],
+    "bodyHash": "5318b2ff0bbea3013b3933636b322037bbde9d844a60f75fbb1afe09c658db3d"
+  },
+  {
+    "brand": "东方红",
+    "entry_id": "KB-YTO-X604-LX954-RU-SUP-005",
+    "source_id": "SRC-YTO-X604-LX954-RU",
+    "title": "驾驶室电气设备不工作时先查支路和控制开关",
+    "locator": "PDF物理第108页；印刷第108页；表6-12第1项",
+    "models": [
+      "X604",
+      "X654",
+      "X704",
+      "X754",
+      "X804",
+      "X854",
+      "X904",
+      "LX904H",
+      "LX954"
+    ],
+    "bodyHash": "cb9c1eeed217426c7603268dfec83c277505f99c169c6d73955a385b891a0a70"
+  },
+  {
+    "brand": "东方红",
+    "entry_id": "KB-YTO-454-MF504-OM-RU-001",
+    "source_id": "SRC-YTO-454-MF504-OM-RU",
+    "title": "离合器打滑时检查碟形弹簧和从动盘变形",
+    "locator": "PDF物理第50页；第七章离合器第1项",
+    "models": [
+      "YTO-454",
+      "YTO-MF454",
+      "YTO-504",
+      "YTO-MF504"
+    ],
+    "bodyHash": "de1a8917c201c7300a8c25dc3fcd01a080f0d9ad9f8c2561ea8f118c2429e617"
+  },
+  {
+    "brand": "东方红",
+    "entry_id": "KB-YTO-454-MF504-OM-RU-002",
+    "source_id": "SRC-YTO-454-MF504-OM-RU",
+    "title": "离合器踏板空行程过大时检查工作行程和分离杠杆共面",
+    "locator": "PDF物理第50页；第七章离合器第2项",
+    "models": [
+      "YTO-454",
+      "YTO-MF454",
+      "YTO-504",
+      "YTO-MF504"
+    ],
+    "bodyHash": "e62f47b72ff24fb487b4e7c06ebab58c7a064e8147b4788ed221dad692f8b5df"
+  },
+  {
+    "brand": "东方红",
+    "entry_id": "KB-YTO-454-MF504-OM-RU-003",
+    "source_id": "SRC-YTO-454-MF504-OM-RU",
+    "title": "离合器接合时起步抖动检查摩擦片破裂与从动盘翘曲",
+    "locator": "PDF物理第50页；第七章离合器第3项",
+    "models": [
+      "YTO-454",
+      "YTO-MF454",
+      "YTO-504",
+      "YTO-MF504"
+    ],
+    "bodyHash": "0c69bebfa4d06e0808f46bfde47d45dc48823e6618e3b6f56b89592b68b51896"
+  },
+  {
+    "brand": "东方红",
+    "entry_id": "KB-YTO-454-MF504-OM-RU-004",
+    "source_id": "SRC-YTO-454-MF504-OM-RU",
+    "title": "变速箱有撞击声时查齿面裂纹、轴承和润滑油",
+    "locator": "PDF物理第51页；第七章变速箱第1项",
+    "models": [
+      "YTO-454",
+      "YTO-MF454",
+      "YTO-504",
+      "YTO-MF504"
+    ],
+    "bodyHash": "5889a585dcd096007984592079bee972e4e2d2a4d4c9f11b31fd88a1d239d378"
+  },
+  {
+    "brand": "东方红",
+    "entry_id": "KB-YTO-454-MF504-OM-RU-005",
+    "source_id": "SRC-YTO-454-MF504-OM-RU",
+    "title": "换挡困难时区分离合器分离与啮合套花键故障",
+    "locator": "PDF物理第51页；第七章变速箱第2项",
+    "models": [
+      "YTO-454",
+      "YTO-MF454",
+      "YTO-504",
+      "YTO-MF504"
+    ],
+    "bodyHash": "82564b7460a5f7cd21839a1e41a88cffac72af8d98c7d34a2cd417043bd49f79"
+  },
+  {
+    "brand": "东方红",
+    "entry_id": "KB-YTO-454-MF504-OM-RU-006",
+    "source_id": "SRC-YTO-454-MF504-OM-RU",
+    "title": "变速箱自动脱挡时查拨叉轴定位槽和弹簧",
+    "locator": "PDF物理第51页；第七章变速箱第3项",
+    "models": [
+      "YTO-454",
+      "YTO-MF454",
+      "YTO-504",
+      "YTO-MF504"
+    ],
+    "bodyHash": "f0739f937e45d962fe27ad86db861b4949a910e7700778ad790fe8fe74882786"
+  },
+  {
+    "brand": "东方红",
+    "entry_id": "KB-YTO-454-MF504-OM-RU-007",
+    "source_id": "SRC-YTO-454-MF504-OM-RU",
+    "title": "后桥中央传动噪声大时检查齿面接触印痕和差速器",
+    "locator": "PDF物理第52页；第七章后桥第1项",
+    "models": [
+      "YTO-454",
+      "YTO-MF454",
+      "YTO-504",
+      "YTO-MF504"
+    ],
+    "bodyHash": "8fa88106c7a956107abf97d4ef4f728064cb4beaeb6974048b9ff34802667a83"
+  },
+  {
+    "brand": "东方红",
+    "entry_id": "KB-YTO-454-MF504-OM-RU-008",
+    "source_id": "SRC-YTO-454-MF504-OM-RU",
+    "title": "后桥锥齿轮轴承和差速器轴承发热时检查预紧与油位",
+    "locator": "PDF物理第52页；第七章后桥第2项",
+    "models": [
+      "YTO-454",
+      "YTO-MF454",
+      "YTO-504",
+      "YTO-MF504"
+    ],
+    "bodyHash": "5f3cac87e1594a3845d029fb7a8587049a402b812dd89d2c97ba0426f147fc88"
+  },
+  {
+    "brand": "东方红",
+    "entry_id": "KB-YTO-454-MF504-OM-RU-009",
+    "source_id": "SRC-YTO-454-MF504-OM-RU",
+    "title": "四驱前轮胎严重磨损检查前束、轮辋和运输工况",
+    "locator": "PDF物理第53页；第七章前驱动桥第1项",
+    "models": [
+      "YTO-454",
+      "YTO-MF454",
+      "YTO-504",
+      "YTO-MF504"
+    ],
+    "bodyHash": "c16df2e014283e5807a39f278b667b44f2015e630422086fc79017af4a8d3b83"
+  },
+  {
+    "brand": "东方红",
+    "entry_id": "KB-YTO-454-MF504-OM-RU-010",
+    "source_id": "SRC-YTO-454-MF504-OM-RU",
+    "title": "前轮摆动时检查前驱桥支承和转向球头",
+    "locator": "PDF物理第53页；第七章前驱动桥第2项",
+    "models": [
+      "YTO-454",
+      "YTO-MF454",
+      "YTO-504",
+      "YTO-MF504"
+    ],
+    "bodyHash": "fcb7a8309d657722c7d7f289cf9b9a6e09371895eca9692243b48e84a351bfc3"
+  },
+  {
+    "brand": "东方红",
+    "entry_id": "KB-YTO-454-MF504-OM-RU-011",
+    "source_id": "SRC-YTO-454-MF504-OM-RU",
+    "title": "前驱传动轴和护罩同时发热时检查护罩变形",
+    "locator": "PDF物理第53页；第七章前驱动桥第3项",
+    "models": [
+      "YTO-454",
+      "YTO-MF454",
+      "YTO-504",
+      "YTO-MF504"
+    ],
+    "bodyHash": "623d2db51112fe241ef735d003e093be19d015f903263025e45bf8241976273f"
+  },
+  {
+    "brand": "东方红",
+    "entry_id": "KB-YTO-454-MF504-OM-RU-012",
+    "source_id": "SRC-YTO-454-MF504-OM-RU",
+    "title": "前驱桥异响时检查中央传动与差速器",
+    "locator": "PDF物理第53页；第七章前驱动桥第4项",
+    "models": [
+      "YTO-454",
+      "YTO-MF454",
+      "YTO-504",
+      "YTO-MF504"
+    ],
+    "bodyHash": "3d125fa2a59e11337bdfddfd3f141bf29a5ffafe9af2ff4afb2462c6d9a63e94"
+  },
+  {
+    "brand": "东方红",
+    "entry_id": "KB-YTO-454-MF504-OM-RU-013",
+    "source_id": "SRC-YTO-454-MF504-OM-RU",
+    "title": "发电量偏低或电流不稳时检查发电机皮带和接线",
+    "locator": "PDF物理第54页；第七章电气设备第4项",
+    "models": [
+      "YTO-454",
+      "YTO-MF454",
+      "YTO-504",
+      "YTO-MF504"
+    ],
+    "bodyHash": "76057bc16d6ae465912cf2ef80eb31456ef853933de966fbc3ee0c9f23201901"
+  },
+  {
+    "brand": "东方红",
+    "entry_id": "KB-YTO-454-MF504-OM-RU-014",
+    "source_id": "SRC-YTO-454-MF504-OM-RU",
+    "title": "制动力弱时检查湿式制动摩擦片和踏板行程",
+    "locator": "PDF物理第56页；第七章制动系统第1项",
+    "models": [
+      "YTO-454",
+      "YTO-MF454",
+      "YTO-504",
+      "YTO-MF504"
+    ],
+    "bodyHash": "bdf18e158420ae72ee2e5c84ba6331c45d3df279d39adad2076ad33cb6a85a85"
+  },
+  {
+    "brand": "东方红",
+    "entry_id": "KB-YTO-454-MF504-OM-RU-015",
+    "source_id": "SRC-YTO-454-MF504-OM-RU",
+    "title": "制动时向一侧偏转时对比两侧踏板行程和摩擦片",
+    "locator": "PDF物理第56页；第七章制动系统第2项",
+    "models": [
+      "YTO-454",
+      "YTO-MF454",
+      "YTO-504",
+      "YTO-MF504"
+    ],
+    "bodyHash": "9611aa02b5376427992a7f8158a99c7c26efc077f75144217d8d60a6dc8de5e1"
+  },
+  {
+    "brand": "东方红",
+    "entry_id": "KB-YTO-454-MF504-OM-RU-016",
+    "source_id": "SRC-YTO-454-MF504-OM-RU",
+    "title": "制动释放不全并发热时检查驻车制动和踏板空行程",
+    "locator": "PDF物理第56页；第七章制动系统第4项",
+    "models": [
+      "YTO-454",
+      "YTO-MF454",
+      "YTO-504",
+      "YTO-MF504"
+    ],
+    "bodyHash": "47fe22da22a65b3cdeae9b79378d81587b88b92f4b0c2c80896243fbfb69ffde"
+  },
+  {
+    "brand": "东方红",
+    "entry_id": "KB-YTO-454-MF504-OM-RU-017",
+    "source_id": "SRC-YTO-454-MF504-OM-RU",
+    "title": "液压悬挂轻载重载都不能提升时检查吸油、操纵连杆和阀",
+    "locator": "PDF物理第56至57页；第七章液压悬挂第1项及续行",
+    "models": [
+      "YTO-454",
+      "YTO-MF454",
+      "YTO-504",
+      "YTO-MF504"
+    ],
+    "bodyHash": "eb261d792476d02ca47ec65218771e833f671f81142a8a2aacc40e6cd7ec7e54"
+  },
+  {
+    "brand": "东方红",
+    "entry_id": "KB-YTO-454-MF504-OM-RU-019",
+    "source_id": "SRC-YTO-454-MF504-OM-RU",
+    "title": "空载能提升但带载缓慢时检查油温、泵磨损和内泄",
+    "locator": "PDF物理第57页；第七章液压悬挂第2项",
+    "models": [
+      "YTO-454",
+      "YTO-MF454",
+      "YTO-504",
+      "YTO-MF504"
+    ],
+    "bodyHash": "116ff07ec11890b90400419d86ae5637f360e52889cf84137731a1e7019028c1"
+  },
+  {
+    "brand": "东方红",
+    "entry_id": "KB-YTO-454-MF504-OM-RU-020",
+    "source_id": "SRC-YTO-454-MF504-OM-RU",
+    "title": "提升到上限时液压泵尖叫检查提升臂顶碰",
+    "locator": "PDF物理第57页；第七章液压悬挂第3项",
+    "models": [
+      "YTO-454",
+      "YTO-MF454",
+      "YTO-504",
+      "YTO-MF504"
+    ],
+    "bodyHash": "cd95f784776c081a00fb7040c82d3922bedc9a9888dc12d236c6a5a6d104cf24"
+  },
+  {
+    "brand": "东方红",
+    "entry_id": "KB-YTO-454-MF504-OM-RU-021",
+    "source_id": "SRC-YTO-454-MF504-OM-RU",
+    "title": "农具提升后抖动并快速静沉时检查分配器及出口密封",
+    "locator": "PDF物理第57页；第七章液压悬挂第4项",
+    "models": [
+      "YTO-454",
+      "YTO-MF454",
+      "YTO-504",
+      "YTO-MF504"
+    ],
+    "bodyHash": "94096237df4190a0693c0424b61656285889bfbd2d3ca55d8a94d13419032808"
+  },
+  {
+    "brand": "东方红",
+    "entry_id": "KB-YTO-454-MF504-OM-RU-SUP-001",
+    "source_id": "SRC-YTO-454-MF504-OM-RU",
+    "title": "按运输和田间工况区分前后轮胎压力",
+    "locator": "PDF物理第10页；第二章 IV 行驶、转向和制动系统规格表",
+    "models": [
+      "YTO-454",
+      "YTO-MF454",
+      "YTO-504",
+      "YTO-MF504"
+    ],
+    "bodyHash": "2e5e5801b1eb8f2a68c3b189f87bfc4b82787a12306780eb7ac3961ddd33910f"
+  },
+  {
+    "brand": "东方红",
+    "entry_id": "KB-YTO-454-MF504-OM-RU-SUP-002",
+    "source_id": "SRC-YTO-454-MF504-OM-RU",
+    "title": "选装气制动装置核对贮气筒和压力表数据",
+    "locator": "PDF物理第10页；第二章 V 选装气制动装置表",
+    "models": [
+      "YTO-454",
+      "YTO-MF454",
+      "YTO-504",
+      "YTO-MF504"
+    ],
+    "bodyHash": "d1f01e39abcad91b106558b75103c145ffc46412be7e8f1128ef9f58dd526947"
+  },
+  {
+    "brand": "东方红",
+    "entry_id": "KB-YTO-454-MF504-OM-RU-SUP-003",
+    "source_id": "SRC-YTO-454-MF504-OM-RU",
+    "title": "起动机不转时先检查蓄电池与接线",
+    "locator": "PDF物理第54页；第七章电气设备第1项",
+    "models": [
+      "YTO-454",
+      "YTO-MF454",
+      "YTO-504",
+      "YTO-MF504"
+    ],
+    "bodyHash": "78aac2c2fe1ec36fb9558b5a8a57d36780fdf290c704434a8b6e3020eba57fe0"
+  },
+  {
+    "brand": "东方红",
+    "entry_id": "KB-YTO-454-MF504-OM-RU-SUP-004",
+    "source_id": "SRC-YTO-454-MF504-OM-RU",
+    "title": "起动无力带不动发动机时检查电源和电磁开关",
+    "locator": "PDF物理第54页；第七章电气设备第2项",
+    "models": [
+      "YTO-454",
+      "YTO-MF454",
+      "YTO-504",
+      "YTO-MF504"
+    ],
+    "bodyHash": "521416c0fdb6c3475a8d6eeeb955ed76ce56820b13149b379b8eb15c5b19a0d0"
+  },
+  {
+    "brand": "东方红",
+    "entry_id": "KB-YTO-454-MF504-OM-RU-SUP-005",
+    "source_id": "SRC-YTO-454-MF504-OM-RU",
+    "title": "蓄电池经常亏电时区分充电线路和电池内部故障",
+    "locator": "PDF物理第54至55页；第七章电气设备第5项及续行",
+    "models": [
+      "YTO-454",
+      "YTO-MF454",
+      "YTO-504",
+      "YTO-MF504"
+    ],
+    "bodyHash": "6c7b49d387786261f274e004a29290d7b6220f52f1d51bfb8c7a7a65fa3f39e2"
+  },
+  {
+    "brand": "东方红",
+    "entry_id": "KB-YTO-454-MF504-OM-RU-SUP-006",
+    "source_id": "SRC-YTO-454-MF504-OM-RU",
+    "title": "可维护式蓄电池耗水或通气口溢液时核对充电电压",
+    "locator": "PDF物理第55页；第七章电气设备第6项",
+    "models": [
+      "YTO-454",
+      "YTO-MF454",
+      "YTO-504",
+      "YTO-MF504"
+    ],
+    "bodyHash": "26f56a508e72c9d37f8608f414890b559644c186041647745cc442574acf8ebb"
+  },
+  {
+    "brand": "时风",
+    "entry_id": "KB-SHIFENG-SF240-SF244-RU-001",
+    "source_id": "SRC-SHIFENG-SF240-SF244-RU",
+    "title": "行驶中挡位自行退出的变速箱检查",
+    "locator": "PDF物理第47页；印刷第47页；5.1 变速箱",
+    "models": [
+      "SF240",
+      "SF244"
+    ],
+    "bodyHash": "ba6675a633d5f01220e08ae02bec43e5f0b2719311b56f64425fc22791686cf6"
+  },
+  {
+    "brand": "时风",
+    "entry_id": "KB-SHIFENG-SF240-SF244-RU-002",
+    "source_id": "SRC-SHIFENG-SF240-SF244-RU",
+    "title": "干式离合器打滑的摩擦件检查",
+    "locator": "PDF物理第47页；印刷第47页；5.2 离合器 (1)",
+    "models": [
+      "SF240",
+      "SF244"
+    ],
+    "bodyHash": "f2084c0ee72281b862dd8c5b7466560f44aeb9e343790aaf27297f393dbbc79a"
+  },
+  {
+    "brand": "时风",
+    "entry_id": "KB-SHIFENG-SF240-SF244-RU-003",
+    "source_id": "SRC-SHIFENG-SF240-SF244-RU",
+    "title": "离合器接合不良时核对分离杠杆及行程",
+    "locator": "PDF物理第47页；印刷第47页；5.2 离合器 (2)",
+    "models": [
+      "SF240",
+      "SF244"
+    ],
+    "bodyHash": "dc6e62dff03788004b3d85186e51d292934de2ef79c93dae5824723e30f101a1"
+  },
+  {
+    "brand": "时风",
+    "entry_id": "KB-SHIFENG-SF240-SF244-RU-004",
+    "source_id": "SRC-SHIFENG-SF240-SF244-RU",
+    "title": "离合器振动异响时核对分离轴承",
+    "locator": "PDF物理第47页；印刷第47页；5.2 离合器 (3)",
+    "models": [
+      "SF240",
+      "SF244"
+    ],
+    "bodyHash": "95dfeec9f953c4b0fe001cba8196e26378d28f6bdf8cf609ec79a0575c90e4aa"
+  },
+  {
+    "brand": "时风",
+    "entry_id": "KB-SHIFENG-SF240-SF244-RU-005",
+    "source_id": "SRC-SHIFENG-SF240-SF244-RU",
+    "title": "制动能力下降时核对污染与偏心轴",
+    "locator": "PDF物理第47页；印刷第47页；5.3 制动 (1)",
+    "models": [
+      "SF240",
+      "SF244"
+    ],
+    "bodyHash": "b81acb84291b997f3af61d3f990cfa7dec9a54ca0517d5e58c172624f6dd4ed3"
+  },
+  {
+    "brand": "时风",
+    "entry_id": "KB-SHIFENG-SF240-SF244-RU-006",
+    "source_id": "SRC-SHIFENG-SF240-SF244-RU",
+    "title": "左右制动不同步时检查单侧污染和拉杆间隙",
+    "locator": "PDF物理第47页；印刷第47页；5.3 制动 (2)",
+    "models": [
+      "SF240",
+      "SF244"
+    ],
+    "bodyHash": "438c43e74003b8e94ba1ac122ca7873cae742ffecd19d29d3fc04e1a88de5dc5"
+  },
+  {
+    "brand": "时风",
+    "entry_id": "KB-SHIFENG-SF240-SF244-RU-007",
+    "source_id": "SRC-SHIFENG-SF240-SF244-RU",
+    "title": "制动松开后不回位核对回位弹簧与踏板轴",
+    "locator": "PDF物理第47页；印刷第47页；5.3 制动 (3)",
+    "models": [
+      "SF240",
+      "SF244"
+    ],
+    "bodyHash": "60f77c55187fd6cadeddad8c7167da5115bca6ff9fea5e05476e751e7359c060"
+  },
+  {
+    "brand": "时风",
+    "entry_id": "KB-SHIFENG-SF240-SF244-RU-008",
+    "source_id": "SRC-SHIFENG-SF240-SF244-RU",
+    "title": "前轮振动核对轮毂轴承和转向球头",
+    "locator": "PDF物理第47页；印刷第47页；5.4 行走与转向 (1)",
+    "models": [
+      "SF240",
+      "SF244"
+    ],
+    "bodyHash": "8b004398db31a0a67861453f7cec477c5112f0bcd183ae596e8ae912bc138fd3"
+  },
+  {
+    "brand": "时风",
+    "entry_id": "KB-SHIFENG-SF240-SF244-RU-009",
+    "source_id": "SRC-SHIFENG-SF240-SF244-RU",
+    "title": "前胎快速磨损先核对胎压和定位",
+    "locator": "PDF物理第48页；印刷第48页；5.4 行走与转向 (2)",
+    "models": [
+      "SF240",
+      "SF244"
+    ],
+    "bodyHash": "6b313983c50aa2cf7fd8ffae110d16972a1d29886e0861f6b1e0412fc1bdab25"
+  },
+  {
+    "brand": "时风",
+    "entry_id": "KB-SHIFENG-SF240-SF244-RU-010",
+    "source_id": "SRC-SHIFENG-SF240-SF244-RU",
+    "title": "方向盘游隙过大时区分蜗杆轴向和啮合间隙",
+    "locator": "PDF物理第48页；印刷第48页；5.4 行走与转向 (3)",
+    "models": [
+      "SF240",
+      "SF244"
+    ],
+    "bodyHash": "523299d8df8c805fb49891437b0a05f350467910c9d04e425bc73a1e299f0e42"
+  },
+  {
+    "brand": "时风",
+    "entry_id": "KB-SHIFENG-SF240-SF244-RU-011",
+    "source_id": "SRC-SHIFENG-SF240-SF244-RU",
+    "title": "悬挂举升无力时核对泄压阀和泵缸磨损",
+    "locator": "PDF物理第48页；印刷第48页；5.5 液压 (2)",
+    "models": [
+      "SF240",
+      "SF244"
+    ],
+    "bodyHash": "fbf143d03212007bf0fc312551e886e9d9d7bfc3436c02eab2d536077b78f076"
+  },
+  {
+    "brand": "时风",
+    "entry_id": "KB-SHIFENG-SF240-SF244-RU-012",
+    "source_id": "SRC-SHIFENG-SF240-SF244-RU",
+    "title": "提升轴与锁止轴处渗漏时核对轴套和油封",
+    "locator": "PDF物理第48页；印刷第48页；5.5 液压 (3)",
+    "models": [
+      "SF240",
+      "SF244"
+    ],
+    "bodyHash": "aa36aed37e647308efa3ca1e82716325eae1e934b20b9f0dd993d4007e34ce1c"
+  },
+  {
+    "brand": "时风",
+    "entry_id": "KB-SHIFENG-SF240-SF244-RU-013",
+    "source_id": "SRC-SHIFENG-SF240-SF244-RU",
+    "title": "起动机无动作区分接线蓄电池和碳刷",
+    "locator": "PDF物理第48页；印刷第48页；5.6 电气 (1)",
+    "models": [
+      "SF240",
+      "SF244"
+    ],
+    "bodyHash": "1f7ea905de768dd8633fe90105357669e85275d6db8ad05cf16b33ac8ef132b0"
+  },
+  {
+    "brand": "时风",
+    "entry_id": "KB-SHIFENG-SF240-SF244-RU-014",
+    "source_id": "SRC-SHIFENG-SF240-SF244-RU",
+    "title": "起动机转动不稳检查端子和电磁开关触点",
+    "locator": "PDF物理第48页；印刷第48页；5.6 电气 (2)",
+    "models": [
+      "SF240",
+      "SF244"
+    ],
+    "bodyHash": "71d1b49c9a9c4eb5ebb1fcc68d14ba8ee1d44f84f862e7e0fd485ffc873aea52"
+  },
+  {
+    "brand": "时风",
+    "entry_id": "KB-SHIFENG-SF240-SF244-RU-015",
+    "source_id": "SRC-SHIFENG-SF240-SF244-RU",
+    "title": "发动机起动后起动机齿轮仍未退出",
+    "locator": "PDF物理第48页；印刷第48页；5.6 电气 (3)",
+    "models": [
+      "SF240",
+      "SF244"
+    ],
+    "bodyHash": "906eae60f2713b3949ada5f183af42637cb040b7d9e77a079176abb3a8f8d9db"
+  },
+  {
+    "brand": "时风",
+    "entry_id": "KB-SHIFENG-SF240-SF244-RU-016",
+    "source_id": "SRC-SHIFENG-SF240-SF244-RU",
+    "title": "发电机无输出时检查接线与内部整流",
+    "locator": "PDF物理第49页；印刷第49页；5.6 电气 (6)",
+    "models": [
+      "SF240",
+      "SF244"
+    ],
+    "bodyHash": "f17badbfcd3f9cfb35d23e328d957cd4b57092ef488933ba4a646d5acc6caedf"
+  },
+  {
+    "brand": "时风",
+    "entry_id": "KB-SHIFENG-SF240-SF244-RU-017",
+    "source_id": "SRC-SHIFENG-SF240-SF244-RU",
+    "title": "发电输出不稳时对比皮带打滑和线路接触",
+    "locator": "PDF物理第49页；印刷第49页；5.6 电气 (7)",
+    "models": [
+      "SF240",
+      "SF244"
+    ],
+    "bodyHash": "746d2b2aea8cd72ceeed9557ad7e8ba5f49e6d4f92268c82a33b12f84df22359"
+  },
+  {
+    "brand": "时风",
+    "entry_id": "KB-SHIFENG-SF240-SF244-RU-018",
+    "source_id": "SRC-SHIFENG-SF240-SF244-RU",
+    "title": "电刷附近明显打火时检查滑环与过载",
+    "locator": "PDF物理第49页；印刷第49页；5.6 电气 (8)",
+    "models": [
+      "SF240",
+      "SF244"
+    ],
+    "bodyHash": "95bd71d568051dfc16e4f3b7500dc1a9f3810c9b8c490f07c50262acc7297f73"
+  },
+  {
+    "brand": "时风",
+    "entry_id": "KB-SHIFENG-SF240-SF244-RU-019",
+    "source_id": "SRC-SHIFENG-SF240-SF244-RU",
+    "title": "发电机过热区分负载和绕组故障",
+    "locator": "PDF物理第49页；印刷第49页；5.6 电气 (9)",
+    "models": [
+      "SF240",
+      "SF244"
+    ],
+    "bodyHash": "ae0409f8041c3ba484028ed63beb0d732931b3524ca45a9f3f4721d9997e30a2"
+  },
+  {
+    "brand": "时风",
+    "entry_id": "KB-SHIFENG-SF240-SF244-RU-020",
+    "source_id": "SRC-SHIFENG-SF240-SF244-RU",
+    "title": "每班检查液压提升器通气塞",
+    "locator": "PDF物理第45页；印刷第45页；4.2.1 日常保养第6项",
+    "models": [
+      "SF240",
+      "SF244"
+    ],
+    "bodyHash": "b288519c7cd40f17c28032f8558183844113423d3c2834bd6b12f5e4ae42e6e0"
+  },
+  {
+    "brand": "时风",
+    "entry_id": "KB-SHIFENG-SF240-SF244-RU-021",
+    "source_id": "SRC-SHIFENG-SF240-SF244-RU",
+    "title": "每班查发动机变速箱及提升器油液和渗漏",
+    "locator": "PDF物理第45页；印刷第45页；4.2.1 日常保养第2至4项",
+    "models": [
+      "SF240",
+      "SF244"
+    ],
+    "bodyHash": "c1e678d81ec3392f9030cfe7f1ad53ba87cf3e0813ea75e38a2f362078e05140"
+  },
+  {
+    "brand": "时风",
+    "entry_id": "KB-SHIFENG-SF240-SF244-RU-022",
+    "source_id": "SRC-SHIFENG-SF240-SF244-RU",
+    "title": "二级保养联查踏板自由行程和前轮支承",
+    "locator": "PDF物理第46页；印刷第46页；4.2.3 二级保养第9至12项",
+    "models": [
+      "SF240",
+      "SF244"
+    ],
+    "bodyHash": "423a02f94a9fff456f2acd053587158eafbc815aee336abc41db94b4d5c3217f"
+  }
+]

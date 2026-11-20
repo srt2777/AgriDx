@@ -1,0 +1,1158 @@
+[
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-DF504-DF554-RU-001",
+    "source_id": "SRC-DONGFENG-DF504-DF554-RU-MINIAGRO",
+    "title": "离合器打滑区分摩擦副沾油、磨损和压紧力不足",
+    "locator": "PDF物理第51页；印刷第42页；3.16.1.1 离合器",
+    "models": [
+      "DF504",
+      "DF554"
+    ],
+    "bodyHash": "c7333fb93bf61726799b637ba31e42c27f3db1a1b38a7cf5e3864676755b96f1"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-DF504-DF554-RU-002",
+    "source_id": "SRC-DONGFENG-DF504-DF554-RU-MINIAGRO",
+    "title": "离合分离不完全核对踏板自由与工作行程",
+    "locator": "PDF物理第51页；印刷第42页；3.16.1.1 离合器",
+    "models": [
+      "DF504",
+      "DF554"
+    ],
+    "bodyHash": "5ad0adc0160341218b3a280e7c756e46cfcd114ab9ff057d7513f2d8f6597f73"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-DF504-DF554-RU-003",
+    "source_id": "SRC-DONGFENG-DF504-DF554-RU-MINIAGRO",
+    "title": "起步抖动核对离合器从动盘和摩擦片",
+    "locator": "PDF物理第51页；印刷第42页；3.16.1.1 离合器",
+    "models": [
+      "DF504",
+      "DF554"
+    ],
+    "bodyHash": "9cdaa6ebce19540ace9a2d31b2bc05284fd1fa91f6c1e2844c69e9311ca3acbc"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-DF504-DF554-RU-004",
+    "source_id": "SRC-DONGFENG-DF504-DF554-RU-MINIAGRO",
+    "title": "离合踏板踩到底而 PTO 仍转时检查限位和压盘行程",
+    "locator": "PDF物理第51页；印刷第42页；3.16.1.1 离合器",
+    "models": [
+      "DF504",
+      "DF554"
+    ],
+    "bodyHash": "39674401f86c9d0839dce4eea56473e852f35276e69f30f0176233a1c2dace1b"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-DF504-DF554-RU-005",
+    "source_id": "SRC-DONGFENG-DF504-DF554-RU-MINIAGRO",
+    "title": "挂挡困难检查离合分离、接合套与拨叉",
+    "locator": "PDF物理第52页；印刷第43页；3.16.1.2 变速箱",
+    "models": [
+      "DF504",
+      "DF554"
+    ],
+    "bodyHash": "e12da59372d71965fa95ed34c791a3f083720a2bce8d4856d1fd167aa02e6ee6"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-DF504-DF554-RU-006",
+    "source_id": "SRC-DONGFENG-DF504-DF554-RU-MINIAGRO",
+    "title": "行驶中脱挡检查定位槽与定位弹簧",
+    "locator": "PDF物理第52页；印刷第43页；3.16.1.2 变速箱",
+    "models": [
+      "DF504",
+      "DF554"
+    ],
+    "bodyHash": "af0f75072bc78e76554496e42b3d86aff7746d02e90eca8eed46ec65ffefd214"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-DF504-DF554-RU-007",
+    "source_id": "SRC-DONGFENG-DF504-DF554-RU-MINIAGRO",
+    "title": "离合器壳体漏油可来自发动机或变速箱输入端",
+    "locator": "PDF物理第52页；印刷第43页；3.16.1.2 变速箱",
+    "models": [
+      "DF504",
+      "DF554"
+    ],
+    "bodyHash": "25ab013cb48fcc49a41870239d1ddee9d41cb133d62a4017a30aba4958f7f62b"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-DF504-DF554-RU-008",
+    "source_id": "SRC-DONGFENG-DF504-DF554-RU-MINIAGRO",
+    "title": "变速箱敲击异响查齿面、轴承与润滑",
+    "locator": "PDF物理第52页；印刷第43页；3.16.1.2 变速箱",
+    "models": [
+      "DF504",
+      "DF554"
+    ],
+    "bodyHash": "e00f8416fea5cc3510272aeb1859815b854add4ae9b995fe8be7d7b37daa6701"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-DF504-DF554-RU-009",
+    "source_id": "SRC-DONGFENG-DF504-DF554-RU-MINIAGRO",
+    "title": "后桥中央传动变响检查锥齿轮、差速器及行星机构",
+    "locator": "PDF物理第52、53页；印刷第43、44页；3.16.1.3 后桥和制动",
+    "models": [
+      "DF504",
+      "DF554"
+    ],
+    "bodyHash": "413bf7e55c3145ff2471087c4120d8e21d2a642a7e634d3b9027493e6ca16583"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-DF504-DF554-RU-010",
+    "source_id": "SRC-DONGFENG-DF504-DF554-RU-MINIAGRO",
+    "title": "主传动与差速器轴承过热查预紧和润滑",
+    "locator": "PDF物理第53页；印刷第44页；3.16.1.3 后桥和制动",
+    "models": [
+      "DF504",
+      "DF554"
+    ],
+    "bodyHash": "c85a88073c9cfee4628492a842fd0005e467a70929689dcbd33caf9acd5f2ab6"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-DF504-DF554-RU-011",
+    "source_id": "SRC-DONGFENG-DF504-DF554-RU-MINIAGRO",
+    "title": "制动失效检查制动踏板行程和摩擦片磨损",
+    "locator": "PDF物理第53页；印刷第44页；3.16.1.3 后桥和制动",
+    "models": [
+      "DF504",
+      "DF554"
+    ],
+    "bodyHash": "ff7622e50c474af4554b6cffaaae47d5cd5f1ee6ea16762e8b31c66ac71da0b6"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-DF504-DF554-RU-012",
+    "source_id": "SRC-DONGFENG-DF504-DF554-RU-MINIAGRO",
+    "title": "制动时两边响应异常核对脚踏行程和两侧胎压",
+    "locator": "PDF物理第53页；印刷第44页；3.16.1.3 后桥和制动",
+    "models": [
+      "DF504",
+      "DF554"
+    ],
+    "bodyHash": "9089739053282937d4190c364934b703c7e1d158907582bfd5f7271b597bc8c3"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-DF504-DF554-RU-013",
+    "source_id": "SRC-DONGFENG-DF504-DF554-RU-MINIAGRO",
+    "title": "制动释放不彻底且发热时核对驻车解除和踏板行程",
+    "locator": "PDF物理第53页；印刷第44页；3.16.1.3 后桥和制动",
+    "models": [
+      "DF504",
+      "DF554"
+    ],
+    "bodyHash": "186d0ea716a63c6a8bb02696ffbfbfcf6b728cb55f1afe5a5bd85263228ca15a"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-DF504-DF554-RU-014",
+    "source_id": "SRC-DONGFENG-DF504-DF554-RU-MINIAGRO",
+    "title": "前轮胎异常磨损核对前束、胎压、轮辋及花纹方向",
+    "locator": "PDF物理第53、55页；印刷第44、46页；3.16.1.4 行走系统、3.16.1.5 转向系统",
+    "models": [
+      "DF504",
+      "DF554"
+    ],
+    "bodyHash": "d94ad2c9a7364705d759c9b749164af45ccee9f015ed301e5bc424108ed344e7"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-DF504-DF554-RU-015",
+    "source_id": "SRC-DONGFENG-DF504-DF554-RU-MINIAGRO",
+    "title": "前桥驱动轴与套管发热检查套管变形",
+    "locator": "PDF物理第54页；印刷第45页；3.16.1.4 行走系统",
+    "models": [
+      "DF504",
+      "DF554"
+    ],
+    "bodyHash": "1ec90a833fb8f2019ab3ab01d054a71114168801c943c4593f06fe0da502c030"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-DF504-DF554-RU-016",
+    "source_id": "SRC-DONGFENG-DF504-DF554-RU-MINIAGRO",
+    "title": "前驱动桥噪声大检查主齿轮啮合与差速器",
+    "locator": "PDF物理第54页；印刷第45页；3.16.1.4 行走系统",
+    "models": [
+      "DF504",
+      "DF554"
+    ],
+    "bodyHash": "de72021b8b6118f380e64da50aa219b53ea154239706a3ea5fc23a3606a31bea"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-DF504-DF554-RU-017",
+    "source_id": "SRC-DONGFENG-DF504-DF554-RU-MINIAGRO",
+    "title": "转向自由行程过大检查转向器支承和滚珠副",
+    "locator": "PDF物理第54页；印刷第45页；3.16.1.5 转向系统",
+    "models": [
+      "DF504",
+      "DF554"
+    ],
+    "bodyHash": "30a1d08150ab38df23a54f28add5252eb9fbcb2cfd9a9dea6c193e644905fc6c"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-DF504-DF554-RU-018",
+    "source_id": "SRC-DONGFENG-DF504-DF554-RU-MINIAGRO",
+    "title": "转向沉重分机械阻力、胎压与供油检查",
+    "locator": "PDF物理第54、55页；印刷第45、46页；3.16.1.5 转向系统",
+    "models": [
+      "DF504",
+      "DF554"
+    ],
+    "bodyHash": "3f2ea7e59f0931fbb9d313144f9ca92f2367d0a8c77ac60aa74fb5c796cd1713"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-DF504-DF554-RU-019",
+    "source_id": "SRC-DONGFENG-DF504-DF554-RU-MINIAGRO",
+    "title": "液压方向盘不回中检查回位弹簧及转向轴同轴度",
+    "locator": "PDF物理第55页；印刷第46页；3.16.1.5 转向系统",
+    "models": [
+      "DF504",
+      "DF554"
+    ],
+    "bodyHash": "26c6d109a21c70e4bccc185ccd2a534e3db0ed65ac9eca5b605acfc9f4eac537"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-DF504-DF554-RU-020",
+    "source_id": "SRC-DONGFENG-DF504-DF554-RU-MINIAGRO",
+    "title": "方向盘转动但转向油缸不动的密封检查",
+    "locator": "PDF物理第55页；印刷第46页；3.16.1.5 转向系统",
+    "models": [
+      "DF504",
+      "DF554"
+    ],
+    "bodyHash": "7dc255c6189be8cd062c627fdf9b288a67b616de42d9245ffdae624e1ab20310"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-DF504-DF554-RU-021",
+    "source_id": "SRC-DONGFENG-DF504-DF554-RU-MINIAGRO",
+    "title": "提升器无法举升区分吸油阻塞漏气与阀泵内泄",
+    "locator": "PDF物理第56页；印刷第47页；3.16.1.6 液压系统",
+    "models": [
+      "DF504",
+      "DF554"
+    ],
+    "bodyHash": "e6e6b637ac1b6911ab58149469920f5722920c53388b7072dad6916b408ecf7e"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-DF504-DF554-RU-022",
+    "source_id": "SRC-DONGFENG-DF504-DF554-RU-MINIAGRO",
+    "title": "农具不能下降检查下降控制和截断阀",
+    "locator": "PDF物理第56页；印刷第47页；3.16.1.6 液压系统",
+    "models": [
+      "DF504",
+      "DF554"
+    ],
+    "bodyHash": "db68e239421e8a63d865945e5499337e7dae0cf6bd9db69e1916cc262f0d0adb"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-DF504-DF554-RU-023",
+    "source_id": "SRC-DONGFENG-DF504-DF554-RU-MINIAGRO",
+    "title": "农具提升时抖动先查单向阀及密封",
+    "locator": "PDF物理第56页；印刷第47页；3.16.1.6 液压系统",
+    "models": [
+      "DF504",
+      "DF554"
+    ],
+    "bodyHash": "deaed6a0f1a0aa2d0a45f52e7ec0303a262cf59139ee1f846062a413ad1cec69"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-DF504-DF554-RU-024",
+    "source_id": "SRC-DONGFENG-DF504-DF554-RU-MINIAGRO",
+    "title": "简单液压输出无压力时核对截断阀、操纵位置及快接",
+    "locator": "PDF物理第56、57页；印刷第47、48页；3.16.1.6 液压系统",
+    "models": [
+      "DF504",
+      "DF554"
+    ],
+    "bodyHash": "a9a6529c39f70f50c1fb4a04098cf581da8961385ecfce053db7b0643293406f"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-DF504-DF554-RU-025",
+    "source_id": "SRC-DONGFENG-DF504-DF554-RU-MINIAGRO",
+    "title": "每 50 小时检查风扇皮带张紧",
+    "locator": "PDF物理第63页；印刷第54页；5.2.1 整机保养表 5-1",
+    "models": [
+      "DF504",
+      "DF554"
+    ],
+    "bodyHash": "cec991cbb3fcc109c32c3797602a4c3cd4d59d27873167932b1976745356fb32"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-DF504-DF554-RU-026",
+    "source_id": "SRC-DONGFENG-DF504-DF554-RU-MINIAGRO",
+    "title": "每 50 小时润滑转向油缸规定润滑点",
+    "locator": "PDF物理第63页；印刷第54页；5.2.1 整机保养表 5-1",
+    "models": [
+      "DF504",
+      "DF554"
+    ],
+    "bodyHash": "eb78b00a8c08eb2cd37e076812a4d393423ffc40fcdf2a7446aa85d73349efc7"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-DF504-DF554-RU-027",
+    "source_id": "SRC-DONGFENG-DF504-DF554-RU-MINIAGRO",
+    "title": "每 50 小时润滑前端衬套和前驱摆动支承",
+    "locator": "PDF物理第63页；印刷第54页；5.2.1 整机保养表 5-1",
+    "models": [
+      "DF504",
+      "DF554"
+    ],
+    "bodyHash": "f2288b490663c652d041bc1caee8240b8b886658205350cd8de07c3faef8931e"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-DF504-DF554-RU-028",
+    "source_id": "SRC-DONGFENG-DF504-DF554-RU-MINIAGRO",
+    "title": "每 200 小时更换燃油滤芯",
+    "locator": "PDF物理第63页；印刷第54页；5.2.1 整机保养表 5-1",
+    "models": [
+      "DF504",
+      "DF554"
+    ],
+    "bodyHash": "0e86d33b7dc8e29e7f86e6c1d20fde70851e4c1f6c5e16b999ae81cf7ed51910"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-DF504-DF554-RU-029",
+    "source_id": "SRC-DONGFENG-DF504-DF554-RU-MINIAGRO",
+    "title": "每 200 小时保养联换机油与机油滤芯",
+    "locator": "PDF物理第63页；印刷第54页；5.2.1 整机保养表 5-1",
+    "models": [
+      "DF504",
+      "DF554"
+    ],
+    "bodyHash": "dc7bfcd0e72b5d4ee0dc66436b5be4b91f3a8e37e1077669e5ef1b236161c549"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-DF504-DF554-RU-030",
+    "source_id": "SRC-DONGFENG-DF504-DF554-RU-MINIAGRO",
+    "title": "每 200 小时检查提升器液压滤清器保养",
+    "locator": "PDF物理第63页；印刷第54页；5.2.1 整机保养表 5-1",
+    "models": [
+      "DF504",
+      "DF554"
+    ],
+    "bodyHash": "c4ebe3cddc1cd6dba1becc041aaac1eee6e58665412c0442cb2fa5b8654d10ea"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-DF504-DF554-RU-031",
+    "source_id": "SRC-DONGFENG-DF504-DF554-RU-MINIAGRO",
+    "title": "高压燃油泵的独立润滑按每 200 小时换油",
+    "locator": "PDF物理第63页；印刷第54页；5.2.1 整机保养表 5-1",
+    "models": [
+      "DF504",
+      "DF554"
+    ],
+    "bodyHash": "c23ffac1097d115a42e393aae55d69d1d6d1a16d658d22dd5d1b141572dfef7a"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-DF504-DF554-RU-032",
+    "source_id": "SRC-DONGFENG-DF504-DF554-RU-MINIAGRO",
+    "title": "每 400 小时查传动和提升器油位",
+    "locator": "PDF物理第63页；印刷第54页；5.2.1 整机保养表 5-1",
+    "models": [
+      "DF504",
+      "DF554"
+    ],
+    "bodyHash": "0b479f27bde62298a90d90fc5b7ebf6d6d277d401de2f2169ebbc9b327e3ac2d"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-DF504-DF554-RU-033",
+    "source_id": "SRC-DONGFENG-DF504-DF554-RU-MINIAGRO",
+    "title": "每 400 小时检查前桥油位",
+    "locator": "PDF物理第63页；印刷第54页；5.2.1 整机保养表 5-1",
+    "models": [
+      "DF504",
+      "DF554"
+    ],
+    "bodyHash": "1f17d23384b875c9f58e2f79be698821d1b26a8a7bd39bd88d4481cee6efb21c"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-DF504-DF554-RU-034",
+    "source_id": "SRC-DONGFENG-DF504-DF554-RU-MINIAGRO",
+    "title": "转向油箱在 400 小时清滤网、800 小时换油",
+    "locator": "PDF物理第63页；印刷第54页；5.2.1 整机保养表 5-1",
+    "models": [
+      "DF504",
+      "DF554"
+    ],
+    "bodyHash": "8e46c41701f196ef7e1eaaffa9f0309f7fbb6a681a8e420f742a4c30fd6722ab"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-DF504-DF554-RU-035",
+    "source_id": "SRC-DONGFENG-DF504-DF554-RU-MINIAGRO",
+    "title": "每 800 小时保养并清洁燃油箱",
+    "locator": "PDF物理第64页；印刷第55页；5.2.1 整机保养表 5-1",
+    "models": [
+      "DF504",
+      "DF554"
+    ],
+    "bodyHash": "c953212b219a12c2362210bde7052090bcdfa7b099c71c3cad26640b9c2ea052"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-DF504-DF554-RU-036",
+    "source_id": "SRC-DONGFENG-DF504-DF554-RU-MINIAGRO",
+    "title": "每 800 小时核对进排气门间隙",
+    "locator": "PDF物理第64页；印刷第55页；5.2.1 整机保养表 5-1",
+    "models": [
+      "DF504",
+      "DF554"
+    ],
+    "bodyHash": "3655ae4b38f258c6ac74edb96241af0aed1381c594d4772467695a28ade428c8"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-DF504-DF554-RU-037",
+    "source_id": "SRC-DONGFENG-DF504-DF554-RU-MINIAGRO",
+    "title": "每 800 小时更换传动和提升器油液",
+    "locator": "PDF物理第64页；印刷第55页；5.2.1 整机保养表 5-1",
+    "models": [
+      "DF504",
+      "DF554"
+    ],
+    "bodyHash": "bfa9c344091d545d4e831954fc97151b8db428400ffbc1c239bcfd73ffea0715"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-DF504-DF554-RU-038",
+    "source_id": "SRC-DONGFENG-DF504-DF554-RU-MINIAGRO",
+    "title": "每 1600 小时保养冷却系统并更新防冻液",
+    "locator": "PDF物理第64页；印刷第55页；5.2.1 整机保养表 5-1",
+    "models": [
+      "DF504",
+      "DF554"
+    ],
+    "bodyHash": "50530501d9cfb818b2e8371cd99058ec341941496f0bbc37aa1cf87de3e6b749"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-DF504-DF554-RU-039",
+    "source_id": "SRC-DONGFENG-DF504-DF554-RU-MINIAGRO",
+    "title": "每 1600 小时更换前桥润滑油",
+    "locator": "PDF物理第64页；印刷第55页；5.2.1 整机保养表 5-1",
+    "models": [
+      "DF504",
+      "DF554"
+    ],
+    "bodyHash": "dc6928a3d1dd440e2901d0c8237c6634bf48b883e302202ce247529e676a423a"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-DF504-DF554-RU-040",
+    "source_id": "SRC-DONGFENG-DF504-DF554-RU-MINIAGRO",
+    "title": "检查转向油箱液位时一并核对箱盖中央通气件",
+    "locator": "PDF物理第64页；印刷第55页；5.2.2.2",
+    "models": [
+      "DF504",
+      "DF554"
+    ],
+    "bodyHash": "302b072d79a059d4f00e7334c834cbd4d920da06ad0ea5d28caea3010a5265fd"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-DF504-DF554-RU-041",
+    "source_id": "SRC-DONGFENG-DF504-DF554-RU-MINIAGRO",
+    "title": "油浴式空气滤清器清洗后按油杯刻线加机油",
+    "locator": "PDF物理第61、64页；印刷第52、55页；5.1.2 第3项及 5.2.2.3",
+    "models": [
+      "DF504",
+      "DF554"
+    ],
+    "bodyHash": "fc76bbaee8f439569952418aeab52e8459a930dcc9cf57496b69bd9e8a93de98"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-DF504-DF554-RU-SUP-042",
+    "source_id": "SRC-DONGFENG-DF504-DF554-RU-MINIAGRO",
+    "title": "每班测发动机机油前按本册停机静置十五分钟",
+    "locator": "PDF物理第60、61页；印刷第51、52页；5.1.1 第3项",
+    "models": [
+      "DF504",
+      "DF554"
+    ],
+    "bodyHash": "7eda4ffa0e42b454e03f4abb8b4fcdb012d0bef1c11797a0616e23959ffd8607"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-DF504-DF554-RU-SUP-043",
+    "source_id": "SRC-DONGFENG-DF504-DF554-RU-MINIAGRO",
+    "title": "运行一千六百小时把起动机列入定期检修",
+    "locator": "PDF物理第62页；印刷第53页；5.1.6 第4项",
+    "models": [
+      "DF504",
+      "DF554"
+    ],
+    "bodyHash": "6bb0ba9ba5942c593f8d5efbeb3c59921b00b674ee8be8734077d7f7cfc05b3b"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-DF254-DF404-G2-6-EN-001",
+    "source_id": "SRC-DONGFENG-DF254-DF404-G2-6-EN",
+    "title": "每班核对机油尺及存放后重新测油位",
+    "locator": "PDF物理第43页；印刷第43页；6.2.1 A.a",
+    "models": [
+      "DF254G2-6",
+      "DF304G2-6",
+      "DF354G2-6",
+      "DF404G2-6"
+    ],
+    "bodyHash": "05ff6ce16d9b3365b10b0a71a3764cd76cc74bf6b6a511ae2d29103d99f5bc4a"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-DF254-DF404-G2-6-EN-002",
+    "source_id": "SRC-DONGFENG-DF254-DF404-G2-6-EN",
+    "title": "每班润滑转向连接、前驱转向臂和水泵轴承",
+    "locator": "PDF物理第43页；印刷第43页；6.2.1 B.b",
+    "models": [
+      "DF254G2-6",
+      "DF304G2-6",
+      "DF354G2-6",
+      "DF404G2-6"
+    ],
+    "bodyHash": "fd62f11eb00d16ca3bda89167fd221818bdd1704ee00f0f609ce23c1c55fcec6"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-DF254-DF404-G2-6-EN-003",
+    "source_id": "SRC-DONGFENG-DF254-DF404-G2-6-EN",
+    "title": "新机轻负载磨合 50 小时更换发动机及喷油泵润滑油",
+    "locator": "PDF物理第43页；印刷第43页；6.2.2 A",
+    "models": [
+      "DF254G2-6",
+      "DF304G2-6",
+      "DF354G2-6",
+      "DF404G2-6"
+    ],
+    "bodyHash": "ca69b0c9ebb1e2ac5d730ec04e23e2c1de73e27a008a1c1b1829322f53867746"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-DF254-DF404-G2-6-EN-004",
+    "source_id": "SRC-DONGFENG-DF254-DF404-G2-6-EN",
+    "title": "磨合 50 小时和每 100 小时查离合器踏板自由行程",
+    "locator": "PDF物理第43页；印刷第43页；6.2.2 B 与 6.2.3 B",
+    "models": [
+      "DF254G2-6",
+      "DF304G2-6",
+      "DF354G2-6",
+      "DF404G2-6"
+    ],
+    "bodyHash": "324a26ff6d6d483ed7487296fad326643a39496488616f74ed510ef9ee66c59b"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-DF254-DF404-G2-6-EN-005",
+    "source_id": "SRC-DONGFENG-DF254-DF404-G2-6-EN",
+    "title": "每 100 小时更换机油、机油滤芯和柴油滤芯",
+    "locator": "PDF物理第43页；印刷第43页；6.2.3 A.a、b",
+    "models": [
+      "DF254G2-6",
+      "DF304G2-6",
+      "DF354G2-6",
+      "DF404G2-6"
+    ],
+    "bodyHash": "63f35e3a2dddd928682bdd775ce97fa083897a9eeaf7cd4bc8de042bb1e5055e"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-DF254-DF404-G2-6-EN-006",
+    "source_id": "SRC-DONGFENG-DF254-DF404-G2-6-EN",
+    "title": "每 100 小时查风扇皮带张紧和喷油泵油位",
+    "locator": "PDF物理第43页；印刷第43页；6.2.3 A.c、d",
+    "models": [
+      "DF254G2-6",
+      "DF304G2-6",
+      "DF354G2-6",
+      "DF404G2-6"
+    ],
+    "bodyHash": "2e3ca680e7222b3ebd06e848e670a283545d0af01f4c354030cfb40d4b5d2c9f"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-DF254-DF404-G2-6-EN-007",
+    "source_id": "SRC-DONGFENG-DF254-DF404-G2-6-EN",
+    "title": "空滤每 100 小时清洁并在多尘环境加密",
+    "locator": "PDF物理第43页；印刷第43页；6.2.3 A.e 与 6.2.4 c",
+    "models": [
+      "DF254G2-6",
+      "DF304G2-6",
+      "DF354G2-6",
+      "DF404G2-6"
+    ],
+    "bodyHash": "f64efd66d1b62c4268ba6d50c293b2529282b6575957fe2a543ed3ad93fb954b"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-DF254-DF404-G2-6-EN-008",
+    "source_id": "SRC-DONGFENG-DF254-DF404-G2-6-EN",
+    "title": "每 250 小时检查后桥润滑油位",
+    "locator": "PDF物理第43页；印刷第43页；6.2.4 a",
+    "models": [
+      "DF254G2-6",
+      "DF304G2-6",
+      "DF354G2-6",
+      "DF404G2-6"
+    ],
+    "bodyHash": "062cac229c583020b0ed41c3f91575a1b083920f56abdd7c5689d122697ecd35"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-DF254-DF404-G2-6-EN-009",
+    "source_id": "SRC-DONGFENG-DF254-DF404-G2-6-EN",
+    "title": "500 小时项目包含喷油雾化及气门间隙核查",
+    "locator": "PDF物理第43至44页；印刷第43至44页；6.2.5 a、b",
+    "models": [
+      "DF254G2-6",
+      "DF304G2-6",
+      "DF354G2-6",
+      "DF404G2-6"
+    ],
+    "bodyHash": "5c4e29cbcef1f2874ed70e005af635a4c8ce17d1238886bd84f427f09cf2f6cc"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-DF254-DF404-G2-6-EN-010",
+    "source_id": "SRC-DONGFENG-DF254-DF404-G2-6-EN",
+    "title": "500 小时项目包括冷却水路水垢和喷油泵润滑油",
+    "locator": "PDF物理第43至44页；印刷第43至44页；6.2.5 c、d",
+    "models": [
+      "DF254G2-6",
+      "DF304G2-6",
+      "DF354G2-6",
+      "DF404G2-6"
+    ],
+    "bodyHash": "782a6348b21173fe69faa1cb24691a8297fe136d92f21a305823f6b49478fbb6"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-DF254-DF404-G2-6-EN-011",
+    "source_id": "SRC-DONGFENG-DF254-DF404-G2-6-EN",
+    "title": "1000 小时检查气门密封和喷油提前角",
+    "locator": "PDF物理第44页；印刷第44页；6.2.6 A.a、b",
+    "models": [
+      "DF254G2-6",
+      "DF304G2-6",
+      "DF354G2-6",
+      "DF404G2-6"
+    ],
+    "bodyHash": "ce327a9e765b83845c9d3d89955fa8e6cedf15e0e3832493cdf07f83d59a704c"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-DF254-DF404-G2-6-EN-012",
+    "source_id": "SRC-DONGFENG-DF254-DF404-G2-6-EN",
+    "title": "变速箱与后桥之间通油孔细小，换油后等液位平衡再复测",
+    "locator": "PDF物理第44页；印刷第44页；6.2.6 B.a",
+    "models": [
+      "DF254G2-6",
+      "DF304G2-6",
+      "DF354G2-6",
+      "DF404G2-6"
+    ],
+    "bodyHash": "a196202108faf94945fada39b3b49bd4ff74d7baf39af4b12ded0fa99d2aec5d"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-DF254-DF404-G2-6-EN-013",
+    "source_id": "SRC-DONGFENG-DF254-DF404-G2-6-EN",
+    "title": "1000 小时排查电气损伤及维护发电机轴承",
+    "locator": "PDF物理第44页；印刷第44页；6.2.6 B.b",
+    "models": [
+      "DF254G2-6",
+      "DF304G2-6",
+      "DF354G2-6",
+      "DF404G2-6"
+    ],
+    "bodyHash": "073e092fd6c7e1f494c87d7326acf2ec85cd3ff4196c7429b143a2685feaa6af"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-DF254-DF404-G2-6-EN-014",
+    "source_id": "SRC-DONGFENG-DF254-DF404-G2-6-EN",
+    "title": "冒蓝烟时检查第三道活塞环方向及机油液位",
+    "locator": "PDF物理第48页；印刷第48页；7.1.3 c",
+    "models": [
+      "DF254G2-6",
+      "DF304G2-6",
+      "DF354G2-6",
+      "DF404G2-6"
+    ],
+    "bodyHash": "140dc3a84788de9b31c85d544973b0da970ba5b15153f1e13f5eb96c4e55f39d"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-DF254-DF404-G2-6-EN-015",
+    "source_id": "SRC-DONGFENG-DF254-DF404-G2-6-EN",
+    "title": "机油耗用偏高时区分活塞回油孔堵塞和后油封漏油",
+    "locator": "PDF物理第49页；印刷第49页；7.1.8",
+    "models": [
+      "DF254G2-6",
+      "DF304G2-6",
+      "DF354G2-6",
+      "DF404G2-6"
+    ],
+    "bodyHash": "a56e1de0519b35e8e9ab26b8477c7d5c1d0f0c0fcfecfb349c0633be5eb15db1"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-DF254-DF404-G2-6-EN-016",
+    "source_id": "SRC-DONGFENG-DF254-DF404-G2-6-EN",
+    "title": "机油油位上升排查缸垫、缸盖与缸体堵塞件漏水",
+    "locator": "PDF物理第50页；印刷第50页；7.1.9",
+    "models": [
+      "DF254G2-6",
+      "DF304G2-6",
+      "DF354G2-6",
+      "DF404G2-6"
+    ],
+    "bodyHash": "e42537f46548be90b56ab20b5a5305fc9b754b2eb618bd54ef5ea5298d7a356c"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-DF254-DF404-G2-6-EN-017",
+    "source_id": "SRC-DONGFENG-DF254-DF404-G2-6-EN",
+    "title": "老式喷油泵调速不稳时排查滑套及凸轮轴轴向间隙",
+    "locator": "PDF物理第50页；印刷第50页；7.1.11",
+    "models": [
+      "DF254G2-6",
+      "DF304G2-6",
+      "DF354G2-6",
+      "DF404G2-6"
+    ],
+    "bodyHash": "1bee8ca05342449a3278ae2d2f8483f3f40105494f7bf0451b029c9b39176d94"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-DF254-DF404-G2-6-EN-SUP-018",
+    "source_id": "SRC-DONGFENG-DF254-DF404-G2-6-EN",
+    "title": "排气冒黑烟时从负荷、进气和燃烧条件排查",
+    "locator": "PDF物理第47页；印刷第47页；7.1.3 a",
+    "models": [
+      "DF254G2-6",
+      "DF304G2-6",
+      "DF354G2-6",
+      "DF404G2-6"
+    ],
+    "bodyHash": "286748e31d616fffe8ca2249509f75c56450acceb8f633cdf1f7a8ab2d63e1f9"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-DF254-DF404-G2-6-EN-SUP-019",
+    "source_id": "SRC-DONGFENG-DF254-DF404-G2-6-EN",
+    "title": "持续冒白烟时区分低温、雾化异常和汽缸进水",
+    "locator": "PDF物理第47页；印刷第47页；7.1.3 b",
+    "models": [
+      "DF254G2-6",
+      "DF304G2-6",
+      "DF354G2-6",
+      "DF404G2-6"
+    ],
+    "bodyHash": "c0af873f937ca63a9e56bc7768f54d935ba9e86f8a49ca75d29d2f731d456bbc"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-DF254-DF404-G2-6-EN-SUP-020",
+    "source_id": "SRC-DONGFENG-DF254-DF404-G2-6-EN",
+    "title": "发动机带负荷无力时核对进气、供油和压缩",
+    "locator": "PDF物理第48页；印刷第48页；7.1.4",
+    "models": [
+      "DF254G2-6",
+      "DF304G2-6",
+      "DF354G2-6",
+      "DF404G2-6"
+    ],
+    "bodyHash": "3d6e2251601590af424c58a53b592636609afd304190a481e979253c64f1293c"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-DF254-DF404-G2-6-EN-SUP-021",
+    "source_id": "SRC-DONGFENG-DF254-DF404-G2-6-EN",
+    "title": "柴油机强烈振动时区分各缸做功不均和发动机安装问题",
+    "locator": "PDF物理第49页；印刷第49页；7.1.6",
+    "models": [
+      "DF254G2-6",
+      "DF304G2-6",
+      "DF354G2-6",
+      "DF404G2-6"
+    ],
+    "bodyHash": "768bf7b416ed6861d1360e16d01f503d42c5a5e665f76c2bf8710e7c77849e39"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-DF254-DF404-G2-6-EN-SUP-022",
+    "source_id": "SRC-DONGFENG-DF254-DF404-G2-6-EN",
+    "title": "柴油机过热时检查负荷、冷却循环和润滑状态",
+    "locator": "PDF物理第49页；印刷第49页；7.1.7",
+    "models": [
+      "DF254G2-6",
+      "DF304G2-6",
+      "DF354G2-6",
+      "DF404G2-6"
+    ],
+    "bodyHash": "3aa59273de34c7b90682fac9cb0ee0d4d67a54ad4b3dbc0f9d95b551cc7a54b6"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-DF254-DF404-G2-6-EN-SUP-023",
+    "source_id": "SRC-DONGFENG-DF254-DF404-G2-6-EN",
+    "title": "柴油机自行熄火时分清供油中断和内部卡滞",
+    "locator": "PDF物理第50页；印刷第50页；7.1.12",
+    "models": [
+      "DF254G2-6",
+      "DF304G2-6",
+      "DF354G2-6",
+      "DF404G2-6"
+    ],
+    "bodyHash": "d88b8b85f3c6b196415bf0d96a6b3e6f9ffa3431bc4c3f5673226010d2dac445"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-DF254-DF404-G2-6-EN-SUP-024",
+    "source_id": "SRC-DONGFENG-DF254-DF404-G2-6-EN",
+    "title": "离合器打滑时从踏板行程查到从动盘与分离杠杆",
+    "locator": "PDF物理第50、51页；印刷第50、51页；7.2.1 第1项",
+    "models": [
+      "DF254G2-6",
+      "DF304G2-6",
+      "DF354G2-6",
+      "DF404G2-6"
+    ],
+    "bodyHash": "b666b26ba974eb6fdca1b76a09de3c3098bf97b28768c7bca30a338b152a4e10"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-DF254-DF404-G2-6-EN-SUP-025",
+    "source_id": "SRC-DONGFENG-DF254-DF404-G2-6-EN",
+    "title": "分离不彻底伴换挡响声时检查踏板与花键配合",
+    "locator": "PDF物理第51页；印刷第51页；7.2.1 第2项",
+    "models": [
+      "DF254G2-6",
+      "DF304G2-6",
+      "DF354G2-6",
+      "DF404G2-6"
+    ],
+    "bodyHash": "2435da14f63150a9137c55e1c48f49c85fd1f0cd499177d763113f03bf8beba0"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-DF254-DF404-G2-6-EN-SUP-026",
+    "source_id": "SRC-DONGFENG-DF254-DF404-G2-6-EN",
+    "title": "离合器本体振动并发响时定位分离轴承和从动盘花键",
+    "locator": "PDF物理第51页；印刷第51页；7.2.1 第3项",
+    "models": [
+      "DF254G2-6",
+      "DF304G2-6",
+      "DF354G2-6",
+      "DF404G2-6"
+    ],
+    "bodyHash": "11c6b30e022c25ce2d8272b841df468745bcdbe8fafe15e83cdf073f5b10995f"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-DF254-DF404-G2-6-EN-SUP-027",
+    "source_id": "SRC-DONGFENG-DF254-DF404-G2-6-EN",
+    "title": "变速箱异响时区分轴承、主传动齿轮和花键磨损",
+    "locator": "PDF物理第51、52页；印刷第51、52页；7.2.3 第1项",
+    "models": [
+      "DF254G2-6",
+      "DF304G2-6",
+      "DF354G2-6",
+      "DF404G2-6"
+    ],
+    "bodyHash": "04af112ade3441911de141137561745ae13c0d4b2faf30685e2fbffbabd03592"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-DF254-DF404-G2-6-EN-SUP-028",
+    "source_id": "SRC-DONGFENG-DF254-DF404-G2-6-EN",
+    "title": "挂挡后自行跳挡时检查换档拨叉及轴上定位弹簧",
+    "locator": "PDF物理第52页；印刷第52页；7.2.3 第2项",
+    "models": [
+      "DF254G2-6",
+      "DF304G2-6",
+      "DF354G2-6",
+      "DF404G2-6"
+    ],
+    "bodyHash": "647de601e0f7b903e9290c719227dc2003e33878f380a4fa3ea633690757f2ad"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-DF254-DF404-G2-6-EN-SUP-029",
+    "source_id": "SRC-DONGFENG-DF254-DF404-G2-6-EN",
+    "title": "变速箱过热时同时检查油量过多和油量不足",
+    "locator": "PDF物理第52页；印刷第52页；7.2.3 第3项",
+    "models": [
+      "DF254G2-6",
+      "DF304G2-6",
+      "DF354G2-6",
+      "DF404G2-6"
+    ],
+    "bodyHash": "c2a17b14017c7e1a2979dac44e1988c03b487e656f833c52c00695c003030e91"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-DF254-DF404-G2-6-EN-SUP-030",
+    "source_id": "SRC-DONGFENG-DF254-DF404-G2-6-EN",
+    "title": "前轮摆动时检查轴承、主销衬套和转向连接",
+    "locator": "PDF物理第52页；印刷第52页；7.2.4 第1项",
+    "models": [
+      "DF254G2-6",
+      "DF304G2-6",
+      "DF354G2-6",
+      "DF404G2-6"
+    ],
+    "bodyHash": "c7e54599d8fcdbd1171aec00bc3f5e424637c4f484fb8d388bb27e5ad147a9d3"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-DF254-DF404-G2-6-EN-SUP-031",
+    "source_id": "SRC-DONGFENG-DF254-DF404-G2-6-EN",
+    "title": "前胎提前磨损时先核对气压与前束",
+    "locator": "PDF物理第52页；印刷第52页；7.2.4 第2项",
+    "models": [
+      "DF254G2-6",
+      "DF304G2-6",
+      "DF354G2-6",
+      "DF404G2-6"
+    ],
+    "bodyHash": "f9bec613d5061b8d60d6a4e29ff8780aa7d61c95a427fac25b68cda9c7b91af0"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-DF254-DF404-G2-6-EN-SUP-032",
+    "source_id": "SRC-DONGFENG-DF254-DF404-G2-6-EN",
+    "title": "全液压转向变重时检查吸油侧、油液和油缸",
+    "locator": "PDF物理第53页；印刷第53页；7.2.5 第1项",
+    "models": [
+      "DF254G2-6",
+      "DF304G2-6",
+      "DF354G2-6",
+      "DF404G2-6"
+    ],
+    "bodyHash": "e48eb9c66e960a026e89836a4684081d0a4a34af6fc81d3cf0dc754b0c916ef1"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-DF254-DF404-G2-6-EN-SUP-033",
+    "source_id": "SRC-DONGFENG-DF254-DF404-G2-6-EN",
+    "title": "完全失去转向时检查转子随动轴装配与阀体单向阀",
+    "locator": "PDF物理第53页；印刷第53页；7.2.5 第3至4项",
+    "models": [
+      "DF254G2-6",
+      "DF304G2-6",
+      "DF354G2-6",
+      "DF404G2-6"
+    ],
+    "bodyHash": "5d8debafcd5c3dfe89852121d4ffed3a714815944ec9983f171b00d9bed27d6f"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-DF254-DF404-G2-6-EN-SUP-034",
+    "source_id": "SRC-DONGFENG-DF254-DF404-G2-6-EN",
+    "title": "提升无力或无动作时区分油源、阀件和油缸泄漏",
+    "locator": "PDF物理第53页；印刷第53页；7.2.6 第1项",
+    "models": [
+      "DF254G2-6",
+      "DF304G2-6",
+      "DF354G2-6",
+      "DF404G2-6"
+    ],
+    "bodyHash": "841508c993d436872665cdcec7b81779699f90565bf7d15b1f8a3e4a70c890b9"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-DF254-DF404-G2-6-EN-SUP-035",
+    "source_id": "SRC-DONGFENG-DF254-DF404-G2-6-EN",
+    "title": "悬挂机具不能下降时区分锁止阀关闭与主阀卡滞",
+    "locator": "PDF物理第53页；印刷第53页；7.2.6 第2项",
+    "models": [
+      "DF254G2-6",
+      "DF304G2-6",
+      "DF354G2-6",
+      "DF404G2-6"
+    ],
+    "bodyHash": "026f103e59a42a6421d3dd1132b345bda600b7a5f861041009b57369615973e0"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-DF254-DF404-G2-6-EN-SUP-036",
+    "source_id": "SRC-DONGFENG-DF254-DF404-G2-6-EN",
+    "title": "蓄电池常亏电和充电时过热的检查区别",
+    "locator": "PDF物理第54页；印刷第54页；7.3.1 第1至2项",
+    "models": [
+      "DF254G2-6",
+      "DF304G2-6",
+      "DF354G2-6",
+      "DF404G2-6"
+    ],
+    "bodyHash": "ddb080ad14cfb1f42f3406a938ad32b3dfde293f83a11c036e1e8189f8b26a2a"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-DF254-DF404-G2-6-EN-SUP-037",
+    "source_id": "SRC-DONGFENG-DF254-DF404-G2-6-EN",
+    "title": "发电机完全不发电时核对整流器、电刷和绕组",
+    "locator": "PDF物理第54页；印刷第54页；7.3.2 第1项",
+    "models": [
+      "DF254G2-6",
+      "DF304G2-6",
+      "DF354G2-6",
+      "DF404G2-6"
+    ],
+    "bodyHash": "766fc6937fda62cd2531021f0c4998b52c97ae1eccd3647e517b485476170773"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-DF254-DF404-G2-6-EN-SUP-038",
+    "source_id": "SRC-DONGFENG-DF254-DF404-G2-6-EN",
+    "title": "发电机仍有输出但功率不足时检查皮带和整流部件",
+    "locator": "PDF物理第54页；印刷第54页；7.3.2 第2项",
+    "models": [
+      "DF254G2-6",
+      "DF304G2-6",
+      "DF354G2-6",
+      "DF404G2-6"
+    ],
+    "bodyHash": "463d80c6d4cd5707e5e63e36365956d68c7a6400c6e0101ac0d60c868ab3e888"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-DF254-DF404-G2-6-EN-SUP-039",
+    "source_id": "SRC-DONGFENG-DF254-DF404-G2-6-EN",
+    "title": "发电机输出电流忽高忽低时检查接线端子和刷簧",
+    "locator": "PDF物理第54页；印刷第54页；7.3.2 第3项",
+    "models": [
+      "DF254G2-6",
+      "DF304G2-6",
+      "DF354G2-6",
+      "DF404G2-6"
+    ],
+    "bodyHash": "97fad6cdc26a6074cd8f09ba32b3a9f3d38ed2722008ce86202ef5c571052dd0"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-DF254-DF404-G2-6-EN-SUP-040",
+    "source_id": "SRC-DONGFENG-DF254-DF404-G2-6-EN",
+    "title": "发电机机械异响时核对安装、轴承和转子擦碰",
+    "locator": "PDF物理第54页；印刷第54页；7.3.2 第4项",
+    "models": [
+      "DF254G2-6",
+      "DF304G2-6",
+      "DF354G2-6",
+      "DF404G2-6"
+    ],
+    "bodyHash": "c8b0dfa11237db2d694f1e8f59b840feaa3538eb0813a79a1d68339a87b68040"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-DF254-DF404-G2-6-EN-SUP-041",
+    "source_id": "SRC-DONGFENG-DF254-DF404-G2-6-EN",
+    "title": "起动机完全不转时由外部供电查到换向器接触",
+    "locator": "PDF物理第55页；印刷第55页；7.3.3 第1项",
+    "models": [
+      "DF254G2-6",
+      "DF304G2-6",
+      "DF354G2-6",
+      "DF404G2-6"
+    ],
+    "bodyHash": "9a637d1d2eb91a689c3b4d54a2ce62cd0ebcc045cd27a89877b4182017b12aa7"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-DF254-DF404-G2-6-EN-SUP-042",
+    "source_id": "SRC-DONGFENG-DF254-DF404-G2-6-EN",
+    "title": "起动机已转动但不能带动发动机时核查轴套与电枢",
+    "locator": "PDF物理第55页；印刷第55页；7.3.3 第2项",
+    "models": [
+      "DF254G2-6",
+      "DF304G2-6",
+      "DF354G2-6",
+      "DF404G2-6"
+    ],
+    "bodyHash": "0401ff838faec2a0af6fbba50acf39d86f92545cfdc70943e2d10e75ee42c513"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-DF254-DF404-G2-6-EN-SUP-043",
+    "source_id": "SRC-DONGFENG-DF254-DF404-G2-6-EN",
+    "title": "发动机起动后起动机持续运转的电磁开关检查",
+    "locator": "PDF物理第55页；印刷第55页；7.3.3 第3项",
+    "models": [
+      "DF254G2-6",
+      "DF304G2-6",
+      "DF354G2-6",
+      "DF404G2-6"
+    ],
+    "bodyHash": "2dd23a6fc2576c4e408191cb3804a0d98d093ad1197dff6863001d30b70f99f9"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-DF254-DF404-G2-6-EN-SUP-044",
+    "source_id": "SRC-DONGFENG-DF254-DF404-G2-6-EN",
+    "title": "起动机啮合前撞击齿圈端面时核对铁芯行程",
+    "locator": "PDF物理第55页；印刷第55页；7.3.3 第4项",
+    "models": [
+      "DF254G2-6",
+      "DF304G2-6",
+      "DF354G2-6",
+      "DF404G2-6"
+    ],
+    "bodyHash": "4747eeed330d9cbd55f9374afe87e2c60ccbc8a9c7f66123f416d0c485f099cc"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-DF254-DF404-G2-6-EN-SUP-045",
+    "source_id": "SRC-DONGFENG-DF254-DF404-G2-6-EN",
+    "title": "小功率组悬挂调整时核对提升杆长度与对应提升行程",
+    "locator": "PDF物理第55、56页；印刷第55、56页；附录1 三点悬挂运动图和表",
+    "models": [
+      "DF254G2-6",
+      "DF304G2-6"
+    ],
+    "bodyHash": "41881cf44a2a2f75e0d585fcf06d6d3a6d989638b7e2e63e3849d862dde97770"
+  },
+  {
+    "brand": "东风",
+    "entry_id": "KB-DONGFENG-DF254-DF404-G2-6-EN-SUP-046",
+    "source_id": "SRC-DONGFENG-DF254-DF404-G2-6-EN",
+    "title": "大功率组悬挂调整时核对提升杆长度与对应提升行程",
+    "locator": "PDF物理第57页；印刷第57页；附录2 三点悬挂运动图和表",
+    "models": [
+      "DF354G2-6",
+      "DF404G2-6"
+    ],
+    "bodyHash": "b64047a8b6dee20dda901be8e2112fd4cfa85cc6ef3669cbcbeb6f1ebe0a1f2d"
+  }
+]

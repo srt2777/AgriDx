@@ -1,0 +1,83 @@
+[
+  {
+    "brand": "东风",
+    "model": "DF254G2-6",
+    "query": "检修三点悬挂要核对提升杆的长度和提升行程。手册给出的尺寸是多少？",
+    "expected": "KB-DONGFENG-DF254-DF404-G2-6-EN-SUP-045",
+    "page": "55、56",
+    "prefix": "KB-DONGFENG-DF254-DF404-G2-6-EN-SUP-",
+    "eligible": true,
+    "excluded": "KB-DONGFENG-DF254-DF404-G2-6-EN-SUP-046",
+    "answerTerms": [
+      "411 mm",
+      "468 mm",
+      "55、56"
+    ]
+  },
+  {
+    "brand": "东风",
+    "model": "DF304G2-6",
+    "query": "检修三点悬挂要核对提升杆的长度和提升行程。手册给出的尺寸是多少？",
+    "expected": "KB-DONGFENG-DF254-DF404-G2-6-EN-SUP-045",
+    "page": "55、56",
+    "prefix": "KB-DONGFENG-DF254-DF404-G2-6-EN-SUP-",
+    "eligible": true,
+    "excluded": "KB-DONGFENG-DF254-DF404-G2-6-EN-SUP-046",
+    "answerTerms": [
+      "411 mm",
+      "468 mm",
+      "55、56"
+    ]
+  },
+  {
+    "brand": "东风",
+    "model": "DF354G2-6",
+    "query": "检修三点悬挂要核对提升杆的长度和提升行程。手册给出的尺寸是多少？",
+    "expected": "KB-DONGFENG-DF254-DF404-G2-6-EN-SUP-046",
+    "page": "第57页",
+    "prefix": "KB-DONGFENG-DF254-DF404-G2-6-EN-SUP-",
+    "eligible": true,
+    "excluded": "KB-DONGFENG-DF254-DF404-G2-6-EN-SUP-045",
+    "answerTerms": [
+      "550 mm",
+      "544 mm",
+      "第57页"
+    ]
+  },
+  {
+    "brand": "东风",
+    "model": "DF404G2-6",
+    "query": "检修三点悬挂要核对提升杆的长度和提升行程。手册给出的尺寸是多少？",
+    "expected": "KB-DONGFENG-DF254-DF404-G2-6-EN-SUP-046",
+    "page": "第57页",
+    "prefix": "KB-DONGFENG-DF254-DF404-G2-6-EN-SUP-",
+    "eligible": true,
+    "excluded": "KB-DONGFENG-DF254-DF404-G2-6-EN-SUP-045",
+    "answerTerms": [
+      "550 mm",
+      "544 mm",
+      "第57页"
+    ]
+  },
+  {
+    "brand": "东风",
+    "model": "DF504",
+    "query": "测机油前，发动机应该停多长时间？",
+    "expected": "KB-DONGFENG-DF504-DF554-RU-SUP-042",
+    "page": "51、52",
+    "prefix": "KB-DONGFENG-DF504-DF554-RU-",
+    "eligible": true,
+    "excluded": null,
+    "answerTerms": [
+      "15 分钟",
+      "印刷第51、52页"
+    ]
+  },
+  {
+    "brand": "东方红",
+    "model": "DF504",
+    "query": "测机油前，发动机应该停多长时间？",
+    "prefix": "KB-DONGFENG-DF504-DF554-RU-",
+    "eligible": false
+  }
+]
