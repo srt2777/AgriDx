@@ -9576,5 +9576,62 @@
       "427": "印刷页脚 300BA-2。相关项目已对照原件。"
     },
     "minimum_machine_serial": "100001"
+  },
+  {
+    "source_id": "SRC-BENYE-BY350-BY404-35-40-EN",
+    "brand": "奔野",
+    "models": [
+      "BY350",
+      "BY354",
+      "BY400",
+      "BY404"
+    ],
+    "model_ids": [
+      "BY350",
+      "BY354",
+      "BY400",
+      "BY404"
+    ],
+    "model": "BY350 / BY354 / BY400 / BY404",
+    "title": "BENYE 35–40 Series Tractor 英文使用保养手册",
+    "title_status": "已核对",
+    "title_evidence": "PDF物理第6页前言与第7页整机技术参数表",
+    "publisher": "BENYE 前言署名，法定公司名称待核实",
+    "document_type": "整机使用保养手册",
+    "source_level": "公开分发英文原件",
+    "role": "保养、底盘调整及故障排查",
+    "path": "知识库/原始农机说明书/奔野/BY350-BY404-EN/来源记录.md",
+    "url": "https://tractormanualz.com/wp-content/uploads/2019/04/Benye-35-50-Shop-Manual.pdf",
+    "download_url": "https://tractormanualz.com/wp-content/uploads/2019/04/Benye-35-50-Shop-Manual.pdf",
+    "version": "英文35–40系列，原件发行日期未载",
+    "language": "英语",
+    "scope_boundary": "限英文原件规格表的 BY350、BY354、BY400 与 BY404。原件未标发行市场及日期，须核对实装部件及驱动型式。",
+    "status": "所列原文与表格已核对，保留总成和版本限制。",
+    "collected_at": "2026-11-15",
+    "storage_type": "link_and_source_record",
+    "manual_sha256": "e5ade71e0113ffef152f722639b0405c121f54639db2a99a6e8d3fe007028e94",
+    "manual_pdf_pages": 61,
+    "manual_bytes": 1654587,
+    "sha256": "71e38a824b760135092e0bd664bbef9fe7dddbaa758c2c5f573e3b2424f8125a",
+    "bytes": 1810,
+    "hash_scope": "sha256 与 bytes 对应本地来源记录，manual_* 对应取得的原件。",
+    "verified_pdf_pages": {
+      "6": "前言明确 BENYE 35–40 系列，列出四驱型的液压转向及前桥结构。",
+      "7": "技术规格表逐列列出四个铭牌型号及两驱、四驱型式。",
+      "27": "核对印刷第 26 页的技术正文或表格",
+      "28": "核对印刷第 27 页的技术正文或表格",
+      "29": "核对印刷第 28 页的技术正文或表格",
+      "30": "核对印刷第 29 页的技术正文或表格",
+      "31": "核对印刷第 30 页的技术正文或表格",
+      "33": "核对印刷第 32 页的技术正文或表格",
+      "34": "核对印刷第 33 页的技术正文或表格",
+      "36": "核对印刷第 35 页的技术正文或表格",
+      "44": "核对印刷第 43 页的技术正文或表格",
+      "45": "核对印刷第 44 页的技术正文或表格",
+      "46": "核对印刷第 45 页的技术正文或表格",
+      "47": "核对印刷第 46 页的技术正文或表格",
+      "48": "核对印刷第 47 页的技术正文或表格"
+    },
+    "knowledge_path": "知识库/整理后的知识库/农用拖拉机知识库/机型知识卡/奔野-BY350-BY404-英文手册.md"
   }
 ]
