@@ -124,7 +124,7 @@ function prepareChunk(chunk: KnowledgeChunk): IndexedChunk {
   return { chunk: { ...chunk, diagnosticMetadata: deriveDiagnosticMetadata(chunk) },
     heading, haystack: `${heading}\n${body}`.toLowerCase(),
     applicabilityKey: JSON.stringify([chunk.brand, chunk.model, chunk.models, chunk.requiresExactModel,
-      chunk.configuration, chunk.driveConfiguration, chunk.emissionStage, chunk.emissionStageUnknown]) };
+      chunk.configuration, chunk.driveConfiguration, chunk.emissionStage, chunk.emissionStageUnknown, chunk.minimumMachineSerial]) };
 }
 
 /** Cache stores public static documents only; returned arrays/metadata cannot mutate it. */

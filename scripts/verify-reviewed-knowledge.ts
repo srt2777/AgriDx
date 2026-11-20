@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { execFileSync, spawn } from 'node:child_process';
-import { createReadStream } from 'node:fs';
+import { createReadStream, readFileSync } from 'node:fs';
 import { once } from 'node:events';
 import { createInterface } from 'node:readline';
 import { buildContextRegistry } from '../agent/context-tools';
@@ -28,6 +28,10 @@ for await (const line of createInterface({ input: original.stdout, crlfDelay: In
 }
 assert.equal((await gitClose)[0], 0, '无法读取基线知识索引');
 
+const sourceRows = JSON.parse(readFileSync(indexPath.replace('entries.jsonl', 'sources.json'), 'utf8')) as
+  { source_id: string; minimum_machine_serial?: string }[];
+const serialMinimums = new Map(sourceRows.map(source => [source.source_id, source.minimum_machine_serial]));
+
 const agent = new ToolExecutor(buildContextRegistry());
 
 async function search(query: string, brand: string, model: string) {
@@ -52,15 +56,24 @@ for await (const line of createInterface({ input: createReadStream(indexPath), c
   assert.equal(detail.entryId, id);
   assert.equal(detail.sourceId, sourceId);
   assert.ok(detail.content.includes(locator), id);
+  const minimumSerial = serialMinimums.get(sourceId);
+  const prefix = minimumSerial ? `整机序列号 ${minimumSerial}，` : '';
   for (const model of models) {
-    const hits = await search(title, brand, model);
+    const hits = await search(prefix + title, brand, model);
     assert.ok(hits.some(hit => hit.entryId === id && hit.sourceId === sourceId && hit.locator === locator),
       `${id}: ${brand} ${model} 未检索到正确来源和定位`);
+    if (minimumSerial) {
+      const earlier = String(Number(minimumSerial) - 1).padStart(6, '0');
+      for (const excluded of [title, `整机序列号 ${earlier}，${title}`, `零件号 ${minimumSerial}，${title}`]) {
+        const incorrect = await search(excluded, brand, model);
+        assert.ok(incorrect.every(hit => hit.sourceId !== sourceId), `${id}: ${excluded}`);
+      }
+    }
     matchedModels++;
   }
   const wrong = /\(G4\)$/i.test(models[0]) ? models[0].replace(/\(G4\)$/i, '') : `${models[0]}(G4A)`;
   if (!models.includes(wrong)) {
-    const unexpected = await search(id, brand, wrong);
+    const unexpected = await search(prefix + id, brand, wrong);
     assert.ok(unexpected.every(hit => hit.entryId !== id), `${id}: 错型号 ${wrong} 召回了条目`);
     rejectedModels++;
   }

@@ -107438,6 +107438,581 @@
           "part_ids": []
         }
       ]
+    },
+    {
+      "entry_id": "KB-JD-7M-OMAL249107-100001-CN-001",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": []
+        },
+        {
+          "component_id": "electrical",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-7M-OMAL249107-100001-CN-002",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-7M-OMAL249107-100001-CN-003",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": []
+        },
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-7M-OMAL249107-100001-CN-004",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": []
+        },
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-7M-OMAL249107-100001-CN-005",
+      "components": [
+        {
+          "component_id": "pto",
+          "part_ids": []
+        },
+        {
+          "component_id": "hydraulics",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-7M-OMAL249107-100001-CN-006",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-7M-OMAL249107-100001-CN-007",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-7M-OMAL249107-100001-CN-008",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-7M-OMAL249107-100001-CN-009",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-7M-OMAL249107-100001-CN-010",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-7M-OMAL249107-100001-CN-011",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hydraulic-filter"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-7M-OMAL249107-100001-CN-012",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hydraulic-cooler"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-7M-OMAL249107-100001-CN-013",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-7M-OMAL249107-100001-CN-014",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-7M-OMAL249107-100001-CN-015",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hydraulic-cylinder"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-7M-OMAL249107-100001-CN-016",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": [
+            "hydraulic-valve"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-7M-OMAL249107-100001-CN-017",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-7M-OMAL249107-100001-CN-018",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-7M-OMAL249107-100001-CN-019",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-7M-OMAL249107-100001-CN-020",
+      "components": [
+        {
+          "component_id": "fuel",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-7M-OMAL249107-100001-CN-021",
+      "components": [
+        {
+          "component_id": "cooling",
+          "part_ids": [
+            "fan-belt"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-7M-OMAL249107-100001-CN-022",
+      "components": [
+        {
+          "component_id": "lubrication",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-7M-OMAL249107-100001-CN-023",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": [
+            "air-filter"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-7M-OMAL249107-100001-CN-024",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-7M-OMAL249107-100001-CN-025",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "battery"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-7M-OMAL249107-100001-CN-026",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "starter"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-7M-OMAL249107-100001-CN-027",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "starter"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-7M-OMAL249107-100001-CN-028",
+      "components": [
+        {
+          "component_id": "cab",
+          "part_ids": [
+            "cab-filter"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-7M-OMAL249107-100001-CN-029",
+      "components": [
+        {
+          "component_id": "cab",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-7M-OMAL249107-100001-CN-030",
+      "components": [
+        {
+          "component_id": "cab",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-7M-OMAL249107-100001-CN-031",
+      "components": [
+        {
+          "component_id": "cab",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-7M-OMAL249107-100001-CN-032",
+      "components": [
+        {
+          "component_id": "cab",
+          "part_ids": [
+            "condenser"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-7M-OMAL249107-100001-CN-033",
+      "components": [
+        {
+          "component_id": "electrical",
+          "part_ids": [
+            "fuse"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-7M-OMAL249107-100001-CN-034",
+      "components": [
+        {
+          "component_id": "chassis",
+          "part_ids": [
+            "tyre"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-7M-OMAL249107-100001-CN-035",
+      "components": [
+        {
+          "component_id": "hydraulics",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-7M-OMAL249107-100001-CN-036",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-7M-OMAL249107-100001-CN-037",
+      "components": [
+        {
+          "component_id": "pto",
+          "part_ids": [
+            "pto-shaft"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-7M-OMAL249107-100001-CN-038",
+      "components": [
+        {
+          "component_id": "transmission",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-7M-OMAL249107-100001-CN-040",
+      "components": [
+        {
+          "component_id": "chassis",
+          "part_ids": [
+            "wheel-rim"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-7M-OMAL249107-100001-CN-041",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-7M-OMAL249107-100001-CN-042",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": [
+            "exhaust-aftertreatment"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-7M-OMAL249107-100001-CN-043",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": [
+            "air-filter"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-7M-OMAL249107-100001-CN-044",
+      "components": [
+        {
+          "component_id": "cab",
+          "part_ids": [
+            "cab-filter"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-7M-OMAL249107-100001-CN-045",
+      "components": [
+        {
+          "component_id": "cab",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-7M-OMAL249107-100001-CN-046",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-7M-OMAL249107-100001-CN-047",
+      "components": [
+        {
+          "component_id": "lubrication",
+          "part_ids": [
+            "oil-filter"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-7M-OMAL249107-100001-CN-048",
+      "components": [
+        {
+          "component_id": "lubrication",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-7M-OMAL249107-100001-CN-049",
+      "components": [
+        {
+          "component_id": "lubrication",
+          "part_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-7M-OMAL249107-100001-CN-050",
+      "components": [
+        {
+          "component_id": "cooling",
+          "part_ids": [
+            "radiator"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-7M-OMAL249107-100001-CN-051",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": [
+            "air-filter"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-7M-OMAL249107-100001-CN-052",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": [
+            "air-filter"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-7M-OMAL249107-100001-CN-053",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": [
+            "air-filter"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-7M-OMAL249107-100001-CN-054",
+      "components": [
+        {
+          "component_id": "cab",
+          "part_ids": [
+            "cab-filter"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-7M-OMAL249107-100001-CN-055",
+      "components": [
+        {
+          "component_id": "fuel",
+          "part_ids": [
+            "fuel-filter",
+            "water-separator"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-7M-OMAL249107-100001-CN-056",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": [
+            "exhaust-aftertreatment"
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "KB-JD-7M-OMAL249107-100001-CN-057",
+      "components": [
+        {
+          "component_id": "engine",
+          "part_ids": [
+            "exhaust-aftertreatment"
+          ]
+        }
+      ]
     }
   ]
 }

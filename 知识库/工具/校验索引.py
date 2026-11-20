@@ -300,6 +300,10 @@ class ArchiveAudit:
                     'source.model_ids', 'model_ids须为非空、无重复的规范型号编号列表', 'model_ids')
             if 'models' in source:
                 require(check_models(source['models']), 'scope.models', '精确型号列表无效或重复', 'models')
+            if 'minimum_machine_serial' in source:
+                serial = source['minimum_machine_serial']
+                require(isinstance(serial, str) and bool(re.fullmatch('[0-9]{6}', serial)) and check_models(source.get('models')),
+                        'scope.serial', '整机起始序列号须为六位数字并声明精确机型', 'minimum_machine_serial')
             path = self.resolved(source['path'], '知识库/原始农机说明书')
             require(bool(re.fullmatch(r'[a-f0-9]{64}', source['sha256'])) and self.track(path) == source['sha256'],
                     'source.file', '本地文件SHA256不符', 'sha256')

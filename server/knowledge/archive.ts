@@ -108,6 +108,7 @@ export interface ArchiveSource {
   models?: string[];
   configuration?: 'CAB' | 'ROPS';
   drive_configuration?: '2WD' | '4WD';
+  minimum_machine_serial?: string;
   emission_stage?: '国三' | '国四';
   emission_stage_unknown?: boolean;
 }
@@ -146,6 +147,10 @@ export function loadArchive(archiveRoot = ARCHIVE_ROOT, options: { configureMode
     }
     if (source.drive_configuration !== undefined && !['2WD', '4WD'].includes(source.drive_configuration)) {
       throw new Error(`知识来源驱动配置无效：${source.source_id}`);
+    }
+    if (source.minimum_machine_serial !== undefined &&
+        (typeof source.minimum_machine_serial !== 'string' || !/^\d{6}$/.test(source.minimum_machine_serial) || !source.models?.length)) {
+      throw new Error(`知识来源整机序列号范围无效：${source.source_id}`);
     }
     if (sourceMap.has(source.source_id)) throw new Error(`来源编号重复：${source.source_id}`);
     sourceMap.set(source.source_id, source);
@@ -233,6 +238,7 @@ export function loadArchive(archiveRoot = ARCHIVE_ROOT, options: { configureMode
       requiresExactModel: entry.models !== undefined,
       configuration: entry.configuration ?? source.configuration,
       driveConfiguration: entry.drive_configuration ?? source.drive_configuration,
+      minimumMachineSerial: source.minimum_machine_serial,
       emissionStage: entry.emission_stage ?? source.emission_stage,
       emissionStageUnknown: source.emission_stage_unknown,
       sourceUrl: source.url,

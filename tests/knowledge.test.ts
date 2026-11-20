@@ -59,9 +59,10 @@ test('indexes each archived entry exactly once and preserves the 9 existing chun
       entry_id: string; source_id: string; title: string; brand: string; model: string; models?: string[]; entry_type: string;
     });
   const sources = JSON.parse(fs.readFileSync('知识库/整理后的知识库/农用拖拉机知识库/sources.json', 'utf8')) as {
-    source_id: string; models?: string[];
+    source_id: string; models?: string[]; minimum_machine_serial?: string;
   }[];
   const sourceModels = new Map(sources.map((source) => [source.source_id, source.models]));
+  const serialLimits = new Map(sources.map(source => [source.source_id, source.minimum_machine_serial]));
   assert.equal(stats().archivedEntries, indexed.length);
   assert.equal(stats().chunks, indexed.length + stats().learningEntries + 9);
   const entries = indexed.map(({ entry_id, source_id, title, brand, model, models, entry_type }) => {
@@ -78,7 +79,9 @@ test('indexes each archived entry exactly once and preserves the 9 existing chun
       // reads as an identity conflict and returns nothing.
       exactModel = titleModels.join('/');
     }
-    const found = retrieve(title, indexed.length, { ...tractor, brand, model: exactModel });
+    const minimum = serialLimits.get(source_id);
+    const query = minimum ? `整机序列号 ${minimum}，${title}` : title;
+    const found = retrieve(query, indexed.length, { ...tractor, brand, model: exactModel });
     const chunk = expectEntry(found, entry_id);
     assert.ok(chunk.sourceId);
     assert.deepEqual(chunk.indexedReference, { entryId: chunk.entryId, sourceId: chunk.sourceId });
@@ -91,6 +94,24 @@ test('indexes each archived entry exactly once and preserves the 9 existing chun
     return chunk.entryId;
   });
   assert.equal(new Set(entries).size, indexed.length);
+});
+
+test('7M conditional manual only applies to an exact machine and an eligible individual serial', () => {
+  const context = { ...tractor, brand: '约翰迪尔', model: '7M-2304' };
+  const id = 'KB-JD-7M-OMAL249107-100001-CN-052';
+  const lookup = (identity: string, model = context.model) =>
+    retrieve(`${identity}，进气受限报警时，初级滤芯的清洁次数和换件条件`, 10, { ...context, model })
+      .filter(chunk => chunk.sourceId === 'SRC-JD-7M-OMAL249107-100001-CN');
+  for (const serial of ['100001', '120005']) {
+    const matches = lookup(`我的整机序列号是 ${serial}`);
+    assert.ok(matches.some(chunk => chunk.entryId === id && chunk.applicability === 'matched'));
+  }
+  for (const label of ['', '零件号100001', '整机序列号100000', '整机序列号100001起',
+    '整机序列号100001到110001', '整机序列号100001或099999', '整机序列号100001及以后',
+    '整机序列号100001，整机编号099999', '整机序列号100001A', '手册注明整机序列号100001']) {
+    assert.equal(lookup(label).length, 0, label);
+  }
+  assert.equal(lookup('整机序列号100001', '7M-2204').length, 0);
 });
 
 test('source model lists select only an exact documented John Deere configuration', () => {

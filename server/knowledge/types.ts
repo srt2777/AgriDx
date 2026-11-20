@@ -21,6 +21,7 @@ export interface KnowledgeChunk {
   requiresExactModel?: boolean;
   configuration?: 'CAB' | 'ROPS';
   driveConfiguration?: '2WD' | '4WD';
+  minimumMachineSerial?: string;
   emissionStage?: '国三' | '国四';
   /** Unresolved source evidence forbids inferring emissions from a model suffix. */
   emissionStageUnknown?: boolean;
